@@ -7,4 +7,6 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+csv = { workspace = true }
 duckdb = { workspace = true }
+thiserror = { workspace = true }
