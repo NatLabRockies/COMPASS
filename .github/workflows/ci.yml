@@ -21,9 +21,11 @@ jobs:
           cache: true
           frozen: true
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Run cargo check
         run: |
-          pixi run --frozen cargo check
+          pixi run --frozen cargo check --workspace
 
   lints:
     name: Lints
@@ -38,6 +40,8 @@ jobs:
           cache: true
           frozen: true
 
+      - uses: Swatinem/rust-cache@v2
+
       - name: Run cargo fmt
         run: |
           pixi run --frozen cargo fmt --all --check
@@ -45,3 +49,37 @@ jobs:
       - name: Run cargo clippy
         run: |
           pixi run --frozen cargo clippy --all-features --tests -- -D warnings
+
+  test:
+    # Only run tests if code looks good
+    needs: check
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        build: [beta, stable, windows, macos]
+        include:
+          - build: macos
+            os: macos-latest
+            rust: stable
+          - build: windows
+            os: windows-latest
+            rust: stable
+          - build: beta
+            os: ubuntu-latest
+            rust: beta
+          - build: stable
+            os: ubuntu-latest
+            rust: stable
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: prefix-dev/setup-pixi@v0.8.1
+        with:
+          pixi-version: v0.37.0
+          cache: true
+          frozen: true
+
+      - uses: Swatinem/rust-cache@v2
+
+      - run: pixi run --frozen cargo test --workspace --no-fail-fast
