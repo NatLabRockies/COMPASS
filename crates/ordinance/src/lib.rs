@@ -5,6 +5,8 @@
 mod error;
 
 use duckdb::Connection;
+use serde::Serialize;
+
 use error::Result;
 
 /// Initialize the database
@@ -123,6 +125,43 @@ fn scan_features(db_filename: &str, raw_filename: &str) {
         .unwrap();
     }
     //let df = polars::io::csv::read::CsvReadOptions::default().with_has_header(true).try_into_reader_with_file_path(Some("sample.csv".into())).unwrap().finish();
+}
+
+#[derive(Debug, Serialize)]
+struct Ordinance {
+    county: String,
+    state: String,
+    fips: i32,
+    feature: String,
+}
+
+/// Export the database
+///
+/// Currently, it is a proof of concept. It reads the database and prints
+/// some fields to the standard output in CSV format.
+pub fn export_db(db_filename: &str) {
+    let conn = Connection::open(db_filename).unwrap();
+    let mut stmt = conn
+        .prepare("SELECT county, state, fips, feature FROM property")
+        .expect("Failed to prepare statement");
+    //dbg!("Row count", stmt.row_count());
+    let row_iter = stmt
+        .query_map([], |row| {
+            Ok(Ordinance {
+                county: row.get(0)?,
+                state: row.get(1)?,
+                fips: row.get(2)?,
+                feature: row.get(3)?,
+            })
+        })
+        .expect("Failed to query");
+
+    let mut wtr = csv::Writer::from_writer(std::io::stdout());
+
+    for row in row_iter {
+        wtr.serialize(row.unwrap()).unwrap();
+    }
+    wtr.flush().unwrap();
 }
 
 #[cfg(test)]

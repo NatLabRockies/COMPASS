@@ -17,7 +17,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.37.0
+          pixi-version: v0.39.0
           cache: true
           frozen: true
 
@@ -28,6 +28,8 @@ jobs:
           pixi run --frozen cargo check --workspace
 
   lints:
+    # Only run tests if code looks OK
+    needs: check
     name: Lints
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +38,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.37.0
+          pixi-version: v0.39.0
           cache: true
           frozen: true
 
@@ -51,7 +53,7 @@ jobs:
           pixi run --frozen cargo clippy --all-features --tests -- -D warnings
 
   test:
-    # Only run tests if code looks good
+    # Only run tests if code looks OK
     needs: check
     runs-on: ${{ matrix.os }}
     strategy:
@@ -76,7 +78,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.1
         with:
-          pixi-version: v0.37.0
+          pixi-version: v0.39.0
           cache: true
           frozen: true
 
