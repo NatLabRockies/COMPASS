@@ -3,6 +3,7 @@
 //! NREL's ordinance database
 
 mod error;
+mod scraper;
 
 use duckdb::Connection;
 use serde::Serialize;
@@ -95,14 +96,14 @@ pub fn init_db(path: &str) -> Result<()> {
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
-fn scan_features(db_filename: &str, raw_filename: &str) {
+pub fn scan_features<P: AsRef<std::path::Path>>(db_filename: &str, raw_filename: P) {
     let conn: Connection = Connection::open(db_filename).unwrap();
 
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();
     let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
     for result in rdr.records() {
         let record = result.unwrap();
-        println!("{:?}", record);
+        // println!("{:?}", record);
         stmt.execute([
             record[0].to_string(),
             record[1].to_string(),

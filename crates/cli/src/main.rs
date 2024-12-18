@@ -5,7 +5,11 @@ use tracing::trace;
 
 fn main() {
     let matches = command!() // requires `cargo` feature
-        .arg(arg!(--db <DATABASE>).required(true))
+        .arg(
+            arg!(--db <DATABASE>)
+                .required(true)
+                .help("Path to the database file. Ex.: ./ordinance.db"),
+        )
         .arg(
             Arg::new("verbose")
                 .short('v')
@@ -14,9 +18,11 @@ fn main() {
         )
         .subcommand(Command::new("init").about("Initialize a new empty database"))
         .subcommand(
-            Command::new("load")
-                .about("Load ordinance raw data")
-                .arg(Arg::new("path").value_parser(value_parser!(PathBuf))),
+            Command::new("load").about("Load ordinance raw data").arg(
+                Arg::new("path")
+                    .value_parser(value_parser!(PathBuf))
+                    .help("Path to directory with scrapper output"),
+            ),
         )
         .subcommand(
             Command::new("export")
@@ -48,6 +54,11 @@ fn main() {
             }
 
             ordinance::export_db(&db);
+        }
+        Some("load") => {
+            let path = matches.get_one::<PathBuf>("path").expect("required");
+            trace!("Loading data from {:?} into database at {:?}", &path, &db);
+            ordinance::scan_features(&db, path);
         }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
