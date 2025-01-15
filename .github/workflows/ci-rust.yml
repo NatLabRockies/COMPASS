@@ -8,6 +8,7 @@ on:
       - crates/**
       - Cargo.toml
       - .github/workflows/ci-rust.yml
+      - pyproject.toml
   schedule:
     - cron: '0 5 * * 1'
 

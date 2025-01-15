@@ -41,7 +41,7 @@ dependencies = [
   "lxml>=5.3.0,<6",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.8,<1",
+  "nrel-elm>=0.0.9,<1",
   "nrel-rex>=0.2.84,<0.3",
   "numpy>=1.26.4,<2",
   "openai>=1.1.0",
@@ -85,6 +85,9 @@ test = [
   "snakeviz>=2.2.2,<3",
   "tox>=4.23.2,<5",
 ]
+
+[project.scripts]
+scraper = "scraper.cli:main"
 
 [project.urls]
 # homepage = "https://www.nrel.gov/"
@@ -144,6 +147,7 @@ NREL-Scraper = { path = ".", editable = true}
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.8.0,<0.9"
+ruff-lsp = ">=0.0.60,<0.0.61"
 twine = ">=5.1.1,<6"
 
 [tool.pixi.feature.python-test.dependencies]
@@ -158,9 +162,9 @@ snakeviz = ">=2.2.2,<3"
 tox = ">=4.23.2,<5"
 
 [tool.pixi.feature.python-test.tasks]
-test = "pytest --pdb --durations=20 tests"
-# ut = "pytest --pdb --durations=20 tests/unit"
-# it = "pytest --pdb --durations=20 tests/integration"
+pt = "pytest --durations=20 tests/python"
+# ut = "pytest --durations=20 tests/unit"
+# it = "pytest --durations=20 tests/integration"
 
 [tool.pixi.feature.python-doc.dependencies]
 ghp-import = ">=2.1.0,<3"
@@ -257,12 +261,20 @@ convention = "numpy"
 ]
 "tests/**.py" = [
   "ARG001", # unused-function-argument
+  "ARG002", # unused-method-argument
+  "D101", # undocumented-public-class
+  "D102", # undocumented-public-method
+  "EM101", # raw-string-in-exception
+  "G004", # logging-f-string
   "INP001", # implicit-namespace-package
+  "N806", # non-lowercase-variable-in-function
+  "PLC2701", # import-private-name
   "PLR0914", # too-many-locals
   "PLR0915", # too-many-statements
   "PLR2004", # magic-value-comparison
   "PLR6301", # no-self-use
   "SLF001", # private-member-access
+  "TRY301", # raise-within-try
   "W505", # doc-line-too-long
 ]
 
@@ -323,6 +335,8 @@ omit = [
 
 [tool.pytest.ini_options]
 addopts = "--cov=scraper --cov-report=html --cov-report=xml:coverage.xml --disable-warnings --cov-fail-under=80"
+asyncio_mode="auto"
+asyncio_default_fixture_loop_scope="function"
 testpaths = [
   "tests"
   # "tests/unit",
