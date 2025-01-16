@@ -21,6 +21,7 @@ fn main() {
             Command::new("load").about("Load ordinance raw data").arg(
                 Arg::new("path")
                     .value_parser(value_parser!(PathBuf))
+                    .required(true)
                     .help("Path to directory with scrapper output"),
             ),
         )
@@ -56,8 +57,14 @@ fn main() {
             ordinance::export_db(&db);
         }
         Some("load") => {
-            let path = matches.get_one::<PathBuf>("path").expect("required");
-            trace!("Loading data from {:?} into database at {:?}", &path, &db);
+            trace!("Subcommand load");
+            let path = matches
+                .subcommand_matches("load")
+                .unwrap()
+                .get_one::<PathBuf>("path")
+                .unwrap();
+            trace!("Loading data from: {:?}, into database: {:?}", &path, &db);
+            dbg!(&path);
             ordinance::scan_features(&db, path);
         }
         Some("log") => {

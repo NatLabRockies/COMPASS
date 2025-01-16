@@ -30,6 +30,14 @@ pub fn init_db(path: &str) -> Result<()> {
         model TEXT
         );
 
+    CREATE SEQUENCE scrapper_config_sequence START 1;
+    CREATE TABLE scrapper_config (
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('scrapper_config_sequence'),
+      model TEXT NOT NULL,
+      llm_service_rate_limit INTEGER,
+      extra TEXT,
+      );
+
     CREATE SEQUENCE source_sequence START 1;
     CREATE TABLE source (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
@@ -96,8 +104,37 @@ pub fn init_db(path: &str) -> Result<()> {
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
-pub fn scan_features<P: AsRef<std::path::Path>>(db_filename: &str, raw_filename: P) {
+pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
+    db_filename: &str,
+    ordinance_path: P,
+) {
+    dbg!(&db_filename);
+    dbg!(&ordinance_path);
+    let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
+    dbg!(&raw_filename);
+    dbg!("========");
+
+    let rt = tokio::runtime::Builder::new_current_thread()
+        .enable_all()
+        .build()
+        .unwrap();
+    let ordinance = rt.block_on(scraper::ScrappedOrdinance::open(ordinance_path));
+    dbg!(&ordinance);
+    let scrapper_config = rt.block_on(ordinance.unwrap().config()).unwrap();
+
     let conn: Connection = Connection::open(db_filename).unwrap();
+
+    let mut stmt = conn
+        .prepare_cached(
+            "INSERT INTO scrapper_config (model, llm_service_rate_limit, extra) VALUES (?, ?, ?)",
+        )
+        .unwrap();
+    stmt.execute([
+        scrapper_config.model,
+        scrapper_config.llm_service_rate_limit.to_string(),
+        scrapper_config.extra,
+    ])
+    .unwrap();
 
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();
     let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
