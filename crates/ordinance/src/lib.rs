@@ -92,6 +92,36 @@ pub fn init_db(path: &str) -> Result<()> {
       comments TEXT
       );
 
+    CREATE SEQUENCE usage_run_sequence START 1;
+    CREATE TABLE usage_run (
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_run_sequence'),
+      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+      total_time FLOAT NOT NULL,
+      extra TEXT,
+      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+      );
+
+    CREATE SEQUENCE usage_per_item_sequence START 1;
+    CREATE TABLE usage_per_item(
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
+      // connection with file
+      jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
+      total_time FLOAT,
+      total_requests INTEGER NOT NULL,
+      total_prompt_tokens INTEGER NOT NULL,
+      total_response_tokens INTEGER NOT NULL,
+      );
+
+    CREATE SEQUENCE usage_event_sequence START 1;
+    CREATE TABLE usage_event (
+      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_event_sequence'),
+      usage_per_item_lnk INTEGER REFERENCES usage_per_item(id) NOT NULL,
+      event TEXT NOT NULL,
+      requests INTEGER NOT NULL,
+      prompt_tokens INTEGER NOT NULL,
+      response_tokens INTEGER NOT NULL,
+      );
+
     COMMIT;",
     )?;
 
@@ -118,11 +148,27 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
         .enable_all()
         .build()
         .unwrap();
-    let ordinance = rt.block_on(scraper::ScrappedOrdinance::open(ordinance_path));
+    let ordinance = rt
+        .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
+        .unwrap();
     dbg!(&ordinance);
-    let scrapper_config = rt.block_on(ordinance.unwrap().config()).unwrap();
+    let scrapper_config = rt.block_on(ordinance.config()).unwrap();
+    let scrapper_usage = rt.block_on(ordinance.usage()).unwrap();
+    dbg!(&scrapper_usage);
 
     let conn: Connection = Connection::open(db_filename).unwrap();
+
+    let mut stmt = conn
+        .prepare_cached(
+            "INSERT INTO usage_run (bookkeeping_lnk, total_time, extra) VALUES (?, ?, ?)",
+        )
+        .unwrap();
+    stmt.execute([
+        "1".to_string(),
+        scrapper_usage.total_time.to_string(),
+        scrapper_usage.extra,
+    ])
+    .unwrap();
 
     let mut stmt = conn
         .prepare_cached(
@@ -208,6 +254,6 @@ mod tests {
 
     #[test]
     fn it_works() {
-        init_db("test").unwrap();
+        let _ = init_db("test");
     }
 }

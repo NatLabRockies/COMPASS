@@ -85,6 +85,67 @@ mod test_scrapper_config {
 }
 
 #[allow(dead_code)]
+#[derive(Debug, serde::Deserialize)]
+struct UsageValues {
+    //event: String,
+    request: u32,
+    prompt_tokens: u32,
+    response_tokens: u32,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, serde::Deserialize)]
+pub(crate) struct Usage {
+    pub(crate) total_time: f64,
+    pub(crate) extra: String,
+}
+
+impl Usage {
+    #[allow(dead_code)]
+    fn from_json(json: &str) -> Result<Self> {
+        let mut v: serde_json::Map<String, serde_json::Value> = serde_json::from_str(json).unwrap();
+
+        let total_time = v.remove("total_time_seconds").unwrap().as_f64().unwrap();
+        let extra = serde_json::to_string(&v).unwrap();
+
+        Ok(Self { total_time, extra })
+    }
+}
+
+mod test_usage {
+    #[test]
+    fn dev() {
+        let data = r#"
+        {
+          "total_time_seconds": 294.69257712364197,
+          "total_time": "0:04:54.692577",
+          "Decatur County, Indiana": {
+            "document_location_validation": {
+              "requests": 55,
+              "prompt_tokens": 114614,
+              "response_tokens": 1262
+            },
+            "document_content_validation": {
+              "requests": 7,
+              "prompt_tokens": 15191,
+              "response_tokens": 477
+            },
+            "total_time_seconds": 294.64539074897766,
+            "total_time": "0:04:54.645391",
+            "tracker_totals": {
+              "requests": 121,
+              "prompt_tokens": 186099,
+              "response_tokens": 6297
+            }
+          }
+        }"#;
+        let usage = super::Usage::from_json(data).unwrap();
+
+        assert!((usage.total_time - 294.69257712364197).abs() <= f64::EPSILON);
+    }
+}
+
+#[allow(dead_code)]
 #[derive(Debug)]
 /// Abstraction for the ordinance scrapper raw output
 ///
@@ -157,6 +218,22 @@ impl ScrappedOrdinance {
             .expect("Failed to parse config file");
 
         Ok(config)
+    }
+
+    #[allow(dead_code)]
+    pub(crate) async fn usage(&self) -> Result<Usage> {
+        let usage_file = &self.root.join("usage.json");
+        if !usage_file.exists() {
+            trace!("Missing usage file: {:?}", usage_file);
+            return Err(error::Error::Undefined(
+                "Features file does not exist".to_string(),
+            ));
+        }
+
+        let usage = Usage::from_json(&std::fs::read_to_string(usage_file)?)
+            .expect("Failed to parse usage file");
+
+        Ok(usage)
     }
 }
 
