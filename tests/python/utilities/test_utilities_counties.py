@@ -1,16 +1,16 @@
-"""ELM Ordinance county utilities tests."""
+"""COMPASS Ordinance county utilities tests."""
 
 from pathlib import Path
 
 import pytest
 import pandas as pd
 
-from scraper.utilities.counties import (
+from compass.utilities.counties import (
     load_all_county_info,
     load_counties_from_fp,
     county_websites,
 )
-from scraper.exceptions import OrdinanceValueError
+from compass.exceptions import COMPASSValueError
 
 
 def test_load_counties():
@@ -75,7 +75,7 @@ def test_load_counties_from_fp_bad_input(tmp_path):
     test_county_fp = tmp_path / "out.csv"
     pd.DataFrame().to_csv(test_county_fp)
 
-    with pytest.raises(OrdinanceValueError) as err:
+    with pytest.raises(COMPASSValueError) as err:
         load_counties_from_fp(test_county_fp)
 
     expected_msg = (

@@ -5,8 +5,8 @@ from pathlib import Path
 
 import pytest
 
-from scraper.services.base import RateLimitedService
-from scraper.services.usage import TimeBoundedUsageTracker
+from compass.services.base import RateLimitedService
+from compass.services.usage import TimeBoundedUsageTracker
 
 
 def test_rate_limited_service():

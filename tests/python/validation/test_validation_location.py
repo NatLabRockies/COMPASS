@@ -1,4 +1,4 @@
-"""Test ELM Ordinance location validation tests."""
+"""Test COMPASS Ordinance location validation tests."""
 
 import os
 from pathlib import Path
@@ -8,14 +8,14 @@ import pytest
 import openai
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-from elm import TEST_DATA_DIR, ApiBase
+from elm import ApiBase
 from elm.web.document import PDFDocument, HTMLDocument
 from elm.utilities.parse import read_pdf
-from scraper.llm import StructuredLLMCaller
-from scraper.services.openai import OpenAIService
-from scraper.services.provider import RunningAsyncServices
-from scraper.utilities import RTS_SEPARATORS
-from scraper.validation.location import (
+from compass.llm import StructuredLLMCaller
+from compass.services.openai import OpenAIService
+from compass.services.provider import RunningAsyncServices
+from compass.utilities import RTS_SEPARATORS
+from compass.validation.location import (
     CountyValidator,
     CountyNameValidator,
     CountyJurisdictionValidator,
@@ -53,6 +53,19 @@ def structured_llm_caller():
         seed=42,
         timeout=30,
     )
+
+
+def _load_doc(test_data_dir, doc_fn):
+    """Load PDF or HTML doc for tests"""
+    doc_fp = test_data_dir / doc_fn
+    if doc_fp.suffix == ".pdf":
+        with doc_fp.open("rb") as fh:
+            pages = read_pdf(fh.read())
+            return PDFDocument(pages)
+
+    with doc_fp.open("r", encoding="utf-8") as fh:
+        text = fh.read()
+        return HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
 
 
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
@@ -121,48 +134,25 @@ async def test_url_matches_county(
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "county,doc_fp,truth",
+    "county,doc_fn,truth",
     [
-        (
-            "Decatur",
-            Path(TEST_DATA_DIR) / "indiana_general_ord.pdf",
-            False,
-        ),
-        (
-            "Decatur",
-            Path(TEST_DATA_DIR) / "Decatur Indiana.pdf",
-            True,
-        ),
-        (
-            "Hamlin",
-            Path(TEST_DATA_DIR) / "Hamlin South Dakota.pdf",
-            True,
-        ),
-        (
-            "Atlantic",
-            Path(TEST_DATA_DIR) / "Atlantic New Jersey.txt",
-            False,
-        ),
-        (
-            "Barber",
-            Path(TEST_DATA_DIR) / "Barber Kansas.pdf",
-            False,
-        ),
+        ("Decatur", "indiana_general_ord.pdf", False),
+        ("Decatur", "Decatur Indiana.pdf", True),
+        ("Hamlin", "Hamlin South Dakota.pdf", True),
+        ("Atlantic", "Atlantic New Jersey.txt", False),
+        ("Barber", "Barber Kansas.pdf", False),
     ],
 )
 async def test_doc_matches_county_jurisdiction(
-    oai_async_azure_client, structured_llm_caller, county, doc_fp, truth
+    oai_async_azure_client,
+    structured_llm_caller,
+    county,
+    doc_fn,
+    truth,
+    test_data_dir,
 ):
     """Test the `CountyJurisdictionValidator` class (basic execution)"""
-    if doc_fp.suffix == ".pdf":
-        with open(doc_fp, "rb") as fh:
-            pages = read_pdf(fh.read())
-            doc = PDFDocument(pages)
-    else:
-        with open(doc_fp, encoding="utf-8") as fh:
-            text = fh.read()
-            doc = HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
-
+    doc = _load_doc(test_data_dir, doc_fn)
     cj_validator = CountyJurisdictionValidator(structured_llm_caller)
     services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
     async with RunningAsyncServices(services):
@@ -175,41 +165,24 @@ async def test_doc_matches_county_jurisdiction(
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "county,state,doc_fp,truth",
+    "county,state,doc_fn,truth",
     [
-        (
-            "Decatur",
-            "Indiana",
-            Path(TEST_DATA_DIR) / "Decatur Indiana.pdf",
-            True,
-        ),
-        (
-            "Hamlin",
-            "South Dakota",
-            Path(TEST_DATA_DIR) / "Hamlin South Dakota.pdf",
-            True,
-        ),
-        (
-            "Anoka",
-            "Minnesota",
-            Path(TEST_DATA_DIR) / "Anoka Minnesota.txt",
-            True,
-        ),
+        ("Decatur", "Indiana", "Decatur Indiana.pdf", True),
+        ("Hamlin", "South Dakota", "Hamlin South Dakota.pdf", True),
+        ("Anoka", "Minnesota", "Anoka Minnesota.txt", True),
     ],
 )
 async def test_doc_matches_county_name(
-    oai_async_azure_client, structured_llm_caller, county, state, doc_fp, truth
+    oai_async_azure_client,
+    structured_llm_caller,
+    county,
+    state,
+    doc_fn,
+    truth,
+    test_data_dir,
 ):
     """Test the `CountyNameValidator` class (basic execution)"""
-    if doc_fp.suffix == ".pdf":
-        with open(doc_fp, "rb") as fh:
-            pages = read_pdf(fh.read())
-            doc = PDFDocument(pages)
-    else:
-        with open(doc_fp, encoding="utf-8") as fh:
-            text = fh.read()
-            doc = HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
-
+    doc = _load_doc(test_data_dir, doc_fn)
     cn_validator = CountyNameValidator(structured_llm_caller)
     services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
     async with RunningAsyncServices(services):
@@ -222,33 +195,33 @@ async def test_doc_matches_county_name(
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "county,state,doc_fp,url,truth",
+    "county,state,doc_fn,url,truth",
     [
         (
             "Decatur",
             "Indiana",
-            Path(TEST_DATA_DIR) / "Decatur Indiana.pdf",
+            "Decatur Indiana.pdf",
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/z.pdf",
             True,
         ),
         (
             "Hamlin",
             "South Dakota",
-            Path(TEST_DATA_DIR) / "Hamlin South Dakota.pdf",
+            "Hamlin South Dakota.pdf",
             "http://www.test.gov",
             True,
         ),
         (
             "Anoka",
             "Minnesota",
-            Path(TEST_DATA_DIR) / "Anoka Minnesota.txt",
+            "Anoka Minnesota.txt",
             "http://www.test.gov",
             False,
         ),
         (
             "Atlantic",
             "New Jersey",
-            Path(TEST_DATA_DIR) / "Atlantic New Jersey.txt",
+            "Atlantic New Jersey.txt",
             "http://www.test.gov",
             False,
         ),
@@ -259,20 +232,13 @@ async def test_doc_matches_county(
     structured_llm_caller,
     county,
     state,
-    doc_fp,
+    doc_fn,
     url,
     truth,
+    test_data_dir,
 ):
     """Test the `CountyValidator` class (basic execution)"""
-    if doc_fp.suffix == ".pdf":
-        with open(doc_fp, "rb") as fh:
-            pages = read_pdf(fh.read())
-            doc = PDFDocument(pages)
-    else:
-        with open(doc_fp, encoding="utf-8") as fh:
-            text = fh.read()
-            doc = HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
-
+    doc = _load_doc(test_data_dir, doc_fn)
     doc.metadata["source"] = url
 
     county_validator = CountyValidator(structured_llm_caller)

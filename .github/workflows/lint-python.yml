@@ -5,12 +5,12 @@ on:
     branches-ignore:
       - 'gh-pages'
     paths:
-      - scraper/**
+      - compass/**
       - pyproject.toml
       - .github/workflows/lint-python.yml
   pull_request:
     paths:
-      - scraper/**
+      - compass/**
       - pyproject.toml
       - .github/workflows/lint-python.yml
 
@@ -24,9 +24,9 @@ jobs:
         with:
           version: "latest"
           args: "check"
-          src: "./scraper"
+          src: "./compass"
       - uses: astral-sh/ruff-action@v3
         with:
           version: "latest"
           args: "format --check"
-          src: "./scraper"
+          src: "./compass"

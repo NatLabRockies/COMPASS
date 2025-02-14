@@ -1,10 +1,10 @@
-"""ELM Ordinance Location utility tests."""
+"""COMPASS Ordinance Location utility tests."""
 
 from pathlib import Path
 
 import pytest
 
-from scraper.utilities.location import County
+from compass.utilities.location import County
 
 
 def test_basic_county_properties():

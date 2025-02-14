@@ -24,7 +24,7 @@ docs/source/jupyter/*.png
 docs/source/jupyter/*_*.rst
 
 # Dynamic version
-scraper/_version.py
+compass/_version.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

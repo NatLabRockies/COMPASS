@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from scraper.services.queues import (
+from compass.services.queues import (
     initialize_service_queue,
     tear_down_service_queue,
     get_service_queue,

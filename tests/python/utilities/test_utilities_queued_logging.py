@@ -1,4 +1,4 @@
-"""Test ELM Ordinance logging logic."""
+"""Test COMPASS Ordinance logging logic."""
 
 import logging
 import asyncio
@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from scraper.services.provider import RunningAsyncServices
-from scraper.utilities.queued_logging import LocationFileLog, LogListener
+from compass.services.provider import RunningAsyncServices
+from compass.utilities.queued_logging import LocationFileLog, LogListener
 
 
 @pytest.mark.asyncio

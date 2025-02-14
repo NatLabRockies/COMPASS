@@ -1,4 +1,4 @@
-"""Test Ordinance exception types
+"""Test COMPASS exception types
 
 Most exception logic + tests pulled from GAPs
 (https://github.com/NREL/gaps)
@@ -8,10 +8,10 @@ from pathlib import Path
 
 import pytest
 
-from scraper.exceptions import (
-    OrdinanceError,
-    OrdinanceValueError,
-    OrdinanceNotInitializedError,
+from compass.exceptions import (
+    COMPASSError,
+    COMPASSValueError,
+    COMPASSNotInitializedError,
 )
 
 
@@ -22,15 +22,15 @@ def test_exceptions_log_error(caplog, assert_message_was_logged):
     """Test that a raised exception logs message, if any."""
 
     try:
-        raise OrdinanceError
-    except OrdinanceError:
+        raise COMPASSError
+    except COMPASSError:
         pass
 
     assert not caplog.records
 
     try:
-        raise OrdinanceError(BASIC_ERROR_MESSAGE)
-    except OrdinanceError:
+        raise COMPASSError(BASIC_ERROR_MESSAGE)
+    except COMPASSError:
         pass
 
     assert_message_was_logged(BASIC_ERROR_MESSAGE, "ERROR")
@@ -39,8 +39,8 @@ def test_exceptions_log_error(caplog, assert_message_was_logged):
 def test_exceptions_log_uncaught_error(assert_message_was_logged):
     """Test that a raised exception logs message if uncaught."""
 
-    with pytest.raises(OrdinanceError):
-        raise OrdinanceError(BASIC_ERROR_MESSAGE)
+    with pytest.raises(COMPASSError):
+        raise COMPASSError(BASIC_ERROR_MESSAGE)
 
     assert_message_was_logged(BASIC_ERROR_MESSAGE, "ERROR")
 
@@ -49,12 +49,12 @@ def test_exceptions_log_uncaught_error(assert_message_was_logged):
     "raise_type, catch_types",
     [
         (
-            OrdinanceNotInitializedError,
-            [OrdinanceError, OrdinanceNotInitializedError],
+            COMPASSNotInitializedError,
+            [COMPASSError, COMPASSNotInitializedError],
         ),
         (
-            OrdinanceValueError,
-            [OrdinanceError, ValueError, OrdinanceValueError],
+            COMPASSValueError,
+            [COMPASSError, ValueError, COMPASSValueError],
         ),
     ],
 )

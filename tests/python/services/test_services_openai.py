@@ -1,4 +1,4 @@
-"""Test ELM Ordinance openai services"""
+"""Test COMPASS Ordinance openai services"""
 
 from pathlib import Path
 
@@ -6,12 +6,12 @@ import httpx
 import pytest
 import openai
 
-from scraper.services.openai import (
+from compass.services.openai import (
     count_tokens,
     usage_from_response,
     OpenAIService,
 )
-from scraper.services.usage import UsageTracker
+from compass.services.usage import UsageTracker
 
 
 TEST_MESSAGES_1 = [

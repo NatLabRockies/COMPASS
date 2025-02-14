@@ -6,9 +6,9 @@ requires = [
 build-backend = 'setuptools.build_meta'
 
 [project]
-name="NREL-Scraper"
+name="NREL-COMPASS"
 dynamic = ["version"]
-description = "National Renewable Energy Laboratory's (NREL's) Python implementation of the Ordinance Database (OrdinanceDB)"
+description = "COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
 readme = "README.rst"
 authors = [
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
@@ -19,7 +19,7 @@ maintainers = [
   {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
 ]
 # license = {text = "BSD-3-Clause"}
-keywords = ["NREL", "Ordinance", "Database"]
+keywords = ["COMPASS", "NREL", "Ordinance", "Database"]
 requires-python = ">= 3.12"
 classifiers=[
   "Development Status :: 4 - Beta",
@@ -33,27 +33,13 @@ classifiers=[
   "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
 dependencies = [
-  "beautifulsoup4>=4.12.3,<5",
   "click>=8.1.7,<9",
-  "fake-useragent>=1.4.0,<2",
-  "html2text>=2024.2.26,<2025",
   "langchain>=0.3.7,<0.4",
-  "lxml>=5.3.0,<6",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.9,<1",
-  "nrel-rex>=0.2.84,<0.3",
-  "numpy>=1.26.4,<2",
+  "nrel-elm>=0.0.10,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
-  "pdf2image>=1.17.0,<2",
-  "pdftotext>=2.2.2,<3",
-  "playwright>=1.47.0,<2",
-  "pypdf2>=3.0.1,<4",
-  "python-slugify>=8.0.4,<9",
-  "scipy>=1.14.1,<2",
-  "tabulate>=0.9.0,<0.10",
-  "tiktoken>=0.8.0,<0.9",
 ]
 
 [project.optional-dependencies]
@@ -87,7 +73,7 @@ test = [
 ]
 
 [project.scripts]
-scraper = "scraper.cli:main"
+compass = "compass.cli:main"
 
 [project.urls]
 # homepage = "https://www.nrel.gov/"
@@ -95,10 +81,10 @@ documentation = "https://nrel.github.io/NREL-ordinance-DB/"
 repository = "https://github.com/NREL/NREL-ordinance-DB"
 
 [tool.setuptools]
-packages = ["scraper"]
+packages = ["compass"]
 
 [tool.setuptools_scm]
-version_file = "scraper/_version.py"
+version_file = "compass/_version.py"
 
 [tool.pixi.project]
 channels = ["conda-forge", "microsoft", "anaconda", "main"]
@@ -119,9 +105,11 @@ cxx-compiler = ">=1.8.0,<2"
 aiohttp = ">=3.11.6,<4"
 beautifulsoup4 = ">=4.12.3,<5"
 click = ">=8.1.7,<9"
-fake-useragent = ">=1.4.0,<2"
+fake-useragent = ">=2.0.3,<3"
+google-api-python-client = ">=2.160.0,<3"
 html2text = ">=2024.2.26,<2025"
 ipython = ">=8.29.0,<9"
+libgraphene = ">=1.10.8,<2"
 langchain = ">=0.3.7,<0.4"
 lxml = ">=5.3.0,<6"
 networkx = ">=3.4.2,<4"
@@ -131,17 +119,22 @@ openai = ">=1.1.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
 pdftotext = ">=2.2.2,<3"
-playwright = ">=1.47.0,<2"
+playwright-stealth = ">=1.0.6,<2"
 poppler = ">=24.8.0,<25"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
 python = ">=3.12"
+python-dotenv = ">=1.0.1,<2"
 python-slugify = ">=8.0.4,<9"
 scipy = ">=1.14.1,<2"
 tabulate = ">=0.9.0,<0.10"
+tiktoken = ">=0.8.0,<0.9"
 
 [tool.pixi.feature.python-default.pypi-dependencies]
-NREL-Scraper = { path = ".", editable = true}
+duckduckgo-search = ">=7.3.0, <8"
+NREL-COMPASS = { path = ".", editable = true}
+rebrowser-playwright = ">=1.47.0, <2"
+tavily-python = ">=0.5.0, <0.6"
 
 [tool.pixi.feature.python-dev.dependencies]
 jupyter = ">=1.0.0,<1.1"
@@ -325,16 +318,16 @@ omit = [
   # omit version file
   "_version.py",
   # omit log file copied over from other repo
-  "scraper/utilities/log.py",
+  "compass/utilities/log.py",
   # omit config loading code for now
-  "scraper/utilities/config.py",
+  "compass/utilities/config.py",
   # omit pixi files
   ".pixi/*",
 ]
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=scraper --cov-report=html --cov-report=xml:coverage.xml --disable-warnings --cov-fail-under=80"
+addopts = "--cov=compass --cov-report=html --cov-report=xml:coverage.xml --disable-warnings --cov-fail-under=80"
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
 testpaths = [

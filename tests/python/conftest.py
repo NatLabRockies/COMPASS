@@ -7,7 +7,7 @@ import pytest
 from openai.types import Completion, CompletionUsage, CompletionChoice
 from openai.types.chat import ChatCompletionMessage
 
-from scraper.services.base import Service
+from compass.services.base import Service
 
 
 LOGGING_META_FILES = {"exceptions.py"}
@@ -34,7 +34,7 @@ def assert_message_was_logged(caplog):
             assert record.levelname == log_level
         assert record.filename not in LOGGING_META_FILES
         assert record.funcName != "__init__"
-        assert "scraper" in record.name
+        assert "compass" in record.name
 
         if clear_records:
             caplog.clear()

@@ -11,15 +11,15 @@ import httpx
 import pytest
 import openai
 import elm.web.html_pw
-from elm.web.google_search import PlaywrightGoogleLinkSearch
+from elm.web.search.google import PlaywrightGoogleLinkSearch
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.document import HTMLDocument
 
-from scraper.services.usage import TimeBoundedUsageTracker, UsageTracker
-from scraper.services.openai import OpenAIService, usage_from_response
-from scraper.services.threaded import TempFileCache
-from scraper.services.provider import RunningAsyncServices
-from scraper.utilities.queued_logging import LocationFileLog, LogListener
+from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
+from compass.services.openai import OpenAIService, usage_from_response
+from compass.services.threaded import TempFileCache
+from compass.services.provider import RunningAsyncServices
+from compass.utilities.queued_logging import LocationFileLog, LogListener
 
 
 class MockResponse:
@@ -157,7 +157,7 @@ async def test_google_search_with_logging(tmp_path):
 
     logger = logging.getLogger("search_test")
     test_locations = ["El Paso County, Colorado", "Decatur County, Indiana"]
-    num_requested_links = 10
+    num_requested_links = 5
 
     async def search_single(location):
         logger.info("This location is %r", location)
