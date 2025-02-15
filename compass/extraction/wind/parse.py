@@ -11,7 +11,7 @@ from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.utilities import llm_response_as_json
 from compass.extraction.tree import AsyncDecisionTree
 from compass.extraction.features import SetbackFeatures
-from compass.extraction.graphs import (
+from compass.extraction.wind.graphs import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
     setup_graph_wes_types,
     setup_base_graph,
@@ -109,7 +109,7 @@ def _empty_output(feature):
     return [{"feature": feature}]
 
 
-class StructuredOrdinanceParser(BaseLLMCaller):
+class StructuredWindOrdinanceParser(BaseLLMCaller):
     """LLM ordinance document structured data scraping utility
 
     Purpose:

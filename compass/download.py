@@ -13,19 +13,13 @@ from compass.validation.location import CountyValidator
 
 
 logger = logging.getLogger(__name__)
-QUESTION_TEMPLATES = [
-    '0. "wind energy conversion system zoning ordinances {location}"',
-    '1. "{location} wind WECS zoning ordinance"',
-    '2. "Where can I find the legal text for commercial wind energy '
-    'conversion system zoning ordinances in {location}?"',
-    '3. "What is the specific legal information regarding zoning '
-    'ordinances for commercial wind energy conversion systems in {location}?"',
-]
 
 
 async def download_county_ordinance(
+    question_templates,
     location,
     text_splitter,
+    validator_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -67,7 +61,8 @@ async def download_county_ordinance(
         Document instance for the downloaded document, or ``None`` if no
         document was found.
     """
-    docs = await _docs_from_google_search(
+    docs = await _docs_from_web_search(
+        question_templates,
         location,
         text_splitter,
         num_urls,
@@ -78,7 +73,11 @@ async def download_county_ordinance(
         docs, location=location, **kwargs
     )
     docs = await _down_select_docs_correct_content(
-        docs, location=location, text_splitter=text_splitter, **kwargs
+        docs,
+        location=location,
+        text_splitter=text_splitter,
+        validator_class=validator_class,
+        **kwargs,
     )
     logger.info(
         "Found %d potential ordinance documents for %s",
@@ -88,13 +87,18 @@ async def download_county_ordinance(
     return _sort_final_ord_docs(docs)
 
 
-async def _docs_from_google_search(
-    location, text_splitter, num_urls, browser_semaphore, **file_loader_kwargs
+async def _docs_from_web_search(
+    question_templates,
+    location,
+    text_splitter,
+    num_urls,
+    browser_semaphore,
+    **file_loader_kwargs,
 ):
-    """Download docs from google location queries"""
+    """Download docs from web using location queries"""
     queries = [
         question.format(location=location.full_name)
-        for question in QUESTION_TEMPLATES
+        for question in question_templates
     ]
     file_loader_kwargs.update(
         {

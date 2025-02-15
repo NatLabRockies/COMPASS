@@ -19,6 +19,13 @@ from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
 )
+from compass.extraction.wind import (
+    WindOrdinanceValidator,
+    WindOrdinanceTextExtractor,
+    StructuredWindOrdinanceParser,
+    WIND_QUESTION_TEMPLATES,
+)
+from compass.llm import LLMCaller
 from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
 from compass.services.usage import UsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
@@ -451,6 +458,7 @@ async def process_county_with_logging(
     ):
         task = asyncio.create_task(
             process_county(
+                WIND_QUESTION_TEMPLATES,
                 county,
                 text_splitter,
                 num_urls=num_urls,
@@ -473,6 +481,7 @@ async def process_county_with_logging(
 
 
 async def process_county(
+    question_templates,
     county,
     text_splitter,
     num_urls=5,
@@ -516,9 +525,41 @@ async def process_county(
         the document's ``metadata`` attribute.
     """
     start_time = time.time()
-    doc = await download_county_ordinance(
+    doc = await _find_document(
+        question_templates,
         county,
         text_splitter,
+        start_time,
+        num_urls=num_urls,
+        file_loader_kwargs=file_loader_kwargs,
+        browser_semaphore=browser_semaphore,
+        **kwargs,
+    )
+    if doc is None:
+        return doc
+    doc = _extract_ordinance_text(doc, text_splitter, **kwargs)
+    doc = await _extract_ordinances_from_text(doc, **kwargs)
+    doc = await _move_files(doc, county)
+    await _record_time_and_usage(start_time, **kwargs)
+    return doc
+
+
+async def _find_document(
+    question_templates,
+    county,
+    text_splitter,
+    start_time,
+    num_urls=5,
+    file_loader_kwargs=None,
+    browser_semaphore=None,
+    **kwargs,
+):
+    """Search the web for an ordinance document and construct it"""
+    doc = await download_county_ordinance(
+        question_templates,
+        county,
+        text_splitter,
+        validator_class=WindOrdinanceValidator,
         num_urls=num_urls,
         file_loader_kwargs=file_loader_kwargs,
         browser_semaphore=browser_semaphore,
@@ -531,29 +572,42 @@ async def process_county(
     doc.metadata["location"] = county
     doc.metadata["location_name"] = county.full_name
     await _record_usage(**kwargs)
+    return doc
 
+
+async def _extract_ordinance_text(doc, text_splitter, **kwargs):
+    """Extract text pertaining to ordinance of interest"""
+    llm_caller = LLMCaller(**kwargs)
+    extractor = WindOrdinanceTextExtractor(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
-        doc, text_splitter, **kwargs
+        doc, text_splitter, extractor
     )
     await _record_usage(**kwargs)
 
-    doc = await _write_cleaned_text(doc)
-    doc = await extract_ordinance_values(doc, **kwargs)
+    return await _write_cleaned_text(doc)
 
+
+async def _extract_ordinances_from_text(doc, **kwargs):
+    """Extract values from ordinance text"""
+    parser = StructuredWindOrdinanceParser(**kwargs)
+    return await extract_ordinance_values(doc, parser)
+
+
+async def _move_files(doc, county):
+    """Move files to output folders, if applicable"""
     ord_count = _num_ords_in_doc(doc)
-    if ord_count > 0:
-        doc = await _move_file_to_out_dir(doc)
-        doc = await _write_ord_db(doc)
-        logger.info(
-            "%d ordinance value(s) found for %s. Outputs are here: '%s'",
-            ord_count,
-            county.full_name,
-            doc.metadata["ord_db_fp"],
-        )
-    else:
+    if ord_count == 0:
         logger.info("No ordinances found for %s.", county.full_name)
+        return doc
 
-    await _record_time_and_usage(start_time, **kwargs)
+    doc = await _move_file_to_out_dir(doc)
+    doc = await _write_ord_db(doc)
+    logger.info(
+        "%d ordinance value(s) found for %s. Outputs are here: '%s'",
+        ord_count,
+        county.full_name,
+        doc.metadata["ord_db_fp"],
+    )
     return doc
 
 
