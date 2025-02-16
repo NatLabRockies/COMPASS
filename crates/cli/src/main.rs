@@ -1,7 +1,9 @@
 use std::path::PathBuf;
 
 use clap::{arg, command, value_parser, Arg, ArgAction, Command};
-use tracing::trace;
+use duckdb::Connection;
+use tracing::{self, debug, trace};
+use tracing_subscriber;
 
 fn main() {
     let matches = command!() // requires `cargo` feature
@@ -18,12 +20,20 @@ fn main() {
         )
         .subcommand(Command::new("init").about("Initialize a new empty database"))
         .subcommand(
-            Command::new("load").about("Load ordinance raw data").arg(
-                Arg::new("path")
-                    .value_parser(value_parser!(PathBuf))
-                    .required(true)
-                    .help("Path to directory with scrapper output"),
-            ),
+            Command::new("load")
+                .about("Load ordinance raw data")
+                .arg(
+                    Arg::new("username")
+                        .short('u')
+                        .required(true)
+                        .help("Username to use"),
+                )
+                .arg(
+                    Arg::new("path")
+                        .value_parser(value_parser!(PathBuf))
+                        .required(true)
+                        .help("Path to directory with scrapper output"),
+                ),
         )
         .subcommand(
             Command::new("export")
@@ -34,10 +44,16 @@ fn main() {
         .get_matches();
 
     let verbose = matches.get_count("verbose");
-    if verbose > 0 {
-        trace!("verbose level: {:?}", verbose);
-        println!("verbose level: {:?}", verbose);
-    }
+    let tracing_level = match verbose {
+        0 => tracing::Level::WARN,
+        1 => tracing::Level::INFO,
+        2 => tracing::Level::DEBUG,
+        _ => tracing::Level::TRACE,
+    };
+    tracing_subscriber::fmt()
+        .with_max_level(tracing_level)
+        .init();
+    tracing::info!("Verbosity level: {:?}", verbose);
 
     //       Command::new("log")
     //          .about("Show the history of the database")
@@ -58,14 +74,25 @@ fn main() {
         }
         Some("load") => {
             trace!("Subcommand load");
+            trace!("Using database: {:?}", &db);
+            let username = matches
+                .subcommand_matches("load")
+                .unwrap()
+                .get_one::<String>("username")
+                .unwrap();
+            trace!("Username: {:?}", &username);
             let path = matches
                 .subcommand_matches("load")
                 .unwrap()
                 .get_one::<PathBuf>("path")
                 .unwrap();
-            trace!("Loading data from: {:?}, into database: {:?}", &path, &db);
-            dbg!(&path);
-            ordinance::scan_features(&db, path);
+            trace!("Loading data from: {:?}", &path,);
+
+            // In the future, replace this Connection with a custom one
+            // that already creates a session with the username, and hance
+            // handle ahead permissions/authorization.
+            let conn: Connection = Connection::open(&db).expect("Failed to open database");
+            ordinance::load_ordinance(conn, username, path);
         }
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);

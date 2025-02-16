@@ -7,6 +7,7 @@ mod scraper;
 
 use duckdb::Connection;
 use serde::Serialize;
+use tracing::{self, trace};
 
 use error::Result;
 
@@ -15,14 +16,38 @@ use error::Result;
 /// Create a new database as a local single file ready to store the ordinance
 /// data.
 pub fn init_db(path: &str) -> Result<()> {
-    let db = Connection::open(path)?;
-    db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
+    trace!("Creating a new database at {:?}", &path);
 
+    let mut db = Connection::open(path)?;
+    trace!("Database opened: {:?}", &db);
+
+    db.execute_batch("SET VARIABLE ordinancedb_version = '0.0.1';")?;
+    trace!("Defining ordinance data model version as: 0.0.1");
+
+    /*
+     * Change the source structure to have a database of all sources, and
+     * the run links to the source used. Also link that to the jurisdiction
+     * such that it could later request all sources related to a certain
+     * jurisdiction.
+     *
+     * Multiple sources for the same jurisdiction (consider multiple
+     * technologies) should be possible.
+     *
+     * In case of multiple sources for one jurisdiction, we should be able
+     * to support what was the latest document available, or list all of
+     * them.
+     *
+     * Check the new jurisdiction file.
+     *
+     * If user don't have a database. Download it in the right path.
+     *
+     *
+     */
     db.execute_batch(
         "BEGIN;
-    CREATE SEQUENCE bookkeeping_sequence START 1;
-    CREATE TABLE bookkeeping (
-        id INTEGER PRIMARY KEY DEFAULT NEXTVAL('bookkeeping_sequence'),
+    CREATE SEQUENCE bookkeeper_sequence START 1;
+    CREATE TABLE bookkeeper (
+        id INTEGER PRIMARY KEY DEFAULT NEXTVAL('bookkeeper_sequence'),
         hash TEXT NOT NULL,
         created_at TIMESTAMP NOT NULL DEFAULT NOW(),
         username TEXT,
@@ -30,18 +55,10 @@ pub fn init_db(path: &str) -> Result<()> {
         model TEXT
         );
 
-    CREATE SEQUENCE scrapper_config_sequence START 1;
-    CREATE TABLE scrapper_config (
-      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('scrapper_config_sequence'),
-      model TEXT NOT NULL,
-      llm_service_rate_limit INTEGER,
-      extra TEXT,
-      );
-
     CREATE SEQUENCE source_sequence START 1;
     CREATE TABLE source (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
-      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+      bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
       name TEXT NOT NULL,
       hash TEXT NOT NULL,
       origin TEXT,
@@ -57,7 +74,7 @@ pub fn init_db(path: &str) -> Result<()> {
     CREATE TYPE jurisdiction_rank AS ENUM ('state', 'county', 'city', 'town', 'CCD', 'reservation', 'other');
     CREATE TABLE jurisdiction (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('jurisdiction_sequence'),
-      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
+      bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
       name TEXT NOT NULL,
       FIPS INTEGER NOT NULL,
       geometry GEOMETRY NOT NULL,
@@ -92,40 +109,16 @@ pub fn init_db(path: &str) -> Result<()> {
       comments TEXT
       );
 
-    CREATE SEQUENCE usage_run_sequence START 1;
-    CREATE TABLE usage_run (
-      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_run_sequence'),
-      bookkeeping_lnk INTEGER REFERENCES bookkeeping(id) NOT NULL,
-      total_time FLOAT NOT NULL,
-      extra TEXT,
-      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-      );
-
-    CREATE SEQUENCE usage_per_item_sequence START 1;
-    CREATE TABLE usage_per_item(
-      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
-      // connection with file
-      jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
-      total_time FLOAT,
-      total_requests INTEGER NOT NULL,
-      total_prompt_tokens INTEGER NOT NULL,
-      total_response_tokens INTEGER NOT NULL,
-      );
-
-    CREATE SEQUENCE usage_event_sequence START 1;
-    CREATE TABLE usage_event (
-      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_event_sequence'),
-      usage_per_item_lnk INTEGER REFERENCES usage_per_item(id) NOT NULL,
-      event TEXT NOT NULL,
-      requests INTEGER NOT NULL,
-      prompt_tokens INTEGER NOT NULL,
-      response_tokens INTEGER NOT NULL,
-      );
-
     COMMIT;",
     )?;
 
+    let conn = db.transaction()?;
+    scraper::ScrappedOrdinance::init_db(&conn)?;
+    conn.commit()?;
+
     println!("{}", db.is_autocommit());
+
+    trace!("Database initialized");
     Ok(())
 }
 
@@ -134,54 +127,49 @@ pub fn init_db(path: &str) -> Result<()> {
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
 /// database.
-pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
-    db_filename: &str,
+pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
+    mut database: duckdb::Connection,
+    username: &String,
     ordinance_path: P,
-) {
-    dbg!(&db_filename);
+) -> Result<()> {
+    // insert into bookkeeper (hash, username) and get the pk to be used in all the following
+    // inserts.
+    tracing::trace!("Starting a transaction");
+    let conn = database.transaction().unwrap();
+
+    let commit_id: usize = conn
+        .query_row(
+            "INSERT INTO bookkeeper (hash, username) VALUES (?, ?) RETURNING id",
+            ["dummy hash".to_string(), username.to_string()],
+            |row| row.get(0),
+        )
+        .expect("Failed to insert into bookkeeper");
+
+    tracing::debug!("Commit id: {:?}", commit_id);
+
+    /*
     dbg!(&ordinance_path);
     let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
     dbg!(&raw_filename);
     dbg!("========");
+    */
 
     let rt = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();
+
     let ordinance = rt
         .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
         .unwrap();
-    dbg!(&ordinance);
-    let scrapper_config = rt.block_on(ordinance.config()).unwrap();
-    let scrapper_usage = rt.block_on(ordinance.usage()).unwrap();
-    dbg!(&scrapper_usage);
+    conn.commit().unwrap();
+    tracing::debug!("Transaction committed");
 
-    let conn: Connection = Connection::open(db_filename).unwrap();
-
-    let mut stmt = conn
-        .prepare_cached(
-            "INSERT INTO usage_run (bookkeeping_lnk, total_time, extra) VALUES (?, ?, ?)",
-        )
+    tracing::trace!("Ordinance: {:?}", ordinance);
+    rt.block_on(ordinance.push(&mut database, commit_id))
         .unwrap();
-    stmt.execute([
-        "1".to_string(),
-        scrapper_usage.total_time.to_string(),
-        scrapper_usage.extra,
-    ])
-    .unwrap();
 
-    let mut stmt = conn
-        .prepare_cached(
-            "INSERT INTO scrapper_config (model, llm_service_rate_limit, extra) VALUES (?, ?, ?)",
-        )
-        .unwrap();
-    stmt.execute([
-        scrapper_config.model,
-        scrapper_config.llm_service_rate_limit.to_string(),
-        scrapper_config.extra,
-    ])
-    .unwrap();
-
+    /*
     let mut rdr = csv::Reader::from_path(raw_filename).unwrap();
     let mut stmt = conn.prepare_cached("INSERT INTO property (county, state, FIPS, feature, fixed_value, mult_value, mult_type, adder, min_dist, max_dist, value, units, ord_year, last_updated, section, source, comments) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)").unwrap();
     for result in rdr.records() {
@@ -208,7 +196,11 @@ pub fn scan_features<P: AsRef<std::path::Path> + std::fmt::Debug>(
         ])
         .unwrap();
     }
+
+    */
     //let df = polars::io::csv::read::CsvReadOptions::default().with_has_header(true).try_into_reader_with_file_path(Some("sample.csv".into())).unwrap().finish();
+
+    Ok(())
 }
 
 #[derive(Debug, Serialize)]
