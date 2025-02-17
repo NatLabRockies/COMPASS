@@ -11,7 +11,7 @@ class SetbackFeatures:
             "structures",
             "residences",
         ],
-        "pline": ["property lines", "parcels", "subdivisions"],
+        "prop_line": ["property lines", "parcels", "subdivisions"],
         "roads": ["roads"],  # , "rights-of-way"],
         "rail": ["railroads"],
         "trans": [
@@ -27,7 +27,7 @@ class SetbackFeatures:
     }
     FEATURES_AS_IGNORE = {
         "struct": "structures",
-        "pline": "property lines",
+        "prop_line": "property lines",
         "roads": "roads",
         "rail": "railroads",
         "trans": "transmission lines",
@@ -35,7 +35,7 @@ class SetbackFeatures:
     }
     FEATURE_CLARIFICATIONS = {
         "struct": "",
-        "pline": "",
+        "prop_line": "",
         "roads": "Roads may also be labeled as rights-of-way. ",
         "rail": "",
         "trans": "",

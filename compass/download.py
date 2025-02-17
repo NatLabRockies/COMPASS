@@ -9,7 +9,11 @@ from elm.web.utilities import filter_documents
 from compass.llm import StructuredLLMCaller
 from compass.extraction import check_for_ordinance_info
 from compass.services.threaded import TempFileCache
-from compass.validation.location import CountyValidator
+from compass.validation.location import (
+    CountyJurisdictionValidator,
+    CountyNameValidator,
+    CountyValidator,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -153,6 +157,24 @@ def _sort_final_ord_docs(all_ord_docs):
 
 
 def _ord_doc_sorting_key(doc):
-    """All text sorting key"""
-    year, month, day = doc.metadata.get("date", (-1, -1, -1))
-    return year, isinstance(doc, PDFDocument), -1 * len(doc.text), month, day
+    """Sorting key for documents. The higher this value, the better"""
+    latest_year, latest_month, latest_day = doc.metadata.get(
+        "date", (-1, -1, -1)
+    )
+    prefer_pdf_files = isinstance(doc, PDFDocument)
+    highest_name_score = doc.metadata.get(
+        CountyNameValidator.META_SCORE_KEY, 0
+    )
+    highest_jurisdiction_score = doc.metadata.get(
+        CountyJurisdictionValidator.META_SCORE_KEY, 0
+    )
+    shortest_text_length = -1 * len(doc.text)
+    return (
+        latest_year,
+        prefer_pdf_files,
+        highest_name_score,
+        highest_jurisdiction_score,
+        shortest_text_length,
+        latest_month,
+        latest_day,
+    )

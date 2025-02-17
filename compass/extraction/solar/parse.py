@@ -1,4 +1,4 @@
-"""Wind ordinance structured parsing class"""
+"""Solar ordinance structured parsing class"""
 
 import asyncio
 import logging
@@ -20,47 +20,48 @@ from compass.extraction.common import (
     setup_participating_owner,
     setup_graph_extra_restriction,
 )
-from compass.extraction.wind.graphs import (
-    setup_graph_wes_types,
+from compass.extraction.solar.graphs import (
+    setup_graph_sef_types,
     setup_multiplier,
-    setup_conditional,
 )
 
 
 logger = logging.getLogger(__name__)
-
 DEFAULT_SYSTEM_MESSAGE = (
-    "You are a legal scholar informing a wind energy developer about local "
+    "You are a legal scholar informing a solar energy developer about local "
     "zoning ordinances."
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
     "ordinances relating to setbacks from {feature} for {tech}. Ignore "
-    "all text that pertains to private, micro, small, or medium sized wind "
+    "all text that pertains to private, micro, small, or medium sized solar "
     "energy systems."
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
     "ordinances relating to {restriction} for {tech}. Ignore "
-    "all text that pertains to private, micro, small, or medium sized wind "
+    "all text that pertains to private, micro, small, or medium sized solar "
     "energy systems."
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
-    "max height": "maximum turbine height allowed",
+    "max height": "maximum structure height allowed",
+    "max size": "maximum project spacing allowed",
     "min lot size": "minimum lot size allowed",
-    "shadow flicker": "maximum shadow flicker allowed",
-    "density": "maximum turbine spacing allowed",
+    "density": "maximum panel spacing allowed",
+    "coverage": "maximum land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
+    "moratorium": "moratorium or ban",
     "decommissioning": "decommissioning requirement(s)",
+    "glare": "glare restriction",
     "visual impact": "visual impact assessment requirement(s)",
 }
 
 
-class StructuredWindOrdinanceParser(BaseLLMCaller):
+class StructuredSolarOrdinanceParser(BaseLLMCaller):
     """LLM ordinance document structured data scraping utility
 
     Purpose:
@@ -101,14 +102,14 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         pd.DataFrame
             DataFrame containing parsed-out ordinance values.
         """
-        largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %s", largest_wes_type)
+        largest_sef_type = await self._check_solar_farm_type(text)
+        logger.info("Largest SEF type found in text: %s", largest_sef_type)
 
         outer_task_name = asyncio.current_task().get_name()
         feature_parsers = [
             asyncio.create_task(
                 self._parse_setback_feature(
-                    text, feature_kwargs, largest_wes_type
+                    text, feature_kwargs, largest_sef_type
                 ),
                 name=outer_task_name,
             )
@@ -117,7 +118,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         extras_parsers = [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_wes_type, is_numerical=True
+                    text, feature, r_text, largest_sef_type, is_numerical=True
                 ),
                 name=outer_task_name,
             )
@@ -126,7 +127,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         extras_parsers += [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_wes_type, is_numerical=False
+                    text, feature, r_text, largest_sef_type, is_numerical=False
                 ),
                 name=outer_task_name,
             )
@@ -136,33 +137,33 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
 
         return pd.DataFrame(chain.from_iterable(outputs))
 
-    async def _check_wind_turbine_type(self, text):
-        """Get the largest turbine size mentioned in the text"""
-        logger.debug("Checking turbine_types")
+    async def _check_solar_farm_type(self, text):
+        """Get the largest solar farm size mentioned in the text"""
+        logger.debug("Checking solar farm types")
         tree = setup_async_decision_tree(
-            setup_graph_wes_types,
+            setup_graph_sef_types,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
         )
-        decision_tree_wes_types_out = await run_async_tree(tree)
+        decision_tree_sef_types_out = await run_async_tree(tree)
 
         return (
-            decision_tree_wes_types_out.get("largest_wes_type")
-            or "large wind energy systems"
+            decision_tree_sef_types_out.get("largest_sef_type")
+            or "utility solar energy systems"
         )
 
     async def _parse_extra_restriction(
-        self, text, feature, restriction_text, largest_wes_type, is_numerical
+        self, text, feature, restriction_text, largest_sef_type, is_numerical
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing extra feature %r", feature)
         system_message = RESTRICTIONS_SYSTEM_MESSAGE.format(
-            restriction=restriction_text, tech=largest_wes_type
+            restriction=restriction_text, tech=largest_sef_type
         )
         tree = setup_async_decision_tree(
             setup_graph_extra_restriction,
             is_numerical=is_numerical,
-            tech=largest_wes_type,
+            tech=largest_sef_type,
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
@@ -172,11 +173,11 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         return [info]
 
     async def _parse_setback_feature(
-        self, text, feature_kwargs, largest_wes_type
+        self, text, feature_kwargs, largest_sef_type
     ):
         """Parse values for a setback feature"""
         feature = feature_kwargs["feature_id"]
-        feature_kwargs["tech"] = largest_wes_type
+        feature_kwargs["tech"] = largest_sef_type
         logger.debug("Parsing feature %r", feature)
 
         base_messages = await self._base_messages(text, **feature_kwargs)
@@ -203,7 +204,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         """Get base messages for setback feature parsing"""
         system_message = SETBACKS_SYSTEM_MESSAGE.format(
             feature=feature_kwargs["feature"],
-            tech=feature_kwargs["wes_type"],
+            tech=feature_kwargs["tech"],
         )
         tree = setup_async_decision_tree(
             setup_base_graph,
@@ -267,18 +268,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
 
     async def _extract_setback_values(self, text, **kwargs):
         """Extract setback values for a given feature from input text"""
-        decision_tree_out = await self._run_setback_graph(
-            setup_multiplier, text, **kwargs
-        )
-
-        if decision_tree_out.get("mult_value") is None:
-            return decision_tree_out
-
-        decision_tree_conditional_out = await self._run_setback_graph(
-            setup_conditional, text, **kwargs
-        )
-        decision_tree_out.update(decision_tree_conditional_out)
-        return decision_tree_out
+        return await self._run_setback_graph(setup_multiplier, text, **kwargs)
 
     async def _run_setback_graph(
         self,

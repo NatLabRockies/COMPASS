@@ -108,6 +108,7 @@ class CountyJurisdictionValidator(FixedMessageValidator):
         "third key is 'explanation', which is a string that contains a short "
         "explanation if you chose `True` for any answers above."
     )
+    META_SCORE_KEY = "Jurisdiction Validation Score"
 
     def _parse_output(self, props):  # noqa: PLR6301
         """Parse LLM response and return boolean validation result"""
@@ -138,6 +139,7 @@ class CountyNameValidator(FixedMessageValidator):
         "string that contains a short explanation if you chose `True` for "
         "any answers above."
     )
+    META_SCORE_KEY = "Jurisdiction Name Validation Score"
 
     def _parse_output(self, props):  # noqa: PLR6301
         """Parse LLM response and return boolean validation response"""
@@ -147,7 +149,7 @@ class CountyNameValidator(FixedMessageValidator):
 
 
 class CountyValidator:
-    """COMPASS Ords County validator
+    """COMPASS Ordinance County validator
 
     Combines the logic of several validators into a single class.
 
@@ -274,12 +276,14 @@ async def _validator_check_for_doc(validator, doc, score_thresh=0.8, **kwargs):
     ]
     out = await asyncio.gather(*validation_checks)
     score = _weighted_vote(out, doc)
+    doc.metadata[validator.META_SCORE_KEY] = score
     logger.debug(
-        "%s score is %.2f for doc from source %s (Pass: %s)",
-        validator.__class__.__name__,
+        "%s is %.2f for doc from source %s (Pass: %s; threshold: %.2f)",
+        validator.META_SCORE_KEY,
         score,
         doc.metadata.get("source", "Unknown"),
         str(score > score_thresh),
+        score_thresh,
     )
     return score > score_thresh
 

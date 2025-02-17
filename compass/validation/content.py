@@ -5,6 +5,7 @@ particular technology (e.g. Large Wind Energy Conversion Systems).
 """
 
 import logging
+from abc import ABC, abstractmethod
 
 
 logger = logging.getLogger(__name__)
@@ -101,3 +102,111 @@ class ValidationWithMemory:
             if check:
                 return check
         return False
+
+
+class Heuristic(ABC):
+    """Perform a heuristic check for mention of a technology in text"""
+
+    _GOOD_ACRONYM_CONTEXTS = [
+        " {acronym} ",
+        " {acronym}\n",
+        " {acronym}.",
+        "\n{acronym} ",
+        "\n{acronym}.",
+        "\n{acronym}\n",
+        "({acronym} ",
+        " {acronym})",
+    ]
+
+    def check(self, text, match_count_threshold=1):
+        """Check for mention of a tech in text
+
+        This check first strips the text of any tech "look-alike" words
+        (e.g. "window", "windshield", etc for "wind" technology). Then,
+        it checks for particular keywords, acronyms, and phrases that
+        pertain to the tech in the text. If enough keywords are mentions
+        (as dictated by `match_count_threshold`), this check returns
+        ``True``.
+
+        Parameters
+        ----------
+        text : str
+            Input text that may or may not mention the technology of
+            interest.
+        match_count_threshold : int, optional
+            Number of keywords that must match for the text to pass this
+            heuristic check. Count must be strictly greater than this
+            value. By default, ``1``.
+
+        Returns
+        -------
+        bool
+            ``True`` if the number of keywords/acronyms/phrases detected
+            exceeds the `match_count_threshold`.
+        """
+        heuristics_text = self._convert_to_heuristics_text(text)
+        total_keyword_matches = self._count_single_keyword_matches(
+            heuristics_text
+        )
+        total_keyword_matches += self._count_acronym_matches(heuristics_text)
+        total_keyword_matches += self._count_phrase_matches(heuristics_text)
+        return total_keyword_matches > match_count_threshold
+
+    def _convert_to_heuristics_text(self, text):
+        """Convert text for heuristic content parsing"""
+        heuristics_text = text.casefold()
+        for word in self.NOT_TECH_WORDS:
+            heuristics_text = heuristics_text.replace(word, "")
+        return heuristics_text
+
+    def _count_single_keyword_matches(self, heuristics_text):
+        """Count number of good tech keywords that appear in text"""
+        return sum(
+            keyword in heuristics_text for keyword in self.GOOD_TECH_KEYWORDS
+        )
+
+    def _count_acronym_matches(self, heuristics_text):
+        """Count number of good tech acronyms that appear in text"""
+        acronym_matches = 0
+        for context in self._GOOD_ACRONYM_CONTEXTS:
+            acronym_keywords = {
+                context.format(acronym=acronym)
+                for acronym in self.GOOD_TECH_ACRONYMS
+            }
+            acronym_matches = sum(
+                keyword in heuristics_text for keyword in acronym_keywords
+            )
+            if acronym_matches > 0:
+                break
+        return acronym_matches
+
+    def _count_phrase_matches(self, heuristics_text):
+        """Count number of good tech phrases that appear in text"""
+        return sum(
+            all(keyword in heuristics_text for keyword in phrase.split(" "))
+            for phrase in self.GOOD_TECH_PHRASES
+        )
+
+    @property
+    @abstractmethod
+    def NOT_TECH_WORDS(self):  # noqa: N802
+        """iter: Iterable of words that don't pertain to the tech"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def GOOD_TECH_KEYWORDS(self):  # noqa: N802
+        """iter: Iterable of keywords that pertain to the tech"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def GOOD_TECH_ACRONYMS(self):  # noqa: N802
+        """iter: Iterable of acronyms that pertain to the tech"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def GOOD_TECH_PHRASES(self):  # noqa: N802
+        """iter: Iterable of phrases that pertain to the tech"""
+        raise NotImplementedError

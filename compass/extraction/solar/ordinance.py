@@ -1,7 +1,7 @@
 """Ordinance document content Validation logic
 
 These are primarily used to validate that a legal document applies to a
-particular technology (e.g. Large Wind Energy Conversion Systems).
+particular technology (e.g. Solar Energy Conversion System).
 """
 
 import asyncio
@@ -24,67 +24,44 @@ RESTRICTIONS = """- buildings / structures / residences
 - bodies of water including wetlands, lakes, reservoirs, streams, and rivers
 - natural, wildlife, and environmental conservation areas
 - noise limits
-- shadow flicker limits
 - density limits
-- turbine height limits
+- height limits
 - minimum/maximum lot size
 - maximum project size
 - moratorium or bans
-- decommissioning requirements
-- lighting requirements
-- blade ground clearance limits
+- decommissioning plans/requirements
+- land coverage limits
+- glare limits
 - visual impact assessment requirements
 """
 MIN_CHARS_IN_VALID_CHUNK = 20
 
 
-class WindHeuristic(Heuristic):
-    """Perform a heuristic check for mention of wind turbines in text"""
+class SolarHeuristic(Heuristic):
+    """Perform a heuristic check for mention of solar farms in text"""
 
-    NOT_TECH_WORDS = [
-        "windy",
-        "winds",
-        "window",
-        "windiest",
-        "windbreak",
-        "windshield",
-        "wind blow",
-        "wind erosion",
-        "rewind",
-        "mini wecs",
-        "swecs",
-        "private wecs",
-        "pwecs",
-        "wind direction",
-        "wind movement",
-        "wind attribute",
-        "wind runway",
-        "wind load",
-        "wind orient",
-        "wind damage",
-    ]
-    GOOD_TECH_KEYWORDS = ["wind", "setback"]
-    GOOD_TECH_ACRONYMS = ["wecs", "wes", "lwet", "uwet", "wef"]
+    NOT_TECH_WORDS = ["solaris"]
+    GOOD_TECH_KEYWORDS = ["solar", "setback"]
+    GOOD_TECH_ACRONYMS = ["secs", "sef", "ses"]
     GOOD_TECH_PHRASES = [
-        "wind energy conversion",
-        "wind turbine",
-        "wind tower",
-        "wind farm",
-        "wind energy system",
-        "wind energy farm",
-        "utility wind energy system",
+        "solar energy conversion",
+        "solar energy system",
+        "solar panel",
+        "solar farm",
+        "solar energy farm",
+        "utility solar energy system",
     ]
 
 
-class WindOrdinanceValidator(ValidationWithMemory):
-    """Check document text for wind ordinances
+class SolarOrdinanceValidator(ValidationWithMemory):
+    """Check document text for solar ordinances
 
     Purpose:
         Determine wether a document contains relevant ordinance
         information.
     Responsibilities:
         1. Determine wether a document contains relevant (e.g.
-        utility-scale wind zoning) ordinance information by splitting
+        utility-scale solar zoning) ordinance information by splitting
         the text into chunks and parsing them individually using LLMs.
     Key Relationships:
         Child class of
@@ -93,7 +70,7 @@ class WindOrdinanceValidator(ValidationWithMemory):
         text.
     """
 
-    _HEURISTIC = WindHeuristic()
+    _HEURISTIC = SolarHeuristic()
     IS_LEGAL_TEXT_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
         "format (not markdown). Your JSON file must include exactly three "
@@ -110,35 +87,35 @@ class WindOrdinanceValidator(ValidationWithMemory):
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
         "format (not markdown). Your JSON file must include exactly three "
-        "keys. The first key is 'wind_reqs', which is a string that "
-        "summarizes the setbacks or other geospatial siting requirements (if "
-        "any) given in the text for a wind turbine. The second key is 'reqs', "
+        "keys. The first key is 'solar_reqs', which is a string that "
+        "summarizes the setbacks or other siting requirements (if any) given "
+        "in the text for solar energy systems. The second key is 'reqs', "
         "which lists the quantitative values from the text excerpt that can "
-        "be used to compute setbacks or other geospatial siting requirements "
-        "for a wind turbine/tower (empty list if none exist in the text). The "
+        "be used to compute setbacks or other siting requirements for a "
+        "solar energy system (empty list if none exist in the text). The "
         "last key is '{key}', which is a boolean that is set to True if the "
-        "text excerpt provides enough quantitative info to compute setbacks "
-        "or other geospatial siting requirements for a wind turbine/tower "
-        "and False otherwise. Geospatial siting is impacted by any of the "
-        f"following:\n{RESTRICTIONS}"
+        "text excerpt provides enough info to compute quantitative setbacks "
+        "or other siting requirements for a solar energy system and False "
+        "otherwise. Siting is impacted by any of the following:\n"
+        f"{RESTRICTIONS}"
     )
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "wether it applies to large wind energy systems. Large wind energy "
-        "systems (WES) may also be referred to as wind turbines, wind energy "
-        "conversion systems (WECS), wind energy facilities (WEF), wind energy "
-        "turbines (WET), large wind energy turbines (LWET), utility-scale "
-        "wind energy turbines (UWET), commercial wind energy systems, or "
-        "similar. Your client is a commercial wind developer that does not "
+        "wether it applies to large solar energy systems. Large solar energy "
+        "systems (SES) may also be referred to as solar panels, solar energy "
+        "conversion systems (SECS), solar energy facilities (SEF), solar "
+        "energy farms (SEF), solar farms (SF), utility-scale solar energy "
+        "systems (USES), commercial solar energy systems, or similar. "
+        "Your client is a commercial solar developer that does not "
         "care about ordinances related to private, micro, small, or medium "
-        "sized wind energy systems. Ignore any text related to such systems. "
+        "sized solar energy systems. Ignore any text related to such systems. "
         "Return your answer in JSON format (not markdown). Your JSON file "
         "must include exactly two keys. The first key is 'summary' which "
-        "contains a string that summarizes the types of wind energy systems "
+        "contains a string that summarizes the types of solar energy systems "
         "the text applies to (if any). The second key is '{key}', which is a "
         "boolean that is set to True if any part of the text excerpt is "
-        "applicable to the large wind energy conversion systems that the "
+        "applicable to the large solar energy conversion systems that the "
         "client is interested in and False otherwise."
     )
 
@@ -168,7 +145,7 @@ class WindOrdinanceValidator(ValidationWithMemory):
             num_to_recall=num_to_recall,
         )
         self._legal_text_mem = []
-        self._wind_mention_mem = []
+        self._solar_mention_mem = []
         self._ordinance_chunks = []
 
     @property
@@ -202,7 +179,7 @@ class WindOrdinanceValidator(ValidationWithMemory):
         min_chunks_to_process : int, optional
             Minimum number of chunks to process before checking if
             document resembles legal text and ignoring chunks that don't
-            pass the wind heuristic. By default, ``3``.
+            pass the solar heuristic. By default, ``3``.
 
         Returns
         -------
@@ -210,13 +187,13 @@ class WindOrdinanceValidator(ValidationWithMemory):
             ``True`` if any ordinance text was found in the chunks.
         """
         for ind, text in enumerate(self.text_chunks):
-            self._wind_mention_mem.append(self._HEURISTIC.check(text))
+            self._solar_mention_mem.append(self._HEURISTIC.check(text))
             if ind >= min_chunks_to_process:
                 if not self.is_legal_text:
                     return False
 
                 # fmt: off
-                if not any(self._wind_mention_mem[-self.num_to_recall:]):
+                if not any(self._solar_mention_mem[-self.num_to_recall:]):
                     continue
 
             logger.debug("Processing text at ind %d", ind)
@@ -249,36 +226,36 @@ class WindOrdinanceValidator(ValidationWithMemory):
             )
             if not is_utility_scale:
                 logger.debug(
-                    "Text at ind %d is not for utility-scale WECS", ind
+                    "Text at ind %d is not for utility-scale SEF", ind
                 )
                 continue
 
-            logger.debug("Text at ind %d is for utility-scale WECS", ind)
+            logger.debug("Text at ind %d is for utility-scale SEF", ind)
 
             self._ordinance_chunks.append({"text": text, "ind": ind})
             logger.debug("Added text at ind %d to ordinances", ind)
             # mask, since we got a good result
-            self._wind_mention_mem[-1] = False
+            self._solar_mention_mem[-1] = False
 
         return bool(self._ordinance_chunks)
 
 
-class WindOrdinanceTextExtractor:
+class SolarOrdinanceTextExtractor:
     """Extract succinct ordinance text from input
 
     Purpose:
         Extract relevant ordinance text from document.
     Responsibilities:
         1. Extract portions from chunked document text relevant to
-           particular ordinance type (e.g. wind zoning for utility-scale
-           systems).
+           particular ordinance type (e.g. solar zoning for
+           utility-scale systems).
     Key Relationships:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries.
     """
 
     SYSTEM_MESSAGE = (
-        "You extract one or more direct excerpts from a given text based on "
+        "You extract direct excerpts from a given text based on "
         "the user's request. Maintain all original formatting and characters "
         "without any paraphrasing. If the relevant text is inside of a "
         "space-delimited table, return the entire table with the original "
@@ -286,27 +263,28 @@ class WindOrdinanceTextExtractor:
         "of the original text directly."
     )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
+        # "Extract direct text excerpts related to the restrictions "
         "Extract all portions of the text related to the restrictions "
-        "of large wind energy systems with respect to any of the following:\n"
+        "of large solar energy systems with respect to any of the following:\n"
         f"{RESTRICTIONS}"
         "Include section headers (if any) for the text excerpts. Also include "
-        "any text excerpts that define what kind of large wind energy "
+        "any text excerpts that define what kind of large solar energy "
         "conversion system the restriction applies to. If there is no text "
-        "related to siting restrictions of large wind systems, simply say: "
+        "related to siting restrictions of large solar systems, simply say: "
         '"No relevant text."'
     )
     MODEL_INSTRUCTIONS_SIZE = (
-        "Extract all portions of the text that apply to large wind "
-        "energy systems. Large wind energy systems (WES) may also be referred "
-        "to as wind turbines, wind energy conversion systems (WECS), wind "
-        "energy facilities (WEF), wind energy turbines (WET), large wind "
-        "energy turbines (LWET), utility-scale wind energy turbines (UWET), "
-        "or similar. Remove all text that only applies to "
-        "private, micro, small, or medium sized wind energy systems. Include "
-        "section headers (if any) for the text excerpts. Also include any "
-        "text excerpts that define what kind of large wind energy conversion "
-        "system the restriction applies to. If there is no text pertaining to "
-        "large wind systems, simply say: "
+        "Extract all portions of the text that apply to large solar "
+        "energy systems. Large solar energy systems (SES) may also be "
+        "referred to as solar energy conversion systems (SECS), "
+        "solar energy facilities (SEF), solar energy farms (SEF), solar farms "
+        "(SF), utility-scale solar energy systems (USES), commercial solar "
+        "energy systems, or similar. Remove all text that "
+        "only applies to private, micro, or small solar energy "
+        "systems. Include section headers (if any) for the text excerpts. "
+        "Also include any text excerpts that define what kind of large solar "
+        "energy conversion system the restriction applies to. If there is no "
+        "text pertaining to large solar systems, simply say: "
         '"No relevant text."'
     )
 

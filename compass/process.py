@@ -4,20 +4,28 @@ import time
 import json
 import asyncio
 import logging
-from datetime import datetime, timedelta
 from pathlib import Path
 from functools import partial
+from collections import namedtuple
+from datetime import datetime, timedelta
 
 import openai
 import pandas as pd
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from elm import ApiBase
 from elm.utilities import validate_azure_api_params
+from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass.download import download_county_ordinance
+from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
+)
+from compass.extraction.solar import (
+    SolarOrdinanceValidator,
+    SolarOrdinanceTextExtractor,
+    StructuredSolarOrdinanceParser,
+    SOLAR_QUESTION_TEMPLATES,
 )
 from compass.extraction.wind import (
     WindOrdinanceValidator,
@@ -49,15 +57,51 @@ from compass.utilities.queued_logging import (
     NoLocationFilter,
 )
 
+
 logger = logging.getLogger(__name__)
-
-
+TechSpec = namedtuple(
+    "TechSpec",
+    ["questions", "document_validator", "text_extractor", "structured_parser"],
+)
+ProcessKwargs = namedtuple(
+    "ProcessKwargs",
+    ["file_loader_kwargs", "td_kwargs", "tpe_kwargs", "ppe_kwargs"],
+    defaults=[None, None, None, None],
+)
+Directories = namedtuple(
+    "Directories",
+    ["out_dir", "log_dir", "clean_dir", "county_ords_dir", "county_dbs_dir"],
+)
+AzureParams = namedtuple(
+    "AzureParams",
+    ["azure_api_key", "azure_version", "azure_endpoint"],
+    defaults=[None, None, None],
+)
+LLMParseArgs = namedtuple(
+    "LLMParseArgs",
+    [
+        "model",
+        "llm_call_kwargs",
+        "llm_service_rate_limit",
+        "text_splitter_chunk_size",
+        "text_splitter_chunk_overlap",
+    ],
+    defaults=["gpt-4", None, 4000, 10_000, 1000],
+)
+WebSearchParams = namedtuple(
+    "WebSearchParams",
+    [
+        "num_urls_to_check_per_county",
+        "max_num_concurrent_browsers",
+        "pytesseract_exe_fp",
+    ],
+    defaults=[5, 10, None],
+)
 OUT_COLS = [
     "county",
     "state",
     "FIPS",
     "feature",
-    "fixed_value",
     "mult_value",
     "mult_type",
     "adder",
@@ -65,25 +109,26 @@ OUT_COLS = [
     "max_dist",
     "value",
     "units",
+    "summary",
     "ord_year",
     "last_updated",
     "section",
     "source",
     "comment",
 ]
-
 CHECK_COLS = [
-    "fixed_value",
     "mult_value",
     "adder",
     "min_dist",
     "max_dist",
     "value",
+    "summary",
 ]
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
+    tech,
     county_fp=None,
     model="gpt-4",
     azure_api_key=None,
@@ -91,8 +136,8 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     azure_endpoint=None,
     llm_call_kwargs=None,
     llm_service_rate_limit=4000,
-    text_splitter_chunk_size=3000,
-    text_splitter_chunk_overlap=300,
+    text_splitter_chunk_size=10_000,
+    text_splitter_chunk_overlap=1000,
     num_urls_to_check_per_county=5,
     max_num_concurrent_browsers=10,
     file_loader_kwargs=None,
@@ -143,13 +188,17 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Token rate limit of LLm service being used (OpenAI).
         By default, ``4000``.
     text_splitter_chunk_size : int, optional
-        Chunk size input to
-        `langchain.text_splitter.RecursiveCharacterTextSplitter`.
-        By default, ``3000``.
+        Chunk size used to split the ordinance text. Parsing is
+        performed on each individual chunk. Units are in token count of
+        the model in charge of parsing ordinance text. Keeping this
+        value low can help reduce token usage since (free) heuristics
+        checks may be able to throw away irrelevant chunks of text
+        before passing to the LLM. By default, ``10000``.
     text_splitter_chunk_overlap : int, optional
-        Chunk overlap input to
-        `langchain.text_splitter.RecursiveCharacterTextSplitter`.
-        By default, ``300``.
+        Overlap of consecutive chunks of the ordinance text. Parsing is
+        performed on each individual chunk. Units are in token count of
+        the model in charge of parsing ordinance text.
+        By default, ``1000``.
     num_urls_to_check_per_county : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
@@ -217,100 +266,112 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         cod=county_ords_dir,
         cdd=county_dbs_dir,
     )
-    out_dir, log_dir, clean_dir, county_ords_dir, county_dbs_dir = dirs
+    ap = AzureParams(
+        *validate_azure_api_params(
+            azure_api_key, azure_version, azure_endpoint
+        )
+    )
+    pk = ProcessKwargs(file_loader_kwargs, td_kwargs, tpe_kwargs, ppe_kwargs)
+    wsp = WebSearchParams(
+        num_urls_to_check_per_county,
+        max_num_concurrent_browsers,
+        pytesseract_exe_fp,
+    )
+    lpa = LLMParseArgs(
+        model,
+        llm_call_kwargs,
+        llm_service_rate_limit,
+        text_splitter_chunk_size,
+        text_splitter_chunk_overlap,
+    )
+
+    if tech.casefold() == "wind":
+        ts = TechSpec(
+            WIND_QUESTION_TEMPLATES,
+            WindOrdinanceValidator,
+            WindOrdinanceTextExtractor,
+            StructuredWindOrdinanceParser,
+        )
+    elif tech.casefold() == "solar":
+        ts = TechSpec(
+            SOLAR_QUESTION_TEMPLATES,
+            SolarOrdinanceValidator,
+            SolarOrdinanceTextExtractor,
+            StructuredSolarOrdinanceParser,
+        )
+    else:
+        msg = f"Unknown tech input: {tech}"
+        raise COMPASSValueError(msg)
+
     async with log_listener as ll:
-        _setup_main_logging(log_dir, log_level, ll)
+        _setup_main_logging(dirs.log_dir, log_level, ll)
         db = await _process_with_logs(
-            out_dir,
-            log_dir,
-            clean_dir,
-            county_ords_dir,
-            county_dbs_dir,
-            ll,
+            dirs=dirs,
+            log_listener=ll,
+            azure_params=ap,
+            tech_specs=ts,
             county_fp=county_fp,
-            model=model,
-            azure_api_key=azure_api_key,
-            azure_version=azure_version,
-            azure_endpoint=azure_endpoint,
-            llm_call_kwargs=llm_call_kwargs,
-            llm_service_rate_limit=llm_service_rate_limit,
-            text_splitter_chunk_size=text_splitter_chunk_size,
-            text_splitter_chunk_overlap=text_splitter_chunk_overlap,
-            num_urls_to_check_per_county=num_urls_to_check_per_county,
-            max_num_concurrent_browsers=max_num_concurrent_browsers,
-            file_loader_kwargs=file_loader_kwargs,
-            pytesseract_exe_fp=pytesseract_exe_fp,
-            td_kwargs=td_kwargs,
-            tpe_kwargs=tpe_kwargs,
-            ppe_kwargs=ppe_kwargs,
+            llm_parse_args=lpa,
+            web_search_params=wsp,
+            process_kwargs=pk,
             log_level=log_level,
         )
-    _record_total_time(out_dir / "usage.json", time.time() - start_time)
+    _record_total_time(dirs.out_dir / "usage.json", time.time() - start_time)
     return db
 
 
-async def _process_with_logs(  # noqa: PLR0917, PLR0913, PLR0914
-    out_dir,
-    log_dir,
-    clean_dir,
-    county_ords_dir,
-    county_dbs_dir,
+async def _process_with_logs(  # noqa: PLR0914
+    dirs,
     log_listener,
+    azure_params,
+    tech_specs,
     county_fp=None,
-    model="gpt-4",
-    azure_api_key=None,
-    azure_version=None,
-    azure_endpoint=None,
-    llm_call_kwargs=None,
-    llm_service_rate_limit=4000,
-    text_splitter_chunk_size=3000,
-    text_splitter_chunk_overlap=300,
-    num_urls_to_check_per_county=5,
-    max_num_concurrent_browsers=10,
-    file_loader_kwargs=None,
-    pytesseract_exe_fp=None,
-    td_kwargs=None,
-    tpe_kwargs=None,
-    ppe_kwargs=None,
+    llm_parse_args=None,
+    web_search_params=None,
+    process_kwargs=None,
     log_level="INFO",
 ):
     """Process counties with logging enabled."""
     counties = _load_counties_to_process(county_fp)
-    azure_api_key, azure_version, azure_endpoint = validate_azure_api_params(
-        azure_api_key, azure_version, azure_endpoint
-    )
+    lpa = llm_parse_args or LLMParseArgs()
+    wsp = web_search_params or WebSearchParams()
+    process_kwargs = process_kwargs or ProcessKwargs()
 
-    tpe_kwargs = _configure_thread_pool_kwargs(tpe_kwargs)
-    file_loader_kwargs = _configure_file_loader_kwargs(file_loader_kwargs)
-    if pytesseract_exe_fp is not None:
-        _setup_pytesseract(pytesseract_exe_fp)
+    tpe_kwargs = _configure_thread_pool_kwargs(process_kwargs.tpe_kwargs)
+    file_loader_kwargs = _configure_file_loader_kwargs(
+        process_kwargs.file_loader_kwargs
+    )
+    if wsp.pytesseract_exe_fp is not None:
+        _setup_pytesseract(wsp.pytesseract_exe_fp)
         file_loader_kwargs.update({"pdf_ocr_read_coroutine": read_pdf_doc_ocr})
 
     text_splitter = RecursiveCharacterTextSplitter(
         RTS_SEPARATORS,
-        chunk_size=text_splitter_chunk_size,
-        chunk_overlap=text_splitter_chunk_overlap,
-        length_function=partial(ApiBase.count_tokens, model=model),
+        chunk_size=lpa.text_splitter_chunk_size,
+        chunk_overlap=lpa.text_splitter_chunk_overlap,
+        length_function=partial(ApiBase.count_tokens, model=lpa.model),
     )
     client = openai.AsyncAzureOpenAI(
-        api_key=azure_api_key,
-        api_version=azure_version,
-        azure_endpoint=azure_endpoint,
+        api_key=azure_params.azure_api_key,
+        api_version=azure_params.azure_version,
+        azure_endpoint=azure_params.azure_endpoint,
     )
 
     services = [
-        OpenAIService(client, rate_limit=llm_service_rate_limit),
-        TempFileCache(td_kwargs=td_kwargs, tpe_kwargs=tpe_kwargs),
-        FileMover(county_ords_dir, tpe_kwargs=tpe_kwargs),
-        CleanedFileWriter(clean_dir, tpe_kwargs=tpe_kwargs),
-        OrdDBFileWriter(county_dbs_dir, tpe_kwargs=tpe_kwargs),
-        UsageUpdater(out_dir / "usage.json", tpe_kwargs=tpe_kwargs),
-        PDFLoader(**(ppe_kwargs or {})),
+        OpenAIService(client, rate_limit=lpa.llm_service_rate_limit),
+        TempFileCache(
+            td_kwargs=process_kwargs.td_kwargs, tpe_kwargs=tpe_kwargs
+        ),
+        FileMover(dirs.county_ords_dir, tpe_kwargs=tpe_kwargs),
+        CleanedFileWriter(dirs.clean_dir, tpe_kwargs=tpe_kwargs),
+        OrdDBFileWriter(dirs.county_dbs_dir, tpe_kwargs=tpe_kwargs),
+        UsageUpdater(dirs.out_dir / "usage.json", tpe_kwargs=tpe_kwargs),
+        PDFLoader(**(process_kwargs.ppe_kwargs or {})),
     ]
 
     browser_semaphore = (
-        asyncio.Semaphore(max_num_concurrent_browsers)
-        if max_num_concurrent_browsers
+        asyncio.Semaphore(wsp.max_num_concurrent_browsers)
+        if wsp.max_num_concurrent_browsers
         else None
     )
 
@@ -327,17 +388,18 @@ async def _process_with_logs(  # noqa: PLR0917, PLR0913, PLR0914
             task = asyncio.create_task(
                 process_county_with_logging(
                     log_listener,
-                    log_dir,
+                    dirs.log_dir,
                     location,
                     text_splitter,
-                    num_urls=num_urls_to_check_per_county,
+                    tech_specs,
+                    num_urls=wsp.num_urls_to_check_per_county,
                     file_loader_kwargs=file_loader_kwargs,
                     browser_semaphore=browser_semaphore,
                     level=log_level,
                     llm_service=OpenAIService,
                     usage_tracker=usage_tracker,
-                    model=model,
-                    **(llm_call_kwargs or {}),
+                    model=lpa.model,
+                    **(lpa.llm_call_kwargs or {}),
                 ),
                 name=location.full_name,
             )
@@ -345,7 +407,7 @@ async def _process_with_logs(  # noqa: PLR0917, PLR0913, PLR0914
         docs = await asyncio.gather(*tasks)
 
     db = _docs_to_db(docs)
-    db.to_csv(out_dir / "wind_db.csv", index=False)
+    db.to_csv(dirs.out_dir / "ordinance_db.csv", index=False)
     return db
 
 
@@ -357,22 +419,16 @@ def _setup_main_logging(log_dir, level, listener):
     listener.addHandler(handler)
 
 
-def _setup_folders(
-    out_dir,
-    log_dir=None,
-    clean_dir=None,
-    cod=None,
-    cdd=None,
-):
+def _setup_folders(out_dir, log_dir=None, clean_dir=None, cod=None, cdd=None):
     """Setup output directory folders"""
     out_dir = Path(out_dir)
-    out_folders = [
+    out_folders = Directories(
         out_dir,
         Path(log_dir) if log_dir else out_dir / "logs",
         Path(clean_dir) if clean_dir else out_dir / "clean",
         Path(cod) if cod else out_dir / "county_ord_files",
         Path(cdd) if cdd else out_dir / "county_dbs",
-    ]
+    )
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
     return out_folders
@@ -405,6 +461,7 @@ async def process_county_with_logging(
     log_dir,
     county,
     text_splitter,
+    tech_specs,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -458,7 +515,7 @@ async def process_county_with_logging(
     ):
         task = asyncio.create_task(
             process_county(
-                WIND_QUESTION_TEMPLATES,
+                tech_specs,
                 county,
                 text_splitter,
                 num_urls=num_urls,
@@ -473,15 +530,15 @@ async def process_county_with_logging(
         except KeyboardInterrupt:
             raise
         except Exception:
-            msg = "Encountered error while processing %s:", county.full_name
-            logger.exception(msg)
+            msg = "Encountered error while processing %s:"
+            logger.exception(msg, county.full_name)
             doc = None
 
         return doc
 
 
 async def process_county(
-    question_templates,
+    tech_specs,
     county,
     text_splitter,
     num_urls=5,
@@ -526,7 +583,7 @@ async def process_county(
     """
     start_time = time.time()
     doc = await _find_document(
-        question_templates,
+        tech_specs,
         county,
         text_splitter,
         start_time,
@@ -537,15 +594,19 @@ async def process_county(
     )
     if doc is None:
         return doc
-    doc = _extract_ordinance_text(doc, text_splitter, **kwargs)
-    doc = await _extract_ordinances_from_text(doc, **kwargs)
+    doc = await _extract_ordinance_text(
+        doc, text_splitter, extractor_class=tech_specs.text_extractor, **kwargs
+    )
+    doc = await _extract_ordinances_from_text(
+        doc, parser_class=tech_specs.structured_parser, **kwargs
+    )
     doc = await _move_files(doc, county)
     await _record_time_and_usage(start_time, **kwargs)
     return doc
 
 
 async def _find_document(
-    question_templates,
+    tech_specs,
     county,
     text_splitter,
     start_time,
@@ -556,10 +617,10 @@ async def _find_document(
 ):
     """Search the web for an ordinance document and construct it"""
     doc = await download_county_ordinance(
-        question_templates,
+        tech_specs.questions,
         county,
         text_splitter,
-        validator_class=WindOrdinanceValidator,
+        validator_class=tech_specs.document_validator,
         num_urls=num_urls,
         file_loader_kwargs=file_loader_kwargs,
         browser_semaphore=browser_semaphore,
@@ -575,10 +636,12 @@ async def _find_document(
     return doc
 
 
-async def _extract_ordinance_text(doc, text_splitter, **kwargs):
+async def _extract_ordinance_text(
+    doc, text_splitter, extractor_class, **kwargs
+):
     """Extract text pertaining to ordinance of interest"""
     llm_caller = LLMCaller(**kwargs)
-    extractor = WindOrdinanceTextExtractor(llm_caller)
+    extractor = extractor_class(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
         doc, text_splitter, extractor
     )
@@ -587,9 +650,9 @@ async def _extract_ordinance_text(doc, text_splitter, **kwargs):
     return await _write_cleaned_text(doc)
 
 
-async def _extract_ordinances_from_text(doc, **kwargs):
+async def _extract_ordinances_from_text(doc, parser_class, **kwargs):
     """Extract values from ordinance text"""
-    parser = StructuredWindOrdinanceParser(**kwargs)
+    parser = parser_class(**kwargs)
     return await extract_ordinance_values(doc, parser)
 
 

@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 
 async def check_for_ordinance_info(
-    doc, text_splitter, validator_class, llm_caller, **kwargs
+    doc, text_splitter, validator_class, **kwargs
 ):
     """Parse a single document for ordinance information
 
