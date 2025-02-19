@@ -78,10 +78,10 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this ordinance. "
             "Does the text mention a multiplier that should be applied to the "
             "structure height to compute the setback distance from {feature}? "
-            "Ignore any text related to {ignore_features}. Begin your "
+            "Focus only on {feature}; do not respond based on any text "
+            "related to {ignore_features}. Please start your "
             "response with either 'Yes' or 'No' and explain your answer."
         ),
     )
@@ -97,17 +97,16 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "out_static",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
-            'five keys. The keys are "value", "units", "summary", "section", '
-            'and "comment". The value of the "value" key should be a '
+            'four keys. The keys are "value", "units", "summary", and '
+            'and "section". The value of the "value" key should be a '
             "numerical value corresponding to the setback distance value "
             "from {feature} or `null` if there was no such value. The value "
             'of the "units" key should be a string corresponding to the units '
             "of the setback distance value from {feature} or `null` if there "
             "was no such value. {SUMMARY_PROMPT} {SECTION_PROMPT} "
-            "{COMMENT_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -140,9 +139,8 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "adder_eq",
         prompt=(
-            "We are only interested in adders that satisfy the following "
-            "equation: 'multiplier * height + <adder>'. Does the "
-            "adder value you identified satisfy this equation? Begin your "
+            "Does the adder value you identified satisfy the following "
+            "equation: 'multiplier * height + <adder>'? Begin your "
             "response with either 'Yes' or 'No' and explain your answer."
         ),
     )
@@ -166,17 +164,17 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "out_m",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
-            "format (not markdown). Your JSON file must include exactly five "
-            'keys. The keys are "mult_value", "adder", "summary", "section", '
-            'and "comment". The value of the "mult_value" key should be a '
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
+            "format (not markdown). Your JSON file must include exactly four "
+            'keys. The keys are "mult_value", "adder", "summary", and '
+            '"section". The value of the "mult_value" key should be a '
             "numerical value corresponding to the multiplier value we "
             'determined earlier. The value of the "adder" key should be a '
             "numerical value corresponding to the static value to be added "
             "to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT} {COMMENT_PROMPT}"
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
 

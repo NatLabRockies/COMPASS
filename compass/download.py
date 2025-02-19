@@ -163,7 +163,10 @@ def _ord_doc_sorting_key(doc):
     )
     prefer_pdf_files = isinstance(doc, PDFDocument)
     highest_name_score = doc.metadata.get(
-        CountyNameValidator.META_SCORE_KEY, 0
+        # missing key means we were so confident that check wasn't
+        # even applied, so we default to 1 here
+        CountyNameValidator.META_SCORE_KEY,
+        1,
     )
     highest_jurisdiction_score = doc.metadata.get(
         CountyJurisdictionValidator.META_SCORE_KEY, 0

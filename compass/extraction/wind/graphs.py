@@ -79,14 +79,15 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this ordinance. "
             "Does the text mention a multiplier that should be applied to a "
             "turbine dimension (e.g. height, rotor diameter, etc) to compute "
-            "the setback distance from {feature}? Ignore any text related to "
-            "{ignore_features}. Remember that 1 is a valid multiplier, and "
-            "treat any mention of 'fall zone' as a system height multiplier "
-            "of 1. Begin your response with either 'Yes' or 'No' and explain "
-            "your answer."
+            "the setback distance from {feature}? "
+            "Focus only on {feature}; do not respond based on any text "
+            "related to {ignore_features}."
+            "Remember that 1 is a valid multiplier, and treat any mention "
+            "of 'fall zone' as a system height multiplier of 1. "
+            "Please start your response with either 'Yes' or 'No' and "
+            "explain your answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -101,17 +102,17 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "out_static",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
-            'five keys. The keys are "value", "units", "summary", '
-            '"section", and "comment". The value of the "value" key '
+            'four keys. The keys are "value", "units", "summary", and '
+            '"section". The value of the "value" key '
             "should be a numerical value corresponding to the setback "
             "distance value from {feature} or `null` if there was no such "
             'value. The value of the "units" key should be a string '
             "corresponding to the units of the setback distance value from "
             "{feature} or `null` if there was no such value. {SUMMARY_PROMPT} "
-            "{SECTION_PROMPT} {COMMENT_PROMPT}"
+            "{SECTION_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -157,9 +158,8 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "adder_eq",
         prompt=(
-            "We are only interested in adders that satisfy the following "
-            "equation: 'multiplier * turbine_dimension + <adder>'. Does the "
-            "adder value you identified satisfy this equation? Begin your "
+            "Does the adder value you identified satisfy the following "
+            "equation: 'multiplier * height + <adder>'? Please begin your "
             "response with either 'Yes' or 'No' and explain your answer."
         ),
     )
@@ -183,11 +183,11 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "out_m",
         prompt=(
-            "Now we are ready to extract structured data. Respond based on "
-            "our entire conversation so far. Return your answer in JSON "
-            "format (not markdown). Your JSON file must include exactly six "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
+            "format (not markdown). Your JSON file must include exactly five "
             'keys. The keys are "mult_value", "mult_type", "adder", '
-            '"summary", "section", and "comment". The value of the '
+            '"summary", and "section". The value of the '
             '"mult_value" key should be a numerical value corresponding to '
             "the multiplier value we determined earlier. The value of the "
             '"mult_type" key should be a string corresponding to the '
@@ -196,7 +196,7 @@ def setup_multiplier(**kwargs):
             "numerical value corresponding to the static value to be added "
             "to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT} {COMMENT_PROMPT}"
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
 
@@ -226,7 +226,6 @@ def setup_conditional(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "We will attempt to extract structured data for this ordinance. "
             "Does the setback from {feature} mention a minimum or maximum "
             "static setback distance regardless of the outcome of the "
             "multiplier calculation? This is often phrased as 'the greater "
@@ -252,15 +251,16 @@ def setup_conditional(**kwargs):
     G.add_node(
         "out_condition",
         prompt=(
-            "Now we are ready to extract structured data. Respond based "
-            "on our entire conversation so far. Return your answer in JSON "
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly two "
             'keys. The keys are "min_dist" and "max_dist". The value of the '
             '"min_dist" key should be a numerical value corresponding to the '
             "minimum setback value from {feature} we determined earlier, or "
             '`null` if no such value exists. The value of the "max_dist" key '
             "should be a numerical value corresponding to the maximum setback "
-            "value from {feature} we determined earlier, or `null` if no such "
+            "value from {feature}  we "
+            "determined earlier, or `null` if no such "
             "value exists."
         ),
     )

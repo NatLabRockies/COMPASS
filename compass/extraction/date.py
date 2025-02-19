@@ -22,7 +22,9 @@ class DateExtractor:
         "that information cannot be found in the text. The fourth key is "
         "'day', which should contain an integer value that represents the "
         "latest day of the month this ordinance was enacted/updated, or null "
-        "if that information cannot be found in the text."
+        "if that information cannot be found in the text. Only provide values "
+        "if you are confident that they represent the latest date this "
+        "ordinance was enacted/updated"
     )
 
     def __init__(self, structured_llm_caller):
@@ -50,10 +52,25 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
-        all_years = []
+        if url := doc.metadata.get("source"):
+            logger.debug("Checking URL for date: %s", url)
+            response = await self.slc.call(
+                sys_msg=self.SYSTEM_MESSAGE,
+                content=(
+                    "Please extract the date from the URL for this "
+                    f"ordinance, if possible:\n{url}"
+                ),
+                usage_sub_label="date_extraction",
+            )
+            if response:
+                date = _parse_date([response])
+                logger.debug("Parsed date from URL: %s", str(date))
+                return date
+
         if not doc.raw_pages:
             return None, None, None
 
+        all_years = []
         for text in doc.raw_pages:
             if not text:
                 continue
@@ -102,4 +119,6 @@ def _parse_date_element(json_list, key, max_len, min_val, max_val):
     ]
     if not date_elements:
         return -1 * float("inf")
-    return max(date_elements)
+    return max(
+        sorted(set(date_elements), reverse=True), key=date_elements.count
+    )

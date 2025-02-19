@@ -114,7 +114,6 @@ OUT_COLS = [
     "last_updated",
     "section",
     "source",
-    "comment",
 ]
 CHECK_COLS = [
     "mult_value",

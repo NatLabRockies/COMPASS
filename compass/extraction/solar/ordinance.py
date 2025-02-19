@@ -263,7 +263,6 @@ class SolarOrdinanceTextExtractor:
         "of the original text directly."
     )
     MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        # "Extract direct text excerpts related to the restrictions "
         "Extract all portions of the text related to the restrictions "
         "of large solar energy systems with respect to any of the following:\n"
         f"{RESTRICTIONS}"

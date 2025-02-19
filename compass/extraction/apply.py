@@ -230,6 +230,7 @@ async def _extract_with_ngram_check(
                 ngram_frac,
                 source,
             )
+            best_score = ngram_frac
             break
 
         if ngram_frac > best_score:
@@ -253,6 +254,7 @@ async def _extract_with_ngram_check(
         logger.warning(msg)
         warn(msg, UserWarning)
 
+    doc.metadata["ngram_score"] = best_score
     return doc
 
 

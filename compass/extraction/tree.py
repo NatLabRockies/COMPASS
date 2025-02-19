@@ -103,7 +103,7 @@ class AsyncDecisionTree(DecisionTree):
         logger.debug(
             "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out
         )
-        return self._parse_graph_output(node0, out)
+        return self._parse_graph_output(node0, out or "")
 
     async def async_run(self, node0="init"):
         """Traverse the decision tree starting at the input node
