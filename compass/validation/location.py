@@ -190,7 +190,7 @@ class CountyValidator:
         ----------
         doc : :class:`elm.web.document.BaseDocument`
             Document instance. Should contain a "source" key in the
-            metadata that contains a URL (used for the URL validation
+            ``attrs`` that contains a URL (used for the URL validation
             check). Raw content will be parsed for county name and
             correct jurisdiction.
         county : str
@@ -204,7 +204,7 @@ class CountyValidator:
             `True` if the doc contents pertain to the input county.
             `False` otherwise.
         """
-        source = doc.metadata.get("source")
+        source = doc.attrs.get("source")
         logger.debug(
             "Validating document from source: %s", source or "Unknown"
         )
@@ -276,12 +276,12 @@ async def _validator_check_for_doc(validator, doc, score_thresh=0.8, **kwargs):
     ]
     out = await asyncio.gather(*validation_checks)
     score = _weighted_vote(out, doc)
-    doc.metadata[validator.META_SCORE_KEY] = score
+    doc.attrs[validator.META_SCORE_KEY] = score
     logger.debug(
         "%s is %.2f for doc from source %s (Pass: %s; threshold: %.2f)",
         validator.META_SCORE_KEY,
         score,
-        doc.metadata.get("source", "Unknown"),
+        doc.attrs.get("source", "Unknown"),
         str(score > score_thresh),
         score_thresh,
     )

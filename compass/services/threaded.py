@@ -16,12 +16,12 @@ from compass.services.base import Service
 
 def _move_file(doc, out_dir):
     """Move a file from a temp directory to an output directory"""
-    cached_fp = doc.metadata.get("cache_fn")
+    cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
         return None
 
     cached_fp = Path(cached_fp)
-    out_fn = doc.metadata.get("location_name", cached_fp.name)
+    out_fn = doc.attrs.get("location_name", cached_fp.name)
     if not out_fn.endswith(cached_fp.suffix):
         out_fn = f"{out_fn}{cached_fp.suffix}"
 
@@ -32,8 +32,8 @@ def _move_file(doc, out_dir):
 
 def _write_cleaned_file(doc, out_dir):
     """Write cleaned ordinance text to directory"""
-    cleaned_text = doc.metadata.get("cleaned_ordinance_text")
-    location_name = doc.metadata.get("location_name")
+    cleaned_text = doc.attrs.get("cleaned_ordinance_text")
+    location_name = doc.attrs.get("location_name")
 
     if cleaned_text is None or location_name is None:
         return None
@@ -45,8 +45,8 @@ def _write_cleaned_file(doc, out_dir):
 
 def _write_ord_db(doc, out_dir):
     """Write parsed ordinance database to directory"""
-    ord_db = doc.metadata.get("ordinance_values")
-    location_name = doc.metadata.get("location_name")
+    ord_db = doc.attrs.get("ordinance_values")
+    location_name = doc.attrs.get("location_name")
 
     if ord_db is None or location_name is None:
         return None
@@ -130,7 +130,7 @@ class TempFileCache(ThreadedService):
         ----------
         doc : elm.web.document.Document
             Document containing meta information about the file. Must
-            have a "source" key in the `metadata` dict containing the
+            have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
             :func:`compute_fn_from_url`.
         file_content : str | bytes
@@ -191,7 +191,7 @@ class StoreFileOnDisk(ThreadedService):
         ----------
         doc : elm.web.document.Document
             Document containing meta information about the file. Must
-            have relevant processing keys in the `metadata` dict,
+            have relevant processing keys in the ``attrs`` dict,
             otherwise the file may not be stored in the output
             directory.
 

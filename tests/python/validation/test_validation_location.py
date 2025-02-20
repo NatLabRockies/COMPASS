@@ -239,7 +239,7 @@ async def test_doc_matches_county(
 ):
     """Test the `CountyValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
-    doc.metadata["source"] = url
+    doc.attrs["source"] = url
 
     county_validator = CountyValidator(structured_llm_caller)
     services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]

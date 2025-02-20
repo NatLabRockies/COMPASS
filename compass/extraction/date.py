@@ -52,7 +52,7 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
-        if url := doc.metadata.get("source"):
+        if url := doc.attrs.get("source"):
             logger.debug("Checking URL for date: %s", url)
             response = await self.slc.call(
                 sys_msg=self.SYSTEM_MESSAGE,

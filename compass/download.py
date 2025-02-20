@@ -145,7 +145,7 @@ async def _down_select_docs_correct_content(docs, location, **kwargs):
 async def _contains_ords(doc, **kwargs):
     """Helper coroutine that checks for ordinance info"""
     doc = await check_for_ordinance_info(doc, **kwargs)
-    return doc.metadata.get("contains_ord_info", False)
+    return doc.attrs.get("contains_ord_info", False)
 
 
 def _sort_final_ord_docs(all_ord_docs):
@@ -158,17 +158,15 @@ def _sort_final_ord_docs(all_ord_docs):
 
 def _ord_doc_sorting_key(doc):
     """Sorting key for documents. The higher this value, the better"""
-    latest_year, latest_month, latest_day = doc.metadata.get(
-        "date", (-1, -1, -1)
-    )
+    latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
     prefer_pdf_files = isinstance(doc, PDFDocument)
-    highest_name_score = doc.metadata.get(
+    highest_name_score = doc.attrs.get(
         # missing key means we were so confident that check wasn't
         # even applied, so we default to 1 here
         CountyNameValidator.META_SCORE_KEY,
         1,
     )
-    highest_jurisdiction_score = doc.metadata.get(
+    highest_jurisdiction_score = doc.attrs.get(
         CountyJurisdictionValidator.META_SCORE_KEY, 0
     )
     shortest_text_length = -1 * len(doc.text)
