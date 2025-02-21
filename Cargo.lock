@@ -924,12 +924,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "nrel-compass-db"
+version = "0.0.3"
+dependencies = [
+ "csv",
+ "duckdb",
+ "serde",
+ "serde_json",
+ "tempfile",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "nrel-ordinance-cli"
 version = "0.0.3"
 dependencies = [
  "clap",
  "duckdb",
- "ordinance",
+ "nrel-compass-db",
  "tracing",
  "tracing-subscriber",
 ]
@@ -1032,20 +1046,6 @@ name = "once_cell"
 version = "1.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "945462a4b81e43c4e3ba96bd7b49d834c6f61198356aa858733bc4acf3cbe62e"
-
-[[package]]
-name = "ordinance"
-version = "0.0.3"
-dependencies = [
- "csv",
- "duckdb",
- "serde",
- "serde_json",
- "tempfile",
- "thiserror",
- "tokio",
- "tracing",
-]
 
 [[package]]
 name = "overload"

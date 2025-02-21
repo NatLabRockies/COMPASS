@@ -9,6 +9,6 @@ rust-version.workspace = true
 [dependencies]
 clap = { workspace = true, features = ["cargo"] }
 duckdb = { workspace = true }
-ordinance = { workspace = true }
+nrel-compass-db = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }
