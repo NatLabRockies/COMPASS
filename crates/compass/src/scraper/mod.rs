@@ -10,7 +10,7 @@ use tracing::{self, trace};
 use crate::error;
 use crate::error::Result;
 use config::ScrapperConfig;
-use usage::ScrapperUsage;
+use usage::Usage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 
@@ -55,14 +55,14 @@ pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
     config: Option<ScrapperConfig>,
-    usage: Option<ScrapperUsage>,
+    usage: Option<Usage>,
 }
 
 impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing ScrappedOrdinance database");
         config::ScrapperConfig::init_db(conn)?;
-        usage::ScrapperUsage::init_db(conn)?;
+        usage::Usage::init_db(conn)?;
 
         Ok(())
     }
@@ -93,7 +93,7 @@ impl ScrappedOrdinance {
         }
         */
         let config = config::ScrapperConfig::open(&root).await?;
-        let usage = usage::ScrapperUsage::open(&root).await?;
+        let usage = usage::Usage::open(&root).await?;
 
         /*
         let usage_file = root.join("ord_db.csv");
@@ -154,7 +154,7 @@ impl ScrappedOrdinance {
     }
 
     #[allow(dead_code)]
-    pub(crate) async fn usage(&self) -> Result<ScrapperUsage> {
+    async fn usage(&self) -> Result<Usage> {
         let usage_file = &self.root.join("usage.json");
         if !usage_file.exists() {
             trace!("Missing usage file: {:?}", usage_file);
@@ -163,7 +163,7 @@ impl ScrappedOrdinance {
             ));
         }
 
-        let usage = ScrapperUsage::from_json(&std::fs::read_to_string(usage_file)?)
+        let usage = Usage::from_json(&std::fs::read_to_string(usage_file)?)
             .expect("Failed to parse usage file");
 
         Ok(usage)
