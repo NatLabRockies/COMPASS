@@ -226,6 +226,8 @@ def setup_conditional(**kwargs):
     G.add_node(
         "init",
         prompt=(
+            "Focus only on setback from {feature}; do not respond based "
+            "on any text related to {ignore_features}."
             "Does the setback from {feature} mention a minimum or maximum "
             "static setback distance regardless of the outcome of the "
             "multiplier calculation? This is often phrased as 'the greater "

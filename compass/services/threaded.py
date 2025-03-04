@@ -7,11 +7,16 @@ from pathlib import Path
 from functools import partial
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
 from elm.web.utilities import write_url_doc_to_file
 
 from compass.services.base import Service
+from compass.utilities import (
+    extract_ord_year_from_doc_attrs,
+    num_ordinances_in_doc,
+)
 
 
 def _move_file(doc, out_dir):
@@ -21,7 +26,9 @@ def _move_file(doc, out_dir):
         return None
 
     cached_fp = Path(cached_fp)
+    date = datetime.now().strftime("%m-%d-%Y")
     out_fn = doc.attrs.get("location_name", cached_fp.name)
+    out_fn = f"{out_fn} (downloaded {date})"
     if not out_fn.endswith(cached_fp.suffix):
         out_fn = f"{out_fn}{cached_fp.suffix}"
 
@@ -274,6 +281,65 @@ class UsageUpdater(ThreadedService):
         self._is_processing = False
 
 
+class JurisdictionUpdater(ThreadedService):
+    """Service that updates jurisdiction info into a file"""
+
+    def __init__(self, jurisdiction_fp, tpe_kwargs=None):
+        """
+
+        Parameters
+        ----------
+        jurisdiction_fp : path-like
+            Path to JSON file where jurisdictions should be tracked.
+        tpe_kwargs : dict, optional
+            Keyword-value argument pairs to pass to
+            :class:`concurrent.futures.ThreadPoolExecutor`.
+            By default, ``None``.
+        """
+        super().__init__(**(tpe_kwargs or {}))
+        self.jurisdiction_fp = jurisdiction_fp
+        self._is_processing = False
+
+    @property
+    def can_process(self):
+        """bool: ``True`` if file not currently being written to"""
+        return not self._is_processing
+
+    async def process(self, county, doc, seconds_elapsed):
+        """Add usage from tracker to file
+
+        Any existing usage info in the file will remain unchanged
+        EXCEPT for anything under the label of the input `tracker`,
+        all of which will be replaced with info from the tracker itself.
+
+        Parameters
+        ----------
+        county : compass.utilities.location.Location
+            County to record.
+        doc : elm.web.document.Document
+            Document containing meta information about the jurisdiction.
+            Must have relevant processing keys in the ``attrs`` dict,
+            otherwise the jurisdiction may not be recorded properly.
+            If ``None``, the jurisdiction is assumed not to have been
+            found.
+        seconds_elapsed : int | float
+            Total number of seconds it took to look for (and possibly
+            parse) this document.
+        """
+        self._is_processing = True
+        await _run_func_in_pool(
+            self.pool,
+            partial(
+                _dump_jurisdiction_info,
+                self.jurisdiction_fp,
+                county,
+                doc,
+                seconds_elapsed,
+            ),
+        )
+        self._is_processing = False
+
+
 async def _run_func_in_pool(pool, callable_fn):
     """Run a callable in process pool"""
     loop = asyncio.get_running_loop()
@@ -291,3 +357,36 @@ def _dump_usage(fp, tracker):
     tracker.add_to(usage_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
         json.dump(usage_info, fh, indent=4)
+
+
+def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
+    """Dump jurisdiction info to an existing file"""
+    if not Path(fp).exists():
+        jurisdiction_info = {"jurisdictions": []}
+    else:
+        with Path.open(fp, encoding="utf-8") as fh:
+            jurisdiction_info = json.load(fh)
+
+    new_info = {
+        "name": county.full_name,
+        "county": county.name,
+        "state": county.state,
+        "subdivision": None,
+        "subdivision_type": None,
+        "FIPS": county.fips,
+        "found": False,
+        "total_time_seconds": seconds_elapsed,
+        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
+    }
+    if num_ordinances_in_doc(doc) > 0:
+        new_info["found"] = True
+        new_info["num_pages"] = len(doc.pages)
+        new_info["source"] = doc.attrs.get("source")
+        new_info["ord_year"] = extract_ord_year_from_doc_attrs(doc)
+        new_info["ord_filename"] = Path(
+            doc.attrs.get("out_fp", "Unknown")
+        ).name
+
+    jurisdiction_info["jurisdictions"].append(new_info)
+    with Path.open(fp, "w", encoding="utf-8") as fh:
+        json.dump(jurisdiction_info, fh, indent=4)

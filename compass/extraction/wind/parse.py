@@ -4,6 +4,7 @@ import asyncio
 import logging
 from copy import deepcopy
 from itertools import chain
+from warnings import warn
 
 import pandas as pd
 
@@ -25,6 +26,7 @@ from compass.extraction.wind.graphs import (
     setup_multiplier,
     setup_conditional,
 )
+from compass.warnings import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -168,7 +170,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
         )
         info = await run_async_tree(tree)
-        info.update({"feature": feature})
+        info.update({"feature": feature, "quantitative": is_numerical})
         return [info]
 
     async def _parse_setback_feature(
@@ -203,7 +205,7 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         """Get base messages for setback feature parsing"""
         system_message = SETBACKS_SYSTEM_MESSAGE.format(
             feature=feature_kwargs["feature"],
-            tech=feature_kwargs["wes_type"],
+            tech=feature_kwargs["tech"],
         )
         tree = setup_async_decision_tree(
             setup_base_graph,
@@ -270,8 +272,9 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         decision_tree_out = await self._run_setback_graph(
             setup_multiplier, text, **kwargs
         )
+        decision_tree_out = _update_output_keys(decision_tree_out)
 
-        if decision_tree_out.get("mult_value") is None:
+        if decision_tree_out.get("value") is None:
             return decision_tree_out
 
         decision_tree_conditional_out = await self._run_setback_graph(
@@ -303,3 +306,25 @@ class StructuredWindOrdinanceParser(BaseLLMCaller):
         if base_messages:
             return await run_async_tree_with_bm(tree, base_messages)
         return await run_async_tree(tree)
+
+
+def _update_output_keys(output):
+    """Standardize output keys
+
+    We could standardize output keys by modifying the LLM prompts, but
+    have found that it's more accurate to instruct the LLM to use
+    descriptive keys (e.g. "mult_value" instead of "value" or
+    "mult_type" instead of "units")
+    """
+
+    if "mult_value" not in output:
+        return output
+
+    output["value"] = output.pop("mult_value")
+
+    if units := output.get("units"):
+        msg = f"Found non-null units value for multiplier: {units}"
+        warn(msg, COMPASSWarning)
+    output["units"] = output.pop("mult_type", None)
+
+    return output

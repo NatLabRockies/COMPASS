@@ -4,17 +4,20 @@ import time
 import json
 import asyncio
 import logging
+import getpass
 from pathlib import Path
 from functools import partial
 from collections import namedtuple
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 
 import openai
 import pandas as pd
 from elm import ApiBase
+from elm.version import __version__ as elm_version
 from elm.utilities import validate_azure_api_params
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
+from compass import __version__ as compass_version
 from compass.download import download_county_ordinance
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
@@ -44,11 +47,14 @@ from compass.services.threaded import (
     CleanedFileWriter,
     OrdDBFileWriter,
     UsageUpdater,
+    JurisdictionUpdater,
 )
 from compass.utilities import (
     RTS_SEPARATORS,
     load_all_county_info,
     load_counties_from_fp,
+    extract_ord_year_from_doc_attrs,
+    num_ordinances_in_doc,
 )
 from compass.utilities.location import County
 from compass.utilities.queued_logging import (
@@ -70,7 +76,7 @@ ProcessKwargs = namedtuple(
 )
 Directories = namedtuple(
     "Directories",
-    ["out_dir", "log_dir", "clean_dir", "county_ords_dir", "county_dbs_dir"],
+    ["out", "logs", "clean_files", "ordinance_files", "jurisdiction_dbs"],
 )
 AzureParams = namedtuple(
     "AzureParams",
@@ -97,32 +103,24 @@ WebSearchParams = namedtuple(
     ],
     defaults=[5, 10, None],
 )
-OUT_COLS = [
+PARSED_COLS = [
     "county",
     "state",
     "FIPS",
     "feature",
-    "mult_value",
-    "mult_type",
-    "adder",
-    "min_dist",
-    "max_dist",
     "value",
     "units",
-    "summary",
-    "ord_year",
-    "last_updated",
-    "section",
-    "source",
-]
-CHECK_COLS = [
-    "mult_value",
     "adder",
     "min_dist",
     "max_dist",
-    "value",
     "summary",
+    "ord_year",
+    "section",
+    "source",
+    "quantitative",
 ]
+QUANT_OUT_COLS = PARSED_COLS[:-1]
+QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-5:-1]
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
@@ -146,7 +144,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     ppe_kwargs=None,
     log_dir=None,
     clean_dir=None,
-    county_ords_dir=None,
+    ordinance_file_dir=None,
     county_dbs_dir=None,
     log_level="INFO",
 ):
@@ -236,7 +234,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         directory will be created if it does not exist. By default,
         ``None``, which creates a ``clean`` folder in the output
         directory for the cleaned ordinance text files.
-    county_ords_dir : path-like, optional
+    ordinance_file_dir : path-like, optional
         Path to directory for individual county ordinance file outputs.
         This directory will be created if it does not exist.
         By default, ``None``, which creates a ``county_ord_files``
@@ -256,13 +254,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         DataFrame of parsed ordinance information. This file will also
         be stored in the output directory under "wind_db.csv".
     """
-    start_time = time.time()
     log_listener = LogListener(["compass", "elm"], level=log_level)
     dirs = _setup_folders(
         out_dir,
         log_dir=log_dir,
         clean_dir=clean_dir,
-        cod=county_ords_dir,
+        ofd=ordinance_file_dir,
         cdd=county_dbs_dir,
     )
     ap = AzureParams(
@@ -284,46 +281,26 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         text_splitter_chunk_overlap,
     )
 
-    if tech.casefold() == "wind":
-        ts = TechSpec(
-            WIND_QUESTION_TEMPLATES,
-            WindOrdinanceValidator,
-            WindOrdinanceTextExtractor,
-            StructuredWindOrdinanceParser,
-        )
-    elif tech.casefold() == "solar":
-        ts = TechSpec(
-            SOLAR_QUESTION_TEMPLATES,
-            SolarOrdinanceValidator,
-            SolarOrdinanceTextExtractor,
-            StructuredSolarOrdinanceParser,
-        )
-    else:
-        msg = f"Unknown tech input: {tech}"
-        raise COMPASSValueError(msg)
-
     async with log_listener as ll:
-        _setup_main_logging(dirs.log_dir, log_level, ll)
-        db = await _process_with_logs(
+        _setup_main_logging(dirs.logs, log_level, ll)
+        return await _process_with_logs(
             dirs=dirs,
             log_listener=ll,
             azure_params=ap,
-            tech_specs=ts,
+            tech=tech,
             county_fp=county_fp,
             llm_parse_args=lpa,
             web_search_params=wsp,
             process_kwargs=pk,
             log_level=log_level,
         )
-    _record_total_time(dirs.out_dir / "usage.json", time.time() - start_time)
-    return db
 
 
 async def _process_with_logs(  # noqa: PLR0914
     dirs,
     log_listener,
     azure_params,
-    tech_specs,
+    tech,
     county_fp=None,
     llm_parse_args=None,
     web_search_params=None,
@@ -355,16 +332,36 @@ async def _process_with_logs(  # noqa: PLR0914
         api_version=azure_params.azure_version,
         azure_endpoint=azure_params.azure_endpoint,
     )
+    if tech.casefold() == "wind":
+        tech_specs = TechSpec(
+            WIND_QUESTION_TEMPLATES,
+            WindOrdinanceValidator,
+            WindOrdinanceTextExtractor,
+            StructuredWindOrdinanceParser,
+        )
+    elif tech.casefold() == "solar":
+        tech_specs = TechSpec(
+            SOLAR_QUESTION_TEMPLATES,
+            SolarOrdinanceValidator,
+            SolarOrdinanceTextExtractor,
+            StructuredSolarOrdinanceParser,
+        )
+    else:
+        msg = f"Unknown tech input: {tech}"
+        raise COMPASSValueError(msg)
 
     services = [
         OpenAIService(client, rate_limit=lpa.llm_service_rate_limit),
         TempFileCache(
             td_kwargs=process_kwargs.td_kwargs, tpe_kwargs=tpe_kwargs
         ),
-        FileMover(dirs.county_ords_dir, tpe_kwargs=tpe_kwargs),
-        CleanedFileWriter(dirs.clean_dir, tpe_kwargs=tpe_kwargs),
-        OrdDBFileWriter(dirs.county_dbs_dir, tpe_kwargs=tpe_kwargs),
-        UsageUpdater(dirs.out_dir / "usage.json", tpe_kwargs=tpe_kwargs),
+        FileMover(dirs.ordinance_files, tpe_kwargs=tpe_kwargs),
+        CleanedFileWriter(dirs.clean_files, tpe_kwargs=tpe_kwargs),
+        OrdDBFileWriter(dirs.jurisdiction_dbs, tpe_kwargs=tpe_kwargs),
+        UsageUpdater(dirs.out / "usage.json", tpe_kwargs=tpe_kwargs),
+        JurisdictionUpdater(
+            dirs.out / "jurisdictions.json", tpe_kwargs=tpe_kwargs
+        ),
         PDFLoader(**(process_kwargs.ppe_kwargs or {})),
     ]
 
@@ -374,6 +371,8 @@ async def _process_with_logs(  # noqa: PLR0914
         else None
     )
 
+    start_date = datetime.now(UTC).isoformat()
+    start_time = time.monotonic()
     async with RunningAsyncServices(services):
         tasks = []
         trackers = []
@@ -387,7 +386,7 @@ async def _process_with_logs(  # noqa: PLR0914
             task = asyncio.create_task(
                 process_county_with_logging(
                     log_listener,
-                    dirs.log_dir,
+                    dirs.logs,
                     location,
                     text_splitter,
                     tech_specs,
@@ -405,8 +404,17 @@ async def _process_with_logs(  # noqa: PLR0914
             tasks.append(task)
         docs = await asyncio.gather(*tasks)
 
-    db = _docs_to_db(docs)
-    db.to_csv(dirs.out_dir / "ordinance_db.csv", index=False)
+    db, num_docs_found = _docs_to_db(docs)
+    _save_db(db, dirs.out)
+    _save_run_meta(
+        dirs,
+        tech,
+        start_time,
+        start_date,
+        num_jurisdictions_searched=len(counties),
+        num_jurisdictions_found=num_docs_found,
+        llm_parse_args=lpa,
+    )
     return db
 
 
@@ -418,15 +426,15 @@ def _setup_main_logging(log_dir, level, listener):
     listener.addHandler(handler)
 
 
-def _setup_folders(out_dir, log_dir=None, clean_dir=None, cod=None, cdd=None):
+def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, cdd=None):
     """Setup output directory folders"""
     out_dir = Path(out_dir)
     out_folders = Directories(
         out_dir,
         Path(log_dir) if log_dir else out_dir / "logs",
-        Path(clean_dir) if clean_dir else out_dir / "clean",
-        Path(cod) if cod else out_dir / "county_ord_files",
-        Path(cdd) if cdd else out_dir / "county_dbs",
+        Path(clean_dir) if clean_dir else out_dir / "cleaned_text",
+        Path(ofd) if ofd else out_dir / "ordinance_files",
+        Path(cdd) if cdd else out_dir / "jurisdiction_dbs",
     )
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
@@ -580,19 +588,21 @@ async def process_county(
         document was found. Extracted ordinance information is stored in
         the document's ``attrs`` attribute.
     """
-    start_time = time.time()
+    start_time = time.monotonic()
     doc = await _find_document(
         tech_specs,
         county,
         text_splitter,
-        start_time,
         num_urls=num_urls,
         file_loader_kwargs=file_loader_kwargs,
         browser_semaphore=browser_semaphore,
         **kwargs,
     )
     if doc is None:
+        await _record_usage(**kwargs)
+        await _record_jurisdiction_info(county, doc, start_time)
         return doc
+
     doc = await _extract_ordinance_text(
         doc, text_splitter, extractor_class=tech_specs.text_extractor, **kwargs
     )
@@ -600,7 +610,8 @@ async def process_county(
         doc, parser_class=tech_specs.structured_parser, **kwargs
     )
     doc = await _move_files(doc, county)
-    await _record_time_and_usage(start_time, **kwargs)
+    await _record_usage(**kwargs)
+    await _record_jurisdiction_info(county, doc, start_time)
     return doc
 
 
@@ -608,7 +619,6 @@ async def _find_document(
     tech_specs,
     county,
     text_splitter,
-    start_time,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -626,7 +636,6 @@ async def _find_document(
         **kwargs,
     )
     if doc is None:
-        await _record_time_and_usage(start_time, **kwargs)
         return None
 
     doc.attrs["location"] = county
@@ -657,7 +666,7 @@ async def _extract_ordinances_from_text(doc, parser_class, **kwargs):
 
 async def _move_files(doc, county):
     """Move files to output folders, if applicable"""
-    ord_count = _num_ords_in_doc(doc)
+    ord_count = num_ordinances_in_doc(doc)
     if ord_count == 0:
         logger.info("No ordinances found for %s.", county.full_name)
         return doc
@@ -673,23 +682,6 @@ async def _move_files(doc, county):
     return doc
 
 
-async def _record_usage(**kwargs):
-    """Dump usage to file if tracker found in kwargs"""
-    usage_tracker = kwargs.get("usage_tracker")
-    if usage_tracker:
-        await UsageUpdater.call(usage_tracker)
-
-
-async def _record_time_and_usage(start_time, **kwargs):
-    """Add elapsed time before updating usage to file"""
-    seconds_elapsed = time.time() - start_time
-    usage_tracker = kwargs.get("usage_tracker")
-    if usage_tracker:
-        usage_tracker["total_time_seconds"] = seconds_elapsed
-        usage_tracker["total_time"] = str(timedelta(seconds=seconds_elapsed))
-        await UsageUpdater.call(usage_tracker)
-
-
 async def _move_file_to_out_dir(doc):
     """Move PDF or HTML text file to output directory"""
     out_fp = await FileMover.call(doc)
@@ -698,17 +690,30 @@ async def _move_file_to_out_dir(doc):
 
 
 async def _write_cleaned_text(doc):
-    """Write cleaned text to `clean_dir`"""
+    """Write cleaned text to `clean_files` dir"""
     out_fp = await CleanedFileWriter.call(doc)
     doc.attrs["cleaned_fp"] = out_fp
     return doc
 
 
 async def _write_ord_db(doc):
-    """Write cleaned text to `county_dbs_dir`"""
+    """Write cleaned text to `jurisdiction_dbs` dir"""
     out_fp = await OrdDBFileWriter.call(doc)
     doc.attrs["ord_db_fp"] = out_fp
     return doc
+
+
+async def _record_usage(**kwargs):
+    """Dump usage to file if tracker found in kwargs"""
+    usage_tracker = kwargs.get("usage_tracker")
+    if usage_tracker:
+        await UsageUpdater.call(usage_tracker)
+
+
+async def _record_jurisdiction_info(county, doc, start_time):
+    """Record info about jurisdiction"""
+    seconds_elapsed = time.monotonic() - start_time
+    await JurisdictionUpdater.call(county, doc, seconds_elapsed)
 
 
 def _setup_pytesseract(exe_fp):
@@ -719,44 +724,6 @@ def _setup_pytesseract(exe_fp):
     pytesseract.pytesseract.tesseract_cmd = exe_fp
 
 
-def _record_total_time(fp, seconds_elapsed):
-    """Dump usage to an existing file."""
-    fp = Path(fp)
-    if not fp.exists():
-        usage_info = {}
-    else:
-        with fp.open(encoding="utf-8") as fh:
-            usage_info = json.load(fh)
-
-    total_time_str = str(timedelta(seconds=seconds_elapsed))
-    usage_info["total_time_seconds"] = seconds_elapsed
-    usage_info["total_time"] = total_time_str
-
-    with fp.open("w", encoding="utf-8") as fh:
-        json.dump(usage_info, fh, indent=4)
-
-    logger.info("Total processing time: %s", total_time_str)
-
-
-def _num_ords_in_doc(doc):
-    """Check if doc contains any scraped ordinance values"""
-    if doc is None:
-        return 0
-
-    if "ordinance_values" not in doc.attrs:
-        return 0
-
-    ord_vals = doc.attrs["ordinance_values"]
-    if ord_vals.empty:
-        return 0
-
-    check_cols = [col for col in CHECK_COLS if col in ord_vals]
-    if not check_cols:
-        return 0
-
-    return (~ord_vals[check_cols].isna()).to_numpy().sum(axis=1).sum()
-
-
 def _docs_to_db(docs):
     """Convert list of docs to output database"""
     db = []
@@ -764,7 +731,7 @@ def _docs_to_db(docs):
         if doc is None or isinstance(doc, Exception):
             continue
 
-        if _num_ords_in_doc(doc) == 0:
+        if num_ordinances_in_doc(doc) == 0:
             continue
 
         results = _db_results(doc)
@@ -772,11 +739,12 @@ def _docs_to_db(docs):
         db.append(results)
 
     if not db:
-        return pd.DataFrame(columns=OUT_COLS)
+        return pd.DataFrame(columns=PARSED_COLS), 0
 
+    num_jurisdictions_found = len(db)
     db = pd.concat(db)
     db = _empirical_adjustments(db)
-    return _formatted_db(db)
+    return _formatted_db(db), num_jurisdictions_found
 
 
 def _db_results(doc):
@@ -786,9 +754,7 @@ def _db_results(doc):
         return None
 
     results["source"] = doc.attrs.get("source")
-    year = doc.attrs.get("date", (None, None, None))[0]
-    results["ord_year"] = year if year is not None and year > 0 else None
-    results["last_updated"] = datetime.now().strftime("%m/%d/%Y")
+    results["ord_year"] = extract_ord_year_from_doc_attrs(doc)
 
     location = doc.attrs["location"]
     results["FIPS"] = location.fips
@@ -805,7 +771,8 @@ def _empirical_adjustments(db):
         - Limit adder to max of 250 ft.
             - Chat GPT likes to report large values here, but in
             practice all values manually observed in ordinance documents
-            are below 250 ft.
+            are below 250 ft. If large value is detected, assume it's an
+            error on Chat GPT's part and remove it.
 
     """
     if "adder" in db.columns:
@@ -815,5 +782,81 @@ def _empirical_adjustments(db):
 
 def _formatted_db(db):
     """Format DataFrame for output"""
-    out_cols = [col for col in OUT_COLS if col in db.columns]
-    return db[out_cols]
+    for col in PARSED_COLS:
+        if col not in db.columns:
+            db[col] = None
+
+    db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
+    return db[PARSED_COLS]
+
+
+def _save_db(db, out_dir):
+    """Split DB into qualitative vs quantitative and save to disk"""
+    if db.empty:
+        return
+    qual_db = db[~db["quantitative"]][QUAL_OUT_COLS]
+    quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
+    qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
+    quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
+
+
+def _save_run_meta(
+    dirs,
+    tech,
+    start_time,
+    start_date,
+    num_jurisdictions_searched,
+    num_jurisdictions_found,
+    llm_parse_args,
+):
+    """Write out meta information about ordinance collection run"""
+    end_date = datetime.now(UTC).isoformat()
+    end_time = time.monotonic()
+    seconds_elapsed = end_time - start_time
+
+    try:
+        username = getpass.getuser()
+    except OSError:
+        username = "Unknown"
+
+    meta_data = {
+        "username": username,
+        "versions": {"elm": elm_version, "compass": compass_version},
+        "technology": tech,
+        "llm_parse_args": {
+            "llm_call_kwargs": llm_parse_args.llm_call_kwargs,
+            "text_splitter_chunk_size": (
+                llm_parse_args.text_splitter_chunk_size
+            ),
+            "text_splitter_chunk_overlap": (
+                llm_parse_args.text_splitter_chunk_overlap
+            ),
+        },
+        "time_start_utc": start_date,
+        "time_end_utc": end_date,
+        "total_time_seconds": seconds_elapsed,
+        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
+        "num_jurisdictions_searched": num_jurisdictions_searched,
+        "num_jurisdictions_found": num_jurisdictions_found,
+        "manifest": {},
+    }
+    manifest = {
+        "OUT_DIR": dirs.out,
+        "LOG_DIR": dirs.logs,
+        "CLEAN_FILE_DIR": dirs.clean_files,
+        "JURISDICTION_DBS_DIR": dirs.jurisdiction_dbs,
+        "ORDINANCE_FILES_DIR": dirs.ordinance_files,
+        "USAGE_FILE": dirs.out / "usage.json",
+        "JURISDICTION_FILE": dirs.out / "jurisdictions.json",
+        "QUANT_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
+        "QUAL_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
+    }
+    for name, file_path in manifest.items():
+        if file_path.exists():
+            meta_data["manifest"][name] = str(file_path)
+        else:
+            meta_data["manifest"][name] = None
+
+    meta_data["manifest"]["META_FILE"] = str(dirs.out / "meta.json")
+    with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
+        json.dump(meta_data, fh, indent=4)
