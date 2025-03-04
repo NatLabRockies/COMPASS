@@ -244,6 +244,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/bf/b9/b0eb3f3cbcb734d930fdf839431606844a825b23eaf9a6ab371edac8162c/psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/dc/7d/cc11b4283a6f255bea76458d663d1d41de396bc50100f2f7af603dbe6d65/pyjson5-1.6.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -475,6 +476,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/ed/e6/2d26234410f8b8abdbf891c9da62bee396583f713fb9f3325a4760875d22/psutil-7.0.0-cp36-abi3-macosx_10_9_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/60/60/c9e84e3b2520f7b67412173c7d17d98ab24fbef874bcfcf51eb83622fa9a/pyjson5-1.6.8-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/61/a6/814865b2f85e20b272aac0bb8818f9b69d6c68c16fa07398b1ee3680de29/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -706,6 +708,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/04/8b/30f930733afe425e3cbfc0e1468a30a18942350c1a8816acfade80c005c4/psutil-7.0.0-cp36-abi3-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/ae/dd/4c9569654dc42c42d2a029e77e4371687bfb6f9f4afda6f1c8adda5d655d/pyjson5-1.6.8-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/79/52/211774912511af0c1fa5d57affecd8806f611f08d5a1c71834a1511c1be7/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -913,6 +916,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/50/1b/6921afe68c74868b4c9fa424dad3be35b095e16687989ebbb50ce4fceb7c/psutil-7.0.0-cp37-abi3-win_amd64.whl
+      - pypi: https://files.pythonhosted.org/packages/d6/07/430e3a960daf322e7f4b82515ec64d6f2febccdeba31a421c2daab8a1786/pyjson5-1.6.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/3e/49d8e310cb52f20554f2bab73527f04a94ac5b47b88974c7761427212187/rebrowser_playwright-1.47.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -1323,6 +1327,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/dc/7d/cc11b4283a6f255bea76458d663d1d41de396bc50100f2f7af603dbe6d65/pyjson5-1.6.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
@@ -1706,6 +1711,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/60/60/c9e84e3b2520f7b67412173c7d17d98ab24fbef874bcfcf51eb83622fa9a/pyjson5-1.6.8-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/61/a6/814865b2f85e20b272aac0bb8818f9b69d6c68c16fa07398b1ee3680de29/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_universal2.whl
@@ -2089,6 +2095,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/ae/dd/4c9569654dc42c42d2a029e77e4371687bfb6f9f4afda6f1c8adda5d655d/pyjson5-1.6.8-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/79/52/211774912511af0c1fa5d57affecd8806f611f08d5a1c71834a1511c1be7/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_arm64.whl
@@ -2469,6 +2476,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
+      - pypi: https://files.pythonhosted.org/packages/d6/07/430e3a960daf322e7f4b82515ec64d6f2febccdeba31a421c2daab8a1786/pyjson5-1.6.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/bd/24/12818598c362d7f300f18e74db45963dbcb85150324092410c8b49405e42/pyproject_hooks-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/3e/49d8e310cb52f20554f2bab73527f04a94ac5b47b88974c7761427212187/rebrowser_playwright-1.47.0-py3-none-win_amd64.whl
@@ -2742,6 +2750,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/dc/7d/cc11b4283a6f255bea76458d663d1d41de396bc50100f2f7af603dbe6d65/pyjson5-1.6.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -2992,6 +3001,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/60/60/c9e84e3b2520f7b67412173c7d17d98ab24fbef874bcfcf51eb83622fa9a/pyjson5-1.6.8-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/61/a6/814865b2f85e20b272aac0bb8818f9b69d6c68c16fa07398b1ee3680de29/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -3242,6 +3252,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/ae/dd/4c9569654dc42c42d2a029e77e4371687bfb6f9f4afda6f1c8adda5d655d/pyjson5-1.6.8-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/79/52/211774912511af0c1fa5d57affecd8806f611f08d5a1c71834a1511c1be7/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -3492,6 +3503,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
+      - pypi: https://files.pythonhosted.org/packages/d6/07/430e3a960daf322e7f4b82515ec64d6f2febccdeba31a421c2daab8a1786/pyjson5-1.6.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/3e/49d8e310cb52f20554f2bab73527f04a94ac5b47b88974c7761427212187/rebrowser_playwright-1.47.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -3700,6 +3712,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/dc/7d/cc11b4283a6f255bea76458d663d1d41de396bc50100f2f7af603dbe6d65/pyjson5-1.6.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fb/cd/3708503fd7c6d99c3bf15ebf2dd03675c431ed0da54771d5c7c2e784e845/rebrowser_playwright-1.49.1-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -3887,6 +3900,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
+      - pypi: https://files.pythonhosted.org/packages/60/60/c9e84e3b2520f7b67412173c7d17d98ab24fbef874bcfcf51eb83622fa9a/pyjson5-1.6.8-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/61/a6/814865b2f85e20b272aac0bb8818f9b69d6c68c16fa07398b1ee3680de29/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -4074,6 +4088,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
+      - pypi: https://files.pythonhosted.org/packages/ae/dd/4c9569654dc42c42d2a029e77e4371687bfb6f9f4afda6f1c8adda5d655d/pyjson5-1.6.8-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/79/52/211774912511af0c1fa5d57affecd8806f611f08d5a1c71834a1511c1be7/rebrowser_playwright-1.49.1-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -4263,6 +4278,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
+      - pypi: https://files.pythonhosted.org/packages/d6/07/430e3a960daf322e7f4b82515ec64d6f2febccdeba31a421c2daab8a1786/pyjson5-1.6.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/3e/49d8e310cb52f20554f2bab73527f04a94ac5b47b88974c7761427212187/rebrowser_playwright-1.47.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b3/63/e9e81d5e7370d46f08407c37399b507725125587b01fff46b4da5ddd3a4a/requests_unixsocket-0.3.0-py2.py3-none-any.whl
@@ -4386,6 +4402,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f4/3c/8cc1cc84deffa6e25d2d0c688ebb80635dfdbf1dbea3e30c541c8cf4d860/pydantic-2.10.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a6/74/d12b2cd841d8724dc8ffb13fc5cef86566a53ed358103150209ecd5d1999/pydantic_core-2.27.2-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/1d/0d/95993c08c721ec68892547f2117e8f9dfbcef2ca71e098533541b4a54d5f/pyee-12.0.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/d4/ca/f5b147b8a186e37a9339290dd9c8271aae94eab0307169124ec83c74aa99/pyjson5-1.6.8-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1c/a7/c8a2d361bf89c0d9577c934ebb7421b25dc84bf3a8e3ac0a40aed9acc547/pyparsing-3.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8e/5e/c86a5643653825d3c913719e788e41386bee415c2b87b4f955432f2de6b2/pypdf2-3.0.1-py3-none-any.whl
@@ -4530,6 +4547,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f4/3c/8cc1cc84deffa6e25d2d0c688ebb80635dfdbf1dbea3e30c541c8cf4d860/pydantic-2.10.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/41/b1/9bc383f48f8002f99104e3acff6cba1231b29ef76cfa45d1506a5cad1f84/pydantic_core-2.27.2-cp313-cp313-macosx_10_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/1d/0d/95993c08c721ec68892547f2117e8f9dfbcef2ca71e098533541b4a54d5f/pyee-12.0.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/42/43/3b2a26ca84573209616675d63ffe559a6e8b73488d6c11e4a45f0204fc3e/pyjson5-1.6.8-cp313-cp313-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1c/a7/c8a2d361bf89c0d9577c934ebb7421b25dc84bf3a8e3ac0a40aed9acc547/pyparsing-3.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8e/5e/c86a5643653825d3c913719e788e41386bee415c2b87b4f955432f2de6b2/pypdf2-3.0.1-py3-none-any.whl
@@ -4675,6 +4693,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f4/3c/8cc1cc84deffa6e25d2d0c688ebb80635dfdbf1dbea3e30c541c8cf4d860/pydantic-2.10.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/6c/e62b8657b834f3eb2961b49ec8e301eb99946245e70bf42c8817350cbefc/pydantic_core-2.27.2-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/1d/0d/95993c08c721ec68892547f2117e8f9dfbcef2ca71e098533541b4a54d5f/pyee-12.0.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/9d/cd/ad93170f8b7934b13e5a340daed934e7a8591e5d08abf3f50ab144a2663d/pyjson5-1.6.8-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1c/a7/c8a2d361bf89c0d9577c934ebb7421b25dc84bf3a8e3ac0a40aed9acc547/pyparsing-3.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8e/5e/c86a5643653825d3c913719e788e41386bee415c2b87b4f955432f2de6b2/pypdf2-3.0.1-py3-none-any.whl
@@ -4797,6 +4816,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f4/3c/8cc1cc84deffa6e25d2d0c688ebb80635dfdbf1dbea3e30c541c8cf4d860/pydantic-2.10.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/71/47/82b5e846e01b26ac6f1893d3c5f9f3a2eb6ba79be26eef0b759b4fe72946/pydantic_core-2.27.2-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/1d/0d/95993c08c721ec68892547f2117e8f9dfbcef2ca71e098533541b4a54d5f/pyee-12.0.0-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/67/d9/9bd17bc0c99d2d917900114d548414f609ea81947e58f6525068d673fc77/pyjson5-1.6.8-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1c/a7/c8a2d361bf89c0d9577c934ebb7421b25dc84bf3a8e3ac0a40aed9acc547/pyparsing-3.2.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/8e/5e/c86a5643653825d3c913719e788e41386bee415c2b87b4f955432f2de6b2/pypdf2-3.0.1-py3-none-any.whl
@@ -12463,8 +12483,8 @@ packages:
   timestamp: 1733408419340
 - pypi: .
   name: nrel-compass
-  version: 0.1.1.dev14+g8a36a0d.d20250219
-  sha256: 76a64498be7a741e8c77a2b7821472d444d33a79a7658fa3577087093da446c8
+  version: 0.1.1.dev17+gb569353.d20250304
+  sha256: f7d45d27e44590d5d6fb10f4cee2e27b64d8eb56e85b2ccdee5f89ca329158ad
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4
@@ -12473,6 +12493,7 @@ packages:
   - nrel-elm>=0.0.11,<1
   - openai>=1.1.0
   - pandas>=2.2.3,<3
+  - pyjson5>=1.6.8,<2
   - pytesseract>=0.3.13,<0.4 ; extra == 'ocr'
   - build>=0.10 ; extra == 'dev'
   - pipreqs ; extra == 'dev'
@@ -15032,6 +15053,46 @@ packages:
   - pkg:pypi/pygments?source=hash-mapping
   size: 888600
   timestamp: 1736243563082
+- pypi: https://files.pythonhosted.org/packages/42/43/3b2a26ca84573209616675d63ffe559a6e8b73488d6c11e4a45f0204fc3e/pyjson5-1.6.8-cp313-cp313-macosx_10_13_x86_64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: 1550dc70199401056f80acfc503da36de2df70dd4364a0efb654ffe7e9246ac6
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/60/60/c9e84e3b2520f7b67412173c7d17d98ab24fbef874bcfcf51eb83622fa9a/pyjson5-1.6.8-cp312-cp312-macosx_10_13_x86_64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: 9ee2f077cf05daa9aaf3c750b63cce5b5671cf8fa848b29beaf1030a08d94fda
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/67/d9/9bd17bc0c99d2d917900114d548414f609ea81947e58f6525068d673fc77/pyjson5-1.6.8-cp313-cp313-win_amd64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: fe03568ca61050f00c951501d70aaf68064ab5fecb3d84961ce743102cc81036
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/9d/cd/ad93170f8b7934b13e5a340daed934e7a8591e5d08abf3f50ab144a2663d/pyjson5-1.6.8-cp313-cp313-macosx_11_0_arm64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: 77005662014809a7b8b78f984131a3751295ff102f4c62b452bbdac946360166
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/ae/dd/4c9569654dc42c42d2a029e77e4371687bfb6f9f4afda6f1c8adda5d655d/pyjson5-1.6.8-cp312-cp312-macosx_11_0_arm64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: 2bbfdeeb531f79730899ef674d80dd6b6bc7c29fe3789660115f0ba66eef834f
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/d4/ca/f5b147b8a186e37a9339290dd9c8271aae94eab0307169124ec83c74aa99/pyjson5-1.6.8-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: 94e1b9d219f40bebbb6285840b094eca523481cf199cd46154044dae333d492d
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/d6/07/430e3a960daf322e7f4b82515ec64d6f2febccdeba31a421c2daab8a1786/pyjson5-1.6.8-cp312-cp312-win_amd64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: 3fd513eaffba7b72d56bd5b26a92e2edb3694602adcaf3414a9f7d6c4c5d9be7
+  requires_python: '>=3.7'
+- pypi: https://files.pythonhosted.org/packages/dc/7d/cc11b4283a6f255bea76458d663d1d41de396bc50100f2f7af603dbe6d65/pyjson5-1.6.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
+  name: pyjson5
+  version: 1.6.8
+  sha256: a4577a18545f3f4461df46d3d38d85659b16a77ca8975289ef6f21e1c228f7bf
+  requires_python: '>=3.7'
 - pypi: https://files.pythonhosted.org/packages/61/ad/689f02752eeec26aed679477e80e632ef1b682313be70793d798c1d5fc8f/PyJWT-2.10.1-py3-none-any.whl
   name: pyjwt
   version: 2.10.1

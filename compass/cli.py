@@ -1,12 +1,13 @@
 """Ordinances CLI"""
 
 import sys
-import json
 import click
 import asyncio
 import logging
 import multiprocessing
 from pathlib import Path
+
+import pyjson5
 
 from compass import __version__
 from compass.process import process_counties_with_openai
@@ -40,7 +41,7 @@ def main(ctx):
 def process(config, verbose):
     """Download and extract ordinances for a list of counties"""
     with Path(config).open(encoding="utf-8") as fh:
-        config = json.load(fh)
+        config = pyjson5.decode_io(fh)
 
     if verbose:
         for lib in ["compass", "elm"]:
