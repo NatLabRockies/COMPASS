@@ -3,8 +3,8 @@
 import json
 import shutil
 import asyncio
+import hashlib
 from pathlib import Path
-from functools import partial
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
@@ -17,6 +17,28 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
 )
+
+
+def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
+    """Cache file and compute its hash"""
+    cache_fp = write_url_doc_to_file(
+        doc=doc,
+        file_content=file_content,
+        out_dir=out_dir,
+        make_name_unique=make_name_unique,
+    )
+    return cache_fp, _compute_sha256(file_content)
+
+
+def _compute_sha256(file_content):
+    """Compute sha256 checksum for string or byte input"""
+    m = hashlib.sha256()
+    try:
+        m.update(file_content.encode("utf-8"))
+    except AttributeError:
+        m.update(file_content)
+
+    return f"sha256:{m.hexdigest()}"
 
 
 def _move_file(doc, out_dir):
@@ -153,16 +175,16 @@ class TempFileCache(ThreadedService):
             Path to output file.
         """
         loop = asyncio.get_running_loop()
-        return await loop.run_in_executor(
+        cache_fp, checksum = await loop.run_in_executor(
             self.pool,
-            partial(
-                write_url_doc_to_file,
-                doc,
-                file_content,
-                self._td.name,
-                make_name_unique=make_name_unique,
-            ),
+            _cache_file_with_hash,
+            doc,
+            file_content,
+            self._td.name,
+            make_name_unique,
         )
+        doc.attrs["checksum"] = checksum
+        return cache_fp
 
 
 class StoreFileOnDisk(ThreadedService):
@@ -207,9 +229,9 @@ class StoreFileOnDisk(ThreadedService):
         Path | None
             Path to output file, or `None` if no file was stored.
         """
-        return await _run_func_in_pool(
-            self.pool,
-            partial(_PROCESSING_FUNCTIONS[self._PROCESS], doc, self.out_dir),
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            self.pool, _PROCESSING_FUNCTIONS[self._PROCESS], doc, self.out_dir
         )
 
     @property
@@ -275,8 +297,9 @@ class UsageUpdater(ThreadedService):
             added to output file.
         """
         self._is_processing = True
-        await _run_func_in_pool(
-            self.pool, partial(_dump_usage, self.usage_fp, tracker)
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(
+            self.pool, _dump_usage, self.usage_fp, tracker
         )
         self._is_processing = False
 
@@ -327,23 +350,16 @@ class JurisdictionUpdater(ThreadedService):
             parse) this document.
         """
         self._is_processing = True
-        await _run_func_in_pool(
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(
             self.pool,
-            partial(
-                _dump_jurisdiction_info,
-                self.jurisdiction_fp,
-                county,
-                doc,
-                seconds_elapsed,
-            ),
+            _dump_jurisdiction_info,
+            self.jurisdiction_fp,
+            county,
+            doc,
+            seconds_elapsed,
         )
         self._is_processing = False
-
-
-async def _run_func_in_pool(pool, callable_fn):
-    """Run a callable in process pool"""
-    loop = asyncio.get_running_loop()
-    return await loop.run_in_executor(pool, callable_fn)
 
 
 def _dump_usage(fp, tracker):
@@ -368,25 +384,31 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
             jurisdiction_info = json.load(fh)
 
     new_info = {
-        "name": county.full_name,
+        "full_name": county.full_name,
         "county": county.name,
         "state": county.state,
         "subdivision": None,
-        "subdivision_type": None,
+        "jurisdiction_type": None,
         "FIPS": county.fips,
         "found": False,
-        "total_time_seconds": seconds_elapsed,
-        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
+        "total_time": seconds_elapsed,
+        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
     }
     if num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
-        new_info["num_pages"] = len(doc.pages)
-        new_info["source"] = doc.attrs.get("source")
-        new_info["ord_year"] = extract_ord_year_from_doc_attrs(doc)
-        new_info["ord_filename"] = Path(
-            doc.attrs.get("out_fp", "Unknown")
-        ).name
+        new_info["documents"] = [_compile_doc_info(doc)]
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
         json.dump(jurisdiction_info, fh, indent=4)
+
+
+def _compile_doc_info(doc):
+    """Put together meta information about a single document"""
+    return {
+        "source": doc.attrs.get("source"),
+        "ord_year": extract_ord_year_from_doc_attrs(doc),
+        "ord_filename": Path(doc.attrs.get("out_fp", "Unknown")).name,
+        "num_pages": len(doc.pages),
+        "checksum": doc.attrs.get("checksum"),
+    }

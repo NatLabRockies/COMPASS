@@ -298,7 +298,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Please respond based on our entire conversation so far. "
                 "Return your answer in "
                 "JSON format (not markdown). Your JSON file must include "
-                'exactly two keys. The keys are "summary" and "section. '
+                'exactly two keys. The keys are "summary" and "section". '
                 "{SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )

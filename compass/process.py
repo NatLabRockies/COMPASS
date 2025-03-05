@@ -106,6 +106,8 @@ WebSearchParams = namedtuple(
 PARSED_COLS = [
     "county",
     "state",
+    "subdivision",
+    "jurisdiction_type",
     "FIPS",
     "feature",
     "value",
@@ -120,7 +122,7 @@ PARSED_COLS = [
     "quantitative",
 ]
 QUANT_OUT_COLS = PARSED_COLS[:-1]
-QUAL_OUT_COLS = PARSED_COLS[:4] + PARSED_COLS[-5:-1]
+QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
@@ -834,14 +836,13 @@ def _save_run_meta(
         },
         "time_start_utc": start_date,
         "time_end_utc": end_date,
-        "total_time_seconds": seconds_elapsed,
-        "total_runtime": str(timedelta(seconds=seconds_elapsed)),
+        "total_time": seconds_elapsed,
+        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
         "manifest": {},
     }
     manifest = {
-        "OUT_DIR": dirs.out,
         "LOG_DIR": dirs.logs,
         "CLEAN_FILE_DIR": dirs.clean_files,
         "JURISDICTION_DBS_DIR": dirs.jurisdiction_dbs,
@@ -853,10 +854,10 @@ def _save_run_meta(
     }
     for name, file_path in manifest.items():
         if file_path.exists():
-            meta_data["manifest"][name] = str(file_path)
+            meta_data["manifest"][name] = str(file_path.relative_to(dirs.out))
         else:
             meta_data["manifest"][name] = None
 
-    meta_data["manifest"]["META_FILE"] = str(dirs.out / "meta.json")
+    meta_data["manifest"]["META_FILE"] = "meta.json"
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)

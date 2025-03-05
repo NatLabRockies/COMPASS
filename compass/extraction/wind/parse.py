@@ -57,8 +57,8 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "density": "maximum turbine spacing allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
-    "decommissioning": "decommissioning requirement(s)",
-    "visual impact": "visual impact assessment requirement(s)",
+    "decommissioning": "decommissioning requirements",
+    "visual impact": "visual impact assessment requirements",
 }
 
 

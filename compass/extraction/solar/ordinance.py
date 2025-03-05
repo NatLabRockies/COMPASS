@@ -42,8 +42,9 @@ class SolarHeuristic(Heuristic):
 
     NOT_TECH_WORDS = ["solaris"]
     GOOD_TECH_KEYWORDS = ["solar", "setback"]
-    GOOD_TECH_ACRONYMS = ["secs", "sef", "ses"]
+    GOOD_TECH_ACRONYMS = ["secs", "sef", "ses", "cses"]
     GOOD_TECH_PHRASES = [
+        "commercial solar energy system",
         "solar energy conversion",
         "solar energy system",
         "solar panel",
@@ -106,7 +107,7 @@ class SolarOrdinanceValidator(ValidationWithMemory):
         "systems (SES) may also be referred to as solar panels, solar energy "
         "conversion systems (SECS), solar energy facilities (SEF), solar "
         "energy farms (SEF), solar farms (SF), utility-scale solar energy "
-        "systems (USES), commercial solar energy systems, or similar. "
+        "systems (USES), commercial solar energy systems (CSES), or similar. "
         "Your client is a commercial solar developer that does not "
         "care about ordinances related to private, micro, small, or medium "
         "sized solar energy systems. Ignore any text related to such systems. "
