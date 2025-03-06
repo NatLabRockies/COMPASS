@@ -240,7 +240,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/bc/b3/9458adb9472e61a998c8c4d95cfdfec91c73c53a375b30b1428310f923e4/kiwisolver-1.4.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/d872fc3d753516870d520595ddd8ce4dd44fa797a240999f125f58521ad7/matplotlib-3.10.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/bf/b9/b0eb3f3cbcb734d930fdf839431606844a825b23eaf9a6ab371edac8162c/psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -472,7 +472,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/c5/0b/8db6d2e2452d60d5ebc4ce4b204feeb16176a851fd42462f66ade6808084/kiwisolver-1.4.8-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/44/c7/6b2d8cb7cc251d53c976799cacd3200add56351c175ba89ab9cbd7c1e68a/matplotlib-3.10.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/ed/e6/2d26234410f8b8abdbf891c9da62bee396583f713fb9f3325a4760875d22/psutil-7.0.0-cp36-abi3-macosx_10_9_x86_64.whl
@@ -704,7 +704,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/60/26/d6a0db6785dd35d3ba5bf2b2df0aedc5af089962c6eb2cbf67a15b81369e/kiwisolver-1.4.8-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/42/2a/6d66d0fba41e13e9ca6512a0a51170f43e7e7ed3a8dfa036324100775612/matplotlib-3.10.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/04/8b/30f930733afe425e3cbfc0e1468a30a18942350c1a8816acfade80c005c4/psutil-7.0.0-cp36-abi3-macosx_11_0_arm64.whl
@@ -912,7 +912,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/bd/72/dfff0cc97f2a0776e1c9eb5bef1ddfd45f46246c6533b0191887a427bca5/kiwisolver-1.4.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/9f/6e/264673e64001b99d747aff5a288eca82826c024437a3694e19aed1decf46/matplotlib-3.10.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/50/1b/6921afe68c74868b4c9fa424dad3be35b095e16687989ebbb50ce4fceb7c/psutil-7.0.0-cp37-abi3-win_amd64.whl
@@ -1323,7 +1323,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/d872fc3d753516870d520595ddd8ce4dd44fa797a240999f125f58521ad7/matplotlib-3.10.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -1707,7 +1707,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/44/c7/6b2d8cb7cc251d53c976799cacd3200add56351c175ba89ab9cbd7c1e68a/matplotlib-3.10.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
@@ -2091,7 +2091,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/42/2a/6d66d0fba41e13e9ca6512a0a51170f43e7e7ed3a8dfa036324100775612/matplotlib-3.10.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
@@ -2472,7 +2472,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9f/6e/264673e64001b99d747aff5a288eca82826c024437a3694e19aed1decf46/matplotlib-3.10.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
@@ -2747,7 +2747,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/d872fc3d753516870d520595ddd8ce4dd44fa797a240999f125f58521ad7/matplotlib-3.10.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/dc/7d/cc11b4283a6f255bea76458d663d1d41de396bc50100f2f7af603dbe6d65/pyjson5-1.6.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -2998,7 +2998,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/44/c7/6b2d8cb7cc251d53c976799cacd3200add56351c175ba89ab9cbd7c1e68a/matplotlib-3.10.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/60/60/c9e84e3b2520f7b67412173c7d17d98ab24fbef874bcfcf51eb83622fa9a/pyjson5-1.6.8-cp312-cp312-macosx_10_13_x86_64.whl
@@ -3249,7 +3249,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/42/2a/6d66d0fba41e13e9ca6512a0a51170f43e7e7ed3a8dfa036324100775612/matplotlib-3.10.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/ae/dd/4c9569654dc42c42d2a029e77e4371687bfb6f9f4afda6f1c8adda5d655d/pyjson5-1.6.8-cp312-cp312-macosx_11_0_arm64.whl
@@ -3500,7 +3500,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9f/6e/264673e64001b99d747aff5a288eca82826c024437a3694e19aed1decf46/matplotlib-3.10.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/d6/07/430e3a960daf322e7f4b82515ec64d6f2febccdeba31a421c2daab8a1786/pyjson5-1.6.8-cp312-cp312-win_amd64.whl
@@ -3708,7 +3708,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/bc/b3/9458adb9472e61a998c8c4d95cfdfec91c73c53a375b30b1428310f923e4/kiwisolver-1.4.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/a7/b2/d872fc3d753516870d520595ddd8ce4dd44fa797a240999f125f58521ad7/matplotlib-3.10.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/03/41/64c7b848ef7a6ac578951b75f9950efce7a3353a9f77049d0b993118be17/primp-0.12.1-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -3896,7 +3896,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/c5/0b/8db6d2e2452d60d5ebc4ce4b204feeb16176a851fd42462f66ade6808084/kiwisolver-1.4.8-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/44/c7/6b2d8cb7cc251d53c976799cacd3200add56351c175ba89ab9cbd7c1e68a/matplotlib-3.10.0-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/d9/169b5cf7dde1b06c61824db51ef9d1025b9ce1b4eb1cc4ded30af3b41892/primp-0.12.1-cp38-abi3-macosx_10_12_x86_64.whl
@@ -4084,7 +4084,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/60/26/d6a0db6785dd35d3ba5bf2b2df0aedc5af089962c6eb2cbf67a15b81369e/kiwisolver-1.4.8-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/42/2a/6d66d0fba41e13e9ca6512a0a51170f43e7e7ed3a8dfa036324100775612/matplotlib-3.10.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/99/e9e78e3598387b08f544dfcec73484363fcbdf58b8049a5d7ef5c689c1d8/primp-0.12.1-cp38-abi3-macosx_11_0_arm64.whl
@@ -4274,7 +4274,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/bd/72/dfff0cc97f2a0776e1c9eb5bef1ddfd45f46246c6533b0191887a427bca5/kiwisolver-1.4.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/9f/6e/264673e64001b99d747aff5a288eca82826c024437a3694e19aed1decf46/matplotlib-3.10.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c0/da/977ded879c29cbd04de313843e76868e6e13408a94ed6b987245dc7c8506/openpyxl-3.1.5-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/8d/f8b879fd6fa7b3ca9237d7236efb73169e228083c1b58e16ffa086c4e7ad/primp-0.12.1-cp38-abi3-win_amd64.whl
@@ -4382,7 +4382,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4a/9f/002af221253f10f99959561123fae676148dd730e2daa2cd053846a58507/multidict-6.1.0-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e4/43/619c2c7a0665aafc80efca465ddb1f260287266bdbdce517396f2f145d49/numpy-2.2.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/67/a0/e1fe4e87218639fc0a0927da5266c2978eaa0e2eb5437479ee64a11535bb/openai-1.63.0-py3-none-any.whl
@@ -4527,7 +4527,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/3c/25/c186ee7b212bdf0df2519eacfb1981a017bda34392c67542c274651daf23/multidict-6.1.0-cp313-cp313-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0e/8b/88b98ed534d6a03ba8cddb316950fe80842885709b58501233c29dfa24a9/numpy-2.2.3-cp313-cp313-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/67/a0/e1fe4e87218639fc0a0927da5266c2978eaa0e2eb5437479ee64a11535bb/openai-1.63.0-py3-none-any.whl
@@ -4673,7 +4673,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/67/5e/04575fd837e0958e324ca035b339cea174554f6f641d3fb2b4f2e7ff44a2/multidict-6.1.0-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d9/b4/def6ec32c725cc5fbd8bdf8af80f616acf075fe752d8a23e895da8c67b70/numpy-2.2.3-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/67/a0/e1fe4e87218639fc0a0927da5266c2978eaa0e2eb5437479ee64a11535bb/openai-1.63.0-py3-none-any.whl
@@ -4796,7 +4796,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/7e/a5/17ee3a4db1e310b7405f5d25834460073a8ccd86198ce044dfaf69eac073/multidict-6.1.0-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b9/54/dd730b32ea14ea797530a4479b2ed46a6fb250f682a9cfb997e968bf0261/networkx-3.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/35/c5/d7d0c70363626f8b178f1e7c3ed9982981ecf0a4de8eef4e2f64b91ba3e0/NREL_rex-0.2.97-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/97/e7/7d55a86719d0de7a6a597949f3febefb1009435b79ba510ff32f05a8c1d7/numpy-2.2.3-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/67/a0/e1fe4e87218639fc0a0927da5266c2978eaa0e2eb5437479ee64a11535bb/openai-1.63.0-py3-none-any.whl
@@ -12483,14 +12483,14 @@ packages:
   timestamp: 1733408419340
 - pypi: .
   name: nrel-compass
-  version: 0.1.1.dev17+gb569353.d20250304
-  sha256: f7d45d27e44590d5d6fb10f4cee2e27b64d8eb56e85b2ccdee5f89ca329158ad
+  version: 0.1.1.dev19+gffc5b0e.d20250306
+  sha256: 93b73093f3ead93929de08398cc583d8d6c5e84536269fc41f86a91b2bf44a19
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4
   - networkx>=3.4.2,<4
   - nltk>=3.9.1,<4
-  - nrel-elm>=0.0.11,<1
+  - nrel-elm>=0.0.12,<1
   - openai>=1.1.0
   - pandas>=2.2.3,<3
   - pyjson5>=1.6.8,<2
@@ -12516,10 +12516,10 @@ packages:
   - tox>=4.23.2,<5 ; extra == 'test'
   requires_python: '>=3.12'
   editable: true
-- pypi: https://files.pythonhosted.org/packages/a3/dd/d4071e33b55bd66bfdaf6e4c6405d141d4ce619e1c1b336e4c9b4b26ef3f/NREL_elm-0.0.11-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/65/1d/ab428b6339a31d30a0f76b0202113ee19b5299d579649b4db8bdcb577603/NREL_elm-0.0.12-py3-none-any.whl
   name: nrel-elm
-  version: 0.0.11
-  sha256: 07dc2f87d6ea18550ee55fc41349f191c4abfbd9035e8aba22bc63fcf3d20510
+  version: 0.0.12
+  sha256: 4fd776ff9cae6ea377c0b81b854efa7501ca32dbc2d1f93ffde713075b9a1e82
   requires_dist:
   - openai>=1.1.0
   - aiohttp
