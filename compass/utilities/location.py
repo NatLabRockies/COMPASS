@@ -37,7 +37,7 @@ class County(Location):
         fips : int | str, optional
             Optional county FIPS code. By default, ``None``.
         is_parish : bool, optional
-            Flag indicating wether or not this county is classified as
+            Flag indicating whether or not this county is classified as
             a parish. By default, ``False``.
         """
         super().__init__(name)

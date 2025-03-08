@@ -26,7 +26,7 @@ def setup_graph_sef_types(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text distinguish between multiple solar"
+            "Does the following text distinguish between multiple solar "
             "energy farm sizes? Distinctions are often made as 'small' "
             "vs 'large' solar energy conversion systems or actual MW values. "
             "Begin your response with either 'Yes' or 'No' and explain your "
@@ -40,7 +40,9 @@ def setup_graph_sef_types(**kwargs):
         "get_text",
         prompt=(
             "What are the different solar energy farm sizes this text "
-            "mentions? List them in order of increasing size."
+            "mentions? List them in order of increasing size. Only include "
+            "solar energy farm types; do not include generic types or other "
+            "energy system types."
         ),
     )
     G.add_edge("get_text", "final")

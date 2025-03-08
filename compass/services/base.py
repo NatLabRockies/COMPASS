@@ -100,7 +100,7 @@ class Service(ABC):
         """Check if process function can be called.
 
         This should be a fast-running method that returns a boolean
-        indicating wether or not the service can accept more
+        indicating whether or not the service can accept more
         processing calls.
         """
 

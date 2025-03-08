@@ -5,6 +5,7 @@ from warnings import warn
 
 from compass.llm import StructuredLLMCaller
 from compass.extraction.date import DateExtractor
+from compass.warnings import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -56,6 +57,11 @@ async def check_for_ordinance_info(
     if doc.attrs["contains_ord_info"]:
         doc.attrs["date"] = await DateExtractor(llm_caller).parse(doc)
         doc.attrs["ordinance_text"] = validator.ordinance_text
+        logger.debug(
+            "Ordinance text for %s is:\n%s",
+            doc.attrs.get("source", "unknown source"),
+            doc.attrs["ordinance_text"],
+        )
 
     return doc
 
@@ -94,8 +100,13 @@ async def extract_ordinance_text_with_llm(doc, text_splitter, extractor):
     """
     prev_meta_name = "ordinance_text"
     for meta_name, parser in extractor.parsers:
-        text_chunks = text_splitter.split_text(doc.attrs[prev_meta_name])
-        doc.attrs[meta_name] = await parser(text_chunks)
+        doc.attrs[meta_name] = await _parse_if_input_text_not_empty(
+            doc.attrs[prev_meta_name],
+            text_splitter,
+            parser,
+            prev_meta_name,
+            meta_name,
+        )
         prev_meta_name = meta_name
 
     return doc
@@ -112,7 +123,7 @@ async def extract_ordinance_text_with_ngram_validation(
     """Extract ordinance text for a single document with known ord info
 
     This extraction includes an "ngram" check, which attempts to detect
-    wether or not the cleaned text was extracted from the original
+    whether or not the cleaned text was extracted from the original
     ordinance text. The processing will attempt to re-extract the text
     if the validation does not pass a certain threshold until the
     maximum number of attempts is reached. If the text still does not
@@ -203,7 +214,7 @@ async def _extract_with_ngram_check(
 
     best_score = 0
     best_summary = ""
-    for attempt in range(num_tries):
+    for attempt in range(1, num_tries + 1):
         doc = await extract_ordinance_text_with_llm(
             doc, text_splitter, extractor
         )
@@ -245,8 +256,8 @@ async def _extract_with_ngram_check(
     else:
         doc.attrs["cleaned_ordinance_text"] = best_summary
         msg = (
-            f"Ngram check failed after {num_tries}. LLM hallucination in "
-            "cleaned ordinance text is extremely likely! Proceed with "
+            f"Ngram check failed after {num_tries} tries. LLM hallucination "
+            "in cleaned ordinance text is extremely likely! Proceed with "
             f"caution!! (Document source: {best_score})"
         )
         logger.warning(msg)
@@ -294,3 +305,24 @@ async def extract_ordinance_values(doc, parser):
     text = doc.attrs["cleaned_ordinance_text"]
     doc.attrs["ordinance_values"] = await parser.parse(text)
     return doc
+
+
+async def _parse_if_input_text_not_empty(
+    text, text_splitter, parser, curr_text_name, next_text_name
+):
+    """Extract text using parser, or return empty if input empty"""
+    if not text:
+        msg = (
+            f"{curr_text_name!r} does not contain any text. Skipping "
+            f"extraction for {next_text_name!r}"
+        )
+        warn(msg, COMPASSWarning)
+        return text
+
+    text_chunks = text_splitter.split_text(text)
+    extracted_text = await parser(text_chunks)
+
+    logger.debug(
+        "Extracted text for %r is:\n%s", next_text_name, extracted_text
+    )
+    return extracted_text

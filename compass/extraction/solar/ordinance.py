@@ -58,10 +58,10 @@ class SolarOrdinanceValidator(ValidationWithMemory):
     """Check document text for solar ordinances
 
     Purpose:
-        Determine wether a document contains relevant ordinance
+        Determine whether a document contains relevant ordinance
         information.
     Responsibilities:
-        1. Determine wether a document contains relevant (e.g.
+        1. Determine whether a document contains relevant (e.g.
         utility-scale solar zoning) ordinance information by splitting
         the text into chunks and parsing them individually using LLMs.
     Key Relationships:
@@ -103,7 +103,7 @@ class SolarOrdinanceValidator(ValidationWithMemory):
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "wether it applies to large solar energy systems. Large solar energy "
+        "whether it applies to large solar energy systems. Large solar energy "
         "systems (SES) may also be referred to as solar panels, solar energy "
         "conversion systems (SECS), solar energy facilities (SEF), solar "
         "energy farms (SEF), solar farms (SF), utility-scale solar energy "
@@ -147,7 +147,7 @@ class SolarOrdinanceValidator(ValidationWithMemory):
         )
         self._legal_text_mem = []
         self._solar_mention_mem = []
-        self._ordinance_chunks = []
+        self._ordinance_chunk_inds = []
 
     @property
     def is_legal_text(self):
@@ -159,17 +159,26 @@ class SolarOrdinanceValidator(ValidationWithMemory):
     @property
     def ordinance_text(self):
         """str: Combined ordinance text from the individual chunks"""
+        logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
+
         inds_to_grab = set()
-        for info in self._ordinance_chunks:
+        for info in self._ordinance_chunk_inds:
             inds_to_grab |= {
                 info["ind"] + x for x in range(1 - self.num_to_recall, 2)
             }
 
-        text = [
-            self.text_chunks[ind]
+        inds_to_grab = [
+            ind
             for ind in sorted(inds_to_grab)
             if 0 <= ind < len(self.text_chunks)
         ]
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(inds_to_grab),
+            inds_to_grab,
+        )
+
+        text = [self.text_chunks[ind] for ind in inds_to_grab]
         return merge_overlapping_texts(text)
 
     async def parse(self, min_chunks_to_process=3):
@@ -233,12 +242,12 @@ class SolarOrdinanceValidator(ValidationWithMemory):
 
             logger.debug("Text at ind %d is for utility-scale SEF", ind)
 
-            self._ordinance_chunks.append({"text": text, "ind": ind})
+            self._ordinance_chunk_inds.append(ind)
             logger.debug("Added text at ind %d to ordinances", ind)
             # mask, since we got a good result
             self._solar_mention_mem[-1] = False
 
-        return bool(self._ordinance_chunks)
+        return bool(self._ordinance_chunk_inds)
 
 
 class SolarOrdinanceTextExtractor:

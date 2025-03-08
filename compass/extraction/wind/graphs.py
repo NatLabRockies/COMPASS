@@ -26,7 +26,7 @@ def setup_graph_wes_types(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text distinguish between multiple wind energy"
+            "Does the following text distinguish between multiple wind energy "
             "system sizes? Distinctions are often made as 'small' vs 'large' "
             "wind energy conversion systems or actual MW values. "
             "Begin your response with either 'Yes' or 'No' and explain your "
@@ -40,7 +40,9 @@ def setup_graph_wes_types(**kwargs):
         "get_text",
         prompt=(
             "What are the different wind energy system sizes this text "
-            "mentions? List them in order of increasing size."
+            "mentions? List them in order of increasing size. Only include "
+            "wind energy system types; do not include generic types or other "
+            "energy system types."
         ),
     )
     G.add_edge("get_text", "final")

@@ -43,7 +43,7 @@ def llm_response_as_json(content):
 
 
 def merge_overlapping_texts(text_chunks, n=300):
-    """Merge chunks fo text by removing any overlap.
+    """Merge chunks of text by removing any overlap.
 
     Parameters
     ----------

@@ -5,6 +5,10 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+# These domains contain the collection date in URL, not enactment date
+_BANNED_DATE_DOMAINS = ["https://energyzoning.org"]
+
+
 class DateExtractor:
     """Helper class to extract date info from document"""
 
@@ -52,7 +56,11 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
-        if url := doc.attrs.get("source"):
+        url = doc.attrs.get("source")
+        can_check_url_for_date = url and not any(
+            sub_str in url for sub_str in _BANNED_DATE_DOMAINS
+        )
+        if can_check_url_for_date:
             logger.debug("Checking URL for date: %s", url)
             response = await self.slc.call(
                 sys_msg=self.SYSTEM_MESSAGE,

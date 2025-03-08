@@ -64,7 +64,7 @@ class FixedMessageValidator(ABC):
 
 
 class URLValidator(FixedMessageValidator):
-    """Validator that checks wether a URL matches a county"""
+    """Validator that checks whether a URL matches a county"""
 
     SYSTEM_MESSAGE = (
         "You extract structured data from a URL. Return your "
@@ -87,7 +87,7 @@ class URLValidator(FixedMessageValidator):
 
 
 class CountyJurisdictionValidator(FixedMessageValidator):
-    """Validator that checks wether text applies at the county level"""
+    """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return "
@@ -120,7 +120,7 @@ class CountyJurisdictionValidator(FixedMessageValidator):
 
 
 class CountyNameValidator(FixedMessageValidator):
-    """Validator that checks wether text applies to a given county"""
+    """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return "
@@ -154,10 +154,10 @@ class CountyValidator:
     Combines the logic of several validators into a single class.
 
     Purpose:
-        Determine wether a document pertains to a specific county.
+        Determine whether a document pertains to a specific county.
     Responsibilities:
         1. Use a combination of heuristics and LLM queries to determine
-           wether or not a document pertains to a particular county.
+           whether or not a document pertains to a particular county.
     Key Relationships:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and delegates sub-validation to

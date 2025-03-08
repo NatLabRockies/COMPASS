@@ -61,8 +61,9 @@ async def download_county_ordinance(
 
     Returns
     -------
-    elm.web.document.BaseDocument | None
-        Document instance for the downloaded document, or ``None`` if no
+    list | None
+        List of :obj:`~elm.web.document.BaseDocument` instances possibly
+        containing ordinance information, or ``None`` if no ordinance
         document was found.
     """
     docs = await _docs_from_web_search(
@@ -153,7 +154,7 @@ def _sort_final_ord_docs(all_ord_docs):
     if not all_ord_docs:
         return None
 
-    return max(all_ord_docs, key=_ord_doc_sorting_key)
+    return sorted(all_ord_docs, key=_ord_doc_sorting_key, reverse=True)
 
 
 def _ord_doc_sorting_key(doc):

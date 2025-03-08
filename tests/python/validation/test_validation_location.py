@@ -30,6 +30,7 @@ TESTING_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
     chunk_size=3000,
     chunk_overlap=300,
     length_function=partial(ApiBase.count_tokens, model="gpt-4"),
+    is_separator_regex=True,
 )
 
 

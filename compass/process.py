@@ -328,6 +328,7 @@ async def _process_with_logs(  # noqa: PLR0914
         chunk_size=lpa.text_splitter_chunk_size,
         chunk_overlap=lpa.text_splitter_chunk_overlap,
         length_function=partial(ApiBase.count_tokens, model=lpa.model),
+        is_separator_regex=True,
     )
     client = openai.AsyncAzureOpenAI(
         api_key=azure_params.azure_api_key,
@@ -591,7 +592,7 @@ async def process_county(
         the document's ``attrs`` attribute.
     """
     start_time = time.monotonic()
-    doc = await _find_document(
+    docs = await _find_documents_with_location_attr(
         tech_specs,
         county,
         text_splitter,
@@ -600,24 +601,41 @@ async def process_county(
         browser_semaphore=browser_semaphore,
         **kwargs,
     )
-    if doc is None:
+    if docs is None:
         await _record_usage(**kwargs)
-        await _record_jurisdiction_info(county, doc, start_time)
-        return doc
+        await _record_jurisdiction_info(
+            county, doc=None, start_time=start_time
+        )
+        return None
 
-    doc = await _extract_ordinance_text(
-        doc, text_splitter, extractor_class=tech_specs.text_extractor, **kwargs
-    )
-    doc = await _extract_ordinances_from_text(
-        doc, parser_class=tech_specs.structured_parser, **kwargs
-    )
+    for possible_ord_doc in docs:
+        logger.debug(
+            "Checking for ordinances in doc from %s",
+            possible_ord_doc.attrs.get("source", "unknown source"),
+        )
+        doc = await _extract_ordinance_text(
+            possible_ord_doc,
+            text_splitter,
+            extractor_class=tech_specs.text_extractor,
+            **kwargs,
+        )
+        doc = await _extract_ordinances_from_text(
+            doc, parser_class=tech_specs.structured_parser, **kwargs
+        )
+        if num_ordinances_in_doc(doc) > 0:
+            logger.debug(
+                "Found ordinances in doc from %s",
+                possible_ord_doc.attrs.get("source", "unknown source"),
+            )
+            break
+
     doc = await _move_files(doc, county)
     await _record_usage(**kwargs)
     await _record_jurisdiction_info(county, doc, start_time)
     return doc
 
 
-async def _find_document(
+async def _find_documents_with_location_attr(
     tech_specs,
     county,
     text_splitter,
@@ -627,7 +645,7 @@ async def _find_document(
     **kwargs,
 ):
     """Search the web for an ordinance document and construct it"""
-    doc = await download_county_ordinance(
+    docs = await download_county_ordinance(
         tech_specs.questions,
         county,
         text_splitter,
@@ -637,13 +655,15 @@ async def _find_document(
         browser_semaphore=browser_semaphore,
         **kwargs,
     )
-    if doc is None:
+    if docs is None:
         return None
 
-    doc.attrs["location"] = county
-    doc.attrs["location_name"] = county.full_name
+    for doc in docs:
+        doc.attrs["location"] = county
+        doc.attrs["location_name"] = county.full_name
+
     await _record_usage(**kwargs)
-    return doc
+    return docs
 
 
 async def _extract_ordinance_text(
