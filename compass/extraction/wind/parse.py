@@ -55,9 +55,13 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "min lot size": "minimum lot size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
     "density": "maximum turbine spacing allowed",
+    "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
+    "color": "color or finish requirements",
     "decommissioning": "decommissioning requirements",
+    "lighting": "lighting requirements",
+    "moratorium": "moratoriums or bans",
     "visual impact": "visual impact assessment requirements",
 }
 

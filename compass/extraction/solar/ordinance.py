@@ -16,25 +16,25 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-RESTRICTIONS = """- buildings / structures / residences
-- property lines / parcels / subdivisions
-- roads / rights-of-way
-- railroads
-- overhead electrical transmission wires
-- bodies of water including wetlands, lakes, reservoirs, streams, and rivers
-- natural, wildlife, and environmental conservation areas
-- noise limits
-- density limits
-- height limits
-- minimum/maximum lot size
-- maximum project size
-- moratorium or bans
-- decommissioning plans/requirements
-- land coverage limits
-- glare limits
-- visual impact assessment requirements
-"""
-MIN_CHARS_IN_VALID_CHUNK = 20
+_LARGE_SEF_DESCRIPTION = (
+    "Large solar energy systems (SES) may also be referred to as solar "
+    "panels, solar energy conversion systems (SECS), solar energy "
+    "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
+    "utility-scale solar energy systems (USES), commercial solar energy "
+    "systems (CSES), or similar. "
+)
+_SEARCH_TERMS_AND = (
+    "zoning, special permitting, siting and setback, system design, and "
+    "operational requirements/restrictions"
+)
+_SEARCH_TERMS_OR = (
+    "zoning, special permitting, siting and setback, system design, or "
+    "operational requirements/restrictions"
+)
+_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_TRACK_BANS = (
+    "Note that solar energy bans are an important restriction to track. "
+)
 
 
 class SolarHeuristic(Heuristic):
@@ -87,37 +87,30 @@ class SolarOrdinanceValidator(ValidationWithMemory):
 
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
+        "format (not markdown). Your JSON file must include exactly two "
         "keys. The first key is 'solar_reqs', which is a string that "
-        "summarizes the setbacks or other siting requirements (if any) given "
-        "in the text for solar energy systems. The second key is 'reqs', "
-        "which lists the quantitative values from the text excerpt that can "
-        "be used to compute setbacks or other siting requirements for a "
-        "solar energy system (empty list if none exist in the text). The "
-        "last key is '{key}', which is a boolean that is set to True if the "
-        "text excerpt provides enough info to compute quantitative setbacks "
-        "or other siting requirements for a solar energy system and False "
-        "otherwise. Siting is impacted by any of the following:\n"
-        f"{RESTRICTIONS}"
+        f"summarizes all {_SEARCH_TERMS_AND} (if given) "
+        "in the text for solar energy systems. "
+        f"{_TRACK_BANS}"
+        "The last key is '{key}', which is a boolean that is set to True if "
+        f"the text excerpt describes {_SEARCH_TERMS_OR} for "
+        "a solar energy system and False otherwise."
     )
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "whether it applies to large solar energy systems. Large solar energy "
-        "systems (SES) may also be referred to as solar panels, solar energy "
-        "conversion systems (SECS), solar energy facilities (SEF), solar "
-        "energy farms (SEF), solar farms (SF), utility-scale solar energy "
-        "systems (USES), commercial solar energy systems (CSES), or similar. "
+        f"whether it applies to {_SEARCH_TERMS_OR} for "
+        f"large solar energy systems. {_LARGE_SEF_DESCRIPTION}"
         "Your client is a commercial solar developer that does not "
-        "care about ordinances related to private, micro, small, or medium "
-        "sized solar energy systems. Ignore any text related to such systems. "
+        f"care about ordinances related to {_IGNORE_TYPES} solar energy "
+        "systems. Ignore any text related to such systems. "
         "Return your answer in JSON format (not markdown). Your JSON file "
         "must include exactly two keys. The first key is 'summary' which "
         "contains a string that summarizes the types of solar energy systems "
         "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt is "
-        "applicable to the large solar energy conversion systems that the "
-        "client is interested in and False otherwise."
+        "boolean that is set to True if any part of the text excerpt mentions "
+        f"{_SEARCH_TERMS_OR} for the large solar energy conversion "
+        "systems that the client is interested in and False otherwise."
     )
 
     def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
@@ -162,10 +155,8 @@ class SolarOrdinanceValidator(ValidationWithMemory):
         logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
 
         inds_to_grab = set()
-        for info in self._ordinance_chunk_inds:
-            inds_to_grab |= {
-                info["ind"] + x for x in range(1 - self.num_to_recall, 2)
-            }
+        for ind in self._ordinance_chunk_inds:
+            inds_to_grab |= {ind + x for x in range(1 - self.num_to_recall, 2)}
 
         inds_to_grab = [
             ind
@@ -272,28 +263,39 @@ class SolarOrdinanceTextExtractor:
         "space-delimited formatting. Never paraphrase! Only return portions "
         "of the original text directly."
     )
-    MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        "Extract all portions of the text related to the restrictions "
-        "of large solar energy systems with respect to any of the following:\n"
-        f"{RESTRICTIONS}"
-        "Include section headers (if any) for the text excerpts. Also include "
-        "any text excerpts that define what kind of large solar energy "
-        "conversion system the restriction applies to. If there is no text "
-        "related to siting restrictions of large solar systems, simply say: "
+    ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to energy "
+        "conversion systems. Remove sections that definitely do not pertain "
+        "to energy conversion systems. Note that bans on energy conversion "
+        "systems are an important restriction to track. If there is no text "
+        "that pertains to energy conversion systems, simply say: "
         '"No relevant text."'
     )
-    MODEL_INSTRUCTIONS_SIZE = (
-        "Extract all portions of the text that apply to large solar "
-        "energy systems. Large solar energy systems (SES) may also be "
-        "referred to as solar energy conversion systems (SECS), "
-        "solar energy facilities (SEF), solar energy farms (SEF), solar farms "
-        "(SF), utility-scale solar energy systems (USES), commercial solar "
-        "energy systems, or similar. Remove all text that "
-        "only applies to private, micro, or small solar energy "
-        "systems. Include section headers (if any) for the text excerpts. "
-        "Also include any text excerpts that define what kind of large solar "
-        "energy conversion system the restriction applies to. If there is no "
-        "text pertaining to large solar systems, simply say: "
+    SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to solar energy"
+        "conversion systems (or solar farms). Remove sections that "
+        "definitely do not pertain to solar energy conversion systems. "
+        f"{_TRACK_BANS}"
+        "If there is no text that pertains to solar energy conversion "
+        "systems, simply say: "
+        '"No relevant text."'
+    )
+    LARGE_SOLAR_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to large solar "
+        "energy systems (or solar farms). "
+        f"{_TRACK_BANS}{_LARGE_SEF_DESCRIPTION}"
+        f"Remove all sections that explicitly only apply to {_IGNORE_TYPES} "
+        "solar energy systems. Keep section headers (if any). If there is "
+        "no text pertaining to large solar systems, simply say: "
+        '"No relevant text."'
+    )
+    LARGE_SOLAR_ENERGY_SYSTEM_TEXT_FILTER_PROMPT = (
+        "Extract all portions of the text that apply to large solar energy "
+        "systems (or solar farms). "
+        f"{_TRACK_BANS}{_LARGE_SEF_DESCRIPTION}"
+        f"Remove all text that explicitly only applies to {_IGNORE_TYPES} "
+        "solar energy systems. Keep section headers (if any). If there is "
+        "no text pertaining to large solar systems, simply say: "
         '"No relevant text."'
     )
 
@@ -341,8 +343,8 @@ class SolarOrdinanceTextExtractor:
         )
         return text_summary
 
-    async def check_for_restrictions(self, text_chunks):
-        """Extract restriction ordinance text from input text chunks
+    async def extract_energy_system_section(self, text_chunks):
+        """Extract ordinance text from input text chunks for energy sys
 
         Parameters
         ----------
@@ -358,11 +360,53 @@ class SolarOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.MODEL_INSTRUCTIONS_RESTRICTIONS,
-            valid_chunk=_valid_chunk_not_short,
+            instructions=self.ENERGY_SYSTEM_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
         )
 
-    async def check_for_correct_size(self, text_chunks):
+    async def extract_solar_energy_system_section(self, text_chunks):
+        """Extract ordinance text from input text chunks for SEF
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
+        )
+
+    async def extract_large_solar_energy_system_section(self, text_chunks):
+        """Extract large SEF ordinance text from input text chunks
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
+        )
+
+    async def extract_large_solar_energy_system_text(self, text_chunks):
         """Extract ordinance text from input text chunks for large WES
 
         Parameters
@@ -379,7 +423,7 @@ class SolarOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.MODEL_INSTRUCTIONS_SIZE,
+            instructions=self.LARGE_SOLAR_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
             valid_chunk=_valid_chunk,
         )
 
@@ -395,15 +439,21 @@ class SolarOrdinanceTextExtractor:
             Parser that takes a `text_chunks` input and outputs parsed
             text.
         """
-        yield "restrictions_ordinance_text", self.check_for_restrictions
-        yield "cleaned_ordinance_text", self.check_for_correct_size
+        yield "energy_systems_text", self.extract_energy_system_section
+        yield (
+            "solar_energy_systems_text",
+            self.extract_solar_energy_system_section,
+        )
+        yield (
+            "large_solar_energy_systems_text",
+            self.extract_large_solar_energy_system_section,
+        )
+        yield (
+            "cleaned_ordinance_text",
+            self.extract_large_solar_energy_system_text,
+        )
 
 
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
-
-
-def _valid_chunk_not_short(chunk):
-    """True if chunk has content and is not too short"""
-    return _valid_chunk(chunk) and len(chunk) > MIN_CHARS_IN_VALID_CHUNK

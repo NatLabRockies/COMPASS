@@ -15,8 +15,8 @@ _SECTION_PROMPT = (
     "and `null` otherwise."
 )
 _SUMMARY_PROMPT = (
-    'The value of the "summary" key should be a two-sentence short summary '
-    "of the ordinance, quoting the text directly if possible."
+    'The value of the "summary" key should be a short summary '
+    "of the ordinance, using direct text excerpts as much as possible."
 )
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "

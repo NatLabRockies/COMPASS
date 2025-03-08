@@ -16,26 +16,25 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-RESTRICTIONS = """- buildings / structures / residences
-- property lines / parcels / subdivisions
-- roads / rights-of-way
-- railroads
-- overhead electrical transmission wires
-- bodies of water including wetlands, lakes, reservoirs, streams, and rivers
-- natural, wildlife, and environmental conservation areas
-- noise limits
-- shadow flicker limits
-- density limits
-- turbine height limits
-- minimum/maximum lot size
-- maximum project size
-- moratorium or bans
-- decommissioning requirements
-- lighting requirements
-- blade ground clearance limits
-- visual impact assessment requirements
-"""
-MIN_CHARS_IN_VALID_CHUNK = 20
+_LARGE_WES_DESCRIPTION = (
+    "Large wind energy systems (WES) may also be referred to as wind "
+    "turbines, wind energy conversion systems (WECS), wind energy "
+    "facilities (WEF), wind energy turbines (WET), large wind energy "
+    "turbines (LWET), utility-scale wind energy turbines (UWET), "
+    "commercial wind energy systems, or similar. "
+)
+_SEARCH_TERMS_AND = (
+    "zoning, special permitting, siting and setback, system design, and "
+    "operational requirements/restrictions"
+)
+_SEARCH_TERMS_OR = (
+    "zoning, special permitting, siting and setback, system design, or "
+    "operational requirements/restrictions"
+)
+_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_TRACK_BANS = (
+    "Note that wind energy bans are an important restriction to track. "
+)
 
 
 class WindHeuristic(Heuristic):
@@ -110,37 +109,30 @@ class WindOrdinanceValidator(ValidationWithMemory):
 
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
+        "format (not markdown). Your JSON file must include exactly two "
         "keys. The first key is 'wind_reqs', which is a string that "
-        "summarizes the setbacks or other geospatial siting requirements (if "
-        "any) given in the text for a wind turbine. The second key is 'reqs', "
-        "which lists the quantitative values from the text excerpt that can "
-        "be used to compute setbacks or other geospatial siting requirements "
-        "for a wind turbine/tower (empty list if none exist in the text). The "
-        "last key is '{key}', which is a boolean that is set to True if the "
-        "text excerpt provides enough quantitative info to compute setbacks "
-        "or other geospatial siting requirements for a wind turbine/tower "
-        "and False otherwise. Geospatial siting is impacted by any of the "
-        f"following:\n{RESTRICTIONS}"
+        f"summarizes all {_SEARCH_TERMS_AND} (if given) "
+        "in the text for a wind energy system (or wind turbine/tower). "
+        f"{_TRACK_BANS}"
+        "The last key is '{key}', which is a boolean that is set to True if "
+        f"the text excerpt describes {_SEARCH_TERMS_OR} for "
+        "a wind energy system (or wind turbine/tower) and False otherwise. "
     )
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "wether it applies to large wind energy systems. Large wind energy "
-        "systems (WES) may also be referred to as wind turbines, wind energy "
-        "conversion systems (WECS), wind energy facilities (WEF), wind energy "
-        "turbines (WET), large wind energy turbines (LWET), utility-scale "
-        "wind energy turbines (UWET), commercial wind energy systems, or "
-        "similar. Your client is a commercial wind developer that does not "
-        "care about ordinances related to private, micro, small, or medium "
-        "sized wind energy systems. Ignore any text related to such systems. "
+        f"whether any of it applies to {_SEARCH_TERMS_OR} for "
+        f"large wind energy systems. {_LARGE_WES_DESCRIPTION}"
+        "Your client is a commercial wind developer that does not "
+        f"care about ordinances related to {_IGNORE_TYPES} wind energy "
+        "systems. Ignore any text related to such systems. "
         "Return your answer in JSON format (not markdown). Your JSON file "
         "must include exactly two keys. The first key is 'summary' which "
-        "contains a string that summarizes the types of wind energy systems "
+        "contains a string that lists all of the types of wind energy systems "
         "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt is "
-        "applicable to the large wind energy conversion systems that the "
-        "client is interested in and False otherwise."
+        "boolean that is set to True if any part of the text excerpt mentions "
+        f"{_SEARCH_TERMS_OR} for the large wind energy conversion "
+        "systems that the client is interested in and False otherwise."
     )
 
     def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
@@ -293,28 +285,40 @@ class WindOrdinanceTextExtractor:
         "space-delimited formatting. Never paraphrase! Only return portions "
         "of the original text directly."
     )
-    MODEL_INSTRUCTIONS_RESTRICTIONS = (
-        "Extract all portions of the text related to the restrictions "
-        "of large wind energy systems with respect to any of the following:\n"
-        f"{RESTRICTIONS}"
-        "Include section headers (if any) for the text excerpts. Also include "
-        "any text excerpts that define what kind of large wind energy "
-        "conversion system the restriction applies to. If there is no text "
-        "related to siting restrictions of large wind systems, simply say: "
+    ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to energy "
+        "conversion systems. Remove sections that definitely do not pertain "
+        "to energy conversion systems. Note that bans on energy conversion "
+        "systems are an important restriction to track. If there is no text "
+        "that pertains to energy conversion systems, simply say: "
         '"No relevant text."'
     )
-    MODEL_INSTRUCTIONS_SIZE = (
-        "Extract all portions of the text that apply to large wind "
-        "energy systems. Large wind energy systems (WES) may also be referred "
-        "to as wind turbines, wind energy conversion systems (WECS), wind "
-        "energy facilities (WEF), wind energy turbines (WET), large wind "
-        "energy turbines (LWET), utility-scale wind energy turbines (UWET), "
-        "or similar. Remove all text that only applies to "
-        "private, micro, small, or medium sized wind energy systems. Include "
-        "section headers (if any) for the text excerpts. Also include any "
-        "text excerpts that define what kind of large wind energy conversion "
-        "system the restriction applies to. If there is no text pertaining to "
-        "large wind systems, simply say: "
+
+    WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to wind "
+        "energy conversion systems. Remove sections that definitely do "
+        "not pertain to wind energy conversion systems. "
+        f"{_TRACK_BANS}"
+        "If there is no text that pertains to wind energy conversion "
+        "systems, simply say: "
+        '"No relevant text."'
+    )
+    LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
+        "Extract the full text for all sections pertaining to large wind "
+        "energy systems.  "
+        f"{_TRACK_BANS}{_LARGE_WES_DESCRIPTION}"
+        f"Remove all sections that explicitly only apply to {_IGNORE_TYPES} "
+        "wind energy systems. Keep section headers (if any). If there is "
+        "no text pertaining to large wind systems, simply say: "
+        '"No relevant text."'
+    )
+    LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT = (
+        "Extract all portions of the text that apply to large wind energy "
+        "systems."
+        f"{_TRACK_BANS}{_LARGE_WES_DESCRIPTION}"
+        f"Remove all text that explicitly only applies to {_IGNORE_TYPES} "
+        "wind energy systems. Keep section headers (if any). If there is "
+        "no text pertaining to large wind systems, simply say: "
         '"No relevant text."'
     )
 
@@ -362,8 +366,8 @@ class WindOrdinanceTextExtractor:
         )
         return text_summary
 
-    async def check_for_restrictions(self, text_chunks):
-        """Extract restriction ordinance text from input text chunks
+    async def extract_energy_system_section(self, text_chunks):
+        """Extract ordinance text from input text chunks for energy sys
 
         Parameters
         ----------
@@ -379,11 +383,53 @@ class WindOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.MODEL_INSTRUCTIONS_RESTRICTIONS,
-            valid_chunk=_valid_chunk_not_short,
+            instructions=self.ENERGY_SYSTEM_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
         )
 
-    async def check_for_correct_size(self, text_chunks):
+    async def extract_wind_energy_system_section(self, text_chunks):
+        """Extract ordinance text from input text chunks for WES
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.WIND_ENERGY_SYSTEM_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
+        )
+
+    async def extract_large_wind_energy_system_section(self, text_chunks):
+        """Extract large WES ordinance text from input text chunks
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
+            valid_chunk=_valid_chunk,
+        )
+
+    async def extract_large_wind_energy_system_text(self, text_chunks):
         """Extract ordinance text from input text chunks for large WES
 
         Parameters
@@ -400,7 +446,7 @@ class WindOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.MODEL_INSTRUCTIONS_SIZE,
+            instructions=self.LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
             valid_chunk=_valid_chunk,
         )
 
@@ -416,15 +462,21 @@ class WindOrdinanceTextExtractor:
             Parser that takes a `text_chunks` input and outputs parsed
             text.
         """
-        yield "restrictions_ordinance_text", self.check_for_restrictions
-        yield "cleaned_ordinance_text", self.check_for_correct_size
+        yield "energy_systems_text", self.extract_energy_system_section
+        yield (
+            "wind_energy_systems_text",
+            self.extract_wind_energy_system_section,
+        )
+        yield (
+            "large_wind_energy_systems_text",
+            self.extract_large_wind_energy_system_section,
+        )
+        yield (
+            "cleaned_ordinance_text",
+            self.extract_large_wind_energy_system_text,
+        )
 
 
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
-
-
-def _valid_chunk_not_short(chunk):
-    """True if chunk has content and is not too short"""
-    return _valid_chunk(chunk) and len(chunk) > MIN_CHARS_IN_VALID_CHUNK
