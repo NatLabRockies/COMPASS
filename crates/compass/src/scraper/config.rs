@@ -142,8 +142,8 @@ pub(crate) mod sample {
 
 #[cfg(test)]
 mod test_scrapper_config {
-    use super::sample::as_text_v1;
     use super::ScrapperConfig;
+    use super::sample::as_text_v1;
 
     #[test]
     /// Load a ScrapperConfig from a JSON string

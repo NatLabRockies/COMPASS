@@ -172,9 +172,9 @@ impl ScrappedOrdinance {
 
 #[cfg(test)]
 mod tests {
+    use super::ScrappedOrdinance;
     use super::config;
     use super::usage;
-    use super::ScrappedOrdinance;
     use std::io::Write;
 
     #[tokio::test]

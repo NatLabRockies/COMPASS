@@ -9,9 +9,9 @@ authors = [
   "Guilherme Castelão <gpimenta@nrel.gov>",
   "Paul Pinchuk <Pavlo.Pinchuk@nrel.gov>",
   ]
-edition = "2021"
+edition = "2024"
 license = "MIT OR Apache-2.0"
-rust-version = "1.80.0"
+rust-version = "1.85.0"
 
 [workspace.dependencies]
 clap = { version = "4.5.21" }
