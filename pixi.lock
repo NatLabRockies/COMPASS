@@ -6794,8 +6794,6 @@ packages:
   - c-compiler 1.9.0 h2b85faf_0
   - gxx
   - gxx_linux-64 13.*
-  arch: x86_64
-  platform: linux
   license: BSD-3-Clause
   license_family: BSD
   purls: []
@@ -6807,8 +6805,6 @@ packages:
   depends:
   - c-compiler 1.9.0 h09a7c41_0
   - clangxx_osx-64 18.*
-  arch: x86_64
-  platform: osx
   license: BSD-3-Clause
   license_family: BSD
   purls: []
@@ -6820,8 +6816,6 @@ packages:
   depends:
   - c-compiler 1.9.0 hdf49b6b_0
   - clangxx_osx-arm64 18.*
-  arch: arm64
-  platform: osx
   license: BSD-3-Clause
   license_family: BSD
   purls: []
@@ -6832,8 +6826,6 @@ packages:
   md5: 6c4b643c7dd8f13dafc8679ffc5671eb
   depends:
   - vs2019_win-64
-  arch: x86_64
-  platform: win
   license: BSD-3-Clause
   license_family: BSD
   purls: []
@@ -12491,8 +12483,8 @@ packages:
   timestamp: 1733408419340
 - pypi: .
   name: nrel-compass
-  version: 0.1.1.dev29+g5de9f06.d20250310
-  sha256: b31b9d6798ca60c1a2b1dfd383e46ec1ac6201f8981c4151a0ee98596cee16be
+  version: 0.1.1.dev26+g153e75a.d20250314
+  sha256: 0b9fc3b95e057b608e65bea96e3f640230fd707433629ad0aff5971f68501bb7
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4

@@ -10,7 +10,7 @@ from pathlib import Path
 import pyjson5
 
 from compass import __version__
-from compass.process import process_counties_with_openai
+from compass.scripts.process import process_counties_with_openai
 
 
 @click.group()
