@@ -1,10 +1,16 @@
 """Wind ordinance extraction utilities"""
 
 from .ordinance import (
+    WindHeuristic,
+    WindOrdinanceTextCollector,
     WindOrdinanceTextExtractor,
-    WindOrdinanceValidator,
+    WindPermittedUseDistrictsTextCollector,
+    WindPermittedUseDistrictsTextExtractor,
 )
-from .parse import StructuredWindOrdinanceParser
+from .parse import (
+    StructuredWindOrdinanceParser,
+    StructuredWindPermittedUseDistrictsParser,
+)
 
 
 WIND_QUESTION_TEMPLATES = [

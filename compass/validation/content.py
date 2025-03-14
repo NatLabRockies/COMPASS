@@ -4,6 +4,7 @@ These are primarily used to validate that a legal document applies to a
 particular technology (e.g. Large Wind Energy Conversion Systems).
 """
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 
@@ -11,8 +12,15 @@ from abc import ABC, abstractmethod
 logger = logging.getLogger(__name__)
 
 
-class ValidationWithMemory:
-    """Validate text chunks by sometimes looking at previous chunks"""
+class ParseChunksWithMemory:
+    """Check text chunks by sometimes looking at previous chunks
+
+    The idea behind this approach is that sometimes the context for a
+    setback or other ordinances is found in a previous chunk, so it may
+    be worthwhile (especially for validation purposes) to check a few
+    text chunks back for some validation pieces. In order to do this
+    semi-efficiently, we make use of a cache that's labeled "memory".
+    """
 
     def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
         """
@@ -98,6 +106,7 @@ class ValidationWithMemory:
                     content=text,
                     usage_sub_label="document_content_validation",
                 )
+                logger.debug("LLM response: %s", str(content))  # TODO: trace
                 check = mem[key] = content.get(key, False)
             if check:
                 return check
@@ -210,3 +219,133 @@ class Heuristic(ABC):
     def GOOD_TECH_PHRASES(self):  # noqa: N802
         """iter: Iterable of phrases that pertain to the tech"""
         raise NotImplementedError
+
+
+class LegalTextValidator:
+    """Parse chunks to determine if they contain legal text"""
+
+    IS_LEGAL_TEXT_PROMPT = (
+        "You extract structured data from text. Return your answer in JSON "
+        "format (not markdown). Your JSON file must include exactly three "
+        "keys. The first key is 'summary', which is a string that provides a "
+        "short summary of the text. The second key is 'type', which is a "
+        "string that best represent the type of document this text belongs "
+        "to. The third key is '{key}', which is a boolean that is set to "
+        "True if the type of the text (as you previously determined) is a "
+        "legally-binding statute or code and False if the text is an excerpt "
+        "from other non-legal text such as a news article, survey, summary, "
+        "application, public notice, etc."
+    )
+
+    def __init__(self):
+        self._legal_text_mem = []
+
+    @property
+    def is_legal_text(self):
+        """bool: ``True`` if text was found to be from a legal source"""
+        if not self._legal_text_mem:
+            return False
+        return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk at a given ind to see if it contains legal text
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            resembles legal text.
+        """
+        is_legal_text = await chunk_parser.parse_from_ind(
+            ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
+        )
+        self._legal_text_mem.append(is_legal_text)
+        if is_legal_text:
+            logger.debug("Text at ind %d is legal text", ind)
+        else:
+            logger.debug("Text at ind %d is not legal text", ind)
+        return is_legal_text
+
+
+async def parse_by_chunks(
+    chunk_parser,
+    heuristic,
+    legal_text_validator,
+    callbacks=None,
+    min_chunks_to_process=3,
+):
+    """Parse text by chunks, passing to callbacks if it's legal text
+
+    This method goes through the chunks one by one, and passes them to
+    the callback parsers if the `legal_text_validator` check passes. If
+    `min_chunks_to_process` number of chunks fail the legal text check,
+    parsing is aborted.
+
+    Parameters
+    ----------
+    chunk_parser : ParseChunksWithMemory
+        Instance of `ParseChunksWithMemory` that contains the attributes
+        `text_chunks` and `num_to_recall`. The chunks in the
+        `text_chunks` attribute will be iterated over.
+    heuristic : Heuristic
+        Instance of `Heuristic` with a `check` method. This should be a
+        fast check meant to quickly dispose of chunks of text. Any chunk
+        that fails this check will NOT be passed to the callback
+        parsers.
+    legal_text_validator : LegalTextValidator
+        Instance of `LegalTextValidator` that can be used to validate
+        each chunk for legal text.
+    callbacks : list, optional
+        List of async callbacks that take a `chunk_parser` and `index`
+        as inputs and return a boolean determining whether the text
+        chunk was parsed successfully or not. By default, ``None``,
+        which does not use any callbacks.
+    min_chunks_to_process : int, optional
+        Minimum number of chunks to process before aborting due to text
+        not being legal. By default, ``3``.
+    """
+    passed_heuristic_mem = []
+    callbacks = callbacks or []
+    outer_task_name = asyncio.current_task().get_name()
+
+    for ind, text in enumerate(chunk_parser.text_chunks):
+        passed_heuristic_mem.append(heuristic.check(text))
+        if ind < min_chunks_to_process:
+            is_legal = await legal_text_validator.check_chunk(
+                chunk_parser, ind
+            )
+            if not is_legal:  # don't bother checking this chunk
+                continue
+
+        # don't bother checking this document
+        elif not legal_text_validator.is_legal_text:
+            return
+
+        # hasn't passed heuristic, so don't pass it to callbacks
+        elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):
+            continue
+
+        logger.debug("Processing text at ind %d", ind)
+        logger.debug("Text:\n%s", text)  # TODO: trace
+
+        if not callbacks:
+            continue
+
+        cb_futures = [
+            asyncio.create_task(cb(chunk_parser, ind), name=outer_task_name)
+            for cb in callbacks
+        ]
+        cb_results = await asyncio.gather(*cb_futures)
+
+        # mask this chunk if we got a good result - this avoids forcing
+        # the following chunk to be checked (it will only be checked if
+        # it itself passes the heuristic)
+        passed_heuristic_mem[-1] = not any(cb_results)

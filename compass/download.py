@@ -23,7 +23,9 @@ async def download_county_ordinance(
     question_templates,
     location,
     text_splitter,
-    validator_class,
+    heuristic,
+    ordinance_text_collector_class,
+    permitted_use_text_collector_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
@@ -77,17 +79,30 @@ async def download_county_ordinance(
     docs = await _down_select_docs_correct_location(
         docs, location=location, **kwargs
     )
+    logger.info(
+        "%d documents remaining after location filter for %s\n\t- %s",
+        len(docs),
+        location.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
+    )
     docs = await _down_select_docs_correct_content(
         docs,
         location=location,
         text_splitter=text_splitter,
-        validator_class=validator_class,
+        heuristic=heuristic,
+        ordinance_text_collector_class=ordinance_text_collector_class,
+        permitted_use_text_collector_class=permitted_use_text_collector_class,
         **kwargs,
     )
     logger.info(
-        "Found %d potential ordinance documents for %s",
+        "Found %d potential ordinance documents for %s\n\t- %s",
         len(docs),
         location.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
     )
     return _sort_final_ord_docs(docs)
 

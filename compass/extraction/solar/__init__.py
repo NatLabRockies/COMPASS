@@ -1,10 +1,16 @@
 """Solar ordinance extraction utilities"""
 
 from .ordinance import (
+    SolarHeuristic,
+    SolarOrdinanceTextCollector,
     SolarOrdinanceTextExtractor,
-    SolarOrdinanceValidator,
+    SolarPermittedUseDistrictsTextCollector,
+    SolarPermittedUseDistrictsTextExtractor,
 )
-from .parse import StructuredSolarOrdinanceParser
+from .parse import (
+    StructuredSolarOrdinanceParser,
+    StructuredSolarPermittedUseDistrictsParser,
+)
 
 
 SOLAR_QUESTION_TEMPLATES = [

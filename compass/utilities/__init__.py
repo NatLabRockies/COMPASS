@@ -10,15 +10,17 @@ from .parsing import (
 
 
 RTS_SEPARATORS = [
-    r"\d+\.\d+ ",  # match "123.24 "
-    r"\d+\.\d+\.\d+ ",  # match "123.24.250 "
-    r"\d+\.\d+\.",  # match "123.24."
-    r"\d+\.\d+\.\d+\.",  # match "123.24.250."
+    r"Chapter \d+",
     r"Section \d+",
+    r"Article \d+",
     "CHAPTER ",
     "SECTION ",
     "Chapter ",
     "Section ",
+    r"\n[\s]*\d+\.\d+ [A-Z]",  # match "\n\t  123.24 A"
+    r"\n[\s]*\d+\.\d+\.\d+ ",  # match "\n\t 123.24.250 "
+    r"\n[\s]*\d+\.\d+\.",  # match "\n\t 123.24."
+    r"\n[\s]*\d+\.\d+\.\d+\.",  # match "\n\t 123.24.250."
     "Setbacks",
     "\r\n\r\n",
     "\r\n",

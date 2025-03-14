@@ -20,6 +20,7 @@ from compass.extraction.common import (
     setup_base_graph,
     setup_participating_owner,
     setup_graph_extra_restriction,
+    setup_graph_permitted_use_districts,
 )
 from compass.extraction.solar.graphs import (
     setup_graph_sef_types,
@@ -47,11 +48,17 @@ RESTRICTIONS_SYSTEM_MESSAGE = (
     "all text that pertains to private, micro, small, or medium sized solar "
     "energy systems."
 )
+PERMITTED_USE_SYSTEM_MESSAGE = (
+    f"{DEFAULT_SYSTEM_MESSAGE} "
+    "For the duration of this conversation, only focus on permitted uses for "
+    "{tech}. Ignore all text that pertains to private, micro, small, or "
+    "medium sized wind energy systems."
+)
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "max height": "maximum structure height allowed",
     "max size": "maximum project spacing allowed",
-    "min lot size": "minimum lot size allowed",
+    "min lot size": "minimum lot, parcel, or tract size allowed",
     "density": "maximum panel spacing allowed",
     "coverage": "maximum land coverage allowed",
 }
@@ -63,7 +70,35 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
 }
 
 
-class StructuredSolarOrdinanceParser(BaseLLMCaller):
+class StructuredSolarParser(BaseLLMCaller):
+    """Base class for parsing structured data"""
+
+    def _init_chat_llm_caller(self, system_message):
+        """Initialize a ChatLLMCaller instance for the DecisionTree"""
+        return ChatLLMCaller(
+            self.llm_service,
+            system_message=system_message,
+            usage_tracker=self.usage_tracker,
+            **self.kwargs,
+        )
+
+    async def _check_solar_farm_type(self, text):
+        """Get the largest solar farm size mentioned in the text"""
+        logger.debug("Checking solar farm types")
+        tree = setup_async_decision_tree(
+            setup_graph_sef_types,
+            text=text,
+            chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
+        )
+        decision_tree_sef_types_out = await run_async_tree(tree)
+
+        return (
+            decision_tree_sef_types_out.get("largest_sef_type")
+            or "utility solar energy systems"
+        )
+
+
+class StructuredSolarOrdinanceParser(StructuredSolarParser):
     """LLM ordinance document structured data scraping utility
 
     Purpose:
@@ -138,21 +173,6 @@ class StructuredSolarOrdinanceParser(BaseLLMCaller):
         outputs = await asyncio.gather(*(feature_parsers + extras_parsers))
 
         return pd.DataFrame(chain.from_iterable(outputs))
-
-    async def _check_solar_farm_type(self, text):
-        """Get the largest solar farm size mentioned in the text"""
-        logger.debug("Checking solar farm types")
-        tree = setup_async_decision_tree(
-            setup_graph_sef_types,
-            text=text,
-            chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
-        )
-        decision_tree_sef_types_out = await run_async_tree(tree)
-
-        return (
-            decision_tree_sef_types_out.get("largest_sef_type")
-            or "utility solar energy systems"
-        )
 
     async def _parse_extra_restriction(
         self, text, feature, restriction_text, largest_sef_type, is_numerical
@@ -298,6 +318,96 @@ class StructuredSolarOrdinanceParser(BaseLLMCaller):
         if base_messages:
             return await run_async_tree_with_bm(tree, base_messages)
         return await run_async_tree(tree)
+
+
+class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
+    """LLM permitted use districts scraping utility
+
+    Purpose:
+        Extract structured ordinance data from text.
+    Responsibilities:
+        1. Extract ordinance values into structured format by executing
+           a decision-tree-based chain-of-thought prompt on the text for
+           each value to be extracted.
+    Key Relationships:
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
+        LLM queries and multiple
+        :class:`~compass.extraction.tree.AsyncDecisionTree` instances
+        to guide the extraction of individual values.
+    """
+
+    _LARGE_SEF_CLARIFICATION = (
+        "Large solar energy systems (SES) may also be referred to as solar "
+        "panels, solar energy conversion systems (SECS), solar energy "
+        "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
+        "utility-scale solar energy systems (USES), commercial solar energy "
+        "systems (CSES), alternate energy systems (AES), or similar. "
+    )
+    _USE_TYPES = [
+        {
+            "feature_id": "primary use districts",
+            "use_type": "primary use",
+        },
+        {
+            "feature_id": "special use districts",
+            "use_type": "special use",
+        },
+        {
+            "feature_id": "accessory use districts",
+            "use_type": "accessory use",
+        },
+    ]
+
+    async def parse(self, text):
+        """Parse text and extract permitted use districts data
+
+        Parameters
+        ----------
+        text : str
+            Permitted use districts text which may or may not contain
+            information about allowed uses in one or more districts.
+
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing parsed-out allowed-use district names.
+        """
+        largest_sef_type = await self._check_solar_farm_type(text)
+        logger.info("Largest SEF type found in text: %s", largest_sef_type)
+
+        outer_task_name = asyncio.current_task().get_name()
+        feature_parsers = [
+            asyncio.create_task(
+                self._parse_permitted_use_districts(
+                    text, largest_sef_type, **use_type_kwargs
+                ),
+                name=outer_task_name,
+            )
+            for use_type_kwargs in self._USE_TYPES
+        ]
+        outputs = await asyncio.gather(*(feature_parsers))
+
+        return pd.DataFrame(chain.from_iterable(outputs))
+
+    async def _parse_permitted_use_districts(
+        self, text, largest_sef_type, feature_id, use_type
+    ):
+        """Parse a non-setback restriction from the text"""
+        logger.debug("Parsing use type: %r", feature_id)
+        system_message = PERMITTED_USE_SYSTEM_MESSAGE.format(
+            tech=largest_sef_type
+        )
+        tree = setup_async_decision_tree(
+            setup_graph_permitted_use_districts,
+            tech=largest_sef_type,
+            clarifications=self._LARGE_SEF_CLARIFICATION,
+            text=text,
+            use_type=use_type,
+            chat_llm_caller=self._init_chat_llm_caller(system_message),
+        )
+        info = await run_async_tree(tree)
+        info.update({"feature": feature_id, "quantitative": True})
+        return [info]
 
 
 def _update_output_keys(output):

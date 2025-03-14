@@ -8,8 +8,26 @@ logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "adder", "min_dist", "max_dist", "summary"]
 
 
+def clean_backticks_from_llm_response(content):
+    """Remove markdown-style backticks from an LLM response
+
+    Parameters
+    ----------
+    content : str
+        LLM response that may or may not contain markdown-style triple
+        backticks.
+
+    Returns
+    -------
+    str
+        LLM response stripped of the markdown-style backticks
+    """
+    content = content.lstrip().rstrip()
+    return content.removeprefix("```").lstrip("\n").removesuffix("```")
+
+
 def llm_response_as_json(content):
-    """LLM response to JSON.
+    """LLM response to JSON
 
     Parameters
     ----------
@@ -23,9 +41,8 @@ def llm_response_as_json(content):
         Response parsed into dictionary. This dictionary will be empty
         if the response cannot be parsed by JSON.
     """
-    content = content.lstrip().rstrip()
-    content = content.removeprefix("```").removeprefix("json").lstrip("\n")
-    content = content.removesuffix("```")
+    content = clean_backticks_from_llm_response(content)
+    content = content.removeprefix("json").lstrip("\n")
     content = content.replace("True", "true").replace("False", "false")
     try:
         content = json.loads(content)
@@ -52,24 +69,31 @@ def merge_overlapping_texts(text_chunks, n=300):
         consecutive overlapping portions.
     n : int, optional
         Number of characters to check at the beginning of each message
-        for overlap with the previous message. By default, ``100``.
+        for overlap with the previous message. Will always be reduced to
+        be less than or equal to half of the length of the previous
+        chunk. By default, ``300``.
 
     Returns
     -------
     str
         Merged text.
     """
+    text_chunks = list(filter(None, text_chunks))
     if not text_chunks:
         return ""
 
     out_text = text_chunks[0]
     for next_text in text_chunks[1:]:
-        start_ind = out_text[-2 * n:].find(next_text[:n])  # fmt: off
-        if start_ind == -1:
+        half_chunk_len = len(out_text) // 2
+        check_len = min(n, half_chunk_len)
+        next_chunks_start_ind = out_text[half_chunk_len:].find(
+            next_text[:check_len]
+        )
+        if next_chunks_start_ind == -1:
             out_text = f"{out_text}\n{next_text}"
             continue
-        start_ind = 2 * n - start_ind
-        out_text = "".join([out_text, next_text[start_ind:]])
+        next_chunks_start_ind += half_chunk_len
+        out_text = "".join([out_text[:next_chunks_start_ind], next_text])
     return out_text
 
 

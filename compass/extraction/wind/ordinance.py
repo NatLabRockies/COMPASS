@@ -4,12 +4,10 @@ These are primarily used to validate that a legal document applies to a
 particular technology (e.g. Large Wind Energy Conversion Systems).
 """
 
-import asyncio
 import logging
 
-from elm import ApiBase
-
-from compass.validation.content import Heuristic, ValidationWithMemory
+from compass.extraction.common import BaseTextExtractor
+from compass.validation.content import Heuristic
 from compass.utilities.parsing import merge_overlapping_texts
 
 
@@ -21,7 +19,8 @@ _LARGE_WES_DESCRIPTION = (
     "turbines, wind energy conversion systems (WECS), wind energy "
     "facilities (WEF), wind energy turbines (WET), large wind energy "
     "turbines (LWET), utility-scale wind energy turbines (UWET), "
-    "commercial wind energy systems, or similar. "
+    "commercial wind energy conversion systems (CWECS), alternate "
+    "energy systems (AES), or similar. "
 )
 _SEARCH_TERMS_AND = (
     "zoning, special permitting, siting and setback, system design, and "
@@ -76,36 +75,8 @@ class WindHeuristic(Heuristic):
     ]
 
 
-class WindOrdinanceValidator(ValidationWithMemory):
-    """Check document text for wind ordinances
-
-    Purpose:
-        Determine whether a document contains relevant ordinance
-        information.
-    Responsibilities:
-        1. Determine whether a document contains relevant (e.g.
-        utility-scale wind zoning) ordinance information by splitting
-        the text into chunks and parsing them individually using LLMs.
-    Key Relationships:
-        Child class of
-        :class:`~compass.validation.content.ValidationWithMemory`,
-        which allows the validation to look at neighboring chunks of
-        text.
-    """
-
-    _HEURISTIC = WindHeuristic()
-    IS_LEGAL_TEXT_PROMPT = (
-        "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
-        "keys. The first key is 'summary', which is a string that provides a "
-        "short summary of the text. The second key is 'type', which is a "
-        "string that best represent the type of document this text belongs "
-        "to. The third key is '{key}', which is a boolean that is set to "
-        "True if the type of the text (as you previously determined) is a "
-        "legally-binding statute or code and False if the text is an excerpt "
-        "from other non-legal text such as a news article, survey, summary, "
-        "application, public notice, etc."
-    )
+class WindOrdinanceTextCollector:
+    """Check text chunks for ordinances and collect them if they do"""
 
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
@@ -135,135 +106,151 @@ class WindOrdinanceValidator(ValidationWithMemory):
         "systems that the client is interested in and False otherwise."
     )
 
-    def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
-        """
+    def __init__(self):
+        self._ordinance_chunks = {}
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
 
         Parameters
         ----------
-        structured_llm_caller : compass.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks. This validator may refer to previous text chunks to
-            answer validation questions.
-        num_to_recall : int, optional
-            Number of chunks to check for each validation call. This
-            includes the original chunk! For example, if
-            `num_to_recall=2`, the validator will first check the chunk
-            at the requested index, and then the previous chunk as well.
-            By default, ``2``.
-        """
-        super().__init__(
-            structured_llm_caller=structured_llm_caller,
-            text_chunks=text_chunks,
-            num_to_recall=num_to_recall,
-        )
-        self._legal_text_mem = []
-        self._wind_mention_mem = []
-        self._ordinance_chunk_inds = []
-
-    @property
-    def is_legal_text(self):
-        """bool: ``True`` if text was found to be from a legal source"""
-        if not self._legal_text_mem:
-            return False
-        return sum(self._legal_text_mem) >= 0.5 * len(self._legal_text_mem)
-
-    @property
-    def ordinance_text(self):
-        """str: Combined ordinance text from the individual chunks"""
-        logger.debug("Ordinance chunk inds: %s", self._ordinance_chunk_inds)
-
-        inds_to_grab = set()
-        for ind in self._ordinance_chunk_inds:
-            inds_to_grab |= {ind + x for x in range(1 - self.num_to_recall, 2)}
-
-        inds_to_grab = [
-            ind
-            for ind in sorted(inds_to_grab)
-            if 0 <= ind < len(self.text_chunks)
-        ]
-        logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
-            len(inds_to_grab),
-            inds_to_grab,
-        )
-
-        text = [self.text_chunks[ind] for ind in inds_to_grab]
-        return merge_overlapping_texts(text)
-
-    async def parse(self, min_chunks_to_process=3):
-        """Parse text chunks and look for ordinance text
-
-        Parameters
-        ----------
-        min_chunks_to_process : int, optional
-            Minimum number of chunks to process before checking if
-            document resembles legal text and ignoring chunks that don't
-            pass the wind heuristic. By default, ``3``.
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        ind : int
+            Index of the chunk to check.
 
         Returns
         -------
         bool
-            ``True`` if any ordinance text was found in the chunks.
+            Boolean flag indicating whether or not the text in the chunk
+            contains large wind energy conversion system ordinance text.
         """
-        for ind, text in enumerate(self.text_chunks):
-            self._wind_mention_mem.append(self._HEURISTIC.check(text))
-            if ind >= min_chunks_to_process:
-                if not self.is_legal_text:
-                    return False
+        contains_ord_info = await chunk_parser.parse_from_ind(
+            ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
+        )
+        if not contains_ord_info:
+            logger.debug("Text at ind %d does not contain ordinance info", ind)
+            return False
 
-                # fmt: off
-                if not any(self._wind_mention_mem[-self.num_to_recall:]):
-                    continue
+        logger.debug("Text at ind %d does contain ordinance info", ind)
 
-            logger.debug("Processing text at ind %d", ind)
-            logger.debug("Text:\n%s", text)
+        is_utility_scale = await chunk_parser.parse_from_ind(
+            ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
+        )
+        if not is_utility_scale:
+            logger.debug("Text at ind %d is not for utility-scale WECS", ind)
+            return False
 
-            if ind < min_chunks_to_process:
-                is_legal_text = await self.parse_from_ind(
-                    ind, self.IS_LEGAL_TEXT_PROMPT, key="legal_text"
-                )
-                self._legal_text_mem.append(is_legal_text)
-                if not is_legal_text:
-                    logger.debug("Text at ind %d is not legal text", ind)
-                    continue
+        logger.debug("Text at ind %d is for utility-scale WECS", ind)
 
-                logger.debug("Text at ind %d is legal text", ind)
+        _store_chunk(chunk_parser, ind, self._ordinance_chunks)
+        logger.debug("Added text at ind %d to ordinances", ind)
 
-            contains_ord_info = await self.parse_from_ind(
-                ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
-            )
-            if not contains_ord_info:
-                logger.debug(
-                    "Text at ind %d does not contain ordinance info", ind
-                )
-                continue
+        return True
 
-            logger.debug("Text at ind %d does contain ordinance info", ind)
+    @property
+    def contains_ord_info(self):
+        """bool: Flag indicating whether text contains ordinance info"""
+        return bool(self._ordinance_chunks)
 
-            is_utility_scale = await self.parse_from_ind(
-                ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
-            )
-            if not is_utility_scale:
-                logger.debug(
-                    "Text at ind %d is not for utility-scale WECS", ind
-                )
-                continue
+    @property
+    def ordinance_text(self):
+        """str: Combined ordinance text from the individual chunks"""
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(self._ordinance_chunks),
+            list(self._ordinance_chunks),
+        )
 
-            logger.debug("Text at ind %d is for utility-scale WECS", ind)
-
-            self._ordinance_chunk_inds.append(ind)
-            logger.debug("Added text at ind %d to ordinances", ind)
-            # mask, since we got a good result
-            self._wind_mention_mem[-1] = False
-
-        return bool(self._ordinance_chunk_inds)
+        text = [
+            self._ordinance_chunks[ind]
+            for ind in sorted(self._ordinance_chunks)
+        ]
+        return merge_overlapping_texts(text)
 
 
-class WindOrdinanceTextExtractor:
+class WindPermittedUseDistrictsTextCollector:
+    """Check text chunks for permitted wind districts; collect them"""
+
+    DISTRICT_PROMPT = (
+        "You are a legal scholar that reads ordinance text and determines "
+        "whether the text explicitly details the districts where large "
+        "wind energy systems are a permitted use. "
+        f"{_LARGE_WES_DESCRIPTION}"
+        "Do not make any inferences; only answer based on information that "
+        "is explicitly outlined in the text. "
+        "Note that relevant information may sometimes be found in tables. "
+        "Return your answer in JSON format (not markdown). Your JSON file "
+        "must include exactly two keys. The first key is 'districts' which "
+        "contains a string that lists all of the district names for which "
+        "the text explicitly permits large wind energy systems (if any). "
+        "The last key is "
+        "'{key}', which is a boolean that is set to True if any part of the "
+        "text excerpt mentions districts where large wind energy systems"
+        "are a permitted use and False otherwise."
+    )
+
+    def __init__(self):
+        self._district_chunks = {}
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk to see if it contains permitted uses
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance of `ParseChunksWithMemory` that contains a
+            `parse_from_ind` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            contains large wind energy conversion system permitted use
+            text.
+        """
+
+        key = "contains_district_info"
+        content = await chunk_parser.slc.call(
+            sys_msg=self.DISTRICT_PROMPT.format(key=key),
+            content=chunk_parser.text_chunks[ind],
+            usage_sub_label="document_permitted_use_content_validation",
+        )
+        logger.debug("LLM response: %s", str(content))  # TODO: trace
+        contains_district_info = content.get(key, False)
+
+        if contains_district_info:
+            _store_chunk(chunk_parser, ind, self._district_chunks)
+            logger.debug("Text at ind %d contains district info", ind)
+            return True
+
+        logger.debug("Text at ind %d does not contain district info", ind)
+        return False
+
+    @property
+    def contains_district_info(self):
+        """bool: Flag indicating whether text contains district info"""
+        return bool(self._district_chunks)
+
+    @property
+    def permitted_use_district_text(self):
+        """str: Combined permitted use districts text from the chunks"""
+        logger.debug(
+            "Grabbing %d chunk(s) from original text at these indices: %s",
+            len(self._district_chunks),
+            list(self._district_chunks),
+        )
+
+        text = [
+            self._district_chunks[ind] for ind in sorted(self._district_chunks)
+        ]
+        return merge_overlapping_texts(text)
+
+
+class WindOrdinanceTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:
@@ -276,23 +263,6 @@ class WindOrdinanceTextExtractor:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries.
     """
-
-    SYSTEM_MESSAGE = (
-        "You extract one or more direct excerpts from a given text based on "
-        "the user's request. Maintain all original formatting and characters "
-        "without any paraphrasing. If the relevant text is inside of a "
-        "space-delimited table, return the entire table with the original "
-        "space-delimited formatting. Never paraphrase! Only return portions "
-        "of the original text directly."
-    )
-    ENERGY_SYSTEM_FILTER_PROMPT = (
-        "Extract the full text for all sections pertaining to energy "
-        "conversion systems. Remove sections that definitely do not pertain "
-        "to energy conversion systems. Note that bans on energy conversion "
-        "systems are an important restriction to track. If there is no text "
-        "that pertains to energy conversion systems, simply say: "
-        '"No relevant text."'
-    )
 
     WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
         "Extract the full text for all sections pertaining to wind "
@@ -312,80 +282,6 @@ class WindOrdinanceTextExtractor:
         "no text pertaining to large wind systems, simply say: "
         '"No relevant text."'
     )
-    LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT = (
-        "Extract all portions of the text that apply to large wind energy "
-        "systems."
-        f"{_TRACK_BANS}{_LARGE_WES_DESCRIPTION}"
-        f"Remove all text that explicitly only applies to {_IGNORE_TYPES} "
-        "wind energy systems. Keep section headers (if any). If there is "
-        "no text pertaining to large wind systems, simply say: "
-        '"No relevant text."'
-    )
-
-    def __init__(self, llm_caller):
-        """
-
-        Parameters
-        ----------
-        llm_caller : compass.llm.LLMCaller
-            LLM Caller instance used to extract ordinance info with.
-        """
-        self.llm_caller = llm_caller
-
-    async def _process(self, text_chunks, instructions, valid_chunk):
-        """Perform extraction processing"""
-        logger.info(
-            "Extracting ordinance text from %d text chunks asynchronously...",
-            len(text_chunks),
-        )
-        logger.debug("Model instructions are:\n%s", instructions)
-        outer_task_name = asyncio.current_task().get_name()
-        summaries = [
-            asyncio.create_task(
-                self.llm_caller.call(
-                    sys_msg=self.SYSTEM_MESSAGE,
-                    content=f"Text:\n{chunk}\n{instructions}",
-                    usage_sub_label="document_ordinance_summary",
-                ),
-                name=outer_task_name,
-            )
-            for chunk in text_chunks
-        ]
-        summary_chunks = await asyncio.gather(*summaries)
-        summary_chunks = [
-            chunk for chunk in summary_chunks if valid_chunk(chunk)
-        ]
-
-        text_summary = "\n".join(summary_chunks)
-        logger.debug(
-            "Final summary contains %d tokens",
-            ApiBase.count_tokens(
-                text_summary,
-                model=self.llm_caller.kwargs.get("model", "gpt-4"),
-            ),
-        )
-        return text_summary
-
-    async def extract_energy_system_section(self, text_chunks):
-        """Extract ordinance text from input text chunks for energy sys
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.ENERGY_SYSTEM_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
-        )
 
     async def extract_wind_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for WES
@@ -405,7 +301,7 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.WIND_ENERGY_SYSTEM_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_large_wind_energy_system_section(self, text_chunks):
@@ -426,11 +322,77 @@ class WindOrdinanceTextExtractor:
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            is_valid_chunk=_valid_chunk,
         )
 
-    async def extract_large_wind_energy_system_text(self, text_chunks):
-        """Extract ordinance text from input text chunks for large WES
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser
+            Parser that takes a `text_chunks` input and outputs parsed
+            text.
+        """
+        yield (
+            "wind_energy_systems_text",
+            self.extract_wind_energy_system_section,
+        )
+        yield (
+            "cleaned_ordinance_text",
+            self.extract_large_wind_energy_system_section,
+        )
+
+
+class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
+    """Extract succinct ordinance text from input
+
+    Purpose:
+        Extract relevant ordinance text from document.
+    Responsibilities:
+        1. Extract portions from chunked document text relevant to
+           particular ordinance type (e.g. wind zoning for utility-scale
+           systems).
+    Key Relationships:
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
+        LLM queries.
+    """
+
+    _USAGE_LABEL = "document_permitted_use_districts_summary"
+
+    PERMITTED_USES_FILTER_PROMPT = (
+        "Remove all text that does not pertain to permitted use(s) for a "
+        "district. "
+        "Consider all permitted use kinds, including but not limited to "
+        "Primary, Special, Accessory, etc. "
+        "Pay extra attention to text that mentions wind. "
+        "Keep all text that explains the permitted use kind, gives the "
+        "district name(s), and/or mentions wind. "
+        "Note that relevant information may sometimes be found in tables. "
+        "If there is no text that pertains to permitted use(s) for a "
+        "district, simply say: "
+        '"No relevant text."'
+    )
+
+    WES_PERMITTED_USES_FILTER_PROMPT = (
+        "Remove all text that does not pertain to wind energy conversion "
+        "systems. "
+        "Keep all text that explains the permitted use kind, gives the "
+        "district name(s), and/or mentions the wind energy conversion "
+        "system. "
+        "Note that information about wind energy conversion systems may "
+        "sometimes be found in tables; be sure to keep the entire table "
+        "in such cases. "
+        "If there is no text that pertains to wind energy conversion "
+        "systems, simply say: "
+        '"No relevant text."'
+    )
+
+    async def extract_permitted_uses(self, text_chunks):
+        """Extract permitted uses text from input text chunks
 
         Parameters
         ----------
@@ -446,8 +408,29 @@ class WindOrdinanceTextExtractor:
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=self.LARGE_WIND_ENERGY_SYSTEM_TEXT_FILTER_PROMPT,
-            valid_chunk=_valid_chunk,
+            instructions=self.PERMITTED_USES_FILTER_PROMPT,
+            is_valid_chunk=_valid_chunk,
+        )
+
+    async def extract_wes_permitted_uses(self, text_chunks):
+        """Extract permitted uses text for large WES from input text
+
+        Parameters
+        ----------
+        text_chunks : list of str
+            List of strings, each of which represent a chunk of text.
+            The order of the strings should be the order of the text
+            chunks.
+
+        Returns
+        -------
+        str
+            Ordinance text extracted from text chunks.
+        """
+        return await self._process(
+            text_chunks=text_chunks,
+            instructions=self.WES_PERMITTED_USES_FILTER_PROMPT,
+            is_valid_chunk=_valid_chunk,
         )
 
     @property
@@ -462,21 +445,20 @@ class WindOrdinanceTextExtractor:
             Parser that takes a `text_chunks` input and outputs parsed
             text.
         """
-        yield "energy_systems_text", self.extract_energy_system_section
-        yield (
-            "wind_energy_systems_text",
-            self.extract_wind_energy_system_section,
-        )
-        yield (
-            "large_wind_energy_systems_text",
-            self.extract_large_wind_energy_system_section,
-        )
-        yield (
-            "cleaned_ordinance_text",
-            self.extract_large_wind_energy_system_text,
-        )
+        yield "permitted_use_only_text", self.extract_permitted_uses
+        yield "districts_text", self.extract_wes_permitted_uses
 
 
 def _valid_chunk(chunk):
     """True if chunk has content"""
     return chunk and "no relevant text" not in chunk.lower()
+
+
+def _store_chunk(parser, chunk_ind, store):
+    """Store chunk and its neighbors if it is not already stored"""
+    for offset in range(1 - parser.num_to_recall, 2):
+        ind_to_grab = chunk_ind + offset
+        if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
+            continue
+
+        store.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])

@@ -4,12 +4,12 @@ from pathlib import Path
 
 import pytest
 
-from compass.validation.content import ValidationWithMemory
+from compass.validation.content import ParseChunksWithMemory
 
 
 @pytest.mark.asyncio
 async def test_validation_with_mem():
-    """Test the `ValidationWithMemory` class (basic execution)"""
+    """Test the `ParseChunksWithMemory` class (basic execution)"""
 
     sys_messages = []
     test_prompt = "Looking for key {key!r}"
@@ -23,7 +23,9 @@ async def test_validation_with_mem():
             return {"test": True} if content == 0 else {}
 
     text_chunks = list(range(7))
-    validator = ValidationWithMemory(MockStructuredLLMCaller(), text_chunks, 3)
+    validator = ParseChunksWithMemory(
+        MockStructuredLLMCaller(), text_chunks, 3
+    )
 
     out = await validator.parse_from_ind(0, test_prompt, key="test")
     assert out

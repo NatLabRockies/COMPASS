@@ -12,6 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from elm.web.utilities import write_url_doc_to_file
 
+from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
 from compass.utilities import (
     extract_ord_year_from_doc_attrs,
@@ -61,20 +62,57 @@ def _move_file(doc, out_dir):
 
 def _write_cleaned_file(doc, out_dir):
     """Write cleaned ordinance text to directory"""
-    cleaned_text = doc.attrs.get("cleaned_ordinance_text")
     location_name = doc.attrs.get("location_name")
-
-    if cleaned_text is None or location_name is None:
+    if location_name is None:
         return None
 
-    out_fp = Path(out_dir) / f"{location_name} Summary.txt"
-    Path(out_fp).write_text(cleaned_text, encoding="utf-8")
-    return out_fp
+    out_dir = Path(out_dir)
+    if COMPASS_DEBUG_LEVEL > 0:
+        _write_interim_cleaned_files(doc, out_dir, location_name)
+
+    key_to_fp = {
+        "cleaned_ordinance_text": f"{location_name} Ordinance Summary.txt",
+        "districts_text": f"{location_name} Districts.txt",
+    }
+    out_paths = []
+    for key, fn in key_to_fp.items():
+        cleaned_text = doc.attrs.get(key)
+        if cleaned_text is None:
+            continue
+
+        out_fp = out_dir / fn
+        out_fp.write_text(cleaned_text, encoding="utf-8")
+        out_paths.append(out_fp)
+
+    return out_paths
+
+
+def _write_interim_cleaned_files(doc, out_dir, location_name):
+    """Write intermediate output texts to file; helpful for debugging"""
+    key_to_fp = {
+        "ordinance_text": f"{location_name} Ordinance Original text.txt",
+        "wind_energy_systems_text": f"{location_name} Wind Ordinance text.txt",
+        "solar_energy_systems_text": (
+            f"{location_name} Solar Ordinance text.txt"
+        ),
+        "permitted_use_text": (
+            f"{location_name} Permitted Use Original text.txt"
+        ),
+        "permitted_use_only_text": (
+            f"{location_name} Permitted Use Only text.txt"
+        ),
+    }
+    for key, fn in key_to_fp.items():
+        text = doc.attrs.get(key)
+        if text is None:
+            continue
+
+        (out_dir / fn).write_text(text, encoding="utf-8")
 
 
 def _write_ord_db(doc, out_dir):
     """Write parsed ordinance database to directory"""
-    ord_db = doc.attrs.get("ordinance_values")
+    ord_db = doc.attrs.get("scraped_values")
     location_name = doc.attrs.get("location_name")
 
     if ord_db is None or location_name is None:

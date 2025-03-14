@@ -27,8 +27,9 @@ def setup_graph_wes_types(**kwargs):
         "init",
         prompt=(
             "Does the following text distinguish between multiple wind energy "
-            "system sizes? Distinctions are often made as 'small' vs 'large' "
-            "wind energy conversion systems or actual MW values. "
+            "system sizes? Distinctions are often made as 'small', "
+            "'personal', or 'private' vs 'large', 'commercial', or 'utility'. "
+            "Sometimes the distinction uses actual MW values. "
             "Begin your response with either 'Yes' or 'No' and explain your "
             "answer."
             '\n\n"""\n{text}\n"""'

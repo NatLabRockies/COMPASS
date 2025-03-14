@@ -1,10 +1,16 @@
 """Common ordinance extraction components"""
 
+import asyncio
 import logging
 
 import networkx as nx
+from elm import ApiBase
 
 from compass.utilities import llm_response_as_json
+from compass.utilities.parsing import (
+    merge_overlapping_texts,
+    clean_backticks_from_llm_response,
+)
 from compass.extraction.tree import AsyncDecisionTree
 
 
@@ -303,3 +309,124 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
     return G
+
+
+def setup_graph_permitted_use_districts(**kwargs):
+    """Setup graph to extract permitted use districts for technology
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword-value pairs to add to graph.
+
+    Returns
+    -------
+    nx.DiGraph
+        Graph instance that can be used to initialize an
+        `elm.tree.DecisionTree`.
+    """
+    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+
+    G.add_node(
+        "init",
+        prompt=(
+            "Does the following text explicitly outline districts where "
+            "{tech} are permitted as {use_type}? {clarifications}"
+            "Pay extra attention to clarifying text found in "
+            "parentheses and footnotes. Begin your response with either "
+            "'Yes' or 'No' and explain your answer."
+            '\n\n"""\n{text}\n"""'
+        ),
+    )
+    G.add_edge(
+        "init", "district_names", condition=llm_response_starts_with_yes
+    )
+
+    G.add_node(
+        "district_names",
+        prompt=(
+            "What are all of the district names (and abbreviations if given) "
+            "where {tech} are permitted as {use_type}?"
+        ),
+    )
+    G.add_edge("district_names", "final")
+
+    G.add_node(
+        "final",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer in "
+            "JSON format (not markdown). Your JSON file must include "
+            'exactly three keys. The keys are "value", "summary", '
+            'and "section". The value of the "value" key '
+            "should be a list of all district names (and abbreviations if "
+            "given) where {tech} "
+            "are permitted as {use_type}, or `null` if the text does not "
+            "mention this use type for {tech}. Use our conversation to "
+            "fill out this value. {SUMMARY_PROMPT} {SECTION_PROMPT}"
+        ),
+    )
+    return G
+
+
+class BaseTextExtractor:
+    """Base implementation for a text extractor"""
+
+    SYSTEM_MESSAGE = (
+        "You extract exact excerpts from a provided legal zoning "
+        "regulation text that are directly relevant to the user's request "
+        "along with relevant context (such as section headers, for example). "
+        "You must preserve all original wording, punctuation, and formatting "
+        "without any paraphrasing or modification. If the relevant content "
+        "appears within a space-delimited table, return the entire table "
+        "exactly as formatted. You must not summarize, rephrase, interpret, "
+        "or provide additional commentary. Only return the original text "
+        "excerpts as they appear in the source."
+    )
+    _USAGE_LABEL = "document_ordinance_summary"
+
+    def __init__(self, llm_caller):
+        """
+
+        Parameters
+        ----------
+        llm_caller : compass.llm.LLMCaller
+            LLM Caller instance used to extract ordinance info with.
+        """
+        self.llm_caller = llm_caller
+
+    async def _process(self, text_chunks, instructions, is_valid_chunk):
+        """Perform extraction processing"""
+        logger.info(
+            "Extracting summary text from %d text chunks asynchronously...",
+            len(text_chunks),
+        )
+        logger.debug("Model instructions are:\n%s", instructions)
+        outer_task_name = asyncio.current_task().get_name()
+        summaries = [
+            asyncio.create_task(
+                self.llm_caller.call(
+                    sys_msg=self.SYSTEM_MESSAGE,
+                    content=f"Text:\n{chunk}\n\n{instructions}",
+                    usage_sub_label=self._USAGE_LABEL,
+                ),
+                name=outer_task_name,
+            )
+            for chunk in text_chunks
+        ]
+        summary_chunks = await asyncio.gather(*summaries)
+        summary_chunks = [
+            clean_backticks_from_llm_response(chunk)
+            for chunk in summary_chunks
+            if is_valid_chunk(chunk)
+        ]
+
+        text_summary = merge_overlapping_texts(summary_chunks)
+        logger.debug(
+            "Final summary contains %d tokens",
+            ApiBase.count_tokens(
+                text_summary,
+                model=self.llm_caller.kwargs.get("model", "gpt-4"),
+            ),
+        )
+        return text_summary
