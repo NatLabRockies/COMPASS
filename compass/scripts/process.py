@@ -8,6 +8,7 @@ import getpass
 from pathlib import Path
 from functools import partial
 from collections import namedtuple
+from contextlib import AsyncExitStack
 from datetime import datetime, timedelta, UTC
 
 import openai
@@ -18,7 +19,7 @@ from elm.utilities import validate_azure_api_params
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
 from compass import __version__ as compass_version
-from compass.download import download_county_ordinance
+from compass.scripts.download import download_county_ordinance
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
@@ -63,6 +64,7 @@ from compass.utilities import (
     load_counties_from_fp,
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
+    num_ordinances_dataframe,
 )
 from compass.utilities.location import County
 from compass.utilities.queued_logging import (
@@ -88,7 +90,13 @@ TechSpec = namedtuple(
 )
 ProcessKwargs = namedtuple(
     "ProcessKwargs",
-    ["file_loader_kwargs", "td_kwargs", "tpe_kwargs", "ppe_kwargs"],
+    [
+        "file_loader_kwargs",
+        "td_kwargs",
+        "tpe_kwargs",
+        "ppe_kwargs",
+        "max_num_concurrent_jurisdictions",
+    ],
     defaults=[None, None, None, None],
 )
 Directories = namedtuple(
@@ -156,6 +164,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     text_splitter_chunk_overlap=1000,
     num_urls_to_check_per_county=5,
     max_num_concurrent_browsers=10,
+    max_num_concurrent_jurisdictions=None,
     file_loader_kwargs=None,
     pytesseract_exe_fp=None,
     td_kwargs=None,
@@ -224,6 +233,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         machine with limited processing can lead to increased timeouts
         and therefore decreased quality of Google search results.
         By default, ``10``.
+    max_num_concurrent_jurisdictions : int, optional
+        Number of unique jurisdictions to process concurrently. Setting
+        this value limits the number of documents stored in RAM at a
+        time and can therefore help avoid memory issues.
+        By default, ``None``, which does not limit the number of
+        jurisdictions processed concurrently.
     pytesseract_exe_fp : path-like, optional
         Path to pytesseract executable. If this option is specified, OCR
         parsing for PDf files will be enabled via pytesseract.
@@ -286,7 +301,13 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             azure_api_key, azure_version, azure_endpoint
         )
     )
-    pk = ProcessKwargs(file_loader_kwargs, td_kwargs, tpe_kwargs, ppe_kwargs)
+    pk = ProcessKwargs(
+        file_loader_kwargs,
+        td_kwargs,
+        tpe_kwargs,
+        ppe_kwargs,
+        max_num_concurrent_jurisdictions,
+    )
     wsp = WebSearchParams(
         num_urls_to_check_per_county,
         max_num_concurrent_browsers,
@@ -398,6 +419,11 @@ async def _process_with_logs(  # noqa: PLR0914
         if wsp.max_num_concurrent_browsers
         else None
     )
+    jurisdiction_semaphore = (
+        asyncio.Semaphore(process_kwargs.max_num_concurrent_jurisdictions)
+        if process_kwargs.max_num_concurrent_jurisdictions
+        else None
+    )
 
     start_date = datetime.now(UTC).isoformat()
     start_time = time.monotonic()
@@ -412,7 +438,7 @@ async def _process_with_logs(  # noqa: PLR0914
             )
             trackers.append(usage_tracker)
             task = asyncio.create_task(
-                process_county_with_logging(
+                _processed_county_info(
                     log_listener,
                     dirs.logs,
                     location,
@@ -421,6 +447,7 @@ async def _process_with_logs(  # noqa: PLR0914
                     num_urls=wsp.num_urls_to_check_per_county,
                     file_loader_kwargs=file_loader_kwargs,
                     browser_semaphore=browser_semaphore,
+                    jurisdiction_semaphore=jurisdiction_semaphore,
                     level=log_level,
                     llm_service=OpenAIService,
                     usage_tracker=usage_tracker,
@@ -430,9 +457,9 @@ async def _process_with_logs(  # noqa: PLR0914
                 name=location.full_name,
             )
             tasks.append(task)
-        docs = await asyncio.gather(*tasks)
+        doc_infos = await asyncio.gather(*tasks)
 
-    db, num_docs_found = _docs_to_db(docs)
+    db, num_docs_found = _doc_infos_to_db(doc_infos)
     _save_db(db, dirs.out)
     _save_run_meta(
         dirs,
@@ -489,6 +516,46 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     file_loader_kwargs = file_loader_kwargs or {}
     file_loader_kwargs.update({"pdf_read_coroutine": read_pdf_doc})
     return file_loader_kwargs
+
+
+async def _processed_county_info(
+    listener,
+    log_dir,
+    county,
+    text_splitter,
+    tech_specs,
+    num_urls=5,
+    file_loader_kwargs=None,
+    browser_semaphore=None,
+    jurisdiction_semaphore=None,
+    level="INFO",
+    **kwargs,
+):
+    """Drop `doc` from RAM and only keep enough info to re-build doc"""
+
+    if jurisdiction_semaphore is None:
+        jurisdiction_semaphore = AsyncExitStack()
+
+    async with jurisdiction_semaphore:
+        doc = await process_county_with_logging(
+            listener,
+            log_dir,
+            county,
+            text_splitter,
+            tech_specs,
+            num_urls=num_urls,
+            file_loader_kwargs=file_loader_kwargs,
+            browser_semaphore=browser_semaphore,
+            level=level,
+            **kwargs,
+        )
+        if doc is None or isinstance(doc, Exception):
+            return None
+
+        keys = ["source", "date", "location", "ord_db_fp"]
+        doc_info = {key: doc.attrs.get(key) for key in keys}
+        logger.debug("Saving the following doc info:\n%s", str(doc_info))
+        return doc_info
 
 
 async def process_county_with_logging(
@@ -881,16 +948,43 @@ def _docs_to_db(docs):
     return _formatted_db(db), num_jurisdictions_found
 
 
-def _db_results(doc):
+def _doc_infos_to_db(doc_infos):
+    """Convert list of docs to output database"""
+    db = []
+    for doc_info in doc_infos:
+        if doc_info is None:
+            continue
+
+        ord_db_fp = doc_info.get("ord_db_fp")
+        if ord_db_fp is None:
+            continue
+
+        ord_db = pd.read_csv(ord_db_fp)
+
+        if num_ordinances_dataframe(ord_db) == 0:
+            continue
+
+        results = _db_results(ord_db, doc_info)
+        results = _formatted_db(results)
+        db.append(results)
+
+    if not db:
+        return pd.DataFrame(columns=PARSED_COLS), 0
+
+    logger.info("Compiling final database for %d jurisdictions", len(db))
+    num_jurisdictions_found = len(db)
+    db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
+    db = _empirical_adjustments(db)
+    return _formatted_db(db), num_jurisdictions_found
+
+
+def _db_results(results, doc_info):
     """Extract results from doc attrs to DataFrame"""
-    results = doc.attrs.get("scraped_values")
-    if results is None:
-        return None
 
-    results["source"] = doc.attrs.get("source")
-    results["ord_year"] = extract_ord_year_from_doc_attrs(doc)
+    results["source"] = doc_info.get("source")
+    results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
 
-    location = doc.attrs["location"]
+    location = doc_info["location"]
     results["FIPS"] = location.fips
     results["county"] = location.name
     results["state"] = location.state

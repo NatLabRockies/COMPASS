@@ -445,7 +445,7 @@ def _compile_doc_info(doc):
     """Put together meta information about a single document"""
     return {
         "source": doc.attrs.get("source"),
-        "ord_year": extract_ord_year_from_doc_attrs(doc),
+        "ord_year": extract_ord_year_from_doc_attrs(doc.attrs),
         "ord_filename": Path(doc.attrs.get("out_fp", "Unknown")).name,
         "num_pages": len(doc.pages),
         "checksum": doc.attrs.get("checksum"),

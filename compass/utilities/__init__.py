@@ -6,6 +6,7 @@ from .parsing import (
     llm_response_as_json,
     merge_overlapping_texts,
     num_ordinances_in_doc,
+    num_ordinances_dataframe,
 )
 
 
