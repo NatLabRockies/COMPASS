@@ -17,9 +17,8 @@ use crate::error::Result;
 /// run of the scrapper. Given one run can contain multiple targets, each
 /// target is one item in the jurisdiction item.
 pub(super) struct Usage {
-    pub(super) total_time_seconds: f64,
-    pub(super) total_time: String,
-
+    // pub(super) total_time_seconds: f64,
+    // pub(super) total_time: String,
     #[serde(flatten)]
     pub(super) jurisdiction: HashMap<String, UsagePerItem>,
 }
@@ -33,9 +32,8 @@ pub(super) struct Usage {
 /// components such as 'data extraction' or 'document validation'. All the
 /// components are stored in the `events` field.
 pub(super) struct UsagePerItem {
-    total_time_seconds: f64,
-    total_time: String,
-
+    // total_time_seconds: f64,
+    // total_time: String,
     #[serde(flatten)]
     events: HashMap<String, UsageValues>,
 }
@@ -47,6 +45,9 @@ pub(super) struct UsageValues {
     requests: u32,
     prompt_tokens: u32,
     response_tokens: u32,
+
+    #[serde(flatten)]
+    extra: HashMap<String, serde_json::Value>,
 }
 
 impl Usage {
@@ -59,7 +60,6 @@ impl Usage {
             CREATE TABLE IF NOT EXISTS usage (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-              total_time FLOAT NOT NULL,
               created_at TIMESTAMP NOT NULL DEFAULT NOW(),
               );
 
@@ -70,7 +70,6 @@ impl Usage {
               /* connection with file
               jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
               */
-              total_time FLOAT,
               total_requests INTEGER NOT NULL,
               total_prompt_tokens INTEGER NOT NULL,
               total_response_tokens INTEGER NOT NULL,
@@ -139,8 +138,8 @@ impl Usage {
         // An integer type in duckdb is 32 bits.
         let usage_id: u32 = conn
             .query_row(
-                "INSERT INTO usage (bookkeeper_lnk, total_time) VALUES (?, ?) RETURNING id",
-                [&commit_id.to_string(), &self.total_time_seconds.to_string()],
+                "INSERT INTO usage (bookkeeper_lnk) VALUES (?) RETURNING id",
+                [&commit_id.to_string()],
                 |row| row.get(0),
             )
             .expect("Failed to insert usage");
@@ -154,8 +153,8 @@ impl Usage {
 
             // An integer type in duckdb is 32 bits.
             let item_id: u32 = conn.query_row(
-                "INSERT INTO usage_per_item (name, total_time, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
-                [jurisdiction_name, &content.total_time_seconds.to_string(), &content.events["tracker_totals"].requests.to_string(), &content.events["tracker_totals"].prompt_tokens.to_string(), &content.events["tracker_totals"].response_tokens.to_string()],
+                "INSERT INTO usage_per_item (name, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?) RETURNING id",
+                [jurisdiction_name, &content.events["tracker_totals"].requests.to_string(), &content.events["tracker_totals"].prompt_tokens.to_string(), &content.events["tracker_totals"].response_tokens.to_string()],
                 |row| row.get(0)
                 ).expect("Failed to insert usage_per_item");
 
@@ -183,8 +182,6 @@ pub(crate) mod sample {
     pub(crate) fn as_text_v1() -> String {
         r#"
         {
-          "total_time_seconds": 294.69257712364197,
-          "total_time": "0:04:54.692577",
           "Decatur County, Indiana": {
             "document_location_validation": {
               "requests": 55,
@@ -196,8 +193,6 @@ pub(crate) mod sample {
               "prompt_tokens": 15191,
               "response_tokens": 477
             },
-            "total_time_seconds": 294.64539074897766,
-            "total_time": "0:04:54.645391",
             "tracker_totals": {
               "requests": 121,
               "prompt_tokens": 186099,
@@ -223,6 +218,19 @@ mod test_scrapper_usage {
     fn parse_json() {
         let usage = super::Usage::from_json(&as_text_v1()).unwrap();
 
-        assert!((usage.total_time_seconds - 294.69257712364197).abs() <= f64::EPSILON);
+        assert!(usage.jurisdiction.contains_key("Decatur County, Indiana"));
+        assert!(
+            usage.jurisdiction["Decatur County, Indiana"]
+                .events
+                .contains_key("document_location_validation")
+        );
+        assert_eq!(
+            usage.jurisdiction["Decatur County, Indiana"]
+                .events
+                .get("document_location_validation")
+                .unwrap()
+                .requests,
+            55
+        );
     }
 }
