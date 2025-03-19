@@ -1,6 +1,6 @@
 //! Support for the ordinance scrapper output
 
-mod config;
+mod metadata;
 mod usage;
 
 use std::path::{Path, PathBuf};
@@ -9,7 +9,7 @@ use tracing::{self, trace};
 
 use crate::error;
 use crate::error::Result;
-use config::ScrapperConfig;
+use metadata::Metadata;
 use usage::Usage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
@@ -54,14 +54,14 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
-    config: Option<ScrapperConfig>,
+    metadata: Metadata,
     usage: Option<Usage>,
 }
 
 impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing ScrappedOrdinance database");
-        config::ScrapperConfig::init_db(conn)?;
+        metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
 
         Ok(())
@@ -92,7 +92,7 @@ impl ScrappedOrdinance {
             ));
         }
         */
-        let config = config::ScrapperConfig::open(&root).await?;
+        let metadata = metadata::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
 
         /*
@@ -108,7 +108,7 @@ impl ScrappedOrdinance {
         Ok(Self {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
-            config: Some(config),
+            metadata,
             usage: Some(usage),
         })
     }
@@ -122,12 +122,7 @@ impl ScrappedOrdinance {
 
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
-        // self.config().await.unwrap().push(conn).await.unwrap();
-        self.config()
-            .await
-            .unwrap()
-            .write(&conn, commit_id)
-            .unwrap();
+        self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         // commit transaction
 
@@ -135,22 +130,6 @@ impl ScrappedOrdinance {
         conn.commit()?;
 
         Ok(())
-    }
-
-    #[allow(dead_code)]
-    pub(crate) async fn config(&self) -> Result<ScrapperConfig> {
-        let config_file = &self.root.join("config.json");
-        if !config_file.exists() {
-            trace!("Missing config file: {:?}", config_file);
-            return Err(error::Error::Undefined(
-                "Features file does not exist".to_string(),
-            ));
-        }
-
-        let config = ScrapperConfig::from_json(&std::fs::read_to_string(config_file)?)
-            .expect("Failed to parse config file");
-
-        Ok(config)
     }
 
     #[allow(dead_code)]
@@ -173,7 +152,7 @@ impl ScrappedOrdinance {
 #[cfg(test)]
 mod tests {
     use super::ScrappedOrdinance;
-    use super::config;
+    use super::metadata;
     use super::usage;
     use std::io::Write;
 
@@ -194,7 +173,7 @@ mod tests {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
 
-        let _config_file = config::sample::as_file(target.path().join("config.json")).unwrap();
+        let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
 
         let ordinance_filename = target.path().join("ord_db.csv");

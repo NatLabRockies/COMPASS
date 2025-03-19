@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::{Arg, ArgAction, Command, arg, command, value_parser};
 use duckdb::Connection;
-use tracing::{self, debug, trace};
+use tracing::{self, trace};
 use tracing_subscriber;
 
 fn main() {

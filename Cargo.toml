@@ -4,7 +4,7 @@ default-members = ["crates/compass"]
 resolver = "2"
 
 [workspace.package]
-version = "0.0.3"
+version = "0.0.4"
 authors = [
   "Guilherme Castelão <gpimenta@nrel.gov>",
   "Paul Pinchuk <Pavlo.Pinchuk@nrel.gov>",
