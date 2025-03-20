@@ -55,18 +55,6 @@ pub fn init_db(path: &str) -> Result<()> {
         model TEXT
         );
 
-    CREATE SEQUENCE source_sequence START 1;
-    CREATE TABLE source (
-      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('source_sequence'),
-      bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-      name TEXT NOT NULL,
-      hash TEXT NOT NULL,
-      origin TEXT,
-      access_time TIMESTAMP,
-      created_at TIMESTAMP NOT NULL DEFAULT NOW(),
-      comments TEXT
-      );
-
     INSTALL spatial;
     LOAD spatial;
 
