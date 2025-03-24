@@ -81,6 +81,7 @@ UNIT_CLARIFICATIONS = {
         'for shadow flicker are "hr/year".'
     ),
 }
+ER_CLARIFICATIONS = {}
 
 
 class StructuredWindParser(BaseLLMCaller):
@@ -165,6 +166,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     largest_wes_type,
                     is_numerical=True,
                     unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
                 ),
                 name=outer_task_name,
             )
@@ -173,7 +175,12 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         extras_parsers += [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_wes_type, is_numerical=False
+                    text,
+                    feature,
+                    r_text,
+                    largest_wes_type,
+                    is_numerical=False,
+                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
                 ),
                 name=outer_task_name,
             )
@@ -191,6 +198,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         largest_wes_type,
         is_numerical,
         unit_clarification="",
+        feature_clarifications="",
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing extra feature %r", feature)
@@ -205,6 +213,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             unit_clarification=unit_clarification,
+            feature_clarifications=feature_clarifications,
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})

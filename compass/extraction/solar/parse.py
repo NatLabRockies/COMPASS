@@ -74,6 +74,7 @@ UNIT_CLARIFICATIONS = {
         'for noise are "dBA".'
     )
 }
+ER_CLARIFICATIONS = {}
 
 
 class StructuredSolarParser(BaseLLMCaller):
@@ -167,6 +168,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     largest_sef_type,
                     is_numerical=True,
                     unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
                 ),
                 name=outer_task_name,
             )
@@ -175,7 +177,12 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         extras_parsers += [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_sef_type, is_numerical=False
+                    text,
+                    feature,
+                    r_text,
+                    largest_sef_type,
+                    is_numerical=False,
+                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
                 ),
                 name=outer_task_name,
             )
@@ -193,6 +200,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         largest_sef_type,
         is_numerical,
         unit_clarification="",
+        feature_clarifications="",
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing extra feature %r", feature)
@@ -207,6 +215,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             unit_clarification=unit_clarification,
+            feature_clarifications=feature_clarifications,
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})

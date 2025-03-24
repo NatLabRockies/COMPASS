@@ -266,17 +266,23 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         `elm.tree.DecisionTree`.
     """
     kwargs.setdefault("unit_clarification", "")
+    kwargs.setdefault("feature_clarifications", "")
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
 
     G.add_node(
         "init",
         prompt=(
             "Does the following text explicitly mention {restriction} for "
-            "{tech}? Do not infer based on other restrictions; if this "
-            "particular restriction is not explicitly mentioned then say "
-            "'No'. Pay extra attention to clarifying text found in "
-            "parentheses and footnotes. Begin your response with either "
-            "'Yes' or 'No' and explain your answer."
+            "{tech}? {feature_clarifications}\nMake sure your answer adheres "
+            "to these guidelines:\n"
+            "1) Respond based only on the explicit text provided for "
+            "{restriction}. Do not infer values from text based on "
+            "related restrictions. If {restriction} is not explicitly "
+            "mentioned, then say 'No'.\n"
+            "2) Pay close attention to clarifying details in parentheses, "
+            "footnotes, or additional explanatory text.\n"
+            "3) Begin your response with either 'Yes' or 'No' and explain "
+            "your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
