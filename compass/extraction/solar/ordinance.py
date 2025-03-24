@@ -21,8 +21,8 @@ _LARGE_SEF_SYNONYMS = (
     "systems (CSES), alternate energy systems (AES), or similar"
 )
 _SEARCH_TERMS_AND = (
-    "zoning, special permitting, siting and setback, system design, and "
-    "operational requirements/restrictions"
+    "zoning, siting, setback, system design, and operational "
+    "requirements/restrictions"
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = "private, residential, micro, small, or medium sized"
