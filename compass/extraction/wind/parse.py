@@ -381,15 +381,19 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
     _USE_TYPES = [
         {
             "feature_id": "primary use districts",
-            "use_type": "primary use",
+            "use_type": "primary use or similar (e.g., without special "
+            "conditions or approval)",
         },
         {
             "feature_id": "special use districts",
-            "use_type": "special use",
+            "use_type": "special use or similar (e.g., requires approval "
+            "by the zoning appeals board or meeting certain conditions like "
+            "completing a permitting process)",
         },
         {
             "feature_id": "accessory use districts",
-            "use_type": "accessory use",
+            "use_type": "accessory use or similar (e.g., when  integrated "
+            "with an existing structure or secondary to another use)",
         },
     ]
 

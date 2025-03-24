@@ -166,4 +166,5 @@ def num_ordinances_dataframe(data):
     if not check_cols:
         return 0
 
-    return (~data[check_cols].isna()).to_numpy().sum(axis=1).sum()
+    found_features = (~data[check_cols].isna()).to_numpy().sum(axis=1)
+    return (found_features > 0).sum()

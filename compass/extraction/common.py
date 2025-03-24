@@ -475,7 +475,7 @@ class BaseTextExtractor:
             asyncio.create_task(
                 self.llm_caller.call(
                     sys_msg=self.SYSTEM_MESSAGE,
-                    content=f"Text:\n{chunk}\n\n{instructions}",
+                    content=f"{instructions}\n\n# TEXT #\n\n{chunk}",
                     usage_sub_label=self._USAGE_LABEL,
                 ),
                 name=outer_task_name,
