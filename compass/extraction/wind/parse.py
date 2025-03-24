@@ -71,6 +71,16 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "moratoriums or bans",
     "visual impact": "visual impact assessment requirements",
 }
+UNIT_CLARIFICATIONS = {
+    "noise": (
+        "For the purposes of this extraction, assume the standard units "
+        'for noise are "dBA".'
+    ),
+    "shadow flicker": (
+        "For the purposes of this extraction, assume the standard units "
+        'for shadow flicker are "hr/year".'
+    ),
+}
 
 
 class StructuredWindParser(BaseLLMCaller):
@@ -149,7 +159,12 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         extras_parsers = [
             asyncio.create_task(
                 self._parse_extra_restriction(
-                    text, feature, r_text, largest_wes_type, is_numerical=True
+                    text,
+                    feature,
+                    r_text,
+                    largest_wes_type,
+                    is_numerical=True,
+                    unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
                 ),
                 name=outer_task_name,
             )
@@ -169,7 +184,13 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         return pd.DataFrame(chain.from_iterable(outputs))
 
     async def _parse_extra_restriction(
-        self, text, feature, restriction_text, largest_wes_type, is_numerical
+        self,
+        text,
+        feature,
+        restriction_text,
+        largest_wes_type,
+        is_numerical,
+        unit_clarification="",
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing extra feature %r", feature)
@@ -183,6 +204,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
+            unit_clarification=unit_clarification,
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})

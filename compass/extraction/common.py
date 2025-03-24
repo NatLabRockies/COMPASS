@@ -24,6 +24,9 @@ _SUMMARY_PROMPT = (
     'The value of the "summary" key should be a short summary '
     "of the ordinance, using direct text excerpts as much as possible."
 )
+_UNITS_IN_SUMMARY_PROMPT = (
+    "Include any clarifications about the units in the summary."
+)
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
     "that state how close I can site {tech} to {feature}"
@@ -44,6 +47,7 @@ def setup_graph_no_nodes(**kwargs):
     return nx.DiGraph(
         SECTION_PROMPT=_SECTION_PROMPT,
         SUMMARY_PROMPT=_SUMMARY_PROMPT,
+        UNITS_IN_SUMMARY_PROMPT=_UNITS_IN_SUMMARY_PROMPT,
         **kwargs,
     )
 
@@ -261,6 +265,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
+    kwargs.setdefault("unit_clarification", "")
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
 
     G.add_node(
@@ -275,9 +280,66 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             '\n\n"""\n{text}\n"""'
         ),
     )
-    G.add_edge("init", "final", condition=llm_response_starts_with_yes)
 
     if is_numerical:
+        G.add_edge("init", "value", condition=llm_response_starts_with_yes)
+        G.add_node(
+            "value",
+            prompt=(
+                "What is the numerical value given for the {restriction} for "
+                "{tech}? Follow these guidelines:\n"
+                "1) Extract only the explicit numerical value provided for "
+                "the restriction. Do not infer values from related "
+                "restrictions.\n"
+                "2) If multiple values are given, select the most restrictive "
+                "one (i.e., the smallest allowable limit, the lowest maximum, "
+                "etc.).\n"
+                "3) Pay close attention to clarifying details in parentheses, "
+                "footnotes, or additional explanatory text.\n\n"
+                "Example Inputs and Outputs:\n"
+                'Text: "For all WES there is a limitation of overall height '
+                'of 200 feet (including blades)."\n'
+                'Output: "200"\n'
+                'Text: "The noise level of all SES shall be no greater than '
+                "thirty-two (32) decibels measured from the nearest property "
+                "line. This level may only be exceeded during short-term "
+                'events such as utility outages and/or severe wind storms."\n'
+                'Output: "32"\n'
+                'Text: "At no time shall a wind turbine tower, nacelle, or '
+                "blade create shadow flicker on any non-participating "
+                'landowner property"\n'
+                'Output: "0"\n'
+            ),
+        )
+
+        G.add_edge("value", "units")
+        G.add_node(
+            "units",
+            prompt=(
+                "What are the units for the {restriction} for {tech}? "
+                "Ensure that:\n1) You accurately identify the unit value "
+                "associated with the restriction.\n2) The unit is "
+                "expressed using standard, conventional unit names (e.g., "
+                '"feet", "meters", "acres", "dBA", etc.). {unit_clarification}'
+                "\n3) If multiple values are mentioned, return only the units "
+                "for the most restrictive value that directly pertains to the "
+                "restriction.\n\nExample Inputs and Outputs:\n"
+                'Text: "For all WES there is a limitation of overall height '
+                'of 200 feet (including blades)."\n'
+                'Output: "feet"\n'
+                'Text: "The noise level of all SES shall be no greater than '
+                "thirty-two (32) decibels measured from the nearest property "
+                "line. This level may only be exceeded during short-term "
+                'events such as utility outages and/or severe wind storms."\n'
+                'Output: "dBA"\n'
+                'Text: "At no time shall a wind turbine tower, nacelle, or '
+                "blade create shadow flicker on any non-participating "
+                'landowner property"\n'
+                'Output: "hr/year"\n'
+            ),
+        )
+
+        G.add_edge("units", "final")
         G.add_node(
             "final",
             prompt=(
@@ -290,14 +352,14 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{restriction} for {tech}, or `null` if the text does not "
                 "mention such a restriction. Use our conversation to fill "
                 'out this value. The value of the "units" key should be a '
-                "string corresponding to the units for the {restriction} "
-                "allowed for {tech} by the text below, or `null` if the text "
-                "does not mention such a restriction. Make sure to include "
-                'any "per XXX" clauses in the units. {SUMMARY_PROMPT} '
-                "{SECTION_PROMPT}"
+                "string corresponding to the (standard) units for the "
+                "{restriction} allowed for {tech} by the text below, or "
+                "`null` if the text does not mention such a restriction. "
+                "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
     else:
+        G.add_edge("init", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
