@@ -254,7 +254,7 @@ def setup_conditional(**kwargs):
             "Focus only on setback from {feature}; do not respond based "
             "on any text related to {ignore_features}."
             "Does the setback from {feature} mention a minimum or maximum "
-            "static setback distance regardless of the outcome of the "
+            "static setback distance **regardless of the outcome** of the "
             "multiplier calculation? This is often phrased as 'the greater "
             "of' or 'the lesser of'. Do not confuse this value with static "
             "values to be added to multiplicative setbacks. Begin your "

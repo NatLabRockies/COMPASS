@@ -80,7 +80,7 @@ async def download_county_ordinance(
         docs, location=location, **kwargs
     )
     logger.info(
-        "%d documents remaining after location filter for %s\n\t- %s",
+        "%d document(s) remaining after location filter for %s\n\t- %s",
         len(docs),
         location.full_name,
         "\n\t- ".join(

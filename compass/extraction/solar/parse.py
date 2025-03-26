@@ -219,6 +219,8 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})
+        if is_numerical:
+            info = _sanitize_output(info)
         return [info]
 
     async def _parse_setback_feature(
@@ -320,7 +322,8 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         decision_tree_out = await self._run_setback_graph(
             setup_multiplier, text, **kwargs
         )
-        return _update_output_keys(decision_tree_out)
+        decision_tree_out = _update_output_keys(decision_tree_out)
+        return _sanitize_output(decision_tree_out)
 
     async def _run_setback_graph(
         self,
@@ -460,4 +463,24 @@ def _update_output_keys(output):
         warn(msg, COMPASSWarning)
     output["units"] = "structure-height-multiplier"
 
+    return output
+
+
+def _sanitize_output(output):
+    """Perform some sanitization on outputs"""
+    return _remove_units_for_empty_value(output)
+
+
+def _remove_units_for_empty_value(output):
+    """Remove units if no value found"""
+    units = output.get("units")
+    if not units:
+        return output
+
+    value = output.get("value")
+    if value:
+        return output
+
+    # at this point, we have units but no value, so remove units
+    output["units"] = None
     return output

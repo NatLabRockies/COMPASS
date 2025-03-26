@@ -191,10 +191,10 @@ class StructuredLLMCaller(BaseLLMCaller):
 
 def _add_json_instructions_if_needed(system_message):
     """Add JSON instruction to system message if needed."""
-    if _JSON_INSTRUCTIONS.casefold() not in system_message.casefold():
+    if "JSON format" not in system_message:
         logger.debug(
             "JSON instructions not found in system message. Adding..."
         )
-        system_message = f"{system_message} {_JSON_INSTRUCTIONS}."
+        system_message = f"{system_message}\n{_JSON_INSTRUCTIONS}."
         logger.debug("New system message:\n%s", system_message)
     return system_message

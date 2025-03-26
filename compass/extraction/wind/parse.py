@@ -61,7 +61,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "max height": "maximum turbine height allowed",
     "min lot size": "minimum lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
-    "density": "maximum turbine spacing allowed",
+    "density": "minimum turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -79,6 +79,12 @@ UNIT_CLARIFICATIONS = {
     "shadow flicker": (
         "For the purposes of this extraction, assume the standard units "
         'for shadow flicker are "hr/year".'
+    ),
+    "density": (
+        "For the purposes of this extraction, assume the standard units "
+        "for turbine spacing are one of the following: "
+        '"tip-height-multiplier", "hub-height-multiplier", '
+        '"rotor-diameter-multiplier", "feet", or "meters".'
     ),
 }
 ER_CLARIFICATIONS = {}
@@ -217,6 +223,8 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature, "quantitative": is_numerical})
+        if is_numerical:
+            info = _sanitize_output(info)
         return [info]
 
     async def _parse_setback_feature(
@@ -319,6 +327,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             setup_multiplier, text, **kwargs
         )
         decision_tree_out = _update_output_keys(decision_tree_out)
+        decision_tree_out = _sanitize_output(decision_tree_out)
 
         if decision_tree_out.get("value") is None:
             return decision_tree_out
@@ -468,4 +477,24 @@ def _update_output_keys(output):
         warn(msg, COMPASSWarning)
     output["units"] = output.pop("mult_type", None)
 
+    return output
+
+
+def _sanitize_output(output):
+    """Perform some sanitization on outputs"""
+    return _remove_units_for_empty_value(output)
+
+
+def _remove_units_for_empty_value(output):
+    """Remove units if no value found"""
+    units = output.get("units")
+    if not units:
+        return output
+
+    value = output.get("value")
+    if value:
+        return output
+
+    # at this point, we have units but no value, so remove units
+    output["units"] = None
     return output

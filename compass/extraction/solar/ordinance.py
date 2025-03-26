@@ -25,7 +25,9 @@ _SEARCH_TERMS_AND = (
     "requirements/restrictions"
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
-_IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+_IGNORE_TYPES = (
+    "private, residential, roof-mounted, micro, small, or medium sized"
+)
 
 
 class SolarHeuristic(Heuristic):
@@ -284,9 +286,17 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         f"\t{_LARGE_SEF_SYNONYMS.capitalize()}.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
         "on large solar energy systems.\n"
+        "- **Retain all relevant technical, operational, safety, "
+        "environmental, and infrastructure-related provisions** that apply "
+        "to the topic, such as:\n"
+        "\t- Compliance with legal or regulatory standards.\n"
+        "\t- Structural or design specifications.\n"
+        "\t- Environmental impact considerations.\n"
+        "\t- Safety and risk mitigation measures.\n"
+        "\t- Infrastructure and implementation details.\n"
         "\n2. ## Exclusions ##:\n"
-        f"- Do **not** include text that applies **only** to {_IGNORE_TYPES} "
-        "solar energy systems.\n"
+        "- Do **not** include text that explicitly applies **only** to "
+        f"{_IGNORE_TYPES} solar energy systems.\n"
         f"- Do **not** include text that does not pertain at all to solar "
         "energy systems.\n"
         "\n3. ## Formatting & Structure ##:\n"
@@ -415,7 +425,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         '"No relevant text."'
     )
 
-    WES_PERMITTED_USES_FILTER_PROMPT = (
+    SEF_PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
         "detailing **solar energy system** permitted use(s) for a district. "
