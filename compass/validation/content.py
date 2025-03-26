@@ -225,16 +225,33 @@ class LegalTextValidator:
     """Parse chunks to determine if they contain legal text"""
 
     IS_LEGAL_TEXT_PROMPT = (
-        "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly three "
-        "keys. The first key is 'summary', which is a string that provides a "
-        "short summary of the text. The second key is 'type', which is a "
-        "string that best represent the type of document this text belongs "
-        "to. The third key is '{key}', which is a boolean that is set to "
-        "True if the type of the text (as you previously determined) is a "
-        "legally-binding statute or code and False if the text is an excerpt "
-        "from other non-legal text such as a news article, survey, summary, "
-        "application, public notice, etc."
+        "# CONTEXT #\n"
+        "You are an AI designed to classify text excerpts based on their "
+        "source type. The goal is to identify **legally binding regulations "
+        "(such as zoning ordinances or enforceable bans)** and filter out "
+        "text that does not belong to an in-effect legal statute.\n"
+        "Legally binding regulations are formal laws enacted by a governing "
+        "authority, containing enforceable rules or restrictions. However, "
+        "many documents discuss, summarize, or propose zoning rules without "
+        "having legal force. Examples of non-binding documents include, but "
+        "are not limited to, **news articles, reports, draft ordinances, "
+        "model ordinances, public notices, surveys, development plans, "
+        "project-specific plans, conservation plans, summaries, etc.**\n"
+        "\n# OBJECTIVE #\n"
+        "Your task is to analyze a given text excerpt and determine whether "
+        "it belongs to a **legally binding regulation.** If the text is from "
+        "any other type of document, it should be classified accordingly and "
+        "excluded from legally binding regulations.\n"
+        "\n# RESPONSE #\n"
+        "Return the classification in **JSON format** with exactly three "
+        "keys:\n\n"
+        '1. **"summary"** (string) - A concise summary of the text.\n'
+        '2. **"type"** (string) - The best-fitting category of the text.\n'
+        '3. **"{key}"** (boolean) -\n'
+        "\t- `true` if the text is a **legally binding regulation**.\n"
+        "\t- `false` if the text belongs to any other type of document.\n\n"
+        "Ensure precise classification by prioritizing **legal "
+        "enforceability** over content similarity."
     )
 
     def __init__(self):
