@@ -57,9 +57,10 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
     "max height": "maximum structure height allowed",
-    "max size": "maximum project spacing allowed",
+    "max size": "maximum project size or total installation allowed",
     "min lot size": "minimum lot, parcel, or tract size allowed",
-    "density": "maximum panel spacing allowed",
+    "max lot size": "maximum lot, parcel, or tract size allowed",
+    "density": "minimum spacing between solar panels or solar plants allowed",
     "coverage": "maximum land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -74,7 +75,10 @@ UNIT_CLARIFICATIONS = {
         'for noise are "dBA".'
     )
 }
-ER_CLARIFICATIONS = {}
+ER_CLARIFICATIONS = {
+    "max size": "Maximum project size is typically specified as a maximum "
+    "system size value or as a maximum total area value.",
+}
 
 
 class StructuredSolarParser(BaseLLMCaller):
