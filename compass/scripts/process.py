@@ -67,11 +67,12 @@ from compass.utilities import (
     num_ordinances_dataframe,
 )
 from compass.utilities.location import County
-from compass.utilities.queued_logging import (
+from compass.utilities.logs import (
     LocationFileLog,
     LogListener,
     NoLocationFilter,
 )
+from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
@@ -148,6 +149,16 @@ PARSED_COLS = [
 ]
 QUANT_OUT_COLS = PARSED_COLS[:-1]
 QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
+_TEXT_EXTRACTION_TASKS = {
+    WindOrdinanceTextExtractor: "Extracting wind ordinance text",
+    WindPermittedUseDistrictsTextExtractor: (
+        "Extracting wind permitted use text"
+    ),
+    SolarOrdinanceTextExtractor: "Extracting solar ordinance text",
+    SolarPermittedUseDistrictsTextExtractor: (
+        "Extracting solar permitted use text"
+    ),
+}
 
 
 async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
@@ -425,6 +436,7 @@ async def _process_with_logs(  # noqa: PLR0914
         else None
     )
 
+    COMPASS_PB.create_main_task(num_jurisdictions=len(counties))
     start_date = datetime.now(UTC).isoformat()
     start_time = time.monotonic()
     async with RunningAsyncServices(services):
@@ -438,7 +450,7 @@ async def _process_with_logs(  # noqa: PLR0914
             )
             trackers.append(usage_tracker)
             task = asyncio.create_task(
-                _processed_county_info(
+                _processed_county_info_with_pb(
                     log_listener,
                     dirs.logs,
                     location,
@@ -518,6 +530,16 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     return file_loader_kwargs
 
 
+async def _processed_county_info_with_pb(
+    listener, log_dir, county, *args, **kwargs
+):
+    """Process county and update progress bar"""
+    with COMPASS_PB.jurisdiction_prog_bar(county.full_name):
+        return await _processed_county_info(
+            listener, log_dir, county, *args, **kwargs
+        )
+
+
 async def _processed_county_info(
     listener,
     log_dir,
@@ -532,7 +554,6 @@ async def _processed_county_info(
     **kwargs,
 ):
     """Drop `doc` from RAM and only keep enough info to re-build doc"""
-
     if jurisdiction_semaphore is None:
         jurisdiction_semaphore = AsyncExitStack()
 
@@ -549,13 +570,14 @@ async def _processed_county_info(
             level=level,
             **kwargs,
         )
-        if doc is None or isinstance(doc, Exception):
-            return None
 
-        keys = ["source", "date", "location", "ord_db_fp"]
-        doc_info = {key: doc.attrs.get(key) for key in keys}
-        logger.debug("Saving the following doc info:\n%s", str(doc_info))
-        return doc_info
+    if doc is None or isinstance(doc, Exception):
+        return None
+
+    keys = ["source", "date", "location", "ord_db_fp"]
+    doc_info = {key: doc.attrs.get(key) for key in keys}
+    logger.debug("Saving the following doc info:\n%s", str(doc_info))
+    return doc_info
 
 
 async def process_county_with_logging(
@@ -574,9 +596,9 @@ async def process_county_with_logging(
 
     Parameters
     ----------
-    listener : compass.utilities.queued_logging.LogListener
+    listener : compass.utilities.logs.LogListener
         Active ``LogListener`` instance that can be passed to
-        :class:`compass.utilities.queued_logging.LocationFileLog`.
+        :class:`compass.utilities.logs.LocationFileLog`.
     log_dir : path-like
         Path to output directory to contain log file.
     county : compass.utilities.location.Location
@@ -700,6 +722,9 @@ async def process_county(
         )
         return None
 
+    COMPASS_PB.update_jurisdiction_task(
+        county.full_name, description="Extracting structured data..."
+    )
     for possible_ord_doc in docs:
         doc = await _try_extract_all_ordinances(
             possible_ord_doc, text_splitter, tech_specs, county, **kwargs
@@ -756,44 +781,49 @@ async def _try_extract_all_ordinances(
     possible_ord_doc, text_splitter, tech_specs, county, **kwargs
 ):
     """Try to extract ordinance values and permitted districts"""
-    extraction_info = [
-        (
-            tech_specs.ordinance_text_extractor,
-            "ordinance_text",
-            "cleaned_ordinance_text",
-            tech_specs.structured_ordinance_parser,
-            "ordinance_values",
-        ),
-        (
-            tech_specs.permitted_use_text_extractor,
-            "permitted_use_text",
-            "districts_text",
-            tech_specs.structured_permitted_use_parser,
-            "permitted_district_values",
-        ),
-    ]
-    tasks = [
-        asyncio.create_task(
-            _try_extract_ordinances(
-                possible_ord_doc,
-                text_splitter,
-                extractor_class=extractor,
-                original_text_key=o_key,
-                cleaned_text_key=c_key,
-                parser_class=parser,
-                out_key=out_key,
-                **kwargs,
+    loc = county.full_name
+    with COMPASS_PB.jurisdiction_sub_prog(loc) as jsp:
+        extraction_info = [
+            (
+                tech_specs.ordinance_text_extractor,
+                "ordinance_text",
+                "cleaned_ordinance_text",
+                tech_specs.structured_ordinance_parser,
+                "ordinance_values",
             ),
-            name=county.full_name,
-        )
-        for extractor, o_key, c_key, parser, out_key in extraction_info
-    ]
+            (
+                tech_specs.permitted_use_text_extractor,
+                "permitted_use_text",
+                "districts_text",
+                tech_specs.structured_permitted_use_parser,
+                "permitted_district_values",
+            ),
+        ]
+        tasks = [
+            asyncio.create_task(
+                _try_extract_ordinances(
+                    jsp,
+                    possible_ord_doc,
+                    text_splitter,
+                    extractor_class=extractor,
+                    original_text_key=o_key,
+                    cleaned_text_key=c_key,
+                    parser_class=parser,
+                    out_key=out_key,
+                    **kwargs,
+                ),
+                name=county.full_name,
+            )
+            for extractor, o_key, c_key, parser, out_key in extraction_info
+        ]
 
-    docs = await asyncio.gather(*tasks)
+        docs = await asyncio.gather(*tasks)
+
     return _concat_scrape_results(docs[0])
 
 
 async def _try_extract_ordinances(
+    jsp,
     possible_ord_doc,
     text_splitter,
     extractor_class,
@@ -808,6 +838,7 @@ async def _try_extract_ordinances(
         "Checking for ordinances in doc from %s",
         possible_ord_doc.attrs.get("source", "unknown source"),
     )
+    task_id = jsp.add_task(_TEXT_EXTRACTION_TASKS[extractor_class])
     doc = await _extract_ordinance_text(
         possible_ord_doc,
         text_splitter,
@@ -815,6 +846,7 @@ async def _try_extract_ordinances(
         original_text_key=original_text_key,
         **kwargs,
     )
+    jsp.remove_task(task_id)
     return await _extract_ordinances_from_text(
         doc,
         parser_class=parser_class,

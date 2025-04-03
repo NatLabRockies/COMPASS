@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 
 from compass.services.provider import RunningAsyncServices
-from compass.utilities.queued_logging import LocationFileLog, LogListener
+from compass.utilities.logs import LocationFileLog, LogListener
 
 
 @pytest.mark.asyncio

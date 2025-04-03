@@ -34,7 +34,11 @@ class NoLocationFilter(logging.Filter):
             If the record's ``location`` attribute is "missing".
         """
         record_location = getattr(record, "location", None)
-        return record_location is None or "Task-" in record_location
+        return (
+            record_location is None
+            or "Task-" in record_location
+            or record_location == "main"
+        )
 
 
 class LocationFilter(logging.Filter):
@@ -71,6 +75,39 @@ class LocationFilter(logging.Filter):
         """
         record_location = getattr(record, "location", None)
         return record_location is not None and record_location == self.location
+
+
+class AddLocationFilter(logging.Filter):
+    """Filter that injects location information into the log record"""
+
+    def filter(self, record):  # noqa: PLR6301
+        """Add location to record
+
+        Parameters
+        ----------
+        record : logging.LogRecord
+            Log record containing the log message + default attributes.
+            This filter will add the location bing processed as a
+            ``location`` attribute. If the there is no current async
+            task (or if the task name is of the form "Task-XX"), the
+            filter sets the location to "main".
+
+        Returns
+        -------
+        bool
+            Always true since we want the record to be passed along with
+            the additional attribute.
+        """
+        try:
+            location = asyncio.current_task().get_name()
+        except RuntimeError:
+            location = ""
+
+        if not location or "Task" in location:
+            location = "main"
+
+        record.location = location
+        return True
 
 
 class LocalProcessQueueHandler(QueueHandler):

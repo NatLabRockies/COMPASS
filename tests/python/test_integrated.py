@@ -19,7 +19,7 @@ from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
 from compass.services.threaded import TempFileCache
 from compass.services.provider import RunningAsyncServices
-from compass.utilities.queued_logging import LocationFileLog, LogListener
+from compass.utilities.logs import LocationFileLog, LogListener
 
 
 class MockResponse:
