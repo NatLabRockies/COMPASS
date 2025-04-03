@@ -1,6 +1,7 @@
 """Test COMPASS Ordinances TempFileCache Services"""
 
 from pathlib import Path
+from datetime import datetime
 
 import pytest
 
@@ -38,7 +39,8 @@ async def test_file_move_service(tmp_path):
     assert out_fp.read_text().startswith("test")
     doc.attrs["cache_fn"] = out_fp
 
-    expected_moved_fp = tmp_path / out_fp.name
+    date = datetime.now().strftime("%Y_%m_%d")
+    expected_moved_fp = tmp_path / f"{out_fp.stem}_downloaded_{date}.txt"
     assert not expected_moved_fp.exists()
     mover = FileMover(tmp_path)
     mover.acquire_resources()

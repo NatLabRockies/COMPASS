@@ -410,8 +410,12 @@ async def _process_with_logs(  # noqa: PLR0914
         msg = f"Unknown tech input: {tech}"
         raise COMPASSValueError(msg)
 
+    llm_service = OpenAIService(
+        client, lpa.model, rate_limit=lpa.llm_service_rate_limit
+    )
+
     services = [
-        OpenAIService(client, rate_limit=lpa.llm_service_rate_limit),
+        llm_service,
         TempFileCache(
             td_kwargs=process_kwargs.td_kwargs, tpe_kwargs=tpe_kwargs
         ),
@@ -461,9 +465,8 @@ async def _process_with_logs(  # noqa: PLR0914
                     browser_semaphore=browser_semaphore,
                     jurisdiction_semaphore=jurisdiction_semaphore,
                     level=log_level,
-                    llm_service=OpenAIService,
+                    llm_service=llm_service,
                     usage_tracker=usage_tracker,
-                    model=lpa.model,
                     **(lpa.llm_call_kwargs or {}),
                 ),
                 name=location.full_name,

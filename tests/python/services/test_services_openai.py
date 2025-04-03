@@ -62,7 +62,7 @@ async def test_openai_service(sample_openai_response, monkeypatch):
             response = httpx.Response(404)
             response.request = httpx.Request(method="test", url="test")
             raise openai.BadRequestError(
-                "for testing",  # noqa: EM101
+                "for testing",
                 response=response,
                 body=None,
             )
@@ -75,13 +75,11 @@ async def test_openai_service(sample_openai_response, monkeypatch):
         _test_response,
         raising=True,
     )
-    openai_service = OpenAIService(client)
+    openai_service = OpenAIService(client, model_name="gpt-4")
 
     usage_tracker = UsageTracker("my_county", usage_from_response)
 
-    message = await openai_service.process(
-        usage_tracker=usage_tracker, model="gpt-4"
-    )
+    message = await openai_service.process(usage_tracker=usage_tracker)
     assert openai_service.rate_tracker.total == 13
     assert message == "test_response"
 
@@ -94,7 +92,7 @@ async def test_openai_service(sample_openai_response, monkeypatch):
     }
 
     message = await openai_service.process(
-        usage_tracker=usage_tracker, model="gpt-4", bad_request=True
+        usage_tracker=usage_tracker, bad_request=True
     )
     assert message is None
     assert openai_service.rate_tracker.total == 16
@@ -106,7 +104,7 @@ async def test_openai_service(sample_openai_response, monkeypatch):
         }
     }
 
-    await openai_service.process(model="gpt-4")
+    await openai_service.process()
     assert usage_tracker == {
         "default": {
             "requests": 1,

@@ -116,14 +116,21 @@ class Service(ABC):
         """
 
 
-class RateLimitedService(Service):
-    """ABC representing a rate-limited service (e.g. OpenAI)"""
+class LLMService(Service):
+    """Base class for LLm service
 
-    def __init__(self, rate_limit, rate_tracker):
+    This service differs from other services in that it must be used
+    as an object, not as a class. that is, users must initialize it and
+    pass it around in functions in order to use it.
+    """
+
+    def __init__(self, model_name, rate_limit, rate_tracker, service_tag=None):
         """
 
         Parameters
         ----------
+        model_name : str
+            Name of model being used.
         rate_limit : int | float
             Max usage per duration of the rate tracker. For example,
             if the rate tracker is set to compute the total over
@@ -132,11 +139,49 @@ class RateLimitedService(Service):
         rate_tracker : `TimeBoundedUsageTracker`
             A TimeBoundedUsageTracker instance. This will be used to
             track usage per time interval and compare to `rate_limit`.
+        service_tag : str, optional
+            optional tag to use to distinguish service (i.e. make unique
+            from other services). Must set this if multiple models with
+            the same name are run concurrently. By default, ``None``.
         """
+        self.model_name = model_name
         self.rate_limit = rate_limit
         self.rate_tracker = rate_tracker
+        self.service_tag = service_tag or ""
 
     @property
     def can_process(self):
-        """Check if usage is under the rate limit."""
+        """bool: Check if usage is under the rate limit"""
         return self.rate_tracker.total < self.rate_limit
+
+    @property
+    def name(self):
+        """str: Unique service name used to pull the correct queue"""
+        return f"{self.__class__.__name__}-{self.model_name}{self.service_tag}"
+
+    def _queue(self):
+        """Get queue for class"""
+        queue = get_service_queue(self.name)
+        if queue is None:
+            msg = MISSING_SERVICE_MESSAGE.format(service_name=self.name)
+            raise COMPASSNotInitializedError(msg)
+        return queue
+
+    async def call(self, *args, **kwargs):
+        """Call the service
+
+        Parameters
+        ----------
+        *args, **kwargs
+            Positional and keyword arguments to be passed to the
+            underlying service processing function.
+
+        Returns
+        -------
+        obj
+            A response object from the underlying service.
+        """
+        fut = asyncio.Future()
+        outer_task_name = asyncio.current_task().get_name()
+        await self._queue().put((fut, outer_task_name, args, kwargs))
+        return await fut

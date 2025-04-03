@@ -97,8 +97,8 @@ platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
 default = { features = ["rust-dev", "python-default"], solve-group = "default" }
 rdev = { features = ["rust-dev"], solve-group = "rust" }
 pdev = { features = ["python-default", "python-dev", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
-ptest = { features = ["python-test", "test"], solve-group = "python" }
-pdoc = { features = ["python-doc", "doc"], solve-group = "python" }
+ptest = { features = ["python-default", "python-test", "test"], solve-group = "python" }
+pdoc = { features = ["python-default", "python-doc", "doc"], solve-group = "python" }
 
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.85.0,<1.86"
@@ -161,7 +161,7 @@ snakeviz = ">=2.2.2,<3"
 tox = ">=4.23.2,<5"
 
 [tool.pixi.feature.python-test.tasks]
-pt = "pytest --durations=20 tests/python"
+tests = "pytest --durations=20 tests/python"
 # ut = "pytest --durations=20 tests/unit"
 # it = "pytest --durations=20 tests/integration"
 

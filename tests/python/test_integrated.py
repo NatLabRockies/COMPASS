@@ -93,16 +93,14 @@ async def test_openai_query(sample_openai_response, monkeypatch):
         max_seconds=time_limit * sleep_mult * 0.8
     )
     openai_service = OpenAIService(
-        client, rate_limit=3, rate_tracker=rate_tracker
+        client, model_name="gpt-4", rate_limit=3, rate_tracker=rate_tracker
     )
 
     usage_tracker = UsageTracker("my_county", usage_from_response)
     async with RunningAsyncServices([openai_service]):
         start_time = time.monotonic()
-        message = await OpenAIService.call(
-            usage_tracker=usage_tracker, model="gpt-4"
-        )
-        message2 = await OpenAIService.call(model="gpt-4")
+        message = await openai_service.call(usage_tracker=usage_tracker)
+        message2 = await openai_service.call()
 
         assert openai_service.rate_tracker.total == 13
         assert message == "test_response"
@@ -124,8 +122,8 @@ async def test_openai_query(sample_openai_response, monkeypatch):
         assert openai_service.rate_tracker.total == 0
 
         start_time = time.monotonic() - time_limit - 1
-        await OpenAIService.call(model="gpt-4")
-        await OpenAIService.call(model="gpt-4")
+        await openai_service.call()
+        await openai_service.call()
         assert len(elapsed_times) == 5
         assert elapsed_times[-2] - time_limit - 1 < 1
         assert (
@@ -135,8 +133,8 @@ async def test_openai_query(sample_openai_response, monkeypatch):
         time.sleep(time_limit * sleep_mult)
         start_time = time.monotonic() - time_limit - 1
         assert openai_service.rate_tracker.total == 0
-        message = await OpenAIService.call(
-            usage_tracker=usage_tracker, model="gpt-4", bad_request=True
+        message = await openai_service.call(
+            usage_tracker=usage_tracker, bad_request=True
         )
         assert message is None
         assert openai_service.rate_tracker.total <= 3

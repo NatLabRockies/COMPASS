@@ -46,7 +46,7 @@ def _move_file(doc, out_dir):
 
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_fn = doc.attrs.get("location_name", cached_fp.name)
+    out_fn = doc.attrs.get("location_name", cached_fp.stem)
     out_fn = out_fn.replace(",", "").replace(" ", "_")
     out_fn = f"{out_fn}_downloaded_{date}"
     if not out_fn.endswith(cached_fp.suffix):
