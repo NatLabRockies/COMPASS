@@ -8,7 +8,7 @@ build-backend = 'setuptools.build_meta'
 [project]
 name="NREL-COMPASS"
 dynamic = ["version"]
-description = "COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
+description = "INFRA-COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
 readme = "README.rst"
 authors = [
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
@@ -18,13 +18,13 @@ maintainers = [
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
   {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
 ]
-# license = {text = "BSD-3-Clause"}
+license = {text = "BSD-3-Clause"}
 keywords = ["COMPASS", "NREL", "Ordinance", "Database"]
 requires-python = ">= 3.12"
 classifiers=[
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
-#   "License :: OSI Approved :: BSD License",
+  "License :: OSI Approved :: BSD License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
@@ -78,9 +78,9 @@ test = [
 compass = "compass.cli:main"
 
 [project.urls]
-# homepage = "https://www.nrel.gov/"
-documentation = "https://nrel.github.io/NREL-ordinance-DB/"
-repository = "https://github.com/NREL/NREL-ordinance-DB"
+homepage = "https://github.com/NREL/COMPASS"
+documentation = "https://nrel.github.io/COMPASS/"
+repository = "https://github.com/NREL/COMPASS"
 
 [tool.setuptools]
 packages = ["compass"]
