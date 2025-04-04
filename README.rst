@@ -2,7 +2,13 @@
 Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INFRA-COMPASS)
 *******************************************************************************************
 
-|Ruff| |Pixi| |License| |SWR|
+|License| |PythonV| |PyPi| |Ruff| |Pixi| |SWR|
+
+.. |PythonV| image:: https://badge.fury.io/py/NREL-COMPASS.svg
+    :target: https://pypi.org/project/NREL-COMPASS/
+
+.. |PyPi| image:: https://img.shields.io/pypi/pyversions/NREL-COMPASS.svg
+    :target: https://pypi.org/project/NREL-COMPASS/
 
 .. |Ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
     :target: https://github.com/astral-sh/ruff
@@ -41,10 +47,10 @@ If you would like to install INFRA-COMPASS from source, we recommend using `pixi
     cd COMPASS
     pixi shell
 
-For detailed instructions, see the `installation documentation <https://nrel.github.io/compass/misc/installation.html>`_.
+For detailed instructions, see the `installation documentation <https://nrel.github.io/COMPASS/misc/installation.html>`_.
 
 
 Development
 ===========
-Please see the `Development Guidelines <https://nrel.github.io/compass/dev/index.html>`_
+Please see the `Development Guidelines <https://nrel.github.io/COMPASS/dev/index.html>`_
 if you wish to contribute code to this repository.
