@@ -54,20 +54,21 @@ We keep a version-controlled ``pixi.lock`` in the repository to allow locking wi
 the full requirements tree so we can reproduce behaviors and bugs and easily compare
 results.
 
-Start by cloning the `COMPASS` repository:
-    - Using ssh: :code:`git clone git@github.com:NREL/COMPASS.git`
-    - Using https: :code:`git clone https://github.com/NREL/COMPASS.git`
+Start by cloning the ``COMPASS`` repository:
+
+- Using ssh: :code:`git clone git@github.com:NREL/COMPASS.git`
+- Using https: :code:`git clone https://github.com/NREL/COMPASS.git`
 
 If you don't already have pixi installed on your system, follow the (simple) `installation
 instructions <https://pixi.sh/latest/#installation>`_.
 
-Once you have both `pixi` and the `COMPASS` source code, simply run::
+Once you have both ``pixi`` and the ``COMPASS`` source code, simply run::
 
     $ pixi shell
 
-from the source code repository. You can now start using `COMPASS`!
+from the source code repository. You can now start using ``COMPASS``!
 
-If you are planning to contribute to `COMPASS`, you can use the ``pdev`` feature in ``pixi`` to
+If you are planning to contribute to ``COMPASS``, you can use the ``pdev`` feature in ``pixi`` to
 get all necessary python development tools::
 
     $ pixi shell -e pdev

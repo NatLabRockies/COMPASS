@@ -1,0 +1,15 @@
+exclude tests/**
+exclude examples/**
+exclude docs/**
+exclude build/**
+exclude dist/**
+exclude support/**
+exclude .github/**
+exclude .git/**
+exclude .*
+exclude .vscode/**
+exclude *.git
+exclude pixi*
+exclude Cargo*
+
+include pyproject.toml

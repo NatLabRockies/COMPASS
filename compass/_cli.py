@@ -34,7 +34,7 @@ def main(ctx):
     type=click.Path(exists=True),
     help="Path to ordinance configuration JSON file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`compass.process.process_counties_with_openai`.",
+    ":func:`compass.scripts.process.process_counties_with_openai`.",
 )
 @click.option(
     "-v",

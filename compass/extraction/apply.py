@@ -10,7 +10,7 @@ from compass.validation import (
     LegalTextValidator,
     parse_by_chunks,
 )
-from compass.warnings import COMPASSWarning
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)

@@ -27,7 +27,7 @@ from compass.extraction.wind.graphs import (
     setup_multiplier,
     setup_conditional,
 )
-from compass.warnings import COMPASSWarning
+from compass.warn import COMPASSWarning
 from compass.pb import COMPASS_PB
 
 

@@ -1,0 +1,23 @@
+categories:
+  - title: 'Breaking Changes'
+    labels:
+      - 'breaking'
+  - title: 'Features'
+    labels:
+      - 'feature'
+      - 'enhancement'
+      - 'new computation'
+  - title: 'Bug Fixes'
+    labels:
+      - 'fix'
+      - 'bug'
+      - 'bugfix'
+  - title: 'Updates'
+    labels:
+      - 'refactor'
+      - 'documentation'
+      - 'chore'
+template: |
+  ## What's Changed
+
+  $CHANGES

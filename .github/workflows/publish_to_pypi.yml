@@ -1,0 +1,35 @@
+name: Upload to PyPi
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Build and upload wheels
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - uses: prefix-dev/setup-pixi@v0.8.4
+      with:
+        pixi-version: v0.44.0
+        locked: true
+        cache: true
+
+    - name: Build a binary wheel and a source tarball
+      run: pixi run -e pdev build
+
+    - name: Check distribution files
+      run: pixi run -e pdev check-build
+
+    - name: Build and publish
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: pixi run -e pdev upload

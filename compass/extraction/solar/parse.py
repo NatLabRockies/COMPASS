@@ -26,7 +26,7 @@ from compass.extraction.solar.graphs import (
     setup_graph_sef_types,
     setup_multiplier,
 )
-from compass.warnings import COMPASSWarning
+from compass.warn import COMPASSWarning
 from compass.pb import COMPASS_PB
 
 

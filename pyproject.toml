@@ -18,13 +18,12 @@ maintainers = [
   {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
   {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
 ]
-license = {text = "BSD-3-Clause"}
+license = "BSD-3-Clause"
 keywords = ["COMPASS", "NREL", "Ordinance", "Database"]
 requires-python = ">= 3.12"
 classifiers=[
   "Development Status :: 4 - Beta",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: BSD License",
   "Natural Language :: English",
   "Operating System :: OS Independent",
   "Programming Language :: Python :: 3",
@@ -75,15 +74,18 @@ test = [
 ]
 
 [project.scripts]
-compass = "compass.cli:main"
+compass = "compass._cli:main"
 
 [project.urls]
 homepage = "https://github.com/NREL/COMPASS"
 documentation = "https://nrel.github.io/COMPASS/"
 repository = "https://github.com/NREL/COMPASS"
 
-[tool.setuptools]
-packages = ["compass"]
+# [tool.setuptools]
+# packages = ["compass"]
+
+[tool.setuptools.packages]
+find = { include = ["compass*"] }
 
 [tool.setuptools_scm]
 git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]  # default command uses "*[0-9]*", which breaks with cX.X.X tags. This forces setuptools_scm to look strictly for vX.X.X tags
@@ -145,9 +147,15 @@ NREL-COMPASS = { path = ".", editable = true}
 [tool.pixi.feature.python-dev.dependencies]
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
+pkginfo = ">=1.10.0,<2"
 ruff = ">=0.8.0,<0.9"
 ruff-lsp = ">=0.0.60,<0.0.61"
-twine = ">=5.1.1,<6"
+twine = ">=6.1.0,<7"
+
+[tool.pixi.feature.python-dev.tasks]
+build = "python -m build --sdist --wheel --outdir dist/ ."
+check-build = "twine check dist/*"
+upload = "twine upload dist/*"
 
 [tool.pixi.feature.python-test.dependencies]
 pytest = ">=8.3.3,<9"
@@ -167,12 +175,14 @@ tests = "pytest --durations=20 tests/python"
 
 [tool.pixi.feature.python-doc.dependencies]
 ghp-import = ">=2.1.0,<3"
-jupyter-book = ">=1.0.3,<2"
 make = ">=4.4.1,<5"
 sphinx-click = ">=6.0.0,<7"
 sphinx-copybutton = ">=0.5.2,<0.6"
 sphinx-tabs = ">=3.4.1,<4"
 sphinxcontrib-mermaid = ">=1.0.0,<2"
+
+[tool.pixi.feature.python-doc.tasks]
+build = { cmd = "make html", cwd = "docs"}
 
 [tool.pixi.feature.python-anthropic.dependencies]
 anthropic = ">=0.40.0,<0.41"
