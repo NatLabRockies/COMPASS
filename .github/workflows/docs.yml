@@ -28,7 +28,7 @@ jobs:
           cache: true
 
       - name: Build Docs
-        run: pixi run -e pdoc build
+        run: pixi run -e pdoc make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v3.6.1

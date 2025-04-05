@@ -22,14 +22,8 @@ jobs:
         locked: true
         cache: true
 
-    - name: Build a binary wheel and a source tarball
-      run: pixi run -e pdev build
-
-    - name: Check distribution files
-      run: pixi run -e pdev check-build
-
     - name: Build and publish
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: pixi run -e pdev upload
+      run: pixi run -e pbuild upload-wheels
