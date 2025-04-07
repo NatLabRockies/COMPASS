@@ -173,13 +173,14 @@ class OpenAIService(LLMService):
         num_tokens = count_tokens(kwargs.get("messages", []), self.model_name)
         self.rate_tracker.add(num_tokens)
 
-    def _record_usage(  # noqa: PLR6301
-        self, response, usage_tracker, usage_sub_label
-    ):
+    def _record_usage(self, response, usage_tracker, usage_sub_label):
         """Record token usage for user"""
         if usage_tracker is None:
             return
-        usage_tracker.update_from_model(response, sub_label=usage_sub_label)
+
+        usage_tracker.update_from_model(
+            model=self.model_name, response=response, sub_label=usage_sub_label
+        )
 
     def _record_completion_tokens(self, response):
         """Add completion token count to rate tracker"""

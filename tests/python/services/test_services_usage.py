@@ -66,26 +66,51 @@ def test_usage_tracker():
     assert tracker == {}
     assert tracker.totals == {}
 
-    tracker.update_from_model({})
-    assert tracker == {"default": {"requests": 1, "inputs": 0}}
-    assert tracker.totals == {"requests": 1, "inputs": 0}
+    tracker.update_from_model(response={})
+    assert tracker == {
+        UsageTracker.UNKNOWN_MODEL_LABEL: {
+            "default": {"requests": 1, "inputs": 0}
+        }
+    }
+    assert tracker.totals == {
+        UsageTracker.UNKNOWN_MODEL_LABEL: {"requests": 1, "inputs": 0}
+    }
 
-    tracker.update_from_model({"inputs": 100}, sub_label="parsing")
+    tracker.update_from_model(response={"inputs": 100}, sub_label="parsing")
+    tracker.update_from_model(
+        model="my_model", response={"inputs": 200}, sub_label="parsing"
+    )
     tracker.update_from_model()
 
     assert tracker == {
-        "default": {"requests": 1, "inputs": 0},
-        "parsing": {"requests": 1, "inputs": 100},
+        UsageTracker.UNKNOWN_MODEL_LABEL: {
+            "default": {"requests": 1, "inputs": 0},
+            "parsing": {"requests": 1, "inputs": 100},
+        },
+        "my_model": {"parsing": {"requests": 1, "inputs": 200}},
     }
-    assert tracker.totals == {"requests": 2, "inputs": 100}
+    assert tracker.totals == {
+        UsageTracker.UNKNOWN_MODEL_LABEL: {"requests": 2, "inputs": 100},
+        "my_model": {"requests": 1, "inputs": 200},
+    }
 
-    tracker.update_from_model({"tokens": 5})
+    tracker.update_from_model(response={"tokens": 5})
 
     assert tracker == {
-        "default": {"requests": 2, "inputs": 0, "tokens": 5},
-        "parsing": {"requests": 1, "inputs": 100},
+        UsageTracker.UNKNOWN_MODEL_LABEL: {
+            "default": {"requests": 2, "inputs": 0, "tokens": 5},
+            "parsing": {"requests": 1, "inputs": 100},
+        },
+        "my_model": {"parsing": {"requests": 1, "inputs": 200}},
     }
-    assert tracker.totals == {"requests": 3, "inputs": 100, "tokens": 5}
+    assert tracker.totals == {
+        UsageTracker.UNKNOWN_MODEL_LABEL: {
+            "requests": 3,
+            "inputs": 100,
+            "tokens": 5,
+        },
+        "my_model": {"requests": 1, "inputs": 200},
+    }
 
     output = {"some": "value"}
     tracker.add_to(output)

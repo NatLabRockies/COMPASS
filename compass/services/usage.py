@@ -98,6 +98,9 @@ class TimeBoundedUsageTracker:
 class UsageTracker(UserDict):
     """Rate or AIP usage tracker"""
 
+    UNKNOWN_MODEL_LABEL = "unknown_model"
+    """Label used in the usage dictionary for unknown models"""
+
     def __init__(self, label, response_parser):
         """
 
@@ -141,25 +144,35 @@ class UsageTracker(UserDict):
             sub-labels.
         """
         totals = {}
-        for report in self.values():
-            try:
-                sub_label_report = report.items()
-            except AttributeError:
-                continue
+        for model, model_usage in self.items():
+            total_model_usage = totals[model] = {}
+            for report in model_usage.values():
+                try:
+                    sub_label_report = report.items()
+                except AttributeError:
+                    continue
 
-            for tracked_value, count in sub_label_report:
-                totals[tracked_value] = totals.get(tracked_value, 0) + count
+                for tracked_value, count in sub_label_report:
+                    total_model_usage[tracked_value] = (
+                        total_model_usage.get(tracked_value, 0) + count
+                    )
         return totals
 
-    def update_from_model(self, response=None, sub_label="default"):
+    def update_from_model(
+        self, model=None, response=None, sub_label="default"
+    ):
         """Update usage from a model response
 
         Parameters
         ----------
+        model : str, optional
+            Name of model that usage is being recorded for. If ``None``
+            or empty string, the usage will be placed under the
+            :obj:`UsageTracker.UNKNOWN_MODEL_LABEL` label.
         response : object, optional
             Model call response, which either contains usage information
             or can be used to infer/compute usage. If ``None``, no
-            update is made.
+            update is made. By default, ``None``.
         sub_label : str, optional
             Optional label to categorize usage under. This can be used
             to track usage related to certain categories.
@@ -168,6 +181,7 @@ class UsageTracker(UserDict):
         if response is None:
             return
 
-        self[sub_label] = self.response_parser(
-            self.get(sub_label, {}), response
+        model_usage = self.setdefault(model or self.UNKNOWN_MODEL_LABEL, {})
+        model_usage[sub_label] = self.response_parser(
+            model_usage.get(sub_label, {}), response
         )
