@@ -333,10 +333,11 @@ class UsageUpdater(ThreadedService):
         """
         self._is_processing = True
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
+        out = await loop.run_in_executor(
             self.pool, _dump_usage, self.usage_fp, tracker
         )
         self._is_processing = False
+        return out
 
 
 class JurisdictionUpdater(ThreadedService):
@@ -405,9 +406,13 @@ def _dump_usage(fp, tracker):
         with Path.open(fp, encoding="utf-8") as fh:
             usage_info = json.load(fh)
 
-    tracker.add_to(usage_info)
-    with Path.open(fp, "w", encoding="utf-8") as fh:
-        json.dump(usage_info, fh, indent=4)
+    if tracker is not None:
+        tracker.add_to(usage_info)
+
+        with Path.open(fp, "w", encoding="utf-8") as fh:
+            json.dump(usage_info, fh, indent=4)
+
+    return usage_info
 
 
 def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):

@@ -23,14 +23,14 @@ logger = logging.getLogger(__name__)
 async def download_county_ordinance(
     question_templates,
     location,
-    text_splitter,
+    llm_caller_args,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
-    **kwargs,
+    usage_tracker=None,
 ):
     """Download the ordinance document(s) for a single county
 
@@ -38,13 +38,8 @@ async def download_county_ordinance(
     ----------
     location : :class:`compass.utilities.location.Location`
         Location objects representing the county.
-    text_splitter : obj, optional
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Raw text from HTML pages will be passed through
-        this splitter to split the single wep page into multiple pages
-        for the output document. Langchain's text splitters should work
-        for this input.
+    llm_caller_args : obj, optional
+        TBA
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
@@ -58,9 +53,9 @@ async def download_county_ordinance(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
-    **kwargs
-        Keyword-value pairs used to initialize an
-        `compass.llm.LLMCaller` instance.
+    usage_tracker : compass.services.usage.UsageTracker, optional
+            Optional tracker instance to monitor token usage during
+            LLM calls. By default, ``None``.
 
     Returns
     -------
@@ -75,7 +70,7 @@ async def download_county_ordinance(
     docs = await _docs_from_web_search(
         question_templates,
         location,
-        text_splitter,
+        llm_caller_args.text_splitter,
         num_urls,
         browser_semaphore,
         **(file_loader_kwargs or {}),
@@ -85,7 +80,10 @@ async def download_county_ordinance(
         description="Checking files for correct jurisdiction...",
     )
     docs = await _down_select_docs_correct_location(
-        docs, location=location, **kwargs
+        docs,
+        location=location,
+        usage_tracker=usage_tracker,
+        llm_caller_args=llm_caller_args,
     )
     logger.info(
         "%d document(s) remaining after location filter for %s\n\t- %s",
@@ -101,11 +99,11 @@ async def download_county_ordinance(
     docs = await _down_select_docs_correct_content(
         docs,
         location=location,
-        text_splitter=text_splitter,
+        llm_caller_args=llm_caller_args,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
-        **kwargs,
+        usage_tracker=usage_tracker,
     )
     logger.info(
         "Found %d potential ordinance documents for %s\n\t- %s",
@@ -146,9 +144,15 @@ async def _docs_from_web_search(
     )
 
 
-async def _down_select_docs_correct_location(docs, location, **kwargs):
+async def _down_select_docs_correct_location(
+    docs, location, usage_tracker, llm_caller_args
+):
     """Remove all documents not pertaining to the location"""
-    llm_caller = StructuredLLMCaller(**kwargs)
+    llm_caller = StructuredLLMCaller(
+        llm_service=llm_caller_args.llm_service,
+        usage_tracker=usage_tracker,
+        **llm_caller_args.llm_call_kwargs,
+    )
     county_validator = CountyValidator(llm_caller)
     return await filter_documents(
         docs,
@@ -159,17 +163,29 @@ async def _down_select_docs_correct_location(docs, location, **kwargs):
     )
 
 
-async def _down_select_docs_correct_content(docs, location, **kwargs):
+async def _down_select_docs_correct_content(
+    docs,
+    location,
+    llm_caller_args,
+    heuristic,
+    ordinance_text_collector_class,
+    permitted_use_text_collector_class,
+    usage_tracker,
+):
     """Remove all documents that don't contain ordinance info"""
     return await filter_documents(
         docs,
-        validation_coroutine=_contains_ords,
+        validation_coroutine=_contains_ordinances,
         task_name=location.full_name,
-        **kwargs,
+        llm_caller_args=llm_caller_args,
+        heuristic=heuristic,
+        ordinance_text_collector_class=ordinance_text_collector_class,
+        permitted_use_text_collector_class=permitted_use_text_collector_class,
+        usage_tracker=usage_tracker,
     )
 
 
-async def _contains_ords(doc, **kwargs):
+async def _contains_ordinances(doc, **kwargs):
     """Helper coroutine that checks for ordinance info"""
     doc = await check_for_ordinance_info(doc, **kwargs)
     return doc.attrs.get("contains_ord_info", False)

@@ -32,7 +32,7 @@ def main(ctx):
     "-c",
     required=True,
     type=click.Path(exists=True),
-    help="Path to ordinance configuration JSON file. This file "
+    help="Path to ordinance configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
     ":func:`compass.scripts.process.process_counties_with_openai`.",
 )

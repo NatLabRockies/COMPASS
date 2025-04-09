@@ -18,11 +18,11 @@ logger = logging.getLogger(__name__)
 
 async def check_for_ordinance_info(
     doc,
-    text_splitter,
+    llm_caller_args,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
-    **kwargs,
+    usage_tracker=None,
 ):
     """Parse a single document for ordinance information
 
@@ -39,9 +39,9 @@ async def check_for_ordinance_info(
         The method should take text as input (str) and return a list
         of text chunks. Langchain's text splitters should work for this
         input.
-    **kwargs
-        Keyword-value pairs used to initialize an
-        `compass.llm.LLMCaller` instance.
+    usage_tracker : compass.services.usage.UsageTracker, optional
+        Optional tracker instance to monitor token usage during
+        LLM calls. By default, ``None``.
 
     Returns
     -------
@@ -60,8 +60,12 @@ async def check_for_ordinance_info(
     if "contains_ord_info" in doc.attrs:
         return doc
 
-    llm_caller = StructuredLLMCaller(**kwargs)
-    chunks = text_splitter.split_text(doc.text)
+    llm_caller = StructuredLLMCaller(
+        llm_service=llm_caller_args.llm_service,
+        usage_tracker=usage_tracker,
+        **llm_caller_args.llm_call_kwargs,
+    )
+    chunks = llm_caller_args.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator()
     ordinance_text_collector = ordinance_text_collector_class()

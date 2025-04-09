@@ -1,8 +1,15 @@
 """Ordinances LLM Calling classes"""
 
 import logging
+from functools import partial, cached_property
 
-from compass.utilities import llm_response_as_json
+import openai
+from elm import ApiBase
+from elm.utilities import validate_azure_api_params
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+from compass.services.openai import OpenAIService
+from compass.utilities import llm_response_as_json, RTS_SEPARATORS
 
 
 logger = logging.getLogger(__name__)
@@ -187,6 +194,93 @@ class StructuredLLMCaller(BaseLLMCaller):
             **self.kwargs,
         )
         return llm_response_as_json(response) if response else {}
+
+
+class LLMCallerArgs:
+    """Arguments to set up an LLM Caller instance initializer"""
+
+    def __init__(
+        self,
+        model="gpt-4o",
+        llm_call_kwargs=None,
+        llm_service_rate_limit=4000,
+        text_splitter_chunk_size=10_000,
+        text_splitter_chunk_overlap=1000,
+        client_kwargs=None,
+    ):
+        """
+
+        Parameters
+        ----------
+        model : str, optional
+            Name of LLM model to perform scraping.
+            By default, ``"gpt-4o"``.
+        llm_call_kwargs : dict, optional
+            Keyword arguments to be passed to the llm service ``call``
+            method (i.e. `llm_service.call(**kwargs)`).
+            Should *not* contain the following keys:
+
+                - usage_tracker
+                - usage_sub_label
+                - messages
+
+            These arguments are provided by the LLM Caller object.
+            By default, ``None``.
+        llm_service_rate_limit : int, optional
+            Token rate limit (i.e. tokens per minute) of LLM service
+            being used. By default, ``10_000``.
+        text_splitter_chunk_size : int, optional
+            Chunk size used to split the ordinance text. Parsing is
+            performed on each individual chunk. Units are in token count
+            of the model in charge of parsing ordinance text. Keeping
+            this value low can help reduce token usage since (free)
+            heuristics checks may be able to throw away irrelevant
+            chunks of text before passing to the LLM.
+            By default, ``10000``.
+        text_splitter_chunk_overlap : int, optional
+            Overlap of consecutive chunks of the ordinance text. Parsing
+            is performed on each individual chunk. Units are in token
+            count of the model in charge of parsing ordinance text.
+            By default, ``1000``.
+        client_kwargs : dict, optional
+            Keyword-value pairs to pass to underlying LLM client. These
+            typically include things like API keys and endpoints.
+            By default, ``None``.
+        """
+        self.model = model
+        self.llm_call_kwargs = llm_call_kwargs or {}
+        self.llm_service_rate_limit = llm_service_rate_limit
+        self.text_splitter_chunk_size = text_splitter_chunk_size
+        self.text_splitter_chunk_overlap = text_splitter_chunk_overlap
+        self.client_kwargs = client_kwargs or {}
+
+    @cached_property
+    def text_splitter(self):
+        """TextSplitter: Object that can be used to chunk text"""
+        return RecursiveCharacterTextSplitter(
+            RTS_SEPARATORS,
+            chunk_size=self.text_splitter_chunk_size,
+            chunk_overlap=self.text_splitter_chunk_overlap,
+            length_function=partial(ApiBase.count_tokens, model=self.model),
+            is_separator_regex=True,
+        )
+
+    @cached_property
+    def llm_service(self):
+        """LLMService: Object that can be used to submit calls to LLM"""
+        api_key, api_version, azure_endpoint = validate_azure_api_params(
+            self.client_kwargs.get("api_key"),
+            self.client_kwargs.get("api_version"),
+            self.client_kwargs.get("azure_endpoint"),
+        )
+        client = openai.AsyncAzureOpenAI(
+            api_key=api_key,
+            api_version=api_version,
+            azure_endpoint=azure_endpoint,
+        )
+        return OpenAIService(
+            client, self.model, rate_limit=self.llm_service_rate_limit
+        )
 
 
 def _add_json_instructions_if_needed(system_message):

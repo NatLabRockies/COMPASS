@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import contextlib
 
 from compass.services.queues import (
     initialize_service_queue,
@@ -130,6 +131,12 @@ class RunningAsyncServices:
     async def __aenter__(self):
         for service in self.services:
             logger.debug("Initializing Service: %s", service.name)
+            with contextlib.suppress(AttributeError):
+                logger.debug(
+                    "    ↪ model_name=%r, rate_limit=%d",
+                    service.model_name,
+                    service.rate_limit,
+                )
             queue = initialize_service_queue(service.name)
             service.acquire_resources()
             task = asyncio.create_task(_RunningProvider(service, queue).run())

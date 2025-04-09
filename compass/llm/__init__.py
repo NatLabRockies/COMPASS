@@ -1,3 +1,8 @@
 """COMPASS Ordinance LLM callers"""
 
-from .calling import LLMCaller, ChatLLMCaller, StructuredLLMCaller
+from .calling import (
+    LLMCaller,
+    ChatLLMCaller,
+    StructuredLLMCaller,
+    LLMCallerArgs,
+)
