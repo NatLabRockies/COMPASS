@@ -55,6 +55,7 @@ from compass.services.threaded import (
     JurisdictionUpdater,
 )
 from compass.utilities import (
+    LLM_COST_REGISTRY,
     load_all_county_info,
     load_counties_from_fp,
     extract_ord_year_from_doc_attrs,
@@ -169,6 +170,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     clean_dir=None,
     ordinance_file_dir=None,
     county_dbs_dir=None,
+    llm_costs=None,
     log_level="INFO",
 ):
     """Download and extract ordinances for a list of counties
@@ -273,17 +275,33 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         outputs. This directory will be created if it does not exist.
         By default, ``None``, which creates a ``jurisdiction_dbs``
         folder in the output directory.
+    llm_costs : dict, optional
+        Optional dictionary mapping model names to a dictionary that
+        contains the cost (in $/million tokens) for both prompt and
+        response tokens. This is only used to display a running cost
+        total for the processing. For example::
+
+            llm_costs = {"my_gpt": {"prompt": 1.5, "response": 3.7}}
+
+        would register the model named "my_gpt" as costing $1.5 per
+        million input (prompt) tokens and $3.7 per million output
+        (response) tokens. If ``None``, no new model costs are
+        registered, and costs are not tracked in the progress bar.
+        By default, ``None``.
     log_level : str, optional
         Log level to set for county retrieval and parsing loggers.
         By default, ``"INFO"``.
 
     Returns
     -------
-    float
+    seconds_elapsed : float
+        Total seconds elapsed during runtime of this function.
+    cost : float
         Total cost for the run. If usage is not tracked or model costs
         are not provided, this value is 0.
     """
     log_listener = LogListener(["compass", "elm"], level=log_level)
+    LLM_COST_REGISTRY.update(llm_costs or {})
     dirs = _setup_folders(
         out_dir,
         log_dir=log_dir,
@@ -446,11 +464,11 @@ class _COMPASSRunner:
         start_date = datetime.now(UTC).isoformat()
         start_time = time.monotonic()
 
-        doc_infos = await self._run_all(jurisdictions)
+        doc_infos, total_cost = await self._run_all(jurisdictions)
 
         db, num_docs_found = _doc_infos_to_db(doc_infos)
         _save_db(db, self.dirs.out)
-        _save_run_meta(
+        total_time = _save_run_meta(
             self.dirs,
             self.tech,
             start_time,
@@ -459,7 +477,7 @@ class _COMPASSRunner:
             num_jurisdictions_found=num_docs_found,
             llm_caller_args=self.llm_caller_args,
         )
-        return db
+        return total_time, total_cost
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
@@ -482,7 +500,10 @@ class _COMPASSRunner:
                     name=location.full_name,
                 )
                 tasks.append(task)
-            return await asyncio.gather(*tasks)
+            doc_infos = await asyncio.gather(*tasks)
+            total_cost = await _compute_total_cost()
+
+        return doc_infos, total_cost
 
     async def _processed_jurisdiction_info_with_pb(
         self, county, *args, **kwargs
@@ -709,8 +730,12 @@ class _SingleJurisdictionRunner:
 
     async def _record_usage(self):
         """Dump usage to file if tracker given"""
-        if self.usage_tracker is not None:
-            await UsageUpdater.call(self.usage_tracker)
+        if self.usage_tracker is None:
+            return
+
+        total_usage = await UsageUpdater.call(self.usage_tracker)
+        total_cost = _compute_total_cost_from_usage(total_usage)
+        COMPASS_PB.update_total_cost(total_cost, replace=True)
 
 
 def _compile_tech_specs(tech):
@@ -1033,3 +1058,36 @@ def _save_run_meta(
     meta_data["manifest"]["META_FILE"] = "meta.json"
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
+
+    return seconds_elapsed
+
+
+async def _compute_total_cost():
+    """Compute total cost from tracked usage"""
+    total_usage = await UsageUpdater.call(None)
+    if not total_usage:
+        return 0
+
+    return _compute_total_cost_from_usage(total_usage)
+
+
+def _compute_total_cost_from_usage(tracked_usage):
+    """Compute total cost from total tracked usage"""
+
+    total_cost = 0
+    for usage in tracked_usage.values():
+        totals = usage.get("tracker_totals", {})
+        for model, total_usage in totals.items():
+            model_costs = LLM_COST_REGISTRY.get(model, {})
+            total_cost += (
+                total_usage.get("prompt_tokens", 0)
+                / 1e6
+                * model_costs.get("prompt", 0)
+            )
+            total_cost += (
+                total_usage.get("response_tokens", 0)
+                / 1e6
+                * model_costs.get("response", 0)
+            )
+
+    return total_cost

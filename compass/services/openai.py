@@ -8,6 +8,8 @@ from elm.utilities.retry import async_retry_with_exponential_backoff
 
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
+from compass.utilities import LLM_COST_REGISTRY
+from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
@@ -166,12 +168,19 @@ class OpenAIService(LLMService):
         response = await self._call_gpt(model=self.model_name, **kwargs)
         self._record_completion_tokens(response)
         self._record_usage(response, usage_tracker, usage_sub_label)
+        self._update_pb_cost(response)
         return _get_response_message(response)
 
     def _record_prompt_tokens(self, kwargs):
         """Add prompt token count to rate tracker"""
         num_tokens = count_tokens(kwargs.get("messages", []), self.model_name)
         self.rate_tracker.add(num_tokens)
+
+    def _record_completion_tokens(self, response):
+        """Add completion token count to rate tracker"""
+        if response is None:
+            return
+        self.rate_tracker.add(response.usage.completion_tokens)
 
     def _record_usage(self, response, usage_tracker, usage_sub_label):
         """Record token usage for user"""
@@ -182,11 +191,21 @@ class OpenAIService(LLMService):
             model=self.model_name, response=response, sub_label=usage_sub_label
         )
 
-    def _record_completion_tokens(self, response):
-        """Add completion token count to rate tracker"""
+    def _update_pb_cost(self, response):
+        """Update the cost displayed on the progress bar"""
         if response is None:
             return
-        self.rate_tracker.add(response.usage.completion_tokens)
+
+        model_costs = LLM_COST_REGISTRY.get(self.model_name, {})
+        prompt_cost = (
+            response.usage.prompt_tokens / 1e6 * model_costs.get("prompt", 0)
+        )
+        response_cost = (
+            response.usage.completion_tokens
+            / 1e6
+            * model_costs.get("response", 0)
+        )
+        COMPASS_PB.update_total_cost(prompt_cost + response_cost)
 
     @async_retry_with_exponential_backoff()
     async def _call_gpt(self, **kwargs):

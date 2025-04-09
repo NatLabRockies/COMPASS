@@ -43,6 +43,17 @@ class _MofNCompleteColumn(ProgressColumn):
         return Text(f"   {completed:{total_width}d}/{total}", style="white")
 
 
+class _TotalCostColumn(ProgressColumn):
+    """Renders total cost '($1.23)'"""
+
+    def render(self, task):  # noqa: PLR6301
+        """Show completed/total"""
+        total_cost = task.fields.get("total_cost", 0)
+        if not total_cost:
+            return Text("")
+        return Text.assemble("(", (f"${total_cost:.2f}", "#71906e"), ")")
+
+
 class _COMPASSProgressBars:
     """COMPASS progress bar configurations"""
 
@@ -65,10 +76,12 @@ class _COMPASSProgressBars:
                 finished_style="progress.spinner",
             ),
             _MofNCompleteColumn(),
+            _TotalCostColumn(),
             console=console,
         )
         self._group = Group(self._main)
         self._main_task = None
+        self._total_cost = 0
         self._jd_pbs = {}
         self._jd_tasks = {}
 
@@ -126,6 +139,29 @@ class _COMPASSProgressBars:
             raise COMPASSNotInitializedError(msg)
 
         self._main.update(self._main_task, advance=1)
+
+    def update_total_cost(self, cost, replace=False):
+        """Update the total cost of the run
+
+        Parameters
+        ----------
+        cost : int | float
+            Cost value used for update.
+        replace : bool, optional
+            If ``True``, the `cost` input will completely replace the
+            total cost, but only if the `cost` value is equal to or
+            larger than the existing total cost (i.e. we never want the
+            cost to decrease). If ``False``, the `cost` input is just
+            added to the running total. By default, ``False``.
+        """
+        if replace:
+            if cost + 0.01 >= self._total_cost:
+                self._total_cost = cost
+        else:
+            self._total_cost += cost
+
+        if self._main_task is not None:
+            self._main.update(self._main_task, total_cost=self._total_cost)
 
     @contextmanager
     def jurisdiction_prog_bar(self, location, progress_main=True):

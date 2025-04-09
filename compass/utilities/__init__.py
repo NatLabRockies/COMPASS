@@ -32,3 +32,11 @@ RTS_SEPARATORS = [
     " ",
     "",
 ]
+
+
+LLM_COST_REGISTRY = {"wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6}}
+"""LLM Costs registry
+
+The registry maps model names to a dictionary that contains the cost
+(in $/million tokens) for both prompt and response tokens.
+"""
