@@ -1,14 +1,17 @@
 [package]
-name = "nrel-ordinance-cli"
+name = "infra-compass-cli"
 version = "0.0.4"
 authors.workspace = true
 edition.workspace = true
-license.workspace = true
 rust-version.workspace = true
+description = "Command line application to manage and query NREL's INFRA-COMPASS data"
+homepage = "https://github.com/NREL/COMPASS"
+repository = "https://github.com/NREL/COMPASS"
+license.workspace = true
 
 [dependencies]
-clap = { workspace = true, features = ["cargo"] }
+clap = { workspace = true }
 duckdb = { workspace = true }
-nrel-compass-db = { workspace = true }
+infra-compass-db = { workspace = true }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true }

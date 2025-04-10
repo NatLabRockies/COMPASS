@@ -96,7 +96,7 @@ repository = "https://github.com/NREL/COMPASS"
 find = { include = ["compass*"] }
 
 [tool.setuptools_scm]
-git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]  # default command uses "*[0-9]*", which breaks with cX.X.X tags. This forces setuptools_scm to look strictly for vX.X.X tags
+git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ] # default command uses "*[0-9]*", which breaks with cX.X.X tags. This forces setuptools_scm to look strictly for vX.X.X tags
 version_file = "compass/_version.py"
 
 [tool.pixi.project]
