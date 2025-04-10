@@ -56,8 +56,8 @@ async def download_county_ordinance(
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
     usage_tracker : compass.services.usage.UsageTracker, optional
-            Optional tracker instance to monitor token usage during
-            LLM calls. By default, ``None``.
+        Optional tracker instance to monitor token usage during
+        LLM calls. By default, ``None``.
 
     Returns
     -------

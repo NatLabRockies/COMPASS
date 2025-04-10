@@ -15,6 +15,7 @@ from elm.web.utilities import write_url_doc_to_file
 from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
 from compass.utilities import (
+    LLM_COST_REGISTRY,
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
 )
@@ -364,7 +365,7 @@ class JurisdictionUpdater(ThreadedService):
         """bool: ``True`` if file not currently being written to"""
         return not self._is_processing
 
-    async def process(self, county, doc, seconds_elapsed):
+    async def process(self, county, doc, seconds_elapsed, usage_tracker=None):
         """Add usage from tracker to file
 
         Any existing usage info in the file will remain unchanged
@@ -384,6 +385,9 @@ class JurisdictionUpdater(ThreadedService):
         seconds_elapsed : int | float
             Total number of seconds it took to look for (and possibly
             parse) this document.
+        usage_tracker : compass.services.usage.UsageTracker, optional
+            Optional tracker instance to monitor token usage during
+            LLM calls. By default, ``None``.
         """
         self._is_processing = True
         loop = asyncio.get_running_loop()
@@ -394,6 +398,7 @@ class JurisdictionUpdater(ThreadedService):
             county,
             doc,
             seconds_elapsed,
+            usage_tracker,
         )
         self._is_processing = False
 
@@ -415,7 +420,7 @@ def _dump_usage(fp, tracker):
     return usage_info
 
 
-def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
+def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
     """Dump jurisdiction info to an existing file"""
     if not Path(fp).exists():
         jurisdiction_info = {"jurisdictions": []}
@@ -433,7 +438,13 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed):
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
+        "cost": None,
+        "documents": None,
     }
+    if usage_tracker is not None:
+        cost = _compute_jurisdiction_cost(usage_tracker)
+        new_info["cost"] = cost or None
+
     if num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
         new_info["documents"] = [_compile_doc_info(doc)]
@@ -452,3 +463,23 @@ def _compile_doc_info(doc):
         "num_pages": len(doc.pages),
         "checksum": doc.attrs.get("checksum"),
     }
+
+
+def _compute_jurisdiction_cost(usage_tracker):
+    """Compute total cost from total tracked usage"""
+
+    total_cost = 0
+    for model, total_usage in usage_tracker.totals.items():
+        model_costs = LLM_COST_REGISTRY.get(model, {})
+        total_cost += (
+            total_usage.get("prompt_tokens", 0)
+            / 1e6
+            * model_costs.get("prompt", 0)
+        )
+        total_cost += (
+            total_usage.get("response_tokens", 0)
+            / 1e6
+            * model_costs.get("response", 0)
+        )
+
+    return total_cost
