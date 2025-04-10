@@ -9,6 +9,7 @@ from elm.utilities.retry import async_retry_with_exponential_backoff
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
 from compass.utilities import LLM_COST_REGISTRY
+from compass.utilities.enums import LLMUsageCategory
 from compass.pb import COMPASS_PB
 
 
@@ -135,7 +136,10 @@ class OpenAIService(LLMService):
         self.client = client
 
     async def process(
-        self, usage_tracker=None, usage_sub_label="default", **kwargs
+        self,
+        usage_tracker=None,
+        usage_sub_label=LLMUsageCategory.DEFAULT,
+        **kwargs,
     ):
         """Process a call to OpenAI Chat GPT
 

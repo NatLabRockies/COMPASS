@@ -5,6 +5,8 @@ import logging
 
 from elm.tree import DecisionTree
 
+from compass.utilities.enums import LLMUsageCategory
+
 
 logger = logging.getLogger(__name__)
 
@@ -99,7 +101,9 @@ class AsyncDecisionTree(DecisionTree):
             Next node or LLM response if at a leaf node.
         """
         prompt = self._prepare_graph_call(node0)
-        out = await self.chat_llm_caller.call(prompt, usage_sub_label="dtree")
+        out = await self.chat_llm_caller.call(
+            prompt, usage_sub_label=LLMUsageCategory.DECISION_TREE
+        )
         logger.debug(
             "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out
         )

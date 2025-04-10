@@ -9,12 +9,13 @@ import logging
 from abc import ABC, abstractmethod
 
 from compass.extraction.ngrams import convert_text_to_sentence_ngrams
+from compass.utilities.enums import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)
 
 
-class FixedMessageValidator(ABC):
+class LocationValidator(ABC):
     """Validation base class using a static system prompt"""
 
     SYSTEM_MESSAGE = None
@@ -53,7 +54,9 @@ class FixedMessageValidator(ABC):
             return False
         sys_msg = self.SYSTEM_MESSAGE.format(**fmt_kwargs)
         out = await self.slc.call(
-            sys_msg, content, usage_sub_label="document_location_validation"
+            sys_msg,
+            content,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION,
         )
         return self._parse_output(out)
 
@@ -63,7 +66,7 @@ class FixedMessageValidator(ABC):
         raise NotImplementedError
 
 
-class URLValidator(FixedMessageValidator):
+class URLValidator(LocationValidator):
     """Validator that checks whether a URL matches a county"""
 
     SYSTEM_MESSAGE = (
@@ -86,7 +89,7 @@ class URLValidator(FixedMessageValidator):
         return all(props.get(var) for var in check_vars)
 
 
-class CountyJurisdictionValidator(FixedMessageValidator):
+class CountyJurisdictionValidator(LocationValidator):
     """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
@@ -120,7 +123,7 @@ class CountyJurisdictionValidator(FixedMessageValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class CountyNameValidator(FixedMessageValidator):
+class CountyNameValidator(LocationValidator):
     """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
@@ -167,7 +170,9 @@ class CountyValidator:
         and :class:`~compass.validation.location.URLValidator`.
     """
 
-    def __init__(self, structured_llm_caller, score_thresh=0.8):
+    def __init__(
+        self, structured_llm_caller, score_thresh=0.8, text_splitter=None
+    ):
         """
 
         Parameters
@@ -178,11 +183,16 @@ class CountyValidator:
         score_thresh : float, optional
             Score threshold to exceed when voting on content from raw
             pages. By default, ``0.8``.
+        text_splitter : langchain.text_splitter.TextSplitter, optional
+            Optional text splitter instance to attach to doc (used for
+            splitting out pages in an HTML document).
+            By default, ``None``.
         """
         self.score_thresh = score_thresh
         self.cn_validator = CountyNameValidator(structured_llm_caller)
         self.cj_validator = CountyJurisdictionValidator(structured_llm_caller)
         self.url_validator = URLValidator(structured_llm_caller)
+        self.text_splitter = text_splitter
 
     async def check(self, doc, county, state):
         """Check if the document belongs to the county
@@ -205,6 +215,20 @@ class CountyValidator:
             `True` if the doc contents pertain to the input county.
             `False` otherwise.
         """
+        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
+            old_splitter = doc.text_splitter
+            doc.text_splitter = self.text_splitter
+            out = await self._check(doc, county, state)
+            doc.text_splitter = old_splitter
+            return out
+
+        return await self._check(doc, county, state)
+
+    async def _check(self, doc, county, state):
+        """Check if the document belongs to the county"""
+        if self.text_splitter is not None:
+            doc.text_splitter = self.text_splitter
+
         source = doc.attrs.get("source")
         logger.debug(
             "Validating document from source: %s", source or "Unknown"

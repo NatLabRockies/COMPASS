@@ -8,6 +8,8 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
+from compass.utilities.enums import LLMUsageCategory
+
 
 logger = logging.getLogger(__name__)
 
@@ -104,7 +106,9 @@ class ParseChunksWithMemory:
                 content = await self.slc.call(
                     sys_msg=prompt.format(key=key),
                     content=text,
-                    usage_sub_label="document_content_validation",
+                    usage_sub_label=(
+                        LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
+                    ),
                 )
                 logger.debug("LLM response: %s", str(content))  # TODO: trace
                 check = mem[key] = content.get(key, False)
@@ -351,7 +355,7 @@ async def parse_by_chunks(
             continue
 
         logger.debug("Processing text at ind %d", ind)
-        logger.debug("Text:\n%s", text)  # TODO: trace
+        logger.debug("Text:\n%s", text)
 
         if not callbacks:
             continue
