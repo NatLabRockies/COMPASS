@@ -61,7 +61,7 @@ async def download_county_ordinance(
 
     Returns
     -------
-    list | None
+    list or None
         List of :obj:`~elm.web.document.BaseDocument` instances possibly
         containing ordinance information, or ``None`` if no ordinance
         document was found.

@@ -1,0 +1,28 @@
+// config_recommended.json5
+{
+    "out_dir": "./outputs",
+    "tech": "solar",
+    "jurisdiction_fp": "jurisdictions.csv",
+    "model": [
+        {
+            "name": "gpt-4o-mini",
+            "llm_call_kwargs":{
+                "temperature": 0,
+                "timeout": 300
+            },
+            "llm_service_rate_limit": 500000,
+            "text_splitter_chunk_size": 10000,
+            "text_splitter_chunk_overlap": 500,
+            "client_kwargs": {
+                // default client is Azure OpenAI
+                "azure_api_key": "<ADD AZURE OPENAI API KEY HERE>",
+                "azure_version": "<ADD AZURE OPENAI VERSION HERE>",
+                "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
+            },
+        },
+    ],
+    "file_loader_kwargs": {
+        "verify_ssl": false,
+    },
+    "pytesseract_exe_fp": "<ADD tesseract.exe PATH HERE OR REMOVE THIS KEY>",
+}

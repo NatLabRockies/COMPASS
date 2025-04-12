@@ -34,7 +34,14 @@ RTS_SEPARATORS = [
 ]
 
 
-LLM_COST_REGISTRY = {"wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6}}
+LLM_COST_REGISTRY = {
+    "o1": {"prompt": 15, "response": 60},
+    "o3-mini": {"prompt": 1.1, "response": 4.4},
+    "gpt-4.5": {"prompt": 75, "response": 150},
+    "gpt-4o": {"prompt": 2.5, "response": 10},
+    "gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
+    "wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
+}
 """LLM Costs registry
 
 The registry maps model names to a dictionary that contains the cost

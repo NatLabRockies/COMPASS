@@ -48,7 +48,7 @@ def get_service_queue(service_name):
 
     Returns
     -------
-    asyncio.Queue() | None
+    asyncio.Queue or None
         Queue instance for this service, or `None` if the queue was not
         initialized.
     """

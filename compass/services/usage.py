@@ -77,7 +77,7 @@ class TimeBoundedUsageTracker:
 
         Parameters
         ----------
-        value : int | float
+        value : int or float
             A new value to add to the queue. It's total will be added to
             the running total, and it will live for `max_seconds` before
             being discarded.

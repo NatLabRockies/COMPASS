@@ -53,7 +53,7 @@ class PDFLoader(ProcessPoolService):
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
             :func:`compute_fn_from_url`.
-        file_content : str | bytes
+        file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.
         make_name_unique : bool, optional

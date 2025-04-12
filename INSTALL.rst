@@ -42,7 +42,7 @@ Instead, it is highly recommended to use an isolated environment, such as one cr
 `Miniconda <https://www.anaconda.com/docs/getting-started/miniconda/main>`__, for package and dependency updates.
 
 
-Installing from source
+Installing from Source
 ----------------------
 
 If you would like to install and run INFRA-COMPASS from source, we recommend using
@@ -79,3 +79,17 @@ To work on the Rust-based CLI, you can use the ``rdev`` feature instead::
 
 You are welcome to use a different environment manager (e.g. ``conda``, ``mamba``, etc),
 but we make no promises to provide support on environment-related issues/bugs in this case.
+
+
+Preparing for Web Search
+------------------------
+Before you can perform any automated web search, you will need to install the browser
+drivers that will be used to control this process. To do so, in your active conda environment
+(or in your ``pixi shell``), run the following command:
+
+.. code-block:: bash
+
+    $ rebrowser_playwright install
+
+This will download all required browser drivers. You only need to perform this step once
+(i.e. during initial installation).

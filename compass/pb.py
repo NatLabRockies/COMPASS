@@ -145,7 +145,7 @@ class _COMPASSProgressBars:
 
         Parameters
         ----------
-        cost : int | float
+        cost : int or float
             Cost value used for update.
         replace : bool, optional
             If ``True``, the `cost` input will completely replace the

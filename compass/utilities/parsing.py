@@ -111,7 +111,7 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
 
     Returns
     -------
-    int | None
+    int or None
         Parsed year for ordinance (int) or ``None`` if it wasn't found
         in the document's attrs.
     """

@@ -131,7 +131,7 @@ class LLMService(Service):
         ----------
         model_name : str
             Name of model being used.
-        rate_limit : int | float
+        rate_limit : int or float
             Max usage per duration of the rate tracker. For example,
             if the rate tracker is set to compute the total over
             minute-long intervals, this value should be the max usage

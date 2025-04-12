@@ -198,7 +198,7 @@ class TempFileCache(ThreadedService):
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
             :func:`compute_fn_from_url`.
-        file_content : str | bytes
+        file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.
         make_name_unique : bool, optional
@@ -262,7 +262,7 @@ class StoreFileOnDisk(ThreadedService):
 
         Returns
         -------
-        Path | None
+        Path or None
             Path to output file, or `None` if no file was stored.
         """
         loop = asyncio.get_running_loop()
@@ -382,7 +382,7 @@ class JurisdictionUpdater(ThreadedService):
             otherwise the jurisdiction may not be recorded properly.
             If ``None``, the jurisdiction is assumed not to have been
             found.
-        seconds_elapsed : int | float
+        seconds_elapsed : int or float
             Total number of seconds it took to look for (and possibly
             parse) this document.
         usage_tracker : compass.services.usage.UsageTracker, optional

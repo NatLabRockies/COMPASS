@@ -34,7 +34,7 @@ class County(Location):
             Name of the county.
         state : str
             State containing the county.
-        fips : int | str, optional
+        fips : int or str, optional
             Optional county FIPS code. By default, ``None``.
         is_parish : bool, optional
             Flag indicating whether or not this county is classified as

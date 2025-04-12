@@ -108,12 +108,12 @@ class OpenAIService(LLMService):
 
         Parameters
         ----------
-        client : openai.AsyncOpenAI | openai.AsyncAzureOpenAI
+        client : openai.AsyncOpenAI or openai.AsyncAzureOpenAI
             Async OpenAI client instance. Must have an async
             `client.chat.completions.create` method.
         model_name : str
             Name of model being used.
-        rate_limit : int | float, optional
+        rate_limit : int or float, optional
             Token rate limit (typically per minute, but the time
             interval is ultimately controlled by the `rate_tracker`
             instance). By default, ``1e3``.
@@ -164,7 +164,7 @@ class OpenAIService(LLMService):
 
         Returns
         -------
-        str | None
+        str or None
             Chat GPT response as a string, or ``None`` if the call
             failed.
         """

@@ -3,6 +3,7 @@
 
    Home page <self>
    Installation <misc/installation>
+   Examples <examples/index>
    API reference <_autosummary/compass>
    CLI reference <_cli/cli>
    Development <dev/index>
