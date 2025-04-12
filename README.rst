@@ -32,7 +32,6 @@ and ordinances pertaining to energy infrastructure.
 
 Installing INFRA-COMPASS
 ========================
-
 The quickest way to install INFRA-COMPASS for users is from PyPi:
 
 .. code-block:: bash
@@ -43,18 +42,30 @@ If you would like to install and run INFRA-COMPASS from source, we recommend usi
 
 .. code-block:: bash
 
-    git clone git@github.com:NREL/COMPASS.git
-    cd COMPASS
+    git clone git@github.com:NREL/COMPASS.git; cd COMPASS
     pixi run compass
 
-Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command
-(one time installation only):
+Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command:
 
-.. code-block:: bash
+.. code-block:: shell
 
-    $ rebrowser_playwright install
+    rebrowser_playwright install
 
+If you are using ``pixi``, don't forget to prefix this command with ``pixi run`` or initialize a shell using ``pixi shell``.
 For detailed instructions, see the `installation documentation <https://nrel.github.io/COMPASS/misc/installation.html>`_.
+
+
+Quickstart
+==========
+To run a quick INFRA-COMPASS demo, set up a personal OpenAI API key and run:
+
+.. code-block:: shell
+
+    pixi run openai-solar-demo <your API key>
+
+This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.35).
+For more information on configuring an INFRA-COMPASS run, see the
+`execution basics example <https://nrel.github.io/COMPASS/examples/execution_basics/README.html>`_.
 
 
 Development

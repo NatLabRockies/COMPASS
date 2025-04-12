@@ -82,7 +82,7 @@ def process(config, verbose, no_progress):
         refresh_per_second=20,
         transient=True,
     ):
-        total_seconds, total_cost = loop.run_until_complete(
+        total_seconds, total_cost, out_dir = loop.run_until_complete(
             process_counties_with_openai(**config)
         )
 
@@ -94,7 +94,8 @@ def process(config, verbose, no_progress):
     )
 
     console.print(
-        f"✅ Scraping complete!\nTotal runtime: {runtime} {total_cost}"
+        f"✅ Scraping complete!\nOutput Directory: {out_dir}\n"
+        f"Total runtime: {runtime} {total_cost}"
     )
     COMPASS_PB.console = None
 

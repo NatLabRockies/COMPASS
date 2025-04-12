@@ -14,6 +14,7 @@ INFRA-COMPASS can be installed via pip from
     pip install nrel-compass
 
 .. note::
+
     You must have ``pip>=19.3`` to install from PyPI.
 
 .. note::
@@ -59,23 +60,29 @@ Start by cloning the ``COMPASS`` repository:
 - Using ssh: :code:`git clone git@github.com:NREL/COMPASS.git`
 - Using https: :code:`git clone https://github.com/NREL/COMPASS.git`
 
-If you don't already have pixi installed on your system, follow the (simple) `installation
+If you don't already have ``pixi`` installed on your system, follow the (simple) `installation
 instructions <https://pixi.sh/latest/#installation>`_.
 
-Once you have both ``pixi`` and the ``COMPASS`` source code, simply run::
+Once you have both ``pixi`` and the ``COMPASS`` source code, simply run:
 
-    $ pixi shell
+.. code-block:: shell
+
+    pixi shell
 
 from the source code repository. You can now start using ``COMPASS``!
 
 If you are planning to contribute to ``COMPASS``, you can use the ``pdev`` feature in ``pixi`` to
-get all necessary python development tools::
+get all necessary python development tools:
 
-    $ pixi shell -e pdev
+.. code-block:: shell
 
-To work on the Rust-based CLI, you can use the ``rdev`` feature instead::
+    pixi shell -e pdev
 
-    $ pixi shell -e rdev
+To work on the Rust-based CLI, you can use the ``rdev`` feature instead:
+
+.. code-block:: shell
+
+    pixi shell -e rdev
 
 You are welcome to use a different environment manager (e.g. ``conda``, ``mamba``, etc),
 but we make no promises to provide support on environment-related issues/bugs in this case.
@@ -87,9 +94,9 @@ Before you can perform any automated web search, you will need to install the br
 drivers that will be used to control this process. To do so, in your active conda environment
 (or in your ``pixi shell``), run the following command:
 
-.. code-block:: bash
+.. code-block:: shell
 
-    $ rebrowser_playwright install
+    rebrowser_playwright install
 
 This will download all required browser drivers. You only need to perform this step once
 (i.e. during initial installation).

@@ -311,6 +311,8 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     cost : float
         Total estimated cost for the LLM calls made during this run. If
         no cost info is provided, this will be 0.
+    output_directory : path-like
+        Path to output directory containing data.
     """
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
@@ -476,7 +478,7 @@ class _COMPASSRunner:
             total_cost=total_cost,
             models=self.models,
         )
-        return total_time, total_cost
+        return total_time, total_cost, self.dirs.out
 
     async def _run_all(self, jurisdictions):
         """Process all counties with running services"""
@@ -796,17 +798,22 @@ def _setup_main_logging(log_dir, level, listener):
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
-    out_dir = Path(out_dir)
+    out_dir = _full_path(out_dir)
     out_folders = Directories(
         out_dir,
-        Path(log_dir) if log_dir else out_dir / "logs",
-        Path(clean_dir) if clean_dir else out_dir / "cleaned_text",
-        Path(ofd) if ofd else out_dir / "ordinance_files",
-        Path(jdd) if jdd else out_dir / "jurisdiction_dbs",
+        _full_path(log_dir) if log_dir else out_dir / "logs",
+        _full_path(clean_dir) if clean_dir else out_dir / "cleaned_text",
+        _full_path(ofd) if ofd else out_dir / "ordinance_files",
+        _full_path(jdd) if jdd else out_dir / "jurisdiction_dbs",
     )
     for folder in out_folders:
         folder.mkdir(exist_ok=True, parents=True)
     return out_folders
+
+
+def _full_path(in_path):
+    """Expand and resolve input path"""
+    return Path(in_path).expanduser().resolve()
 
 
 def _initialize_model_params(user_input):

@@ -4,4 +4,4 @@ Examples
 ========
 .. toctree::
 
-   basic_run/README
+   execution_basics/README

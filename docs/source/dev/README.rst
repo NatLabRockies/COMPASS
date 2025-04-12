@@ -64,13 +64,17 @@ We keep a version-controlled ``pixi.lock`` in the repository to allow locking wi
 the full requirements tree so we can reproduce behaviors and bugs and easily compare
 results.
 
-You can use the ``pdev`` feature in ``pixi`` to get all necessary python development tools::
+You can use the ``pdev`` feature in ``pixi`` to get all necessary python development tools:
 
-    $ pixi shell -e pdev
+.. code-block:: shell
 
-To work on the Rust-based CLI, you can use the ``rdev`` feature instead::
+    pixi shell -e pdev
 
-    $ pixi shell -e rdev
+To work on the Rust-based CLI, you can use the ``rdev`` feature instead:
+
+.. code-block:: shell
+
+    pixi shell -e rdev
 
 You are welcome to use a different environment manager (e.g. ``conda``, ``mamba``, etc),
 but we make no promises to provide support on environment-related issues/bugs in this case.
@@ -113,16 +117,20 @@ Test coverage
 Pull requests (PRs) that modify code should either have new tests, or modify existing
 tests to fail before the PR and pass afterwards.
 
-You can run python COMPASS tests locally using pixi::
+You can run python COMPASS tests locally using ``pixi``:
 
-    $ pixi r -e ptest tests
+.. code-block:: shell
+
+    pixi r -e ptest tests
 
 Tests for a module should ideally cover all code in that module,
 i.e., statement coverage should be at 100%, though this alone does not ensure that
 your code is bug-free. Still, this is a good place to start, and you view the test
 coverage at ``build/coverage`` by running::
 
-    $ firefox build/coverage/index.html
+.. code-block:: shell
+
+    firefox build/coverage/index.html
 
 
 Documentation
@@ -176,13 +184,17 @@ As such, please adhere to these guidelines:
             For example, use ``:class:`elm.web.document.PDFDocument```, which renders as :class:`elm.web.document.PDFDocument`
 
 
-To check your docstring additions/updates, you can build a local version of the HTML documentation::
+To check your docstring additions/updates, you can build a local version of the HTML documentation:
 
-    $ pixi r -e pdoc make-html
+.. code-block:: shell
 
-After running this command, simply open ``docs/_build/html/index.html`` using your favorite browser, e.g.::
+    pixi r -e pdoc make-html
 
-    $ firefox docs/_build/html/index.html
+After running this command, simply open ``docs/_build/html/index.html`` using your favorite browser, e.g.:
+
+.. code-block:: shell
+
+    firefox docs/_build/html/index.html
 
 
 Miscellaneous

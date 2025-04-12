@@ -96,7 +96,9 @@ repository = "https://github.com/NREL/COMPASS"
 find = { include = ["compass*"] }
 
 [tool.setuptools_scm]
-git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ] # default command uses "*[0-9]*", which breaks with cX.X.X tags. This forces setuptools_scm to look strictly for vX.X.X tags
+# Default git command uses "*[0-9]*", which breaks with cX.X.X tags.
+# This spec below forces setuptools_scm to look strictly for vX.X.X tags
+git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]
 version_file = "compass/_version.py"
 
 [tool.pixi.project]
@@ -112,6 +114,7 @@ pdoc = { features = ["python-default", "python-doc", "doc"], solve-group = "pyth
 pbuild = { features = ["python-build"], solve-group = "python" }
 
 [tool.pixi.tasks]
+openai-solar-demo = { cmd = "compass process -c config.json5", args = ["api_key"], env = { OPENAI_API_KEY = "{{ api_key }}"}, cwd = "examples/openai_solar_demo"}
 
 [tool.pixi.feature.python-test.tasks]
 tests = "pytest --durations=20 tests/python"

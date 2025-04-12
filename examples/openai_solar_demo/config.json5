@@ -1,0 +1,15 @@
+{
+    out_dir: "./outputs",
+    tech: "solar",
+    jurisdiction_fp: "jurisdictions.csv",
+    model: [
+        {
+            name: "gpt-4o-mini",
+            llm_call_kwargs: {temperature: 0, timeout: 300},
+            llm_service_rate_limit: 1000000,  // default limit is 2,000,000 as of 4/12/2025, so can increase this if needed
+            text_splitter_chunk_size: 10000,
+            text_splitter_chunk_overlap: 500,
+            client_type: "openai",  // API key will be set as env var
+        },
+    ]
+}

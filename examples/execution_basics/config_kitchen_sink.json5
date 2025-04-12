@@ -1,0 +1,115 @@
+// config_kitchen_sink.json5
+{
+    "out_dir": "./outputs",
+    "tech": "solar",
+    "jurisdiction_fp": "jurisdictions.csv",
+    "model": [
+        {
+            "name": "deployment-gpt-4o-mini",
+            "llm_call_kwargs":{
+                "temperature": 0,
+                "seed": 42,
+                "timeout": 300
+            },
+            "llm_service_rate_limit": 500000,
+            "text_splitter_chunk_size": 10000,
+            "text_splitter_chunk_overlap": 500,
+            "client_type": "azure",  // this is the default
+            "client_kwargs": {
+                "azure_api_key": "<ADD AZURE OPENAI API KEY HERE>",
+                "azure_version": "<ADD AZURE OPENAI VERSION HERE>",
+                "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
+            },
+            // "default" has to appear as a task exactly once across
+            // all models, or you will get an error
+            "tasks": "default",
+        },
+        {
+            "name": "deployment-gpt-4o",
+            "llm_call_kwargs":{
+                "temperature": 0,
+                "seed": 42,
+                "timeout": 300
+            },
+            "llm_service_rate_limit": 500000,
+            "text_splitter_chunk_size": 20000,
+            "text_splitter_chunk_overlap": 1000,
+            "client_type": "azure",  // this is the default
+            "client_kwargs": {
+                "azure_api_key": "<ADD AZURE OPENAI API KEY HERE>",
+                "azure_version": "<ADD AZURE OPENAI VERSION HERE>",
+                "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
+            },
+            "tasks": [
+                "document_content_validation",
+                "document_location_validation",
+                "ordinance_text_extraction",
+                "ordinance_value_extraction",
+                "permitted_use_text_extraction",
+                "permitted_use_value_extraction"
+            ]
+        },
+        {
+            "name": "gpt-4o-mini",
+            "llm_call_kwargs":{
+                "temperature": 0,
+                "timeout": 300
+            },
+            "llm_service_rate_limit": 30000,
+            "text_splitter_chunk_size": 10000,
+            "text_splitter_chunk_overlap": 500,
+            "client_type": "openai",
+            "client_kwargs": {
+                "api_key": "<ADD OPENAI API KEY HERE>",
+            },
+            "tasks": [
+                "date_extraction",
+                "document_content_validation",
+                "document_location_validation",
+            ]
+        },
+    ],
+    // Number of URLs to check per jurisdiction
+    // larger number = more docs to search
+    "num_urls_to_check_per_jurisdiction": 5,
+    // Try to keep reasonably low , especially on laptoins
+    "max_num_concurrent_browsers": 10,
+    // Only search 5 jurisdictions concurrently (at a time)
+    // Most likely you are limited by LLM rate limits, so setting this
+    // to some value (~5-15) will prevent submitting too many concurrent
+    // futures to sit idly, awaiting their turn to query the LLM
+    "max_num_concurrent_jurisdictions": 5,
+    "file_loader_kwargs": {
+        "pw_launch_kwargs": {
+            // set to "false" to see browser open and watch
+            // the search queries happen in real time
+            "headless": true,
+            // slow-mo delay, in milliseconds
+            // only applies if headless=false
+            "slow_mo": 5000,
+        },
+        "verify_ssl": false,
+    },
+    "pytesseract_exe_fp": "<ADD tesseract.exe PATH HERE OR REMOVE THIS KEY>",
+    "td_kwargs": {
+        "dir": ".temp"
+    },
+    "tpe_kwargs": {
+        "max_workers": 4
+    },
+    "ppe_kwargs": {
+        "max_workers": 4
+    },
+    "log_dir": "logs",
+    "clean_dir": "cleaned_text",
+    "ordinance_file_dir": "ordinance_files",
+    "jurisdiction_dbs_dir": "jurisdiction_dbs",
+    "llm_costs": {
+        // required input to display running cost
+        // cost values are in $/million tokens
+        "deployment-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
+        "deployment-gpt-4o": {"prompt": 2.5, "response": 10},
+        "gpt-4o-mini": {"prompt": 2.5, "response": 10},
+    },
+    "log_level": "INFO",
+}
