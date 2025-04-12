@@ -1,9 +1,0 @@
-// config_bare_minimum.json5
-{
-    "out_dir": "./outputs",
-    "jurisdiction_fp": "jurisdictions.csv",
-    "tech": "solar",
-
-    // Note that this assumes your LLM API keys and endpoints
-    // have been configured as environment variables!!
-}
