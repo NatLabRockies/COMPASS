@@ -41,8 +41,6 @@
                 "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
             },
             "tasks": [
-                "document_content_validation",
-                "document_location_validation",
                 "ordinance_text_extraction",
                 "ordinance_value_extraction",
                 "permitted_use_text_extraction",

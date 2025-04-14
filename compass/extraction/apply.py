@@ -22,7 +22,7 @@ async def check_for_ordinance_info(
     llm_callers,
     heuristic,
     ordinance_text_collector_class,
-    permitted_use_text_collector_class,
+    permitted_use_text_collector_class=None,
     usage_tracker=None,
 ):
     """Parse a single document for ordinance information
@@ -73,17 +73,18 @@ async def check_for_ordinance_info(
     chunks = llm_caller_args.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator()
+
     ordinance_text_collector = ordinance_text_collector_class()
-    permitted_use_text_collector = permitted_use_text_collector_class()
+    callbacks = [ordinance_text_collector.check_chunk]
+    if permitted_use_text_collector_class is not None:
+        permitted_use_text_collector = permitted_use_text_collector_class()
+        callbacks.append(permitted_use_text_collector.check_chunk)
 
     doc.attrs["is_legal_text"] = await parse_by_chunks(
         chunk_parser,
         heuristic,
         legal_text_validator,
-        callbacks=[
-            ordinance_text_collector.check_chunk,
-            permitted_use_text_collector.check_chunk,
-        ],
+        callbacks=callbacks,
         min_chunks_to_process=3,
     )
 
@@ -96,21 +97,25 @@ async def check_for_ordinance_info(
             doc.attrs["ordinance_text"],
         )
 
-    doc.attrs["contains_district_info"] = (
-        permitted_use_text_collector.contains_district_info
-    )
-    if doc.attrs["contains_district_info"]:
-        doc.attrs["permitted_use_text"] = (
-            permitted_use_text_collector.permitted_use_district_text
+    if permitted_use_text_collector_class is not None:
+        doc.attrs["contains_district_info"] = (
+            permitted_use_text_collector.contains_district_info
         )
-        logger.debug(
-            "Permitted use text for %s is:\n%s",
-            doc.attrs.get("source", "unknown source"),
-            doc.attrs["permitted_use_text"],
-        )
+        if doc.attrs["contains_district_info"]:
+            doc.attrs["permitted_use_text"] = (
+                permitted_use_text_collector.permitted_use_district_text
+            )
+            logger.debug(
+                "Permitted use text for %s is:\n%s",
+                doc.attrs.get("source", "unknown source"),
+                doc.attrs["permitted_use_text"],
+            )
 
     if any(
-        [doc.attrs["contains_ord_info"], doc.attrs["contains_district_info"]]
+        [
+            doc.attrs["contains_ord_info"],
+            doc.attrs.get("contains_district_info"),
+        ]
     ):
         date_llm_caller_args = llm_callers.get(
             LLMTasks.DATE_EXTRACTION, llm_callers[LLMTasks.DEFAULT]
