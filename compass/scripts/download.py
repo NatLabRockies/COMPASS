@@ -7,7 +7,7 @@ from elm.web.search.run import web_search_links_as_docs
 from elm.web.utilities import filter_documents
 
 from compass.llm import StructuredLLMCaller
-from compass.extraction import check_for_ordinance_info
+from compass.extraction import check_for_ordinance_info, extract_date
 from compass.services.threaded import TempFileCache
 from compass.validation.location import (
     CountyJurisdictionValidator,
@@ -185,10 +185,28 @@ async def _down_select_docs_correct_content(
     )
 
 
-async def _contains_ordinances(doc, **kwargs):
-    """Helper coroutine that checks for ordinance info"""
-    doc = await check_for_ordinance_info(doc, **kwargs)
-    return doc.attrs.get("contains_ord_info", False)
+async def _contains_ordinances(doc, llm_callers, usage_tracker=None, **kwargs):
+    """Helper coroutine that checks for ordinance and date info"""
+    llm_caller_args = llm_callers.get(
+        LLMTasks.DOCUMENT_CONTENT_VALIDATION,
+        llm_callers[LLMTasks.DEFAULT],
+    )
+    doc = await check_for_ordinance_info(
+        doc,
+        llm_caller_args=llm_caller_args,
+        usage_tracker=usage_tracker,
+        **kwargs,
+    )
+    contains_ordinances = doc.attrs.get("contains_ord_info", False)
+    if contains_ordinances:
+        logger.debug("Detected ordinance info; parsing date...")
+        date_llm_caller_args = llm_callers.get(
+            LLMTasks.DATE_EXTRACTION, llm_callers[LLMTasks.DEFAULT]
+        )
+        doc = await extract_date(
+            doc, date_llm_caller_args, usage_tracker=usage_tracker
+        )
+    return contains_ordinances
 
 
 def _sort_final_ord_docs(all_ord_docs):

@@ -484,6 +484,7 @@ class _COMPASSRunner:
         """Process all counties with running services"""
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
+        _ = self.file_loader_kwargs  # init loader kwargs once
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
