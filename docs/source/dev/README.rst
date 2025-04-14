@@ -106,7 +106,7 @@ Imports
 
 Use the following import conventions::
 
-   import rex
+   import elm
    import numpy as np
    import pandas as pd
 
@@ -126,7 +126,7 @@ You can run python COMPASS tests locally using ``pixi``:
 Tests for a module should ideally cover all code in that module,
 i.e., statement coverage should be at 100%, though this alone does not ensure that
 your code is bug-free. Still, this is a good place to start, and you view the test
-coverage at ``build/coverage`` by running::
+coverage at ``build/coverage`` by running:
 
 .. code-block:: shell
 

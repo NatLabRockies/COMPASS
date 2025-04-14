@@ -44,6 +44,7 @@ release = version
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinxcontrib.mermaid",  # Must stay at top of list for rendering to work
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.doctest",
@@ -213,6 +214,7 @@ autodoc_inherit_docstrings = True  # If no docstring, inherit from base class
 add_module_names = False  # Remove namespaces from class/method signatures
 # Remove 'view source code' from top of page (for html, not python)
 html_show_sourcelink = False
+mermaid_version = "11.6.0"
 numpy_show_class_member = True
 napoleon_google_docstring = False
 napoleon_use_param = False

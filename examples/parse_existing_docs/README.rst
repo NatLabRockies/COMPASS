@@ -18,6 +18,24 @@ which focuses on scraping and saving documents alone.
 Extraction Components
 =====================
 
+The ordinance extraction pipeline is composed of several components, which are visualized in the diagram below:
+
+.. mermaid::
+
+    flowchart LR
+        A -->|Ordinance Content Checker<br>&#40<span style='color: #c792ea'><code>check_for_ordinance_info</code></span>&#41| B
+        B -->|Ordinance Text Extractor<br>&#40<span style='color: #c792ea'><code>extract_ordinance_text_with_llm</code></span>&#41| C
+        C -->|Ordinance Extractor<br>&#40<span style='color: #c792ea'><code>extract_ordinance_values</code></span>&#41| D
+        A@{ shape: lined-document, label: "Ordinance Document<br>&#40<span style='color: #a9c77d'><code>PDFDocument</code></span>&#41" }
+        B@{ shape: docs, label: "Ordinance Text Chunks<br>&#40<span style='color: #a9c77d'><code>str</code></span>&#41"}
+        C@{ shape: doc, label: "Ordinance Text<br>&#40<span style='color: #a9c77d'><code>str</code></span>&#41"}
+        D@{ shape: lin-cyl, label: "Structured Ordinances<br>&#40<span style='color: #a9c77d'><code>DataFrame/CSV</code></span>&#41" }
+
+
+In the following sections, we will discuss how to invoke each of these components and then
+put them together in a short script to perform ordinance extraction on a local PDF document.
+
+
 Document Class
 --------------
 The first thing we need is a way to represent the PDF we're working with. In this workflow, documents are wrapped

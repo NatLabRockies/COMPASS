@@ -13839,8 +13839,8 @@ packages:
   timestamp: 1733408419340
 - pypi: .
   name: nrel-compass
-  version: 0.2.1.dev75+g155ecb0.d20250412
-  sha256: adb9feb9890cd4af3ec4dd3d273d85ca47224a2f5f3c9b33b01b838a7e479417
+  version: 0.2.1.dev20+g028434c.d20250414
+  sha256: 1c5d5e357e30fdf679eafeba54fce6648d92f7a693addea414083fba06a5e56b
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4
@@ -13871,7 +13871,7 @@ packages:
   - sphinx-click>=5.1 ; extra == 'doc'
   - sphinx-copybutton>=0.5 ; extra == 'doc'
   - sphinx-tabs>=3.4 ; extra == 'doc'
-  - sphinxcontrib-mermaid>=0.9.2 ; extra == 'doc'
+  - sphinxcontrib-mermaid>=1.0.0 ; extra == 'doc'
   - anthropic>=0.40.0,<0.41 ; extra == 'anthropic'
   - botocore>=1.35.72,<2 ; extra == 'anthropic'
   - boto3>=1.35.71,<2 ; extra == 'anthropic'
