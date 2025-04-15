@@ -57,10 +57,12 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
-    "max height": "maximum structure height allowed",
-    "max size": "maximum project size or total installation allowed",
-    "min lot size": "minimum lot, parcel, or tract size allowed",
-    "max lot size": "maximum lot, parcel, or tract size allowed",
+    "maximum height": "maximum structure height allowed",
+    "maximum project size": (
+        "maximum project size or total installation allowed"
+    ),
+    "minimum lot size": "minimum lot, parcel, or tract size allowed",
+    "maximum lot size": "maximum lot, parcel, or tract size allowed",
     "density": "minimum spacing between solar panels or solar plants allowed",
     "coverage": "maximum land coverage allowed",
 }
@@ -77,8 +79,10 @@ UNIT_CLARIFICATIONS = {
     )
 }
 ER_CLARIFICATIONS = {
-    "max size": "Maximum project size is typically specified as a maximum "
-    "system size value or as a maximum total area value.",
+    "maximum project size": (
+        "Maximum project size is typically specified as a maximum system "
+        "size value or as a maximum total area value."
+    ),
 }
 
 
@@ -257,7 +261,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             sub_pb.update(task_id, advance=1, just_parsed=feature)
             return empty_output(feature)
 
-        if feature not in {"struct", "prop_line"}:
+        if feature not in {"structures", "property line"}:
             output = {"feature": feature}
             output.update(
                 await self._extract_setback_values(

@@ -5,16 +5,16 @@ class SetbackFeatures:
     """Utility class to get mutually-exclusive feature descriptions"""
 
     DEFAULT_FEATURE_DESCRIPTIONS = {
-        "struct": [
+        "structures": [
             "occupied dwellings",
             "buildings",
             "structures",
             "residences",
         ],
-        "prop_line": ["property lines", "parcels", "subdivisions"],
+        "property line": ["property lines", "parcels", "subdivisions"],
         "roads": ["roads"],  # , "rights-of-way"],
-        "rail": ["railroads"],
-        "trans": [
+        "railroads": ["railroads"],
+        "transmission": [
             "overhead electrical transmission lines",
             "overhead utility lines",
             "utility easements",
@@ -26,19 +26,19 @@ class SetbackFeatures:
         "water": ["lakes", "reservoirs", "streams", "rivers", "wetlands"],
     }
     FEATURES_AS_IGNORE = {
-        "struct": "structures",
-        "prop_line": "property lines",
+        "structures": "structures",
+        "property line": "property lines",
         "roads": "roads",
-        "rail": "railroads",
-        "trans": "transmission lines",
+        "railroads": "railroads",
+        "transmission": "transmission lines",
         "water": "wetlands",
     }
     FEATURE_CLARIFICATIONS = {
-        "struct": "",
-        "prop_line": "",
+        "structures": "",
+        "property line": "",
         "roads": "Roads may also be labeled as rights-of-way. ",
-        "rail": "",
-        "trans": "",
+        "railroads": "",
+        "transmission": "",
         "water": "",
     }
 

@@ -150,7 +150,7 @@ async def run_async_tree_with_bm(tree, base_messages):
 
 def empty_output(feature):
     """Empty output for a feature (not found in text)"""
-    if feature in {"struct", "prop_line"}:
+    if feature in {"structures", "property line"}:
         return [
             {"feature": f"{feature} (participating)"},
             {"feature": f"{feature} (non-participating)"},

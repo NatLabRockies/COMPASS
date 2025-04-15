@@ -58,10 +58,10 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "noise": "maximum noise level allowed",
-    "max height": "maximum turbine height allowed",
-    "min lot size": "minimum lot, parcel, or tract size allowed",
+    "maximum height": "maximum turbine height allowed",
+    "minimum lot size": "minimum lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
-    "density": "minimum turbine spacing allowed",
+    "tower density": "minimum turbine spacing allowed",
     "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -80,7 +80,7 @@ UNIT_CLARIFICATIONS = {
         "For the purposes of this extraction, assume the standard units "
         'for shadow flicker are "hr/year".'
     ),
-    "density": (
+    "tower density": (
         "For the purposes of this extraction, assume the standard units "
         "for turbine spacing are one of the following: "
         '"tip-height-multiplier", "hub-height-multiplier", '
@@ -265,7 +265,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             sub_pb.update(task_id, advance=1, just_parsed=feature)
             return empty_output(feature)
 
-        if feature not in {"struct", "prop_line"}:
+        if feature not in {"structures", "property line"}:
             output = {"feature": feature}
             output.update(
                 await self._extract_setback_values(
