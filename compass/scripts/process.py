@@ -41,7 +41,7 @@ from compass.extraction.wind import (
     StructuredWindPermittedUseDistrictsParser,
     WIND_QUESTION_TEMPLATES,
 )
-from compass.llm import LLMCaller, LLMCallerArgs
+from compass.llm import LLMCaller, OpenAIConfig
 from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
@@ -196,7 +196,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
 
         If a list is provided, it should contain dictionaries of
         arguments that can initialize instances of
-        :class:`~compass.llm.calling.LLMCallerArgs`. Each dictionary can
+        :class:`~compass.llm.config.OpenAIConfig`. Each dictionary can
         specify the model name, client type, and initialization
         arguments.
 
@@ -735,7 +735,7 @@ class _SingleJurisdictionRunner:
             extractor_class=extractor_class,
             original_text_key=original_text_key,
             usage_tracker=self.usage_tracker,
-            llm_caller_args=text_model,
+            model_config=text_model,
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
@@ -745,7 +745,7 @@ class _SingleJurisdictionRunner:
             text_key=cleaned_text_key,
             out_key=out_key,
             usage_tracker=self.usage_tracker,
-            llm_caller_args=value_model,
+            model_config=value_model,
         )
         await self._record_usage()
         return out
@@ -820,7 +820,7 @@ def _full_path(in_path):
 def _initialize_model_params(user_input):
     """Initialize llm caller args for models from user input"""
     if isinstance(user_input, str):
-        return {LLMTasks.DEFAULT: LLMCallerArgs(name=user_input)}
+        return {LLMTasks.DEFAULT: OpenAIConfig(name=user_input)}
 
     caller_instances = {}
     for kwargs in user_input:
@@ -828,7 +828,7 @@ def _initialize_model_params(user_input):
         if isinstance(tasks, str):
             tasks = [tasks]
 
-        llm_arg_instance = LLMCallerArgs(**kwargs)
+        model_config = OpenAIConfig(**kwargs)
         for task in tasks:
             if task in caller_instances:
                 msg = (
@@ -836,7 +836,7 @@ def _initialize_model_params(user_input):
                     "LLM caller definition has uniquely-assigned tasks."
                 )
                 raise COMPASSValueError(msg)
-            caller_instances[task] = llm_arg_instance
+            caller_instances[task] = model_config
 
     return caller_instances
 
@@ -864,18 +864,18 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
 
 
 async def _extract_ordinance_text(
-    doc, extractor_class, original_text_key, usage_tracker, llm_caller_args
+    doc, extractor_class, original_text_key, usage_tracker, model_config
 ):
     """Extract text pertaining to ordinance of interest"""
     llm_caller = LLMCaller(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
     extractor = extractor_class(llm_caller)
     doc = await extract_ordinance_text_with_ngram_validation(
         doc,
-        llm_caller_args.text_splitter,
+        model_config.text_splitter,
         extractor,
         original_text_key=original_text_key,
     )
@@ -883,13 +883,13 @@ async def _extract_ordinance_text(
 
 
 async def _extract_ordinances_from_text(
-    doc, parser_class, text_key, out_key, usage_tracker, llm_caller_args
+    doc, parser_class, text_key, out_key, usage_tracker, model_config
 ):
     """Extract values from ordinance text"""
     parser = parser_class(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
     return await extract_ordinance_values(
         doc, parser, text_key=text_key, out_key=out_key

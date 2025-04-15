@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 async def check_for_ordinance_info(
     doc,
-    llm_caller_args,
+    model_config,
     heuristic,
     ordinance_text_collector_class,
     permitted_use_text_collector_class=None,
@@ -61,11 +61,11 @@ async def check_for_ordinance_info(
         return doc
 
     llm_caller = StructuredLLMCaller(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
-    chunks = llm_caller_args.text_splitter.split_text(doc.text)
+    chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator()
 
@@ -109,7 +109,7 @@ async def check_for_ordinance_info(
     return doc
 
 
-async def extract_date(doc, llm_caller_args, usage_tracker=None):
+async def extract_date(doc, model_config, usage_tracker=None):
     """Parse a single document for date information
 
     Parameters
@@ -129,12 +129,12 @@ async def extract_date(doc, llm_caller_args, usage_tracker=None):
         parsed date information.
     """
     date_llm_caller = StructuredLLMCaller(
-        llm_service=llm_caller_args.llm_service,
+        llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
-        **llm_caller_args.llm_call_kwargs,
+        **model_config.llm_call_kwargs,
     )
     doc.attrs["date"] = await DateExtractor(
-        date_llm_caller, llm_caller_args.text_splitter
+        date_llm_caller, model_config.text_splitter
     ).parse(doc)
 
     return doc

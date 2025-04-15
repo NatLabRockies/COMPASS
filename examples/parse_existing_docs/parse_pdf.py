@@ -12,7 +12,7 @@ from rich.console import Console
 from elm.web.document import PDFDocument
 from elm.utilities import validate_azure_api_params
 
-from compass.llm import LLMCaller, LLMCallerArgs
+from compass.llm import LLMCaller, OpenAIConfig
 from compass.extraction.solar import (
     SolarOrdinanceTextExtractor,
     SolarHeuristic,
@@ -61,7 +61,7 @@ async def _extract_ordinances(doc, caller_args):
         logger.info("Checking for ordinances in document...")
         doc = await check_for_ordinance_info(
             doc,
-            llm_caller_args=caller_args,
+            model_config=caller_args,
             heuristic=SolarHeuristic(),
             ordinance_text_collector_class=SolarOrdinanceTextCollector,
             permitted_use_text_collector_class=None,
@@ -101,7 +101,7 @@ if __name__ == "__main__":
 
     # setup LLM calling parameters
     azure_api_key, azure_version, azure_endpoint = validate_azure_api_params()
-    caller_args = LLMCallerArgs(
+    caller_args = OpenAIConfig(
         name="gpt-4o-mini",
         llm_call_kwargs={"temperature": 0},
         llm_service_rate_limit=500_000,

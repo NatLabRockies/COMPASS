@@ -57,16 +57,16 @@ At this stage, the document's ``attrs`` dictionary is still empty. As we go thro
 will be filled with the output of each stage in the extraction process.
 
 
-Setting Up the LLM Caller
--------------------------
-Next, we'll configure how we want to interact with a large language model (LLM). This is done using the
-:class:`~compass.llm.calling.LLMCallerArgs` class. Let's take a look at a basic configuration:
+Setting Up the LLM Configuration
+--------------------------------
+Next, we'll configure how we want to interact with an OpenAI large language model (LLM). This is done using the
+:class:`~compass.llm.config.OpenAIConfig` class. Let's take a look at a basic configuration:
 
 .. code-block:: python
 
-    from compass.llm import LLMCallerArgs
+    from compass.llm import OpenAIConfig
 
-    caller_args = LLMCallerArgs(
+    caller_args = OpenAIConfig(
         name="gpt-4o-mini",
         llm_call_kwargs={"temperature": 0},
         llm_service_rate_limit=500_000,
@@ -87,7 +87,7 @@ split text into manageable chunks (10k tokens per chunk with a 500 token overlap
 with Azure OpenAI. While API credentials can be included inline like this, it's much safer and more flexible
 to use environment variables instead. We'll revisit this in the :ref:`final execution step<running>`.
 
-You can create multiple ``LLMCallerArgs`` objects if you need different models for different stages of extraction,
+You can create multiple ``OpenAIConfig`` objects if you need different models for different stages of extraction,
 but in this tutorial, we'll stick to a single configuration for simplicity.
 
 
