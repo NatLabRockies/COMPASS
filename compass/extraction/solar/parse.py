@@ -17,7 +17,7 @@ from compass.extraction.common import (
     found_ord,
     empty_output,
     setup_async_decision_tree,
-    setup_base_graph,
+    setup_base_setback_graph,
     setup_participating_owner,
     setup_graph_extra_restriction,
     setup_graph_permitted_use_districts,
@@ -286,7 +286,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             tech=feature_kwargs["tech"],
         )
         tree = setup_async_decision_tree(
-            setup_base_graph,
+            setup_base_setback_graph,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **feature_kwargs,

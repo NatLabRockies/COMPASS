@@ -656,6 +656,7 @@ class _SingleJurisdictionRunner:
                 )
                 return await _move_files(doc, self.jurisdiction)
 
+        logger.debug("No ordinances found; searched %d docs", len(docs))
         return None
 
     async def _try_extract_all_ordinances(self, possible_ord_doc):

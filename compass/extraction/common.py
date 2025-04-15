@@ -158,7 +158,7 @@ def empty_output(feature):
     return [{"feature": feature}]
 
 
-def setup_base_graph(**kwargs):
+def setup_base_setback_graph(**kwargs):
     """Setup graph to get setback ordinance text for a given feature
 
     Parameters
@@ -293,8 +293,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         G.add_node(
             "value",
             prompt=(
-                "What is the numerical value given for the {restriction} for "
-                "{tech}? Follow these guidelines:\n"
+                "What is the **numerical** value given for the {restriction} "
+                "for {tech}? Follow these guidelines:\n"
                 "1) Extract only the explicit numerical value provided for "
                 "the restriction. Do not infer values from related "
                 "restrictions.\n"
@@ -306,16 +306,20 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Example Inputs and Outputs:\n"
                 'Text: "For all WES there is a limitation of overall height '
                 'of 200 feet (including blades)."\n'
-                'Output: "200"\n'
+                "Output: 200\n"
                 'Text: "The noise level of all SES shall be no greater than '
                 "thirty-two (32) decibels measured from the nearest property "
                 "line. This level may only be exceeded during short-term "
                 'events such as utility outages and/or severe wind storms."\n'
-                'Output: "32"\n'
+                "Output: 32\n"
                 'Text: "At no time shall a wind turbine tower, nacelle, or '
                 "blade create shadow flicker on any non-participating "
                 'landowner property"\n'
-                'Output: "0"\n'
+                "Output: 0\n"
+                "Text: Solar Panels shall not exceed 22'6\" in height. The "
+                "height is determined from the ground to the top of the panel "
+                "at any angle.\n"
+                "Output: 22.5\n"
             ),
         )
 

@@ -131,10 +131,10 @@ def setup_multiplier(**kwargs):
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
             'four keys. The keys are "value", "units", "summary", and '
-            '"section". The value of the "value" key should be a numerical '
-            "value corresponding to the setback distance value from "
-            "{feature} or `null` if there was no such value. The value of "
-            'the "units" key should be a string corresponding to the '
+            '"section". The value of the "value" key should be a '
+            "**numerical** value corresponding to the setback distance value "
+            "from {feature} or `null` if there was no such value. The value "
+            'of the "units" key should be a string corresponding to the '
             "(standard) units of the setback distance value from {feature} "
             "or `null` if there was no such value. {SUMMARY_PROMPT} "
             "{SECTION_PROMPT}"
@@ -213,13 +213,13 @@ def setup_multiplier(**kwargs):
             "format (not markdown). Your JSON file must include exactly five "
             'keys. The keys are "mult_value", "mult_type", "adder", '
             '"summary", and "section". The value of the '
-            '"mult_value" key should be a numerical value corresponding to '
-            "the multiplier value we determined earlier. The value of the "
+            '"mult_value" key should be a **numerical** value corresponding '
+            "to the multiplier value we determined earlier. The value of the "
             '"mult_type" key should be a string corresponding to the '
             "dimension that the multiplier should be applied to, as we "
             'determined earlier. The value of the "adder" key should be a '
-            "numerical value corresponding to the static value to be added "
-            "to the total setback distance after multiplication, as we "
+            "**numerical** value corresponding to the static value to be "
+            "added to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
@@ -282,13 +282,12 @@ def setup_conditional(**kwargs):
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly two "
             'keys. The keys are "min_dist" and "max_dist". The value of the '
-            '"min_dist" key should be a numerical value corresponding to the '
-            "minimum setback value from {feature} we determined earlier, or "
-            '`null` if no such value exists. The value of the "max_dist" key '
-            "should be a numerical value corresponding to the maximum setback "
-            "value from {feature}  we "
-            "determined earlier, or `null` if no such "
-            "value exists."
+            '"min_dist" key should be a **numerical** value corresponding to '
+            "the minimum setback value from {feature} we determined earlier, "
+            'or `null` if no such value exists. The value of the "max_dist" '
+            "key should be a **numerical** value corresponding to the maximum "
+            "setback value from {feature}  we determined earlier, or `null` "
+            "if no such value exists."
         ),
     )
 
