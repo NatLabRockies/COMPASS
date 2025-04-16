@@ -31,7 +31,7 @@ _UNITS_IN_SUMMARY_PROMPT = (
 )
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
-    "that state how close I can site {tech} to {feature}"
+    "that state how close I can site {tech} (or similar) to {feature}"
 )
 
 
@@ -174,7 +174,7 @@ def setup_base_setback_graph(**kwargs):
         "init",
         prompt=(
             "Is there text in the following legal document that describes "
-            "how far I have to setback {tech} from {feature}? "
+            "how far I have to setback {tech} (or similar) from {feature}? "
             "{feature_clarifications}"
             "Pay extra attention to clarifying text found in parentheses "
             "and footnotes. Begin your response with either 'Yes' or 'No' "
@@ -270,8 +270,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         "init",
         prompt=(
             "Does the following text explicitly mention {restriction} for "
-            "{tech}? {feature_clarifications}\nMake sure your answer adheres "
-            "to these guidelines:\n"
+            "{tech} (or similar)? {feature_clarifications}\nMake sure your "
+            "answer adheres to these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
             "related restrictions. If {restriction} is not explicitly "
@@ -290,7 +290,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "value",
             prompt=(
                 "What is the **numerical** value given for the {restriction} "
-                "for {tech}? Follow these guidelines:\n"
+                "for {tech} (or similar)? Follow these guidelines:\n"
                 "1) Extract only the explicit numerical value provided for "
                 "the restriction. Do not infer values from related "
                 "restrictions.\n"
@@ -323,9 +323,9 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         G.add_node(
             "units",
             prompt=(
-                "What are the units for the {restriction} for {tech}? "
-                "Ensure that:\n1) You accurately identify the unit value "
-                "associated with the restriction.\n2) The unit is "
+                "What are the units for the {restriction} for {tech} (or "
+                "similar)? Ensure that:\n1) You accurately identify the unit "
+                "value associated with the restriction.\n2) The unit is "
                 "expressed using standard, conventional unit names (e.g., "
                 '"feet", "meters", "acres", "dBA", etc.). {unit_clarification}'
                 "\n3) If multiple values are mentioned, return only the units "
@@ -356,12 +356,13 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 'exactly four keys. The keys are "value", "units", "summary", '
                 'and "section". The value of the "value" key '
                 "should be a numerical value corresponding to the "
-                "{restriction} for {tech}, or `null` if the text does not "
-                "mention such a restriction. Use our conversation to fill "
-                'out this value. The value of the "units" key should be a '
-                "string corresponding to the (standard) units for the "
-                "{restriction} allowed for {tech} by the text below, or "
-                "`null` if the text does not mention such a restriction. "
+                "{restriction} for {tech} (or similar), or `null` if the text "
+                "does not mention such a restriction. Use our conversation to "
+                'fill out this value. The value of the "units" key should be '
+                "a string corresponding to the (standard) units for the "
+                "{restriction} allowed for {tech} (or similar) by the text "
+                "below, or `null` if the text does not mention such a "
+                "restriction. "
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
@@ -400,7 +401,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         "init",
         prompt=(
             "Does the following text explicitly outline districts where "
-            "{tech} are permitted as {use_type}? {clarifications}"
+            "{tech} (or similar) are permitted as {use_type}? {clarifications}"
             "Pay extra attention to clarifying text found in "
             "parentheses and footnotes. Begin your response with either "
             "'Yes' or 'No' and explain your answer."
@@ -415,7 +416,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         "district_names",
         prompt=(
             "What are all of the district names (and abbreviations if given) "
-            "where {tech} are permitted as {use_type}?"
+            "where {tech} (or similar) are permitted as {use_type}?"
         ),
     )
     G.add_edge("district_names", "final")
@@ -429,10 +430,11 @@ def setup_graph_permitted_use_districts(**kwargs):
             'exactly three keys. The keys are "value", "summary", '
             'and "section". The value of the "value" key '
             "should be a list of all district names (and abbreviations if "
-            "given) where {tech} "
+            "given) where {tech} (or similar) "
             "are permitted as {use_type}, or `null` if the text does not "
-            "mention this use type for {tech}. Use our conversation to "
-            "fill out this value. {SUMMARY_PROMPT} {SECTION_PROMPT}"
+            "mention this use type for {tech} (or similar). Use our "
+            "conversation to fill out this value. {SUMMARY_PROMPT} "
+            "{SECTION_PROMPT}"
         ),
     )
     return G
