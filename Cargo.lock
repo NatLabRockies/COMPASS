@@ -808,7 +808,7 @@ dependencies = [
 
 [[package]]
 name = "infra-compass-db"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "csv",
  "duckdb",

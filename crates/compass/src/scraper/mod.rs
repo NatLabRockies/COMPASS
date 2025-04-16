@@ -1,6 +1,7 @@
 //! Support for the ordinance scrapper output
 
 mod metadata;
+mod ordinance;
 mod source;
 mod usage;
 
@@ -11,6 +12,7 @@ use tracing::{self, trace};
 use crate::error;
 use crate::error::Result;
 use metadata::Metadata;
+use ordinance::Ordinance;
 #[allow(unused_imports)]
 use source::Source;
 use usage::Usage;
@@ -60,6 +62,7 @@ pub(crate) struct ScrappedOrdinance {
     metadata: Metadata,
     sources: Vec<source::Source>,
     usage: Usage,
+    ordinance: Ordinance,
 }
 
 impl ScrappedOrdinance {
@@ -68,6 +71,7 @@ impl ScrappedOrdinance {
         metadata::Metadata::init_db(conn)?;
         source::Source::init_db(conn)?;
         usage::Usage::init_db(conn)?;
+        ordinance::Ordinance::init_db(conn)?;
 
         Ok(())
     }
@@ -100,6 +104,7 @@ impl ScrappedOrdinance {
         let sources = source::Source::open(&root).await?;
         let metadata = metadata::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
+        let ordinance = ordinance::Ordinance::open(&root).await?;
 
         trace!("Scrapped ordinance opened successfully");
         Ok(Self {
@@ -108,6 +113,7 @@ impl ScrappedOrdinance {
             metadata,
             sources,
             usage,
+            ordinance,
         })
     }
 
@@ -125,6 +131,7 @@ impl ScrappedOrdinance {
             .for_each(|s| s.write(&conn, commit_id).unwrap());
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
+        self.ordinance.write(&conn, commit_id).unwrap();
         // commit transaction
 
         tracing::trace!("Committing transaction");
@@ -154,6 +161,7 @@ impl ScrappedOrdinance {
 mod tests {
     use super::ScrappedOrdinance;
     use super::metadata;
+    use super::ordinance;
     use super::usage;
     use std::io::Write;
 
@@ -182,12 +190,8 @@ mod tests {
 
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
-
-        let ordinance_filename = target.path().join("ord_db.csv");
-        let mut ordinance_file = std::fs::File::create(ordinance_filename).unwrap();
-        writeln!(ordinance_file, "county,state,FIPS,feature,fixed_value,mult_value,mult_type,adder,min_dist,max_dist,value,units,ord_year,last_updated,section,source,comment").unwrap();
-        writeln!(ordinance_file, "county-1,state-1,FIPS-1,feature-1,fixed_value-1,mult_value-1,mult_type-1,adder-1,min_dist-1,max_dist-1,value-1,units-1,ord_year-1,last_updated-1,section-1,source-1,comment-1").unwrap();
-        writeln!(ordinance_file, "county-2,state-2,FIPS-2,feature-2,fixed_value-2,mult_value-2,mult_type-2,adder-2,min_dist-2,max_dist-2,value-2,units-2,ord_year-2,last_updated-2,section-2,source-2,comment-2").unwrap();
+        let _ordinance_file =
+            ordinance::sample::as_file(target.path().join("quantitative_ordinances.csv")).unwrap();
 
         let demo = ScrappedOrdinance::open(target).await.unwrap();
         dbg!(&demo);

@@ -73,30 +73,6 @@ pub fn init_db(path: &str) -> Result<()> {
       comments TEXT
       );
 
-    CREATE SEQUENCE property_sequence START 1;
-    CREATE TABLE property (
-      id INTEGER PRIMARY KEY DEFAULT NEXTVAL('property_sequence'),
-
-      county TEXT,
-      state TEXT,
-      FIPS INTEGER,
-      feature TEXT NOT NULL,
-      fixed_value TEXT,
-      mult_value TEXT,
-      mult_type TEXT,
-      adder TEXT,
-      min_dist TEXT,
-      max_dist TEXT,
-      value TEXT,
-      units TEXT,
-      ord_year TEXT,
-      last_updated TEXT,
-      section TEXT,
-      source TEXT,
-
-      comments TEXT
-      );
-
     COMMIT;",
     )?;
 
