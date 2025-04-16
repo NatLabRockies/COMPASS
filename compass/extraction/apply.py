@@ -86,7 +86,7 @@ async def check_for_ordinance_info(
     doc.attrs["contains_ord_info"] = ordinance_text_collector.contains_ord_info
     if doc.attrs["contains_ord_info"]:
         doc.attrs["ordinance_text"] = ordinance_text_collector.ordinance_text
-        logger.debug(
+        logger.debug_to_file(
             "Ordinance text for %s is:\n%s",
             doc.attrs.get("source", "unknown source"),
             doc.attrs["ordinance_text"],
@@ -100,7 +100,7 @@ async def check_for_ordinance_info(
             doc.attrs["permitted_use_text"] = (
                 permitted_use_text_collector.permitted_use_district_text
             )
-            logger.debug(
+            logger.debug_to_file(
                 "Permitted use text for %s is:\n%s",
                 doc.attrs.get("source", "unknown source"),
                 doc.attrs["permitted_use_text"],
@@ -256,8 +256,7 @@ async def extract_ordinance_text_with_ngram_validation(
             "does not contain information. Please run "
             "`check_for_ordinance_info` prior to calling this method."
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
         return doc
 
     return await _extract_with_ngram_check(
@@ -291,8 +290,7 @@ async def _extract_with_ngram_check(
             "performed (Document source: %s)",
             source,
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
         return doc
 
     best_score = 0
@@ -343,11 +341,10 @@ async def _extract_with_ngram_check(
         doc.attrs[out_text_key] = best_summary
         msg = (
             f"Ngram check failed after {num_tries} tries. LLM hallucination "
-            "in cleaned ordinance text is extremely likely! Proceed with "
-            f"caution!! (Score: {best_score:.2f}; Document source: {source})"
+            "in cleaned ordinance text is possible! Proceed with caution!! "
+            f"(Score: {best_score:.2f}; Document source: {source})"
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
 
     doc.attrs["ngram_score"] = best_score
     return doc
@@ -387,8 +384,7 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
             "does not contain info. Please run "
             "`extract_ordinance_text_with_llm` prior to calling this method."
         )
-        logger.warning(msg)
-        warn(msg, UserWarning)
+        warn(msg, COMPASSWarning)
         return doc
 
     doc.attrs[out_key] = await parser.parse(doc.attrs[text_key])
@@ -410,7 +406,7 @@ async def _parse_if_input_text_not_empty(
     text_chunks = text_splitter.split_text(text)
     extracted_text = await parser(text_chunks)
 
-    logger.debug(
+    logger.debug_to_file(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text
     )
     return extracted_text

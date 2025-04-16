@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 from compass.exceptions import COMPASSValueError
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -114,8 +115,7 @@ def _warn_about_missing_counties(df):
             "use proper spelling and capitalization.\n"
             f"{not_found_counties_str}"
         )
-        logger.warning(msg)
-        warn(msg)
+        warn(msg, COMPASSWarning)
 
 
 def _format_county_df_for_output(df):

@@ -216,7 +216,7 @@ class WindPermittedUseDistrictsTextCollector:
                 LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION
             ),
         )
-        logger.debug("LLM response: %s", str(content))  # TODO: trace
+        logger.debug("LLM response: %s", str(content))
         contains_district_info = content.get(key, False)
 
         if contains_district_info:

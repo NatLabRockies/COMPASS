@@ -13,6 +13,7 @@ from compass.utilities.parsing import (
     merge_overlapping_texts,
     clean_backticks_from_llm_response,
 )
+from compass.exceptions import COMPASSRuntimeError
 
 
 logger = logging.getLogger(__name__)
@@ -127,12 +128,7 @@ async def run_async_tree(tree, response_as_json=True):
     """Run Async Decision Tree and return output as dict"""
     try:
         response = await tree.async_run()
-    except RuntimeError:
-        msg = (
-            "    - NOTE: This is not necessarily an error and may just mean "
-            "that the text does not have the requested data."
-        )
-        logger.error(msg)  # noqa: TRY400
+    except COMPASSRuntimeError:
         response = None
 
     if response_as_json:

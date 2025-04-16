@@ -261,11 +261,7 @@ run the script from your terminal:
 
     python parse_pdf.py
 
-You should see logs as each stage completes. Some stages, like structured extraction, may emit error-level messages even if
-they complete successfully. These are expected - they indicate the model finishing a decision tree path and don't represent
-actual failures.
-
-When the script completes, you'll see two new files:
+You should see logs as each stage completes. When the script completes, you'll see two new files:
 
 - ``Decatur County, Indiana Ordinance Text.txt``: file containing the extracted ordinance language.
 - ``Decatur County, Indiana Ordinances.csv``: file with the structured ordinance values.

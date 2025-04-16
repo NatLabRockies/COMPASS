@@ -82,7 +82,7 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
     if tesseract_cmd:
         _configure_pytesseract(tesseract_cmd)
 
-    pages = read_pdf_ocr(pdf_bytes, verbose=True)
+    pages = read_pdf_ocr(pdf_bytes, verbose=False)
     return PDFDocument(pages, **kwargs)
 
 

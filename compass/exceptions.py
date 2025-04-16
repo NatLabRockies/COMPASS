@@ -22,3 +22,7 @@ class COMPASSNotInitializedError(COMPASSError):
 
 class COMPASSValueError(COMPASSError, ValueError):
     """COMPASS ValueError"""
+
+
+class COMPASSRuntimeError(COMPASSError, RuntimeError):
+    """COMPASS RuntimeError"""

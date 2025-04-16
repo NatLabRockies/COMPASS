@@ -6,6 +6,7 @@ import logging
 from elm.tree import DecisionTree
 
 from compass.utilities.enums import LLMUsageCategory
+from compass.exceptions import COMPASSRuntimeError
 
 
 logger = logging.getLogger(__name__)
@@ -104,7 +105,7 @@ class AsyncDecisionTree(DecisionTree):
         out = await self.chat_llm_caller.call(
             prompt, usage_sub_label=LLMUsageCategory.DECISION_TREE
         )
-        logger.debug(
+        logger.debug_to_file(
             "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out
         )
         return self._parse_graph_output(node0, out or "")
@@ -120,8 +121,9 @@ class AsyncDecisionTree(DecisionTree):
 
         Returns
         -------
-        out : str
-            Final response from LLM at the leaf node.
+        out : str | None
+            Final response from LLM at the leaf node or ``None`` if an
+            ``AttributeError`` was raised during execution.
         """
 
         self._history = []
@@ -129,8 +131,15 @@ class AsyncDecisionTree(DecisionTree):
         while True:
             try:
                 out = await self.async_call_node(node0)
+            except AttributeError:
+                logger.debug_to_file(
+                    "Error traversing trees, here's the full "
+                    "conversation printout:\n%s",
+                    self.all_messages_txt,
+                )
+                return None
             except Exception as e:
-                logger.debug(
+                logger.debug_to_file(
                     "Error traversing trees, here's the full "
                     "conversation printout:\n%s",
                     self.all_messages_txt,
@@ -144,12 +153,13 @@ class AsyncDecisionTree(DecisionTree):
                     '"""\n%s\n"""'
                 )
                 logger.exception(msg, last_message)
-                raise RuntimeError(msg % last_message) from e
+                raise COMPASSRuntimeError(msg % last_message) from e
+
             if out in self.graph:
                 node0 = out
             else:
                 break
 
-        logger.info("Output: %s", out)
+        logger.info("Final decision tree output: %s", out)
 
         return out

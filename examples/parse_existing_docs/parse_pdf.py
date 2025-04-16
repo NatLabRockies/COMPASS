@@ -36,22 +36,20 @@ def _setup_logging(log_level="INFO"):
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
-    for lib in ["compass", "elm"]:
-        logger = logging.getLogger(lib)
-        handler = RichHandler(
-            console=console,
-            rich_tracebacks=True,
-            omit_repeated_times=True,
-            markup=True,
-        )
-        fmt = logging.Formatter(
-            fmt="[[magenta]%(location)s[/magenta]]: %(message)s",
-            defaults={"location": "main"},
-        )
-        handler.setFormatter(fmt)
-        handler.addFilter(AddLocationFilter())
-        logger.addHandler(handler)
-        logger.setLevel(log_level)
+    handler = RichHandler(
+        console=console,
+        rich_tracebacks=True,
+        omit_repeated_times=True,
+        markup=True,
+    )
+    fmt = logging.Formatter(
+        fmt="[[magenta]%(location)s[/magenta]]: %(message)s",
+        defaults={"location": "main"},
+    )
+    handler.setFormatter(fmt)
+    handler.addFilter(AddLocationFilter())
+    logger.addHandler(handler)
+    logger.setLevel(log_level)
 
 
 async def _extract_ordinances(doc, caller_args):

@@ -100,7 +100,7 @@ class StructuredSolarParser(BaseLLMCaller):
 
     async def _check_solar_farm_type(self, text):
         """Get the largest solar farm size mentioned in the text"""
-        logger.debug("Checking solar farm types")
+        logger.info("Checking solar farm types")
         tree = setup_async_decision_tree(
             setup_graph_sef_types,
             text=text,
@@ -147,20 +147,25 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             DataFrame containing parsed-out ordinance values.
         """
         largest_sef_type = await self._check_solar_farm_type(text)
-        logger.info("Largest SEF type found in text: %s", largest_sef_type)
+        logger.info("Largest SEF type found in text: %r", largest_sef_type)
 
         outer_task_name = asyncio.current_task().get_name()
+        num_to_process = (
+            len(SetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
+            + len(EXTRA_NUMERICAL_RESTRICTIONS)
+            + len(EXTRA_QUALITATIVE_RESTRICTIONS)
+        )
         with COMPASS_PB.jurisdiction_sub_prog_bar(outer_task_name) as sub_pb:
             task_id = sub_pb.add_task(
                 "Extracting ordinance values...",
-                total=len(SetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
-                + len(EXTRA_NUMERICAL_RESTRICTIONS)
-                + len(EXTRA_QUALITATIVE_RESTRICTIONS),
+                total=num_to_process,
                 just_parsed="",
             )
             outputs = await self._parse_all_restrictions_with_pb(
                 sub_pb, task_id, text, largest_sef_type, outer_task_name
             )
+            sub_pb.update(task_id, completed=num_to_process)
+            await asyncio.sleep(1)
             sub_pb.remove_task(task_id)
 
         return pd.DataFrame(chain.from_iterable(outputs))
@@ -435,7 +440,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
             DataFrame containing parsed-out allowed-use district names.
         """
         largest_sef_type = await self._check_solar_farm_type(text)
-        logger.info("Largest SEF type found in text: %s", largest_sef_type)
+        logger.info("Largest SEF type found in text: %r", largest_sef_type)
 
         loc = asyncio.current_task().get_name()
         with COMPASS_PB.jurisdiction_sub_prog_bar(loc) as sub_pb:
@@ -458,6 +463,8 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
                 for use_type_kwargs in self._USE_TYPES
             ]
             outputs = await asyncio.gather(*(feature_parsers))
+            sub_pb.update(task_id, completed=len(self._USE_TYPES))
+            await asyncio.sleep(1)
             sub_pb.remove_task(task_id)
 
         return pd.DataFrame(chain.from_iterable(outputs))

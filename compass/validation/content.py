@@ -110,7 +110,7 @@ class ParseChunksWithMemory:
                         LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
                     ),
                 )
-                logger.debug("LLM response: %s", str(content))  # TODO: trace
+                logger.debug("LLM response: %s", str(content))
                 check = mem[key] = content.get(key, False)
             if check:
                 return check
@@ -355,7 +355,7 @@ async def parse_by_chunks(
             continue
 
         logger.debug("Processing text at ind %d", ind)
-        logger.debug("Text:\n%s", text)
+        logger.debug_to_file("Text:\n%s", text)
 
         if not callbacks:
             continue

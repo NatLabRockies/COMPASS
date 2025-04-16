@@ -3,8 +3,10 @@
 import click
 import asyncio
 import logging
+import warnings
 import multiprocessing
 from pathlib import Path
+from contextlib import nullcontext
 
 import pyjson5
 from rich.live import Live
@@ -39,9 +41,10 @@ def main(ctx):
 @click.option(
     "-v",
     "--verbose",
-    is_flag=True,
-    help="Flag to show logging on the terminal. Default is not "
-    "to show any logs on the terminal.",
+    count=True,
+    help="Show logs on the terminal. Add extra libraries to get logs from by "
+    "increasing the input (-v, -vv, -vvv). Does not affect log level, which "
+    "is controlled via the config input.",
 )
 @click.option(
     "-np",
@@ -57,8 +60,9 @@ def process(config, verbose, no_progress):
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
-    if verbose:
-        _setup_cli_logging(console, log_level=config.get("log_level", "INFO"))
+    _setup_cli_logging(
+        console, verbose, log_level=config.get("log_level", "INFO")
+    )
 
     # Need to set start method to "spawn" instead of "fork" for unix
     # systems. If this call is not present, software hangs when process
@@ -76,12 +80,17 @@ def process(config, verbose, no_progress):
         return
 
     COMPASS_PB.console = console
-    with Live(
+    live_display = Live(
         COMPASS_PB.group,
         console=console,
         refresh_per_second=20,
         transient=True,
-    ):
+    )
+    warnings_filter = (
+        warnings.filterwarnings("ignore") if verbose > 0 else nullcontext()
+    )
+
+    with live_display, warnings_filter:
         total_seconds, total_cost, out_dir = loop.run_until_complete(
             process_counties_with_openai(**config)
         )
@@ -100,11 +109,22 @@ def process(config, verbose, no_progress):
     COMPASS_PB.console = None
 
 
-def _setup_cli_logging(console, log_level="INFO"):
+def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
     """Setup logging for CLI"""
-    for lib in ["compass", "elm"]:
+    libs = []
+    if verbosity_level >= 1:
+        libs.append("compass")
+    if verbosity_level >= 2:  # noqa: PLR2004
+        libs.append("elm")
+    if verbosity_level >= 3:  # noqa: PLR2004
+        libs.append("openai")
+    if verbosity_level >= 4:  # noqa: PLR2004
+        libs.extend(("networkx", "pytesseract", "pdf2image", "pdftotext"))
+
+    for lib in libs:
         logger = logging.getLogger(lib)
         handler = RichHandler(
+            level=log_level,
             console=console,
             rich_tracebacks=True,
             omit_repeated_times=True,

@@ -4,14 +4,17 @@ This module implements queued logging, mostly following this blog:"
 https://www.zopatista.com/python/2019/05/11/asyncio-logging/
 """
 
+import os
 import asyncio
 import logging
 from pathlib import Path
 from queue import SimpleQueue
+from functools import partial, partialmethod
 from logging.handlers import QueueHandler, QueueListener
 
 
 LOGGING_QUEUE = SimpleQueue()
+COMPASS_DEBUG_LEVEL = int(os.environ.get("COMPASS_DEBUG_LEVEL", "0"))
 
 
 class NoLocationFilter(logging.Filter):
@@ -301,3 +304,18 @@ class LocationFileLog:
 
     async def __aexit__(self, exc_type, exc, tb):
         self.__exit__(exc_type, exc, tb)
+
+
+def _setup_logging_levels():
+    """Setup COMPASS logging levels"""
+    logging.TRACE = 5
+    logging.addLevelName(logging.TRACE, "TRACE")
+    logging.Logger.trace = partialmethod(logging.Logger.log, logging.TRACE)
+    logging.trace = partial(logging.log, logging.TRACE)
+
+    logging.DEBUG_TO_FILE = 9
+    logging.addLevelName(logging.DEBUG_TO_FILE, "DEBUG_TO_FILE")
+    logging.Logger.debug_to_file = partialmethod(
+        logging.Logger.log, logging.DEBUG_TO_FILE
+    )
+    logging.debug_to_file = partial(logging.log, logging.DEBUG_TO_FILE)
