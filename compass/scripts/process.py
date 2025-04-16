@@ -111,9 +111,10 @@ WebSearchParams = namedtuple(
     [
         "num_urls_to_check_per_jurisdiction",
         "max_num_concurrent_browsers",
+        "url_ignore_substrings",
         "pytesseract_exe_fp",
     ],
-    defaults=[5, 10, None],
+    defaults=[5, 10, None, None],
 )
 PARSED_COLS = [
     "county",
@@ -155,6 +156,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     num_urls_to_check_per_jurisdiction=5,
     max_num_concurrent_browsers=10,
     max_num_concurrent_jurisdictions=None,
+    url_ignore_substrings=None,
     file_loader_kwargs=None,
     pytesseract_exe_fp=None,
     td_kwargs=None,
@@ -241,6 +243,28 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Maximum number of jurisdictions to process in parallel. Limiting
         this can help manage memory usage when dealing with a large
         number of documents. By default ``None`` (no limit).
+    url_ignore_substrings : list of str, optional
+        A list of substrings that, if found in any URL, will cause the
+        URL to be excluded from consideration. This can be used to
+        specify particular websites or entire domains to ignore. For
+        example:
+
+            url_ignore_substrings = [
+                "wikipedia",
+                "nrel.gov",
+                "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+            ]
+
+        The above configuration would ignore all `wikipedia` articles,
+        all websites on the NREL domain, and the specific file located
+        at `www.co.delaware.in.us/egov/documents/1649699794_0382.pdf`.
+        By default, ``None``.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword arguments pairs to initialize
+        :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
+        "pw_launch_kwargs" key in these will also be used to initialize
+        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the google URL search. By default, ``None``.
     pytesseract_exe_fp : path-like, optional
         Path to the `pytesseract` executable. If specified, OCR will be
         used to extract text from scanned PDFs using Google's Tesseract.
@@ -336,6 +360,7 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     wsp = WebSearchParams(
         num_urls_to_check_per_jurisdiction,
         max_num_concurrent_browsers,
+        url_ignore_substrings,
         pytesseract_exe_fp,
     )
     models = _initialize_model_params(model)
@@ -637,6 +662,7 @@ class _SingleJurisdictionRunner:
             num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
             browser_semaphore=self.browser_semaphore,
+            url_ignore_substrings=self.web_search_params.url_ignore_substrings,
             usage_tracker=self.usage_tracker,
         )
         if docs is None:

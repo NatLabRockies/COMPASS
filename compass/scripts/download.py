@@ -21,7 +21,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def download_county_ordinance(
+async def download_county_ordinance(  # noqa: PLR0913, PLR0917
     question_templates,
     location,
     model_configs,
@@ -31,6 +31,7 @@ async def download_county_ordinance(
     num_urls=5,
     file_loader_kwargs=None,
     browser_semaphore=None,
+    url_ignore_substrings=None,
     usage_tracker=None,
 ):
     """Download the ordinance document(s) for a single county
@@ -76,6 +77,7 @@ async def download_county_ordinance(
             location,
             num_urls,
             browser_semaphore,
+            url_ignore_substrings,
             **(file_loader_kwargs or {}),
         )
 
@@ -134,6 +136,7 @@ async def _docs_from_web_search(
     location,
     num_urls,
     browser_semaphore,
+    url_ignore_substrings,
     **file_loader_kwargs,
 ):
     """Download docs from web using location queries"""
@@ -146,6 +149,7 @@ async def _docs_from_web_search(
         queries,
         num_urls=num_urls,
         browser_semaphore=browser_semaphore,
+        ignore_url_parts=url_ignore_substrings,
         task_name=location.full_name,
         **file_loader_kwargs,
     )

@@ -6,7 +6,6 @@ import logging
 import warnings
 import multiprocessing
 from pathlib import Path
-from contextlib import nullcontext
 
 import pyjson5
 from rich.live import Live
@@ -79,6 +78,10 @@ def process(config, verbose, no_progress):
         loop.run_until_complete(process_counties_with_openai(**config))
         return
 
+    if verbose > 0:
+        # warnings will be logged to terminal/file
+        warnings.filterwarnings("ignore")
+
     COMPASS_PB.console = console
     live_display = Live(
         COMPASS_PB.group,
@@ -86,11 +89,7 @@ def process(config, verbose, no_progress):
         refresh_per_second=20,
         transient=True,
     )
-    warnings_filter = (
-        warnings.filterwarnings("ignore") if verbose > 0 else nullcontext()
-    )
-
-    with live_display, warnings_filter:
+    with live_display:
         total_seconds, total_cost, out_dir = loop.run_until_complete(
             process_counties_with_openai(**config)
         )
