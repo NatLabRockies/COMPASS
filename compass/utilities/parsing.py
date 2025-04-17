@@ -156,6 +156,24 @@ def num_ordinances_dataframe(data):
     int
         Number of unique ordinance values extracted from this DataFrame.
     """
+    return ordinances_bool_index(data).sum()
+
+
+def ordinances_bool_index(data):
+    """Array of bools indicating rows containing ordinances in DataFrame
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        DataFrame potentially containing ordinances for a jurisdiction.
+        If no ordinance values are found, this function returns ``0``.
+
+    Returns
+    -------
+    array-like
+        Array of bools indicating rows containing ordinances in
+        DataFrame.
+    """
     if data is None:
         return 0
 
@@ -167,4 +185,4 @@ def num_ordinances_dataframe(data):
         return 0
 
     found_features = (~data[check_cols].isna()).to_numpy().sum(axis=1)
-    return (found_features > 0).sum()
+    return found_features > 0

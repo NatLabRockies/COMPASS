@@ -66,7 +66,7 @@ Next, we'll configure how we want to interact with an OpenAI large language mode
 
     from compass.llm import OpenAIConfig
 
-    caller_args = OpenAIConfig(
+    llm_config = OpenAIConfig(
         name="gpt-4o-mini",
         llm_call_kwargs={"temperature": 0},
         llm_service_rate_limit=500_000,
@@ -132,7 +132,7 @@ in the document. Here's how that might look:
 
     doc = await check_for_ordinance_info(
         doc,
-        llm_callers=caller_args,
+        model_config=llm_config,
         heuristic=SolarHeuristic(),
         ordinance_text_collector_class=SolarOrdinanceTextCollector,
         permitted_use_text_collector_class=None,
@@ -141,7 +141,7 @@ in the document. Here's how that might look:
 
 What this function does is scan the text for solar-related ordinance language. If it finds any, it stores the relevant
 (concatenated) chunks in ``doc.attrs["ordinance_text"]``. To call this function, we passed in the document along with
-the LLM calling arguments that we set up in `Setting Up the LLM Caller`_. We also specified the use of the
+the LLM calling arguments that we set up in `Setting Up the LLM Configuration`_. We also specified the use of the
 :class:`~compass.extraction.solar.ordinance.SolarHeuristic`, which helps reduce LLM costs by applying a simple
 keyword-based heuristic to each document chunk before sending it to the LLM. Finally, we indicated that the
 :class:`~compass.extraction.solar.ordinance.SolarOrdinanceTextCollector` class should be used to search for solar ordinance
@@ -170,9 +170,9 @@ We'll do that using the :func:`~compass.extraction.apply.extract_ordinance_text_
 
     doc, ord_text_key = await extract_ordinance_text_with_llm(
         doc,
-        caller_args.text_splitter,
+        llm_config.text_splitter,
         extractor=SolarOrdinanceTextExtractor(
-            LLMCaller(llm_service=caller_args.llm_service)
+            LLMCaller(llm_service=llm_config.llm_service)
         ),
         original_text_key="ordinance_text",
     )
@@ -208,7 +208,7 @@ structured data:
     doc = await extract_ordinance_values(
         doc,
         parser=StructuredSolarOrdinanceParser(
-            llm_service=caller_args.llm_service
+            llm_service=llm_config.llm_service
         ),
         text_key=ord_text_key,
         out_key="ordinance_values",

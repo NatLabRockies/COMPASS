@@ -52,14 +52,14 @@ def _setup_logging(log_level="INFO"):
     logger.setLevel(log_level)
 
 
-async def _extract_ordinances(doc, caller_args):
+async def _extract_ordinances(doc, llm_config):
     """Run ordinance extraction pipeline"""
 
-    async with RunningAsyncServices([caller_args.llm_service]):
+    async with RunningAsyncServices([llm_config.llm_service]):
         logger.info("Checking for ordinances in document...")
         doc = await check_for_ordinance_info(
             doc,
-            model_config=caller_args,
+            model_config=llm_config,
             heuristic=SolarHeuristic(),
             ordinance_text_collector_class=SolarOrdinanceTextCollector,
             permitted_use_text_collector_class=None,
@@ -68,9 +68,9 @@ async def _extract_ordinances(doc, caller_args):
         logger.info("Extracting ordinance text from document...")
         doc, ord_text_key = await extract_ordinance_text_with_llm(
             doc,
-            caller_args.text_splitter,
+            llm_config.text_splitter,
             extractor=SolarOrdinanceTextExtractor(
-                LLMCaller(llm_service=caller_args.llm_service)
+                LLMCaller(llm_service=llm_config.llm_service)
             ),
             original_text_key="ordinance_text",
         )
@@ -81,7 +81,7 @@ async def _extract_ordinances(doc, caller_args):
         return await extract_ordinance_values(
             doc,
             parser=StructuredSolarOrdinanceParser(
-                llm_service=caller_args.llm_service
+                llm_service=llm_config.llm_service
             ),
             text_key=ord_text_key,
             out_key="ordinance_values",
@@ -99,7 +99,7 @@ if __name__ == "__main__":
 
     # setup LLM calling parameters
     azure_api_key, azure_version, azure_endpoint = validate_azure_api_params()
-    caller_args = OpenAIConfig(
+    llm_config = OpenAIConfig(
         name="gpt-4o-mini",
         llm_call_kwargs={"temperature": 0},
         llm_service_rate_limit=500_000,
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         },
     )
 
-    doc = asyncio.run(_extract_ordinances(doc, caller_args))
+    doc = asyncio.run(_extract_ordinances(doc, llm_config))
 
     # save outputs
     (

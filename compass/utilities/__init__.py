@@ -7,6 +7,7 @@ from .parsing import (
     merge_overlapping_texts,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
+    ordinances_bool_index,
 )
 
 

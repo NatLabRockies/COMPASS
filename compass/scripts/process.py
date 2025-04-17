@@ -61,6 +61,7 @@ from compass.utilities import (
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
+    ordinances_bool_index,
 )
 from compass.utilities.enums import LLMTasks
 from compass.utilities.location import County
@@ -252,12 +253,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
             url_ignore_substrings = [
                 "wikipedia",
                 "nrel.gov",
-                "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+                "www.co.delaware.in.us/documents/1649699794_0382.pdf",
             ]
 
         The above configuration would ignore all `wikipedia` articles,
         all websites on the NREL domain, and the specific file located
-        at `www.co.delaware.in.us/egov/documents/1649699794_0382.pdf`.
+        at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
@@ -1065,7 +1066,8 @@ def _formatted_db(db):
             db[col] = None
 
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
-    return db[PARSED_COLS]
+    ord_rows = ordinances_bool_index(db)
+    return db[ord_rows][PARSED_COLS].reset_index(drop=True)
 
 
 def _save_db(db, out_dir):
