@@ -140,7 +140,7 @@ class LLMService(Service):
             A TimeBoundedUsageTracker instance. This will be used to
             track usage per time interval and compare to `rate_limit`.
         service_tag : str, optional
-            optional tag to use to distinguish service (i.e. make unique
+            Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
             the same name are run concurrently. By default, ``None``.
         """

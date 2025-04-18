@@ -1,6 +1,7 @@
 """Ordinances LLM Configurations"""
 
 import os
+from collections import Counter
 from abc import ABC, abstractmethod
 from functools import partial, cached_property
 
@@ -91,6 +92,8 @@ class OpenAIConfig(LLMConfig):
     }
     """Currently-supported OpenAI LLM clients"""
 
+    _OPENAI_MODEL_NAMES = Counter()
+
     def __init__(
         self,
         name="gpt-4o",
@@ -100,6 +103,7 @@ class OpenAIConfig(LLMConfig):
         text_splitter_chunk_overlap=1000,
         client_type="azure",
         client_kwargs=None,
+        tag=None,
     ):
         """
 
@@ -142,6 +146,13 @@ class OpenAIConfig(LLMConfig):
             Keyword-value pairs to pass to underlying LLM client. These
             typically include things like API keys and endpoints.
             By default, ``None``.
+        tag : str, optional
+            Optional tag to distinguish this model config from another
+            model config for the same model `name`. This is useful if
+            you have the same model (e.g. `gpt-4o-mini`) running on two
+            different endpoints. If you have duplicate model names and
+            don't specify this tag, one will be created for you. By
+            default, ``None``.
         """
         super().__init__(
             name=name,
@@ -152,8 +163,10 @@ class OpenAIConfig(LLMConfig):
         )
         self.client_type = client_type.casefold()
         self._client_kwargs = client_kwargs or {}
+        self._tag = tag or ""
 
         self._validate_client_type()
+        self._validate_tag()
 
     def _validate_client_type(self):
         """Validate that user input a known client type"""
@@ -163,6 +176,16 @@ class OpenAIConfig(LLMConfig):
                 f"clients: {list(self.SUPPORTED_CLIENTS)}"
             )
             raise COMPASSValueError(msg)
+
+    def _validate_tag(self):
+        """Update tag if needed"""
+        self._OPENAI_MODEL_NAMES.update([self.name])
+        num_models = self._OPENAI_MODEL_NAMES.get(self.name, 1)
+        if num_models > 1 and not self._tag:
+            self._tag = f"{num_models - 1}"
+
+        if self._tag and not self._tag.startswith("-"):
+            self._tag = f"-{self._tag}"
 
     @cached_property
     def client_kwargs(self):
@@ -184,5 +207,8 @@ class OpenAIConfig(LLMConfig):
         """LLMService: Object that can be used to submit calls to LLM"""
         client = self.SUPPORTED_CLIENTS[self.client_type](**self.client_kwargs)
         return OpenAIService(
-            client, self.name, rate_limit=self.llm_service_rate_limit
+            client,
+            self.name,
+            rate_limit=self.llm_service_rate_limit,
+            service_tag=self._tag,
         )
