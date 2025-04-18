@@ -17,7 +17,6 @@ from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
 from compass.utilities import (
     LLM_COST_REGISTRY,
-    extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
 )
 from compass.pb import COMPASS_PB
@@ -498,9 +497,12 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
 
 def _compile_doc_info(doc):
     """Put together meta information about a single document"""
+    year, month, day = doc.attrs.get("date", (None, None, None))
     return {
         "source": doc.attrs.get("source"),
-        "ord_year": extract_ord_year_from_doc_attrs(doc.attrs),
+        "effective_year": year if year is not None and year > 0 else None,
+        "effective_month": month if month is not None and month > 0 else None,
+        "effective_day": day if day is not None and day > 0 else None,
         "ord_filename": Path(doc.attrs.get("out_fp", "Unknown")).name,
         "num_pages": len(doc.pages),
         "checksum": doc.attrs.get("checksum"),
