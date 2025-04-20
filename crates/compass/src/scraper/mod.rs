@@ -60,7 +60,8 @@ pub(crate) struct ScrappedOrdinance {
     format_version: String,
     root: PathBuf,
     metadata: Metadata,
-    sources: Vec<source::Source>,
+    // sources: Vec<source::Source>,
+    source: Source,
     usage: Usage,
     ordinance: Ordinance,
 }
@@ -68,8 +69,8 @@ pub(crate) struct ScrappedOrdinance {
 impl ScrappedOrdinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         tracing::trace!("Initializing ScrappedOrdinance database");
-        metadata::Metadata::init_db(conn)?;
         source::Source::init_db(conn)?;
+        metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
         ordinance::Ordinance::init_db(conn)?;
 
@@ -101,7 +102,7 @@ impl ScrappedOrdinance {
             ));
         }
         */
-        let sources = source::Source::open(&root).await?;
+        let source = source::Source::open(&root).await?;
         let metadata = metadata::Metadata::open(&root).await?;
         let usage = usage::Usage::open(&root).await?;
         let ordinance = ordinance::Ordinance::open(&root).await?;
@@ -111,7 +112,7 @@ impl ScrappedOrdinance {
             root,
             format_version: SCRAPPED_ORDINANCE_VERSION.to_string(),
             metadata,
-            sources,
+            source,
             usage,
             ordinance,
         })
@@ -126,9 +127,12 @@ impl ScrappedOrdinance {
 
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
-        self.sources
+        /*
+        self.source
             .iter()
             .for_each(|s| s.write(&conn, commit_id).unwrap());
+        */
+        self.source.write(&conn, commit_id).unwrap();
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         self.ordinance.write(&conn, commit_id).unwrap();
@@ -162,6 +166,7 @@ mod tests {
     use super::ScrappedOrdinance;
     use super::metadata;
     use super::ordinance;
+    use super::source;
     use super::usage;
     use std::io::Write;
 
@@ -182,6 +187,8 @@ mod tests {
         // A sample ordinance file for now.
         let target = tempfile::tempdir().unwrap();
 
+        let _source_file =
+            source::sample::as_file(target.path().join("jurisdictions.json")).unwrap();
         let ordinance_files_path = target.path().join("ordinance_files");
         std::fs::create_dir(&ordinance_files_path).unwrap();
         let source_filename = ordinance_files_path.join("source.pdf");
