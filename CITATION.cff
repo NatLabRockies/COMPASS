@@ -1,0 +1,63 @@
+cff-version: 1.2.0
+title: INFRA-COMPASS
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - family-names: Pinchuk
+    given-names: Pavlo
+    affiliation: National Renewable Energy Laboratory
+    orcid: 'https://orcid.org/0000-0003-4736-4728'
+  - family-names: Castelão
+    given-names: Guilherme
+    affiliation: National Renewable Energy Laboratory
+    orcid: 'https://orcid.org/0000-0002-6765-0708'
+  - family-names: Lopez
+    given-names: Anthony
+    affiliation: National Renewable Energy Laboratory
+    orcid: 'https://orcid.org/0000-0002-5006-1675'
+  - family-names: Buster
+    given-names: Grant
+    affiliation: National Renewable Energy Laboratory
+    orcid: 'https://orcid.org/0000-0001-8616-8100'
+identifiers:
+  - type: doi
+    value: 10.11578/dc.20250415.3
+repository-code: 'https://github.com/NREL/COMPASS'
+abstract: >-
+  INFRA-COMPASS is an innovative software tool utilizing
+  Large Language Models (LLMs) to systematically compile and
+  update an inventory of state and local codes and
+  ordinances related to energy infrastructure. Given the
+  multitude of jurisdictions involved, automating the
+  inventory process through AI is crucial for monitoring and
+  understanding the implementation of these ordinances. The
+  inventory aids in improving and expediting the permitting
+  process in several ways. It enhances transparency for
+  stakeholders, including energy developers, government
+  officials, and communities, by detailing existing siting
+  and permitting requirements. It also facilitates
+  comparisons of regulatory variations across jurisdictions
+  and over time, linking these to permit timelines,
+  technical assistance efforts, and deployment rates to
+  identify best practices. INFRA-COMPASS also provides
+  insights for jurisdictions revising their rules and helps
+  developers conduct comparative analyses to better assess
+  energy development opportunities. Furthermore,
+  INFRA-COMPASS improves the accuracy of energy modeling
+  tools by ensuring they accurately reflect current
+  policies.
+keywords:
+  - Energy Analysis
+  - Energy Policy
+  - Permitting
+  - Siting
+  - Ordinances
+  - Infrastructure
+  - Automation
+  - AI
+  - LLM
+license: BSD-3-Clause
+version: 0.3.0
+date-released: '2024-04-01'
