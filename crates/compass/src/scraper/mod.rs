@@ -197,8 +197,7 @@ mod tests {
 
         let _metadata_file = metadata::sample::as_file(target.path().join("meta.json")).unwrap();
         let _usage_file = usage::sample::as_file(target.path().join("usage.json")).unwrap();
-        let _ordinance_file =
-            ordinance::sample::as_file(target.path().join("quantitative_ordinances.csv")).unwrap();
+        ordinance::sample::as_file(target.path()).unwrap();
 
         let demo = ScrappedOrdinance::open(target).await.unwrap();
         dbg!(&demo);
