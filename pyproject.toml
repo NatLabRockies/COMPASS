@@ -130,7 +130,7 @@ check-wheels = { cmd = ["twine", "check", "dist/*"], depends-on = ["build-wheels
 upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-wheels"] }
 
 [tool.pixi.feature.rust-dev.dependencies]
-rust = ">=1.85.0,<1.86"
+rust = ">=1.87.0,<1.88"
 cxx-compiler = ">=1.9.0,<2"
 
 [tool.pixi.feature.python-default.dependencies]
