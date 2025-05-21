@@ -20,9 +20,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.45.0
+          pixi-version: v0.47.0
           cache: true
           frozen: true
 
@@ -43,9 +43,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.45.0
+          pixi-version: v0.47.0
           cache: true
           frozen: true
 
@@ -85,9 +85,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.45.0
+          pixi-version: v0.47.0
           cache: true
           frozen: true
 
@@ -106,9 +106,9 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@v4
 
-      - uses: prefix-dev/setup-pixi@v0.8.1
+      - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.45.0
+          pixi-version: v0.47.0
           cache: true
           frozen: true
 
