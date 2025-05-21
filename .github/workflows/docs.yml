@@ -31,7 +31,7 @@ jobs:
         run: pixi run -e pdoc make-html
 
       - name: deploy
-        uses: peaceiris/actions-gh-pages@v3.6.1
+        uses: peaceiris/actions-gh-pages@v4.0.0
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./docs/_build/html
