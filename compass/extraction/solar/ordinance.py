@@ -55,12 +55,15 @@ class SolarOrdinanceTextCollector:
         "You extract structured data from text. Return your answer in JSON "
         "format (not markdown). Your JSON file must include exactly two "
         "keys. The first key is 'solar_reqs', which is a string that "
-        f"summarizes all {_SEARCH_TERMS_AND} (if given) "
-        "in the text for solar energy systems. "
+        f"summarizes all {_SEARCH_TERMS_AND} that are explicitly enacted "
+        "in the legal text for solar energy systems for a given jurisdiction. "
         "Note that solar energy bans are an important restriction to track. "
-        "The last key is '{key}', which is a boolean that is set to True if "
-        f"the text excerpt describes {_SEARCH_TERMS_OR} for "
-        "a solar energy system and False otherwise."
+        "All restrictions should be enforceable - ignore any text that only "
+        "provides a legal definition of the regulation. If the text does not "
+        f"specify any concrete {_SEARCH_TERMS_OR} for a wind energy system, "
+        "set this key to `null`. The last key is '{key}', which is a boolean "
+        "that is set to True if the text excerpt explicitly details "
+        f"{_SEARCH_TERMS_OR} for a solar energy system and False otherwise."
     )
 
     IS_UTILITY_SCALE_PROMPT = (
@@ -75,7 +78,7 @@ class SolarOrdinanceTextCollector:
         "must include exactly two keys. The first key is 'summary' which "
         "contains a string that summarizes the types of solar energy systems "
         "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt mentions "
+        "boolean that is set to True if any part of the text excerpt details "
         f"{_SEARCH_TERMS_OR} for the large solar energy conversion "
         "systems that the client is interested in and False otherwise."
     )
@@ -153,7 +156,7 @@ class SolarPermittedUseDistrictsTextCollector:
         "solar energy farms are a permitted use. Large solar energy systems "
         f"(SES) may also be referred to as {_LARGE_SEF_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
-        "is explicitly outlined in the text. "
+        "is explicitly stated in the text. "
         "Note that relevant information may sometimes be found in tables. "
         "Return your answer in JSON format (not markdown). Your JSON file "
         "must include exactly two keys. The first key is 'districts' which "

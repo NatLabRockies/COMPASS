@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+from datetime import datetime
 
 import networkx as nx
 from elm import ApiBase
@@ -269,16 +270,20 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly mention {restriction} for "
-            "{tech} (or similar)? {feature_clarifications}\nMake sure your "
-            "answer adheres to these guidelines:\n"
+            "Does the following legal text explicitly enact {restriction} for "
+            "{tech} (or similar) for a particular jurisdiction that an "
+            "energy system developer would have to abide to?"
+            "{feature_clarifications}\nMake sure your answer adheres to "
+            "these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
-            "related restrictions. If {restriction} is not explicitly "
-            "mentioned, then say 'No'.\n"
-            "2) Pay close attention to clarifying details in parentheses, "
+            "related restrictions. If the text does not explicitly detail "
+            "actionable {restriction} for {tech}, then say 'No'.\n"
+            "2) If the text only defines {restriction} without providing "
+            "any specifics, say 'No'.\n"
+            "3) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
-            "3) Begin your response with either 'Yes' or 'No' and explain "
+            "4) Begin your response with either 'Yes' or 'No' and explain "
             "your answer."
             '\n\n"""\n{text}\n"""'
         ),
@@ -367,7 +372,46 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             ),
         )
     else:
-        G.add_edge("init", "final", condition=llm_response_starts_with_yes)
+        if "moratorium" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init",
+                "has_end_date",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "has_end_date",
+                prompt=(
+                    "Does the legal text given an expiration date for the "
+                    "prohibition, moratorium, or ban? "
+                    "Begin your response with either 'Yes' or 'No' and "
+                    "explain your answer."
+                ),
+            )
+            G.add_edge(
+                "has_end_date", "final", condition=llm_response_starts_with_no
+            )
+            G.add_edge(
+                "has_end_date",
+                "check_end_date",
+                condition=llm_response_starts_with_yes,
+            )
+            todays_date = datetime.now().strftime("%B %d, %Y")
+            G.add_node(
+                "check_end_date",
+                prompt=(
+                    f"Today is {todays_date}. Has the prohibition, "
+                    "moratorium, or ban expired? "
+                    "Begin your response with either 'Yes' or 'No' and "
+                    "explain your answer."
+                ),
+            )
+            G.add_edge(
+                "check_end_date",
+                "final",
+                condition=llm_response_starts_with_no,
+            )
+        else:
+            G.add_edge("init", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
@@ -400,7 +444,7 @@ def setup_graph_permitted_use_districts(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Does the following text explicitly outline districts where "
+            "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
             "Pay extra attention to clarifying text found in "
             "parentheses and footnotes. Begin your response with either "

@@ -67,7 +67,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "coverage": "maximum land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
-    "moratorium": "moratoriums or bans",
+    "moratorium": "prohibitions, moratoriums, or bans",
     "decommissioning": "decommissioning requirements",
     "glare": "glare restrictions",
     "visual impact": "visual impact assessment requirements",
@@ -515,19 +515,16 @@ def _update_output_keys(output):
 
 def _sanitize_output(output):
     """Perform some sanitization on outputs"""
-    return _remove_units_for_empty_value(output)
+    output = _remove_key_for_empty_value(output, key="units")
+    return _remove_key_for_empty_value(output, key="summary")
 
 
-def _remove_units_for_empty_value(output):
-    """Remove units if no value found"""
-    units = output.get("units")
-    if not units:
+def _remove_key_for_empty_value(output, key):
+    """Remove any output in "key" if no ordinance value found"""
+    if output.get("value") or not output.get(key):
         return output
 
-    value = output.get("value")
-    if value:
-        return output
-
-    # at this point, we have units but no value, so remove units
-    output["units"] = None
+    # at this point, we have some value in "key" but no actual ordinance
+    # value, so remove the "key" entry
+    output[key] = None
     return output

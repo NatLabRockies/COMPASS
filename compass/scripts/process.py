@@ -135,6 +135,18 @@ PARSED_COLS = [
     "source",
     "quantitative",
 ]
+EXCLUDE_FROM_ORD_DOC_CHECK = {
+    # if doc only contains these, it's not good enough to count as an
+    # ordinance. Note that moratoriums are explicitly not on this list
+    "color",
+    "decommissioning",
+    "lighting",
+    "visual impact",
+    "glare",
+    "primary use districts",
+    "special use districts",
+    "accessory use districts",
+}
 QUANT_OUT_COLS = PARSED_COLS[:-1]
 QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
 _TEXT_EXTRACTION_TASKS = {
@@ -680,7 +692,10 @@ class _SingleJurisdictionRunner:
         """Parse docs (in order) for ordinances"""
         for possible_ord_doc in docs:
             doc = await self._try_extract_all_ordinances(possible_ord_doc)
-            if num_ordinances_in_doc(doc) > 0:
+            ord_count = num_ordinances_in_doc(
+                doc, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
+            )
+            if ord_count > 0:
                 logger.debug(
                     "Found ordinances in doc from %s",
                     possible_ord_doc.attrs.get("source", "unknown source"),
