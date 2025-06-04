@@ -217,7 +217,14 @@ class OpenAIService(LLMService):
         try:
             return await self.client.chat.completions.create(**kwargs)
         except openai.BadRequestError:
-            logger.exception("Got 'BadRequestError'")
+            messages = kwargs.get("messages")
+            if messages:
+                logger.exception(
+                    "Got 'BadRequestError' for the following messages:\n\t%s",
+                    "\n\t".join([f"{m!r}" for m in messages]),
+                )
+            else:
+                logger.exception("Got 'BadRequestError'")
 
 
 def _get_response_message(response):

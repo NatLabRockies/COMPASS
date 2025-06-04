@@ -473,7 +473,7 @@ class _COMPASSRunner:
     @cached_property
     def _base_services(self):
         """list: List of required services to run for processing"""
-        return [
+        base_services = [
             TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
@@ -493,10 +493,15 @@ class _COMPASSRunner:
                 tpe_kwargs=self.tpe_kwargs,
             ),
             PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
-            # pytesseract locks up with multiple processes, so hardcode
-            # to only use 1 for now
-            OCRPDFLoader(max_workers=1),
         ]
+
+        if self.web_search_params.pytesseract_exe_fp is not None:
+            base_services.append(
+                # pytesseract locks up with multiple processes, so
+                # hardcode to only use 1 for now
+                OCRPDFLoader(max_workers=1),
+            )
+        return base_services
 
     async def run(self, jurisdiction_fp):
         """Run COMPASS for a set of jurisdictions

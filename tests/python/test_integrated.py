@@ -19,6 +19,7 @@ from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
 from compass.services.threaded import TempFileCache
 from compass.services.provider import RunningAsyncServices
+from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.logs import LocationFileLog, LogListener
 
 
@@ -111,10 +112,12 @@ async def test_openai_query(sample_openai_response, monkeypatch):
         assert elapsed_times[2] >= time_limit * 3
 
         assert usage_tracker == {
-            "default": {
-                "requests": 1,
-                "prompt_tokens": 100,
-                "response_tokens": 10,
+            "gpt-4": {
+                LLMUsageCategory.DEFAULT: {
+                    "requests": 1,
+                    "prompt_tokens": 100,
+                    "response_tokens": 10,
+                }
             }
         }
 
@@ -139,10 +142,12 @@ async def test_openai_query(sample_openai_response, monkeypatch):
         assert message is None
         assert openai_service.rate_tracker.total <= 3
         assert usage_tracker == {
-            "default": {
-                "requests": 1,
-                "prompt_tokens": 100,
-                "response_tokens": 10,
+            "gpt-4": {
+                LLMUsageCategory.DEFAULT: {
+                    "requests": 1,
+                    "prompt_tokens": 100,
+                    "response_tokens": 10,
+                }
             }
         }
 

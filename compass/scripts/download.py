@@ -9,8 +9,7 @@ from elm.web.utilities import filter_documents
 from compass.extraction import check_for_ordinance_info, extract_date
 from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
-    OneShotCountyJurisdictionValidator,
-    OneShotCountyNameValidator,
+    DTreeJurisdictionValidator,
     JurisdictionValidator,
 )
 from compass.utilities.enums import LLMTasks
@@ -235,20 +234,13 @@ def _ord_doc_sorting_key(doc):
     """Sorting key for documents. The higher this value, the better"""
     latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
     prefer_pdf_files = isinstance(doc, PDFDocument)
-    highest_name_score = doc.attrs.get(
-        # missing key means we were so confident that check wasn't
-        # even applied, so we default to 1 here
-        OneShotCountyNameValidator.META_SCORE_KEY,
-        1,
-    )
     highest_jurisdiction_score = doc.attrs.get(
-        OneShotCountyJurisdictionValidator.META_SCORE_KEY, 0
+        DTreeJurisdictionValidator.META_SCORE_KEY, 0
     )
     shortest_text_length = -1 * len(doc.text)
     return (
         latest_year,
         prefer_pdf_files,
-        highest_name_score,
         highest_jurisdiction_score,
         shortest_text_length,
         latest_month,

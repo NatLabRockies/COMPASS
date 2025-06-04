@@ -45,9 +45,9 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             f"apply to **the entire area** governed by {jurisdiction.state} "
             "state? If the legal text applies to a different state or only to "
             "a subdivision like a county or township within "
-            f"{jurisdiction.state} state, say 'No'. "
-            "Begin your response with either 'Yes' or 'No' and explain your "
-            "answer."
+            f"{jurisdiction.state} state, please respond with 'No'. "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
         ),
     )
     node_to_connect = "is_state"
@@ -67,9 +67,10 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 f"{jurisdiction.full_county_phrase}? If the legal text "
                 "applies to a different county or only to a subdivision like "
                 "a township or borough within "
-                f"{jurisdiction.full_county_phrase}, say 'No'. "
-                "Begin your response with either 'Yes' or 'No' and explain "
-                "your answer."
+                f"{jurisdiction.full_county_phrase}, please respond with a "
+                "simple 'No'. "
+                "Please start your response with either 'Yes' or 'No' and "
+                "briefly explain why you chose your answer."
             ),
         )
         G.add_edge(
@@ -90,9 +91,10 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 "Does the legal text explicitly state that the statutes "
                 "within apply to **the entire area** governed by the"
                 f"{jurisdiction.full_subdivision_phrase}? If the legal text "
-                "applies to a different city, township, etc, say 'No'. "
-                "Begin your response with either 'Yes' or 'No' and explain "
-                "your answer."
+                "applies to a different city, township, etc, please respond "
+                "with a simple 'No'. "
+                "Please start your response with either 'Yes' or 'No' and "
+                "briefly explain why you chose your answer."
             ),
         )
         node_to_connect = "is_city"

@@ -12,6 +12,7 @@ from compass.services.openai import (
     OpenAIService,
 )
 from compass.services.usage import UsageTracker
+from compass.utilities.enums import LLMUsageCategory
 
 
 TEST_MESSAGES_1 = [
@@ -84,10 +85,12 @@ async def test_openai_service(sample_openai_response, monkeypatch):
     assert message == "test_response"
 
     assert usage_tracker == {
-        "default": {
-            "requests": 1,
-            "prompt_tokens": 100,
-            "response_tokens": 10,
+        "gpt-4": {
+            LLMUsageCategory.DEFAULT: {
+                "requests": 1,
+                "prompt_tokens": 100,
+                "response_tokens": 10,
+            }
         }
     }
 
@@ -97,19 +100,23 @@ async def test_openai_service(sample_openai_response, monkeypatch):
     assert message is None
     assert openai_service.rate_tracker.total == 16
     assert usage_tracker == {
-        "default": {
-            "requests": 1,
-            "prompt_tokens": 100,
-            "response_tokens": 10,
+        "gpt-4": {
+            LLMUsageCategory.DEFAULT: {
+                "requests": 1,
+                "prompt_tokens": 100,
+                "response_tokens": 10,
+            }
         }
     }
 
     await openai_service.process()
     assert usage_tracker == {
-        "default": {
-            "requests": 1,
-            "prompt_tokens": 100,
-            "response_tokens": 10,
+        "gpt-4": {
+            LLMUsageCategory.DEFAULT: {
+                "requests": 1,
+                "prompt_tokens": 100,
+                "response_tokens": 10,
+            }
         }
     }
 
