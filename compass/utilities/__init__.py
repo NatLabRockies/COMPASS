@@ -1,6 +1,9 @@
 """Ordinance utilities"""
 
-from .counties import load_all_county_info, load_counties_from_fp
+from .jurisdictions import (
+    load_all_jurisdiction_info,
+    load_jurisdictions_from_fp,
+)
 from .parsing import (
     extract_ord_year_from_doc_attrs,
     llm_response_as_json,

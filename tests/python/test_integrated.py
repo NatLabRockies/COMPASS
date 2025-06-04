@@ -149,7 +149,7 @@ async def test_openai_query(sample_openai_response, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_google_search_with_logging(tmp_path):
-    """Test searching google for some counties with logging"""
+    """Test searching google for some locations with logging"""
 
     assert not list(tmp_path.glob("*"))
 

@@ -71,6 +71,10 @@ class PDFLoader(ProcessPoolService):
         )
 
 
+class OCRPDFLoader(PDFLoader):
+    """Loader service for OCR"""
+
+
 def _read_pdf(pdf_bytes, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
     pages = read_pdf(pdf_bytes, verbose=False)
@@ -134,7 +138,7 @@ async def read_pdf_doc_ocr(pdf_bytes, **kwargs):
     """
     import pytesseract  # noqa: PLC0415
 
-    return await PDFLoader.call(
+    return await OCRPDFLoader.call(
         _read_pdf_ocr,
         pdf_bytes,
         tesseract_cmd=pytesseract.pytesseract.tesseract_cmd,

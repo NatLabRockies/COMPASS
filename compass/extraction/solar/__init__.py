@@ -14,11 +14,12 @@ from .parse import (
 
 
 SOLAR_QUESTION_TEMPLATES = [
-    "filetype:pdf {location} solar energy conversion system ordinances",
-    "solar energy conversion system ordinances {location}",
-    "{location} solar energy farm ordinance",
+    "filetype:pdf {jurisdiction} solar energy conversion system ordinances",
+    "solar energy conversion system ordinances {jurisdiction}",
+    "{jurisdiction} solar energy farm ordinance",
     "Where can I find the legal text for commercial solar energy "
-    "conversion system zoning ordinances in {location}?",
+    "conversion system zoning ordinances in {jurisdiction}?",
     "What is the specific legal information regarding zoning "
-    "ordinances for commercial solar energy conversion systems in {location}?",
+    "ordinances for commercial solar energy conversion systems in "
+    "{jurisdiction}?",
 ]

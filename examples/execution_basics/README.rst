@@ -26,7 +26,7 @@ Setting Up the Run Configuration
 ================================
 The INFRA-COMPASS configuration file—written in either ``JSON`` or ``JSON5`` format—is a simple config that
 defines parameters for running the process. Each key in the config corresponds to an argument for the function
-`process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_.
+`process_jurisdictions_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
 Refer to the linked documentation for detailed and up-to-date descriptions of each input.
 
 
@@ -68,7 +68,7 @@ Typical Config
 --------------
 In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
 You can review all available inputs in the
-`process_counties_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_counties_with_openai.html#compass.scripts.process.process_counties_with_openai>`_
+`process_jurisdictions_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_
 documentation.
 In `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
 demonstrate a typical configuration that balances simplicity with additional control over execution parameters.

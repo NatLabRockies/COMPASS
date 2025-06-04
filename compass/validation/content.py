@@ -252,9 +252,9 @@ class LegalTextValidator:
         "\n# RESPONSE #\n"
         "Return the classification as a single dictionary in **JSON format** "
         "with exactly three keys:\n\n"
-        '1. **"summary"** (string) - A concise summary of the text.\n'
-        '2. **"type"** (string) - The best-fitting category of the text.\n'
-        '3. **"{key}"** (boolean) -\n'
+        "1. **'summary'** (string) - A concise summary of the text.\n"
+        "2. **'type'** (string) - The best-fitting category of the text.\n"
+        "3. **'{key}'** (boolean) -\n"
         "\t- `true` if the text is a **legally binding regulation**.\n"
         "\t- `false` if the text belongs to any other type of document.\n\n"
         "Ensure precise classification by prioritizing text with **legal "

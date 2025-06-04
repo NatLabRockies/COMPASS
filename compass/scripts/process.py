@@ -15,7 +15,7 @@ import pandas as pd
 from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
-from compass.scripts.download import download_county_ordinance
+from compass.scripts.download import download_jurisdiction_ordinance
 from compass.exceptions import COMPASSValueError
 from compass.extraction import (
     extract_ordinance_values,
@@ -42,7 +42,12 @@ from compass.extraction.wind import (
     WIND_QUESTION_TEMPLATES,
 )
 from compass.llm import LLMCaller, OpenAIConfig
-from compass.services.cpu import PDFLoader, read_pdf_doc, read_pdf_doc_ocr
+from compass.services.cpu import (
+    PDFLoader,
+    OCRPDFLoader,
+    read_pdf_doc,
+    read_pdf_doc_ocr,
+)
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
@@ -56,15 +61,15 @@ from compass.services.threaded import (
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
-    load_all_county_info,
-    load_counties_from_fp,
+    load_all_jurisdiction_info,
+    load_jurisdictions_from_fp,
     extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
     num_ordinances_dataframe,
     ordinances_bool_index,
 )
 from compass.utilities.enums import LLMTasks
-from compass.utilities.location import County
+from compass.utilities.location import Jurisdiction
 from compass.utilities.logs import (
     LocationFileLog,
     LogListener,
@@ -159,9 +164,10 @@ _TEXT_EXTRACTION_TASKS = {
         "Extracting solar permitted use text"
     ),
 }
+_JUR_COLS = ["Jurisdiction Type", "State", "County", "Subdivision", "FIPS"]
 
 
-async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
+async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
     tech,
     jurisdiction_fp,
@@ -182,12 +188,12 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
     llm_costs=None,
     log_level="INFO",
 ):
-    """Download and extract ordinances for a list of counties
+    """Download and extract ordinances for a list of jurisdictions
 
     This function scrapes ordinance documents (PDFs or HTML text) for a
-    list of specified counties and processes them using one or more LLM
-    models. Output files, logs, and intermediate artifacts are stored in
-    configurable directories.
+    list of specified jurisdictions and processes them using one or more
+    LLM models. Output files, logs, and intermediate artifacts are
+    stored in configurable directories.
 
     Parameters
     ----------
@@ -201,8 +207,13 @@ async def process_counties_with_openai(  # noqa: PLR0917, PLR0913
         Label indicating which technology type is being processed.
     jurisdiction_fp : path-like
         Path to a CSV file specifying the jurisdictions to process.
-        The CSV must contain two columns: "County" and "State", which
-        specify the county and state names, respectively.
+        The CSV must contain at least two columns: "County" and "State",
+        which specify the county and state names, respectively. If you
+        would like to process a subdivision with a county, you must also
+        include "Subdivision" and "Jurisdiction Type" columns. The
+        "Subdivision" should be the name of the subdivision, and the
+        "Jurisdiction Type" should be a string identifying the type of
+        subdivision (e.g., "City", "Township", etc.)
     model : str or list of dict, optional
         LLM model(s) to use for scraping and parsing ordinance
         documents. If a string is provided, it is assumed to be the name
@@ -482,6 +493,9 @@ class _COMPASSRunner:
                 tpe_kwargs=self.tpe_kwargs,
             ),
             PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
+            # pytesseract locks up with multiple processes, so hardcode
+            # to only use 1 for now
+            OCRPDFLoader(max_workers=1),
         ]
 
     async def run(self, jurisdiction_fp):
@@ -498,7 +512,7 @@ class _COMPASSRunner:
             DataFrame containing scraped ordinance values (could be
             empty if no ordinances found).
         """
-        jurisdictions = _load_counties_to_process(jurisdiction_fp)
+        jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)
         COMPASS_PB.create_main_task(num_jurisdictions=num_jurisdictions)
@@ -522,7 +536,7 @@ class _COMPASSRunner:
         return total_time, total_cost, self.dirs.out
 
     async def _run_all(self, jurisdictions):
-        """Process all counties with running services"""
+        """Process all jurisdictions with running services"""
         services = [model.llm_service for model in set(self.models.values())]
         services += self._base_services
         _ = self.file_loader_kwargs  # init loader kwargs once
@@ -530,18 +544,22 @@ class _COMPASSRunner:
         async with RunningAsyncServices(services):
             tasks = []
             for __, row in jurisdictions.iterrows():
-                county, state, fips = row[["County", "State", "FIPS"]]
-                location = County(
-                    county.strip(), state=state.strip(), fips=fips
+                jur_type, state, county, sub, fips = row[_JUR_COLS]
+                jurisdiction = Jurisdiction(
+                    subdivision_type=jur_type,
+                    state=state,
+                    county=county,
+                    subdivision_name=sub,
+                    code=fips,
                 )
                 usage_tracker = UsageTracker(
-                    location.full_name, usage_from_response
+                    jurisdiction.full_name, usage_from_response
                 )
                 task = asyncio.create_task(
                     self._processed_jurisdiction_info_with_pb(
-                        location, usage_tracker=usage_tracker
+                        jurisdiction, usage_tracker=usage_tracker
                     ),
-                    name=location.full_name,
+                    name=jurisdiction.full_name,
                 )
                 tasks.append(task)
             doc_infos = await asyncio.gather(*tasks)
@@ -550,13 +568,13 @@ class _COMPASSRunner:
         return doc_infos, total_cost
 
     async def _processed_jurisdiction_info_with_pb(
-        self, county, *args, **kwargs
+        self, jurisdiction, *args, **kwargs
     ):
-        """Process county and update progress bar"""
+        """Process jurisdiction and update progress bar"""
         async with self.jurisdiction_semaphore:
-            with COMPASS_PB.jurisdiction_prog_bar(county.full_name):
+            with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
                 return await self._processed_jurisdiction_info(
-                    county, *args, **kwargs
+                    jurisdiction, *args, **kwargs
                 )
 
     async def _processed_jurisdiction_info(self, *args, **kwargs):
@@ -567,32 +585,32 @@ class _COMPASSRunner:
         if doc is None or isinstance(doc, Exception):
             return None
 
-        keys = ["source", "date", "location", "ord_db_fp"]
+        keys = ["source", "date", "jurisdiction", "ord_db_fp"]
         doc_info = {key: doc.attrs.get(key) for key in keys}
         logger.debug("Saving the following doc info:\n%s", str(doc_info))
         return doc_info
 
     async def _process_jurisdiction_with_logging(
-        self, county, usage_tracker=None
+        self, jurisdiction, usage_tracker=None
     ):
         """Retrieve ordinance document with async logs"""
         with LocationFileLog(
             self.log_listener,
             self.dirs.logs,
-            location=county.full_name,
+            location=jurisdiction.full_name,
             level=self.log_level,
         ):
             task = asyncio.create_task(
                 _SingleJurisdictionRunner(
                     self.tech,
-                    county,
+                    jurisdiction,
                     self.models,
                     self.web_search_params,
                     self.file_loader_kwargs,
                     self.browser_semaphore,
                     usage_tracker=usage_tracker,
                 ).run(),
-                name=county.full_name,
+                name=jurisdiction.full_name,
             )
             try:
                 doc, *__ = await asyncio.gather(task)
@@ -600,7 +618,7 @@ class _COMPASSRunner:
                 raise
             except Exception:
                 msg = "Encountered error while processing %s:"
-                logger.exception(msg, county.full_name)
+                logger.exception(msg, jurisdiction.full_name)
                 doc = None
 
             return doc
@@ -649,7 +667,7 @@ class _SingleJurisdictionRunner:
 
     async def _run(self):
         """Search for docs and parse them for ordinances"""
-        docs = await self._find_documents_with_location_attr()
+        docs = await self._find_documents_with_jurisdiction_attr()
         if docs is None:
             return None
 
@@ -659,9 +677,9 @@ class _SingleJurisdictionRunner:
         )
         return await self._parse_docs_for_ordinances(docs)
 
-    async def _find_documents_with_location_attr(self):
+    async def _find_documents_with_jurisdiction_attr(self):
         """Search the web for an ordinance document and construct it"""
-        docs = await download_county_ordinance(
+        docs = await download_jurisdiction_ordinance(
             self.tech_specs.questions,
             self.jurisdiction,
             self.models,
@@ -682,8 +700,8 @@ class _SingleJurisdictionRunner:
             return None
 
         for doc in docs:
-            doc.attrs["location"] = self.jurisdiction
-            doc.attrs["location_name"] = self.jurisdiction.full_name
+            doc.attrs["jurisdiction"] = self.jurisdiction
+            doc.attrs["jurisdiction_name"] = self.jurisdiction.full_name
 
         await self._record_usage()
         return docs
@@ -713,7 +731,7 @@ class _SingleJurisdictionRunner:
                     self._try_extract_ordinances(possible_ord_doc, **kwargs),
                     name=self.jurisdiction.full_name,
                 )
-                for kwargs in self.extraction_task_kwargs
+                for kwargs in self._extraction_task_kwargs
             ]
 
             docs = await asyncio.gather(*tasks)
@@ -721,7 +739,8 @@ class _SingleJurisdictionRunner:
         return _concat_scrape_results(docs[0])
 
     @property
-    def extraction_task_kwargs(self):
+    def _extraction_task_kwargs(self):
+        """Keyword-argument pairs to pass to _try_extract_ordinances"""
         return [
             {
                 "extractor_class": self.tech_specs.ordinance_text_extractor,
@@ -888,12 +907,12 @@ def _initialize_model_params(user_input):
     return caller_instances
 
 
-def _load_counties_to_process(county_fp):
-    """Load the counties to retrieve documents for"""
-    if county_fp is None:
-        logger.info("No `county_fp` input! Loading all counties")
-        return load_all_county_info()
-    return load_counties_from_fp(county_fp)
+def _load_jurisdictions_to_process(jurisdiction_fp):
+    """Load the jurisdictions to retrieve documents for"""
+    if jurisdiction_fp is None:
+        logger.info("No `jurisdiction_fp` input! Loading all jurisdictions")
+        return load_all_jurisdiction_info()
+    return load_jurisdictions_from_fp(jurisdiction_fp)
 
 
 def _configure_thread_pool_kwargs(tpe_kwargs):
@@ -944,11 +963,11 @@ async def _extract_ordinances_from_text(
     )
 
 
-async def _move_files(doc, county):
+async def _move_files(doc, jurisdiction):
     """Move files to output folders, if applicable"""
     ord_count = num_ordinances_in_doc(doc)
     if ord_count == 0:
-        logger.info("No ordinances found for %s.", county.full_name)
+        logger.info("No ordinances found for %s.", jurisdiction.full_name)
         return doc
 
     doc = await _move_file_to_out_dir(doc)
@@ -956,7 +975,7 @@ async def _move_files(doc, county):
     logger.info(
         "%d ordinance value(s) found for %s. Outputs are here: '%s'",
         ord_count,
-        county.full_name,
+        jurisdiction.full_name,
         doc.attrs["ord_db_fp"],
     )
     return doc
@@ -983,10 +1002,10 @@ async def _write_ord_db(doc):
     return doc
 
 
-async def _record_jurisdiction_info(county, doc, start_time, usage_tracker):
+async def _record_jurisdiction_info(loc, doc, start_time, usage_tracker):
     """Record info about jurisdiction"""
     seconds_elapsed = time.monotonic() - start_time
-    await JurisdictionUpdater.call(county, doc, seconds_elapsed, usage_tracker)
+    await JurisdictionUpdater.call(loc, doc, seconds_elapsed, usage_tracker)
 
 
 def _setup_pytesseract(exe_fp):
@@ -1050,10 +1069,12 @@ def _db_results(results, doc_info):
     results["source"] = doc_info.get("source")
     results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
 
-    location = doc_info["location"]
-    results["FIPS"] = location.fips
-    results["county"] = location.name
-    results["state"] = location.state
+    jurisdiction = doc_info["jurisdiction"]
+    results["FIPS"] = jurisdiction.code
+    results["county"] = jurisdiction.county
+    results["state"] = jurisdiction.state
+    results["subdivision"] = jurisdiction.subdivision_name
+    results["jurisdiction_type"] = jurisdiction.type
     return results
 
 

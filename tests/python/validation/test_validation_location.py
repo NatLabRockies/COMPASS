@@ -16,11 +16,12 @@ from compass.services.openai import OpenAIService
 from compass.services.provider import RunningAsyncServices
 from compass.utilities import RTS_SEPARATORS
 from compass.validation.location import (
-    CountyValidator,
-    CountyNameValidator,
-    CountyJurisdictionValidator,
-    URLValidator,
+    OneShotCountyValidator,
+    OneShotCountyNameValidator,
+    OneShotCountyJurisdictionValidator,
+    OneShotURLCountyValidator,
     _validator_check_for_doc,
+    _weighted_vote,
 )
 
 
@@ -44,12 +45,20 @@ def oai_async_azure_client():
     )
 
 
-@pytest.fixture()
-def structured_llm_caller():
+@pytest.fixture(scope="module")
+def oai_llm_service(oai_async_azure_client):
+    """OpenAi Azure client to use for tests"""
+    model_name = os.environ.get("AZURE_OPENAI_MODEL_NAME", "gpt-4o-mini")
+    return OpenAIService(
+        client=oai_async_azure_client, model_name=model_name, rate_limit=1e6
+    )
+
+
+@pytest.fixture
+def structured_llm_caller(oai_llm_service):
     """StructuredLLMCaller instance for testing"""
     return StructuredLLMCaller(
-        llm_service=OpenAIService,
-        model="gpt-4",
+        llm_service=oai_llm_service,
         temperature=0,
         seed=42,
         timeout=30,
@@ -122,11 +131,11 @@ def _load_doc(test_data_dir, doc_fn):
     ],
 )
 async def test_url_matches_county(
-    oai_async_azure_client, structured_llm_caller, county, state, url, truth
+    oai_llm_service, structured_llm_caller, county, state, url, truth
 ):
     """Test the URL validator class (basic execution)"""
-    url_validator = URLValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=50_000)]
+    url_validator = OneShotURLCountyValidator(structured_llm_caller)
+    services = [oai_llm_service]
     async with RunningAsyncServices(services):
         out = await url_validator.check(url, county=county, state=state)
         assert out == truth
@@ -135,30 +144,37 @@ async def test_url_matches_county(
 @pytest.mark.skipif(SHOULD_SKIP, reason="requires Azure OpenAI key")
 @pytest.mark.asyncio
 @pytest.mark.parametrize(
-    "county,doc_fn,truth",
+    "county,state,doc_fn,truth",
     [
-        ("Decatur", "indiana_general_ord.pdf", False),
-        ("Decatur", "Decatur Indiana.pdf", True),
-        ("Hamlin", "Hamlin South Dakota.pdf", True),
-        ("Atlantic", "Atlantic New Jersey.txt", False),
-        ("Barber", "Barber Kansas.pdf", False),
+        ("Decatur", "Indiana", "indiana_general_ord.pdf", False),
+        ("Decatur", "Indiana", "Decatur Indiana.pdf", True),
+        ("Hamlin", "South Dakota", "Hamlin South Dakota.pdf", True),
+        ("Atlantic", "New Jersey", "Atlantic New Jersey.txt", False),
+        ("Barber", "Kansas", "Barber Kansas.pdf", False),
     ],
 )
 async def test_doc_matches_county_jurisdiction(
-    oai_async_azure_client,
+    oai_llm_service,
     structured_llm_caller,
     county,
+    state,
     doc_fn,
     truth,
     test_data_dir,
 ):
-    """Test the `CountyJurisdictionValidator` class (basic execution)"""
+    """Test the `OneShotCountyJurisdictionValidator` class"""
     doc = _load_doc(test_data_dir, doc_fn)
-    cj_validator = CountyJurisdictionValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
+    cj_validator = OneShotCountyJurisdictionValidator(structured_llm_caller)
+    services = [oai_llm_service]
+    kwargs = {
+        "county": county,
+        "state": state,
+        "not_county": "Lincoln",
+        "not_state": "Nebraska",
+    }
     async with RunningAsyncServices(services):
         out = await _validator_check_for_doc(
-            doc=doc, validator=cj_validator, county=county
+            doc=doc, validator=cj_validator, **kwargs
         )
         assert out == truth
 
@@ -174,7 +190,7 @@ async def test_doc_matches_county_jurisdiction(
     ],
 )
 async def test_doc_matches_county_name(
-    oai_async_azure_client,
+    oai_llm_service,
     structured_llm_caller,
     county,
     state,
@@ -182,13 +198,19 @@ async def test_doc_matches_county_name(
     truth,
     test_data_dir,
 ):
-    """Test the `CountyNameValidator` class (basic execution)"""
+    """Test the `OneShotCountyNameValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
-    cn_validator = CountyNameValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
+    cn_validator = OneShotCountyNameValidator(structured_llm_caller)
+    services = [oai_llm_service]
+    kwargs = {
+        "county": county,
+        "state": state,
+        "not_county": "Lincoln",
+        "not_state": "Nebraska",
+    }
     async with RunningAsyncServices(services):
         out = await _validator_check_for_doc(
-            doc=doc, validator=cn_validator, county=county, state=state
+            doc=doc, validator=cn_validator, **kwargs
         )
         assert out == truth
 
@@ -229,7 +251,7 @@ async def test_doc_matches_county_name(
     ],
 )
 async def test_doc_matches_county(
-    oai_async_azure_client,
+    oai_llm_service,
     structured_llm_caller,
     county,
     state,
@@ -238,15 +260,28 @@ async def test_doc_matches_county(
     truth,
     test_data_dir,
 ):
-    """Test the `CountyValidator` class (basic execution)"""
+    """Test the `OneShotCountyValidator` class (basic execution)"""
     doc = _load_doc(test_data_dir, doc_fn)
     doc.attrs["source"] = url
 
-    county_validator = CountyValidator(structured_llm_caller)
-    services = [OpenAIService(oai_async_azure_client, rate_limit=100_000)]
+    county_validator = OneShotCountyValidator(structured_llm_caller)
+    services = [oai_llm_service]
     async with RunningAsyncServices(services):
         out = await county_validator.check(doc=doc, county=county, state=state)
         assert out == truth
+
+
+@pytest.mark.parametrize(
+    "test_case",
+    (
+        (["one", "two", "three"], [1, 1, 0], (1 * 3 + 1 * 3) / (3 + 3 + 5)),
+        (["one", "two", "three"], [1, None, 0], (1 * 3) / (3 + 5)),
+    ),
+)
+def test_weighted_vote(test_case):
+    """Test that the _weighted_vote function computes score properly"""
+    pages, verdict, expected_score = test_case
+    assert _weighted_vote(verdict, PDFDocument(pages)) == expected_score
 
 
 if __name__ == "__main__":

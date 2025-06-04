@@ -51,12 +51,13 @@ def setup_graph_sef_types(**kwargs):
         "final",
         prompt=(
             "Respond based on our entire conversation so far. Return your "
-            "answer in JSON format (not markdown). Your JSON file must "
-            'include exactly two keys. The keys are "largest_sef_type" and '
-            '"explanation". The value of the "largest_sef_type" key should '
-            "be a string that labels the largest solar energy system size "
-            'mentioned in the text. The value of the "explanation" key should '
-            "be a string containing a short explanation for your choice."
+            "answer as a dictionary in JSON format (not markdown). Your "
+            "JSON file must include exactly two keys. The keys are "
+            "'largest_sef_type' and 'explanation'. The value of the "
+            "'largest_sef_type' key should be a string that labels the "
+            "largest solar energy system size mentioned in the text. The "
+            "value of the 'explanation' key should be a string containing "
+            "a short explanation for your choice."
         ),
     )
     return G
@@ -110,13 +111,13 @@ def setup_multiplier(**kwargs):
             "Ensure that:\n1) You accurately identify the unit value "
             "associated with the setback.\n2) The unit is "
             "expressed using standard, conventional unit names (e.g., "
-            '"feet", "meters", "miles" etc.)\n3) If multiple '
+            "'feet', 'meters', 'miles' etc.)\n3) If multiple "
             "values are mentioned, return only the units for the most "
             "restrictive value that directly pertains to the setback.\n\n"
             "Example Inputs and Outputs:\n"
-            'Text: "All WECS Towers shall be set back a distance of at least '
-            'one thousand (1000) feet, from any primary structure"\n'
-            'Output: "feet"\n'
+            "Text: 'All WECS Towers shall be set back a distance of at least "
+            "one thousand (1000) feet, from any primary structure'\n"
+            "Output: 'feet'\n"
         ),
     )
     G.add_edge("units", "out_static")
@@ -126,11 +127,11 @@ def setup_multiplier(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
-            'four keys. The keys are "value", "units", "summary", and '
-            '"section". The value of the "value" key should be a '
+            "four keys. The keys are 'value', 'units', 'summary', and "
+            "'section'. The value of the 'value' key should be a "
             "**numerical** value corresponding to the setback distance value "
             "from {feature} or `null` if there was no such value. The value "
-            'of the "units" key should be a string corresponding to the '
+            "of the 'units' key should be a string corresponding to the "
             "(standard) units of the setback distance value from {feature} "
             "or `null` if there was no such value. {SUMMARY_PROMPT} "
             "{SECTION_PROMPT}"
@@ -194,10 +195,10 @@ def setup_multiplier(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly four "
-            'keys. The keys are "mult_value", "adder", "summary", and '
-            '"section". The value of the "mult_value" key should be a '
+            "keys. The keys are 'mult_value', 'adder', 'summary', and "
+            "'section'. The value of the 'mult_value' key should be a "
             "**numerical** value corresponding to the multiplier value we "
-            'determined earlier. The value of the "adder" key should be a '
+            "determined earlier. The value of the 'adder' key should be a "
             "**numerical** value corresponding to the static value to be "
             "added to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "

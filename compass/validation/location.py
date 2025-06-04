@@ -8,14 +8,20 @@ import asyncio
 import logging
 from abc import ABC, abstractmethod
 
+from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.extraction.ngrams import convert_text_to_sentence_ngrams
+from compass.extraction.common import setup_async_decision_tree, run_async_tree
+from compass.validation.graphs import (
+    setup_graph_correct_jurisdiction_type,
+    setup_graph_correct_jurisdiction_from_url,
+)
 from compass.utilities.enums import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)
 
 
-class LocationValidator(ABC):
+class OneShotValidator(ABC):
     """Validation base class using a static system prompt"""
 
     SYSTEM_MESSAGE = None
@@ -52,11 +58,12 @@ class LocationValidator(ABC):
         """
         if not content:
             return False
+
         sys_msg = self.SYSTEM_MESSAGE.format(**fmt_kwargs)
         out = await self.slc.call(
             sys_msg,
             content,
-            usage_sub_label=LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION,
         )
         return self._parse_output(out)
 
@@ -66,16 +73,16 @@ class LocationValidator(ABC):
         raise NotImplementedError
 
 
-class URLValidator(LocationValidator):
+class OneShotURLCountyValidator(OneShotValidator):
     """Validator that checks whether a URL matches a county"""
 
     SYSTEM_MESSAGE = (
-        "You extract structured data from a URL. Return your "
-        "answer in JSON format. Your JSON file must include exactly two keys. "
-        "The first key is 'correct_county', which is a boolean that is set to "
-        "`True` if the URL mentions {county} County in some way. DO NOT infer "
-        "based on information in the URL about any US state, city, township, "
-        "or otherwise. `False` if not sure. The second key is "
+        "You extract structured data from a URL. Return your answer as a "
+        "dictionary in JSON format. Your JSON file must include exactly two "
+        "keys. The first key is 'correct_county', which is a boolean that is "
+        "set to `True` if the URL mentions {county} County in some way. DO "
+        "NOT infer based on information in the URL about any US state, city, "
+        "township, or otherwise. `False` if not sure. The second key is "
         "'correct_state', which is a boolean that is set to `True` if the URL "
         "mentions {state} State in some way. DO NOT infer based on "
         "information in the URL about any US county, city, township, or "
@@ -89,14 +96,14 @@ class URLValidator(LocationValidator):
         return all(props.get(var) for var in check_vars)
 
 
-class CountyJurisdictionValidator(LocationValidator):
+class OneShotCountyJurisdictionValidator(OneShotValidator):
     """Validator that checks whether text applies at the county level"""
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return your answer "
-        'in JSON format with exactly three keys: `"x"`, `"y"`, and '
-        '`"explanation"`.\n'
-        '\n1. **`"x"` (boolean):**\n'
+        "as a dictionary in JSON format with exactly three keys: `'x'`, "
+        "`'y'`, and `'explanation'`.\n"
+        "\n1. **`'x'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** "
         "that the legal regulations apply to a jurisdiction **other than** "
         "{county} County.\n"
@@ -107,21 +114,21 @@ class CountyJurisdictionValidator(LocationValidator):
         "**{county} County-level governance**, to **all unincorporated "
         "areas** of {county} County, **or** if there is **not enough "
         "information** to determine the jurisdiction scope.\n"
-        '\n2. **`"y"` (boolean):**\n'
+        "\n2. **`'y'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** that "
         "the regulations apply to **more than one county**\n"
         "- Set this to `false` if the regulations apply to a **single county "
         "only** or if there is **not enough information** to determine the "
         "number of counties affected.\n"
-        '\n3. **`"explanation"` (string):**\n'
-        '- If either `"x"` or `"y"` is `true`, provide a short explanation '
+        "\n3. **`'explanation'` (string):**\n"
+        "- If either `'x'` or `'y'` is `true`, provide a short explanation "
         "**citing the specific text** that led to this conclusion.\n"
         "- If **both** are `false`, explain that there was not enough "
         "information to determine otherwise.\n"
         "\n### **Example Output:**\n"
         "\n#### Correct Cases:\n"
         "\n**Case 1 (Not Enough Information - Default to `False`)**\n"
-        'Input text: `"This ordinance applies to wind energy systems."`\n'
+        "Input text: `'This ordinance applies to wind energy systems.'`\n"
         "```json\n"
         "{{\n"
         '  "x": false,\n'
@@ -170,21 +177,21 @@ class CountyJurisdictionValidator(LocationValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class CountyNameValidator(LocationValidator):
+class OneShotCountyNameValidator(OneShotValidator):
     """Validator that checks whether text applies to a given county"""
 
     SYSTEM_MESSAGE = (
         "You extract structured data from legal text. Return your answer "
-        'in JSON format with exactly three keys: `"wrong_county"`, '
-        '`"wrong_state"`, and `"explanation"`.\n'
-        '\n1. **`"wrong_county"` (boolean):**\n'
+        "as a dictionary in JSON format with exactly three keys: "
+        "`'wrong_county'`, `'wrong_state'`, and `'explanation'`.\n"
+        "\n1. **`'wrong_county'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** "
         "that it does **not** apply to {county} County.\n"
         "- Set this to `false` if the text applies to {county} County **or** "
         "if there is **not enough information** to determine the county.\n"
         "- Do **not** infer this based on any mention of other U.S. states, "
         "cities, or townships.\n"
-        '\n2. **`"wrong_state"` (boolean):**\n'
+        "\n2. **`'wrong_state'` (boolean):**\n"
         "- Set this to `true` **only if** the text **explicitly states** that "
         "it does **not** apply to a jurisdiction in {state}.\n"
         "- Set this to `false` if the text applies to a jurisdiction in "
@@ -192,8 +199,8 @@ class CountyNameValidator(LocationValidator):
         "the state.\n"
         "- Do **not** infer this based on any mention of other U.S. counties, "
         "cities, or townships.\n"
-        '\n3. **`"explanation"` (string):**\n'
-        '- If either `"wrong_county"` or `"wrong_state"` is `true`, provide a '
+        "\n3. **`'explanation'` (string):**\n"
+        "- If either `'wrong_county'` or `'wrong_state'` is `true`, provide a "
         "short explanation **citing the specific text** that led to this "
         "conclusion.\n"
         "- If **both** are `false`, explain that there was not enough "
@@ -201,8 +208,8 @@ class CountyNameValidator(LocationValidator):
         "\n### **Example Output:**\n"
         "\n#### Correct Cases:\n"
         "\n**Case 1 (Not Enough Information - Default to `False`)**\n"
-        'Input text: `"This ordinance applies to wind energy regulations in '
-        'the county."`\n'
+        "Input text: `'This ordinance applies to wind energy regulations in "
+        "the county.'`\n"
         "```json\n"
         "{{\n"
         '  "wrong_county": false,\n'
@@ -249,7 +256,131 @@ class CountyNameValidator(LocationValidator):
         return not any(props.get(var) for var in check_vars)
 
 
-class CountyValidator:
+class DTreeURLCountyValidator(BaseLLMCaller):
+    """Validator that checks whether a URL matches a jurisdiction"""
+
+    SYSTEM_MESSAGE = (
+        "You are an expert data analyst that examines URLs to determine if "
+        "they contain information about jurisdictions. only ever answer "
+        "based on the information in the URL itself."
+    )
+
+    def __init__(self, jurisdiction, **kwargs):
+        """
+
+        Parameters
+        ----------
+        structured_llm_caller : `StructuredLLMCaller`
+            StructuredLLMCaller instance. Used for structured validation
+            queries.
+        """
+        super().__init__(**kwargs)
+        self.jurisdiction = jurisdiction
+
+    async def check(self, url):
+        """Check if the content passes the validation
+
+        Parameters
+        ----------
+        content : str
+            Document content to validate.
+
+        Returns
+        -------
+        bool
+            ``True`` if the content passes the validation check,
+            ``False`` otherwise.
+        """
+        if not url:
+            return False
+
+        chat_llm_caller = ChatLLMCaller(
+            llm_service=self.llm_service,
+            system_message=self.SYSTEM_MESSAGE,
+            usage_tracker=self.usage_tracker,
+            **self.kwargs,
+        )
+        tree = setup_async_decision_tree(
+            setup_graph_correct_jurisdiction_from_url,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION,
+            jurisdiction=self.jurisdiction,
+            url=url,
+            chat_llm_caller=chat_llm_caller,
+        )
+        out = await run_async_tree(tree, response_as_json=True)
+        return self._parse_output(out)
+
+    def _parse_output(self, props):  # noqa: PLR6301
+        """Parse LLM response and return boolean validation result"""
+        logger.debug(
+            "Parsing URL jurisdiction validation output:\n\t%s", props
+        )
+        return all(props.values())
+
+
+class DTreeJurisdictionValidator(BaseLLMCaller):
+    """Jurisdiction Validation using a decision tree"""
+
+    META_SCORE_KEY = "Jurisdiction Validation Score"
+    SYSTEM_MESSAGE = (
+        "You are a legal expert assisting a user with determining the scope "
+        "of applicability for their legal ordinance documents."
+    )
+
+    def __init__(self, jurisdiction, **kwargs):
+        """
+
+        Parameters
+        ----------
+        structured_llm_caller : `StructuredLLMCaller`
+            StructuredLLMCaller instance. Used for structured validation
+            queries.
+        """
+        super().__init__(**kwargs)
+        self.jurisdiction = jurisdiction
+
+    async def check(self, content):
+        """Check if the content passes the validation
+
+        Parameters
+        ----------
+        content : str
+            Document content to validate.
+
+        Returns
+        -------
+        bool
+            ``True`` if the content passes the validation check,
+            ``False`` otherwise.
+        """
+        if not content:
+            return False
+
+        chat_llm_caller = ChatLLMCaller(
+            llm_service=self.llm_service,
+            system_message=self.SYSTEM_MESSAGE,
+            usage_tracker=self.usage_tracker,
+            **self.kwargs,
+        )
+        tree = setup_async_decision_tree(
+            setup_graph_correct_jurisdiction_type,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION,
+            jurisdiction=self.jurisdiction,
+            text=content,
+            chat_llm_caller=chat_llm_caller,
+        )
+        out = await run_async_tree(tree, response_as_json=True)
+        return self._parse_output(out)
+
+    def _parse_output(self, props):  # noqa: PLR6301
+        """Parse LLM response and return boolean validation result"""
+        logger.debug(
+            "Parsing county jurisdiction validation output:\n\t%s", props
+        )
+        return props.get("correct_jurisdiction")
+
+
+class OneShotCountyValidator:
     """COMPASS Ordinance County validator
 
     Combines the logic of several validators into a single class.
@@ -262,9 +393,9 @@ class CountyValidator:
     Key Relationships:
         Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
         LLM queries and delegates sub-validation to
-        :class:`~compass.validation.location.CountyNameValidator`,
-        :class:`~compass.validation.location.CountyJurisdictionValidator`,
-        and :class:`~compass.validation.location.URLValidator`.
+        :class:`OneShotCountyNameValidator`,
+        :class:`OneShotCountyJurisdictionValidator`,
+        and :class:`OneShotURLCountyValidator`.
     """
 
     def __init__(
@@ -286,9 +417,11 @@ class CountyValidator:
             By default, ``None``.
         """
         self.score_thresh = score_thresh
-        self.cn_validator = CountyNameValidator(structured_llm_caller)
-        self.cj_validator = CountyJurisdictionValidator(structured_llm_caller)
-        self.url_validator = URLValidator(structured_llm_caller)
+        self.cn_validator = OneShotCountyNameValidator(structured_llm_caller)
+        self.cj_validator = OneShotCountyJurisdictionValidator(
+            structured_llm_caller
+        )
+        self.url_validator = OneShotURLCountyValidator(structured_llm_caller)
         self.text_splitter = text_splitter
 
     async def check(self, doc, county, state):
@@ -374,6 +507,95 @@ class CountyValidator:
         )
 
 
+class JurisdictionValidator:
+    """COMPASS Ordinance Jurisdiction validator
+
+    Combines the logic of several validators into a single class.
+
+    Purpose:
+        Determine whether a document pertains to a specific county.
+    Responsibilities:
+        1. Use a combination of heuristics and LLM queries to determine
+           whether or not a document pertains to a particular county.
+    Key Relationships:
+        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
+        LLM queries and delegates sub-validation to
+        :class:`OneShotCountyNameValidator`,
+        :class:`OneShotCountyJurisdictionValidator`,
+        and :class:`OneShotURLCountyValidator`.
+    """
+
+    def __init__(self, score_thresh=0.8, text_splitter=None, **kwargs):
+        """
+
+        Parameters
+        ----------
+        score_thresh : float, optional
+            Score threshold to exceed when voting on content from raw
+            pages. By default, ``0.8``.
+        text_splitter : langchain.text_splitter.TextSplitter, optional
+            Optional text splitter instance to attach to doc (used for
+            splitting out pages in an HTML document).
+            By default, ``None``.
+        """
+        self.score_thresh = score_thresh
+        self.text_splitter = text_splitter
+        self.kwargs = kwargs
+
+    async def check(self, doc, jurisdiction):
+        """Check if the document belongs to the county
+
+        Parameters
+        ----------
+        doc : :class:`elm.web.document.BaseDocument`
+            Document instance. Should contain a "source" key in the
+            ``attrs`` that contains a URL (used for the URL validation
+            check). Raw content will be parsed for county name and
+            correct jurisdiction.
+
+        Returns
+        -------
+        bool
+            `True` if the doc contents pertain to the input county.
+            `False` otherwise.
+        """
+        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
+            old_splitter = doc.text_splitter
+            doc.text_splitter = self.text_splitter
+            out = await self._check(doc, jurisdiction)
+            doc.text_splitter = old_splitter
+            return out
+
+        return await self._check(doc, jurisdiction)
+
+    async def _check(self, doc, jurisdiction):
+        """Check if the document belongs to the county"""
+        if self.text_splitter is not None:
+            doc.text_splitter = self.text_splitter
+
+        url = doc.attrs.get("source")
+        logger.info("Validating document from source: %s", url or "Unknown")
+
+        logger.debug("Checking for correct for jurisdiction...")
+        jurisdiction_validator = DTreeJurisdictionValidator(
+            jurisdiction, **self.kwargs
+        )
+        jurisdiction_is_correct = await _validator_check_for_doc(
+            validator=jurisdiction_validator,
+            doc=doc,
+            score_thresh=self.score_thresh,
+        )
+        if jurisdiction_is_correct:
+            return True
+
+        if not url:
+            return False
+
+        logger.debug("Checking URL (%s) for county name...", url)
+        url_validator = DTreeURLCountyValidator(jurisdiction, **self.kwargs)
+        return await url_validator.check(url)
+
+
 def _heuristic_check_for_county_and_state(doc, county, state):
     """Check if county and state names are in doc"""
     return any(
@@ -412,11 +634,18 @@ def _weighted_vote(out, doc):
     """Compute weighted average of responses based on text length"""
     if not doc.raw_pages:
         return 0
-    weights = [len(text) for text in doc.raw_pages]
-    total = sum(
-        verdict * weight for verdict, weight in zip(out, weights, strict=False)
-    )
-    return total / sum(weights)
+
+    total = weights = 0
+    for verdict, text in zip(out, doc.raw_pages, strict=True):
+        if verdict is None:
+            continue
+        weight = len(text)
+        logger.debug("Weight=%d, Verdict=%d", weight, int(verdict))
+        weights += weight
+        total += verdict * weight
+
+    weights = max(weights, 1)
+    return total / weights
 
 
 def _add_not_county_kwargs(county, state):

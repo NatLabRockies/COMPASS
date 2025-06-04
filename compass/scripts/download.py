@@ -1,4 +1,4 @@
-"""Ordinance county file downloading logic"""
+"""Ordinance file downloading logic"""
 
 import logging
 
@@ -6,13 +6,12 @@ from elm.web.document import PDFDocument
 from elm.web.search.run import web_search_links_as_docs
 from elm.web.utilities import filter_documents
 
-from compass.llm import StructuredLLMCaller
 from compass.extraction import check_for_ordinance_info, extract_date
 from compass.services.threaded import TempFileCachePB
 from compass.validation.location import (
-    CountyJurisdictionValidator,
-    CountyNameValidator,
-    CountyValidator,
+    OneShotCountyJurisdictionValidator,
+    OneShotCountyNameValidator,
+    JurisdictionValidator,
 )
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
@@ -21,9 +20,9 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def download_county_ordinance(  # noqa: PLR0913, PLR0917
+async def download_jurisdiction_ordinance(  # noqa: PLR0913, PLR0917
     question_templates,
-    location,
+    jurisdiction,
     model_configs,
     heuristic,
     ordinance_text_collector_class,
@@ -34,12 +33,12 @@ async def download_county_ordinance(  # noqa: PLR0913, PLR0917
     url_ignore_substrings=None,
     usage_tracker=None,
 ):
-    """Download the ordinance document(s) for a single county
+    """Download the ordinance document(s) for a single jurisdiction
 
     Parameters
     ----------
-    location : :class:`compass.utilities.location.Location`
-        Location objects representing the county.
+    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+        Location objects representing the jurisdiction.
     model_configs : dict
         Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
         Should have at minium a "default" key that is used as a fallback
@@ -69,12 +68,14 @@ async def download_county_ordinance(  # noqa: PLR0913, PLR0917
         document was found.
     """
     COMPASS_PB.update_jurisdiction_task(
-        location.full_name, description="Downloading files..."
+        jurisdiction.full_name, description="Downloading files..."
     )
-    async with COMPASS_PB.file_download_prog_bar(location.full_name, num_urls):
+    async with COMPASS_PB.file_download_prog_bar(
+        jurisdiction.full_name, num_urls
+    ):
         docs = await _docs_from_web_search(
             question_templates,
-            location,
+            jurisdiction,
             num_urls,
             browser_semaphore,
             url_ignore_substrings,
@@ -82,32 +83,32 @@ async def download_county_ordinance(  # noqa: PLR0913, PLR0917
         )
 
     COMPASS_PB.update_jurisdiction_task(
-        location.full_name,
+        jurisdiction.full_name,
         description="Checking files for correct jurisdiction...",
     )
-    docs = await _down_select_docs_correct_location(
+    docs = await _down_select_docs_correct_jurisdiction(
         docs,
-        location=location,
+        jurisdiction=jurisdiction,
         usage_tracker=usage_tracker,
         model_config=model_configs.get(
-            LLMTasks.DOCUMENT_LOCATION_VALIDATION,
+            LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
             model_configs[LLMTasks.DEFAULT],
         ),
     )
     logger.info(
-        "%d document(s) remaining after location filter for %s\n\t- %s",
+        "%d document(s) remaining after jurisdiction filter for %s\n\t- %s",
         len(docs),
-        location.full_name,
+        jurisdiction.full_name,
         "\n\t- ".join(
             [doc.attrs.get("source", "Unknown source") for doc in docs]
         ),
     )
     COMPASS_PB.update_jurisdiction_task(
-        location.full_name, description="Checking files for legal text..."
+        jurisdiction.full_name, description="Checking files for legal text..."
     )
     docs = await _down_select_docs_correct_content(
         docs,
-        location=location,
+        jurisdiction=jurisdiction,
         model_configs=model_configs,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
@@ -117,13 +118,13 @@ async def download_county_ordinance(  # noqa: PLR0913, PLR0917
     if not docs:
         logger.info(
             "Did not find any potential ordinance documents for %s",
-            location.full_name,
+            jurisdiction.full_name,
         )
     else:
         logger.info(
             "Found %d potential ordinance documents for %s\n\t- %s",
             len(docs),
-            location.full_name,
+            jurisdiction.full_name,
             "\n\t- ".join(
                 [doc.attrs.get("source", "Unknown source") for doc in docs]
             ),
@@ -133,15 +134,15 @@ async def download_county_ordinance(  # noqa: PLR0913, PLR0917
 
 async def _docs_from_web_search(
     question_templates,
-    location,
+    jurisdiction,
     num_urls,
     browser_semaphore,
     url_ignore_substrings,
     **file_loader_kwargs,
 ):
-    """Download docs from web using location queries"""
+    """Download docs from web using jurisdiction queries"""
     queries = [
-        question.format(location=location.full_name)
+        question.format(jurisdiction=jurisdiction.full_name)
         for question in question_templates
     ]
     file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
@@ -150,35 +151,33 @@ async def _docs_from_web_search(
         num_urls=num_urls,
         browser_semaphore=browser_semaphore,
         ignore_url_parts=url_ignore_substrings,
-        task_name=location.full_name,
+        task_name=jurisdiction.full_name,
         **file_loader_kwargs,
     )
 
 
-async def _down_select_docs_correct_location(
-    docs, location, usage_tracker, model_config
+async def _down_select_docs_correct_jurisdiction(
+    docs, jurisdiction, usage_tracker, model_config
 ):
-    """Remove all documents not pertaining to the location"""
-    llm_caller = StructuredLLMCaller(
+    """Remove all documents not pertaining to the jurisdiction"""
+    jurisdiction_validator = JurisdictionValidator(
+        text_splitter=model_config.text_splitter,
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
-    county_validator = CountyValidator(
-        llm_caller, text_splitter=model_config.text_splitter
-    )
+    logger.debug("Validating documents for %r", jurisdiction)
     return await filter_documents(
         docs,
-        validation_coroutine=county_validator.check,
-        task_name=location.full_name,
-        county=location.name,
-        state=location.state,
+        validation_coroutine=jurisdiction_validator.check,
+        jurisdiction=jurisdiction,
+        task_name=jurisdiction.full_name,
     )
 
 
 async def _down_select_docs_correct_content(
     docs,
-    location,
+    jurisdiction,
     model_configs,
     heuristic,
     ordinance_text_collector_class,
@@ -189,7 +188,7 @@ async def _down_select_docs_correct_content(
     return await filter_documents(
         docs,
         validation_coroutine=_contains_ordinances,
-        task_name=location.full_name,
+        task_name=jurisdiction.full_name,
         model_configs=model_configs,
         heuristic=heuristic,
         ordinance_text_collector_class=ordinance_text_collector_class,
@@ -239,11 +238,11 @@ def _ord_doc_sorting_key(doc):
     highest_name_score = doc.attrs.get(
         # missing key means we were so confident that check wasn't
         # even applied, so we default to 1 here
-        CountyNameValidator.META_SCORE_KEY,
+        OneShotCountyNameValidator.META_SCORE_KEY,
         1,
     )
     highest_jurisdiction_score = doc.attrs.get(
-        CountyJurisdictionValidator.META_SCORE_KEY, 0
+        OneShotCountyJurisdictionValidator.META_SCORE_KEY, 0
     )
     shortest_text_length = -1 * len(doc.text)
     return (

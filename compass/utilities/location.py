@@ -1,58 +1,87 @@
-"""COMPASS Ordinance location specification utilities"""
+"""COMPASS Ordinance jurisdiction specification utilities"""
 
-from abc import ABC, abstractmethod
+from functools import cached_property
 
 
-class Location(ABC):
-    """Abstract location representation"""
+class Jurisdiction:
+    """Class representing a jurisdiction"""
 
-    def __init__(self, name):
+    def __init__(
+        self,
+        subdivision_type,
+        state,
+        county=None,
+        subdivision_name=None,
+        code=None,
+    ):
         """
 
         Parameters
         ----------
-        name : str
-            Name of location.
-        """
-        self.name = name
-
-    @property
-    @abstractmethod
-    def full_name(self):
-        """str: Full name of location"""
-
-
-class County(Location):
-    """Class representing a county"""
-
-    def __init__(self, name, state, fips=None, is_parish=False):
-        """
-
-        Parameters
-        ----------
-        name : str
-            Name of the county.
+        subdivision_type : str
+            Type of subdivision that this jurisdiction represents.
+            Typical values are "state", "county", "town", "city",
+            "borough", "parish", "township", etc.
         state : str
-            State containing the county.
-        fips : int or str, optional
-            Optional county FIPS code. By default, ``None``.
-        is_parish : bool, optional
-            Flag indicating whether or not this county is classified as
-            a parish. By default, ``False``.
+            Name of the state containing the jurisdiction.
+        county : str, optional
+            Name of the county containing the jurisdiction, if
+            applicable. If the jurisdiction represents a state, leave
+            this input unspecified. If the jurisdiction represents a
+            county or a subdivision within a county, provide the county
+            name here. By default, ``None``.
+        subdivision_name : str, optional
+            Name of the subdivision that the jurisdiction represents, if
+            applicable. If the jurisdiction represents a state or
+            county, leave this input unspecified. Otherwise, provide the
+            jurisdiction name here. By default, ``None``.
+        code : int or str, optional
+            Optional jurisdiction code (typically FIPS or similar).
+            By default, ``None``.
         """
-        super().__init__(name)
-        self.state = state
-        self.fips = fips
-        self.is_parish = is_parish
+        self.type = subdivision_type.title()
+        self.state = state.title()
+        self.county = county.title() if county else None
+        self.subdivision_name = (
+            subdivision_name.title() if subdivision_name else None
+        )
+        self.code = code
 
-    @property
+    @cached_property
     def full_name(self):
-        """str: Full county name in format '{name} County, {state}'"""
-        loc_id = "Parish" if self.is_parish else "County"
-        return f"{self.name} {loc_id}, {self.state}"
+        """str: Full jurisdiction name"""
+        name_parts = [
+            self.full_subdivision_phrase,
+            self.full_county_phrase,
+            self.state,
+        ]
+
+        return ", ".join(filter(None, name_parts))
+
+    @cached_property
+    def full_subdivision_phrase(self):
+        """str: Full jurisdiction subdivision phrase, or empty str"""
+        if not self.subdivision_name:
+            return ""
+
+        if self.type.casefold() in {"town", "township", "city", "borough"}:
+            return f"{self.type} of {self.subdivision_name}"
+
+        return f"{self.subdivision_name} {self.type}"
+
+    @cached_property
+    def full_county_phrase(self):
+        """str: Full jurisdiction county phrase, or empty str"""
+        if not self.county:
+            return ""
+
+        if not self.subdivision_name:
+            return f"{self.county} {self.type}"
+
+        return f"{self.county} County"
 
     def __repr__(self):
-        return f"County({self.name}, {self.state}, is_parish={self.is_parish})"
+        return str(self)
 
     def __str__(self):
         return self.full_name
@@ -60,15 +89,13 @@ class County(Location):
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return (
-                self.name.casefold() == other.name.casefold()
+                self.type.casefold() == other.type.casefold()
                 and self.state.casefold() == other.state.casefold()
-                and self.is_parish == other.is_parish
+                and self.county == other.county
+                and self.subdivision_name == other.subdivision_name
             )
         if isinstance(other, str):
-            return (
-                self.full_name.casefold() == other.casefold()
-                or f"{self.name}, {self.state}".casefold() == other.casefold()
-            )
+            return self.full_name.casefold() == other.casefold()
         return False
 
     def __hash__(self):

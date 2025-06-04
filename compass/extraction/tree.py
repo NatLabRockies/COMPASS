@@ -34,7 +34,7 @@ class AsyncDecisionTree(DecisionTree):
         :class:`~compass.llm.calling.ChatLLMCaller` for LLm queries.
     """
 
-    def __init__(self, graph):
+    def __init__(self, graph, usage_sub_label=None):
         """
 
         Parameters
@@ -51,9 +51,16 @@ class AsyncDecisionTree(DecisionTree):
             condition acts as an "else" statement if no other edge
             conditions are satisfied. A single edge from node to node
             does not need a condition.
+        usage_sub_label : str, optional
+            Optional label to classify LLM usage under when running this
+            decision tree. If ``None``, will simply label calls made
+            from this tree under "decision_tree". By default, ``None``.
         """
         self._g = graph
         self._history = []
+        self.usage_sub_label = (
+            usage_sub_label or LLMUsageCategory.DECISION_TREE
+        )
         assert isinstance(self.graph, nx.DiGraph)
         assert "chat_llm_caller" in self.graph.graph
 
@@ -103,7 +110,7 @@ class AsyncDecisionTree(DecisionTree):
         """
         prompt = self._prepare_graph_call(node0)
         out = await self.chat_llm_caller.call(
-            prompt, usage_sub_label=LLMUsageCategory.DECISION_TREE
+            prompt, usage_sub_label=self.usage_sub_label
         )
         logger.debug_to_file(
             "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out

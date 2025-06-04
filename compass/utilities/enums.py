@@ -14,7 +14,9 @@ class LLMUsageCategory(StrEnum):
     DOCUMENT_ORDINANCE_SUMMARY = auto()
     DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION = auto()
     DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY = auto()
-    DOCUMENT_LOCATION_VALIDATION = auto()
+    DOCUMENT_JURISDICTION_VALIDATION = auto()
+    ORDINANCE_VALUE_EXTRACTION = auto()
+    PERMITTED_USE_VALUE_EXTRACTION = auto()
 
 
 class LLMTasks(StrEnum):
@@ -33,8 +35,8 @@ class LLMTasks(StrEnum):
     values" or "does the document contain permitted use specifications".
     """
 
-    DOCUMENT_LOCATION_VALIDATION = (
-        LLMUsageCategory.DOCUMENT_LOCATION_VALIDATION
+    DOCUMENT_JURISDICTION_VALIDATION = (
+        LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION
     )
     """Document location validation task
 
@@ -56,13 +58,15 @@ class LLMTasks(StrEnum):
     permitted use descriptions and allowances.
     """
 
-    ORDINANCE_VALUE_EXTRACTION = auto()
+    ORDINANCE_VALUE_EXTRACTION = LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION
     """Ordinance structured value extraction task
 
     This task represents the extraction of structured ordinance values.
     """
 
-    PERMITTED_USE_VALUE_EXTRACTION = auto()
+    PERMITTED_USE_VALUE_EXTRACTION = (
+        LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION
+    )
     """Permitted use structured value extraction task
 
     This task represents the extraction of structured permitted use

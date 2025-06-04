@@ -26,6 +26,7 @@ from compass.extraction.solar.graphs import (
     setup_graph_sef_types,
     setup_multiplier,
 )
+from compass.utilities.enums import LLMUsageCategory
 from compass.warn import COMPASSWarning
 from compass.pb import COMPASS_PB
 
@@ -61,10 +62,12 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "maximum project size": (
         "maximum project size or total installation allowed"
     ),
-    "minimum lot size": "minimum lot, parcel, or tract size allowed",
-    "maximum lot size": "maximum lot, parcel, or tract size allowed",
-    "density": "minimum spacing between solar panels or solar plants allowed",
-    "coverage": "maximum land coverage allowed",
+    "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
+    "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
+    "density": (
+        "**minimum** spacing between solar panels or solar plants allowed"
+    ),
+    "coverage": "**maximum** land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
     "moratorium": "prohibitions, moratoriums, or bans",
@@ -75,7 +78,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
 UNIT_CLARIFICATIONS = {
     "noise": (
         "For the purposes of this extraction, assume the standard units "
-        'for noise are "dBA".'
+        "for noise are 'dBA'."
     )
 }
 ER_CLARIFICATIONS = {
@@ -237,6 +240,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         )
         tree = setup_async_decision_tree(
             setup_graph_extra_restriction,
+            usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             is_numerical=is_numerical,
             tech=largest_sef_type,
             restriction=restriction_text,
@@ -292,6 +296,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         )
         tree = setup_async_decision_tree(
             setup_base_setback_graph,
+            usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **feature_kwargs,
@@ -373,6 +378,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         )
         tree = setup_async_decision_tree(
             graphs_setup_func,
+            usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             feature=feature,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
@@ -479,6 +485,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         )
         tree = setup_async_decision_tree(
             setup_graph_permitted_use_districts,
+            usage_sub_label=LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION,
             tech=largest_sef_type,
             clarifications=self._LARGE_SEF_CLARIFICATION,
             text=text,

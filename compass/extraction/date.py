@@ -16,8 +16,9 @@ class DateExtractor:
 
     SYSTEM_MESSAGE = (
         "You are a legal scholar that reads ordinance text and extracts "
-        "structured date information. Return your answer in JSON format (not "
-        "markdown). Your JSON file must include exactly four keys. The first "
+        "structured date information. "
+        "Return your answer as a dictionary in JSON format (not markdown). "
+        "Your JSON file must include exactly four keys. The first "
         "key is 'explanation', which contains a short summary of the most "
         "relevant date information you found in the text. The second key is "
         "'year', which should contain an integer value that represents the "

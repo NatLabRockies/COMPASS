@@ -7,7 +7,7 @@ from compass.utilities.enums import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)
-_JSON_INSTRUCTIONS = "Return your answer in JSON format"
+_JSON_INSTRUCTIONS = "Return your answer as a dictionary in JSON format"
 
 
 class BaseLLMCaller:
@@ -167,8 +167,8 @@ class StructuredLLMCaller(BaseLLMCaller):
         ----------
         sys_msg : str
             The LLM system message. If this text does not contain the
-            instruction text "Return your answer in JSON format", it
-            will be added.
+            instruction text "Return your answer as a dictionary in JSON
+            format", it will be added.
         content : str
             LLM call content (typically some text to extract info from).
         usage_sub_label : str, optional

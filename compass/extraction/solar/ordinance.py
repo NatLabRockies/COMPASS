@@ -74,13 +74,14 @@ class SolarOrdinanceTextCollector:
         "Your client is a commercial solar developer that does not "
         f"care about ordinances related to {_IGNORE_TYPES} solar energy "
         "systems. Ignore any text related to such systems. "
-        "Return your answer in JSON format (not markdown). Your JSON file "
-        "must include exactly two keys. The first key is 'summary' which "
-        "contains a string that summarizes the types of solar energy systems "
-        "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt details "
-        f"{_SEARCH_TERMS_OR} for the large solar energy conversion "
-        "systems that the client is interested in and False otherwise."
+        "Return your answer as a dictionary in JSON format (not markdown). "
+        "Your JSON file must include exactly two keys. The first key is "
+        "'summary' which contains a string that summarizes the types of "
+        "solar energy systems the text applies to (if any). The second key "
+        "is '{key}', which is a boolean that is set to True if any part of "
+        f"the text excerpt details {_SEARCH_TERMS_OR} for the large solar "
+        "energy conversion systems that the client is interested in and "
+        "False otherwise."
     )
 
     def __init__(self):
@@ -158,14 +159,13 @@ class SolarPermittedUseDistrictsTextCollector:
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "
         "Note that relevant information may sometimes be found in tables. "
-        "Return your answer in JSON format (not markdown). Your JSON file "
-        "must include exactly two keys. The first key is 'districts' which "
-        "contains a string that lists all of the district names for which "
-        "the text explicitly permits large solar energy farms (if any). "
-        "The last key is "
-        "'{key}', which is a boolean that is set to True if any part of the "
-        "text excerpt mentions districts where large solar energy farms"
-        "are a permitted use and False otherwise."
+        "Return your answer as a dictionary in JSON format (not markdown). "
+        "Your JSON file must include exactly two keys. The first key is "
+        "'districts' which contains a string that lists all of the district "
+        "names for which the text explicitly permits large solar energy farms "
+        "(if any). The last key is '{key}', which is a boolean that is set to "
+        "True if any part of the text excerpt mentions districts where large "
+        "solar energy farms are a permitted use and False otherwise."
     )
 
     def __init__(self):
@@ -272,7 +272,7 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_solar_energy_system_section(self, text_chunks):
@@ -363,7 +363,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     SEF_PERMITTED_USES_FILTER_PROMPT = (
@@ -398,7 +398,7 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_permitted_uses(self, text_chunks):

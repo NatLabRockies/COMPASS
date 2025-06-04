@@ -97,13 +97,14 @@ class WindOrdinanceTextCollector:
         "Your client is a commercial wind developer that does not "
         f"care about ordinances related to {_IGNORE_TYPES} wind energy "
         "systems. Ignore any text related to such systems. "
-        "Return your answer in JSON format (not markdown). Your JSON file "
-        "must include exactly two keys. The first key is 'summary' which "
-        "contains a string that lists all of the types of wind energy systems "
-        "the text applies to (if any). The second key is '{key}', which is a "
-        "boolean that is set to True if any part of the text excerpt details "
-        f"{_SEARCH_TERMS_OR} for the large wind energy conversion "
-        "systems that the client is interested in and False otherwise."
+        "Return your answer as a dictionary in JSON format (not markdown). "
+        "Your JSON file must include exactly two keys. The first key is "
+        "'summary' which contains a string that lists all of the types of "
+        "wind energy systems the text applies to (if any). The second key is "
+        "'{key}', which is a boolean that is set to True if any part of the "
+        f"text excerpt details {_SEARCH_TERMS_OR} for the large wind energy "
+        "conversion systems that the client is interested in and False "
+        "otherwise."
     )
 
     def __init__(self):
@@ -181,14 +182,14 @@ class WindPermittedUseDistrictsTextCollector:
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "
         "Note that relevant information may sometimes be found in tables. "
-        "Return your answer in JSON format (not markdown). Your JSON file "
-        "must include exactly two keys. The first key is 'districts' which "
-        "contains a string that lists all of the district names for which "
-        "the text explicitly permits large wind energy systems (if any). "
-        "The last key is "
-        "'{key}', which is a boolean that is set to True if any part of the "
-        "text excerpt explains districts where large wind energy systems"
-        "are a permitted use and False otherwise."
+        "Return your answer as a dictionary in JSON format (not markdown). "
+        "Your JSON file must include exactly two keys. The first key is "
+        "'districts' which contains a string that lists all of the district "
+        "names for which the text explicitly permits large wind energy "
+        "systems (if any). The last key is '{key}', which is a boolean that "
+        "is set to True if any part of the text excerpt explains districts "
+        "where large wind energy systems are a permitted use and False "
+        "otherwise."
     )
 
     def __init__(self):
@@ -294,7 +295,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
     LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
         "# CONTEXT #\n"
@@ -336,7 +337,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_wind_energy_system_section(self, text_chunks):
@@ -453,7 +454,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     WES_PERMITTED_USES_FILTER_PROMPT = (
@@ -489,7 +490,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "ensure accuracy.\n"
         "\n4. ## Output Handling ##:\n"
         "- If **no relevant text** is found, return the response: "
-        '"No relevant text."'
+        "'No relevant text.'"
     )
 
     async def extract_permitted_uses(self, text_chunks):

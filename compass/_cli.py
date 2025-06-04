@@ -15,7 +15,7 @@ from rich.console import Console
 
 from compass import __version__
 from compass.pb import COMPASS_PB
-from compass.scripts.process import process_counties_with_openai
+from compass.scripts.process import process_jurisdictions_with_openai
 from compass.utilities.logs import AddLocationFilter
 
 
@@ -35,7 +35,7 @@ def main(ctx):
     type=click.Path(exists=True),
     help="Path to ordinance configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`compass.scripts.process.process_counties_with_openai`.",
+    ":func:`compass.scripts.process.process_jurisdictions_with_openai`.",
 )
 @click.option(
     "-v",
@@ -52,7 +52,7 @@ def main(ctx):
     help="Flag to hide progress bars during processing.",
 )
 def process(config, verbose, no_progress):
-    """Download and extract ordinances for a list of counties"""
+    """Download and extract ordinances for a list of jurisdictions"""
     with Path(config).open(encoding="utf-8") as fh:
         config = pyjson5.decode_io(fh)
 
@@ -75,7 +75,7 @@ def process(config, verbose, no_progress):
     asyncio.set_event_loop(loop)
 
     if no_progress:
-        loop.run_until_complete(process_counties_with_openai(**config))
+        loop.run_until_complete(process_jurisdictions_with_openai(**config))
         return
 
     if verbose > 0:
@@ -91,7 +91,7 @@ def process(config, verbose, no_progress):
     )
     with live_display:
         total_seconds, total_cost, out_dir = loop.run_until_complete(
-            process_counties_with_openai(**config)
+            process_jurisdictions_with_openai(**config)
         )
 
     runtime = _elapsed_time_as_str(total_seconds)

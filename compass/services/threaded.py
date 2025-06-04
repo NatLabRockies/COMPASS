@@ -51,7 +51,7 @@ def _move_file(doc, out_dir):
 
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_fn = doc.attrs.get("location_name", cached_fp.stem)
+    out_fn = doc.attrs.get("jurisdiction_name", cached_fp.stem)
     out_fn = out_fn.replace(",", "").replace(" ", "_")
     out_fn = f"{out_fn}_downloaded_{date}"
     if not out_fn.endswith(cached_fp.suffix):
@@ -64,17 +64,17 @@ def _move_file(doc, out_dir):
 
 def _write_cleaned_file(doc, out_dir):
     """Write cleaned ordinance text to directory"""
-    location_name = doc.attrs.get("location_name")
-    if location_name is None:
+    jurisdiction_name = doc.attrs.get("jurisdiction_name")
+    if jurisdiction_name is None:
         return None
 
     out_dir = Path(out_dir)
     if COMPASS_DEBUG_LEVEL > 0:
-        _write_interim_cleaned_files(doc, out_dir, location_name)
+        _write_interim_cleaned_files(doc, out_dir, jurisdiction_name)
 
     key_to_fp = {
-        "cleaned_ordinance_text": f"{location_name} Ordinance Summary.txt",
-        "districts_text": f"{location_name} Districts.txt",
+        "cleaned_ordinance_text": f"{jurisdiction_name} Ordinance Summary.txt",
+        "districts_text": f"{jurisdiction_name} Districts.txt",
     }
     out_paths = []
     for key, fn in key_to_fp.items():
@@ -89,19 +89,21 @@ def _write_cleaned_file(doc, out_dir):
     return out_paths
 
 
-def _write_interim_cleaned_files(doc, out_dir, location_name):
+def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
     """Write intermediate output texts to file; helpful for debugging"""
     key_to_fp = {
-        "ordinance_text": f"{location_name} Ordinance Original text.txt",
-        "wind_energy_systems_text": f"{location_name} Wind Ordinance text.txt",
+        "ordinance_text": f"{jurisdiction_name} Ordinance Original text.txt",
+        "wind_energy_systems_text": (
+            f"{jurisdiction_name} Wind Ordinance text.txt"
+        ),
         "solar_energy_systems_text": (
-            f"{location_name} Solar Ordinance text.txt"
+            f"{jurisdiction_name} Solar Ordinance text.txt"
         ),
         "permitted_use_text": (
-            f"{location_name} Permitted Use Original text.txt"
+            f"{jurisdiction_name} Permitted Use Original text.txt"
         ),
         "permitted_use_only_text": (
-            f"{location_name} Permitted Use Only text.txt"
+            f"{jurisdiction_name} Permitted Use Only text.txt"
         ),
     }
     for key, fn in key_to_fp.items():
@@ -115,12 +117,12 @@ def _write_interim_cleaned_files(doc, out_dir, location_name):
 def _write_ord_db(doc, out_dir):
     """Write parsed ordinance database to directory"""
     ord_db = doc.attrs.get("scraped_values")
-    location_name = doc.attrs.get("location_name")
+    jurisdiction_name = doc.attrs.get("jurisdiction_name")
 
-    if ord_db is None or location_name is None:
+    if ord_db is None or jurisdiction_name is None:
         return None
 
-    out_fp = Path(out_dir) / f"{location_name} Ordinances.csv"
+    out_fp = Path(out_dir) / f"{jurisdiction_name} Ordinances.csv"
     ord_db.to_csv(out_fp, index=False)
     return out_fp
 
@@ -259,8 +261,8 @@ class TempFileCachePB(TempFileCache):
             file_content=file_content,
             make_name_unique=make_name_unique,
         )
-        location = asyncio.current_task().get_name()
-        COMPASS_PB.update_download_task(location, advance=1)
+        jurisdiction = asyncio.current_task().get_name()
+        COMPASS_PB.update_download_task(jurisdiction, advance=1)
         return out
 
 
@@ -406,7 +408,9 @@ class JurisdictionUpdater(ThreadedService):
         """bool: ``True`` if file not currently being written to"""
         return not self._is_processing
 
-    async def process(self, county, doc, seconds_elapsed, usage_tracker=None):
+    async def process(
+        self, jurisdiction, doc, seconds_elapsed, usage_tracker=None
+    ):
         """Add usage from tracker to file
 
         Any existing usage info in the file will remain unchanged
@@ -415,8 +419,8 @@ class JurisdictionUpdater(ThreadedService):
 
         Parameters
         ----------
-        county : compass.utilities.location.Location
-            County to record.
+        jurisdiction : compass.utilities.location.Jurisdiction
+            Jurisdiction to record.
         doc : elm.web.document.Document
             Document containing meta information about the jurisdiction.
             Must have relevant processing keys in the ``attrs`` dict,
@@ -436,7 +440,7 @@ class JurisdictionUpdater(ThreadedService):
             self.pool,
             _dump_jurisdiction_info,
             self.jurisdiction_fp,
-            county,
+            jurisdiction,
             doc,
             seconds_elapsed,
             usage_tracker,
@@ -461,7 +465,9 @@ def _dump_usage(fp, tracker):
     return usage_info
 
 
-def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
+def _dump_jurisdiction_info(
+    fp, jurisdiction, doc, seconds_elapsed, usage_tracker
+):
     """Dump jurisdiction info to an existing file"""
     if not Path(fp).exists():
         jurisdiction_info = {"jurisdictions": []}
@@ -470,12 +476,12 @@ def _dump_jurisdiction_info(fp, county, doc, seconds_elapsed, usage_tracker):
             jurisdiction_info = json.load(fh)
 
     new_info = {
-        "full_name": county.full_name,
-        "county": county.name,
-        "state": county.state,
-        "subdivision": None,
-        "jurisdiction_type": None,
-        "FIPS": county.fips,
+        "full_name": jurisdiction.full_name,
+        "county": jurisdiction.county,
+        "state": jurisdiction.state,
+        "subdivision": jurisdiction.subdivision_name,
+        "jurisdiction_type": jurisdiction.type,
+        "FIPS": jurisdiction.code,
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
