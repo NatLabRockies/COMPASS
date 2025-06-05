@@ -22,17 +22,20 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.47.0
-          cache: true
+          pixi-version: v0.48.0
           frozen: true
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: pdev rdev
 
       - uses: Swatinem/rust-cache@v2
         with:
+          shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run cargo check
         run: |
-          pixi run --frozen cargo check --workspace
+          pixi run -e rdev --frozen cargo check --workspace
 
   lints:
     # Only run tests if code looks OK
@@ -45,21 +48,24 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.47.0
-          cache: true
+          pixi-version: v0.48.0
           frozen: true
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: pdev rdev
 
       - uses: Swatinem/rust-cache@v2
         with:
+          shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Run cargo fmt
         run: |
-          pixi run --frozen cargo fmt --all --check
+          pixi run -e rdev --frozen cargo fmt --all --check
 
       - name: Run cargo clippy
         run: |
-          pixi run --frozen cargo clippy --all-features --tests -- -D warnings
+          pixi run -e rdev --frozen cargo clippy --all-features --tests -- -D warnings
 
   test:
     # Only run tests if code looks OK
@@ -87,15 +93,18 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.47.0
-          cache: true
+          pixi-version: v0.48.0
           frozen: true
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: pdev rdev
 
       - uses: Swatinem/rust-cache@v2
         with:
+          shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - run: pixi run --frozen cargo test --workspace --no-fail-fast
+      - run: pixi run -e rdev --frozen cargo test --workspace --no-fail-fast
 
   publish:
     name: Publish (dry-run)
@@ -108,12 +117,15 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.47.0
-          cache: true
+          pixi-version: v0.48.0
           frozen: true
+          cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: pdev rdev
 
       - uses: Swatinem/rust-cache@v2
         with:
+          shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
       - name: Publish crates (core library)

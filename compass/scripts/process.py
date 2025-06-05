@@ -271,7 +271,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         A list of substrings that, if found in any URL, will cause the
         URL to be excluded from consideration. This can be used to
         specify particular websites or entire domains to ignore. For
-        example:
+        example::
 
             url_ignore_substrings = [
                 "wikipedia",

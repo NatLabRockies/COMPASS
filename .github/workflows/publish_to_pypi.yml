@@ -18,12 +18,14 @@ jobs:
 
     - uses: prefix-dev/setup-pixi@v0.8.8
       with:
-        pixi-version: v0.47.0
+        pixi-version: v0.48.0
         locked: true
         cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        environments: pdev rdev
 
     - name: Build and publish
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: pixi run -e pbuild upload-wheels
+      run: pixi run -e pdev upload-wheels

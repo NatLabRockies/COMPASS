@@ -23,12 +23,14 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.8
         with:
-          pixi-version: v0.47.0
+          pixi-version: v0.48.0
           locked: true
           cache: true
+          cache-write: ${{ github.ref == 'refs/heads/main' }}
+          environments: pdev rdev
 
       - name: Build Docs
-        run: pixi run -e pdoc make-html
+        run: pixi run -e pdev make-html
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0

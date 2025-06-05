@@ -103,4 +103,5 @@ This will download all required browser drivers. You only need to perform this s
 you may have to run the following command (requires ``sudo``):
 
 .. code-block:: shell
+
     rebrowser_playwright install-deps

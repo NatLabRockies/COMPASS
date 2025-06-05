@@ -203,17 +203,37 @@ Miscellaneous
 A collection of other miscellaneous guidelines.
 
 
-Updating ``pyproject.toml``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GitHub Actions Cache and Updating ``pyproject.toml``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Because we statically link the requirements, the compilation process can
-extend to 30-60 minutes. That is mostly due to ``duckdb`` and ``tokio``. To
-optimize this process, we use a GiHub Actions cache, but too many images blow
-the quota make the process less useful. To avoid this, the Rust component is setup
-to only save the compiled cache for branch main, and all other branches initiate
-from that, and hopefully save some fair amount of time. Thus, a good practice here
-is to update the `pyproject.toml` file and/or any Rust dependencies in a dedicated
-branch to avoid too much recompilation in working branches.
+Because we statically link the requirements, the Rust compilation process can
+extend to 30-60 minutes. That is mostly due to the ``duckdb`` and ``tokio``
+crates. To optimize this process, we use a GitHub Actions cache.
+
+When using the GitHub cache system, we have to be mindful of the 10 GB total
+storage limit. If we place too many items in the cache, it will rotate too
+frequently and defeat the entire purpose of the cache. For this reason,
+**we only cache environments that are run in actions on the main branch**!
+
+With this system, any PR can then pull from the cache built on the main branch
+and set up their environments that way.
+
+What this means for you
+"""""""""""""""""""""""
+When you open a PR, your environment will be built from a cache from the main branch.
+If you have no dependency updates, you are good to go!
+
+However, if you do have dependency updates, your environment will need to be updated.
+If you are working with Rust, you will download and compile the extra crate(s) in your
+branch. If the crate is small, this may not be a big deal, but keep in mind that this
+will happen for every new commit you push to your open PR.
+
+If you updated something in the ``pixi`` environment, the whole environment will be re-built.
+
+Therefore, in both of the latter cases, a good practice is to put your dependency updates
+in a separate branch and dedicated PR that you merge to main. Then, your feature PR
+can make full use of the cache that is built on the main branch without having to re-build
+or re-compile anything for the environment.
 
 
 Error Handling
