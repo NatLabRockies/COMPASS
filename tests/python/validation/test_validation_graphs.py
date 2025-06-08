@@ -19,7 +19,8 @@ def test_setup_graph_correct_jurisdiction_type_state():
     assert set(graph.nodes) == {"init", "is_state", "final"}
     assert list(graph.edges) == [("init", "is_state"), ("is_state", "final")]
 
-    assert f"{loc.state} state" in graph.nodes["is_state"]["prompt"]
+    assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
+    assert "state" in graph.nodes["is_state"]["prompt"]
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
 
@@ -38,7 +39,8 @@ def test_setup_graph_correct_jurisdiction_type_county(county_type):
         ("is_county", "final"),
     ]
 
-    assert f"{loc.state} state" in graph.nodes["is_state"]["prompt"]
+    assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
+    assert "state" in graph.nodes["is_state"]["prompt"]
     assert loc.full_county_phrase in graph.nodes["is_county"]["prompt"]
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
@@ -57,7 +59,8 @@ def test_setup_graph_correct_jurisdiction_type_city_no_county():
         ("is_city", "final"),
     ]
 
-    assert f"{loc.state} state" in graph.nodes["is_state"]["prompt"]
+    assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
+    assert "state" in graph.nodes["is_state"]["prompt"]
     assert loc.full_subdivision_phrase in graph.nodes["is_city"]["prompt"]
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
@@ -86,7 +89,8 @@ def test_setup_graph_correct_jurisdiction_type_city():
         ("is_city", "final"),
     ]
 
-    assert f"{loc.state} state" in graph.nodes["is_state"]["prompt"]
+    assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
+    assert "state" in graph.nodes["is_state"]["prompt"]
     assert loc.full_county_phrase in graph.nodes["is_county"]["prompt"]
     assert loc.full_subdivision_phrase in graph.nodes["is_city"]["prompt"]
     assert loc.full_name in graph.nodes["final"]["prompt"]

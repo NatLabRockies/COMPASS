@@ -8,7 +8,7 @@ import asyncio
 import logging
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
-from compass.extraction.common import setup_async_decision_tree, run_async_tree
+from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,
@@ -78,7 +78,7 @@ class DTreeURLCountyValidator(BaseLLMCaller):
         logger.debug(
             "Parsing URL jurisdiction validation output:\n\t%s", props
         )
-        return all(props.values())
+        return len(props) > 0 and all(props.values())
 
 
 class DTreeJurisdictionValidator(BaseLLMCaller):
@@ -209,26 +209,25 @@ class JurisdictionValidator:
             doc.text_splitter = self.text_splitter
 
         url = doc.attrs.get("source")
-        logger.info("Validating document from source: %s", url or "Unknown")
+        if url:
+            logger.debug("Checking URL (%s) for county name...", url)
+            url_validator = DTreeURLCountyValidator(
+                jurisdiction, **self.kwargs
+            )
+            url_is_correct_jurisdiction = await url_validator.check(url)
+            if url_is_correct_jurisdiction:
+                return True
 
+        logger.info("Validating document from source: %s", url or "Unknown")
         logger.debug("Checking for correct for jurisdiction...")
         jurisdiction_validator = DTreeJurisdictionValidator(
             jurisdiction, **self.kwargs
         )
-        jurisdiction_is_correct = await _validator_check_for_doc(
+        return await _validator_check_for_doc(
             validator=jurisdiction_validator,
             doc=doc,
             score_thresh=self.score_thresh,
         )
-        if jurisdiction_is_correct:
-            return True
-
-        if not url:
-            return False
-
-        logger.debug("Checking URL (%s) for county name...", url)
-        url_validator = DTreeURLCountyValidator(jurisdiction, **self.kwargs)
-        return await url_validator.check(url)
 
 
 async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):

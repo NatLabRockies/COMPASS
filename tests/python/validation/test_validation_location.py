@@ -1,21 +1,13 @@
 """Test COMPASS Ordinance location validation tests"""
 
-import asyncio
 import os
 from pathlib import Path
-from functools import partial
 
 import pytest
-import openai
 from flaky import flaky
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from elm.web.document import PDFDocument
+from elm.utilities.parse import read_pdf_ocr
 
-from elm import ApiBase
-from elm.web.document import PDFDocument, HTMLDocument
-from elm.utilities.parse import read_pdf
-from compass.services.openai import OpenAIService
-from compass.services.provider import RunningAsyncServices
-from compass.utilities import RTS_SEPARATORS
 from compass.utilities.location import Jurisdiction
 from compass.validation.location import (
     JurisdictionValidator,
@@ -27,60 +19,7 @@ from compass.validation.location import (
 
 
 SHOULD_SKIP = os.getenv("AZURE_OPENAI_API_KEY") is None
-TESTING_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
-    RTS_SEPARATORS,
-    chunk_size=3000,
-    chunk_overlap=300,
-    length_function=partial(ApiBase.count_tokens, model="gpt-4"),
-    is_separator_regex=True,
-)
-
-
-@pytest.fixture(scope="module")
-def event_loop():
-    """Override default event loop fixture to make it module-level"""
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
-
-
-@pytest.fixture(scope="module")
-def oai_async_azure_client():
-    """OpenAi Azure client to use for tests"""
-    return openai.AsyncAzureOpenAI(
-        api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
-        api_version=os.environ.get("AZURE_OPENAI_VERSION"),
-        azure_endpoint=os.environ.get("AZURE_OPENAI_ENDPOINT"),
-    )
-
-
-@pytest.fixture(scope="module")
-def oai_llm_service(oai_async_azure_client):
-    """OpenAi Azure client to use for tests"""
-    model_name = os.environ.get("AZURE_OPENAI_MODEL_NAME", "gpt-4o-mini")
-    return OpenAIService(
-        client=oai_async_azure_client, model_name=model_name, rate_limit=1e6
-    )
-
-
-@pytest.fixture(scope="module", autouse=True)
-async def running_openai_service(oai_llm_service):
-    """Set up running OpenAI service to use for tests"""
-    async with RunningAsyncServices([oai_llm_service]):
-        yield
-
-
-def _load_doc(test_data_dir, doc_fn):
-    """Load PDF or HTML doc for tests"""
-    doc_fp = test_data_dir / doc_fn
-    if doc_fp.suffix == ".pdf":
-        with doc_fp.open("rb") as fh:
-            pages = read_pdf(fh.read())
-            return PDFDocument(pages)
-
-    with doc_fp.open("r", encoding="utf-8") as fh:
-        text = fh.read()
-        return HTMLDocument([text], text_splitter=TESTING_TEXT_SPLITTER)
+PYT_CMD = os.getenv("TESSERACT_CMD")
 
 
 @flaky(max_runs=3, min_passes=1)
@@ -208,15 +147,40 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
     ],
 )
 async def test_doc_text_matches_jurisdiction(
-    oai_llm_service, loc, doc_fn, truth, test_data_dir
+    oai_llm_service, loc, doc_fn, truth, doc_loader
 ):
     """Test the `DTreeJurisdictionValidator` class"""
-    doc = _load_doc(test_data_dir, doc_fn)
+    doc = doc_loader(doc_fn)
     cj_validator = DTreeJurisdictionValidator(
         loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
     )
     out = await _validator_check_for_doc(doc=doc, validator=cj_validator)
     assert out == truth
+
+
+@pytest.mark.skipif(
+    SHOULD_SKIP or not PYT_CMD,
+    reason="requires Azure OpenAI key *and* PyTesseract command to be set",
+)
+async def test_doc_text_matches_jurisdiction_ocr(
+    oai_llm_service, test_data_dir
+):
+    """Test the `DTreeJurisdictionValidator` class for scanned doc"""
+    import pytesseract  # noqa: PLC0415
+
+    pytesseract.pytesseract.tesseract_cmd = PYT_CMD
+
+    loc = Jurisdiction("county", state="Kansas", county="Sedgwick")
+
+    doc_fp = test_data_dir / "Sedgwick Kansas.pdf"
+    with doc_fp.open("rb") as fh:
+        pages = read_pdf_ocr(fh.read())
+        doc = PDFDocument(pages)
+
+    cj_validator = DTreeJurisdictionValidator(
+        loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+    )
+    assert await _validator_check_for_doc(doc=doc, validator=cj_validator)
 
 
 @flaky(max_runs=3, min_passes=1)
@@ -252,10 +216,10 @@ async def test_doc_text_matches_jurisdiction(
     ],
 )
 async def test_doc_matches_jurisdiction(
-    oai_llm_service, loc, doc_fn, url, truth, test_data_dir
+    oai_llm_service, loc, doc_fn, url, truth, doc_loader
 ):
     """Test the `JurisdictionValidator` class (basic execution)"""
-    doc = _load_doc(test_data_dir, doc_fn)
+    doc = doc_loader(doc_fn)
     doc.attrs["source"] = url
 
     county_validator = JurisdictionValidator(

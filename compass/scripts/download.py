@@ -235,7 +235,10 @@ def _ord_doc_sorting_key(doc):
     latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
     prefer_pdf_files = isinstance(doc, PDFDocument)
     highest_jurisdiction_score = doc.attrs.get(
-        DTreeJurisdictionValidator.META_SCORE_KEY, 0
+        # If not present, URL check passed with confidence so we set
+        # score to 1
+        DTreeJurisdictionValidator.META_SCORE_KEY,
+        1,
     )
     shortest_text_length = -1 * len(doc.text)
     return (

@@ -2,6 +2,14 @@
 
 from functools import cached_property
 
+JURISDICTION_TYPES_AS_PREFIXES = {
+    "town",
+    "township",
+    "city",
+    "borough",
+    "village",
+}
+
 
 class Jurisdiction:
     """Class representing a jurisdiction"""
@@ -64,7 +72,7 @@ class Jurisdiction:
         if not self.subdivision_name:
             return ""
 
-        if self.type.casefold() in {"town", "township", "city", "borough"}:
+        if self.type.casefold() in JURISDICTION_TYPES_AS_PREFIXES:
             return f"{self.type} of {self.subdivision_name}"
 
         return f"{self.subdivision_name} {self.type}"

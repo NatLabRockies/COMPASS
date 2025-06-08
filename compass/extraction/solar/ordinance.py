@@ -6,8 +6,9 @@ particular technology (e.g. Solar Energy Conversion System).
 
 import logging
 
-from compass.extraction.common import BaseTextExtractor
+from compass.common import BaseTextExtractor
 from compass.validation.content import Heuristic
+from compass.llm.calling import StructuredLLMCaller
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import merge_overlapping_texts
 
@@ -48,7 +49,7 @@ class SolarHeuristic(Heuristic):
     ]
 
 
-class SolarOrdinanceTextCollector:
+class SolarOrdinanceTextCollector(StructuredLLMCaller):
     """Check text chunks for ordinances and collect them if they do"""
 
     CONTAINS_ORD_PROMPT = (
@@ -84,7 +85,17 @@ class SolarOrdinanceTextCollector:
         "False otherwise."
     )
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        """
+
+        Parameters
+        ----------
+        *args, **kwargs
+            Parameters to pass to the
+            :class:`~compass.llm.calling.StructuredLLMCaller`
+            initializer.
+        """
+        super().__init__(*args, **kwargs)
         self._ordinance_chunks = {}
 
     async def check_chunk(self, chunk_parser, ind):
@@ -105,7 +116,9 @@ class SolarOrdinanceTextCollector:
             contains large solar energy farm ordinance text.
         """
         contains_ord_info = await chunk_parser.parse_from_ind(
-            ind, self.CONTAINS_ORD_PROMPT, key="contains_ord_info"
+            ind,
+            key="contains_ord_info",
+            llm_call_callback=self._check_chunk_contains_ord,
         )
         if not contains_ord_info:
             logger.debug("Text at ind %d does not contain ordinance info", ind)
@@ -114,7 +127,9 @@ class SolarOrdinanceTextCollector:
         logger.debug("Text at ind %d does contain ordinance info", ind)
 
         is_utility_scale = await chunk_parser.parse_from_ind(
-            ind, self.IS_UTILITY_SCALE_PROMPT, key="x"
+            ind,
+            key="x",
+            llm_call_callback=self._check_chunk_is_for_utility_scale,
         )
         if not is_utility_scale:
             logger.debug("Text at ind %d is not for utility-scale SEF", ind)
@@ -147,8 +162,28 @@ class SolarOrdinanceTextCollector:
         ]
         return merge_overlapping_texts(text)
 
+    async def _check_chunk_contains_ord(self, key, text_chunk):
+        """Call LLM on a chunk of text to check for ordinance"""
+        content = await self.call(
+            sys_msg=self.CONTAINS_ORD_PROMPT.format(key=key),
+            content=text_chunk,
+            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
+        )
+        logger.debug("LLM response: %s", str(content))
+        return content.get(key, False)
 
-class SolarPermittedUseDistrictsTextCollector:
+    async def _check_chunk_is_for_utility_scale(self, key, text_chunk):
+        """Call LLM on a chunk of text to check for utility scale"""
+        content = await self.call(
+            sys_msg=self.IS_UTILITY_SCALE_PROMPT.format(key=key),
+            content=text_chunk,
+            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
+        )
+        logger.debug("LLM response: %s", str(content))
+        return content.get(key, False)
+
+
+class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     """Check text chunks for permitted solar districts; collect them"""
 
     DISTRICT_PROMPT = (
@@ -168,7 +203,17 @@ class SolarPermittedUseDistrictsTextCollector:
         "solar energy farms are a permitted use and False otherwise."
     )
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        """
+
+        Parameters
+        ----------
+        *args, **kwargs
+            Parameters to pass to the
+            :class:`~compass.llm.calling.StructuredLLMCaller`
+            initializer.
+        """
+        super().__init__(*args, **kwargs)
         self._district_chunks = {}
 
     async def check_chunk(self, chunk_parser, ind):
@@ -190,7 +235,7 @@ class SolarPermittedUseDistrictsTextCollector:
         """
 
         key = "contains_district_info"
-        content = await chunk_parser.slc.call(
+        content = await self.call(
             sys_msg=self.DISTRICT_PROMPT.format(key=key),
             content=chunk_parser.text_chunks[ind],
             usage_sub_label=(

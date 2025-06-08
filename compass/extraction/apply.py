@@ -60,22 +60,29 @@ async def check_for_ordinance_info(
     if "contains_ord_info" in doc.attrs:
         return doc
 
-    llm_caller = StructuredLLMCaller(
+    chunks = model_config.text_splitter.split_text(doc.text)
+    chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
+    legal_text_validator = LegalTextValidator(
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
     )
-    chunks = model_config.text_splitter.split_text(doc.text)
-    chunk_parser = ParseChunksWithMemory(llm_caller, chunks, num_to_recall=2)
-    legal_text_validator = LegalTextValidator()
 
-    ordinance_text_collector = ordinance_text_collector_class()
+    ordinance_text_collector = ordinance_text_collector_class(
+        llm_service=model_config.llm_service,
+        usage_tracker=usage_tracker,
+        **model_config.llm_call_kwargs,
+    )
     callbacks = [ordinance_text_collector.check_chunk]
     if permitted_use_text_collector_class is not None:
-        permitted_use_text_collector = permitted_use_text_collector_class()
+        permitted_use_text_collector = permitted_use_text_collector_class(
+            llm_service=model_config.llm_service,
+            usage_tracker=usage_tracker,
+            **model_config.llm_call_kwargs,
+        )
         callbacks.append(permitted_use_text_collector.check_chunk)
 
-    doc.attrs["is_legal_text"] = await parse_by_chunks(
+    await parse_by_chunks(
         chunk_parser,
         heuristic,
         legal_text_validator,

@@ -10,7 +10,7 @@ import pandas as pd
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.extraction.features import SetbackFeatures
-from compass.extraction.common import (
+from compass.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
     run_async_tree,
     run_async_tree_with_bm,

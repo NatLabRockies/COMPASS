@@ -1,6 +1,6 @@
 """Ordinance Decision Tree Graph setup functions"""
 
-from compass.extraction.common import (
+from compass.common import (
     setup_graph_no_nodes,
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
@@ -30,8 +30,8 @@ def setup_graph_wes_types(**kwargs):
             "system sizes? Distinctions are often made as 'small', "
             "'personal', or 'private' vs 'large', 'commercial', or 'utility'. "
             "Sometimes the distinction uses actual MW values. "
-            "Begin your response with either 'Yes' or 'No' and explain your "
-            "answer."
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -90,7 +90,7 @@ def setup_multiplier(**kwargs):
             "Remember that 1 is a valid multiplier, and treat any mention "
             "of 'fall zone' as a system height multiplier of 1. "
             "Please start your response with either 'Yes' or 'No' and "
-            "explain your answer."
+            "briefly explain your answer."
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -172,9 +172,9 @@ def setup_multiplier(**kwargs):
             "should be added to the result of the multiplication? Do not "
             "confuse this value with static setback requirements. Ignore text "
             "with clauses such as 'no lesser than', 'no greater than', "
-            "'the lesser of', or 'the greater of'. Begin your response with "
-            "either 'Yes' or 'No' and explain your answer, stating the adder "
-            "value if it exists."
+            "'the lesser of', or 'the greater of'. Please start your response "
+            "with either 'Yes' or 'No' and briefly explain your answer, "
+            "stating the adder value if it exists."
         ),
     )
     G.add_edge("adder", "out_m", condition=llm_response_starts_with_no)
@@ -185,7 +185,8 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the adder value you identified satisfy the following "
             "equation: 'multiplier * height + <adder>'? Please begin your "
-            "response with either 'Yes' or 'No' and explain your answer."
+            "response with either 'Yes' or 'No' and briefly explain your "
+            "answer."
         ),
     )
     G.add_edge("adder_eq", "out_m", condition=llm_response_starts_with_no)
@@ -258,7 +259,8 @@ def setup_conditional(**kwargs):
             "multiplier calculation? This is often phrased as 'the greater "
             "of' or 'the lesser of'. Do not confuse this value with static "
             "values to be added to multiplicative setbacks. Begin your "
-            "response with either 'Yes' or 'No' and explain your answer."
+            "response with either 'Yes' or 'No' and briefly explain your "
+            "answer."
         ),
     )
 
@@ -269,8 +271,8 @@ def setup_conditional(**kwargs):
             "Tell me the minimum and/or maximum setback distances, "
             "converting to feet if necessary (remember that there are "
             "3.28084 feet in one meter and 5280 feet in one mile). "
-            "Explain your answer and show your work if you had to perform "
-            "a conversion."
+            "Briefly explain your answer and show your work if you had "
+            "to perform a conversion."
         ),
     )
 
