@@ -10,6 +10,7 @@ repository = "https://github.com/NREL/COMPASS"
 license.workspace = true
 
 [dependencies]
+anyhow = { workspace = true }
 clap = { workspace = true }
 duckdb = { workspace = true }
 infra-compass-db = { workspace = true }

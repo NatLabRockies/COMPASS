@@ -1,11 +1,12 @@
 use std::path::PathBuf;
 
+use anyhow::{Context, Result};
 use clap::{Arg, ArgAction, Command, arg, command, value_parser};
 use duckdb::Connection;
 use tracing::{self, trace};
 use tracing_subscriber;
 
-fn main() {
+fn main() -> Result<()> {
     let matches = command!() // requires `cargo` feature
         .arg(
             arg!(--db <DATABASE>)
@@ -62,7 +63,8 @@ fn main() {
     match matches.subcommand_name() {
         Some("init") => {
             trace!("Creating database at {:?}", &db);
-            infra_compass_db::init_db(db).unwrap();
+            infra_compass_db::init_db(db)
+                .with_context(|| format!("Failed to initialize database as {}", db))?;
         }
         Some("export") => {
             trace!("Showing export for database at {:?}", &db);
@@ -70,7 +72,7 @@ fn main() {
                 println!("Showing export for database at {:?}", &db);
             }
 
-            infra_compass_db::export_db(&db);
+            infra_compass_db::export_db(db);
         }
         Some("load") => {
             trace!("Subcommand load");
@@ -91,9 +93,12 @@ fn main() {
             // In the future, replace this Connection with a custom one
             // that already creates a session with the username, and hance
             // handle ahead permissions/authorization.
-            let conn: Connection = Connection::open(&db).expect("Failed to open database");
-            let _ = infra_compass_db::load_ordinance(conn, username, path);
+            let conn: Connection = Connection::open(db).expect("Failed to open database");
+            infra_compass_db::load_ordinance(conn, username, path).with_context(|| {
+                format!("Failed to load ordinance data from {}", path.display(),)
+            })?;
         }
+
         Some("log") => {
             trace!("Showing log for database at {:?}", &db);
         }
@@ -101,4 +106,6 @@ fn main() {
             println!("No subcommand was used");
         }
     }
+
+    Ok(())
 }
