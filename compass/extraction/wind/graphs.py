@@ -41,9 +41,10 @@ def setup_graph_wes_types(**kwargs):
         "get_text",
         prompt=(
             "What are the different wind energy system sizes this text "
-            "mentions? List them in order of increasing size. Only include "
-            "wind energy system types; do not include generic types or other "
-            "energy system types."
+            "mentions? List them in order of increasing size. "
+            "Include any relevant numerical qualifiers in the name, if "
+            "appropriate. Only list wind energy system types; do not "
+            "include generic types or other energy system types."
         ),
     )
     G.add_edge("get_text", "final")
@@ -86,7 +87,13 @@ def setup_multiplier(**kwargs):
             "turbine dimension (e.g. height, rotor diameter, etc) to compute "
             "the setback distance from {feature}? "
             "Focus only on {feature}; do not respond based on any text "
-            "related to {ignore_features}."
+            "related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height, rotor diameter, "
+            "or rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
             "Remember that 1 is a valid multiplier, and treat any mention "
             "of 'fall zone' as a system height multiplier of 1. "
             "Please start your response with either 'Yes' or 'No' and "
@@ -98,7 +105,17 @@ def setup_multiplier(**kwargs):
         "no_multiplier",
         prompt=(
             "Does the ordinance give the setback from {feature} as a fixed "
-            "distance value? Explain yourself."
+            "distance value? "
+            "Focus only on {feature}; do not respond based on any text "
+            "related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height, rotor diameter, "
+            "or rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Please start your response with either 'Yes' or "
+            "'No' and briefly explain your answer."
         ),
     )
     G.add_edge(
@@ -133,11 +150,13 @@ def setup_multiplier(**kwargs):
             "four keys. The keys are 'value', 'units', 'summary', and "
             "'section'. The value of the 'value' key should be a "
             "**numerical** value corresponding to the setback distance value "
-            "from {feature} or `null` if there was no such value. The value "
-            "of the 'units' key should be a string corresponding to the "
-            "(standard) units of the setback distance value from {feature} "
-            "or `null` if there was no such value. {SUMMARY_PROMPT} "
-            "{SECTION_PROMPT}"
+            "from {feature} or `null` if there was no such value. "
+            "The value of the 'units' key should be a string corresponding to "
+            "the (standard) units of the setback distance value from "
+            "{feature} or `null` if there was no such value. "
+            "As before, focus only on setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself. "
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -145,9 +164,16 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "m_single",
         prompt=(
-            "Are multiple values given for the multiplier used to "
-            "compute the setback distance value from {feature}? If so, "
-            "select and state the largest one. Otherwise, repeat the single "
+            "Are multiple values given for the multiplier used to compute the "
+            "setback distance value from {feature}? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "If so, select "
+            "and state the largest one. Otherwise, repeat the single "
             "multiplier value that was given in the text. "
         ),
     )
@@ -155,12 +181,21 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "m_type",
         prompt=(
-            "What should the multiplier be applied to? Common acronyms "
-            "include RD for rotor diameter and HH for hub height. Remember "
-            "that system/total height is the tip-hight of the turbine. "
-            "Select a value from the following list and explain yourself: "
+            "What kind of multiplier is stated in the text to compute the "
+            "setback distance from {feature}? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Select a value from the following list: "
             "['tip-height-multiplier', 'hub-height-multiplier', "
-            "'rotor-diameter-multiplier]"
+            "'rotor-diameter-multiplier]. "
+            "Default to 'tip-height-multiplier' unless the text explicitly "
+            "explains that the multiplier should be applied to the distance "
+            "up to the turbine hub or to the diameter of the rotors. "
+            "Briefly justify your answer."
         ),
     )
 
@@ -168,28 +203,38 @@ def setup_multiplier(**kwargs):
     G.add_node(
         "adder",
         prompt=(
-            "Does the ordinance include a static distance value that "
-            "should be added to the result of the multiplication? Do not "
-            "confuse this value with static setback requirements. Ignore text "
-            "with clauses such as 'no lesser than', 'no greater than', "
-            "'the lesser of', or 'the greater of'. Please start your response "
-            "with either 'Yes' or 'No' and briefly explain your answer, "
-            "stating the adder value if it exists."
+            "Does the ordinance for the setback from {feature} include a "
+            "static distance value that should be added to the result of "
+            "the multiplication? "
+            "Focus only on setbacks specifically for systems that would "
+            "typically be defined as {tech} based on the text itself — for "
+            "example, systems intended for electricity generation or sale, "
+            "or those above thresholds such as height, rotor diameter, or "
+            "rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Do not confuse this value with static setback requirements. "
+            "Ignore text with clauses such as "
+            "'no lesser than', 'no greater than', 'the lesser of', or 'the "
+            "greater of'. Please start your response with either 'Yes' or "
+            "'No' and briefly explain your answer, stating the adder value "
+            "if it exists."
         ),
     )
-    G.add_edge("adder", "out_m", condition=llm_response_starts_with_no)
+    G.add_edge("adder", "out_no_adder", condition=llm_response_starts_with_no)
     G.add_edge("adder", "adder_eq", condition=llm_response_starts_with_yes)
 
     G.add_node(
         "adder_eq",
         prompt=(
             "Does the adder value you identified satisfy the following "
-            "equation: 'multiplier * height + <adder>'? Please begin your "
+            "equation: `multiplier * height + <adder>`? Please begin your "
             "response with either 'Yes' or 'No' and briefly explain your "
             "answer."
         ),
     )
-    G.add_edge("adder_eq", "out_m", condition=llm_response_starts_with_no)
+    G.add_edge(
+        "adder_eq", "out_no_adder", condition=llm_response_starts_with_no
+    )
     G.add_edge(
         "adder_eq",
         "conversion",
@@ -205,12 +250,11 @@ def setup_multiplier(**kwargs):
         ),
     )
     G.add_edge("conversion", "out_m")
-
     G.add_node(
         "out_m",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in JSON "
+            "Return your answer as a single dictionary in JSON "
             "format (not markdown). Your JSON file must include exactly five "
             "keys. The keys are 'mult_value', 'mult_type', 'adder', "
             "'summary', and 'section'. The value of the "
@@ -225,16 +269,31 @@ def setup_multiplier(**kwargs):
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
+    G.add_node(
+        "out_no_adder",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a single dictionary in JSON "
+            "format (not markdown). Your JSON file must include exactly four "
+            "keys. The keys are 'mult_value', 'mult_type', "
+            "'summary', and 'section'. The value of the "
+            "'mult_value' key should be a **numerical** value corresponding "
+            "to the multiplier value we determined earlier. The value of the "
+            "'mult_type' key should be a string corresponding to the "
+            "dimension that the multiplier should be applied to, as we "
+            "determined earlier. "
+            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+        ),
+    )
 
     return G
 
 
-def setup_conditional(**kwargs):
-    """Setup graph to extract min/max setback values for a feature
+def setup_conditional_min(**kwargs):
+    """Setup graph to extract min setback values for a feature
 
-    Min/Max setback values (after application of multiplier) are
-    typically given within the context of 'the greater of' or
-    'the lesser of' clauses.
+    Min setback values (after application of multiplier) are
+    typically given within the context of 'the greater of' clauses.
 
     Parameters
     ----------
@@ -252,44 +311,140 @@ def setup_conditional(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Focus only on setback from {feature}; do not respond based "
-            "on any text related to {ignore_features}."
-            "Does the setback from {feature} mention a minimum or maximum "
-            "static setback distance **regardless of the outcome** of the "
-            "multiplier calculation? This is often phrased as 'the greater "
-            "of' or 'the lesser of'. Do not confuse this value with static "
-            "values to be added to multiplicative setbacks. Begin your "
-            "response with either 'Yes' or 'No' and briefly explain your "
-            "answer."
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height, rotor diameter, "
+            "or rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Does the setback from {feature} for {tech} mention a minimum "
+            "setback distance **regardless of the outcome** of the "
+            "multiplier calculation? This value acts like a threshold and is "
+            "often found within phrases like 'the greater of'. "
+            "Begin your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
         ),
     )
 
-    G.add_edge("init", "conversions", condition=llm_response_starts_with_yes)
+    G.add_edge("init", "min_eq", condition=llm_response_starts_with_yes)
     G.add_node(
-        "conversions",
+        "min_eq",
         prompt=(
-            "Tell me the minimum and/or maximum setback distances, "
-            "converting to feet if necessary (remember that there are "
-            "3.28084 feet in one meter and 5280 feet in one mile). "
-            "Briefly explain your answer and show your work if you had "
-            "to perform a conversion."
+            "Does the threshold value you identified satisfy the following "
+            "equation: "
+            "`setback_distance = max(<threshold>, multiplier_setback)`? "
+            "Please begin your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
         ),
     )
 
-    G.add_edge("conversions", "out_condition")
+    G.add_edge(
+        "min_eq", "conversions_min", condition=llm_response_starts_with_yes
+    )
     G.add_node(
-        "out_condition",
+        "conversions_min",
+        prompt=(
+            "If the threshold value is not given in feet, convert "
+            "it to feet (remember that there are 3.28084 feet in one meter "
+            "and 5280 feet in one mile). Show your work step-by-step "
+            "if you had to perform a conversion."
+        ),
+    )
+    G.add_edge("conversions_min", "out")
+
+    G.add_node(
+        "out",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in JSON "
+            "Return your answer as a single dictionary in JSON "
             "format (not markdown). Your JSON file must include exactly two "
-            "keys. The keys are 'min_dist' and 'max_dist'. The value of the "
+            "keys. The keys are 'min_dist' and 'summary'. The value of the "
             "'min_dist' key should be a **numerical** value corresponding to "
-            "the minimum setback value from {feature} we determined earlier, "
-            "or `null` if no such value exists. The value of the 'max_dist' "
-            "key should be a **numerical** value corresponding to the maximum "
-            "setback value from {feature}  we determined earlier, or `null` "
-            "if no such value exists."
+            "the minimum setback value from {feature} that we determined "
+            "earlier, or `null` if no such value exists. {SUMMARY_PROMPT}"
+        ),
+    )
+
+    return G
+
+
+def setup_conditional_max(**kwargs):
+    """Setup graph to extract max setback values for a feature
+
+    Max setback values (after application of multiplier) are
+    typically given within the context of 'the lesser of' clauses.
+
+    Parameters
+    ----------
+    **kwargs
+        Keyword-value pairs to add to graph.
+
+    Returns
+    -------
+    nx.DiGraph
+        Graph instance that can be used to initialize an
+        `elm.tree.DecisionTree`.
+    """
+    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+
+    G.add_node(
+        "init",
+        prompt=(
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height, rotor diameter, "
+            "or rated capacity. Ignore any requirements that apply only to "
+            "smaller or clearly non-commercial systems. "
+            "Does the setback from {feature} for {tech} mention a maximum "
+            "setback distance **regardless of the outcome** of the "
+            "multiplier calculation? This value acts like a limit and is "
+            "often found within phrases like 'the lesser of'. "
+            "Begin your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
+        ),
+    )
+
+    G.add_edge("init", "max_eq", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "max_eq",
+        prompt=(
+            "Does the limit value you identified satisfy the following "
+            "equation: "
+            "`setback_distance = min(multiplier_setback, <limit>)`? "
+            "Please begin your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "max_eq", "conversions_max", condition=llm_response_starts_with_yes
+    )
+    G.add_node(
+        "conversions_max",
+        prompt=(
+            "If the limit value is not given in feet, convert "
+            "it to feet (remember that there are 3.28084 feet in one meter "
+            "and 5280 feet in one mile). Show your work step-by-step "
+            "if you had to perform a conversion."
+        ),
+    )
+    G.add_edge("conversions_max", "out")
+
+    G.add_node(
+        "out",
+        prompt=(
+            "Please respond based on our entire conversation so far. "
+            "Return your answer as a single dictionary in JSON "
+            "format (not markdown). Your JSON file must include exactly two "
+            "keys. The keys are 'max_dist' and 'summary'. The value of the "
+            "'max_dist' key should be a **numerical** value corresponding to "
+            "the maximum setback value from {feature} that we determined "
+            "earlier, or `null` if no such value exists. {SUMMARY_PROMPT}"
         ),
     )
 

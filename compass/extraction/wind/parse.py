@@ -25,7 +25,8 @@ from compass.common import (
 from compass.extraction.wind.graphs import (
     setup_graph_wes_types,
     setup_multiplier,
-    setup_conditional,
+    setup_conditional_min,
+    setup_conditional_max,
 )
 from compass.utilities.enums import LLMUsageCategory
 from compass.warn import COMPASSWarning
@@ -39,17 +40,25 @@ DEFAULT_SYSTEM_MESSAGE = (
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
-    "For the duration of this conversation, only focus on "
-    "ordinances relating to setbacks from {feature} for {tech} (or similar). "
-    "Ignore all text that only pertains to private, micro, small, or medium "
-    "sized wind energy systems."
+    "For the duration of this conversation, only focus on ordinances "
+    "relating to setbacks from {feature}; do not respond based on any text "
+    "related to {ignore_features}. "
+    "Please only consider ordinances for systems that would typically be "
+    "defined as {tech} based on the text itself — for example, systems "
+    "intended for electricity generation or sale, or those above thresholds "
+    "such as height, rotor diameter, or rated capacity. Ignore any "
+    "requirements that apply only to smaller or clearly non-commercial "
+    "systems. "
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for {tech} (or similar). Ignore "
-    "all text that only pertains to private, micro, small, or medium sized "
-    "wind energy systems."
+    "ordinances relating to {restriction} for systems that would "
+    "typically be defined as {tech} based on the text itself — for "
+    "example, systems intended for electricity generation or sale, "
+    "or those above thresholds such as height, rotor diameter, or rated "
+    "capacity. Ignore any requirements that apply only to smaller or clearly "
+    "non-commercial systems. "
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
@@ -66,7 +75,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
     "shadow flicker": "maximum shadow flicker allowed",
-    "tower density": "**minimum** turbine spacing allowed",
+    "tower density": "**minimum** allowed spacing between individual turbines",
     "blade clearance": "minimum blade clearance allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -87,7 +96,7 @@ UNIT_CLARIFICATIONS = {
     ),
     "tower density": (
         "For the purposes of this extraction, assume the standard units "
-        "for turbine spacing are one of the following: "
+        "for spacing between turbines are one of the following: "
         "'tip-height-multiplier', 'hub-height-multiplier', "
         "'rotor-diameter-multiplier', 'feet', or 'meters'."
     ),
@@ -96,6 +105,10 @@ ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
         "size value or as a maximum number of turbines."
+    ),
+    "shadow flicker": (
+        "If the text prohibits shadow, treat this as a max value of 0 "
+        "hours per year."
     ),
 }
 
@@ -301,10 +314,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
 
     async def _base_messages(self, text, **feature_kwargs):
         """Get base messages for setback feature parsing"""
-        system_message = SETBACKS_SYSTEM_MESSAGE.format(
-            feature=feature_kwargs["feature"],
-            tech=feature_kwargs["tech"],
-        )
+        system_message = SETBACKS_SYSTEM_MESSAGE.format(**feature_kwargs)
         tree = setup_async_decision_tree(
             setup_base_setback_graph,
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
@@ -354,7 +364,9 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
 
         base_messages = deepcopy(base_messages)
         base_messages[-2]["content"] = EXTRACT_ORIGINAL_TEXT_PROMPT.format(
-            feature=feature, tech=feature_kwargs["tech"]
+            feature=feature,
+            tech=feature_kwargs["tech"],
+            ignore_features=feature_kwargs["ignore_features"],
         )
         base_messages[-1]["content"] = sub_text
 
@@ -377,29 +389,24 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         if decision_tree_out.get("value") is None:
             return decision_tree_out
 
-        decision_tree_conditional_out = await self._run_setback_graph(
-            setup_conditional, text, **kwargs
+        decision_tree_conditional_min_out = await self._run_setback_graph(
+            setup_conditional_min, text, **kwargs
         )
-        decision_tree_out.update(decision_tree_conditional_out)
+        decision_tree_out.update(decision_tree_conditional_min_out)
+        decision_tree_conditional_max_out = await self._run_setback_graph(
+            setup_conditional_max, text, **kwargs
+        )
+        decision_tree_out.update(decision_tree_conditional_max_out)
         return decision_tree_out
 
     async def _run_setback_graph(
-        self,
-        graphs_setup_func,
-        text,
-        feature,
-        tech,
-        base_messages=None,
-        **kwargs,
+        self, graphs_setup_func, text, base_messages=None, **kwargs
     ):
         """Generic function to run async tree"""
-        system_message = SETBACKS_SYSTEM_MESSAGE.format(
-            feature=feature, tech=tech
-        )
+        system_message = SETBACKS_SYSTEM_MESSAGE.format(**kwargs)
         tree = setup_async_decision_tree(
             graphs_setup_func,
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
-            feature=feature,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **kwargs,
@@ -549,7 +556,7 @@ def _sanitize_output(output):
 
 def _remove_key_for_empty_value(output, key):
     """Remove any output in "key" if no ordinance value found"""
-    if output.get("value") or not output.get(key):
+    if output.get("value") is not None or not output.get(key):
         return output
 
     # at this point, we have some value in "key" but no actual ordinance

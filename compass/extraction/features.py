@@ -11,7 +11,12 @@ class SetbackFeatures:
             "structures",
             "residences",
         ],
-        "property line": ["property lines", "parcels", "subdivisions"],
+        "property line": [
+            "property lines",
+            "lot lines",
+            "parcels",
+            "subdivisions",
+        ],
         "roads": ["roads"],  # , "rights-of-way"],
         "railroads": ["railroads"],
         "transmission": [

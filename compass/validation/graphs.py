@@ -36,7 +36,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_model",
         prompt=(
-            "Is the following text an excerpt from a model ordinance or other "
+            "Is the text an excerpt from a model ordinance or other "
             "kind of model law? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."
@@ -47,7 +47,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_pd",
         prompt=(
-            "Is the following text an excerpt from a planning document? "
+            "Is the text an excerpt from a planning document? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."
         ),
@@ -57,7 +57,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_pres",
         prompt=(
-            "Is the following text an excerpt from a presentation? "
+            "Is the text an excerpt from a presentation? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."
         ),
@@ -67,7 +67,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_draft",
         prompt=(
-            "Is the following text an excerpt from a draft document? "
+            "Is the text an excerpt from a draft document? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."
         ),
@@ -77,7 +77,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_report",
         prompt=(
-            "Is the following text an excerpt from a report or summary "
+            "Is the text an excerpt from a report or summary "
             "document? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."
@@ -90,7 +90,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "is_article",
         prompt=(
-            "Is the following text an excerpt from a news article or "
+            "Is the text an excerpt from a news article or "
             "other media? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain why you chose your answer."

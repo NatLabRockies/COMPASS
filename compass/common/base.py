@@ -32,7 +32,14 @@ _UNITS_IN_SUMMARY_PROMPT = (
 )
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
-    "that state how close I can site {tech} (or similar) to {feature}"
+    "that state how close I can site {tech} to {feature}. "
+    "Focus on ordinances relating to setbacks from {feature}; do not "
+    "respond based on any text related to {ignore_features}. "
+    "Please only consider ordinances for systems that would typically be "
+    "defined as {tech} based on the text itself — for example, systems "
+    "intended for electricity generation or sale, or those above "
+    "thresholds such as height or rated capacity. Ignore any text that "
+    "applies **only** to smaller or clearly non-commercial systems. "
 )
 
 
@@ -177,8 +184,16 @@ def setup_base_setback_graph(**kwargs):
         "init",
         prompt=(
             "Is there text in the following legal document that describes "
-            "how far I have to setback {tech} (or similar) from {feature}? "
-            "{feature_clarifications}"
+            "how far I have to setback {tech} from {feature}? "
+            "{feature_clarifications}"  # expected to end in space
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height or rated "
+            "capacity. Ignore any requirements that apply only to smaller "
+            "or clearly non-commercial systems. "
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -215,9 +230,17 @@ def setup_participating_owner(**kwargs):
         "init",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to participating owners? Occupying owners "
-            "are not participating owners unless explicitly mentioned in the "
-            "text. Justify your answer by quoting the raw text directly."
+            "a value that applies to participating property owners? "
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height or rated "
+            "capacity. Ignore any requirements that apply only to smaller "
+            "or clearly non-commercial systems. "
+            "If your answer is 'yes', justify it by quoting the raw text "
+            "directly."
         ),
     )
     G.add_edge("init", "non_part")
@@ -225,10 +248,17 @@ def setup_participating_owner(**kwargs):
         "non_part",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to non-participating owners? Non-occupying "
-            "owners are not non-participating owners unless explicitly "
-            "mentioned in the text. Justify your answer by quoting the raw "
-            "text directly."
+            "a value that applies to non-participating property owners? "
+            "Focus only on setbacks from {feature}; do not respond "
+            "based on any text related to {ignore_features}. "
+            "Please only consider setbacks specifically for systems that "
+            "would typically be defined as {tech} based on the text itself "
+            "— for example, systems intended for electricity generation or "
+            "sale, or those above thresholds such as height or rated "
+            "capacity. Ignore any requirements that apply only to smaller "
+            "or clearly non-commercial systems. "
+            "If your answer is 'yes', justify it by quoting the raw text "
+            "directly."
         ),
     )
     G.add_edge("non_part", "final")
@@ -236,17 +266,19 @@ def setup_participating_owner(**kwargs):
         "final",
         prompt=(
             "Please respond based on our entire conversation so far. "
-            "Return your answer in JSON "
-            "format (not markdown). Your JSON file must include exactly two "
-            "keys. The keys are 'participating' and 'non-participating'. The "
-            "value of the 'participating' key should be a string containing "
-            "the raw text with original formatting from the ordinance that "
-            "applies to participating owners or `null` if there was no such "
-            "text. The value of the 'non-participating' key should be a "
-            "string containing the raw text with original formatting from the "
+            "Return your answer as a single dictionary in JSON format (not "
+            "markdown). Your JSON file must include exactly two keys. The "
+            "keys are 'participating' and 'non-participating'. The value of "
+            "the 'participating' key should be a string containing the raw "
+            "text with original formatting from the ordinance that applies to "
+            "participating owners if you answered 'yes' to the first question "
+            "or `null` if you answered 'no'. The value of the "
+            "'non-participating' key should be a string "
+            "containing the raw text with original formatting from the "
             "ordinance that applies to non-participating owners or simply the "
-            "full ordinance if the text did not make the distinction between "
-            "participating and non-participating owners."
+            "full ordinance for {feature} setbacks if the text did not make "
+            "the distinction between participating and non-participating "
+            "owners."
         ),
     )
     return G
@@ -274,19 +306,22 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         "init",
         prompt=(
             "Does the following legal text explicitly enact {restriction} for "
-            "{tech} (or similar) for a particular jurisdiction that an "
-            "energy system developer would have to abide to?"
-            "{feature_clarifications}\nMake sure your answer adheres to "
-            "these guidelines:\n"
+            "{tech} for a particular jurisdiction that an energy system "
+            "developer would have to abide to? {feature_clarifications}\n"
+            "Make sure your answer adheres to these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
             "{restriction}. Do not infer values from text based on "
             "related restrictions. If the text does not explicitly detail "
             "actionable {restriction} for {tech}, please respond with 'No'.\n"
             "2) If the text only defines {restriction} without providing "
             "any specifics, please respond with a simple 'No'.\n"
-            "3) Pay close attention to clarifying details in parentheses, "
+            "3) Focus only on {restriction} specifically for systems that "
+            "would typically be defined as {tech} based on the text itself. "
+            "Ignore any requirements that apply only to smaller or clearly "
+            "non-commercial systems. "
+            "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
-            "4) Please start your response with either 'Yes' or 'No' and "
+            "5) Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
             '\n\n"""\n{text}\n"""'
         ),
@@ -298,14 +333,18 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "value",
             prompt=(
                 "What is the **numerical** value given for the {restriction} "
-                "for {tech} (or similar)? Follow these guidelines:\n"
+                "for {tech}? Follow these guidelines:\n"
                 "1) Extract only the explicit numerical value provided for "
                 "the restriction. Do not infer values from related "
                 "restrictions.\n"
                 "2) If multiple values are given, select the most restrictive "
                 "one (i.e., the smallest allowable limit, the lowest maximum, "
                 "etc.).\n"
-                "3) Pay close attention to clarifying details in parentheses, "
+                "3) Focus only on {restriction} specifically for systems that "
+                "would typically be defined as {tech} based on the text "
+                "itself. Ignore any requirements that apply only to smaller "
+                "or clearly non-commercial systems. "
+                "4) Pay close attention to clarifying details in parentheses, "
                 "footnotes, or additional explanatory text.\n\n"
                 "Example Inputs and Outputs:\n"
                 "Text: 'For all WES there is a limitation of overall height "
@@ -331,14 +370,17 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         G.add_node(
             "units",
             prompt=(
-                "What are the units for the {restriction} for {tech} (or "
-                "similar)? Ensure that:\n1) You accurately identify the unit "
-                "value associated with the restriction.\n2) The unit is "
-                "expressed using standard, conventional unit names (e.g., "
-                "'feet', 'meters', 'acres', 'dBA', etc.). {unit_clarification}"
-                "\n3) If multiple values are mentioned, return only the units "
+                "What are the units for the {restriction} for {tech}? Ensure "
+                "that:\n"
+                "1) You accurately identify the unit value associated with "
+                "the restriction.\n"
+                "2) The unit is expressed using standard, conventional unit "
+                "names (e.g., 'feet', 'meters', 'acres', 'dBA', etc.). "
+                "{unit_clarification}\n"
+                "3) If multiple values are mentioned, return only the units "
                 "for the most restrictive value that directly pertains to the "
-                "restriction.\n\nExample Inputs and Outputs:\n"
+                "restriction.\n"
+                "\nExample Inputs and Outputs:\n"
                 "Text: 'For all WES there is a limitation of overall height "
                 "of 200 feet (including blades).'\n"
                 "Output: 'feet'\n"
@@ -364,13 +406,16 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "exactly four keys. The keys are 'value', 'units', 'summary', "
                 "and 'section'. The value of the '[value]' key "
                 "should be a numerical value corresponding to the "
-                "{restriction} for {tech} (or similar), or `null` if the text "
+                "{restriction} for {tech}, or `null` if the text "
                 "does not mention such a restriction. Use our conversation to "
                 "fill out this value. The value of the 'units' key should be "
                 "a string corresponding to the (standard) units for the "
-                "{restriction} allowed for {tech} (or similar) by the text "
+                "{restriction} allowed for {tech} by the text "
                 "below, or `null` if the text does not mention such a "
                 "restriction. "
+                "As before, focus only on {restriction} specifically for "
+                "systems that would typically be defined as {tech} based on "
+                "the text itself. "
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )

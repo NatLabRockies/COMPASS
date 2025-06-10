@@ -35,7 +35,7 @@ def _filtered_words(sentence):
 def convert_text_to_sentence_ngrams(text, n):
     """Convert input text to a list of ngrams
 
-    The text is first split byu sentence, after which each sentence is
+    The text is first split by sentence, after which each sentence is
     converted into ngrams. The ngrams for all sentences are combined and
     returned.
 
