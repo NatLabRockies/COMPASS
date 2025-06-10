@@ -1,0 +1,571 @@
+digraph g {
+  graph [
+    rankdir = "LR",
+    concentrate = true,
+    ratio = auto
+    ];
+  node [
+    fontsize = "10",
+    shape = record
+    ];
+  edge [
+    ];
+
+  "archive" [
+    shape = plaintext,
+    label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+      <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+      <TR><TD PORT="ltcol1" ></TD><TD align="left" > id </TD><TD align="left" > serial </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR>
+      <TR><TD PORT="ltcol2" ></TD><TD align="left" > source </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" > FK </TD><TD align="left" PORT="rtcol2"> </TD></TR>
+      <TR><TD PORT="ltcol3" ></TD><TD align="left" > ord_year </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol3"> </TD></TR>
+      <TR><TD PORT="ltcol4" ></TD><TD align="left" > filename </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol4"> </TD></TR>
+      <TR><TD PORT="ltcol5" ></TD><TD align="left" > num_pages </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      <TR><TD PORT="ltcol5" ></TD><TD align="left" > checksum </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      <TR><TD PORT="ltcol5" ></TD><TD align="left" > access_time </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      <TR><TD PORT="ltcol5" ></TD><TD align="left" > created_at </TD><TD align="left" > created_at </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      </TABLE>>
+      ];
+
+  "bookkeeper" [
+    shape = plaintext,
+    label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+      <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+      <TR><TD PORT="ltcol1" ></TD><TD align="left" > id </TD><TD align="left" > serial </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR>
+      <TR><TD PORT="ltcol2" ></TD><TD align="left" > hash </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol2"> </TD></TR>
+      <TR><TD PORT="ltcol5" ></TD><TD align="left" > created_at </TD><TD align="left" > created_at </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      <TR><TD PORT="ltcol3" ></TD><TD align="left" > username </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol3"> </TD></TR>
+      <TR><TD PORT="ltcol4" ></TD><TD align="left" > comment </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol4"> </TD></TR>
+      <TR><TD PORT="ltcol5" ></TD><TD align="left" > model </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      </TABLE>>
+      ];
+
+"source" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > full_name </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > county </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > state </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > subdivision </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > jurisdiction_type </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > fips </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > found </TD>
+      <TD align="left" > boolean </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > total_time </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol11" ></TD>
+      <TD align="left" > total_time_string </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol12" ></TD>
+      <TD align="left" > documents </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol12"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol13" ></TD>
+      <TD align="left" > archive_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol13"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+"jurisdiction" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > name </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > FIPS </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > geometry </TD>
+      <TD align="left" > geometry </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > rank </TD>
+      <TD align="left" > enum </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > parent_id </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > created_at </TD>
+      <TD align="left" > timestamp </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > src </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > comments </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+
+"qualitative" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > county </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > state </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > subdivision </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > jurisdiction_type </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > FIPS </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > feature </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > summary </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > ord_year </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol11" ></TD>
+      <TD align="left" > section </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol12" ></TD>
+      <TD align="left" > source </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol12"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+"quantitative" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > county </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > state </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > subdivision </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > jurisdiction_type </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > FIPS </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > feature </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > value </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > units </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol11" ></TD>
+      <TD align="left" > adder </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol12" ></TD>
+      <TD align="left" > min_dist </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol12"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol13" ></TD>
+      <TD align="left" > max_dist </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol13"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol14" ></TD>
+      <TD align="left" > summary </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol14"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol15" ></TD>
+      <TD align="left" > ord_year </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol15"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol16" ></TD>
+      <TD align="left" > section </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol16"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol17" ></TD>
+      <TD align="left" > source </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol17"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+"usage" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > created_at </TD>
+      <TD align="left" > timestamp </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+"usage_event" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > usage_per_item_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > event </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > requests </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > prompt_tokens </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > response_tokens </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+"usage_per_item" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > usage_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > name </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > total_requests </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > total_prompt_tokens </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > total_response_tokens </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+
+
+"archive":rtcol2 -> "source":ltcol1 [label=""];
+"source":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"jurisdiction":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"quantitative":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"qualitative":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"usage":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"usage_per_item":rtcol2 -> "usage":ltcol1 [label=""];
+"usage_event":rtcol2 -> "usage_per_item":ltcol1 [label=""];
+}

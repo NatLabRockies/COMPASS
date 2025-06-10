@@ -134,6 +134,7 @@ upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-whee
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.87.0,<1.88"
 cxx-compiler = ">=1.9.0,<2"
+graphviz = ">=12.2.1,<13"
 
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"
