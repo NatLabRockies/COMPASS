@@ -22,9 +22,8 @@ jobs:
         with:
           pixi-version: v0.48.0
           locked: true
-          cache: true
-          cache-write: ${{ github.ref == 'refs/heads/main' }}
-          environments: pdev rdev
+          cache: false
+          environments: pdev
 
       - name: Build Docs
         run: pixi run -e pdev make-html
