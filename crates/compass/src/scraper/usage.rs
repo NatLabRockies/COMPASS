@@ -66,6 +66,7 @@ impl Usage {
             CREATE SEQUENCE usage_per_item_sequence START 1;
             CREATE TABLE IF NOT EXISTS usage_per_item(
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
+              usage_lnk INTEGER REFERENCES usage(id) NOT NULL,
               name TEXT NOT NULL,
               /* connection with file
               jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
@@ -153,8 +154,8 @@ impl Usage {
 
             // An integer type in duckdb is 32 bits.
             let item_id: u32 = conn.query_row(
-                "INSERT INTO usage_per_item (name, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?) RETURNING id",
-                [jurisdiction_name, &content.events["tracker_totals"].requests.to_string(), &content.events["tracker_totals"].prompt_tokens.to_string(), &content.events["tracker_totals"].response_tokens.to_string()],
+                "INSERT INTO usage_per_item (usage_lnk, name, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
+                [&usage_id.to_string(), jurisdiction_name, &content.events["tracker_totals"].requests.to_string(), &content.events["tracker_totals"].prompt_tokens.to_string(), &content.events["tracker_totals"].response_tokens.to_string()],
                 |row| row.get(0)
                 ).expect("Failed to insert usage_per_item");
 

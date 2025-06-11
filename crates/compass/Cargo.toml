@@ -6,7 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 description = "Parse and manage the NREL's INFRA-COMPASS data"
 homepage = "https://github.com/NREL/COMPASS"
-repository = "https://github.com/NREL/COMPASS"
+repository.workspace = true
 license.workspace = true
 categories = ["data-structures", "science"]
 

@@ -799,7 +799,7 @@ dependencies = [
 
 [[package]]
 name = "infra-compass-cli"
-version = "0.0.4"
+version = "0.0.5"
 dependencies = [
  "anyhow",
  "clap",
@@ -811,7 +811,7 @@ dependencies = [
 
 [[package]]
 name = "infra-compass-db"
-version = "0.0.5"
+version = "0.0.6"
 dependencies = [
  "csv",
  "duckdb",

@@ -43,6 +43,7 @@ pub fn init_db(path: &str) -> Result<()> {
      *
      *
      */
+    trace!("Creating table bookkeeper");
     db.execute_batch(
         "BEGIN;
     CREATE SEQUENCE bookkeeper_sequence START 1;
@@ -86,7 +87,6 @@ pub fn init_db(path: &str) -> Result<()> {
     Ok(())
 }
 
-#[allow(dead_code)]
 /// Scan and load features from a CSV file
 ///
 /// Proof of concept. Parse a CSV file and load the features into the
@@ -98,7 +98,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 ) -> Result<()> {
     // insert into bookkeeper (hash, username) and get the pk to be used in all the following
     // inserts.
-    tracing::trace!("Starting a transaction");
+    trace!("Starting a transaction");
     let conn = database.transaction().unwrap();
 
     let commit_id: usize = conn
@@ -129,7 +129,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     conn.commit().unwrap();
     tracing::debug!("Transaction committed");
 
-    tracing::trace!("Ordinance: {:?}", ordinance);
+    trace!("Ordinance: {:?}", ordinance);
     rt.block_on(ordinance.push(&mut database, commit_id))
         .unwrap();
 
@@ -167,41 +167,61 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
     Ok(())
 }
 
+#[allow(dead_code, non_snake_case)]
 #[derive(Debug, Serialize)]
-struct Ordinance {
+struct QuantitativeRecord {
     county: String,
     state: String,
-    fips: i32,
+    subdivison: Option<String>,
+    jurisdiction_type: Option<String>,
+    FIPS: u32,
     feature: String,
+    value: f64,
+    units: Option<String>,
+    summary: Option<String>,
+    source: Option<String>,
 }
 
 /// Export the database
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
 /// some fields to the standard output in CSV format.
-pub fn export_db(db_filename: &str) {
-    let conn = Connection::open(db_filename).unwrap();
+pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str) -> Result<()> {
+    trace!("Exporting database: {:?}", db_filename);
+
+    let conn = Connection::open(db_filename)?;
+    trace!("Database opened: {:?}", &conn);
+
     let mut stmt = conn
-        .prepare("SELECT county, state, fips, feature FROM property")
+        .prepare("SELECT county, state, subdivison, jurisdiction_type, FIPS, feature, value, units, summary, source from quantitative;"
+            )
         .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
     let row_iter = stmt
         .query_map([], |row| {
-            Ok(Ordinance {
+            Ok(QuantitativeRecord {
                 county: row.get(0)?,
                 state: row.get(1)?,
-                fips: row.get(2)?,
-                feature: row.get(3)?,
+                subdivison: row.get(2)?,
+                jurisdiction_type: row.get(3)?,
+                FIPS: row.get(4)?,
+                feature: row.get(5)?,
+                value: row.get(6)?,
+                units: row.get(7)?,
+                summary: row.get(8)?,
+                source: row.get(9)?,
             })
         })
         .expect("Failed to query");
 
-    let mut wtr = csv::Writer::from_writer(std::io::stdout());
+    let mut wtr = csv::Writer::from_writer(wtr);
 
     for row in row_iter {
-        wtr.serialize(row.unwrap()).unwrap();
+        wtr.serialize(row?)?;
     }
-    wtr.flush().unwrap();
+    wtr.flush()?;
+
+    Ok(())
 }
 
 #[cfg(test)]
