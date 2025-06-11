@@ -7,7 +7,7 @@ mod usage;
 
 use std::path::{Path, PathBuf};
 
-use tracing::{self, trace};
+use tracing::{self, debug, trace};
 
 use crate::error;
 use crate::error::Result;
@@ -18,6 +18,9 @@ use source::Source;
 use usage::Usage;
 
 pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
+
+// An arbitrary limit (5MB) to protect against maliciously large JSON files
+const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 
 // Concepts
 // - Lazy loading a scrapper output
@@ -54,21 +57,37 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 #[derive(Debug)]
 /// Abstraction for the ordinance scrapper raw output
 ///
-/// The ordinance scrapper outputs a standard directory with multiple files
-/// and sub-directories. This struct abstracts the access to such output.
+/// The ordinance scrapper outputs a directory with a standard structure,
+/// including multiple files and sub-directories. The `ScrappedOrdinance`
+/// compose all that information.
 pub(crate) struct ScrappedOrdinance {
+    /// The data model version
     format_version: String,
+    /// The root path of the scrapped ordinance output
     root: PathBuf,
+    /// The metadata section
     metadata: Metadata,
-    // sources: Vec<source::Source>,
+    /// The source section
     source: Source,
+    /// The usage section
     usage: Usage,
+    /// The ordinance section
     ordinance: Ordinance,
 }
 
 impl ScrappedOrdinance {
+    /// Initialize the database schema for the scrapped ordinance
+    ///
+    /// This function creates the necessary tables and resources
+    /// in the database to store the scrapped ordinance data model
+    /// by calling each component, in the correct order.
+    ///
+    /// # Arguments
+    ///
+    /// `conn`: A reference to the database transaction
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        tracing::trace!("Initializing ScrappedOrdinance database");
+        debug!("Initializing ScrappedOrdinance database");
+
         source::Source::init_db(conn)?;
         metadata::Metadata::init_db(conn)?;
         usage::Usage::init_db(conn)?;
@@ -127,16 +146,10 @@ impl ScrappedOrdinance {
 
         // Do I need to extract the hash here from the full ScrappedOutput?
         // What about username?
-        /*
-        self.source
-            .iter()
-            .for_each(|s| s.write(&conn, commit_id).unwrap());
-        */
-        self.source.write(&conn, commit_id).unwrap();
+        self.source.record(&conn, commit_id).unwrap();
         self.metadata.write(&conn, commit_id).unwrap();
         self.usage().await.unwrap().write(&conn, commit_id).unwrap();
         self.ordinance.write(&conn, commit_id).unwrap();
-        // commit transaction
 
         tracing::trace!("Committing transaction");
         conn.commit()?;

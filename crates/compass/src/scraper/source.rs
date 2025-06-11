@@ -1,50 +1,83 @@
-//! Scrapped document
+//! Scrapped documents
+//!
+//! A scrapping job saves the content source documents and some metadata
+//! associated to those. This module provides the resources to parse that
+//! information and store it in the database.
+//!
+//! It is expected that the outputs of the scrapping are stored in a
+//! directory with:
+//! - `jurisdictions.json`: A JSON file with information on the target
+//!   jurisdictions, including the documents scrapped.
+//! - `ordinance_files/` - A directory with the scrapped documents.
 
 use serde::Deserialize;
 use sha2::Digest;
 use tokio::io::AsyncReadExt;
 use tracing::{debug, error, trace, warn};
 
+use super::MAX_JSON_FILE_SIZE;
 use crate::error::Result;
 
-// An arbitrary limit (5MB) to protect against maliciously large JSON files
-const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
-
 #[derive(Debug, Deserialize)]
+/// A collection of target jurisdictions and related information
 pub(super) struct Source {
     pub(super) jurisdictions: Vec<Jurisdiction>,
 }
 
 #[derive(Debug, Deserialize)]
+/// A jurisdiction and its metadata
 pub(super) struct Jurisdiction {
+    /// Full name of the jurisdiction, such as "Golden City, Colorado"
     full_name: String,
+    /// County where the jurisdiction is located, such as "Jefferson County"
     county: String,
+    /// State where the jurisdiction is located, such as "Colorado"
     state: String,
+    /// Subdivision of the jurisdiction, if any, such as "Golden"
     subdivision: Option<String>,
+    /// Type of jurisdiction, such as "city", "county", etc.
     jurisdiction_type: Option<String>,
     #[serde(alias = "FIPS")]
-    /// FIPS
+    /// Federal Information Processing Standards code for the jurisdiction
     fips: u32,
+    /// Whether the jurisdiction was found during the scrapping
     found: bool,
+    /// Total time spent scrapping the jurisdiction, in seconds
     total_time: f64,
+    /// Total time spent scrapping the jurisdiction, as a string
     total_time_string: String,
+    /// List of documents associated with the jurisdiction
     documents: Option<Vec<Document>>,
 }
 
 #[derive(Deserialize, Debug)]
+/// Processed document
+///
+/// Represents a document target of the scrapper and its metadata.
+/// Although it is typically a PDF, it could be any sort of document,
+/// such as plain text from a website.
 pub(super) struct Document {
+    /// Source of the document, such as a URL
     source: String,
-    // Maybe use effective instead?
+    /// Year of the ordinance, such as 2023
     ord_year: u16,
+    /// Filename of the ordinance document
     ord_filename: String,
+    /// Number of pages in the ordinance document
     num_pages: u16,
+    /// Checksum of the original raw document
     checksum: String,
     #[allow(dead_code)]
+    /// When the document was obtained, i.e. downloaded.
     access_time: Option<String>,
 }
 
 impl Source {
     /// Initialize database for the Source context
+    ///
+    /// # Arguments
+    ///
+    /// * `conn` - A reference to the DuckDB transaction to execute the SQL commands.
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
         debug!("Initializing database for Source");
 
@@ -97,6 +130,19 @@ impl Source {
         Ok(source)
     }
 
+    /// Open a Source collection from a scrapped output directory
+    ///
+    /// The Source collects all the documents scrapped and related metadata.
+    /// This method verifies the expected contents and parses the relevant
+    /// information.
+    ///
+    /// Currently, it expects:
+    /// * `jurisdictions.json` - A JSON file containing jurisdiction data.
+    /// * `ordinance_files` - A directory containing the files scrapped.
+    ///
+    /// # Arguments
+    ///
+    /// * `root` - The root directory where the scrapped output is located.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
         debug!("Opening source documents");
 
@@ -178,7 +224,15 @@ impl Source {
         Ok(jurisdictions)
     }
 
-    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
+    /// Record the Source collection in the database
+    ///
+    /// While the information (metadata) of the source documents are
+    /// recorded in the database, the actual documents are not stored.
+    ///
+    /// # Arguments
+    ///
+    /// * `conn` - A reference to the DuckDB transaction to execute the SQL commands.
+    pub(super) fn record(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         debug!("Recording jurisdictions on database");
 
         for jurisdiction in &self.jurisdictions {
@@ -247,52 +301,6 @@ impl Source {
         }
         Ok(())
     }
-
-    /*
-    pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
-        trace!("Recording source documents on database");
-
-        // What about return the number of rows inserted?
-
-        /*
-        let origin = match &self.origin {
-            Some(origin) => origin,
-            None => {
-                trace!("Missing origin for document {}", &self.name);
-                "NULL"
-            }
-        };
-        let access_time = match &self.access_time {
-            Some(time) => time,
-            None => {
-                trace!("Missing access time for document {}", &self.name);
-                "NULL"
-            }
-        };
-        */
-
-        // Insert the source document into the database
-        let source_id: u32 = conn.query_row(
-            "INSERT INTO archive (name, hash) VALUES (?, ?) RETURNING id",
-            [&self.name, &self.hash],
-            |row| row.get(0),
-        )?;
-        trace!(
-            "Inserted source document with id: {} -> {}",
-            source_id, &self.name
-        );
-        conn.execute(
-            "INSERT INTO source (bookkeeper_lnk, archive_lnk) VALUES (?, ?)",
-            [commit_id.to_string(), source_id.to_string()],
-        )?;
-        trace!(
-            "Linked source: commit ({}) -> archive ({})",
-            commit_id, source_id
-        );
-
-        Ok(())
-    }
-    */
 }
 
 /// Calculate the checksum of a local file
