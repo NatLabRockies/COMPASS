@@ -46,6 +46,8 @@ pub(super) struct Jurisdiction {
     total_time: f64,
     /// Total time spent scrapping the jurisdiction, as a string
     total_time_string: String,
+    /// Total cost to run the scraper, in $
+    cost: Option<f64>,
     /// List of documents associated with the jurisdiction
     documents: Option<Vec<Document>>,
 }
@@ -59,8 +61,12 @@ pub(super) struct Jurisdiction {
 pub(super) struct Document {
     /// Source of the document, such as a URL
     source: String,
-    /// Year of the ordinance, such as 2023
-    ord_year: u16,
+    /// Day that the ordinance went into effect, such as 4
+    effective_day: Option<u16>,
+    /// Month that the ordinance went into effect, such as 27
+    effective_month: Option<u16>,
+    /// Year that the ordinance went into effect, such as 2023
+    effective_year: Option<u16>,
     /// Filename of the ordinance document
     ord_filename: String,
     /// Number of pages in the ordinance document
@@ -89,7 +95,9 @@ impl Source {
           CREATE TABLE IF NOT EXISTS archive (
             id INTEGER PRIMARY KEY DEFAULT NEXTVAL('archive_sequence'),
             source TEXT,
-            ord_year INTEGER,
+            effective_day INTEGER,
+            effective_month INTEGER,
+            effective_year INTEGER,
             filename TEXT,
             num_pages INTEGER,
             checksum TEXT,
@@ -114,6 +122,7 @@ impl Source {
             found BOOLEAN,
             total_time REAL,
             total_time_string TEXT,
+            cost REAL,
             documents TEXT,
             archive_lnk INTEGER REFERENCES archive(id),
             );",
@@ -245,9 +254,9 @@ impl Source {
                 let mut stmt_archive = conn.prepare(
                     r"
                     INSERT INTO archive
-                    (source, ord_year, filename, num_pages,
+                    (source, effective_day, effective_month, effective_year, filename, num_pages,
                       checksum)
-                    VALUES (?, ?, ?, ?, ?)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                     RETURNING id",
                 )?;
 
@@ -256,7 +265,9 @@ impl Source {
                     let did = stmt_archive
                         .query(duckdb::params![
                             document.source,
-                            document.ord_year,
+                            document.effective_day,
+                            document.effective_month,
+                            document.effective_year,
                             document.ord_filename,
                             document.num_pages,
                             document.checksum,
@@ -279,8 +290,8 @@ impl Source {
                 (bookkeeper_lnk, full_name, county, state,
                   subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
-                  documents)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  cost, documents)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )?;
             stmt_source.execute(duckdb::params![
                 commit_id,
@@ -293,6 +304,7 @@ impl Source {
                 jurisdiction.found,
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
+                jurisdiction.cost,
                 dids.iter()
                     .map(|did| did.to_string())
                     .collect::<Vec<String>>()
@@ -356,7 +368,9 @@ pub(crate) mod sample {
                     "documents": [
                         {
                             "source": "https://example.com/sample_ordinance.pdf",
-                            "ord_year": 2023,
+                            "effective_month": 4,
+                            "effective_year": 2023,
+                            "effective_day": null,
                             "ord_filename": "sample_ordinance.pdf",
                             "num_pages": 10,
                             "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
