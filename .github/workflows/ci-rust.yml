@@ -35,7 +35,7 @@ jobs:
 
       - name: Run cargo check
         run: |
-          pixi run -e rdev --frozen cargo check --workspace
+          pixi run -e rdev --frozen cargo check --workspace --locked
 
   lints:
     # Only run tests if code looks OK
@@ -65,7 +65,7 @@ jobs:
 
       - name: Run cargo clippy
         run: |
-          pixi run -e rdev --frozen cargo clippy --all-features --tests -- -D warnings
+          pixi run -e rdev --frozen cargo clippy --locked --all-features --tests -- -D warnings
 
   test:
     # Only run tests if code looks OK
@@ -104,7 +104,7 @@ jobs:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - run: pixi run -e rdev --frozen cargo test --workspace --no-fail-fast
+      - run: pixi run -e rdev --frozen cargo test --locked --workspace --no-fail-fast
 
   publish:
     name: Publish (dry-run)
@@ -130,8 +130,8 @@ jobs:
 
       - name: Publish crates (core library)
         run: |
-          pixi run -e rdev --frozen cargo publish -p infra-compass-db --all-features --dry-run
+          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-db --all-features --dry-run
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen cargo publish -p infra-compass-cli --all-features --dry-run
+          pixi run -e rdev --frozen cargo publish --locked -p infra-compass-cli --all-features --dry-run
