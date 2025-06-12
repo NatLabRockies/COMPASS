@@ -7,8 +7,10 @@ on:
     paths:
       - crates/**
       - Cargo.toml
+      - Cargo.lock
       - .github/workflows/ci-rust.yml
       - pyproject.toml
+      - pixi.lock
   schedule:
     - cron: '0 5 * * 1'
 
