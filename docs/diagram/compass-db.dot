@@ -15,14 +15,16 @@ digraph g {
     shape = plaintext,
     label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
       <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
-      <TR><TD PORT="ltcol1" ></TD><TD align="left" > id </TD><TD align="left" > serial </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR>
-      <TR><TD PORT="ltcol2" ></TD><TD align="left" > source </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" > FK </TD><TD align="left" PORT="rtcol2"> </TD></TR>
-      <TR><TD PORT="ltcol3" ></TD><TD align="left" > ord_year </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol3"> </TD></TR>
-      <TR><TD PORT="ltcol4" ></TD><TD align="left" > filename </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol4"> </TD></TR>
-      <TR><TD PORT="ltcol5" ></TD><TD align="left" > num_pages </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
-      <TR><TD PORT="ltcol5" ></TD><TD align="left" > checksum </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
-      <TR><TD PORT="ltcol5" ></TD><TD align="left" > access_time </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
-      <TR><TD PORT="ltcol5" ></TD><TD align="left" > created_at </TD><TD align="left" > created_at </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      <TR><TD PORT="ltcol1"  ></TD><TD align="left" > id </TD><TD align="left" > serial </TD><TD align="left" > PK </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol1"> </TD></TR>
+      <TR><TD PORT="ltcol2"  ></TD><TD align="left" > source </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" > FK </TD><TD align="left" PORT="rtcol2"> </TD></TR>
+      <TR><TD PORT="ltcol3"  ></TD><TD align="left" > effective_day </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol3"> </TD></TR>
+      <TR><TD PORT="ltcol4"  ></TD><TD align="left" > effective_month </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol4"> </TD></TR>
+      <TR><TD PORT="ltcol5"  ></TD><TD align="left" > effective_year </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol5"> </TD></TR>
+      <TR><TD PORT="ltcol6"  ></TD><TD align="left" > filename </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol6"> </TD></TR>
+      <TR><TD PORT="ltcol7"  ></TD><TD align="left" > num_pages </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol7"> </TD></TR>
+      <TR><TD PORT="ltcol8"  ></TD><TD align="left" > checksum </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol8"> </TD></TR>
+      <TR><TD PORT="ltcol9"  ></TD><TD align="left" > access_time </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol9"> </TD></TR>
+      <TR><TD PORT="ltcol10" ></TD><TD align="left" > created_at </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol10"> </TD></TR>
       </TABLE>>
       ];
 
@@ -122,17 +124,200 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol12" ></TD>
+      <TD align="left" > cost </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol12"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol13" ></TD>
       <TD align="left" > documents </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol13"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol14" ></TD>
+      <TD align="left" > archive_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol14"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+"scrapper_metadata" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > bookkeeper_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > username </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > versions </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > technology </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > time_start_utc </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > time_end_utc </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > total_time </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > num_jurisdictions_searched </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > num_jurisdictions_found </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol11" ></TD>
+      <TD align="left" > cost </TD>
+      <TD align="left" > float </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol12" ></TD>
+      <TD align="left" > manifest </TD>
       <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol12"> </TD>
       </TR>
     <TR>
       <TD PORT="ltcol13" ></TD>
-      <TD align="left" > archive_lnk </TD>
-      <TD align="left" > integer </TD>
+      <TD align="left" > extra </TD>
+      <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol13"> </TD>
+      </TR>
+    </TABLE>>
+    ];
+
+
+"llm_config" [
+  shape = plaintext,
+  label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
+    <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
+    <TR>
+      <TD PORT="ltcol1" ></TD>
+      <TD align="left" > id </TD>
+      <TD align="left" > serial </TD>
+      <TD align="left" > PK </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol1"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol2" ></TD>
+      <TD align="left" > metadata_lnk </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" > FK </TD>
+      <TD align="left" PORT="rtcol2"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol3" ></TD>
+      <TD align="left" > name </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol3"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol4" ></TD>
+      <TD align="left" > llm_call_kwargs </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol4"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol5" ></TD>
+      <TD align="left" > llm_service_rate_limit </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol5"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol6" ></TD>
+      <TD align="left" > text_splitter_chunk_size </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol6"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol7" ></TD>
+      <TD align="left" > text_splitter_chunk_overlap </TD>
+      <TD align="left" > integer </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol7"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol8" ></TD>
+      <TD align="left" > client_type </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol8"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol9" ></TD>
+      <TD align="left" > tasks </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol9"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol10" ></TD>
+      <TD align="left" > extra </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol10"> </TD>
       </TR>
     </TABLE>>
     ];
@@ -452,15 +637,15 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol3" ></TD>
-      <TD align="left" > created_at </TD>
-      <TD align="left" > timestamp </TD>
+      <TD align="left" > jurisdiction </TD>
+      <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol3"> </TD>
       </TR>
     </TABLE>>
     ];
 
-"usage_event" [
+"usage_step" [
   shape = plaintext,
   label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
@@ -473,14 +658,14 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol2" ></TD>
-      <TD align="left" > usage_per_item_lnk </TD>
+      <TD align="left" > model_lnk </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" > FK </TD>
       <TD align="left" PORT="rtcol2"> </TD>
       </TR>
     <TR>
       <TD PORT="ltcol3" ></TD>
-      <TD align="left" > event </TD>
+      <TD align="left" > step </TD>
       <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol3"> </TD>
@@ -509,7 +694,7 @@ digraph g {
     </TABLE>>
     ];
 
-"usage_per_item" [
+"usage_model" [
   shape = plaintext,
   label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
@@ -529,7 +714,7 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol3" ></TD>
-      <TD align="left" > name </TD>
+      <TD align="left" > model </TD>
       <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol3"> </TD>
@@ -566,6 +751,8 @@ digraph g {
 "quantitative":rtcol2 -> "bookkeeper":ltcol1 [label=""];
 "qualitative":rtcol2 -> "bookkeeper":ltcol1 [label=""];
 "usage":rtcol2 -> "bookkeeper":ltcol1 [label=""];
-"usage_per_item":rtcol2 -> "usage":ltcol1 [label=""];
-"usage_event":rtcol2 -> "usage_per_item":ltcol1 [label=""];
+"usage_model":rtcol2 -> "usage":ltcol1 [label=""];
+"usage_step":rtcol2 -> "usage_model":ltcol1 [label=""];
+"scrapper_metadata":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"llm_config":rtcol2 -> "scrapper_metadata":ltcol1 [label=""];
 }
