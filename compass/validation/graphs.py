@@ -202,11 +202,11 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             prompt=(
                 "Based on the legal text, is it reasonable to conclude that "
                 "the provisions apply specifically to "
-                f"{jurisdiction.full_subdivision_phrase} (rather than a "
-                "county, state, or federal jurisdiction)? If the text instead "
-                "applies to a broader jurisdiction, or does not provide a "
-                "reasonable basis to infer that it is limited to municipal "
-                "governance, respond with 'No'. "
+                f"{jurisdiction.full_subdivision_phrase_the_prefixed} (rather "
+                "than a county, state, or federal jurisdiction)? If the text "
+                "instead applies to a broader jurisdiction, or does not "
+                "provide a reasonable basis to infer that it is limited to "
+                "municipal governance, respond with 'No'. "
                 "Start your response with 'Yes' or 'No' and briefly explain."
             ),
         )
@@ -223,7 +223,8 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "'correct_jurisdiction' key should be a boolean that is set to "
             "`true` **only if** it is reasonable to conclude that the "
             "provisions within apply to the entire area (i.e. "
-            f"{jurisdiction.type}-wide) governed by {jurisdiction.full_name} "
+            f"{jurisdiction.type}-wide) governed by "
+            f"{jurisdiction.full_name_the_prefixed} "
             "(`false` otherwise). The value of the 'explanation' key should "
             "be a string containing a brief explanation for your choice. "
         ),
@@ -299,9 +300,10 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
             "mentions_city",
             prompt=(
                 "Does the URL explicitly mention "
-                f"{jurisdiction.full_subdivision_phrase} in some way (e.g. "
-                "either by full name or abbreviation)? **Do not** answer "
-                "based on auxiliary information like state or county names. "
+                f"{jurisdiction.full_subdivision_phrase_the_prefixed} in "
+                "some way (e.g. either by full name or abbreviation)? **Do "
+                "not** answer based on auxiliary information like state or "
+                "county names. "
                 "Please start your response with either 'Yes' or 'No' and "
                 "briefly explain your answer."
                 "\n\nURL: '{url}\n'"

@@ -2,12 +2,14 @@
 
 from functools import cached_property
 
+
 JURISDICTION_TYPES_AS_PREFIXES = {
     "town",
     "township",
     "city",
     "borough",
     "village",
+    "unorganized territory",
 }
 
 
@@ -67,6 +69,17 @@ class Jurisdiction:
         return ", ".join(filter(None, name_parts))
 
     @cached_property
+    def full_name_the_prefixed(self):
+        """str: Full jurisdiction name with `the` prefix if needed"""
+        if self.type.casefold() == "state":
+            return f"the state of {self.state}"
+
+        if self.type.casefold() in JURISDICTION_TYPES_AS_PREFIXES:
+            return f"the {self.full_name}"
+
+        return self.full_name
+
+    @cached_property
     def full_subdivision_phrase(self):
         """str: Full jurisdiction subdivision phrase, or empty str"""
         if not self.subdivision_name:
@@ -76,6 +89,14 @@ class Jurisdiction:
             return f"{self.type} of {self.subdivision_name}"
 
         return f"{self.subdivision_name} {self.type}"
+
+    @cached_property
+    def full_subdivision_phrase_the_prefixed(self):
+        """str: Full jurisdiction subdivision phrase, or empty str"""
+        if self.type.casefold() in JURISDICTION_TYPES_AS_PREFIXES:
+            return f"the {self.full_subdivision_phrase}"
+
+        return self.full_subdivision_phrase
 
     @cached_property
     def full_county_phrase(self):

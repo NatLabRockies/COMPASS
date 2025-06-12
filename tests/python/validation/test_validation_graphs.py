@@ -21,6 +21,7 @@ def test_setup_graph_correct_jurisdiction_type_state():
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
+    assert "the state of" not in graph.nodes["is_state"]["prompt"].casefold()
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
 
@@ -41,7 +42,14 @@ def test_setup_graph_correct_jurisdiction_type_county(county_type):
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
+    assert "the state of" not in graph.nodes["is_state"]["prompt"].casefold()
+
     assert loc.full_county_phrase in graph.nodes["is_county"]["prompt"]
+    assert (
+        f"the {loc.full_county_phrase}"
+        not in graph.nodes["is_county"]["prompt"]
+    )
+
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
 
@@ -61,7 +69,13 @@ def test_setup_graph_correct_jurisdiction_type_city_no_county():
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
-    assert loc.full_subdivision_phrase in graph.nodes["is_city"]["prompt"]
+    assert "the state of" not in graph.nodes["is_state"]["prompt"].casefold()
+
+    assert (
+        f"the {loc.full_subdivision_phrase}"
+        in graph.nodes["is_city"]["prompt"]
+    )
+
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
 
@@ -91,8 +105,14 @@ def test_setup_graph_correct_jurisdiction_type_city():
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
+    assert "the state of" not in graph.nodes["is_state"]["prompt"].casefold()
+
     assert loc.full_county_phrase in graph.nodes["is_county"]["prompt"]
-    assert loc.full_subdivision_phrase in graph.nodes["is_city"]["prompt"]
+    assert (
+        f"the {loc.full_subdivision_phrase}"
+        in graph.nodes["is_city"]["prompt"]
+    )
+
     assert loc.full_name in graph.nodes["final"]["prompt"]
 
 
@@ -126,12 +146,20 @@ def test_setup_graph_correct_jurisdiction_from_url_county(county_type):
     assert f"{loc.state} state" in graph.nodes["init"]["prompt"]
 
     assert loc.full_county_phrase in graph.nodes["mentions_county"]["prompt"]
+    assert (
+        f"the {loc.full_county_phrase}"
+        not in graph.nodes["mentions_county"]["prompt"]
+    )
 
     assert "correct_state" in graph.nodes["final"]["prompt"]
     assert f"{loc.state} state" in graph.nodes["final"]["prompt"]
+    assert "the state of" not in graph.nodes["final"]["prompt"].casefold()
 
     assert "correct_county" in graph.nodes["final"]["prompt"]
     assert loc.full_county_phrase in graph.nodes["final"]["prompt"]
+    assert (
+        f"the {loc.full_county_phrase}" not in graph.nodes["final"]["prompt"]
+    )
 
 
 def test_setup_graph_correct_jurisdiction_from_url_city():
@@ -157,9 +185,14 @@ def test_setup_graph_correct_jurisdiction_from_url_city():
     assert f"{loc.state} state" in graph.nodes["init"]["prompt"]
 
     assert loc.full_county_phrase in graph.nodes["mentions_county"]["prompt"]
+    assert (
+        f"the {loc.full_county_phrase}"
+        not in graph.nodes["mentions_county"]["prompt"]
+    )
 
     assert (
-        loc.full_subdivision_phrase in graph.nodes["mentions_city"]["prompt"]
+        f"the {loc.full_subdivision_phrase}"
+        in graph.nodes["mentions_city"]["prompt"]
     )
 
     assert "correct_state" in graph.nodes["final"]["prompt"]
@@ -188,9 +221,14 @@ def test_setup_graph_correct_jurisdiction_from_url_gore():
     assert (
         loc.full_subdivision_phrase in graph.nodes["mentions_city"]["prompt"]
     )
+    assert (
+        f"the {loc.full_subdivision_phrase}"
+        not in graph.nodes["mentions_city"]["prompt"]
+    )
 
     assert "correct_state" in graph.nodes["final"]["prompt"]
     assert f"{loc.state} state" in graph.nodes["final"]["prompt"]
+    assert "the state of" not in graph.nodes["final"]["prompt"].casefold()
 
     assert "correct_county" not in graph.nodes["final"]["prompt"]
 

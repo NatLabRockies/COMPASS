@@ -4,7 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from compass.utilities.location import Jurisdiction
+from compass.utilities.location import (
+    Jurisdiction,
+    JURISDICTION_TYPES_AS_PREFIXES,
+)
 
 
 def test_basic_state_properties():
@@ -146,6 +149,68 @@ def test_city_no_county():
 
     assert gore == "City of Baltimore, Maryland"
     assert gore == "ciTy of baltiMore, maryland"
+
+
+def test_full_name_the_prefixed_property():
+    """Test ``Jurisdiction.full_name_the_prefixed`` property"""
+
+    state = Jurisdiction("state", state="Colorado")
+    assert state.full_name_the_prefixed == "the state of Colorado"
+
+    county = Jurisdiction("county", state="Colorado", county="Jefferson")
+    assert county.full_name_the_prefixed == "Jefferson County, Colorado"
+
+    city = Jurisdiction(
+        "city", state="Colorado", county="Jefferson", subdivision_name="Golden"
+    )
+    assert (
+        city.full_name_the_prefixed
+        == "the City of Golden, Jefferson County, Colorado"
+    )
+
+    for st in JURISDICTION_TYPES_AS_PREFIXES:
+        jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+        assert (
+            jur.full_name_the_prefixed == f"the {st.title()} of Test, Colorado"
+        )
+
+    jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+    assert jur.full_name_the_prefixed == f"the {st.title()} of Test, Colorado"
+
+    jur = Jurisdiction(
+        "census county division",
+        state="Colorado",
+        county="test a",
+        subdivision_name="test b",
+    )
+
+    assert (
+        jur.full_name_the_prefixed
+        == "Test B Census County Division, Test A County, Colorado"
+    )
+
+
+def test_full_subdivision_phrase_the_prefixed_property():
+    """Test ``Jurisdiction.full_subdivision_phrase_the_prefixed`` property"""
+
+    for st in JURISDICTION_TYPES_AS_PREFIXES:
+        jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+        assert (
+            jur.full_subdivision_phrase_the_prefixed
+            == f"the {st.title()} of Test"
+        )
+
+    jur = Jurisdiction(
+        "census county division",
+        state="Colorado",
+        county="test a",
+        subdivision_name="test b",
+    )
+
+    assert (
+        jur.full_subdivision_phrase_the_prefixed
+        == "Test B Census County Division"
+    )
 
 
 if __name__ == "__main__":

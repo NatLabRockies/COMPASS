@@ -24,7 +24,7 @@ class DTreeURLCountyValidator(BaseLLMCaller):
 
     SYSTEM_MESSAGE = (
         "You are an expert data analyst that examines URLs to determine if "
-        "they contain information about jurisdictions. only ever answer "
+        "they contain information about jurisdictions. Only ever answer "
         "based on the information in the URL itself."
     )
 
