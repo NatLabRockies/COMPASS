@@ -60,7 +60,8 @@ class LLMConfig(ABC):
             By default, ``1000``.
         """
         self.name = name
-        self.llm_call_kwargs = llm_call_kwargs or {}
+        self.llm_call_kwargs = {"timeout": 300, "temperature": 0}
+        self.llm_call_kwargs.update(llm_call_kwargs or {})
         self.llm_service_rate_limit = llm_service_rate_limit
         self.text_splitter_chunk_size = text_splitter_chunk_size
         self.text_splitter_chunk_overlap = text_splitter_chunk_overlap
