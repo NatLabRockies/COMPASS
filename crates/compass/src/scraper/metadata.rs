@@ -1,6 +1,6 @@
 //! Parse and handle the Scrapper configuration information
 //!
-//! The setup used to run the scrapper is saved together with the output.
+//! The setup used to run the scraper is saved together with the output.
 //! This module provides the support to work with that information, from
 //! validating and parsing to loading it in the database.
 
@@ -13,7 +13,7 @@ const MAX_JSON_FILE_SIZE: u64 = 5_000_000;
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
-/// Configuration used to run the scrapper
+/// Configuration used to run the scraper
 pub(super) struct Metadata {
     username: String,
     versions: HashMap<String, String>,
@@ -34,7 +34,7 @@ pub(super) struct Metadata {
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
-/// Configuration used to run the scrapper
+/// Configuration used to run the scraper
 pub(super) struct LLMMetadata {
     name: String,
     llm_call_kwargs: Option<HashMap<String, serde_json::Value>>,
@@ -54,10 +54,10 @@ impl Metadata {
         tracing::trace!("Initializing database for Metadata");
         conn.execute_batch(
             r"
-            CREATE SEQUENCE IF NOT EXISTS scrapper_metadata_sequence START 1;
-            CREATE TABLE IF NOT EXISTS scrapper_metadata (
+            CREATE SEQUENCE IF NOT EXISTS scraper_metadata_sequence START 1;
+            CREATE TABLE IF NOT EXISTS scraper_metadata (
               id INTEGER PRIMARY KEY DEFAULT
-                NEXTVAL('scrapper_metadata_sequence'),
+                NEXTVAL('scraper_metadata_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
               username TEXT,
               versions TEXT,
@@ -76,7 +76,7 @@ impl Metadata {
             CREATE TABLE IF NOT EXISTS llm_config (
               id INTEGER PRIMARY KEY DEFAULT
                 NEXTVAL('llm_config_sequence'),
-              metadata_lnk INTEGER REFERENCES scrapper_metadata(id) NOT NULL,
+              metadata_lnk INTEGER REFERENCES scraper_metadata(id) NOT NULL,
               name TEXT,
               llm_call_kwargs TEXT,
               llm_service_rate_limit INTEGER,
@@ -134,7 +134,7 @@ impl Metadata {
         tracing::trace!("Writing Metadata to the database {:?}", self);
         let metadata_id: u32 = conn
             .query_row(
-                r"INSERT INTO scrapper_metadata
+                r"INSERT INTO scraper_metadata
                      (bookkeeper_lnk, username, versions, technology,
                        time_start_utc, time_end_utc,
                        total_time, num_jurisdictions_searched,
@@ -188,7 +188,7 @@ impl Metadata {
 }
 
 #[cfg(test)]
-/// Samples of scrapper configuration to support tests
+/// Samples of scraper configuration to support tests
 ///
 /// These samples should cover multiple versions of data models as this library evolves and it
 /// should be accessible from other parts of the crate.
@@ -243,7 +243,7 @@ pub(crate) mod sample {
 }
 
 #[cfg(test)]
-mod test_scrapper_metadata {
+mod test_scraper_metadata {
     use super::Metadata;
     use super::sample::as_text_v1;
 

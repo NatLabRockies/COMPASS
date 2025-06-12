@@ -55,7 +55,7 @@ pub(super) struct Jurisdiction {
 #[derive(Deserialize, Debug)]
 /// Processed document
 ///
-/// Represents a document target of the scrapper and its metadata.
+/// Represents a document target of the scraper and its metadata.
 /// Although it is typically a PDF, it could be any sort of document,
 /// such as plain text from a website.
 pub(super) struct Document {

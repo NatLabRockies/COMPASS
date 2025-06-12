@@ -198,13 +198,13 @@
 <path fill="none" stroke="black" d="M823.75,-1402.38C893.16,-1402.38 836.77,-813.79 893.4,-754.01"/>
 <polygon fill="black" stroke="black" points="894.66,-757.29 902.14,-749.78 891.61,-750.99 894.66,-757.29"/>
 </g>
-<!-- scrapper_metadata -->
+<!-- scraper_metadata -->
 <g id="node4" class="node">
-<title>scrapper_metadata</title>
+<title>scraper_metadata</title>
 <text text-anchor="start" x="588.5" y="-1152.38" font-family="Times,serif" font-size="10.00"> </text>
 <polygon fill="#e5e5e5" stroke="none" points="593.5,-1146.12 593.5,-1164.88 843.5,-1164.88 843.5,-1146.12 593.5,-1146.12"/>
 <polygon fill="none" stroke="black" points="593.5,-1146.12 593.5,-1164.88 843.5,-1164.88 843.5,-1146.12 593.5,-1146.12"/>
-<text text-anchor="start" x="666.38" y="-1152.38" font-family="Times,serif" font-size="10.00"> scrapper_metadata </text>
+<text text-anchor="start" x="669.75" y="-1152.38" font-family="Times,serif" font-size="10.00"> scraper_metadata </text>
 <text text-anchor="start" x="595.5" y="-1134.62" font-family="Times,serif" font-size="10.00"> id </text>
 <text text-anchor="start" x="748" y="-1134.62" font-family="Times,serif" font-size="10.00"> serial </text>
 <text text-anchor="start" x="797" y="-1134.62" font-family="Times,serif" font-size="10.00"> PK </text>
@@ -272,9 +272,9 @@
 <text text-anchor="start" x="845.5" y="-933.62" font-family="Times,serif" font-size="10.00"> </text>
 <polygon fill="none" stroke="black" points="585.5,-927.38 585.5,-1165.88 851.5,-1165.88 851.5,-927.38 585.5,-927.38"/>
 </g>
-<!-- scrapper_metadata&#45;&gt;bookkeeper -->
+<!-- scraper_metadata&#45;&gt;bookkeeper -->
 <g id="edge9" class="edge">
-<title>scrapper_metadata:rtcol2&#45;&gt;bookkeeper:ltcol1</title>
+<title>scraper_metadata:rtcol2&#45;&gt;bookkeeper:ltcol1</title>
 <path fill="none" stroke="black" d="M851.5,-1121C930.87,-1121 830.8,-784.55 892.65,-751.7"/>
 <polygon fill="black" stroke="black" points="893.1,-755.19 902.03,-749.47 891.49,-748.38 893.1,-755.19"/>
 </g>
@@ -337,9 +337,9 @@
 <text text-anchor="start" x="527.5" y="-999.75" font-family="Times,serif" font-size="10.00"> </text>
 <polygon fill="none" stroke="black" points="269,-993.5 269,-1181.75 533.5,-1181.75 533.5,-993.5 269,-993.5"/>
 </g>
-<!-- llm_config&#45;&gt;scrapper_metadata -->
+<!-- llm_config&#45;&gt;scraper_metadata -->
 <g id="edge10" class="edge">
-<title>llm_config:rtcol2&#45;&gt;scrapper_metadata:ltcol1</title>
+<title>llm_config:rtcol2&#45;&gt;scraper_metadata:ltcol1</title>
 <path fill="none" stroke="black" d="M533.5,-1136.88C552.28,-1136.88 559.61,-1137.45 574.1,-1137.67"/>
 <polygon fill="black" stroke="black" points="573.96,-1141.17 583.99,-1137.74 574.01,-1134.17 573.96,-1141.17"/>
 </g>

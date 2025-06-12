@@ -1,4 +1,4 @@
-//! Support for the ordinance scrapper output
+//! Support for the ordinance scraper output
 
 mod metadata;
 mod ordinance;
@@ -23,7 +23,7 @@ pub(crate) const SCRAPPED_ORDINANCE_VERSION: &str = "0.0.1";
 const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 
 // Concepts
-// - Lazy loading a scrapper output
+// - Lazy loading a scraper output
 //   - Early validation. Not necessary complete, but able to abort early
 //     if identifies any major problem.
 //   - Handle multiple versions. Identify right the way if the output is
@@ -55,9 +55,9 @@ const MAX_JSON_FILE_SIZE: u64 = 5 * 1024 * 1024;
 
 #[allow(dead_code)]
 #[derive(Debug)]
-/// Abstraction for the ordinance scrapper raw output
+/// Abstraction for the ordinance scraper raw output
 ///
-/// The ordinance scrapper outputs a directory with a standard structure,
+/// The ordinance scraper outputs a directory with a standard structure,
 /// including multiple files and sub-directories. The `ScrappedOrdinance`
 /// compose all that information.
 pub(crate) struct ScrappedOrdinance {

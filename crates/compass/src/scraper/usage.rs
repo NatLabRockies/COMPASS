@@ -1,8 +1,8 @@
-//! All the context for the scrapper usage data
+//! All the context for the scraper usage data
 //!
 //! This module provides support to parse, define the required database
 //! structure and record data in the database. All the context specific
-//! for the scrapper usage is defined here.
+//! for the scraper usage is defined here.
 
 use std::collections::HashMap;
 use std::io::Read;
@@ -14,7 +14,7 @@ use crate::error::Result;
 /// Scrapper usage data
 ///
 /// This top level structure contains all the usage information for a single
-/// run of the scrapper. Given one run can contain multiple models, each
+/// run of the scraper. Given one run can contain multiple models, each
 /// with multiple steps, each step having it's own usage information.
 pub(super) struct Usage {
     #[serde(flatten)]
@@ -39,7 +39,7 @@ pub(super) struct UsagePerModel {
 /// Scraper usage for a single step
 ///
 /// Holds the usage information for a single target of a single run of the
-/// scrapper. Each item has the totals as well as the information for specific
+/// scraper. Each item has the totals as well as the information for specific
 /// components such as 'data extraction' or 'document validation'. All the
 /// components are stored in the `step` field.
 pub(super) struct UsagePerStep {
@@ -95,10 +95,10 @@ impl Usage {
         Ok(())
     }
 
-    /// Open the usage related components of the scrapper output
+    /// Open the usage related components of the scraper output
     ///
     /// # Arguments
-    /// * `root`: The root directory of the scrapper output.
+    /// * `root`: The root directory of the scraper output.
     ///
     /// # Returns
     /// A Usage structure with the parsed data.
@@ -247,7 +247,7 @@ pub(crate) mod sample {
 }
 
 #[cfg(test)]
-mod test_scrapper_usage {
+mod test_scraper_usage {
     use super::sample::as_text_v1;
 
     #[test]

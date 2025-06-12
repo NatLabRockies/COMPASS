@@ -146,7 +146,7 @@ digraph g {
     </TABLE>>
     ];
 
-"scrapper_metadata" [
+"scraper_metadata" [
   shape = plaintext,
   label = < <TABLE BORDER="1" CELLBORDER="0" CELLSPACING="0">
     <TR ><TD PORT="ltcol0"> </TD> <TD bgcolor="grey90" border="1" COLSPAN="4"> \N </TD> <TD PORT="rtcol0"></TD></TR>
@@ -753,6 +753,6 @@ digraph g {
 "usage":rtcol2 -> "bookkeeper":ltcol1 [label=""];
 "usage_model":rtcol2 -> "usage":ltcol1 [label=""];
 "usage_step":rtcol2 -> "usage_model":ltcol1 [label=""];
-"scrapper_metadata":rtcol2 -> "bookkeeper":ltcol1 [label=""];
-"llm_config":rtcol2 -> "scrapper_metadata":ltcol1 [label=""];
+"scraper_metadata":rtcol2 -> "bookkeeper":ltcol1 [label=""];
+"llm_config":rtcol2 -> "scraper_metadata":ltcol1 [label=""];
 }

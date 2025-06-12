@@ -4,7 +4,6 @@ use anyhow::{Context, Result};
 use clap::{Arg, ArgAction, Command, arg, command, value_parser};
 use duckdb::Connection;
 use tracing::{self, error, info, trace};
-use tracing_subscriber;
 
 fn main() -> Result<()> {
     let matches = command!() // requires `cargo` feature
@@ -33,7 +32,7 @@ fn main() -> Result<()> {
                     Arg::new("path")
                         .value_parser(value_parser!(PathBuf))
                         .required(true)
-                        .help("Path to directory with scrapper output"),
+                        .help("Path to directory with scraper output"),
                 ),
         )
         .subcommand(

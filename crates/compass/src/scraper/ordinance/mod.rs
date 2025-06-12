@@ -9,7 +9,7 @@ use crate::error::Result;
 
 #[derive(Debug)]
 pub(super) struct Ordinance {
-    quantiative: quantitative::Quantitative,
+    quantitative: quantitative::Quantitative,
     qualitative: qualitative::Qualitative,
 }
 
@@ -24,12 +24,12 @@ impl Ordinance {
         Ok(())
     }
 
-    /// Open the quantiative ordinance from scrapped output
+    /// Open the quantitative ordinance from scrapped output
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Ordinance> {
         trace!("Opening quantitative ordinance of {:?}", root.as_ref());
 
         let ordinance = Ordinance {
-            quantiative: quantitative::Quantitative::open(root.as_ref()).await?,
+            quantitative: quantitative::Quantitative::open(root.as_ref()).await?,
             qualitative: qualitative::Qualitative::open(root.as_ref()).await?,
         };
 
@@ -41,7 +41,7 @@ impl Ordinance {
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         trace!("Writing ordinance to database");
 
-        self.quantiative.write(conn, commit_id)?;
+        self.quantitative.write(conn, commit_id)?;
         self.qualitative.write(conn, commit_id)?;
 
         trace!("Ordinance written to database");

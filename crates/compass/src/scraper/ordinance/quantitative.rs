@@ -1,4 +1,4 @@
-//! Parse and handle the scrapped quantiative ordinance information
+//! Parse and handle the scrapped quantitative ordinance information
 
 use tracing::trace;
 
@@ -60,7 +60,7 @@ impl Quantitative {
         Ok(())
     }
 
-    /// Open the quantiative ordinance from scrapped output
+    /// Open the quantitative ordinance from scrapped output
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Quantitative> {
         trace!("Opening quantitative ordinance of {:?}", root.as_ref());
 
