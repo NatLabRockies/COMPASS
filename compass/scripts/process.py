@@ -1187,7 +1187,7 @@ def _extract_model_info_from_all_models(models):
     return [
         {
             "name": caller_args.name,
-            "llm_call_kwargs": caller_args.llm_call_kwargs,
+            "llm_call_kwargs": caller_args.llm_call_kwargs or None,
             "llm_service_rate_limit": caller_args.llm_service_rate_limit,
             "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
             "text_splitter_chunk_overlap": (

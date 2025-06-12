@@ -18,14 +18,31 @@ pub(super) struct Metadata {
     username: String,
     versions: HashMap<String, String>,
     technology: String,
-    llm_parse_args: HashMap<String, serde_json::Value>,
+    models: Vec<LLMMetadata>,
     time_start_utc: String,
     time_end_utc: String,
     total_time: f64,
     total_time_string: String,
     num_jurisdictions_searched: u16,
     num_jurisdictions_found: u16,
+    cost: Option<f64>,
     manifest: HashMap<String, String>,
+
+    #[serde(flatten)]
+    pub(crate) extra: HashMap<String, serde_json::Value>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, serde::Deserialize)]
+/// Configuration used to run the scrapper
+pub(super) struct LLMMetadata {
+    name: String,
+    llm_call_kwargs: Option<HashMap<String, serde_json::Value>>,
+    llm_service_rate_limit: u64,
+    text_splitter_chunk_size: u32,
+    text_splitter_chunk_overlap: u32,
+    client_type: String,
+    tasks: Vec<String>,
 
     #[serde(flatten)]
     pub(crate) extra: HashMap<String, serde_json::Value>,
@@ -45,13 +62,28 @@ impl Metadata {
               username TEXT,
               versions TEXT,
               technology TEXT,
-              llm_parse_args TEXT,
               time_start_utc TEXT,
               time_end_utc TEXT,
               total_time REAL,
               num_jurisdictions_searched INTEGER,
               num_jurisdictions_found INTEGER,
+              cost REAL,
               manifest TEXT,
+              extra TEXT,
+            );
+
+            CREATE SEQUENCE IF NOT EXISTS llm_config_sequence START 1;
+            CREATE TABLE IF NOT EXISTS llm_config (
+              id INTEGER PRIMARY KEY DEFAULT
+                NEXTVAL('llm_config_sequence'),
+              metadata_lnk INTEGER REFERENCES scrapper_metadata(id) NOT NULL,
+              name TEXT,
+              llm_call_kwargs TEXT,
+              llm_service_rate_limit INTEGER,
+              text_splitter_chunk_size INTEGER,
+              text_splitter_chunk_overlap INTEGER,
+              client_type TEXT,
+              tasks TEXT,
               extra TEXT,
             );",
         )?;
@@ -100,27 +132,56 @@ impl Metadata {
 
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing Metadata to the database {:?}", self);
-        conn.execute(
-            r"INSERT INTO scrapper_metadata
+        let metadata_id: u32 = conn
+            .query_row(
+                r"INSERT INTO scrapper_metadata
                      (bookkeeper_lnk, username, versions, technology,
-                       llm_parse_args, time_start_utc, time_end_utc,
+                       time_start_utc, time_end_utc,
                        total_time, num_jurisdictions_searched,
-                       num_jurisdictions_found, manifest)
+                       num_jurisdictions_found, cost, manifest)
                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
-            [
-                commit_id.to_string(),
-                self.username.to_string(),
-                serde_json::to_string(&self.versions).unwrap(),
-                self.technology.to_string(),
-                serde_json::to_string(&self.llm_parse_args).unwrap(),
-                self.time_start_utc.to_string(),
-                self.time_end_utc.to_string(),
-                self.total_time.to_string(),
-                self.num_jurisdictions_searched.to_string(),
-                self.num_jurisdictions_found.to_string(),
-                serde_json::to_string(&self.manifest).unwrap(),
-            ],
-        )?;
+                duckdb::params![
+                    commit_id,
+                    self.username,
+                    serde_json::to_string(&self.versions).unwrap(),
+                    self.technology,
+                    self.time_start_utc,
+                    self.time_end_utc,
+                    self.total_time,
+                    self.num_jurisdictions_searched,
+                    self.num_jurisdictions_found,
+                    self.cost,
+                    serde_json::to_string(&self.manifest).unwrap(),
+                ],
+                |row| row.get(0),
+            )
+            .expect("Failed to insert metadata");
+
+        for llm_metadata in &self.models {
+            tracing::trace!(
+                "Writing metadata for {:?} to the database",
+                llm_metadata.name
+            );
+            conn.execute(
+                "INSERT INTO llm_config
+                    (metadata_lnk, name, llm_call_kwargs, llm_service_rate_limit,
+                     text_splitter_chunk_size, text_splitter_chunk_overlap,
+                     client_type, tasks, extra)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);",
+                duckdb::params![
+                    metadata_id,
+                    llm_metadata.name,
+                    serde_json::to_string(&llm_metadata.llm_call_kwargs).unwrap(),
+                    llm_metadata.llm_service_rate_limit,
+                    llm_metadata.text_splitter_chunk_size,
+                    llm_metadata.text_splitter_chunk_overlap,
+                    llm_metadata.client_type,
+                    serde_json::to_string(&llm_metadata.tasks).unwrap(),
+                    serde_json::to_string(&llm_metadata.extra).unwrap(),
+                ],
+            )
+            .expect("Failed to insert usage_event");
+        }
 
         Ok(())
     }
@@ -130,7 +191,7 @@ impl Metadata {
 /// Samples of scrapper configuration to support tests
 ///
 /// These samples should cover multiple versions of data models as this library evolves and it
-/// should be acessible from other parts of the crate.
+/// should be accessible from other parts of the crate.
 pub(crate) mod sample {
     use crate::error::Result;
     use std::io::Write;
@@ -144,21 +205,28 @@ pub(crate) mod sample {
         "compass": "0.1.1.dev17+gb569353.d20250304"
         },
     "technology": "wind",
-    "llm_parse_args": {
-        "llm_call_kwargs": {
-            "temperature": 0,
-            "seed": 42,
-            "timeout": 300
+    "models": [
+        {
+            "name": "gpt-4.1-mini",
+            "llm_call_kwargs": {
+                "temperature": 0,
+                "seed": 42,
+                "timeout": 300
             },
-        "text_splitter_chunk_size": 10000,
-        "text_splitter_chunk_overlap": 500
-        },
+            "llm_service_rate_limit": 500000,
+            "text_splitter_chunk_size": 10000,
+            "text_splitter_chunk_overlap": 500,
+            "client_type": "azure",
+            "tasks": ["default"]
+        }
+    ],
     "time_start_utc": "2025-03-04T05:10:52.266550+00:00",
     "time_end_utc": "2025-03-04T05:19:49.767500+00:00",
     "total_time": 537.5009291959941,
     "total_time_string": "0:08:57.500929",
     "num_jurisdictions_searched": 10,
     "num_jurisdictions_found": 7,
+    "cost": 0.17406639999999998,
     "manifest": {
         "LOG_DIR": "logs",
         "META_FILE": "meta.json"
