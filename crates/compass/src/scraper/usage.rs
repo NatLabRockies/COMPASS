@@ -14,34 +14,42 @@ use crate::error::Result;
 /// Scrapper usage data
 ///
 /// This top level structure contains all the usage information for a single
-/// run of the scrapper. Given one run can contain multiple targets, each
-/// target is one item in the jurisdiction item.
+/// run of the scrapper. Given one run can contain multiple models, each
+/// with multiple steps, each step having it's own usage information.
 pub(super) struct Usage {
-    // pub(super) total_time_seconds: f64,
-    // pub(super) total_time: String,
     #[serde(flatten)]
-    pub(super) jurisdiction: HashMap<String, UsagePerItem>,
+    pub(super) jurisdiction: HashMap<String, UsagePerModel>,
 }
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
-/// Scraper usage for a single target
+/// Scraper usage for a single model
+///
+/// Holds the usage information for a single LLM of a single run of the
+/// scraper. Each item is a hash map that tracks the usage per target
+/// such as 'data extraction' or 'document validation'. All the
+/// components are stored in the `model` field.
+pub(super) struct UsagePerModel {
+    #[serde(flatten)]
+    model: HashMap<String, UsagePerStep>,
+}
+
+#[allow(dead_code)]
+#[derive(Debug, serde::Deserialize)]
+/// Scraper usage for a single step
 ///
 /// Holds the usage information for a single target of a single run of the
 /// scrapper. Each item has the totals as well as the information for specific
 /// components such as 'data extraction' or 'document validation'. All the
-/// components are stored in the `events` field.
-pub(super) struct UsagePerItem {
-    // total_time_seconds: f64,
-    // total_time: String,
+/// components are stored in the `step` field.
+pub(super) struct UsagePerStep {
     #[serde(flatten)]
-    events: HashMap<String, UsageValues>,
+    step: HashMap<String, UsageValues>,
 }
 
 #[allow(dead_code)]
 #[derive(Debug, serde::Deserialize)]
 pub(super) struct UsageValues {
-    //event: String,
     requests: u32,
     prompt_tokens: u32,
     response_tokens: u32,
@@ -60,27 +68,24 @@ impl Usage {
             CREATE TABLE IF NOT EXISTS usage (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
-              created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+              jurisdiction TEXT NOT NULL,
               );
 
-            CREATE SEQUENCE usage_per_item_sequence START 1;
-            CREATE TABLE IF NOT EXISTS usage_per_item(
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_per_item_sequence'),
+            CREATE SEQUENCE usage_model_sequence START 1;
+            CREATE TABLE IF NOT EXISTS usage_model(
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_model_sequence'),
               usage_lnk INTEGER REFERENCES usage(id) NOT NULL,
-              name TEXT NOT NULL,
-              /* connection with file
-              jurisdiction_lnk INTEGER REFERENCES jurisdiction(id) NOT NULL,
-              */
+              model TEXT NOT NULL,
               total_requests INTEGER NOT NULL,
               total_prompt_tokens INTEGER NOT NULL,
               total_response_tokens INTEGER NOT NULL,
               );
 
-            CREATE SEQUENCE usage_event_sequence START 1;
-            CREATE TABLE IF NOT EXISTS usage_event (
-              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_event_sequence'),
-              usage_per_item_lnk INTEGER REFERENCES usage_per_item(id) NOT NULL,
-              event TEXT NOT NULL,
+            CREATE SEQUENCE usage_step_sequence START 1;
+            CREATE TABLE IF NOT EXISTS usage_step (
+              id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_step_sequence'),
+              model_lnk INTEGER REFERENCES usage_model(id) NOT NULL,
+              step TEXT NOT NULL,
               requests INTEGER NOT NULL,
               prompt_tokens INTEGER NOT NULL,
               response_tokens INTEGER NOT NULL,
@@ -136,38 +141,64 @@ impl Usage {
     /// Write the usage data to the database
     pub(super) fn write(&self, conn: &duckdb::Transaction, commit_id: usize) -> Result<()> {
         tracing::trace!("Writing Usage to the database {:?}", self);
-        // An integer type in duckdb is 32 bits.
-        let usage_id: u32 = conn
-            .query_row(
-                "INSERT INTO usage (bookkeeper_lnk) VALUES (?) RETURNING id",
-                [&commit_id.to_string()],
-                |row| row.get(0),
-            )
-            .expect("Failed to insert usage");
-        tracing::trace!("Usage written to the database, id: {:?}", usage_id);
 
-        for (jurisdiction_name, content) in &self.jurisdiction {
-            tracing::trace!(
-                "Writing Usage-Item to the database: {:?}",
-                jurisdiction_name
-            );
+        for (jurisdiction_name, usage_by_model) in &self.jurisdiction {
+            tracing::trace!("Writing usage for {:?} to the database", jurisdiction_name);
 
             // An integer type in duckdb is 32 bits.
-            let item_id: u32 = conn.query_row(
-                "INSERT INTO usage_per_item (usage_lnk, name, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
-                [&usage_id.to_string(), jurisdiction_name, &content.events["tracker_totals"].requests.to_string(), &content.events["tracker_totals"].prompt_tokens.to_string(), &content.events["tracker_totals"].response_tokens.to_string()],
-                |row| row.get(0)
-                ).expect("Failed to insert usage_per_item");
+            let jurisdiction_id: u32 = conn
+                .query_row(
+                    "INSERT INTO usage (bookkeeper_lnk, jurisdiction) VALUES (?, ?) RETURNING id",
+                    [&commit_id.to_string(), jurisdiction_name],
+                    |row| row.get(0),
+                )
+                .expect("Failed to insert usage");
 
-            tracing::trace!("UsagePerItem written to the database, id: {:?}", item_id);
+            tracing::trace!(
+                "Usage per jurisdiction written to the database, id: {:?}",
+                jurisdiction_id
+            );
 
-            for (event_name, event) in &content.events {
-                tracing::trace!("Writing Usage-Event to the database: {:?}", event_name);
+            for (model_name, content) in usage_by_model
+                .model
+                .iter()
+                .filter(|(k, _)| *k != "tracker_totals")
+            {
+                tracing::trace!("Writing usage for model {:?} to the database", model_name);
 
-                conn.execute(
-                    "INSERT INTO usage_event (usage_per_item_lnk, event, requests, prompt_tokens, response_tokens) VALUES (?, ?, ?, ?, ?)",
-                    [&item_id.to_string(), event_name, &event.requests.to_string(), &event.prompt_tokens.to_string(), &event.response_tokens.to_string()]
-                    ).expect("Failed to insert usage_event");
+                let model_id: u32 = conn.query_row(
+                    "INSERT INTO usage_per_model (jurisdiction_lnk, model, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
+                    [
+                        &jurisdiction_id.to_string(),
+                        model_name,
+                        &usage_by_model.model["tracker_totals"].step[model_name].requests.to_string(),
+                        &usage_by_model.model["tracker_totals"].step[model_name].prompt_tokens.to_string(),
+                        &usage_by_model.model["tracker_totals"].step[model_name].response_tokens.to_string()
+                    ],
+                    |row| row.get(0)
+                    ).expect("Failed to insert usage_per_jurisdiction");
+
+                tracing::trace!(
+                    "Usage per model written to the database, id: {:?}",
+                    model_id
+                );
+
+                for (step_name, step) in &content.step {
+                    tracing::trace!("Writing usage for step {:?} to the database", step_name);
+
+                    conn.execute(
+                        "INSERT INTO usage_step (model_lnk, step, requests, prompt_tokens, response_tokens) VALUES (?, ?, ?, ?, ?)",
+                        [
+                            &model_id.to_string(),
+                            step_name,
+                            &step.requests.to_string(),
+                            &step.prompt_tokens.to_string(),
+                            &step.response_tokens.to_string()
+                        ]
+                        ).expect("Failed to insert usage_step");
+                }
+
+                tracing::trace!("Usage per step written to the database");
             }
         }
 
@@ -184,20 +215,24 @@ pub(crate) mod sample {
         r#"
         {
           "Decatur County, Indiana": {
-            "document_location_validation": {
-              "requests": 55,
-              "prompt_tokens": 114614,
-              "response_tokens": 1262
-            },
-            "document_content_validation": {
-              "requests": 7,
-              "prompt_tokens": 15191,
-              "response_tokens": 477
+            "gpt-4.1-mini": {
+              "document_location_validation": {
+                "requests": 55,
+                "prompt_tokens": 114614,
+                "response_tokens": 1262
+              },
+              "document_content_validation": {
+                "requests": 7,
+                "prompt_tokens": 15191,
+                "response_tokens": 477
+              }
             },
             "tracker_totals": {
-              "requests": 121,
-              "prompt_tokens": 186099,
-              "response_tokens": 6297
+              "gpt-4.1-mini": {
+                "requests": 121,
+                "prompt_tokens": 186099,
+                "response_tokens": 6297
+              }
             }
           }
         }"#
@@ -221,13 +256,13 @@ mod test_scrapper_usage {
 
         assert!(usage.jurisdiction.contains_key("Decatur County, Indiana"));
         assert!(
-            usage.jurisdiction["Decatur County, Indiana"]
-                .events
+            usage.jurisdiction["Decatur County, Indiana"].model["gpt-4.1-mini"]
+                .step
                 .contains_key("document_location_validation")
         );
         assert_eq!(
-            usage.jurisdiction["Decatur County, Indiana"]
-                .events
+            usage.jurisdiction["Decatur County, Indiana"].model["gpt-4.1-mini"]
+                .step
                 .get("document_location_validation")
                 .unwrap()
                 .requests,
