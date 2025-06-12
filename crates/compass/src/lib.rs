@@ -60,7 +60,7 @@ pub fn init_db(path: &str) -> Result<()> {
     LOAD spatial;
 
     CREATE SEQUENCE jurisdiction_sequence START 1;
-    CREATE TYPE jurisdiction_rank AS ENUM ('state', 'county', 'city', 'town', 'CCD', 'reservation', 'other');
+    CREATE TYPE jurisdiction_rank AS ENUM ('state', 'county', 'parish', 'city', 'town', 'district', 'other');
     CREATE TABLE jurisdiction (
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('jurisdiction_sequence'),
       bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
