@@ -56,7 +56,7 @@ Alabama,Perry,,county,01105,https://www.perrycountyal.gov/
 Alabama,Pickens,,county,01107,https://www.pickenscountyal.com/
 Alabama,Pike,,county,01109,https://pikeprobate.com/
 Alabama,Randolph,,county,01111,http://www.randolphcountyalabama.gov/
-Alabama,Russell,,county,01113,https://rcala.com/
+Alabama,Russell,,county,01113,
 Alabama,St. Clair,,county,01115,https://www.stclairco.com/
 Alabama,Shelby,,county,01117,https://www.shelbyal.com/
 Alabama,Sumter,,county,01119,https://sumtercountyal.com/
@@ -66,10 +66,10 @@ Alabama,Tuscaloosa,,county,01125,https://www.tuscco.com/
 Alabama,Walker,,county,01127,https://walkercountyal.us/
 Alabama,Washington,,county,01129,https://wcalabama.com/
 Alabama,Wilcox,,county,01131,https://www.sos.alabama.gov/city-county-lookup/wilcox
-Alabama,Winston,,county,01133,https://www.winstoncountyrevenue.com/
+Alabama,Winston,,county,01133,
 Alaska,,,state,02000,https://alaska.gov/
 Alaska,Aleutians East,,borough,02013,
-Alaska,Aleutians West,,census area,02016,https://gis.data.alaska.gov/datasets/DCCED::aleutians-west-census-area-storymap-census-area/about
+Alaska,Aleutians West,,census area,02016,
 Alaska,Anchorage,,borough,02020,
 Alaska,,Bethel,city,02050,
 Alaska,Bristol Bay,,borough,02060,https://bristolbayboroughak.us/
@@ -77,26 +77,26 @@ Alaska,Denali,,borough,02068,
 Alaska,,Dillingham,city,02070,https://www.dillinghamak.us/
 Alaska,Fairbanks North Star,,borough,02090,
 Alaska,Haines,,borough,02100,
-Alaska,Hoonah-Angoon,,census area,02105,https://gis.data.alaska.gov/datasets/DCCED::hoonah-angoon-census-area-storymap-census-area
+Alaska,Hoonah-Angoon,,census area,02105,
 Alaska,Juneau,,borough,02110,
 Alaska,Kenai Peninsula,,borough,02122,
 Alaska,Ketchikan Gateway,,borough,02130,https://www.borough.ketchikan.ak.us/
 Alaska,Kodiak Island,,borough,02150,
-Alaska,Kusilvak,,census area,02158,https://gis.data.alaska.gov/datasets/DCCED::kusilvak-census-area-storymap-census-area
+Alaska,Kusilvak,,census area,02158,
 Alaska,Lake and Peninsula,,borough,02164,
 Alaska,Matanuska-Susitna,,borough,02170,
 Alaska,,Nome,city,02180,https://www.nomealaska.org/
 Alaska,North Slope,,borough,02185,
 Alaska,Northwest Arctic,,borough,02188,
 Alaska,Petersburg,,borough,02195,https://www.petersburgak.gov/
-Alaska,Prince of Wales-Hyder,,census area,02198,https://www.census.gov/quickfacts/fact/table/princeofwaleshydercensusareaalaska/POP010210
+Alaska,Prince of Wales-Hyder,,census area,02198,
 Alaska,Sitka,,borough,02220,
 Alaska,Skagway,,borough,02230,
 Alaska,Southeast Fairbanks,,census area,02240,https://datausa.io/profile/geo/southeast-fairbanks-census-area-ak/
 Alaska,,Valdez-Cordova,city,02261,
 Alaska,Wrangell,,borough,02275,
 Alaska,Yakutat,,borough,02282,
-Alaska,Yukon-Koyukuk,,census area,02290,https://www.census.gov/quickfacts/fact/table/yukonkoyukukcensusareaalaska/PST045224
+Alaska,Yukon-Koyukuk,,census area,02290,
 Arizona,,,state,04000,https://az.gov/
 Arizona,Apache,,county,04001,https://www.apachecountyaz.gov/
 Arizona,Cochise,,county,04003,https://www.cochise.az.gov/
@@ -127,7 +127,7 @@ Arkansas,Clark,,county,05019,https://clarkcountyar.gov/
 Arkansas,Clay,,county,05021,https://www.claycountyarkansas.org/
 Arkansas,Cleburne,,county,05023,https://www.cleburnecountyar.com/
 Arkansas,Cleveland,,county,05025,https://local.arkansas.gov/local.php?agency=Cleveland%20County
-Arkansas,Columbia,,county,05027,https://www.countyofcolumbia.org/
+Arkansas,Columbia,,county,05027,https://www.columbiacountyar.com/
 Arkansas,Conway,,county,05029,https://conwaycountyar.com/
 Arkansas,Craighead,,county,05031,https://craigheadcountyar.gov/
 Arkansas,Crawford,,county,05033,https://www.crawford-county.org/
