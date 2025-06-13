@@ -66,16 +66,16 @@ jobs:
       with:
         use-cross: ${{ matrix.use-cross }}
         command: build
-        args: --target ${{ matrix.target }} --release --locked -p nrel-ordinance-cli
+        args: --target ${{ matrix.target }} --release --locked -p infra-compass-cli
 
     - name: Strip binary
       if: matrix.strip
-      run: ${{ matrix.strip }} target/${{ matrix.target }}/release/nrel-ordinance-cli${{ matrix.binary_ext }}
+      run: ${{ matrix.strip }} target/${{ matrix.target }}/release/infra-compass-cli${{ matrix.binary_ext }}
 
     - name: Upload binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: target/${{ matrix.target }}/release/nrel-ordinance-cli${{ matrix.binary_ext }}
-        asset_name: nrel-ordinance-cli-${{ matrix.target }}${{ matrix.binary_ext }}
+        file: target/${{ matrix.target }}/release/infra-compass-cli${{ matrix.binary_ext }}
+        asset_name: infra-compass-cli-${{ matrix.target }}${{ matrix.binary_ext }}
         tag: ${{ github.ref }}
