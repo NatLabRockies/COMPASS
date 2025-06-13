@@ -1,12 +1,12 @@
 State,County,Subdivision,Jurisdiction Type,FIPS,Website
-Alabama,,,state,01000,
+Alabama,,,state,01000,https://www.alabama.gov/
 Alabama,Autauga,,county,01001,https://www.autaugaco.org/
 Alabama,Baldwin,,county,01003,https://baldwincountyal.gov/
 Alabama,Barbour,,county,01005,https://www.sos.alabama.gov/city-county-lookup/barbour
 Alabama,Bibb,,county,01007,https://bibbal.com/
 Alabama,Blount,,county,01009,https://blountcountyal.gov/
 Alabama,Bullock,,county,01011,https://www.bullockal.com/
-Alabama,Butler,,county,01013,http://www.butleralabama.org/
+Alabama,Butler,,county,01013,https://www.butlercogov.com/
 Alabama,Calhoun,,county,01015,https://www.calhouncounty.org/
 Alabama,Chambers,,county,01017,https://www.chamberscountyal.gov/
 Alabama,Cherokee,,county,01019,https://cherokeecounty-al.gov/
@@ -20,7 +20,7 @@ Alabama,Colbert,,county,01033,https://www.colbertcounty.org/
 Alabama,Conecuh,,county,01035,https://www.conecuhcounty.us/
 Alabama,Coosa,,county,01037,http://www.coosacountyal.com/
 Alabama,Covington,,county,01039,http://www.covcounty.com/
-Alabama,Crenshaw,,county,01041,https://crenshawcountyalonline.com/default.aspx?pageID=1
+Alabama,Crenshaw,,county,01041,
 Alabama,Cullman,,county,01043,http://www.co.cullman.al.us/
 Alabama,Dale,,county,01045,https://dalecountyal.com/
 Alabama,Dallas,,county,01047,http://www.dallascounty-al.org/
@@ -36,7 +36,7 @@ Alabama,Hale,,county,01065,http://www.halecountyal.com/
 Alabama,Henry,,county,01067,https://www.henrycountyal.com/
 Alabama,Houston,,county,01069,https://houstoncountyal.gov/
 Alabama,Jackson,,county,01071,https://www.jacksoncountyal.gov/
-Alabama,Jefferson,,county,01073,https://www.jccal.org/
+Alabama,Jefferson,,county,01073,
 Alabama,Lamar,,county,01075,https://www.sos.alabama.gov/city-county-lookup/lamar
 Alabama,Lauderdale,,county,01077,https://lauderdalecountyal.gov/
 Alabama,Lawrence,,county,01079,http://www.lawrencecountyal.org/
@@ -67,37 +67,37 @@ Alabama,Walker,,county,01127,https://walkercountyal.us/
 Alabama,Washington,,county,01129,https://wcalabama.com/
 Alabama,Wilcox,,county,01131,https://www.sos.alabama.gov/city-county-lookup/wilcox
 Alabama,Winston,,county,01133,https://www.winstoncountyrevenue.com/
-Alaska,,,state,02000,
+Alaska,,,state,02000,https://alaska.gov/
 Alaska,Aleutians East,,borough,02013,
-Alaska,Aleutians West,,census area,02016,
+Alaska,Aleutians West,,census area,02016,https://gis.data.alaska.gov/datasets/DCCED::aleutians-west-census-area-storymap-census-area/about
 Alaska,Anchorage,,borough,02020,
 Alaska,,Bethel,city,02050,
-Alaska,Bristol Bay,,borough,02060,
+Alaska,Bristol Bay,,borough,02060,https://bristolbayboroughak.us/
 Alaska,Denali,,borough,02068,
-Alaska,,Dillingham,city,02070,
+Alaska,,Dillingham,city,02070,https://www.dillinghamak.us/
 Alaska,Fairbanks North Star,,borough,02090,
 Alaska,Haines,,borough,02100,
-Alaska,Hoonah-Angoon,,census area,02105,
+Alaska,Hoonah-Angoon,,census area,02105,https://gis.data.alaska.gov/datasets/DCCED::hoonah-angoon-census-area-storymap-census-area
 Alaska,Juneau,,borough,02110,
 Alaska,Kenai Peninsula,,borough,02122,
-Alaska,Ketchikan Gateway,,borough,02130,
+Alaska,Ketchikan Gateway,,borough,02130,https://www.borough.ketchikan.ak.us/
 Alaska,Kodiak Island,,borough,02150,
-Alaska,Kusilvak,,census area,02158,
+Alaska,Kusilvak,,census area,02158,https://gis.data.alaska.gov/datasets/DCCED::kusilvak-census-area-storymap-census-area
 Alaska,Lake and Peninsula,,borough,02164,
 Alaska,Matanuska-Susitna,,borough,02170,
-Alaska,,Nome,city,02180,
+Alaska,,Nome,city,02180,https://www.nomealaska.org/
 Alaska,North Slope,,borough,02185,
 Alaska,Northwest Arctic,,borough,02188,
-Alaska,Petersburg,,borough,02195,
-Alaska,Prince of Wales-Hyder,,census area,02198,
+Alaska,Petersburg,,borough,02195,https://www.petersburgak.gov/
+Alaska,Prince of Wales-Hyder,,census area,02198,https://www.census.gov/quickfacts/fact/table/princeofwaleshydercensusareaalaska/POP010210
 Alaska,Sitka,,borough,02220,
 Alaska,Skagway,,borough,02230,
-Alaska,Southeast Fairbanks,,census area,02240,
+Alaska,Southeast Fairbanks,,census area,02240,https://datausa.io/profile/geo/southeast-fairbanks-census-area-ak/
 Alaska,,Valdez-Cordova,city,02261,
 Alaska,Wrangell,,borough,02275,
 Alaska,Yakutat,,borough,02282,
-Alaska,Yukon-Koyukuk,,census area,02290,
-Arizona,,,state,04000,
+Alaska,Yukon-Koyukuk,,census area,02290,https://www.census.gov/quickfacts/fact/table/yukonkoyukukcensusareaalaska/PST045224
+Arizona,,,state,04000,https://az.gov/
 Arizona,Apache,,county,04001,https://www.apachecountyaz.gov/
 Arizona,Cochise,,county,04003,https://www.cochise.az.gov/
 Arizona,Coconino,,county,04005,https://www.coconino.az.gov/
@@ -113,7 +113,7 @@ Arizona,Pinal,,county,04021,https://www.pinal.gov/
 Arizona,Santa Cruz,,county,04023,https://www.santacruzcountyaz.gov/
 Arizona,Yavapai,,county,04025,https://www.yavapaiaz.gov/Home
 Arizona,Yuma,,county,04027,https://www.yumacountyaz.gov/
-Arkansas,,,state,05000,
+Arkansas,,,state,05000,https://portal.arkansas.gov/
 Arkansas,Arkansas,,county,05001,https://local.arkansas.gov/local.php?agency=Arkansas%20County
 Arkansas,Ashley,,county,05003,https://www.ashleycountyar.com/
 Arkansas,Baxter,,county,05005,https://www.baxtercountyar.gov/
@@ -189,7 +189,7 @@ Arkansas,Washington,,county,05143,https://www.washingtoncountyar.gov/
 Arkansas,White,,county,05145,https://www.whitecounty.ar.gov/
 Arkansas,Woodruff,,county,05147,https://local.arkansas.gov/local.php?agency=Woodruff%20County
 Arkansas,Yell,,county,05149,https://yellcountyar.gov/
-California,,,state,06000,
+California,,,state,06000,https://www.sos.ca.gov/
 California,Alameda,,county,06001,https://www.acgov.org/
 California,Alpine,,county,06003,https://www.alpinecountyca.gov/
 California,Amador,,county,06005,https://www.amadorgov.org/
@@ -248,7 +248,7 @@ California,Tuolumne,,county,06109,https://www.tuolumnecounty.ca.gov/
 California,Ventura,,county,06111,https://www.ventura.org/
 California,Yolo,,county,06113,https://www.yolocounty.org/
 California,Yuba,,county,06115,https://www.yuba.org/
-Colorado,,,state,08000,
+Colorado,,,state,08000,https://www.colorado.gov/
 Colorado,Adams,,county,08001,https://adcogov.org/
 Colorado,Alamosa,,county,08003,https://alamosacounty.colorado.gov/
 Colorado,Arapahoe,,county,08005,https://www.arapahoeco.gov/
@@ -313,7 +313,7 @@ Colorado,Teller,,county,08119,https://www.co.teller.co.us/
 Colorado,Washington,,county,08121,https://washingtoncounty.colorado.gov/
 Colorado,Weld,,county,08123,https://www.weld.gov/
 Colorado,Yuma,,county,08125,https://yumacounty.net/home/
-Connecticut,,,state,09000,
+Connecticut,,,state,09000,https://portal.ct.gov/sots
 Connecticut,Capitol,,planning region,09110,"https://en.wikipedia.org/wiki/Capitol_Planning_Region,_Connecticut"
 Connecticut,Greater Bridgeport,,planning region,09120,"https://en.wikipedia.org/wiki/Greater_Bridgeport_Planning_Region,_Connecticut"
 Connecticut,Lower Connecticut River Valley,,planning region,09130,https://www.rivercog.org/
@@ -323,13 +323,13 @@ Connecticut,Northwest Hills,,planning region,09160,https://northwesthillscog.org
 Connecticut,South Central Connecticut,,planning region,09170,"https://en.wikipedia.org/wiki/South_Central_Connecticut_Planning_Region,_Connecticut"
 Connecticut,Southeastern Connecticut,,planning region,09180,https://portal.ct.gov/OPM/IGPP/ORG/Planning-Regions/Planning-Regions---Overview
 Connecticut,Western Connecticut,,planning region,09190,https://portal.ct.gov/OPM/IGPP/ORG/Planning-Regions/Planning-Regions---Overview
-Delaware,,,state,10000,
+Delaware,,,state,10000,https://delaware.gov/
 Delaware,Kent,,county,10001,https://www.kentcountyde.gov/Your-County-Government
 Delaware,New Castle,,county,10003,https://www.newcastlede.gov/
 Delaware,Sussex,,county,10005,https://sussexcountyde.gov/
-District of Columbia,,,state,11000,
+District of Columbia,,,state,11000,https://dc.gov/
 District of Columbia,District of Columbia,,county,11001,https://dc.gov/
-Florida,,,state,12000,
+Florida,,,state,12000,https://www.myflorida.gov/
 Florida,Alachua,,county,12001,https://www.alachuacounty.us/
 Florida,Baker,,county,12003,https://www.bakercountyfl.org/
 Florida,Bay,,county,12005,https://www.co.bay.fl.us/
@@ -397,7 +397,7 @@ Florida,Volusia,,county,12127,https://www.volusia.org/
 Florida,Wakulla,,county,12129,https://www.mywakulla.com/
 Florida,Walton,,county,12131,https://www.co.walton.fl.us/
 Florida,Washington,,county,12133,https://washingtonfl.com/
-Georgia,,,state,13000,
+Georgia,,,state,13000,https://georgia.gov/
 Georgia,Appling,,county,13001,https://applingcountyga.org/
 Georgia,Atkinson,,county,13003,https://atkinsoncounty.org/
 Georgia,Bacon,,county,13005,https://dfcs.georgia.gov/contacts/bacon-county
@@ -557,13 +557,13 @@ Georgia,Wilcox,,county,13315,http://s955274909.onlinehome.us/
 Georgia,Wilkes,,county,13317,https://www.wilkescountyga.org/government
 Georgia,Wilkinson,,county,13319,https://www.wilkinsoncounty.net/
 Georgia,Worth,,county,13321,https://www.worthcountyboc.com/home
-Hawaii,,,state,15000,
-Hawaii,Hawaii,,county,15001,
+Hawaii,,,state,15000,https://portal.ehawaii.gov/
+Hawaii,Hawaii,,county,15001,https://www.hawaiicounty.gov/
 Hawaii,Honolulu,,county,15003,
 Hawaii,Kalawao,,county,15005,
 Hawaii,Kauai,,county,15007,
 Hawaii,Maui,,county,15009,
-Idaho,,,state,16000,
+Idaho,,,state,16000,https://idaho.gov/
 Idaho,Ada,,county,16001,https://adacounty.id.gov/
 Idaho,Adams,,county,16003,https://www.co.adams.id.us/
 Idaho,Bannock,,county,16005,https://www.bannockcounty.us/
@@ -608,7 +608,7 @@ Idaho,Teton,,county,16081,https://www.tetoncountyidaho.gov/
 Idaho,Twin Falls,,county,16083,https://twinfallscounty.org/
 Idaho,Valley,,county,16085,https://www.co.valley.id.us/
 Idaho,Washington,,county,16087,https://co.washington.id.us/
-Illinois,,,state,17000,
+Illinois,,,state,17000,https://www.ilsos.gov/
 Illinois,Adams,,county,17001,https://www.co.adams.il.us/
 Illinois,Alexander,,county,17003,https://alexandercounty.illinois.gov/
 Illinois,Bond,,county,17005,https://bondcountyil.gov/
@@ -676,7 +676,7 @@ Illinois,Massac,,county,17127,https://www.ilsos.gov/departments/archives/IRAD/ma
 Illinois,Menard,,county,17129,https://menardcountyil.com/contact-us/
 Illinois,Mercer,,county,17131,https://www.mercercountyil.org/
 Illinois,Monroe,,county,17133,https://monroecountyil.gov/
-Illinois,Montgomery,,county,17135,https://montgomeryco.com/
+Illinois,Montgomery,,county,17135,https://www.illinoiscourts.gov/courts-directory/153/Montgomery-County-Courthouse/court/
 Illinois,Morgan,,county,17137,https://morgancounty-il.com/wp/
 Illinois,Moultrie,,county,17139,https://www.moultriecountyil.gov/
 Illinois,Ogle,,county,17141,https://www.oglecountyil.gov/
@@ -707,11 +707,11 @@ Illinois,Washington,,county,17189,https://washingtonco.illinois.gov/
 Illinois,Wayne,,county,17191,https://www.ilsos.gov/departments/archives/IRAD/wayne.html
 Illinois,White,,county,17193,https://www.whitecounty-il.gov/
 Illinois,Whiteside,,county,17195,https://www.whitesidecountyil.gov/
-Illinois,Will,,county,17197,https://willcounty.gov/
+Illinois,Will,,county,17197,https://willcountyillinois.org/
 Illinois,Williamson,,county,17199,https://www.williamsoncountyil.gov/
 Illinois,Winnebago,,county,17201,https://wincoil.gov/
 Illinois,Woodford,,county,17203,https://www.woodford-county.org/
-Indiana,,,state,18000,
+Indiana,,,state,18000,https://www.in.gov/core/index.html
 Indiana,Adams,,county,18001,https://www.co.adams.in.us/
 Indiana,Allen,,county,18003,https://www.allencounty.in.gov/
 Indiana,Bartholomew,,county,18005,https://www.bartholomew.in.gov/
@@ -722,7 +722,7 @@ Indiana,Brown,,county,18013,https://www.browncounty.com/
 Indiana,Carroll,,county,18015,https://www.carrollcountyindiana.com/
 Indiana,Cass,,county,18017,https://www.co.cass.in.us/
 Indiana,Clark,,county,18019,https://www.co.clark.in.us/
-Indiana,Clay,,county,18021,https://www.claycountyin.gov/
+Indiana,Clay,,county,18021,https://www.in.gov/counties/clay/
 Indiana,Clinton,,county,18023,https://www.in.gov/core/mylocal/clinton_county.html
 Indiana,Crawford,,county,18025,https://www.in.gov/core/mylocal/crawford_county.html
 Indiana,Daviess,,county,18027,https://www.daviess.org/
@@ -804,7 +804,7 @@ Indiana,Wayne,,county,18177,https://co.wayne.in.us/
 Indiana,Wells,,county,18179,https://wellscounty.org/
 Indiana,White,,county,18181,https://whitecounty.in.gov/
 Indiana,Whitley,,county,18183,https://www.whitleygov.com/
-Iowa,,,state,19000,
+Iowa,,,state,19000,https://www.iowa.gov/
 Iowa,Adair,,county,19001,https://www.adaircounty.iowa.gov/
 Iowa,Adams,,county,19003,https://adamscounty.iowa.gov/
 Iowa,Allamakee,,county,19005,https://allamakeecounty.iowa.gov/
@@ -904,7 +904,7 @@ Iowa,Winneshiek,,county,19191,https://winneshiekcounty.iowa.gov/
 Iowa,Woodbury,,county,19193,https://www.woodburycountyiowa.gov/
 Iowa,Worth,,county,19195,https://worthcountyiowa.gov/
 Iowa,Wright,,county,19197,https://www.wrightcounty.iowa.gov/
-Kansas,,,state,20000,
+Kansas,,,state,20000,https://www.kansas.gov/
 Kansas,Allen,,county,20001,https://www.allencounty.org/
 Kansas,Anderson,,county,20003,http://andersoncountyks.org/
 Kansas,Atchison,,county,20005,https://www.atchisoncountyks.org/
@@ -1196,7 +1196,7 @@ Louisiana,West Baton Rouge,,parish,22121,https://www.wbrparish.org/
 Louisiana,West Carroll,,parish,22123,https://www.louisiana.gov/local-louisiana/west-carroll-parish
 Louisiana,West Feliciana,,parish,22125,https://www.wfparish.org/
 Louisiana,Winn,,parish,22127,https://www.louisiana.gov/local-louisiana/winn-parish
-Maine,,,state,23000,
+Maine,,,state,23000,https://www.maine.gov/portal/index.html
 Maine,Androscoggin,,county,23001,https://www.androscoggincountymaine.gov/
 Maine,Androscoggin,Auburn,city,2300102060,
 Maine,Androscoggin,Durham,town,2300119105,
@@ -1741,8 +1741,8 @@ Maine,York,Shapleigh,town,2303167475,
 Maine,York,South Berwick,town,2303170030,
 Maine,York,Waterboro,town,2303180530,
 Maine,York,Wells,town,2303181475,
-Maine,York,York,town,2303187985,
-Maryland,,,state,24000,
+Maine,York,York,town,2303187985,https://yorkmaine.org/
+Maryland,,,state,24000,https://www.maryland.gov/Pages/default.aspx
 Maryland,Allegany,,county,24001,https://www.gov.allconet.org/
 Maryland,Anne Arundel,,county,24003,https://www.aacounty.org/home
 Maryland,Baltimore,,county,24005,https://www.baltimorecountymd.gov/
@@ -2133,7 +2133,7 @@ Massachusetts,Worcester,West Brookfield,town,2502775400,
 Massachusetts,Worcester,Westminster,town,2502777010,
 Massachusetts,Worcester,Winchendon,town,2502780405,
 Massachusetts,Worcester,Worcester,city,2502782000,
-Michigan,,,state,26000,
+Michigan,,,state,26000,https://www.michigan.gov/
 Michigan,Alcona,,county,26001,https://alconacountymi.com/wp/
 Michigan,Alger,,county,26003,https://www.algercounty.gov/
 Michigan,Allegan,,county,26005,https://www.allegancounty.org/
@@ -2305,7 +2305,7 @@ Minnesota,Wilkin,,county,27167,https://wilkincounty.gov/
 Minnesota,Winona,,county,27169,https://www.co.winona.mn.us/
 Minnesota,Wright,,county,27171,https://www.co.wright.mn.us/
 Minnesota,Yellow Medicine,,county,27173,https://www.co.ym.mn.gov/
-Mississippi,,,state,28000,
+Mississippi,,,state,28000,https://www.ms.gov/
 Mississippi,Adams,,county,28001,https://www.adamscountyms.net/
 Mississippi,Alcorn,,county,28003,http://alcorncounty.org/
 Mississippi,Amite,,county,28005,http://www.amitecounty.ms/
@@ -2504,7 +2504,7 @@ Missouri,Webster,,county,29225,https://webstercountymo.gov/
 Missouri,Worth,,county,29227,http://worthcounty.us/
 Missouri,Wright,,county,29229,https://www.wrightcountymo.gov/
 Missouri,,St. Louis,city,29510,https://www.stlouis-mo.gov/
-Montana,,,state,30000,
+Montana,,,state,30000,https://mt.gov/
 Montana,Beaverhead,,county,30001,https://beaverheadcountymt.gov/
 Montana,Big Horn,,county,30003,https://www.bighorncountymt.gov/
 Montana,Blaine,,county,30005,https://blainecounty-mt.gov/
@@ -2561,7 +2561,7 @@ Montana,Valley,,county,30105,https://www.valleycountymt.net/
 Montana,Wheatland,,county,30107,https://mslservices.mt.gov/Legislative_Snapshot/CountyDetail.aspx?coFIPS=30107
 Montana,Wibaux,,county,30109,https://mslservices.mt.gov/Legislative_Snapshot/CountyDetail.aspx?coFIPS=30109
 Montana,Yellowstone,,county,30111,https://www.yellowstonecountymt.gov/
-Nebraska,,,state,31000,
+Nebraska,,,state,31000,https://www.nebraska.gov/
 Nebraska,Adams,,county,31001,https://www.adamscounty.org/
 Nebraska,Antelope,,county,31003,https://antelopecounty.nebraska.gov/
 Nebraska,Arthur,,county,31005,https://arthurcounty.nebraska.gov/content/home
