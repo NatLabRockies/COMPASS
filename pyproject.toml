@@ -118,8 +118,13 @@ pbuild = { features = ["python-build"], solve-group = "python" }
 [tool.pixi.tasks]
 openai-solar-demo = { cmd = "export OPENAI_API_KEY={{ api_key }}; compass process -c config.json5", args = ["api_key"], cwd = "examples/openai_solar_demo"}
 
+[tool.pixi.feature.rust-dev.tasks]
+tests-r = "cargo test --locked --workspace --no-fail-fast"
+publish-db = "cargo publish --locked -p infra-compass-db --all-features"
+publish-cli = "cargo publish --locked -p infra-compass-cli --all-features"
+
 [tool.pixi.feature.python-test.tasks]
-tests = "pytest --durations=20 tests/python"
+tests-p = "pytest --durations=20 tests/python"
 # ut = "pytest --durations=20 tests/unit"
 # it = "pytest --durations=20 tests/integration"
 
