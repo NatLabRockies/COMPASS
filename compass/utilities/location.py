@@ -39,22 +39,28 @@ class Jurisdiction:
             applicable. If the jurisdiction represents a state, leave
             this input unspecified. If the jurisdiction represents a
             county or a subdivision within a county, provide the county
-            name here. By default, ``None``.
+            name here.
+
+            .. IMPORTANT:: Make sure this input is capitalized properly!
+
+            By default, ``None``.
         subdivision_name : str, optional
             Name of the subdivision that the jurisdiction represents, if
             applicable. If the jurisdiction represents a state or
             county, leave this input unspecified. Otherwise, provide the
-            jurisdiction name here. By default, ``None``.
+            jurisdiction name here.
+
+            .. IMPORTANT:: Make sure this input is capitalized properly!
+
+            By default, ``None``.
         code : int or str, optional
             Optional jurisdiction code (typically FIPS or similar).
             By default, ``None``.
         """
         self.type = subdivision_type.title()
         self.state = state.title()
-        self.county = county.title() if county else None
-        self.subdivision_name = (
-            subdivision_name.title() if subdivision_name else None
-        )
+        self.county = county
+        self.subdivision_name = subdivision_name
         self.code = code
 
     @cached_property

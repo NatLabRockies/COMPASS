@@ -1,5 +1,6 @@
 """Ordinance utilities"""
 
+from .base import title_preserving_caps
 from .jurisdictions import (
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,

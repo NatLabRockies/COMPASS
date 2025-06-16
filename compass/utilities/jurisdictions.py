@@ -26,10 +26,7 @@ def load_all_jurisdiction_info():
         DataFrame containing info like names, FIPS, websites, etc. for
         all jurisdictions.
     """
-    jurisdiction_info = pd.read_csv(_COUNTY_DATA_FP).replace({np.nan: None})
-    jurisdiction_info = _convert_to_title(jurisdiction_info, "State")
-    jurisdiction_info = _convert_to_title(jurisdiction_info, "County")
-    return _convert_to_title(jurisdiction_info, "Subdivision")
+    return pd.read_csv(_COUNTY_DATA_FP).replace({np.nan: None})
 
 
 def jurisdiction_websites(jurisdiction_info=None):
@@ -73,7 +70,7 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
         websites, etc. for all requested jurisdictions (that were
         found).
     """
-    jurisdictions = pd.read_csv(jurisdiction_fp)
+    jurisdictions = pd.read_csv(jurisdiction_fp).replace({np.nan: None})
     jurisdictions = _validate_jurisdiction_input(jurisdictions)
 
     all_jurisdiction_info = load_all_jurisdiction_info()
@@ -85,11 +82,20 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
             all_jurisdiction_info["Subdivision"].isna()
         ].reset_index(drop=True)
 
+    jurisdictions["jur_merge"] = jurisdictions.apply(
+        _build_merge_col, axis=1, merge_cols=merge_cols
+    )
+    all_jurisdiction_info["jur_merge"] = all_jurisdiction_info.apply(
+        _build_merge_col, axis=1, merge_cols=merge_cols
+    )
     jurisdictions = jurisdictions.merge(
-        all_jurisdiction_info, on=merge_cols, how="left"
+        all_jurisdiction_info,
+        on="jur_merge",
+        how="left",
+        suffixes=["_user", ""],
     )
 
-    jurisdictions = _filter_not_found_jurisdictions(jurisdictions)
+    jurisdictions = _filter_not_found_jurisdictions(jurisdictions, merge_cols)
     return _format_jurisdiction_df_for_output(jurisdictions)
 
 
@@ -99,12 +105,8 @@ def _validate_jurisdiction_input(jurisdictions):
         msg = "The jurisdiction input must have at least a 'State' column!"
         raise COMPASSValueError(msg)
 
-    jurisdictions = _convert_to_title(jurisdictions, "State")
-
     if "County" not in jurisdictions:
         jurisdictions["County"] = None
-    else:
-        jurisdictions = _convert_to_title(jurisdictions, "County")
 
     if "Subdivision" in jurisdictions:
         if "Jurisdiction Type" not in jurisdictions:
@@ -115,7 +117,6 @@ def _validate_jurisdiction_input(jurisdictions):
             )
             raise COMPASSValueError(msg)
 
-        jurisdictions = _convert_to_title(jurisdictions, "Subdivision")
         jurisdictions["Jurisdiction Type"] = jurisdictions[
             "Jurisdiction Type"
         ].str.casefold()
@@ -123,18 +124,22 @@ def _validate_jurisdiction_input(jurisdictions):
     return jurisdictions
 
 
-def _filter_not_found_jurisdictions(df):
+def _filter_not_found_jurisdictions(df, merge_cols):
     """Filter out jurisdictions with null FIPS codes"""
-    _warn_about_missing_jurisdictions(df)
+    _warn_about_missing_jurisdictions(df, merge_cols)
     return df[~df["FIPS"].isna()].copy()
 
 
-def _warn_about_missing_jurisdictions(df):
+def _warn_about_missing_jurisdictions(df, merge_cols):
     """Throw warning about jurisdictions that were not in the list"""
     not_found_jurisdictions = df[df["FIPS"].isna()]
     if len(not_found_jurisdictions):
+        out_cols = {f"{col}_user": col for col in merge_cols}
+        not_found_jurisdictions = not_found_jurisdictions[
+            list(out_cols)
+        ].rename(columns=out_cols)
         not_found_jurisdictions_str = not_found_jurisdictions[
-            ["State", "County", "Subdivision", "Jurisdiction Type"]
+            merge_cols
             # cspell: disable-next-line
         ].to_markdown(index=False, tablefmt="psql")
         msg = (
@@ -159,7 +164,6 @@ def _format_jurisdiction_df_for_output(df):
     return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
 
 
-def _convert_to_title(df, column):
-    """Convert the values of a DataFrame column to titles"""
-    df[column] = df[column].str.strip().str.casefold().str.title()
-    return df
+def _build_merge_col(row, merge_cols):
+    """Build column to merge jurisdiction DataFrames on"""
+    return " ".join(str(row[c]).casefold() for c in merge_cols)

@@ -12,6 +12,7 @@ from compass.utilities.jurisdictions import (
     jurisdiction_websites,
 )
 from compass.exceptions import COMPASSValueError
+from compass.warn import COMPASSWarning
 
 
 def test_load_jurisdictions():
@@ -65,7 +66,15 @@ def test_load_jurisdictions_from_fp(tmp_path):
     )
     input_jurisdictions.to_csv(test_jurisdiction_fp)
 
-    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+    with pytest.warns(COMPASSWarning) as record:
+        jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+
+    assert len(record) == 1
+    warning_msg = str(record[0].message)
+
+    assert "nan" not in warning_msg
+    assert "DNE County" in warning_msg
+    assert "colorado" in warning_msg
 
     assert len(jurisdictions) == 1
     assert set(jurisdictions["County"]) == {"Decatur"}

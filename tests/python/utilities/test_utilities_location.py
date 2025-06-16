@@ -41,7 +41,7 @@ def test_basic_county_properties():
     assert county.full_county_phrase == "Box Elder County"
     assert not county.full_subdivision_phrase
 
-    assert county == Jurisdiction("county", county="Box elder", state="uTah")
+    assert county != Jurisdiction("county", county="Box elder", state="uTah")
     assert county != Jurisdiction("city", county="Box Elder", state="Utah")
 
     assert county == "Box Elder County, Utah"
@@ -61,6 +61,9 @@ def test_basic_parish_properties():
     assert not parish.full_subdivision_phrase
 
     assert parish == Jurisdiction(
+        "parish", county="Assumption", state="lOuisiana"
+    )
+    assert parish != Jurisdiction(
         "parish", county="assumption", state="lOuisiana"
     )
     assert parish != Jurisdiction(
@@ -88,7 +91,13 @@ def test_basic_town_properties(jt):
     assert town.full_subdivision_phrase == f"{jt.title()} of Golden"
 
     assert town == Jurisdiction(
-        jt, county="jefferson", state="colorado", subdivision_name="golden"
+        jt, county="Jefferson", state="colorado", subdivision_name="Golden"
+    )
+    assert town != Jurisdiction(
+        jt, county="jefferson", state="colorado", subdivision_name="Golden"
+    )
+    assert town != Jurisdiction(
+        jt, county="Jefferson", state="colorado", subdivision_name="golden"
     )
     assert town != Jurisdiction(
         "county",
@@ -115,7 +124,13 @@ def test_atypical_subdivision_properties():
     assert gore.full_subdivision_phrase == "Buels Gore"
 
     assert gore == Jurisdiction(
-        "gore", county="chittenden", state="vermont", subdivision_name="buels"
+        "gore", county="Chittenden", state="vermont", subdivision_name="Buels"
+    )
+    assert gore != Jurisdiction(
+        "gore", county="chittenden", state="vermont", subdivision_name="Buels"
+    )
+    assert gore != Jurisdiction(
+        "gore", county="Chittenden", state="vermont", subdivision_name="buels"
     )
     assert gore != Jurisdiction(
         "county",
@@ -141,6 +156,9 @@ def test_city_no_county():
     assert gore.full_subdivision_phrase == "City of Baltimore"
 
     assert gore == Jurisdiction(
+        "city", "maryland", subdivision_name="Baltimore"
+    )
+    assert gore != Jurisdiction(
         "city", "maryland", subdivision_name="baltimore"
     )
     assert gore != Jurisdiction(
@@ -169,24 +187,24 @@ def test_full_name_the_prefixed_property():
     )
 
     for st in JURISDICTION_TYPES_AS_PREFIXES:
-        jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+        jur = Jurisdiction(st, state="Colorado", subdivision_name="Test")
         assert (
             jur.full_name_the_prefixed == f"the {st.title()} of Test, Colorado"
         )
 
-    jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+    jur = Jurisdiction(st, state="Colorado", subdivision_name="Test")
     assert jur.full_name_the_prefixed == f"the {st.title()} of Test, Colorado"
 
     jur = Jurisdiction(
         "census county division",
         state="Colorado",
-        county="test a",
-        subdivision_name="test b",
+        county="Test a",
+        subdivision_name="Test b",
     )
 
     assert (
         jur.full_name_the_prefixed
-        == "Test B Census County Division, Test A County, Colorado"
+        == "Test b Census County Division, Test a County, Colorado"
     )
 
 
@@ -194,7 +212,7 @@ def test_full_subdivision_phrase_the_prefixed_property():
     """Test ``Jurisdiction.full_subdivision_phrase_the_prefixed`` property"""
 
     for st in JURISDICTION_TYPES_AS_PREFIXES:
-        jur = Jurisdiction(st, state="Colorado", subdivision_name="test")
+        jur = Jurisdiction(st, state="Colorado", subdivision_name="Test")
         assert (
             jur.full_subdivision_phrase_the_prefixed
             == f"the {st.title()} of Test"
@@ -203,13 +221,13 @@ def test_full_subdivision_phrase_the_prefixed_property():
     jur = Jurisdiction(
         "census county division",
         state="Colorado",
-        county="test a",
-        subdivision_name="test b",
+        county="Test a",
+        subdivision_name="Test b",
     )
 
     assert (
         jur.full_subdivision_phrase_the_prefixed
-        == "Test B Census County Division"
+        == "Test b Census County Division"
     )
 
 
