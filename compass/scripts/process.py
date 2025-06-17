@@ -171,7 +171,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     out_dir,
     tech,
     jurisdiction_fp,
-    model="gpt-4o",
+    model="gpt-4o-mini",
     num_urls_to_check_per_jurisdiction=5,
     max_num_concurrent_browsers=10,
     max_num_concurrent_jurisdictions=None,
