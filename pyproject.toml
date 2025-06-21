@@ -36,12 +36,11 @@ dependencies = [
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.15,<1",
+  "nrel-elm>=0.0.16,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pyjson5>=1.6.8,<2",
   "rich>=13.9.4,<14",
-  "scrapling>=0.2.99,<0.3",
 ]
 
 [project.optional-dependencies]
@@ -159,7 +158,8 @@ openai = ">=1.1.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
 pdftotext = ">=2.2.2,<3"
-playwright-stealth = ">=1.0.6,<2"
+pillow = ">=10.4,<11.dev0"  # version range required for c4ai
+playwright = ">=1.49.0,<1.52"  # version range required for c4ai
 poppler = ">=24.8.0,<25"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
@@ -168,17 +168,24 @@ python-dotenv = ">=1.0.1,<2"
 python-slugify = ">=8.0.4,<9"
 rich = ">=13.9.4,<14"
 scipy = ">=1.14.1,<2"
+snowballstemmer = ">=2.2,<3.dev0"  # version range required for c4ai
 tabulate = ">=0.9.0,<0.10"
 tesseract = ">=5.5.0,<6"
 tiktoken = ">=0.8.0,<0.9"
 
+# rebrowser-playwright
+greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
+pyee = "==12.0.0"  # version pin required for rebrowser-playwright
+
 [tool.pixi.feature.python-default.pypi-dependencies]
+# These are all ELM dependencies explicitly enumerated
+camoufox = ">=0.4.11,<0.5"
+crawl4ai = ">=0.6.3"
 duckduckgo-search = ">=7.3.0,<8"
-pyjson5 = ">=1.6.8,<2"
 rebrowser-playwright = ">=1.47.0,<2"
 scrapling = ">=0.2.99,<0.3"
 tavily-python = ">=0.5.0,<0.6"
-NREL-ELM = ">=0.0.14,<1"
+tf-playwright-stealth = ">=1.2.0,<2"
 NREL-COMPASS = { path = ".", editable = true}
 
 [tool.pixi.feature.python-dev.dependencies]
