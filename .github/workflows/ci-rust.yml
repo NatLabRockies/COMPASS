@@ -36,7 +36,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Don't save cache for cargo check!
+          save-if: false
 
       - name: Run cargo check
         run: |
@@ -62,7 +63,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Don't save cache for cargo fmt or clippy!
+          save-if: false
 
       - name: Run cargo fmt
         run: |
@@ -120,7 +122,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: false
 
       - name: Publish crates (DB)
         run: |
@@ -151,7 +153,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: false
 
       - name: Publish crates (CLI)
         run: |
@@ -180,7 +182,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: false
 
       - name: Publish crates (DB)
         run: |
