@@ -248,7 +248,7 @@ def setup_participating_owner(**kwargs):
         "non_part",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to non-participating property owners? "
+            "a value that applies to **non-participating** property owners? "
             "Focus only on setbacks from {feature}; do not respond "
             "based on any text related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
@@ -271,14 +271,13 @@ def setup_participating_owner(**kwargs):
             "keys are 'participating' and 'non-participating'. The value of "
             "the 'participating' key should be a string containing the raw "
             "text with original formatting from the ordinance that applies to "
-            "participating owners if you answered 'yes' to the first question "
-            "or `null` if you answered 'no'. The value of the "
-            "'non-participating' key should be a string "
-            "containing the raw text with original formatting from the "
-            "ordinance that applies to non-participating owners or simply the "
-            "full ordinance for {feature} setbacks if the text did not make "
-            "the distinction between participating and non-participating "
-            "owners."
+            "**participating** owners if you answered 'yes' to the first "
+            "question or `null` if you answered 'no'. The value of the "
+            "'non-participating' key should be a string containing the raw "
+            "text with original formatting from the ordinance that applies to "
+            "**non-participating** owners _or_ simply the full ordinance for "
+            "{feature} setbacks if the text did not make the distinction "
+            "between **participating** and **non-participating** owners."
         ),
     )
     return G

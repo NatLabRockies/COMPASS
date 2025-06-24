@@ -981,8 +981,8 @@ Kansas,Pawnee,,county,20145,https://www.pawneecountykansas.com/
 Kansas,Phillips,,county,20147,https://www.phillipscountyks.org/
 Kansas,Pottawatomie,,county,20149,https://www.pottcounty.org/
 Kansas,Pratt,,county,20151,https://www.prattcounty.org/
-Kansas,Rawlins,,county,20153,https://sites.google.com/a/rawlinscounty.org/rawlins-county-courthouse/
-Kansas,Reno,,county,20155,https://www.renogov.org/
+Kansas,Rawlins,,county,20153,
+Kansas,Reno,,county,20155,https://www.renocountyks.gov
 Kansas,Republic,,county,20157,http://www.republiccounty.org/
 Kansas,Rice,,county,20159,https://www.ricecounty.us/
 Kansas,Riley,,county,20161,https://www.rileycountyks.gov/
@@ -996,7 +996,7 @@ Kansas,Seward,,county,20175,https://www.sewardcountyks.org/
 Kansas,Shawnee,,county,20177,https://www.snco.us/
 Kansas,Sheridan,,county,20179,https://www.sheridancountyks.gov/
 Kansas,Sherman,,county,20181,https://shermancountyks.gov/
-Kansas,Smith,,county,20183,https://ks1495.cichosting.com/
+Kansas,Smith,,county,20183,
 Kansas,Stafford,,county,20185,https://www.staffordcounty.org/
 Kansas,Stanton,,county,20187,http://www.stantoncountyks.com/
 Kansas,Stevens,,county,20189,http://stevenscoks.org/
@@ -1011,26 +1011,26 @@ Kansas,Wilson,,county,20205,http://www.wilsoncountykansas.org/
 Kansas,Woodson,,county,20207,http://www.woodsoncounty.net/
 Kansas,Wyandotte,,county,20209,https://www.wycokck.org/Home
 Kentucky,,,state,21000,
-Kentucky,Adair,,county,21001,https://adaircounty.ky.gov/Pages/index.aspx
+Kentucky,Adair,,county,21001,https://adaircounty.ky.gov/
 Kentucky,Allen,,county,21003,https://www.allencountykentucky.com/
-Kentucky,Anderson,,county,21005,https://andersoncounty.ky.gov/departments/Pages/default.aspx
-Kentucky,Ballard,,county,21007,https://ballardcounty.ky.gov/Pages/default.aspx
+Kentucky,Anderson,,county,21005,https://andersoncounty.ky.gov/
+Kentucky,Ballard,,county,21007,https://ballardcounty.ky.gov/
 Kentucky,Barren,,county,21009,https://barrencounty.ky.gov/
 Kentucky,Bath,,county,21011,https://bathcounty.ky.gov/
 Kentucky,Bell,,county,21013,https://bellcounty.ky.gov/
 Kentucky,Boone,,county,21015,https://www.boonecountyky.org/
-Kentucky,Bourbon,,county,21017,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Bourbon+County
+Kentucky,Bourbon,,county,21017,
 Kentucky,Boyd,,county,21019,https://boydcountyky.gov/
 Kentucky,Boyle,,county,21021,https://www.boylecountyky.gov/
-Kentucky,Bracken,,county,21023,https://brackencounty.ky.gov/Pages/index.aspx
-Kentucky,Breathitt,,county,21025,https://breathittcounty.ky.gov/Pages/index.aspx
+Kentucky,Bracken,,county,21023,https://brackencounty.ky.gov/
+Kentucky,Breathitt,,county,21025,https://breathittcounty.ky.gov/
 Kentucky,Breckinridge,,county,21027,https://breckinridgeky.com/government/
-Kentucky,Bullitt,,county,21029,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Bullitt+County
-Kentucky,Butler,,county,21031,https://butlercounty.ky.gov/Pages/default.aspx
-Kentucky,Caldwell,,county,21033,https://caldwellcounty.ky.gov/Pages/index.aspx
+Kentucky,Bullitt,,county,21029,
+Kentucky,Butler,,county,21031,https://butlercounty.ky.gov/
+Kentucky,Caldwell,,county,21033,https://caldwellcounty.ky.gov/
 Kentucky,Calloway,,county,21035,https://callowaycountyky.gov/
 Kentucky,Campbell,,county,21037,https://campbellcountyky.gov/
-Kentucky,Carlisle,,county,21039,https://carlislecounty.ky.gov/Pages/default.aspx
+Kentucky,Carlisle,,county,21039,https://carlislecounty.ky.gov/
 Kentucky,Carroll,,county,21041,http://www.carrollcountygov.us/
 Kentucky,Carter,,county,21043,https://cartercounty.ky.gov/
 Kentucky,Casey,,county,21045,https://casey.countyclerk.us/
@@ -1041,20 +1041,20 @@ Kentucky,Clinton,,county,21053,https://clintoncounty.ky.gov/
 Kentucky,Crittenden,,county,21055,https://www.crittendencountyky.org/
 Kentucky,Cumberland,,county,21057,https://cumberlandcounty.ky.gov/
 Kentucky,Daviess,,county,21059,https://www.daviessky.org/
-Kentucky,Edmonson,,county,21061,https://edmonsoncounty.ky.gov/Pages/index.aspx
+Kentucky,Edmonson,,county,21061,https://edmonsoncounty.ky.gov/
 Kentucky,Elliott,,county,21063,https://elliottcounty.ky.gov/
 Kentucky,Estill,,county,21065,https://estillky.com/
-Kentucky,Fayette,,county,21067,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Fayette+County
+Kentucky,Fayette,,county,21067,
 Kentucky,Fleming,,county,21069,http://www.flemingcountyky.us/
-Kentucky,Floyd,,county,21071,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Floyd+County
+Kentucky,Floyd,,county,21071,
 Kentucky,Franklin,,county,21073,https://franklincounty.ky.gov/
 Kentucky,Fulton,,county,21075,https://fultoncounty.ky.gov/
-Kentucky,Gallatin,,county,21077,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Gallatin+County
+Kentucky,Gallatin,,county,21077,
 Kentucky,Garrard,,county,21079,https://garrardcountyky.gov/
-Kentucky,Grant,,county,21081,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Grant+County
-Kentucky,Graves,,county,21083,https://gravescounty.ky.gov/Pages/default.aspx
+Kentucky,Grant,,county,21081,
+Kentucky,Graves,,county,21083,https://gravescounty.ky.gov/
 Kentucky,Grayson,,county,21085,https://www.graysoncountyky.gov/
-Kentucky,Green,,county,21087,https://greencounty.ky.gov/Pages/index.aspx
+Kentucky,Green,,county,21087,https://greencounty.ky.gov/
 Kentucky,Greenup,,county,21089,https://www.greenupcountyky.gov/
 Kentucky,Hancock,,county,21091,https://hancockky.us/
 Kentucky,Hardin,,county,21093,https://hcky.org/
@@ -1062,7 +1062,7 @@ Kentucky,Harlan,,county,21095,https://web.sos.ky.gov/land/Cities.aspx/?ctr=175
 Kentucky,Harrison,,county,21097,http://www.harrisoncountyfiscalcourt.com/
 Kentucky,Hart,,county,21099,https://hartcounty.ky.gov/
 Kentucky,Henderson,,county,21101,https://hendersonky.us/
-Kentucky,Henry,,county,21103,https://henrycounty.ky.gov/Pages/index.aspx
+Kentucky,Henry,,county,21103,https://henrycounty.ky.gov/
 Kentucky,Hickman,,county,21105,https://hickman.countyclerk.us/
 Kentucky,Hopkins,,county,21107,https://hopkinscounty.ky.gov/
 Kentucky,Jackson,,county,21109,https://jacksoncounty.ky.gov/
@@ -1070,10 +1070,10 @@ Kentucky,Jefferson,,county,21111,https://louisvilleky.gov/
 Kentucky,Jessamine,,county,21113,https://jessamineco.com/
 Kentucky,Johnson,,county,21115,https://www.johnsoncoky.com/
 Kentucky,Kenton,,county,21117,https://www.kentoncounty.org/
-Kentucky,Knott,,county,21119,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Knott+County
+Kentucky,Knott,,county,21119,
 Kentucky,Knox,,county,21121,https://knoxfiscalcourt.com/
 Kentucky,Larue,,county,21123,https://laruecountyky.gov/
-Kentucky,Laurel,,county,21125,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Laurel+County
+Kentucky,Laurel,,county,21125,
 Kentucky,Lawrence,,county,21127,https://lawrencecounty.ky.gov/
 Kentucky,Lee,,county,21129,https://leecounty.ky.gov/
 Kentucky,Leslie,,county,21131,https://lesliecounty.ky.gov/
@@ -1094,42 +1094,42 @@ Kentucky,Martin,,county,21159,https://martincounty.ky.gov/
 Kentucky,Mason,,county,21161,https://masoncountykentucky.us/
 Kentucky,Meade,,county,21163,https://meadeky.com/
 Kentucky,Menifee,,county,21165,https://menifeecounty.ky.gov/
-Kentucky,Mercer,,county,21167,https://mercercounty.ky.gov/Pages/index.aspx
+Kentucky,Mercer,,county,21167,https://mercercounty.ky.gov/
 Kentucky,Metcalfe,,county,21169,https://metcalfecounty.ky.gov/
-Kentucky,Monroe,,county,21171,https://monroecounty.ky.gov/Elected-Officials/Pages/County-Officials.aspx
-Kentucky,Montgomery,,county,21173,https://montgomerycounty.ky.gov/Pages/default.aspx
+Kentucky,Monroe,,county,21171,https://monroecounty.ky.gov/
+Kentucky,Montgomery,,county,21173,https://montgomerycounty.ky.gov/
 Kentucky,Morgan,,county,21175,https://morgancounty.ky.gov/
-Kentucky,Muhlenberg,,county,21177,https://muhlenbergcounty.ky.gov/Pages/index.aspx
+Kentucky,Muhlenberg,,county,21177,https://muhlenbergcounty.ky.gov/
 Kentucky,Nelson,,county,21179,https://nelsoncountyky.gov/
 Kentucky,Nicholas,,county,21181,https://nicholascounty.ky.gov/
 Kentucky,Ohio,,county,21183,https://ohiocounty.ky.gov/
 Kentucky,Oldham,,county,21185,https://www.oldhamcountyky.gov/
 Kentucky,Owen,,county,21187,https://www.owencountyky.us/
-Kentucky,Owsley,,county,21189,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Owsley+County
+Kentucky,Owsley,,county,21189,
 Kentucky,Pendleton,,county,21191,https://pendletoncounty.ky.gov/
-Kentucky,Perry,,county,21193,https://perrycounty.ky.gov/Pages/default.aspx
+Kentucky,Perry,,county,21193,https://perrycounty.ky.gov/
 Kentucky,Pike,,county,21195,http://www.pikecountyky.gov/
 Kentucky,Powell,,county,21197,http://www.powellcountyky.us/
 Kentucky,Pulaski,,county,21199,https://www.pulaskigov.com/
 Kentucky,Robertson,,county,21201,https://robertsoncounty.ky.gov/
-Kentucky,Rockcastle,,county,21203,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Rockcastle+County
+Kentucky,Rockcastle,,county,21203,
 Kentucky,Rowan,,county,21205,https://www.rcky.us/
-Kentucky,Russell,,county,21207,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Russell+County
+Kentucky,Russell,,county,21207,
 Kentucky,Scott,,county,21209,https://scottky.gov/
-Kentucky,Shelby,,county,21211,https://shelbycounty.ky.gov/Pages/index.aspx
+Kentucky,Shelby,,county,21211,https://shelbycounty.ky.gov/
 Kentucky,Simpson,,county,21213,https://simpsoncountyky.gov/
 Kentucky,Spencer,,county,21215,https://www.spencercountyky.gov/
 Kentucky,Taylor,,county,21217,https://taylorcountyky.gov/
-Kentucky,Todd,,county,21219,https://toddcounty.ky.gov/Pages/index.aspx
+Kentucky,Todd,,county,21219,https://toddcounty.ky.gov/
 Kentucky,Trigg,,county,21221,https://triggcounty.ky.gov/
 Kentucky,Trimble,,county,21223,https://trimblecounty.ky.gov/
 Kentucky,Union,,county,21225,https://www.unioncountyky.org/
 Kentucky,Warren,,county,21227,https://www.warrencountyky.gov/
 Kentucky,Washington,,county,21229,https://www.washingtoncountyky.com/
-Kentucky,Wayne,,county,21231,https://waynecounty.ky.gov/Pages/default.aspx
-Kentucky,Webster,,county,21233,https://webstercountyclerk.ky.gov/Pages/default.aspx
+Kentucky,Wayne,,county,21231,https://waynecounty.ky.gov/
+Kentucky,Webster,,county,21233,https://webstercountyclerk.ky.gov/
 Kentucky,Whitley,,county,21235,http://www.whitleycountyfiscalcourt.com/
-Kentucky,Wolfe,,county,21237,https://kentucky.gov/government/Pages/AgencyProfile.aspx?Title=Wolfe+County
+Kentucky,Wolfe,,county,21237,
 Kentucky,Woodford,,county,21239,https://woodfordcounty.ky.gov/
 Louisiana,,,state,22000,
 Louisiana,Acadia,,parish,22001,https://www.louisiana.gov/local-louisiana/acadia-parish
@@ -4760,7 +4760,7 @@ Pennsylvania,Clarion,,county,42031,https://www.co.clarion.pa.us/
 Pennsylvania,Clearfield,,county,42033,https://clearfieldco.org/
 Pennsylvania,Clinton,,county,42035,https://www.clintoncountypa.gov/
 Pennsylvania,Columbia,,county,42037,http://www.columbiapa.org/
-Pennsylvania,Crawford,,county,42039,https://www.crawfordcountypa.net/Pages/Home.aspx
+Pennsylvania,Crawford,,county,42039,https://www.crawfordcountypa.net/
 Pennsylvania,Cumberland,,county,42041,https://www.cumberlandcountypa.gov/
 Pennsylvania,Dauphin,,county,42043,http://www.dauphincounty.gov/
 Pennsylvania,Delaware,,county,42045,https://delcopa.gov/
@@ -4788,7 +4788,7 @@ Pennsylvania,Mifflin,,county,42087,https://mifflinco.org/
 Pennsylvania,Monroe,,county,42089,https://www.monroecountypa.gov/
 Pennsylvania,Montgomery,,county,42091,https://www.montgomerycountypa.gov/
 Pennsylvania,Montour,,county,42093,https://montourcounty.gov/
-Pennsylvania,Northampton,,county,42095,https://www.northamptoncounty.org/Pages/default.aspx
+Pennsylvania,Northampton,,county,42095,https://www.northamptoncounty.org/
 Pennsylvania,Northumberland,,county,42097,https://www.norrycopa.net/
 Pennsylvania,Perry,,county,42099,https://perryco.org/
 Pennsylvania,Philadelphia,,county,42101,https://www.phila.gov/
@@ -6679,20 +6679,20 @@ West Virginia,Kanawha,,county,54039,https://kanawha.us/
 West Virginia,Lewis,,county,54041,https://www.lewiscountywv.org/
 West Virginia,Lincoln,,county,54043,https://lincolncountywv.org/
 West Virginia,Logan,,county,54045,https://logancounty.wv.gov/
-West Virginia,McDowell,,county,54047,https://www.wv.gov/local/Pages/counties.aspx?county=mcdowell
+West Virginia,McDowell,,county,54047,
 West Virginia,Marion,,county,54049,http://www.marioncountywv.com/
 West Virginia,Marshall,,county,54051,https://marshallcountywv.gov/
 West Virginia,Mason,,county,54053,https://masoncountywv.gov/
-West Virginia,Mercer,,county,54055,https://www.wv.gov/local/Pages/counties.aspx?county=mercer
+West Virginia,Mercer,,county,54055,
 West Virginia,Mineral,,county,54057,https://www.mineralwv.org/
-West Virginia,Mingo,,county,54059,https://www.wv.gov/local/Pages/counties.aspx?county=mingo
+West Virginia,Mingo,,county,54059,
 West Virginia,Monongalia,,county,54061,https://www.monongaliacounty.gov/
 West Virginia,Monroe,,county,54063,https://www.monroecountywv.gov/
 West Virginia,Morgan,,county,54065,https://morgancountywv.gov/
 West Virginia,Nicholas,,county,54067,https://www.nicholascountywv.org/
 West Virginia,Ohio,,county,54069,https://www.ohiocountywv.gov/
 West Virginia,Pendleton,,county,54071,https://pencowv.com/
-West Virginia,Pleasants,,county,54073,https://www.wv.gov/local/Pages/counties.aspx?county=pleasants
+West Virginia,Pleasants,,county,54073,
 West Virginia,Pocahontas,,county,54075,https://pocahontascountywv.com/
 West Virginia,Preston,,county,54077,https://prestoncountywv.gov/
 West Virginia,Putnam,,county,54079,https://putnamcountygov.com/
@@ -6710,7 +6710,7 @@ West Virginia,Webster,,county,54101,https://webstercounty.wv.gov/
 West Virginia,Wetzel,,county,54103,https://www.wetzelwv.com/
 West Virginia,Wirt,,county,54105,https://wirtcounty.wv.gov/
 West Virginia,Wood,,county,54107,https://woodcountywv.com/
-West Virginia,Wyoming,,county,54109,https://www.wv.gov/local/Pages/counties.aspx?county=wyoming
+West Virginia,Wyoming,,county,54109,
 Wisconsin,,,state,55000,
 Wisconsin,Adams,,county,55001,https://www.co.adams.wi.us/
 Wisconsin,Ashland,,county,55003,https://co.ashland.wi.us/

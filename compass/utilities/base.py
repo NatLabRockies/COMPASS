@@ -19,4 +19,5 @@ def title_preserving_caps(string):
 
 
 def _cap(word):
+    """Capitalize first letter of the word"""
     return "".join([word[0].upper(), word[1:]])

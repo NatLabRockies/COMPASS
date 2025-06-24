@@ -124,20 +124,27 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol12" ></TD>
+      <TD align="left" > jurisdiction_website </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol13" ></TD>
       <TD align="left" > cost </TD>
       <TD align="left" > float </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol12"> </TD>
       </TR>
     <TR>
-      <TD PORT="ltcol13" ></TD>
+      <TD PORT="ltcol14" ></TD>
       <TD align="left" > documents </TD>
       <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol13"> </TD>
       </TR>
     <TR>
-      <TD PORT="ltcol14" ></TD>
+      <TD PORT="ltcol15" ></TD>
       <TD align="left" > archive_lnk </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>

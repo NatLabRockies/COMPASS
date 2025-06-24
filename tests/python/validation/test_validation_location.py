@@ -12,7 +12,7 @@ from compass.utilities.location import Jurisdiction
 from compass.validation.location import (
     JurisdictionValidator,
     DTreeJurisdictionValidator,
-    DTreeURLCountyValidator,
+    DTreeURLJurisdictionValidator,
     _validator_check_for_doc,
     _weighted_vote,
 )
@@ -78,8 +78,8 @@ PYT_CMD = os.getenv("TESSERACT_CMD")
     ],
 )
 async def test_url_matches_county(oai_llm_service, loc, url, truth):
-    """Test the DTreeURLCountyValidator class (basic execution)"""
-    url_validator = DTreeURLCountyValidator(
+    """Test the DTreeURLJurisdictionValidator class (basic execution)"""
+    url_validator = DTreeURLJurisdictionValidator(
         loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
     )
     out = await url_validator.check(url)

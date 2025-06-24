@@ -96,7 +96,7 @@ drivers that will be used to control this process. To do so, in your active cond
 
 .. code-block:: shell
 
-    rebrowser_playwright install
+    playwright install
 
 This will download all required browser drivers. You only need to perform this step once
 (i.e. during initial installation). If you see any warning messages about missing libraries,
@@ -104,4 +104,4 @@ you may have to run the following command (requires ``sudo``):
 
 .. code-block:: shell
 
-    rebrowser_playwright install-deps
+    playwright install-deps

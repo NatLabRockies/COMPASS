@@ -15,6 +15,8 @@ class LLMUsageCategory(StrEnum):
     DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION = auto()
     DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY = auto()
     DOCUMENT_JURISDICTION_VALIDATION = auto()
+    URL_JURISDICTION_VALIDATION = auto()
+    JURISDICTION_MAIN_WEBSITE_VALIDATION = auto()
     ORDINANCE_VALUE_EXTRACTION = auto()
     PERMITTED_USE_VALUE_EXTRACTION = auto()
 
@@ -38,7 +40,16 @@ class LLMTasks(StrEnum):
     DOCUMENT_JURISDICTION_VALIDATION = (
         LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION
     )
-    """Document location validation task
+    """Document belongs to correct jurisdiction validation task
+
+    This represents all the tasks associated with validation that the
+    document pertains to a particular jurisdiction.
+    """
+
+    JURISDICTION_MAIN_WEBSITE_VALIDATION = (
+        LLMUsageCategory.JURISDICTION_MAIN_WEBSITE_VALIDATION
+    )
+    """Webpage is main page for jurisdiction validation task
 
     This represents all the tasks associated with validation that the
     document pertains to a particular jurisdiction.

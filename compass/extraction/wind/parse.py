@@ -67,6 +67,10 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
     "micro, small, or medium sized wind energy systems."
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
+    "other wecs": (
+        "**minimum** required separation distance with other existing or "
+        "planned wind energy conversion systems"
+    ),
     "noise": "maximum noise level allowed",
     "maximum height": "maximum turbine height allowed",
     "maximum project size": (

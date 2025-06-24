@@ -35,7 +35,25 @@ _IGNORE_TYPES = (
 class SolarHeuristic(Heuristic):
     """Perform a heuristic check for mention of solar farms in text"""
 
-    NOT_TECH_WORDS = ["solaris"]
+    NOT_TECH_WORDS = [
+        "micro secs",
+        "small secs",
+        "mini secs",
+        "private secs",
+        "personal secs",
+        "psecs",
+        "solaris",
+        "small solar",
+        "micro solar",
+        "mini solar",
+        "private solar",
+        "personal solar",
+        "swecs",
+        "solar break",
+        "solar damage",
+        "solar data",
+        "solar resource",
+    ]
     GOOD_TECH_KEYWORDS = ["solar", "setback"]
     GOOD_TECH_ACRONYMS = ["secs", "sef", "ses", "cses"]
     GOOD_TECH_PHRASES = [

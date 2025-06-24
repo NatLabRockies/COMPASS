@@ -23,3 +23,20 @@ WIND_QUESTION_TEMPLATES = [
     "ordinances for commercial wind energy conversion systems in "
     "{jurisdiction}?",
 ]
+
+BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
+    "pdf": 4608,
+    "wecs": 2304,
+    "wind": 1152,
+    "zoning": 576,
+    "ordinance": 288,
+    "planning": 144,
+    "plan": 72,
+    "government": 36,
+    "code": 12,
+    "area": 12,
+    "land development": 6,
+    "land": 3,
+    "municipal": 1,
+    "department": 1,
+}

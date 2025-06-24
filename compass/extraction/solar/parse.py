@@ -64,6 +64,10 @@ PERMITTED_USE_SYSTEM_MESSAGE = (
     "micro, small, or medium sized wind energy systems."
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
+    "other secs": (
+        "**minimum** required separation distance with other existing or "
+        "planned solar energy conversion systems"
+    ),
     "noise": "maximum noise level allowed",
     "maximum height": "maximum structure height allowed",
     "maximum project size": (
@@ -71,10 +75,7 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     ),
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
-    "density": (
-        "**minimum** allowed spacing between individual solar panels or "
-        "individual solar plants/farms"
-    ),
+    "density": "**minimum** allowed spacing between individual solar panels",
     "coverage": "**maximum** land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -87,13 +88,17 @@ UNIT_CLARIFICATIONS = {
     "noise": (
         "For the purposes of this extraction, assume the standard units "
         "for noise are 'dBA'."
-    )
+    ),
+    "coverage": (
+        "Maximum land coverage should be specified as a fraction or "
+        "percentage of the total land."
+    ),
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
-        "size value or as a maximum total area value."
-    ),
+        "size value or as a maximum number of solar panels."
+    )
 }
 
 

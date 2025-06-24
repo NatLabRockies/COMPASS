@@ -35,11 +35,18 @@ class WindHeuristic(Heuristic):
     """Perform a heuristic check for mention of wind turbines in text"""
 
     NOT_TECH_WORDS = [
+        "micro wecs",
+        "small wecs",
         "mini wecs",
         "private wecs",
+        "personal wecs",
         "pwecs",
         "rewind",
         "small wind",
+        "micro wind",
+        "mini wind",
+        "private wind",
+        "personal wind",
         "swecs",
         "windbreak",
         "windiest",
@@ -49,13 +56,21 @@ class WindHeuristic(Heuristic):
         "windy",
         "wind attribute",
         "wind blow",
+        "wind break",
+        "wind current",
         "wind damage",
+        "wind data",
         "wind direction",
+        "wind draft",
         "wind erosion",
+        "wind energy resource atlas",
         "wind load",
         "wind movement",
         "wind orient",
+        "wind resource",
         "wind runway",
+        "prevailing wind",
+        "downwind",
     ]
     GOOD_TECH_KEYWORDS = ["wind", "setback"]
     GOOD_TECH_ACRONYMS = ["wecs", "wes", "lwet", "uwet", "wef"]

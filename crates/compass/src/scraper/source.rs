@@ -46,6 +46,8 @@ pub(super) struct Jurisdiction {
     total_time: f64,
     /// Total time spent scrapping the jurisdiction, as a string
     total_time_string: String,
+    /// Main jurisdiction website used for web crawling, if any, as a string
+    jurisdiction_website: Option<String>,
     /// Total cost to run the scraper, in $
     cost: Option<f64>,
     /// List of documents associated with the jurisdiction
@@ -122,6 +124,7 @@ impl Source {
             found BOOLEAN,
             total_time REAL,
             total_time_string TEXT,
+            jurisdiction_website TEXT,
             cost REAL,
             documents TEXT,
             archive_lnk INTEGER REFERENCES archive(id),
@@ -290,8 +293,8 @@ impl Source {
                 (bookkeeper_lnk, full_name, county, state,
                   subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
-                  cost, documents)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  jurisdiction_website, cost, documents)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )?;
             stmt_source.execute(duckdb::params![
                 commit_id,
@@ -304,6 +307,7 @@ impl Source {
                 jurisdiction.found,
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
+                jurisdiction.jurisdiction_website,
                 jurisdiction.cost,
                 dids.iter()
                     .map(|did| did.to_string())
@@ -365,6 +369,7 @@ pub(crate) mod sample {
                     "found": true,
                     "total_time": 3.14,
                     "total_time_string": "0::0::03.14",
+                    "jurisdiction_website": null,
                     "documents": [
                         {
                             "source": "https://example.com/sample_ordinance.pdf",

@@ -5,6 +5,7 @@ import shutil
 import asyncio
 import hashlib
 import logging
+import contextlib
 from pathlib import Path
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
@@ -231,7 +232,7 @@ class TempFileCache(ThreadedService):
         return cache_fp
 
 
-class TempFileCachePB(TempFileCache):
+class TempFileFromSECachePB(TempFileCache):
     """Service that locally caches files downloaded from the internet"""
 
     async def process(self, doc, file_content, make_name_unique=False):
@@ -262,8 +263,42 @@ class TempFileCachePB(TempFileCache):
             make_name_unique=make_name_unique,
         )
         jurisdiction = asyncio.current_task().get_name()
-        COMPASS_PB.update_download_task(jurisdiction, advance=1)
+        with contextlib.suppress(KeyError):
+            COMPASS_PB.update_download_task(jurisdiction, advance=1)
+
         return out
+
+
+class TempFileFromWebpageCachePB(TempFileCache):
+    """Service that locally caches files downloaded from the internet"""
+
+    async def process(self, doc, file_content, make_name_unique=False):
+        """Write URL doc to file asynchronously
+
+        Parameters
+        ----------
+        doc : elm.web.document.Document
+            Document containing meta information about the file. Must
+            have a "source" key in the ``attrs`` dict containing the
+            URL, which will be converted to a file name using
+            :func:`compute_fn_from_url`.
+        file_content : str or bytes
+            File content, typically string text for HTML files and bytes
+            for PDF file.
+        make_name_unique : bool, optional
+            Option to make file name unique by adding a UUID at the end
+            of the file name. By default, ``False``.
+
+        Returns
+        -------
+        Path
+            Path to output file.
+        """
+        return await super().process(
+            doc=doc,
+            file_content=file_content,
+            make_name_unique=make_name_unique,
+        )
 
 
 class StoreFileOnDisk(ThreadedService):
@@ -485,6 +520,7 @@ def _dump_jurisdiction_info(
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
+        "jurisdiction_website": doc.attrs.get("jurisdiction_website"),
         "cost": None,
         "documents": None,
     }
