@@ -13,6 +13,7 @@ from datetime import datetime, timedelta, UTC
 
 import pandas as pd
 from elm.version import __version__ as elm_version
+from elm.web.utilities import get_redirected_url
 
 from compass import __version__ as compass_version
 from compass.scripts.download import (
@@ -767,6 +768,9 @@ class _SingleJurisdictionRunner:
     async def _find_documents_from_website(self):
         """Search the website for ordinance documents"""
         if self.jurisdiction_website and self.validate_user_website_input:
+            self.jurisdiction_website = await get_redirected_url(
+                self.jurisdiction_website, timeout=30
+            )
             COMPASS_PB.update_jurisdiction_task(
                 self.jurisdiction.full_name,
                 description=(
@@ -807,6 +811,9 @@ class _SingleJurisdictionRunner:
         if not self.jurisdiction_website:
             return None
 
+        self.jurisdiction_website = await get_redirected_url(
+            self.jurisdiction_website, timeout=30
+        )
         docs = await download_jurisdiction_ordinances_from_website(
             self.jurisdiction_website,
             heuristic=self.tech_specs.heuristic,

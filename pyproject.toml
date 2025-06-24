@@ -36,7 +36,7 @@ dependencies = [
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.16,<1",
+  "nrel-elm>=0.0.17,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pyjson5>=1.6.8,<2",
@@ -147,6 +147,7 @@ click = ">=8.1.7,<9"
 fake-useragent = ">=2.0.3,<3"
 google-api-python-client = ">=2.160.0,<3"
 html2text = ">=2024.2.26,<2025"
+httpx = ">=0.28.1,<0.29"
 ipython = ">=8.29.0,<9"
 libgraphene = ">=1.10.8,<2"
 langchain = ">=0.3.7,<0.4"
