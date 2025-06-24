@@ -88,6 +88,7 @@ async def test_validation_with_mem():
         ("model_ord.pdf", False),
         ("model_ord_pp.pdf", False),
         ("conservation_plan.pdf", False),
+        ("Rush_Indiana_draft.pdf", False),
     ],
 )
 async def test_legal_text_validation(
