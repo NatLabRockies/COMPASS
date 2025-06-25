@@ -8,7 +8,8 @@ description = "Parse and manage the NREL's INFRA-COMPASS data"
 homepage = "https://github.com/NREL/COMPASS"
 repository.workspace = true
 license.workspace = true
-categories = ["data-structures", "science"]
+categories.workspace = true
+keywords.workspace = true
 
 [dependencies]
 csv = { workspace = true }

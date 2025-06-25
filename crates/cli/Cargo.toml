@@ -8,6 +8,8 @@ description = "Command line application to manage and query NREL's INFRA-COMPASS
 homepage = "https://github.com/NREL/COMPASS"
 repository = "https://github.com/NREL/COMPASS"
 license.workspace = true
+categories.workspace = true
+keywords.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }
