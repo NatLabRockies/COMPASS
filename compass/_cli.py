@@ -78,9 +78,8 @@ def process(config, verbose, no_progress):
         loop.run_until_complete(process_jurisdictions_with_openai(**config))
         return
 
-    if verbose > 0:
-        # warnings will be logged to terminal/file
-        warnings.filterwarnings("ignore")
+    # warnings will be logged to file (and terminal if verbose >= 1)
+    warnings.filterwarnings("ignore")
 
     COMPASS_PB.console = console
     live_display = Live(

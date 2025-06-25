@@ -63,7 +63,7 @@ To run a quick INFRA-COMPASS demo, set up a personal OpenAI API key and run:
 
     pixi run openai-solar-demo <your API key>
 
-This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.35).
+This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.45).
 For more information on configuring an INFRA-COMPASS run, see the
 `execution basics example <https://nrel.github.io/COMPASS/examples/execution_basics/README.html>`_.
 
