@@ -167,7 +167,7 @@ impl Usage {
                 tracing::trace!("Writing usage for model {:?} to the database", model_name);
 
                 let model_id: u32 = conn.query_row(
-                    "INSERT INTO usage_per_model (jurisdiction_lnk, model, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
+                    "INSERT INTO usage_model (usage_lnk, model, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
                     [
                         &jurisdiction_id.to_string(),
                         model_name,
