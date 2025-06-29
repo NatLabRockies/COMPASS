@@ -87,7 +87,7 @@ fn main() -> Result<()> {
         Some("init") => {
             trace!("Creating database at {:?}", &db);
             infra_compass_db::init_db(db)
-                .with_context(|| format!("Failed to initialize database as {}", db))?;
+                .with_context(|| format!("Failed to initialize database as {db}"))?;
         }
         Some("export") => {
             trace!("Exporting database {:?}", &db);

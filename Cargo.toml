@@ -18,9 +18,9 @@ keywords = ["NREL", "database", "energy", "ordinance"]
 
 [workspace.dependencies]
 anyhow = { version = "1.0.98" }
-clap = { version = "4.5.38", features = ["cargo"] }
+clap = { version = "4.5.40", features = ["cargo"] }
 csv = { version = "1.3.1" }
-duckdb = { version = "1.2.2", features = ["bundled"] }
+duckdb = { version = "1.3.1", features = ["bundled"] }
 infra-compass-db = { version = "0.0.7", path = "crates/compass" }
 serde = { version = "1.0.219", features = ["derive"] }
 serde_json = { version = "1.0.140" }

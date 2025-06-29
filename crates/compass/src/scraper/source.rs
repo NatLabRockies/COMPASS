@@ -339,7 +339,7 @@ async fn checksum_file<P: AsRef<std::path::Path>>(path: P) -> Result<String> {
         hasher.update(&buffer[..n]);
     }
     let result = hasher.finalize();
-    let checksum = format!("sha256:{:x}", result);
+    let checksum = format!("sha256:{result:x}");
 
     trace!("Checksum for {:?}: {}", path.as_ref(), checksum);
     Ok(checksum)
