@@ -203,35 +203,32 @@ impl Source {
 
         trace!("Scanning source directory: {:?}", path);
 
-        let mut inventory = tokio::fs::read_dir(path).await?;
+        let mut walker = tokio::fs::read_dir(&path).await?;
+        let mut jobs = tokio::task::JoinSet::new();
+        while let Some(entry) = walker.next_entry().await? {
+            trace!("Spawning job for entry: {:?}", entry.path());
+            jobs.spawn(async move { File::new(entry.path()).await });
+        }
+        trace!("Waiting for all jobs to complete");
+        let inventory = jobs.join_all().await;
+        trace!("Inventory of files: {:?}", inventory);
+        debug!("Found a total of {} source documents", inventory.len());
 
-        // Should we filter which files to process, such as only PDFs?
-        // We probably will work with more types.
-        while let Some(entry) = inventory.next_entry().await? {
-            trace!("Processing entry: {:?}", entry);
-            let path = entry.path();
-            let ftype = entry.metadata().await?.file_type();
-            if ftype.is_file() {
-                trace!("Processing ordinance file: {:?}", path);
-
-                let checksum = checksum_file(&path).await?;
-                trace!("Checksum for file {:?}: {:?}", path, checksum);
-
-                let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
-                if known_sources.contains(&(file_name, checksum)) {
-                    trace!("File {:?} matches known jurisdiction source", path);
-                } else {
-                    warn!("File {:?} doesn't match known sources", path);
+        for file in inventory {
+            match file {
+                Ok(file) => {
+                    let (file_name, checksum) = (file.filename, file.checksum);
+                    if known_sources.contains(&(file_name, checksum)) {
+                        trace!("File {:?} matches known jurisdiction source", file.path);
+                    } else {
+                        warn!("File {:?} doesn't match known sources", file.path);
+                    }
                 }
-            } else if ftype.is_dir() {
-                trace!(
-                    "Ignoring unexpected directory in ordinance files: {:?}",
-                    path
-                );
+                Err(e) => {
+                    error!("Error processing file: {:?}", e);
+                }
             }
         }
-
-        // trace!("Found a total of {} source documents", sources.len());
 
         Ok(jurisdictions)
     }
@@ -319,6 +316,34 @@ impl Source {
     }
 }
 
+#[derive(Debug)]
+struct File {
+    path: std::path::PathBuf,
+    filename: String,
+    checksum: String,
+}
+
+impl File {
+    async fn new<P: AsRef<std::path::Path> + std::fmt::Debug>(path: P) -> Result<Self> {
+        debug!("Processing ordinance file: {:?}", path.as_ref());
+
+        let metadata = tokio::fs::metadata(&path).await?;
+        if !metadata.is_file() {
+            warn!("Expected to be a file. Ignoring: {:?}", path);
+            return Err(crate::error::Error::Undefined(
+                "Expected a file, but found a directory or other type".to_string(),
+            ));
+        }
+        let path = path.as_ref().to_path_buf();
+        let checksum = checksum_file(&path).await?;
+        let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+        Ok(Self {
+            path,
+            filename,
+            checksum,
+        })
+    }
+}
 /// Calculate the checksum of a local file
 ///
 /// # Returns
