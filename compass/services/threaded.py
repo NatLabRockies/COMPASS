@@ -269,38 +269,6 @@ class TempFileFromSECachePB(TempFileCache):
         return out
 
 
-class TempFileFromWebpageCachePB(TempFileCache):
-    """Service that locally caches files downloaded from the internet"""
-
-    async def process(self, doc, file_content, make_name_unique=False):
-        """Write URL doc to file asynchronously
-
-        Parameters
-        ----------
-        doc : elm.web.document.Document
-            Document containing meta information about the file. Must
-            have a "source" key in the ``attrs`` dict containing the
-            URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
-        file_content : str or bytes
-            File content, typically string text for HTML files and bytes
-            for PDF file.
-        make_name_unique : bool, optional
-            Option to make file name unique by adding a UUID at the end
-            of the file name. By default, ``False``.
-
-        Returns
-        -------
-        Path
-            Path to output file.
-        """
-        return await super().process(
-            doc=doc,
-            file_content=file_content,
-            make_name_unique=make_name_unique,
-        )
-
-
 class StoreFileOnDisk(ThreadedService):
     """Abstract service that manages the storage of a file on disk
 
@@ -411,11 +379,13 @@ class UsageUpdater(ThreadedService):
             added to output file.
         """
         self._is_processing = True
-        loop = asyncio.get_running_loop()
-        out = await loop.run_in_executor(
-            self.pool, _dump_usage, self.usage_fp, tracker
-        )
-        self._is_processing = False
+        try:
+            loop = asyncio.get_running_loop()
+            out = await loop.run_in_executor(
+                self.pool, _dump_usage, self.usage_fp, tracker
+            )
+        finally:
+            self._is_processing = False
         return out
 
 
@@ -456,7 +426,7 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         jurisdiction : compass.utilities.location.Jurisdiction
             Jurisdiction to record.
-        doc : elm.web.document.Document
+        doc : elm.web.document.Document | None
             Document containing meta information about the jurisdiction.
             Must have relevant processing keys in the ``attrs`` dict,
             otherwise the jurisdiction may not be recorded properly.
@@ -470,17 +440,19 @@ class JurisdictionUpdater(ThreadedService):
             LLM calls. By default, ``None``.
         """
         self._is_processing = True
-        loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
-            self.pool,
-            _dump_jurisdiction_info,
-            self.jurisdiction_fp,
-            jurisdiction,
-            doc,
-            seconds_elapsed,
-            usage_tracker,
-        )
-        self._is_processing = False
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                self.pool,
+                _dump_jurisdiction_info,
+                self.jurisdiction_fp,
+                jurisdiction,
+                doc,
+                seconds_elapsed,
+                usage_tracker,
+            )
+        finally:
+            self._is_processing = False
 
 
 def _dump_usage(fp, tracker):
@@ -520,17 +492,23 @@ def _dump_jurisdiction_info(
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
-        "jurisdiction_website": doc.attrs.get("jurisdiction_website"),
+        "jurisdiction_website": None,
+        "compass_crawl": False,
         "cost": None,
         "documents": None,
     }
+
     if usage_tracker is not None:
         cost = _compute_jurisdiction_cost(usage_tracker)
         new_info["cost"] = cost or None
 
-    if num_ordinances_in_doc(doc) > 0:
+    if doc is not None and num_ordinances_in_doc(doc) > 0:
         new_info["found"] = True
         new_info["documents"] = [_compile_doc_info(doc)]
+        new_info["jurisdiction_website"] = doc.attrs.get(
+            "jurisdiction_website"
+        )
+        new_info["compass_crawl"] = doc.attrs.get("compass_crawl", False)
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:

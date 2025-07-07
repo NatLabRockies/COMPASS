@@ -6,6 +6,7 @@
    Examples <examples/index>
    API reference <_autosummary/compass>
    CLI reference <_cli/cli>
+   Validation <val/validation>
    Development <dev/index>
 
 

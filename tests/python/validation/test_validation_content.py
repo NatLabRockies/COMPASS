@@ -82,6 +82,7 @@ async def test_validation_with_mem():
 @pytest.mark.parametrize(
     "file_name,truth",
     [
+        ("Johnson Iowa.pdf", True),
         ("Hamilton New York.pdf", True),
         ("Decatur Indiana.pdf", True),
         ("ord_permit.pdf", False),
@@ -115,6 +116,7 @@ async def test_legal_text_validation(
     assert legal_text_validator.is_legal_text == truth
 
 
+@flaky(max_runs=3, min_passes=1)
 @pytest.mark.skipif(
     SHOULD_SKIP or not PYT_CMD,
     reason="requires Azure OpenAI key *and* PyTesseract command to be set",

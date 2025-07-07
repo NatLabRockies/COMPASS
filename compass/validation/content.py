@@ -224,8 +224,7 @@ class LegalTextValidator(StructuredLLMCaller):
         "source type. The goal is to identify text that is extracted from "
         "**legally binding regulations (such as zoning ordinances or "
         "enforceable bans)** and filter out text that was extracted from "
-        "anything other than an in-effect legal statute for an existing "
-        "jurisdiction."
+        "anything other than a legal statute for an existing jurisdiction."
     )
 
     def __init__(self, *args, score_threshold=0.8, **kwargs):

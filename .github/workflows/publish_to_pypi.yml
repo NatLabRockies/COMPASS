@@ -19,7 +19,7 @@ jobs:
 
     - uses: prefix-dev/setup-pixi@v0.8.10
       with:
-        pixi-version: v0.48.0
+        pixi-version: v0.49.0
         locked: true
         cache: false
         environments: pbuild

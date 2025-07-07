@@ -108,6 +108,9 @@ class _COMPASSProgressBars:
         self._wc_pbs = {}
         self._wc_tasks = {}
         self._wc_docs_found = {}
+        self._cwc_pbs = {}
+        self._cwc_tasks = {}
+        self._cwc_docs_found = {}
 
     @property
     def group(self):
@@ -334,7 +337,38 @@ class _COMPASSProgressBars:
 
     @asynccontextmanager
     async def file_download_prog_bar(self, location, num_downloads):
-        """Set a progress bar for download of files for one jurisdiction
+        """Display a progress bar for file downloads for a jurisdiction
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_downloads : int
+            Total number of downloads being processed.
+
+        Yields
+        ------
+        rich.progress.Progress
+            `rich` progress bar initialized for this jurisdiction.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for file downloads for this
+            location.
+        """
+        try:
+            pb, task = self.start_file_download_prog_bar(
+                location, num_downloads
+            )
+            yield pb
+        finally:
+            await self.tear_down_file_download_prog_bar(
+                location, num_downloads, pb, task
+            )
+
+    def start_file_download_prog_bar(self, location, num_downloads):
+        """Setup a progress bar for download of files for a jurisdiction
 
         Parameters
         ----------
@@ -378,16 +412,24 @@ class _COMPASSProgressBars:
         self._group.renderables.insert(insert_index, pb)
         self._dl_pbs[location] = pb
         self._dl_tasks[location] = task = pb.add_task("", total=num_downloads)
+        return pb, task
 
-        try:
-            yield pb
-        finally:
-            pb.update(task, completed=num_downloads)
-            await asyncio.sleep(1)
-            self._remove_download_prog_bar(location)
+    async def tear_down_file_download_prog_bar(
+        self, location, num_downloads, pb, task
+    ):
+        """Tear down the progress bar showing file downloads
 
-    def _remove_download_prog_bar(self, location):
-        """Remove download prog bar and associated task (if any)"""
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction that was being processed.
+        num_downloads : int
+            Total number of downloads that were being processed.
+
+        """
+        pb.update(task, completed=num_downloads)
+        await asyncio.sleep(1)
+
         pb = self._dl_pbs.pop(location)
         if task_id := self._dl_tasks.get(location):
             pb.remove_task(task_id)
@@ -503,6 +545,104 @@ class _COMPASSProgressBars:
 
         task_id = self._wc_tasks[location]
         self._wc_pbs[location].update(task_id, description=desc)
+
+    @asynccontextmanager
+    async def compass_website_crawl_prog_bar(self, location, num_pages):
+        """Set a progress bar for compass-style crawling of websites
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_downloads : int
+            Total number of downloads being processed.
+
+        Yields
+        ------
+        rich.progress.Progress
+            `rich` progress bar initialized for this jurisdiction.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for website crawling for
+            this location.
+        """
+        if location in self._cwc_pbs:
+            msg = f"Web crawl progress bar already exists for {location}"
+            raise COMPASSValueError(msg)
+
+        pb = Progress(
+            TextColumn("       "),
+            BarColumn(
+                bar_width=30,
+                complete_style="progress.elapsed",
+                finished_style="progress.spinner",
+            ),
+            TextColumn("[bar.back]{task.description}"),
+            console=self.console,
+        )
+
+        jd_pb = self._jd_pbs.get(location)
+        if jd_pb:
+            insert_index = self._group.renderables.index(jd_pb) + 1
+        else:
+            insert_index = len(self._group.renderables)
+
+        self._group.renderables.insert(insert_index, pb)
+        self._cwc_pbs[location] = pb
+        self._cwc_docs_found[location] = 0
+        self._cwc_tasks[location] = task = pb.add_task(
+            description="0 potential documents found", total=num_pages
+        )
+
+        try:
+            yield pb
+        finally:
+            pb.update(task, completed=num_pages)
+            await asyncio.sleep(1)
+            self._remove_compass_website_crawl_prog_bar(location)
+
+    def _remove_compass_website_crawl_prog_bar(self, location):
+        """Remove download prog bar and associated task (if any)"""
+        pb = self._cwc_pbs.pop(location)
+        if task_id := self._cwc_tasks.get(location):
+            pb.remove_task(task_id)
+
+        self._group.renderables.remove(pb)
+
+    def update_compass_website_crawl_task(self, location, *args, **kwargs):
+        """Update task corresponding to the jurisdiction website crawl
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        *args, **kwargs
+            Parameters to pass to the `task.update` function in the
+            `rich` python library.
+        """
+        task_id = self._cwc_tasks[location]
+        self._cwc_pbs[location].update(task_id, *args, **kwargs)
+
+    def update_compass_website_crawl_doc_found(self, location):
+        """Update task to say that one more document has been found
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        """
+        self._cwc_docs_found[location] = num = (
+            self._cwc_docs_found[location] + 1
+        )
+        if num == 1:
+            desc = "1 potential document found"
+        else:
+            desc = f"{num:,d} potential documents found"
+
+        task_id = self._cwc_tasks[location]
+        self._cwc_pbs[location].update(task_id, description=desc)
 
 
 COMPASS_PB = _COMPASSProgressBars()

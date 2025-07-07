@@ -36,7 +36,7 @@ dependencies = [
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.17,<1",
+  "nrel-elm>=0.0.21,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pyjson5>=1.6.8,<2",
@@ -195,6 +195,7 @@ jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.8.0,<0.9"
 ruff-lsp = ">=0.0.60,<0.0.61"
+seaborn = ">=0.13.2,<0.14"
 
 [tool.pixi.feature.python-test.dependencies]
 flaky = ">=3.8.1,<4"

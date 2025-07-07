@@ -139,7 +139,8 @@ Each model includes:
 **Concurrency Settings**
 The following settings allow tuning for system resource usage and rate limits:
 
-- ``max_num_concurrent_browsers``: Limits the number of headless browsers launched for document discovery.
+- ``max_num_concurrent_browsers``: Limits the number of browsers launched for retrieving information from web links.
+- ``max_num_concurrent_website_searches``: Limits the number of concurrently-running website searches/crawls for relevant documents.
 - ``max_num_concurrent_jurisdictions``: Controls how many jurisdictions are processed in parallel.
 
 **OCR Integration**

@@ -33,10 +33,14 @@ _UNITS_IN_SUMMARY_PROMPT = (
 EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
     "that state how close I can site {tech} to {feature}. "
+    "{feature_clarifications}"
     "Focus on ordinances relating to setbacks from {feature}; do not "
     "respond based on any text related to {ignore_features}. "
-    "Please only consider ordinances for systems that would typically be "
-    "defined as {tech} based on the text itself — for example, systems "
+    "The extracted text will be used for structured data extraction, so it "
+    "must be both **comprehensive** (retaining all relevant details) and "
+    "**focused** (excluding unrelated content). Ensure that all retained "
+    "information is **directly applicable** to systems that would typically "
+    "be defined as {tech} based on the text itself — for example, systems "
     "intended for electricity generation or sale, or those above "
     "thresholds such as height or rated capacity. Ignore any text that "
     "applies **only** to smaller or clearly non-commercial systems. "
@@ -230,7 +234,8 @@ def setup_participating_owner(**kwargs):
         "init",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to participating property owners? "
+            "a value that applies to **participating** {owned_type} owners? "
+            "{feature_clarifications}"
             "Focus only on setbacks from {feature}; do not respond "
             "based on any text related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
@@ -248,7 +253,8 @@ def setup_participating_owner(**kwargs):
         "non_part",
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly specify "
-            "a value that applies to **non-participating** property owners? "
+            "a value that applies to **non-participating** {owned_type} "
+            "owners? {feature_clarifications}"
             "Focus only on setbacks from {feature}; do not respond "
             "based on any text related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
@@ -309,11 +315,14 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "developer would have to abide to? {feature_clarifications}\n"
             "Make sure your answer adheres to these guidelines:\n"
             "1) Respond based only on the explicit text provided for "
-            "{restriction}. Do not infer values from text based on "
-            "related restrictions. If the text does not explicitly detail "
-            "actionable {restriction} for {tech}, please respond with 'No'.\n"
-            "2) If the text only defines {restriction} without providing "
-            "any specifics, please respond with a simple 'No'.\n"
+            "{restriction}. Do not infer or assume relevance based on general "
+            "definitions, interpretations, or overlap with other categories. "
+            "Do not include content just because it could be considered "
+            "related to {restriction} by definition. If the text does not "
+            "directly mention or clearly describe {restriction} for {tech}, "
+            "respond with 'No'.\n"
+            "2) If the text only provides a definition of what {restriction} "
+            "are without providing specifics, please respond with 'No'.\n"
             "3) Focus only on {restriction} specifically for systems that "
             "would typically be defined as {tech} based on the text itself. "
             "Ignore any requirements that apply only to smaller or clearly "
@@ -327,7 +336,32 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     )
 
     if is_numerical:
-        G.add_edge("init", "value", condition=llm_response_starts_with_yes)
+        if "other" in kwargs.get("restriction", ""):
+            G.add_edge(
+                "init",
+                "is_intra_farm",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "is_intra_farm",
+                prompt=(
+                    "Does the separation requirement apply to full farms "
+                    "and/or utility-size installations? If so, please start "
+                    "your answer with 'Yes'. If the separation requirement "
+                    "only applies to individual farm components (i.e. "
+                    "individual energy generation system units), please start "
+                    "your response with 'No'. In either case, briefly explain "
+                    "your answer."
+                ),
+            )
+            G.add_edge(
+                "is_intra_farm",
+                "value",
+                condition=llm_response_starts_with_yes,
+            )
+        else:
+            G.add_edge("init", "value", condition=llm_response_starts_with_yes)
+
         G.add_node(
             "value",
             prompt=(
@@ -418,62 +452,74 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
+    elif "prohibitions" in kwargs.get("restriction", ""):
+        G.add_edge(
+            "init",
+            "is_conditional",
+            condition=llm_response_starts_with_yes,
+        )
+        G.add_node(
+            "is_conditional",
+            prompt=(
+                "Does the prohibition, moratorium, or ban only apply "
+                "conditionally? For example, does it only apply to those "
+                "who have not complied with the provisions in this text? "
+                "Please start your response with either 'Yes' or 'No' "
+                "and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "is_conditional",
+            "has_end_date",
+            condition=llm_response_starts_with_no,
+        )
+        G.add_node(
+            "has_end_date",
+            prompt=(
+                "Does the legal text given an expiration date for the "
+                "prohibition, moratorium, or ban? "
+                "Please start your response with either 'Yes' or 'No' "
+                "and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "has_end_date", "final", condition=llm_response_starts_with_no
+        )
+        G.add_edge(
+            "has_end_date",
+            "check_end_date",
+            condition=llm_response_starts_with_yes,
+        )
+        todays_date = datetime.now().strftime("%B %d, %Y")
+        G.add_node(
+            "check_end_date",
+            prompt=(
+                f"Today is {todays_date}. Has the prohibition, "
+                "moratorium, or ban expired? "
+                "Please start your response with either 'Yes' or 'No' "
+                "and briefly explain your answer."
+            ),
+        )
+        G.add_edge(
+            "check_end_date",
+            "final",
+            condition=llm_response_starts_with_no,
+        )
+        G.add_node(
+            "final",
+            prompt=(
+                "Please respond based on our entire conversation so far. "
+                "Return your answer as a dictionary in "
+                "JSON format (not markdown). Your JSON file must include "
+                "exactly two keys. The keys are 'summary' and 'section'. "
+                "{SUMMARY_PROMPT} If the prohibition is a moratorium, be "
+                "sure to include that distinction in your summary and "
+                "provide any relevant expiration dates. {SECTION_PROMPT}"
+            ),
+        )
+
     else:
-        if "moratorium" in kwargs.get("restriction", ""):
-            G.add_edge(
-                "init",
-                "is_conditional",
-                condition=llm_response_starts_with_yes,
-            )
-            G.add_node(
-                "is_conditional",
-                prompt=(
-                    "Does the prohibition, moratorium, or ban only apply "
-                    "conditionally? For example, does it only apply to those "
-                    "who have not complied with the provisions in this text? "
-                    "Please start your response with either 'Yes' or 'No' "
-                    "and briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "is_conditional",
-                "has_end_date",
-                condition=llm_response_starts_with_no,
-            )
-            G.add_node(
-                "has_end_date",
-                prompt=(
-                    "Does the legal text given an expiration date for the "
-                    "prohibition, moratorium, or ban? "
-                    "Please start your response with either 'Yes' or 'No' "
-                    "and briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "has_end_date", "final", condition=llm_response_starts_with_no
-            )
-            G.add_edge(
-                "has_end_date",
-                "check_end_date",
-                condition=llm_response_starts_with_yes,
-            )
-            todays_date = datetime.now().strftime("%B %d, %Y")
-            G.add_node(
-                "check_end_date",
-                prompt=(
-                    f"Today is {todays_date}. Has the prohibition, "
-                    "moratorium, or ban expired? "
-                    "Please start your response with either 'Yes' or 'No' "
-                    "and briefly explain your answer."
-                ),
-            )
-            G.add_edge(
-                "check_end_date",
-                "final",
-                condition=llm_response_starts_with_no,
-            )
-        else:
-            G.add_edge("init", "final", condition=llm_response_starts_with_yes)
+        G.add_edge("init", "final", condition=llm_response_starts_with_yes)
         G.add_node(
             "final",
             prompt=(
@@ -484,6 +530,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "{SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
+
     return G
 
 
@@ -508,7 +555,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         prompt=(
             "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are permitted as {use_type}? {clarifications}"
-            "Pay extra attention to clarifying text found in "
+            "Pay extra attention to titles and clarifying text found in "
             "parentheses and footnotes. Please start your response with "
             "either 'Yes' or 'No' and briefly explain your answer."
             '\n\n"""\n{text}\n"""'
@@ -550,15 +597,13 @@ class BaseTextExtractor:
     """Base implementation for a text extractor"""
 
     SYSTEM_MESSAGE = (
-        "You extract exact excerpts from a provided legal zoning "
-        "regulation text that are directly relevant to the user's request "
-        "along with relevant context (such as section headers, for example). "
-        "You must preserve all original wording, punctuation, and formatting "
-        "without any paraphrasing or modification. If the relevant content "
-        "appears within a space-delimited table, return the entire table "
-        "exactly as formatted. You must not summarize, rephrase, interpret, "
-        "or provide additional commentary. Only return the original text "
-        "excerpts as they appear in the source."
+        "You are a text extraction assistant. Your job is to extract only "
+        "verbatim, **unmodified** excerpts from provided legal or policy "
+        "documents. Do not interpret or paraphrase. Do not summarize. Only "
+        "return exactly copied segments that match the specified scope. If "
+        "the relevant content appears within a space-delimited table, return "
+        "the entire table, including headers and footers, exactly as "
+        "formatted."
     )
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 

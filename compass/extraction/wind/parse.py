@@ -86,8 +86,11 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "color": "color or finish requirements",
     "decommissioning": "decommissioning requirements",
     "lighting": "lighting requirements",
-    "moratorium": "prohibitions, moratoriums, or bans",
-    "visual impact": "visual impact assessment requirements",
+    "prohibitions": "prohibitions, moratoria, or bans",
+    "visual impact": "visual impact **assessment** requirements",
+    "repowering": (
+        "requirements or regulations specific to **repowering** of the system"
+    ),
 }
 UNIT_CLARIFICATIONS = {
     "noise": (
@@ -100,7 +103,7 @@ UNIT_CLARIFICATIONS = {
     ),
     "tower density": (
         "For the purposes of this extraction, assume the standard units "
-        "for spacing between turbines are one of the following: "
+        "for spacing between individual turbines are one of the following: "
         "'tip-height-multiplier', 'hub-height-multiplier', "
         "'rotor-diameter-multiplier', 'feet', or 'meters'."
     ),
@@ -114,6 +117,15 @@ ER_CLARIFICATIONS = {
         "If the text prohibits shadow, treat this as a max value of 0 "
         "hours per year."
     ),
+    "tower density": (
+        "Do **not** try to infer the spacing requirement based on other "
+        "restrictions such as setbacks from facility perimeters, property "
+        "lines, etc."
+    ),
+}
+_FEATURE_TO_OWNED_TYPE = {
+    "structures": "structure",
+    "property line": "property",
 }
 
 
@@ -141,7 +153,7 @@ class StructuredWindParser(BaseLLMCaller):
 
         return (
             decision_tree_wes_types_out.get("largest_wes_type")
-            or "large wind energy systems"
+            or "**large** wind energy systems"
         )
 
 
@@ -330,47 +342,57 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         return deepcopy(tree.chat_llm_caller.messages)
 
     async def _extract_setback_values_for_p_or_np(
-        self, text, base_messages, **feature_kwargs
+        self, text, base_messages, feature_id, **feature_kwargs
     ):
         """Extract setback values for participating ordinances"""
         logger.debug("Checking participating vs non-participating")
+        p_np_text = {"participating": "", "non-participating": ""}
         decision_tree_participating_out = await self._run_setback_graph(
             setup_participating_owner,
             text,
             base_messages=deepcopy(base_messages),
+            owned_type=_FEATURE_TO_OWNED_TYPE[feature_id],
             **feature_kwargs,
         )
+        p_np_text.update(decision_tree_participating_out)
         outer_task_name = asyncio.current_task().get_name()
         p_or_np_parsers = [
             asyncio.create_task(
                 self._parse_p_or_np_text(
-                    key, sub_text, base_messages, **feature_kwargs
+                    key, sub_text, base_messages, feature_id, **feature_kwargs
                 ),
                 name=outer_task_name,
             )
-            for key, sub_text in decision_tree_participating_out.items()
+            for key, sub_text in p_np_text.items()
         ]
         return await asyncio.gather(*p_or_np_parsers)
 
     async def _parse_p_or_np_text(
-        self, key, sub_text, base_messages, **feature_kwargs
+        self, p_or_np, sub_text, base_messages, feature_id, **feature_kwargs
     ):
         """Parse participating sub-text for ord values"""
-        feature = feature_kwargs["feature_id"]
-        out_feat_name = f"{feature} ({key})"
+        out_feat_name = f"{feature_id} ({p_or_np})"
         output = {"feature": out_feat_name}
         if not sub_text:
             return output
 
         feature = feature_kwargs["feature"]
-        feature = f"{key} {feature}"
-        feature_kwargs["feature"] = feature
+        if (
+            p_or_np == "participating"
+            or "non-participating"
+            in sub_text.casefold().replace("\n", "").replace(" ", "-")
+        ):
+            feature = f"**{p_or_np}** {feature}"
+            feature_kwargs["feature"] = feature
 
         base_messages = deepcopy(base_messages)
         base_messages[-2]["content"] = EXTRACT_ORIGINAL_TEXT_PROMPT.format(
             feature=feature,
             tech=feature_kwargs["tech"],
             ignore_features=feature_kwargs["ignore_features"],
+            feature_clarifications=feature_kwargs.get(
+                "feature_clarifications", ""
+            ),
         )
         base_messages[-1]["content"] = sub_text
 
@@ -382,10 +404,10 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         output.update(values)
         return output
 
-    async def _extract_setback_values(self, text, **kwargs):
+    async def _extract_setback_values(self, text, base_messages, **kwargs):
         """Extract setback values for a given feature from input text"""
         decision_tree_out = await self._run_setback_graph(
-            setup_multiplier, text, **kwargs
+            setup_multiplier, text, deepcopy(base_messages), **kwargs
         )
         decision_tree_out = _update_output_keys(decision_tree_out)
         decision_tree_out = _sanitize_output(decision_tree_out)
@@ -394,11 +416,11 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             return decision_tree_out
 
         decision_tree_conditional_min_out = await self._run_setback_graph(
-            setup_conditional_min, text, **kwargs
+            setup_conditional_min, text, deepcopy(base_messages), **kwargs
         )
         decision_tree_out.update(decision_tree_conditional_min_out)
         decision_tree_conditional_max_out = await self._run_setback_graph(
-            setup_conditional_max, text, **kwargs
+            setup_conditional_max, text, deepcopy(base_messages), **kwargs
         )
         decision_tree_out.update(decision_tree_conditional_max_out)
         return decision_tree_out

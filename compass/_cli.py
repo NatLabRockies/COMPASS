@@ -5,9 +5,7 @@ import asyncio
 import logging
 import warnings
 import multiprocessing
-from pathlib import Path
 
-import pyjson5
 from rich.live import Live
 from rich.theme import Theme
 from rich.logging import RichHandler
@@ -17,6 +15,7 @@ from compass import __version__
 from compass.pb import COMPASS_PB
 from compass.scripts.process import process_jurisdictions_with_openai
 from compass.utilities.logs import AddLocationFilter
+from compass.utilities.parsing import load_config
 
 
 @click.group()
@@ -53,8 +52,7 @@ def main(ctx):
 )
 def process(config, verbose, no_progress):
     """Download and extract ordinances for a list of jurisdictions"""
-    with Path(config).open(encoding="utf-8") as fh:
-        config = pyjson5.decode_io(fh)
+    config = load_config(config)
 
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)

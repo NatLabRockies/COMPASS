@@ -303,7 +303,16 @@ class JurisdictionWebsiteValidator:
             browser_semaphore=self.browser_semaphore,
             **self.file_loader_kwargs,
         )
-        doc = await fl.fetch(url)
+        try:
+            doc = await fl.fetch(url)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = "Encountered error of type %r while trying to validate %s"
+            err_type = type(e)
+            logger.exception(msg, err_type, url)
+            return False
+
         if doc.empty:
             return False
 

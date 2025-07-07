@@ -211,7 +211,17 @@ class OpenAIService(LLMService):
         )
         COMPASS_PB.update_total_cost(prompt_cost + response_cost)
 
-    @async_retry_with_exponential_backoff()
+    @async_retry_with_exponential_backoff(
+        base_delay=1,
+        exponential_base=4,
+        jitter=True,
+        max_retries=3,
+        errors=(
+            openai.RateLimitError,
+            openai.APITimeoutError,
+            openai.BadRequestError,
+        ),
+    )
     async def _call_gpt(self, **kwargs):
         """Query Chat GPT with user inputs"""
         try:

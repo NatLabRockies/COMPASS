@@ -70,13 +70,25 @@
     // Number of URLs to check per jurisdiction
     // larger number = more docs to search
     "num_urls_to_check_per_jurisdiction": 5,
-    // Try to keep reasonably low , especially on laptoins
+    // Try to keep reasonably low , especially on laptops
     "max_num_concurrent_browsers": 10,
-    // Only search 5 jurisdictions concurrently (at a time)
+    "max_num_concurrent_website_searches": 10,
+    // Only search 25 jurisdictions concurrently (at a time)
     // Most likely you are limited by LLM rate limits, so setting this
-    // to some value (~5-15) will prevent submitting too many concurrent
+    // to some value will prevent submitting too many concurrent
     // futures to sit idly, awaiting their turn to query the LLM
-    "max_num_concurrent_jurisdictions": 5,
+    "max_num_concurrent_jurisdictions": 25,
+    "url_ignore_substrings": [
+        // ignore any URLs with these strings
+        // useful to filter out known noise
+        "wiki",
+        "nrel.gov",
+        "openei.org",
+        "windexchange.energy.gov",
+        // but can also be very specific if needed
+        // e.g. a giant file with generic ordinances that should be skipped
+        "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+    ],
     "file_loader_kwargs": {
         "pw_launch_kwargs": {
             // set to "false" to see browser open and watch
@@ -102,6 +114,7 @@
     "clean_dir": "cleaned_text",
     "ordinance_file_dir": "ordinance_files",
     "jurisdiction_dbs_dir": "jurisdiction_dbs",
+    "perform_website_search": true,  // set to false to only use search engines
     "llm_costs": {
         // required input to display running cost
         // cost values are in $/million tokens

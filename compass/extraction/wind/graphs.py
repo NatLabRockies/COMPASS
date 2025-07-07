@@ -40,8 +40,8 @@ def setup_graph_wes_types(**kwargs):
     G.add_node(
         "get_text",
         prompt=(
-            "What are the different wind energy system sizes this text "
-            "mentions? List them in order of increasing size. "
+            "What are the different wind energy system sizes regulated by "
+            "this ordinance? List them in order of increasing size. "
             "Include any relevant numerical qualifiers in the name, if "
             "appropriate. Only list wind energy system types; do not "
             "include generic types or other energy system types."
@@ -56,8 +56,8 @@ def setup_graph_wes_types(**kwargs):
             "file must include exactly two keys. The keys are "
             "'largest_wes_type' and 'explanation'. The value of the "
             "'largest_wes_type' key should be a string that labels the "
-            "largest wind energy conversion system size mentioned in the "
-            "text. The value of the 'explanation' key should be a string "
+            "largest wind energy conversion system size regulated by this "
+            "ordinance. The value of the 'explanation' key should be a string "
             "containing a short explanation for your choice."
         ),
     )
@@ -85,7 +85,7 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the text mention a multiplier that should be applied to a "
             "turbine dimension (e.g. height, rotor diameter, etc) to compute "
-            "the setback distance from {feature}? "
+            "the setback distance from {feature} for {tech}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
@@ -93,9 +93,9 @@ def setup_multiplier(**kwargs):
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
             "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Remember that 1 is a valid multiplier, and treat any mention "
-            "of 'fall zone' as a system height multiplier of 1. "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Remember that 1 is a valid multiplier, and treat any "
+            "mention of 'fall zone' as a system height multiplier of 1. "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
         ),
@@ -113,8 +113,8 @@ def setup_multiplier(**kwargs):
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
             "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Please start your response with either 'Yes' or "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
     )
@@ -165,16 +165,16 @@ def setup_multiplier(**kwargs):
         "m_single",
         prompt=(
             "Are multiple values given for the multiplier used to compute the "
-            "setback distance value from {feature}? "
+            "setback distance value from {feature} for {tech}? "
+            "Remember to ignore any text related to {ignore_features}. "
             "Focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
             "or those above thresholds such as height, rotor diameter, or "
             "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "If so, select "
-            "and state the largest one. Otherwise, repeat the single "
-            "multiplier value that was given in the text. "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. If so, select and state the largest one. Otherwise, "
+            "repeat the single multiplier value that was given in the text. "
         ),
     )
     G.add_edge("m_single", "m_type")
@@ -183,13 +183,14 @@ def setup_multiplier(**kwargs):
         prompt=(
             "What kind of multiplier is stated in the text to compute the "
             "setback distance from {feature}? "
+            "Remember to ignore any text related to {ignore_features}. "
             "Focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
             "or those above thresholds such as height, rotor diameter, or "
             "rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Select a value from the following list: "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Select a value from the following list: "
             "['tip-height-multiplier', 'hub-height-multiplier', "
             "'rotor-diameter-multiplier]. "
             "Default to 'tip-height-multiplier' unless the text explicitly "
@@ -318,9 +319,9 @@ def setup_conditional_min(**kwargs):
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
             "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Does the setback from {feature} for {tech} mention a minimum "
-            "setback distance **regardless of the outcome** of the "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Does the setback from {feature} for {tech} mention a "
+            "minimum setback distance **regardless of the outcome** of the "
             "multiplier calculation? This value acts like a threshold and is "
             "often found within phrases like 'the greater of'. "
             "Begin your response with either 'Yes' or 'No' and briefly "
@@ -399,9 +400,9 @@ def setup_conditional_max(**kwargs):
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
             "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems. "
-            "Does the setback from {feature} for {tech} mention a maximum "
-            "setback distance **regardless of the outcome** of the "
+            "smaller or clearly non-commercial systems or to meteorological "
+            "towers. Does the setback from {feature} for {tech} mention a "
+            "maximum setback distance **regardless of the outcome** of the "
             "multiplier calculation? This value acts like a limit and is "
             "often found within phrases like 'the lesser of'. "
             "Begin your response with either 'Yes' or 'No' and briefly "

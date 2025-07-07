@@ -1,6 +1,8 @@
 """Ordinance date extraction logic"""
 
 import logging
+from datetime import datetime
+from collections import Counter
 
 from compass.utilities.enums import LLMUsageCategory
 
@@ -115,37 +117,42 @@ class DateExtractor:
 
 
 def _parse_date(json_list):
-    """Parse all date elements"""
-    year = _parse_date_element(
+    """Parse all date elements
+
+    True date is determined to be the most frequent date. In the case of
+    a tie, the latest date is chosen.
+    """
+    if not json_list:
+        return None, None, None
+
+    years = _parse_date_element(
         json_list,
         key="year",
         max_len=4,
         min_val=2000,
-        max_val=float("inf"),
+        max_val=datetime.now().year,
     )
-    month = _parse_date_element(
+    months = _parse_date_element(
         json_list, key="month", max_len=2, min_val=1, max_val=12
     )
-    day = _parse_date_element(
+    days = _parse_date_element(
         json_list, key="day", max_len=2, min_val=1, max_val=31
     )
 
-    return year, month, day
+    date_elements = Counter(zip(years, months, days, strict=False))
+    date = max(date_elements, key=lambda date: (date_elements[date], date))
+    return tuple(None if d < 0 else d for d in date)
 
 
 def _parse_date_element(json_list, key, max_len, min_val, max_val):
     """Parse out a single date element"""
     date_elements = [info.get(key) for info in json_list]
     logger.debug("key=%r, date_elements=%r", key, date_elements)
-    date_elements = [
+    return [
         int(y)
-        for y in date_elements
         if y is not None
         and len(str(y)) <= max_len
         and (min_val <= int(y) <= max_val)
+        else -1 * float("inf")
+        for y in date_elements
     ]
-    if not date_elements:
-        return -1 * float("inf")
-    return max(
-        sorted(set(date_elements), reverse=True), key=date_elements.count
-    )

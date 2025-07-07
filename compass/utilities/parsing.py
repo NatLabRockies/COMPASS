@@ -2,8 +2,12 @@
 
 import json
 import logging
+from pathlib import Path
 
+import pyjson5
 import numpy as np
+
+from compass.exceptions import COMPASSValueError
 
 logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "summary"]
@@ -196,3 +200,38 @@ def ordinances_bool_index(data):
 
     found_features = (~data[check_cols].isna()).to_numpy().sum(axis=1)
     return found_features > 0
+
+
+def load_config(config_fp):
+    """Load a JSON or JSON5 config file
+
+    Parameters
+    ----------
+    config_fp : path-like
+        Path to config file to open and load.
+
+    Returns
+    -------
+    dict
+        Dictionary containing the config file contents.
+
+    Raises
+    ------
+    COMPASSValueError
+        If the config file does not end with `.json` or `.json5`.
+    """
+    config_fp = Path(config_fp)
+
+    if config_fp.suffix == ".json5":
+        with config_fp.open(encoding="utf-8") as fh:
+            return pyjson5.decode_io(fh)
+
+    if config_fp.suffix == ".json":
+        with config_fp.open(encoding="utf-8") as fh:
+            return json.load(fh)
+
+    msg = (
+        "Got unknown config file extension: "
+        f"{config_fp.suffix}. Supported extensions are .json5 and .json."
+    )
+    raise COMPASSValueError(msg)

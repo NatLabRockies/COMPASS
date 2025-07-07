@@ -40,14 +40,16 @@ pub(super) struct Jurisdiction {
     #[serde(alias = "FIPS")]
     /// Federal Information Processing Standards code for the jurisdiction
     fips: u32,
-    /// Whether the jurisdiction was found during the scrapping
+    /// Whether the jurisdiction was found during the scraping
     found: bool,
-    /// Total time spent scrapping the jurisdiction, in seconds
+    /// Total time spent scraping the jurisdiction, in seconds
     total_time: f64,
-    /// Total time spent scrapping the jurisdiction, as a string
+    /// Total time spent scraping the jurisdiction, as a string
     total_time_string: String,
     /// Main jurisdiction website used for web crawling, if any, as a string
     jurisdiction_website: Option<String>,
+    /// Whether the jurisdiction document was found using the custom compass website crawl
+    compass_crawl: bool,
     /// Total cost to run the scraper, in $
     cost: Option<f64>,
     /// List of documents associated with the jurisdiction
@@ -125,6 +127,7 @@ impl Source {
             total_time REAL,
             total_time_string TEXT,
             jurisdiction_website TEXT,
+            compass_crawl BOOLEAN,
             cost REAL,
             documents TEXT,
             archive_lnk INTEGER REFERENCES archive(id),
@@ -290,8 +293,8 @@ impl Source {
                 (bookkeeper_lnk, full_name, county, state,
                   subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
-                  jurisdiction_website, cost, documents)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  jurisdiction_website, compass_crawl, cost, documents)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )?;
             stmt_source.execute(duckdb::params![
                 commit_id,
@@ -305,6 +308,7 @@ impl Source {
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
                 jurisdiction.jurisdiction_website,
+                jurisdiction.compass_crawl,
                 jurisdiction.cost,
                 dids.iter()
                     .map(|did| did.to_string())
@@ -395,6 +399,7 @@ pub(crate) mod sample {
                     "total_time": 3.14,
                     "total_time_string": "0::0::03.14",
                     "jurisdiction_website": null,
+                    "compass_crawl": false,
                     "documents": [
                         {
                             "source": "https://example.com/sample_ordinance.pdf",

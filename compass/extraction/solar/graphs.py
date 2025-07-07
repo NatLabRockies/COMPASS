@@ -40,8 +40,8 @@ def setup_graph_sef_types(**kwargs):
     G.add_node(
         "get_text",
         prompt=(
-            "What are the different solar energy farm sizes this text "
-            "mentions? List them in order of increasing size. "
+            "What are the different solar energy farm sizes regulated by "
+            "this ordinance? List them in order of increasing size. "
             "Include any relevant numerical qualifiers in the name, if "
             "appropriate. Only include solar energy farm types; do not "
             "include generic types or other energy system types."
@@ -56,8 +56,8 @@ def setup_graph_sef_types(**kwargs):
             "JSON file must include exactly two keys. The keys are "
             "'largest_sef_type' and 'explanation'. The value of the "
             "'largest_sef_type' key should be a string that labels the "
-            "largest solar energy system size mentioned in the text. The "
-            "value of the 'explanation' key should be a string containing "
+            "largest solar energy system size regulated by this ordinance. "
+            "The value of the 'explanation' key should be a string containing "
             "a short explanation for your choice."
         ),
     )
@@ -84,7 +84,8 @@ def setup_multiplier(**kwargs):
         "init",
         prompt=(
             "Does the text mention a multiplier that should be applied to the "
-            "structure height to compute the setback distance from {feature}? "
+            "structure height to compute the setback distance from {feature} "
+            "for {tech}? "
             "Focus only on {feature}; do not respond based on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks specifically for systems that "
@@ -162,7 +163,8 @@ def setup_multiplier(**kwargs):
         "m_single",
         prompt=(
             "Are multiple values given for the multiplier used to "
-            "compute the setback distance value from {feature}? "
+            "compute the setback distance value from {feature} for {tech}? "
+            "Remember to ignore any text related to {ignore_features}. "
             "Focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
@@ -180,6 +182,7 @@ def setup_multiplier(**kwargs):
             "Does the ordinance for the setback from {feature} include a "
             "static distance value that should be added to the result of "
             "the multiplication? "
+            "Remember to ignore any text related to {ignore_features}. "
             "Focus only on setbacks specifically for systems that would "
             "typically be defined as {tech} based on the text itself — for "
             "example, systems intended for electricity generation or sale, "
