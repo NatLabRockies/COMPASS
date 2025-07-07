@@ -232,7 +232,7 @@ class TempFileCache(ThreadedService):
         return cache_fp
 
 
-class TempFileFromSECachePB(TempFileCache):
+class TempFileCachePB(TempFileCache):
     """Service that locally caches files downloaded from the internet"""
 
     async def process(self, doc, file_content, make_name_unique=False):

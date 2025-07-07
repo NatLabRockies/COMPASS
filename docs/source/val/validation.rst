@@ -14,8 +14,8 @@ to the correct jurisdiction).
 
 This validation effort is meant primarily as a sanity check and as a stepping stone to:
 
-- A) Perform a larger validation effort for solar ordinance values, and
-- B) Begin a CONUS-level COMPASS run for wind ordinance collection.
+- Perform a larger validation effort for solar ordinance values, and
+- Begin a CONUS-level COMPASS run for wind ordinance collection.
 
 
 .. WARNING::
@@ -57,7 +57,7 @@ Info
   - ordinance effective year
 
 - **Procedure Validated**: Ordinance extraction from documents
-- **LLM(s) used**: GPT-4o-mini
+- **LLM(s) used**: OpenAI GPT-4o-mini
 
 
 Results
@@ -97,7 +97,7 @@ Info
   - tower density
 
 - **Procedure Validated**: Ordinance extraction from documents
-- **LLM(s) used**: GPT-4
+- **LLM(s) used**: OpenAI GPT-4
 
 
 Results

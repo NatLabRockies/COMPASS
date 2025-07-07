@@ -100,6 +100,21 @@
         },
         "verify_ssl": false,
     },
+    // Control the search engines used, their configuration,
+    // and their fallback order (not recommended to change from
+    // default unless you know what you are doing)
+    search_engines: [
+        {
+            "se_name": "PlaywrightGoogleLinkSearch",
+            "use_homepage": true,
+        },
+        {
+            "se_name": "APIDuckDuckGoSearch",
+            "timeout": 300,
+            "backend": "html",
+            "verify": false,
+        },
+    ],
     "pytesseract_exe_fp": "<ADD tesseract.exe PATH HERE OR REMOVE THIS KEY>",
     "td_kwargs": {
         "dir": ".temp"

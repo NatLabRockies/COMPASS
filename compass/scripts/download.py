@@ -17,7 +17,7 @@ from elm.web.website_crawl import (
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_ordinance_info, extract_date
-from compass.services.threaded import TempFileCache, TempFileFromSECachePB
+from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.validation.location import (
     DTreeJurisdictionValidator,
     JurisdictionValidator,
@@ -62,7 +62,7 @@ async def download_known_urls(
 
     Notes
     -----
-    Requires :class:`~compass.services.threaded.TempFileFromSECachePB`
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
     service to be running.
     """
 
@@ -72,9 +72,7 @@ async def download_known_urls(
     )
 
     file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update(
-        {"file_cache_coroutine": TempFileFromSECachePB.call}
-    )
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(urls)
     ):
@@ -410,6 +408,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     search_semaphore=None,
     browser_semaphore=None,
     url_ignore_substrings=None,
+    **kwargs,
 ):
     """Download the ordinance document(s) for a single jurisdiction
 
@@ -455,7 +454,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
 
     Notes
     -----
-    Requires :class:`~compass.services.threaded.TempFileFromSECachePB`
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
     service to be running.
     """
     COMPASS_PB.update_jurisdiction_task(
@@ -477,6 +476,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
         )
         pb_store.append((pb, task, len(urls)))
 
+    kwargs.update(file_loader_kwargs or {})
     try:
         out_docs = await _docs_from_web_search(
             question_templates=question_templates,
@@ -486,7 +486,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             browser_semaphore=browser_semaphore,
             url_ignore_substrings=url_ignore_substrings,
             on_search_complete_hook=_download_hook,
-            **(file_loader_kwargs or {}),
+            **kwargs,
         )
     finally:
         if pb_store:
@@ -591,16 +591,14 @@ async def _docs_from_web_search(
     browser_semaphore,
     url_ignore_substrings,
     on_search_complete_hook,
-    **file_loader_kwargs,
+    **kwargs,
 ):
     """Download docs from web using jurisdiction queries"""
     queries = [
         question.format(jurisdiction=jurisdiction.full_name)
         for question in question_templates
     ]
-    file_loader_kwargs.update(
-        {"file_cache_coroutine": TempFileFromSECachePB.call}
-    )
+    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
 
     try:
         docs = await web_search_links_as_docs(
@@ -611,7 +609,7 @@ async def _docs_from_web_search(
             ignore_url_parts=url_ignore_substrings,
             task_name=jurisdiction.full_name,
             on_search_complete_hook=on_search_complete_hook,
-            **file_loader_kwargs,
+            **kwargs,
         )
     except KeyboardInterrupt:
         raise

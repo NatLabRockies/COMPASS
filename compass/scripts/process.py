@@ -63,7 +63,7 @@ from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
-    TempFileFromSECachePB,
+    TempFileCachePB,
     TempFileCache,
     FileMover,
     CleanedFileWriter,
@@ -87,6 +87,7 @@ from compass.utilities.logs import (
     LogListener,
     NoLocationFilter,
 )
+from compass.utilities.base import WebSearchParams
 from compass.utilities.parsing import load_config
 from compass.pb import COMPASS_PB
 
@@ -116,7 +117,7 @@ ProcessKwargs = namedtuple(
         "ppe_kwargs",
         "max_num_concurrent_jurisdictions",
     ],
-    defaults=[None, None, None, None, None],
+    defaults=[None, None, None, None, 25],
 )
 Directories = namedtuple(
     "Directories",
@@ -126,17 +127,6 @@ AzureParams = namedtuple(
     "AzureParams",
     ["azure_api_key", "azure_version", "azure_endpoint"],
     defaults=[None, None, None],
-)
-WebSearchParams = namedtuple(
-    "WebSearchParams",
-    [
-        "num_urls_to_check_per_jurisdiction",
-        "max_num_concurrent_browsers",
-        "max_num_concurrent_website_searches",
-        "url_ignore_substrings",
-        "pytesseract_exe_fp",
-    ],
-    defaults=[5, 10, None, None],
 )
 PARSED_COLS = [
     "county",
@@ -204,6 +194,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     url_ignore_substrings=None,
     known_doc_urls=None,
     file_loader_kwargs=None,
+    search_engines=None,
     pytesseract_exe_fp=None,
     td_kwargs=None,
     tpe_kwargs=None,
@@ -330,6 +321,25 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the google URL search. By default, ``None``.
+    search_engines : list, optional
+        A list of dictionaries, where each dictionary contains
+        information about a search engine class that should be used for
+        the document retrieval process. Each dictionary should contain
+        at least the key ``"se_name"``, which should correspond to one
+        of the search engine class names from
+        :obj:`elm.web.search.run.SEARCH_ENGINE_OPTIONS`. The rest of the
+        keys in the dictionary should contain keyword-value pairs to be
+        used as parameters to initialize the search engine class (things
+        like API keys and configuration options; see the ELM
+        documentation for details on search engine class parameters).
+        The list should be ordered by search engine preference - the
+        first search engine parameters will be used to submit the
+        queries initially, then any subsequent search engine listings
+        will be used as fallback (in order that they appear). Do not
+        repeat search engines - only the last config dictionary will be
+        used to initialize the search engine if you do. If ``None``,
+        then all default configurations for the search engines
+        (along with the fallback order) are used. By default, ``None``.
     pytesseract_exe_fp : path-like, optional
         Path to the `pytesseract` executable. If specified, OCR will be
         used to extract text from scanned PDFs using Google's Tesseract.
@@ -433,6 +443,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         max_num_concurrent_website_searches,
         url_ignore_substrings,
         pytesseract_exe_fp,
+        search_engines,
     )
     models = _initialize_model_params(model)
     runner = _COMPASSRunner(
@@ -548,7 +559,7 @@ class _COMPASSRunner:
     def _base_services(self):
         """list: List of required services to run for processing"""
         base_services = [
-            TempFileFromSECachePB(
+            TempFileCachePB(
                 td_kwargs=self.process_kwargs.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
@@ -864,6 +875,7 @@ class _SingleJurisdictionRunner:
             search_semaphore=self.search_engine_semaphore,
             browser_semaphore=self.browser_semaphore,
             url_ignore_substrings=self.web_search_params.url_ignore_substrings,
+            **self.web_search_params.se_kwargs,
         )
         docs = await filter_ordinance_docs(
             docs,
@@ -968,6 +980,7 @@ class _SingleJurisdictionRunner:
             url_ignore_substrings=(
                 self.web_search_params.url_ignore_substrings
             ),
+            **self.web_search_params.se_kwargs,
         )
 
     async def _try_elm_crawl(self):
