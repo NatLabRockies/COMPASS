@@ -1,12 +1,24 @@
 """Test COMPASS Ordinances TempFileCache Services"""
 
+import asyncio
+import logging
 from pathlib import Path
 from datetime import datetime
 
 import pytest
-
 from elm.web.document import HTMLDocument
-from compass.services.threaded import TempFileCache, FileMover
+
+from compass.services.threaded import TempFileCache, FileMover, ThreadedService
+from compass.services.provider import RunningAsyncServices
+from compass.utilities.logs import LocationFileLog, LogListener
+
+
+logger = logging.getLogger("compass")
+
+
+def _log_from_thread():
+    """Call logger instance from a thread"""
+    logger.debug("HELLO WORLD")
 
 
 @pytest.mark.asyncio
@@ -53,6 +65,31 @@ async def test_file_move_service(tmp_path):
     cache.release_resources()
     mover.release_resources()
     assert moved_fp.exists()
+
+
+@pytest.mark.asyncio
+async def test_logging_within_service(tmp_path, assert_message_was_logged):
+    """Test that logging within a threaded service doesn't crash the process"""
+
+    class ThreadedLogging(ThreadedService):
+        """Subclass for testing"""
+
+        @property
+        def can_process(self):
+            return True
+
+        async def process(self):
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(self.pool, _log_from_thread)
+
+    log_listener = LogListener(["compass"], level="DEBUG")
+    services = [ThreadedLogging()]
+
+    async with RunningAsyncServices(services), log_listener as ll:
+        with LocationFileLog(ll, tmp_path, location="test_loc", level="DEBUG"):
+            await ThreadedLogging.call()
+
+    assert_message_was_logged("HELLO WORLD")
 
 
 if __name__ == "__main__":

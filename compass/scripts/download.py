@@ -5,7 +5,7 @@ from contextlib import AsyncExitStack
 
 from elm.web.document import PDFDocument
 from elm.web.search.run import (
-    _load_docs,  # noqa: PLC2701
+    load_docs,
     search_with_fallback,
     web_search_links_as_docs,
 )
@@ -77,7 +77,7 @@ async def download_known_urls(
         jurisdiction.full_name, len(urls)
     ):
         try:
-            out_docs = await _load_docs(
+            out_docs = await load_docs(
                 urls, browser_semaphore=browser_semaphore, **file_loader_kwargs
             )
         except KeyboardInterrupt:

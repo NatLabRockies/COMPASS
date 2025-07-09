@@ -306,7 +306,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/f3/f0/89e7aadfb3749d0f52234a0c8c7867877876e0a20b60e2188e9850794c17/MarkupSafe-3.0.2-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/c4/91/ba0ae1ff4b3f30972ad01cd4a8029e70a0ec3b8ea5be04764b128b66f763/matplotlib-3.10.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/4e/87/29dbba2b167c191950a711c0a2407860ac6a808466bc354a12be5509e30a/maxminddb-2.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c9/71/53e20bf0826606d3d3c9d1248d78ee7b7925e7c07e293d4674a5fac230b6/nrel_rex-0.2.100-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/71/e7/40fb618334dcdf7c5a316c0e7343c5cd82d3d866edc100d98e29bc945ecd/partd-1.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/39/979e8e21520d4e47a0bbe349e2713c0aac6f3d853d0e5b34d76206c439aa/platformdirs-4.3.8-py3-none-any.whl
@@ -616,7 +616,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/22/09/d1f21434c97fc42f09d290cbb6350d44eb12f09cc62c9476effdb33a18aa/MarkupSafe-3.0.2-cp312-cp312-macosx_10_13_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/eb/43/6b80eb47d1071f234ef0c96ca370c2ca621f91c12045f1401b5c9b28a639/matplotlib-3.10.3-cp312-cp312-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/76/ed/f4e3fd93245b9c0df51dfdb39c6c1280aa64abbc4ea55a1131013de9bb11/maxminddb-2.7.0-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c9/71/53e20bf0826606d3d3c9d1248d78ee7b7925e7c07e293d4674a5fac230b6/nrel_rex-0.2.100-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/71/e7/40fb618334dcdf7c5a316c0e7343c5cd82d3d866edc100d98e29bc945ecd/partd-1.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/39/979e8e21520d4e47a0bbe349e2713c0aac6f3d853d0e5b34d76206c439aa/platformdirs-4.3.8-py3-none-any.whl
@@ -928,7 +928,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/6b/b0/18f76bba336fa5aecf79d45dcd6c806c280ec44538b3c13671d49099fdd0/MarkupSafe-3.0.2-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/0f/70/d61a591958325c357204870b5e7b164f93f2a8cca1dc6ce940f563909a13/matplotlib-3.10.3-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/98/60/3af97e4517aebdeabae70613a1e03f9e276f0f04c59e93cfe16ab157991c/maxminddb-2.7.0-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c9/71/53e20bf0826606d3d3c9d1248d78ee7b7925e7c07e293d4674a5fac230b6/nrel_rex-0.2.100-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/71/e7/40fb618334dcdf7c5a316c0e7343c5cd82d3d866edc100d98e29bc945ecd/partd-1.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/39/979e8e21520d4e47a0bbe349e2713c0aac6f3d853d0e5b34d76206c439aa/platformdirs-4.3.8-py3-none-any.whl
@@ -1211,7 +1211,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/c1/80/a61f99dc3a936413c3ee4e1eecac96c0da5ed07ad56fd975f1a9da5bc630/MarkupSafe-3.0.2-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/b1/79/0d1c165eac44405a86478082e225fce87874f7198300bbebc55faaf6d28d/matplotlib-3.10.3-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/44/5e/3df632ff3752770cbf74ef024a0b5b3746762a6d9e0c11aa4c825e95cac1/maxminddb-2.7.0-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c9/71/53e20bf0826606d3d3c9d1248d78ee7b7925e7c07e293d4674a5fac230b6/nrel_rex-0.2.100-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/71/e7/40fb618334dcdf7c5a316c0e7343c5cd82d3d866edc100d98e29bc945ecd/partd-1.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/fe/39/979e8e21520d4e47a0bbe349e2713c0aac6f3d853d0e5b34d76206c439aa/platformdirs-4.3.8-py3-none-any.whl
@@ -1485,7 +1485,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/4e/87/29dbba2b167c191950a711c0a2407860ac6a808466bc354a12be5509e30a/maxminddb-2.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/fd/bc60798803414ecab66456208eeff4308344d0c055ca0d294d2cdd692b60/playwright-1.51.0-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/c3/7b/cbd5d999a07ff2a21465975d4eb477ae6f69765e8fe8c9087dab250180d8/primp-0.15.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -1724,7 +1724,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/76/ed/f4e3fd93245b9c0df51dfdb39c6c1280aa64abbc4ea55a1131013de9bb11/maxminddb-2.7.0-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ba/b1/061c322319072225beba45e8c6695b7c1429f83bb97bdb5ed51ea3a009fc/playwright-1.51.0-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/f5/5a/146ac964b99ea7657ad67eb66f770be6577dfe9200cb28f9a95baffd6c3f/primp-0.15.0-cp38-abi3-macosx_10_12_x86_64.whl
@@ -1963,7 +1963,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/98/60/3af97e4517aebdeabae70613a1e03f9e276f0f04c59e93cfe16ab157991c/maxminddb-2.7.0-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/32/4a/5f2ff6866bdf88e86147930b0be86b227f3691f4eb01daad5198302a8cbe/playwright-1.51.0-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/bc/8a/cc2321e32db3ce64d6e32950d5bcbea01861db97bfb20b5394affc45b387/primp-0.15.0-cp38-abi3-macosx_11_0_arm64.whl
@@ -2204,7 +2204,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/44/5e/3df632ff3752770cbf74ef024a0b5b3746762a6d9e0c11aa4c825e95cac1/maxminddb-2.7.0-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/0c/dd/f0183ed0145e58cf9d286c1b2c14f63ccee987a4ff79ac85acc31b5d86bd/primp-0.15.0-cp38-abi3-win_amd64.whl
@@ -2646,7 +2646,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/87/29dbba2b167c191950a711c0a2407860ac6a808466bc354a12be5509e30a/maxminddb-2.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/fd/bc60798803414ecab66456208eeff4308344d0c055ca0d294d2cdd692b60/playwright-1.51.0-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/c3/7b/cbd5d999a07ff2a21465975d4eb477ae6f69765e8fe8c9087dab250180d8/primp-0.15.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -3070,7 +3070,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/76/ed/f4e3fd93245b9c0df51dfdb39c6c1280aa64abbc4ea55a1131013de9bb11/maxminddb-2.7.0-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ba/b1/061c322319072225beba45e8c6695b7c1429f83bb97bdb5ed51ea3a009fc/playwright-1.51.0-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/f5/5a/146ac964b99ea7657ad67eb66f770be6577dfe9200cb28f9a95baffd6c3f/primp-0.15.0-cp38-abi3-macosx_10_12_x86_64.whl
@@ -3494,7 +3494,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/98/60/3af97e4517aebdeabae70613a1e03f9e276f0f04c59e93cfe16ab157991c/maxminddb-2.7.0-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/32/4a/5f2ff6866bdf88e86147930b0be86b227f3691f4eb01daad5198302a8cbe/playwright-1.51.0-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/bc/8a/cc2321e32db3ce64d6e32950d5bcbea01861db97bfb20b5394affc45b387/primp-0.15.0-cp38-abi3-macosx_11_0_arm64.whl
@@ -3910,7 +3910,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/44/5e/3df632ff3752770cbf74ef024a0b5b3746762a6d9e0c11aa4c825e95cac1/maxminddb-2.7.0-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/0c/dd/f0183ed0145e58cf9d286c1b2c14f63ccee987a4ff79ac85acc31b5d86bd/primp-0.15.0-cp38-abi3-win_amd64.whl
@@ -4228,7 +4228,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4e/87/29dbba2b167c191950a711c0a2407860ac6a808466bc354a12be5509e30a/maxminddb-2.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/fd/bc60798803414ecab66456208eeff4308344d0c055ca0d294d2cdd692b60/playwright-1.51.0-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/c3/7b/cbd5d999a07ff2a21465975d4eb477ae6f69765e8fe8c9087dab250180d8/primp-0.15.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -4526,7 +4526,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/76/ed/f4e3fd93245b9c0df51dfdb39c6c1280aa64abbc4ea55a1131013de9bb11/maxminddb-2.7.0-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ba/b1/061c322319072225beba45e8c6695b7c1429f83bb97bdb5ed51ea3a009fc/playwright-1.51.0-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/f5/5a/146ac964b99ea7657ad67eb66f770be6577dfe9200cb28f9a95baffd6c3f/primp-0.15.0-cp38-abi3-macosx_10_12_x86_64.whl
@@ -4824,7 +4824,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/98/60/3af97e4517aebdeabae70613a1e03f9e276f0f04c59e93cfe16ab157991c/maxminddb-2.7.0-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/32/4a/5f2ff6866bdf88e86147930b0be86b227f3691f4eb01daad5198302a8cbe/playwright-1.51.0-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/bc/8a/cc2321e32db3ce64d6e32950d5bcbea01861db97bfb20b5394affc45b387/primp-0.15.0-cp38-abi3-macosx_11_0_arm64.whl
@@ -5112,7 +5112,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/71/8b/af4b541d2a6e1ea2021dc95f5fd75fc5679462e5b06b155eed65b25cc2eb/make-0.1.6.post2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/44/5e/3df632ff3752770cbf74ef024a0b5b3746762a6d9e0c11aa4c825e95cac1/maxminddb-2.7.0-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/0c/dd/f0183ed0145e58cf9d286c1b2c14f63ccee987a4ff79ac85acc31b5d86bd/primp-0.15.0-cp38-abi3-win_amd64.whl
@@ -5428,7 +5428,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/4e/87/29dbba2b167c191950a711c0a2407860ac6a808466bc354a12be5509e30a/maxminddb-2.7.0-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/fd/bc60798803414ecab66456208eeff4308344d0c055ca0d294d2cdd692b60/playwright-1.51.0-py3-none-manylinux1_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/c3/7b/cbd5d999a07ff2a21465975d4eb477ae6f69765e8fe8c9087dab250180d8/primp-0.15.0-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -5724,7 +5724,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/76/ed/f4e3fd93245b9c0df51dfdb39c6c1280aa64abbc4ea55a1131013de9bb11/maxminddb-2.7.0-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ba/b1/061c322319072225beba45e8c6695b7c1429f83bb97bdb5ed51ea3a009fc/playwright-1.51.0-py3-none-macosx_11_0_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/f5/5a/146ac964b99ea7657ad67eb66f770be6577dfe9200cb28f9a95baffd6c3f/primp-0.15.0-cp38-abi3-macosx_10_12_x86_64.whl
@@ -6020,7 +6020,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/98/60/3af97e4517aebdeabae70613a1e03f9e276f0f04c59e93cfe16ab157991c/maxminddb-2.7.0-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/32/4a/5f2ff6866bdf88e86147930b0be86b227f3691f4eb01daad5198302a8cbe/playwright-1.51.0-py3-none-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/bc/8a/cc2321e32db3ce64d6e32950d5bcbea01861db97bfb20b5394affc45b387/primp-0.15.0-cp38-abi3-macosx_11_0_arm64.whl
@@ -6306,7 +6306,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b0/42/327554649ed2dd5ce59d3f5da176c7be20f9352c7c6c51597293660b7b08/language_tags-1.2.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/68/a58b31f25c42fe052d7e7a0fc27d96d20c88b171070acc7b5d3cd553db0e/litellm-1.74.0.post1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/44/5e/3df632ff3752770cbf74ef024a0b5b3746762a6d9e0c11aa4c825e95cac1/maxminddb-2.7.0-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/29/15/b6b2b49b4e5e17f0d2c1006d609b8adb13aa96944c6b8b5eb02a39df99a4/NREL_rex-0.2.98-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/0c/dd/f0183ed0145e58cf9d286c1b2c14f63ccee987a4ff79ac85acc31b5d86bd/primp-0.15.0-cp38-abi3-win_amd64.whl
@@ -6526,7 +6526,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/1f/a3/0a485b7f36e422421b17e2bbb5a81c1af10eac1d4476f2ff92927c730479/multidict-6.6.3-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/eb/8d/776adee7bbf76365fdd7f2552710282c79a4ead5d2a46408c9043a2b70ba/networkx-3.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/52/98/59c46ffa5a502ed3bea2c1104bbee4d8270e977f05415286ec35877998bc/nrel_rex-0.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/50/30/af1b277b443f2fb08acf1c55ce9d68ee540043f158630d62cef012750f9f/numpy-2.3.1-cp313-cp313-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/64/4f/875e5af1fb4e5ed4ea9e4a88f482d9ca2e48932105605b6c516e9a14de25/openai-1.93.1-py3-none-any.whl
@@ -6773,7 +6773,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/07/8f/cbe241b0434cfe257f65c2b1bcf9e8d5fb52bc708c5061fb29b0fed22bdf/multidict-6.6.3-cp313-cp313-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/eb/8d/776adee7bbf76365fdd7f2552710282c79a4ead5d2a46408c9043a2b70ba/networkx-3.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/52/98/59c46ffa5a502ed3bea2c1104bbee4d8270e977f05415286ec35877998bc/nrel_rex-0.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d4/bd/35ad97006d8abff8631293f8ea6adf07b0108ce6fec68da3c3fcca1197f2/numpy-2.3.1-cp313-cp313-macosx_10_13_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/64/4f/875e5af1fb4e5ed4ea9e4a88f482d9ca2e48932105605b6c516e9a14de25/openai-1.93.1-py3-none-any.whl
@@ -7022,7 +7022,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/32/d2/0b3b23f9dbad5b270b22a3ac3ea73ed0a50ef2d9a390447061178ed6bdb8/multidict-6.6.3-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/eb/8d/776adee7bbf76365fdd7f2552710282c79a4ead5d2a46408c9043a2b70ba/networkx-3.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/52/98/59c46ffa5a502ed3bea2c1104bbee4d8270e977f05415286ec35877998bc/nrel_rex-0.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/f1/4f/df5923874d8095b6062495b39729178eef4a922119cee32a12ee1bd4664c/numpy-2.3.1-cp313-cp313-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/64/4f/875e5af1fb4e5ed4ea9e4a88f482d9ca2e48932105605b6c516e9a14de25/openai-1.93.1-py3-none-any.whl
@@ -7256,7 +7256,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/cf46e73f5d6e3c775cabd2a05976547f3f18b39bee06260369a42501f053/multidict-6.6.3-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/eb/8d/776adee7bbf76365fdd7f2552710282c79a4ead5d2a46408c9043a2b70ba/networkx-3.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/4d/66/7d9e26593edda06e8cb531874633f7c2372279c3b0f46235539fe546df8b/nltk-3.9.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+      - pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/52/98/59c46ffa5a502ed3bea2c1104bbee4d8270e977f05415286ec35877998bc/nrel_rex-0.4.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/dd/c8/beaba449925988d415efccb45bf977ff8327a02f655090627318f6398c7b/numpy-2.3.1-cp313-cp313-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/64/4f/875e5af1fb4e5ed4ea9e4a88f482d9ca2e48932105605b6c516e9a14de25/openai-1.93.1-py3-none-any.whl
@@ -18456,14 +18456,14 @@ packages:
   timestamp: 1733408419340
 - pypi: ./
   name: nrel-compass
-  version: 0.6.4.dev111+gc441e86.d20250707
-  sha256: 8cbe60ea5a9eb304632e11bfbdd7304af40914d0682b6a5b16bd4bf9b9e40a03
+  version: 0.7.1.dev2+g64aa225.d20250708
+  sha256: 64525200bdac8180c3bbba2497333fcdc6bbceb77e533ea09ebb61929243e3a4
   requires_dist:
   - click>=8.1.7,<9
   - langchain>=0.3.7,<0.4
   - networkx>=3.4.2,<4
   - nltk>=3.9.1,<4
-  - nrel-elm>=0.0.21,<1
+  - nrel-elm>=0.0.22,<1
   - openai>=1.1.0
   - pandas>=2.2.3,<3
   - pyjson5>=1.6.8,<2
@@ -18498,10 +18498,10 @@ packages:
   - twine>=6.1.0,<7 ; extra == 'build'
   requires_python: '>=3.12'
   editable: true
-- pypi: https://files.pythonhosted.org/packages/03/7c/c3bfae932a21f9f31671f6e43bffc4eb53855d5f114924a86fe800fe4c2a/NREL_elm-0.0.21-py3-none-any.whl
+- pypi: https://files.pythonhosted.org/packages/8a/18/f5d373b1bcae8f886a0a0f42bcc1fa9855a2b4ced4a454509e5615e397f7/NREL_elm-0.0.22-py3-none-any.whl
   name: nrel-elm
-  version: 0.0.21
-  sha256: e400ecf31a539f30addc5bed7e9298dc00e68d3dade5adcd92b3ef8b5d3499b3
+  version: 0.0.22
+  sha256: c3aba06e5a27037ac10e2d86c76291491ef682d0de40a7fa79f8b150b8c0d3a4
   requires_dist:
   - openai>=1.1.0
   - aiohttp
