@@ -5,68 +5,78 @@
  -->
 <!-- Title: g Pages: 1 -->
 <svg width="1096pt" height="1492pt"
- viewBox="0.00 0.00 1096.25 1491.75" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1487.75)">
+ viewBox="0.00 0.00 1096.25 1491.50" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 1487.5)">
 <title>g</title>
-<polygon fill="white" stroke="none" points="-4,4 -4,-1487.75 1092.25,-1487.75 1092.25,4 -4,4"/>
+<polygon fill="white" stroke="none" points="-4,4 -4,-1487.5 1092.25,-1487.5 1092.25,4 -4,4"/>
 <!-- archive -->
 <g id="node1" class="node">
 <title>archive</title>
-<text text-anchor="start" x="294.5" y="-1466.25" font-family="Times,serif" font-size="10.00"> </text>
-<polygon fill="#e5e5e5" stroke="none" points="299.5,-1460 299.5,-1478.75 503,-1478.75 503,-1460 299.5,-1460"/>
-<polygon fill="none" stroke="black" points="299.5,-1460 299.5,-1478.75 503,-1478.75 503,-1460 299.5,-1460"/>
-<text text-anchor="start" x="379.5" y="-1466.25" font-family="Times,serif" font-size="10.00"> archive </text>
-<text text-anchor="start" x="301.5" y="-1448.5" font-family="Times,serif" font-size="10.00"> id </text>
-<text text-anchor="start" x="392.5" y="-1448.5" font-family="Times,serif" font-size="10.00"> serial </text>
-<text text-anchor="start" x="456.5" y="-1448.5" font-family="Times,serif" font-size="10.00"> PK </text>
-<text text-anchor="start" x="480.75" y="-1448.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1448.5" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1431.75" font-family="Times,serif" font-size="10.00"> source </text>
-<text text-anchor="start" x="392.5" y="-1431.75" font-family="Times,serif" font-size="10.00"> varchar </text>
-<text text-anchor="start" x="456.5" y="-1431.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1431.75" font-family="Times,serif" font-size="10.00"> FK </text>
-<text text-anchor="start" x="505" y="-1431.75" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1415" font-family="Times,serif" font-size="10.00"> effective_day </text>
-<text text-anchor="start" x="392.5" y="-1415" font-family="Times,serif" font-size="10.00"> integer </text>
-<text text-anchor="start" x="456.5" y="-1415" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1415" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1415" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1398.25" font-family="Times,serif" font-size="10.00"> effective_month </text>
-<text text-anchor="start" x="392.5" y="-1398.25" font-family="Times,serif" font-size="10.00"> integer </text>
-<text text-anchor="start" x="456.5" y="-1398.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1398.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1398.25" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1381.5" font-family="Times,serif" font-size="10.00"> effective_year </text>
-<text text-anchor="start" x="392.5" y="-1381.5" font-family="Times,serif" font-size="10.00"> integer </text>
-<text text-anchor="start" x="456.5" y="-1381.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1381.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1381.5" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1364.75" font-family="Times,serif" font-size="10.00"> filename </text>
-<text text-anchor="start" x="392.5" y="-1364.75" font-family="Times,serif" font-size="10.00"> varchar </text>
-<text text-anchor="start" x="456.5" y="-1364.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1364.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1364.75" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1348" font-family="Times,serif" font-size="10.00"> num_pages </text>
-<text text-anchor="start" x="392.5" y="-1348" font-family="Times,serif" font-size="10.00"> integer </text>
-<text text-anchor="start" x="456.5" y="-1348" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1348" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1348" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1331.25" font-family="Times,serif" font-size="10.00"> checksum </text>
-<text text-anchor="start" x="392.5" y="-1331.25" font-family="Times,serif" font-size="10.00"> varchar </text>
-<text text-anchor="start" x="456.5" y="-1331.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1331.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1331.25" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1314.5" font-family="Times,serif" font-size="10.00"> access_time </text>
-<text text-anchor="start" x="392.5" y="-1314.5" font-family="Times,serif" font-size="10.00"> timestamp </text>
-<text text-anchor="start" x="456.5" y="-1314.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1314.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1314.5" font-family="Times,serif" font-size="10.00"> </text>
-<text text-anchor="start" x="301.5" y="-1297.75" font-family="Times,serif" font-size="10.00"> created_at </text>
-<text text-anchor="start" x="392.5" y="-1297.75" font-family="Times,serif" font-size="10.00"> timestamp </text>
-<text text-anchor="start" x="456.5" y="-1297.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="480.75" y="-1297.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
-<text text-anchor="start" x="505" y="-1297.75" font-family="Times,serif" font-size="10.00"> </text>
-<polygon fill="none" stroke="black" points="291.5,-1291.5 291.5,-1479.75 511,-1479.75 511,-1291.5 291.5,-1291.5"/>
+<text text-anchor="start" x="294.5" y="-1466" font-family="Times,serif" font-size="10.00"> </text>
+<polygon fill="#e5e5e5" stroke="none" points="299.5,-1459.75 299.5,-1478.5 503,-1478.5 503,-1459.75 299.5,-1459.75"/>
+<polygon fill="none" stroke="black" points="299.5,-1459.75 299.5,-1478.5 503,-1478.5 503,-1459.75 299.5,-1459.75"/>
+<text text-anchor="start" x="379.5" y="-1466" font-family="Times,serif" font-size="10.00"> archive </text>
+<text text-anchor="start" x="301.5" y="-1448.25" font-family="Times,serif" font-size="10.00"> id </text>
+<text text-anchor="start" x="392.5" y="-1448.25" font-family="Times,serif" font-size="10.00"> serial </text>
+<text text-anchor="start" x="456.5" y="-1448.25" font-family="Times,serif" font-size="10.00"> PK </text>
+<text text-anchor="start" x="480.75" y="-1448.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1448.25" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1431.5" font-family="Times,serif" font-size="10.00"> source </text>
+<text text-anchor="start" x="392.5" y="-1431.5" font-family="Times,serif" font-size="10.00"> varchar </text>
+<text text-anchor="start" x="456.5" y="-1431.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1431.5" font-family="Times,serif" font-size="10.00"> FK </text>
+<text text-anchor="start" x="505" y="-1431.5" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1414.75" font-family="Times,serif" font-size="10.00"> effective_day </text>
+<text text-anchor="start" x="392.5" y="-1414.75" font-family="Times,serif" font-size="10.00"> integer </text>
+<text text-anchor="start" x="456.5" y="-1414.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1414.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1414.75" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1398" font-family="Times,serif" font-size="10.00"> effective_month </text>
+<text text-anchor="start" x="392.5" y="-1398" font-family="Times,serif" font-size="10.00"> integer </text>
+<text text-anchor="start" x="456.5" y="-1398" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1398" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1398" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1381.25" font-family="Times,serif" font-size="10.00"> effective_year </text>
+<text text-anchor="start" x="392.5" y="-1381.25" font-family="Times,serif" font-size="10.00"> integer </text>
+<text text-anchor="start" x="456.5" y="-1381.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1381.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1381.25" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1364.5" font-family="Times,serif" font-size="10.00"> filename </text>
+<text text-anchor="start" x="392.5" y="-1364.5" font-family="Times,serif" font-size="10.00"> varchar </text>
+<text text-anchor="start" x="456.5" y="-1364.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1364.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1364.5" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1347.75" font-family="Times,serif" font-size="10.00"> num_pages </text>
+<text text-anchor="start" x="392.5" y="-1347.75" font-family="Times,serif" font-size="10.00"> integer </text>
+<text text-anchor="start" x="456.5" y="-1347.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1347.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1347.75" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1331" font-family="Times,serif" font-size="10.00"> checksum </text>
+<text text-anchor="start" x="392.5" y="-1331" font-family="Times,serif" font-size="10.00"> varchar </text>
+<text text-anchor="start" x="456.5" y="-1331" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1331" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1331" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1314.25" font-family="Times,serif" font-size="10.00"> is_pdf </text>
+<text text-anchor="start" x="392.5" y="-1314.25" font-family="Times,serif" font-size="10.00"> boolean </text>
+<text text-anchor="start" x="456.5" y="-1314.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1314.25" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1314.25" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1297.5" font-family="Times,serif" font-size="10.00"> from_ocr </text>
+<text text-anchor="start" x="392.5" y="-1297.5" font-family="Times,serif" font-size="10.00"> boolean </text>
+<text text-anchor="start" x="456.5" y="-1297.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1297.5" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1297.5" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1280.75" font-family="Times,serif" font-size="10.00"> access_time </text>
+<text text-anchor="start" x="392.5" y="-1280.75" font-family="Times,serif" font-size="10.00"> timestamp </text>
+<text text-anchor="start" x="456.5" y="-1280.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1280.75" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1280.75" font-family="Times,serif" font-size="10.00"> </text>
+<text text-anchor="start" x="301.5" y="-1264" font-family="Times,serif" font-size="10.00"> created_at </text>
+<text text-anchor="start" x="392.5" y="-1264" font-family="Times,serif" font-size="10.00"> timestamp </text>
+<text text-anchor="start" x="456.5" y="-1264" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="480.75" y="-1264" font-family="Times,serif" font-size="10.00"> &#160;</text>
+<text text-anchor="start" x="505" y="-1264" font-family="Times,serif" font-size="10.00"> </text>
+<polygon fill="none" stroke="black" points="291.5,-1257.75 291.5,-1479.5 511,-1479.5 511,-1257.75 291.5,-1257.75"/>
 </g>
 <!-- source -->
 <g id="node3" class="node">
@@ -155,8 +165,8 @@
 <!-- archive&#45;&gt;source -->
 <g id="edge1" class="edge">
 <title>archive:rtcol2&#45;&gt;source:ltcol1</title>
-<path fill="none" stroke="black" d="M511,-1434.88C548.85,-1434.88 561.08,-1435.38 593.93,-1435.48"/>
-<polygon fill="black" stroke="black" points="593.86,-1438.98 603.86,-1435.5 593.87,-1431.98 593.86,-1438.98"/>
+<path fill="none" stroke="black" d="M511,-1434.62C548.85,-1434.62 561.08,-1435.34 593.93,-1435.48"/>
+<polygon fill="black" stroke="black" points="593.85,-1438.98 603.86,-1435.5 593.87,-1431.98 593.85,-1438.98"/>
 </g>
 <!-- bookkeeper -->
 <g id="node2" class="node">

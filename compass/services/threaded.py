@@ -12,6 +12,7 @@ from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
+from elm.web.document import PDFDocument
 from elm.web.utilities import write_url_doc_to_file
 
 from compass import COMPASS_DEBUG_LEVEL
@@ -526,6 +527,8 @@ def _compile_doc_info(doc):
         "ord_filename": Path(doc.attrs.get("out_fp", "Unknown")).name,
         "num_pages": len(doc.pages),
         "checksum": doc.attrs.get("checksum"),
+        "is_pdf": isinstance(doc, PDFDocument),
+        "from_ocr": doc.attrs.get("from_ocr", False),
     }
 
 

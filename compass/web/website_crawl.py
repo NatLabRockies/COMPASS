@@ -25,6 +25,7 @@ from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
+from elm.web.document import PDFDocument
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
 
@@ -337,7 +338,7 @@ class COMPASSCrawler:
             logger.exception(msg, err_type, link)
             return False
 
-        if doc.FILE_EXTENSION == "pdf":
+        if isinstance(doc, PDFDocument):
             logger.debug("    - Found PDF!")
             doc.attrs[_DEPTH_KEY] = depth
             doc.attrs[_SCORE_KEY] = score

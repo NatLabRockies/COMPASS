@@ -77,6 +77,10 @@ pub(super) struct Document {
     num_pages: u16,
     /// Checksum of the original raw document
     checksum: String,
+    /// Whether the document is a PDF file
+    is_pdf: bool,
+    /// Whether the document text was parsed using OCR
+    from_ocr: bool,
     #[allow(dead_code)]
     /// When the document was obtained, i.e. downloaded.
     access_time: Option<String>,
@@ -105,6 +109,8 @@ impl Source {
             filename TEXT,
             num_pages INTEGER,
             checksum TEXT,
+            is_pdf BOOLEAN,
+            from_ocr BOOLEAN,
             access_time TIMESTAMP,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             );",
@@ -258,8 +264,8 @@ impl Source {
                     r"
                     INSERT INTO archive
                     (source, effective_day, effective_month, effective_year, filename, num_pages,
-                      checksum)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                      checksum, is_pdf, from_ocr)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                     RETURNING id",
                 )?;
 
@@ -274,6 +280,8 @@ impl Source {
                             document.ord_filename,
                             document.num_pages,
                             document.checksum,
+                            document.is_pdf,
+                            document.from_ocr,
                         ])?
                         .next()
                         .unwrap()
@@ -408,7 +416,9 @@ pub(crate) mod sample {
                             "effective_day": null,
                             "ord_filename": "sample_ordinance.pdf",
                             "num_pages": 10,
-                            "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                            "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+                            "is_pdf": true,
+                            "from_ocr": false
                         }
                     ]
                 }

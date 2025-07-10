@@ -82,12 +82,14 @@ def _read_pdf(pdf_bytes, **kwargs):
 
 
 def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
-    """Utility function that mimics `_read_pdf`."""
+    """Utility function that mimics `_read_pdf`"""
     if tesseract_cmd:
         _configure_pytesseract(tesseract_cmd)
 
     pages = read_pdf_ocr(pdf_bytes, verbose=False)
-    return PDFDocument(pages, **kwargs)
+    doc = PDFDocument(pages, **kwargs)
+    doc.attrs["from_ocr"] = True
+    return doc
 
 
 def _configure_pytesseract(tesseract_cmd):
@@ -98,7 +100,7 @@ def _configure_pytesseract(tesseract_cmd):
 
 
 async def read_pdf_doc(pdf_bytes, **kwargs):
-    """Read PDF file from bytes in a Process Pool.
+    """Read PDF file from bytes in a Process Pool
 
     Parameters
     ----------
