@@ -59,9 +59,9 @@ fn main() -> Result<()> {
                         .short('f')
                         .long("format")
                         .help("Format to export, ex.: 'csv' or 'json'")
-                        .value_parser(["csv", "json", "gpkg", "gpq"])
-                        .default_value("csv")
-                        .default_missing_value("csv"),
+                        .value_parser(["csv", "revx", "json", "gpkg", "gpq"])
+                        .default_value("revx")
+                        .default_missing_value("revx"),
                 ),
         )
         .subcommand(Command::new("log").about("Show the history of the database"))
@@ -129,7 +129,7 @@ fn main() -> Result<()> {
             );
             trace!("Output file created: {:?}", &wrt);
 
-            infra_compass_db::export(&mut wrt, db)?;
+            infra_compass_db::export(&mut wrt, db, format, technology)?;
         }
         Some("load") => {
             trace!("Subcommand load");

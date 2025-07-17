@@ -169,47 +169,85 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
 #[allow(dead_code, non_snake_case)]
 #[derive(Debug, Serialize)]
-struct QuantitativeRecord {
-    county: String,
-    state: String,
-    subdivison: Option<String>,
-    jurisdiction_type: Option<String>,
+/// Ordinance record that combines quantitative and qualitative
+///
+/// It is currently used for handle reVX ordinance for reVX standard only
+/// but we might expand this in the future to handle more complete outputs.
+struct OrdinanceRecord {
+    /// FIPS code of the jurisdiction
     FIPS: u32,
+    /// Feature type, e.g., "setback", "height", etc.
     feature: String,
-    value: f64,
-    units: Option<String>,
-    summary: Option<String>,
-    source: Option<String>,
+    /// Feature subtype, currently not used but required by reVX standard.
+    feature_subtype: Option<String>,
+    /// Quantitative feature value, e.g., 3.14
+    quantitative: Option<f64>,
+    /// Qualitative feature value, e.g., "color of the tips of the blades"
+    qualitative: Option<String>,
+}
+
+#[derive(Debug)]
+/// Technologies supported by the ordinance database
+enum Technology {
+    /// Everything related to wind energy
+    Wind,
+    /// Everything related to solar energy
+    Solar,
+}
+
+impl std::fmt::Display for Technology {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        match self {
+            Technology::Wind => write!(f, "wind"),
+            Technology::Solar => write!(f, "solar"),
+        }
+    }
+}
+
+impl std::convert::TryFrom<&str> for Technology {
+    type Error = error::Error;
+
+    fn try_from(s: &str) -> Result<Self> {
+        match s {
+            "wind" => Ok(Technology::Wind),
+            "solar" => Ok(Technology::Solar),
+            _ => Err(error::Error::Undefined(format!("Unknown technology: {s}"))),
+        }
+    }
 }
 
 /// Export the database
 ///
 /// Currently, it is a proof of concept. It reads the database and prints
 /// some fields to the standard output in CSV format.
-pub fn export<W: std::io::Write>(wtr: &mut W, db_filename: &str) -> Result<()> {
+pub fn export<W: std::io::Write>(
+    wtr: &mut W,
+    db_filename: &str,
+    format: &str,
+    technology: &str,
+) -> Result<()> {
     trace!("Exporting database: {:?}", db_filename);
+    // Not used yet, but ready for future use
+    trace!("Export format: {:?}", format);
+
+    let technology = Technology::try_from(technology)?;
 
     let conn = Connection::open(db_filename)?;
     trace!("Database opened: {:?}", &conn);
 
     let mut stmt = conn
-        .prepare("SELECT county, state, subdivison, jurisdiction_type, FIPS, feature, value, units, summary, source from quantitative;"
+        .prepare( &format!("SELECT FIPS, feature, feature_subtype, quantitative, qualitative FROM ordinance JOIN scraper_metadata ON (ordinance.bookkeeper_lnk=scraper_metadata.bookkeeper_lnk) WHERE scraper_metadata.technology='{technology}' ORDER BY FIPS, feature;")
             )
         .expect("Failed to prepare statement");
     //dbg!("Row count", stmt.row_count());
     let row_iter = stmt
         .query_map([], |row| {
-            Ok(QuantitativeRecord {
-                county: row.get(0)?,
-                state: row.get(1)?,
-                subdivison: row.get(2)?,
-                jurisdiction_type: row.get(3)?,
-                FIPS: row.get(4)?,
-                feature: row.get(5)?,
-                value: row.get(6)?,
-                units: row.get(7)?,
-                summary: row.get(8)?,
-                source: row.get(9)?,
+            Ok(OrdinanceRecord {
+                FIPS: row.get(0)?,
+                feature: row.get(1)?,
+                feature_subtype: row.get(2)?,
+                quantitative: row.get(3)?,
+                qualitative: row.get(4)?,
             })
         })
         .expect("Failed to query");

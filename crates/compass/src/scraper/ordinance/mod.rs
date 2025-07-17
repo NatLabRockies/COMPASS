@@ -3,7 +3,7 @@
 mod qualitative;
 mod quantitative;
 
-use tracing::trace;
+use tracing::{debug, trace};
 
 use crate::error::Result;
 
@@ -15,10 +15,25 @@ pub(super) struct Ordinance {
 
 impl Ordinance {
     pub(super) fn init_db(conn: &duckdb::Transaction) -> Result<()> {
-        trace!("Initializing database for Ordinance");
+        debug!("Initializing database for Ordinance");
 
         quantitative::Quantitative::init_db(conn)?;
         qualitative::Qualitative::init_db(conn)?;
+
+        trace!("Creating ordinance view combining quantiative and qualitative data");
+        // Adding bookkeeper_lnk to allow linking with technology for now,
+        // but this will change in the future.
+        conn.execute_batch(
+            r"
+            CREATE VIEW IF NOT EXISTS ordinance AS
+              SELECT bookkeeper_lnk, FIPS, feature, NULL as feature_subtype,
+                value AS 'quantitative', NULL AS 'qualitative'
+              FROM quantitative
+              UNION
+                SELECT bookkeeper_lnk, FIPS, feature, NULL as feature_subtype,
+                  NULL AS 'quantitative', summary AS 'qualitative'
+                FROM qualitative;",
+        )?;
 
         trace!("Database ready for Ordinance");
         Ok(())
