@@ -7,6 +7,8 @@
 use std::collections::HashMap;
 use std::io::Read;
 
+use tracing::debug;
+
 use crate::error::Result;
 
 #[allow(dead_code)]
@@ -108,7 +110,7 @@ impl Usage {
     /// this should be changed to a lazy approach and take better advantage of
     /// been async.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        tracing::trace!("Opening Usage from {:?}", root.as_ref());
+        debug!("Opening Usage from {:?}", root.as_ref());
 
         let path = root.as_ref().join("usage.json");
         if !path.exists() {

@@ -41,11 +41,15 @@ impl Ordinance {
 
     /// Open the quantitative ordinance from scrapped output
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Ordinance> {
-        trace!("Opening quantitative ordinance of {:?}", root.as_ref());
+        debug!("Opening ordinance from {:?}", root.as_ref());
 
+        let (quantitative, qualitative) = tokio::try_join!(
+            quantitative::Quantitative::open(root.as_ref()),
+            qualitative::Qualitative::open(root.as_ref())
+        )?;
         let ordinance = Ordinance {
-            quantitative: quantitative::Quantitative::open(root.as_ref()).await?,
-            qualitative: qualitative::Qualitative::open(root.as_ref()).await?,
+            quantitative,
+            qualitative,
         };
 
         trace!("Opened ordinance: {:?}", ordinance);

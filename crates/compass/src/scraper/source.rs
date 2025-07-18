@@ -165,7 +165,7 @@ impl Source {
     ///
     /// * `root` - The root directory where the scrapped output is located.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        debug!("Opening source documents");
+        debug!("Opening source documents from {:?}", root.as_ref());
 
         trace!("Opening jurisdictions collection");
 
@@ -221,7 +221,7 @@ impl Source {
         trace!("Waiting for all jobs to complete");
         let inventory = jobs.join_all().await;
         trace!("Inventory of files: {:?}", inventory);
-        debug!("Found a total of {} source documents", inventory.len());
+        debug!("Finished reading {} source documents", inventory.len());
 
         for file in inventory {
             match file {

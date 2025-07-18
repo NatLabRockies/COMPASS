@@ -78,7 +78,7 @@ pub fn init_db(path: &str) -> Result<()> {
     )?;
 
     let conn = db.transaction()?;
-    scraper::ScrappedOrdinance::init_db(&conn)?;
+    scraper::ScrapedOrdinance::init_db(&conn)?;
     conn.commit()?;
 
     println!("{}", db.is_autocommit());
@@ -111,26 +111,20 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 
     tracing::debug!("Commit id: {:?}", commit_id);
 
-    /*
-    dbg!(&ordinance_path);
-    let raw_filename = ordinance_path.as_ref().join("ord_db.csv");
-    dbg!(&raw_filename);
-    dbg!("========");
-    */
-
-    let rt = tokio::runtime::Builder::new_current_thread()
+    let runtime = tokio::runtime::Builder::new_current_thread()
         .enable_all()
         .build()
         .unwrap();
 
-    let ordinance = rt
-        .block_on(scraper::ScrappedOrdinance::open(ordinance_path))
+    let ordinance = runtime
+        .block_on(scraper::ScrapedOrdinance::open(ordinance_path))
         .unwrap();
     conn.commit().unwrap();
     tracing::debug!("Transaction committed");
 
     trace!("Ordinance: {:?}", ordinance);
-    rt.block_on(ordinance.push(&mut database, commit_id))
+    runtime
+        .block_on(ordinance.push(&mut database, commit_id))
         .unwrap();
 
     /*

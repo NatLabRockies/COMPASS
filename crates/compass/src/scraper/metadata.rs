@@ -6,6 +6,8 @@
 
 use std::collections::HashMap;
 
+use tracing::debug;
+
 use crate::error::Result;
 
 // An arbitrary limit to protect against maliciously large JSON files
@@ -93,7 +95,7 @@ impl Metadata {
     }
 
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        tracing::trace!("Opening Metadata of {:?}", root.as_ref());
+        debug!("Opening Metadata from {:?}", root.as_ref());
 
         let path = root.as_ref().join("meta.json");
         if !path.exists() {
