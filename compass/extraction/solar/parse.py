@@ -86,6 +86,9 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "repowering": (
         "requirements or regulations specific to **repowering** of the system"
     ),
+    "fencing": "fencing requirements",
+    "signage": "signage requirements",
+    "soil": "soil, erosion, and/or sediment control requirements",
 }
 UNIT_CLARIFICATIONS = {
     "noise": (
@@ -299,7 +302,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             output = {"feature": feature}
             output.update(
                 await self._extract_setback_values(
-                    text,
+                    text=text,
                     base_messages=base_messages,
                     **feature_kwargs,
                 )

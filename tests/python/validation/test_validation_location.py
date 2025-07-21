@@ -100,7 +100,9 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
         (
             Jurisdiction("county", state="Indiana", county="Decatur"),
             "Decatur Indiana.pdf",
-            True,
+            # Doesn't actually mention Indiana state
+            # - could be Decatur, Georgia for example
+            False,
         ),
         (
             Jurisdiction("county", state="South Dakota", county="Hamlin"),
@@ -144,9 +146,189 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
             "Allegany New York.pdf",
             True,
         ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Cattaraugus",
+                subdivision_name="Allegany",
+            ),
+            "Allegany New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Allegany",
+                subdivision_name="Allen",
+            ),
+            "Allegany New York.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Minnesota", county="Norman"),
+            "Grant Minnesota.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Minnesota", county="Grant"),
+            "Grant Minnesota.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Minnesota", county="Becker"),
+            "Becker Minnesota.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("city", state="Minnesota", subdivision_name="Becker"),
+            "Becker Minnesota.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Kansas", county="Douglas"),
+            "Douglas Kansas.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Illinois", county="Douglas"),
+            "Douglas Kansas.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Missouri", county="Douglas"),
+            "Douglas Kansas.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Washington", county="Douglas"),
+            "Douglas Kansas.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Indiana", county="Randolph"),
+            "Randolph Indiana.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="North Carolina", county="Randolph"),
+            "Randolph Indiana.pdf",
+            False,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Broome",
+                subdivision_name="Binghamton",
+            ),
+            "Binghamton New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Dutchess",
+                subdivision_name="Dover",
+            ),
+            "Dover New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="Massachusetts",
+                county="Norfolk",
+                subdivision_name="Dover",
+            ),
+            "Dover New York.pdf",
+            False,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="Michigan",
+                county="Branch",
+                subdivision_name="Ovid",
+            ),
+            "Ovid Michigan.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Seneca",
+                subdivision_name="Ovid",
+            ),
+            "Ovid Michigan.pdf",
+            False,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Greene",
+                subdivision_name="Windham",
+            ),
+            "Windham New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="Vermont",
+                county="Windham",
+                subdivision_name="Windham",
+            ),
+            "Windham New York.pdf",
+            False,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Albany",
+                subdivision_name="Berne",
+            ),
+            "Berne New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="Massachusetts",
+                county="Barnstable",
+                subdivision_name="Bourne",
+            ),
+            "Bourne Massachusetts.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="New York",
+                county="Allegany",
+                subdivision_name="Caneadea",
+            ),
+            "Caneadea New York.pdf",
+            True,
+        ),
+        (
+            Jurisdiction(
+                "town",
+                state="Maine",
+                county="Oxford",
+                subdivision_name="Denmark",
+            ),
+            "Denmark Maine.pdf",
+            True,
+        ),
     ],
 )
-async def test_doc_text_matches_jurisdiction(
+async def test_doc_text_matches_jurisdiction_pdf(
     oai_llm_service, loc, doc_fn, truth, doc_loader
 ):
     """Test the `DTreeJurisdictionValidator` class"""
@@ -162,17 +344,70 @@ async def test_doc_text_matches_jurisdiction(
     SHOULD_SKIP or not PYT_CMD,
     reason="requires Azure OpenAI key *and* PyTesseract command to be set",
 )
+@pytest.mark.parametrize(
+    "loc,doc_fn,truth",
+    [
+        (
+            Jurisdiction("county", state="Kansas", county="Sedgwick"),
+            "Sedgwick Kansas.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Maryland", county="Carroll"),
+            "Carroll Maryland.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Illinois", county="Carroll"),
+            "Carroll Maryland.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Indiana", county="Carroll"),
+            "Carroll Maryland.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Mississippi", county="Carroll"),
+            "Carroll Maryland.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Colorado", county="Logan"),
+            "Logan Colorado.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Kansas", county="Logan"),
+            "Logan Colorado.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Indiana", county="Wabash"),
+            "Wabash Indiana.pdf",
+            True,
+        ),
+        (
+            Jurisdiction("county", state="Illinois", county="Wabash"),
+            "Wabash Indiana.pdf",
+            False,
+        ),
+        (
+            Jurisdiction("county", state="Missouri", county="Wayne"),
+            "Wayne Georgia.pdf",
+            False,
+        ),
+    ],
+)
 async def test_doc_text_matches_jurisdiction_ocr(
-    oai_llm_service, test_data_dir
+    oai_llm_service, test_data_dir, loc, doc_fn, truth
 ):
     """Test the `DTreeJurisdictionValidator` class for scanned doc"""
     import pytesseract  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = PYT_CMD
 
-    loc = Jurisdiction("county", state="Kansas", county="Sedgwick")
-
-    doc_fp = test_data_dir / "Sedgwick Kansas.pdf"
+    doc_fp = test_data_dir / doc_fn
     with doc_fp.open("rb") as fh:
         pages = read_pdf_ocr(fh.read())
         doc = PDFDocument(pages)
@@ -180,7 +415,8 @@ async def test_doc_text_matches_jurisdiction_ocr(
     cj_validator = DTreeJurisdictionValidator(
         loc, llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
     )
-    assert await _validator_check_for_doc(doc=doc, validator=cj_validator)
+    out = await _validator_check_for_doc(doc=doc, validator=cj_validator)
+    assert out == truth
 
 
 @flaky(max_runs=3, min_passes=1)

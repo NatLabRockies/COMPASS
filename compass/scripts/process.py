@@ -695,7 +695,7 @@ class _COMPASSRunner:
         usage_tracker=None,
     ):
         """Retrieve ordinance document with async logs"""
-        with LocationFileLog(
+        async with LocationFileLog(
             self.log_listener,
             self.dirs.logs,
             location=jurisdiction.full_name,

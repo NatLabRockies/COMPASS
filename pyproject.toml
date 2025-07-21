@@ -36,7 +36,7 @@ dependencies = [
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.22,<1",
+  "nrel-elm>=0.0.23,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pyjson5>=1.6.8,<2",
@@ -182,7 +182,7 @@ pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 # These are all ELM dependencies explicitly enumerated
 camoufox = ">=0.4.11,<0.5"
 crawl4ai = ">=0.6.3"
-duckduckgo-search = ">=7.3.0,<8"
+ddgs = ">=9.2.3,<10"
 rebrowser-playwright = ">=1.47.0,<2"
 scrapling = ">=0.2.99,<0.3"
 tavily-python = ">=0.5.0,<0.6"

@@ -84,6 +84,10 @@ pub(super) struct Document {
     #[allow(dead_code)]
     /// When the document was obtained, i.e. downloaded.
     access_time: Option<String>,
+    /// N-gram score for extracting ordinance text
+    ordinance_text_ngram_score: Option<f64>,
+    /// N-gram score for extracting permitted uses text
+    permitted_use_text_ngram_score: Option<f64>,
 }
 
 impl Source {
@@ -112,6 +116,8 @@ impl Source {
             is_pdf BOOLEAN,
             from_ocr BOOLEAN,
             access_time TIMESTAMP,
+            ordinance_text_ngram_score REAL,
+            permitted_use_text_ngram_score REAL,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             );",
         )?;
@@ -264,8 +270,8 @@ impl Source {
                     r"
                     INSERT INTO archive
                     (source, effective_day, effective_month, effective_year, filename, num_pages,
-                      checksum, is_pdf, from_ocr)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                      checksum, is_pdf, from_ocr, ordinance_text_ngram_score, permitted_use_text_ngram_score)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     RETURNING id",
                 )?;
 
@@ -282,6 +288,8 @@ impl Source {
                             document.checksum,
                             document.is_pdf,
                             document.from_ocr,
+                            document.ordinance_text_ngram_score,
+                            document.permitted_use_text_ngram_score,
                         ])?
                         .next()
                         .unwrap()
@@ -418,7 +426,9 @@ pub(crate) mod sample {
                             "num_pages": 10,
                             "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
                             "is_pdf": true,
-                            "from_ocr": false
+                            "from_ocr": false,
+                            "ordinance_text_ngram_score": 0.95,
+                            "permitted_use_text_ngram_score": null
                         }
                     ]
                 }

@@ -25,7 +25,7 @@ from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
-from elm.web.document import PDFDocument
+from elm.web.document import PDFDocument, HTMLDocument
 from elm.web.file_loader import AsyncFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
 
@@ -258,10 +258,7 @@ class COMPASSCrawler:
         self._already_visited[link] = (depth, score)
         logger.trace("self._already_visited=%r", self._already_visited)
 
-        if (
-            link not in self.checked_previously
-            and await self._website_link_is_pdf(link, depth, score)
-        ):
+        if await self._website_link_is_doc(link, depth, score):
             return
 
         num_urls_checked_on_this_page = 0
@@ -321,6 +318,25 @@ class COMPASSCrawler:
             base_domain=base_url,
         )
 
+    async def _website_link_is_doc(self, link, depth, score):
+        """Check if website link contains doc"""
+        if link in self.checked_previously and link.consistent_domain:
+            # Don't re-check pages on main website
+            return False
+
+        if await self._website_link_is_pdf(link, depth, score):
+            return True
+
+        # at this point the page is NOT a PDF. However, it could still
+        # just be a normal webpage on the main domain that we haven't
+        # visited before. In that case, just return False
+        if not link.consistent_domain:
+            return False
+
+        # now we are on an external page that we either have not visited
+        # before or that we have seen but determined is NOT a PDF file
+        return await self._website_link_as_html_doc(link, depth, score)
+
     async def _website_link_is_pdf(self, link, depth, score):
         """Fetch page content; keep only PDFs"""
         logger.debug("Loading Link: %s", link)
@@ -347,11 +363,25 @@ class COMPASSCrawler:
 
         return False
 
+    async def _website_link_as_html_doc(self, link, depth, score):
+        """Fetch page content as HTML doc"""
+        logger.debug("Loading Link as HTML: %s", link)
+        html_text = await self._get_text_no_err(link.href)
+
+        attrs = {_DEPTH_KEY: depth, _SCORE_KEY: score}
+        doc = HTMLDocument([html_text], attrs=attrs)
+        self._out_docs.append(doc)
+        return True
+
     async def _get_links_from_page(self, link, base_url):
         """Get all links from a page sorted by relevance score"""
+        if not link.consistent_domain:
+            logger.debug("Detected new domain, stopping link discovery")
+            return []
+
         html_text = await self._get_text_no_err(link.href)
         page_links = []
-        if html_text and link.consistent_domain:
+        if html_text:
             page_links = _extract_links_from_html(html_text, base_url=base_url)
             page_links = await self.url_scorer(
                 [dict(link) for link in page_links]

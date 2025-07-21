@@ -1,6 +1,8 @@
 """COMPASS Ordinance CPU-bound services"""
 
+import ast
 import asyncio
+import contextlib
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 
@@ -87,7 +89,7 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
         _configure_pytesseract(tesseract_cmd)
 
     pages = read_pdf_ocr(pdf_bytes, verbose=False)
-    doc = PDFDocument(pages, **kwargs)
+    doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True
     return doc
 
@@ -97,6 +99,16 @@ def _configure_pytesseract(tesseract_cmd):
     import pytesseract  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+
+
+def _try_decode_ocr_pages(pages):
+    """Try to decode pages into strings"""
+    decoded_pages = []
+    for page in pages:
+        with contextlib.suppress(Exception):
+            page = ast.literal_eval(page).decode("utf-8")  # noqa: PLW2901
+        decoded_pages.append(page)
+    return decoded_pages
 
 
 async def read_pdf_doc(pdf_bytes, **kwargs):

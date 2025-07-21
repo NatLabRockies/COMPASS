@@ -21,6 +21,38 @@ def setup_graph_correct_document_type(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
+    doc_is_from_ocr = kwargs.pop("doc_is_from_ocr", False)
+
+    is_draft_prompt = [
+        "Does this text appear to be from a document that is currently "
+        "being edited or formatted, such as a draft or work in progress?\n"
+        "\n**Important**:\n"
+    ]
+    if doc_is_from_ocr:
+        is_draft_prompt.append(
+            "* Disregard formatting inconsistencies, typographical errors, or "
+            "visual artifacts (such as OCR noise, broken lines, or unusual "
+            "spacing). These do **not** indicate draft status unless "
+            "supported by actual content-based cues."
+        )
+    is_draft_prompt.append(
+        "* Do **not** assume that a document is a draft simply because it "
+        "refers to amendments, revisions of law, or changing legal "
+        "standards. Many finalized legal documents contain such "
+        "references as part of their normal content.\n"
+        "\nFocus instead on signs of incompleteness or active "
+        "editing, such as (but not limited to):\n"
+        "* Placeholder content (e.g., 'TBD', 'insert text here', etc.)\n"
+        "* Comments or revision marks\n"
+        "* Incomplete sentences or headings\n"
+        "* Unfinished sections or abrupt endings\n"
+        "* Explicit labels like 'draft', 'working version', or 'not "
+        "final'\n\n"
+        "Please begin your answer with **Yes** or **No**, and briefly "
+        "explain your reasoning based only on these content-based signals."
+    )
+    is_draft_prompt = "\n".join(is_draft_prompt)
+
     G = setup_graph_no_nodes(**kwargs)  # noqa: N806
     G.add_node(
         "init",
@@ -129,7 +161,22 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_article", "final", condition=llm_response_starts_with_no)
+    G.add_edge(
+        "is_article", "is_court_doc", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "is_court_doc",
+        prompt=(
+            "Does this text appear to be from a lawsuit, legal complaint, "
+            "application form, or other legal or court document that is not "
+            "intended to detail specific laws, ordinances, and/or "
+            "regulations? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge("is_court_doc", "final", condition=llm_response_starts_with_no)
     G.add_node(
         "final",
         prompt=(
@@ -179,22 +226,63 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         ),
     )
 
-    G.add_edge("init", "is_state", condition=llm_response_starts_with_yes)
+    names_we_want = _jurisdiction_names_to_extract(jurisdiction)
+
+    G.add_edge("init", "has_name", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "has_name",
+        prompt=(
+            "Does the legal text explicitly include enough information to "
+            "reasonably determine the **full name** of the jurisdiction it "
+            f"applies to? We want to know at least {names_we_want}. "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
+        ),
+    )
+
+    G.add_edge("has_name", "is_state", condition=llm_response_starts_with_yes)
     G.add_node(
         "is_state",
         prompt=(
             "Based on the legal text, is it reasonable to conclude that the "
-            "provisions within apply to the entire state of "
-            f"{jurisdiction.state}, either directly or through reference to "
-            "a statewide statute, agency, or regulatory authority? If the "
+            "provisions within apply specifically to the entire state of "
+            f"**{jurisdiction.state}**, either directly or through reference "
+            "to a statewide statute, agency, or regulatory authority? If the "
             "text only applies to a county, municipality, or other local "
-            f"subdivision within {jurisdiction.state}, or if there is no "
+            f"subdivision within {jurisdiction.state}, or if the text applies "
+            "to a different state entirely, or if there is no "
             "reasonable basis to infer statewide application, respond with "
             "'No'. Start your response with 'Yes' or 'No' and briefly explain."
         ),
     )
-    node_to_connect = "is_state"
 
+    if not jurisdiction.county and not jurisdiction.subdivision_name:
+        G.add_edge(
+            "is_state",
+            "has_state_name",
+            condition=llm_response_starts_with_yes,
+        )
+        G.add_edge("is_state", "final", condition=llm_response_starts_with_no)
+        G.add_node(
+            "has_state_name",
+            prompt=(
+                "Based on the legal text, is there clear and specific "
+                "evidence that the ordinance applies specifically to "
+                f"**{jurisdiction.full_name_the_prefixed}**? This could "
+                f"include a direct mention of **{jurisdiction.state}**, a "
+                "title, heading, or citation indicating it's an ordinance for "
+                f"{jurisdiction.state} state, or other language that "
+                f"reasonably ties the text to {jurisdiction.full_name} "
+                "specifically. Generic references such as 'the state' or "
+                "'State Zoning Administrator' are not sufficient on their own "
+                "unless clearly linked to "
+                f"{jurisdiction.full_name_the_prefixed}. "
+                "Start your response with 'Yes' or 'No' and explain briefly."
+            ),
+        )
+        G.add_edge("has_state_name", "final")
+
+    node_to_connect = "is_state"
     if jurisdiction.county:
         G.add_edge(
             node_to_connect, "is_county", condition=llm_response_starts_with_no
@@ -206,21 +294,55 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "is_county",
             prompt=(
                 "Based on the legal text, is it reasonable to conclude that "
-                "the provisions within apply to the entire area governed by "
-                f"{jurisdiction.full_county_phrase} (including unincorporated "
-                "areas), either directly or through reference to a "
-                "county-wide code, planning authority, commission, or joint "
-                "resolution with other local governments? If the provisions "
-                "within the text apply **only** to a subdivision of "
+                "the provisions within apply specifically to "
+                f"**{jurisdiction.full_county_phrase}** "
+                "(incorporated or unincorporated areas), either directly or "
+                "through reference to a county-wide code, planning authority, "
+                "commission, or joint resolution with other local "
+                "governments? If the provisions within the text apply "
+                "**only** to a **subdivision** of "
                 f"{jurisdiction.full_county_phrase} (such as a city or "
-                "township), or the scope is unclear, respond with 'No'. "
+                "township), or the text applies to a different county or "
+                "borough entirely, or if the scope is unclear, respond with "
+                "'No'. "
                 "Start your answer with 'Yes' or 'No' and explain briefly."
             ),
         )
-        G.add_edge(
-            "is_county", "final", condition=llm_response_starts_with_yes
-        )
-        node_to_connect = "is_county"
+        if not jurisdiction.subdivision_name:
+            G.add_edge(
+                "is_county", "final", condition=llm_response_starts_with_no
+            )
+            G.add_edge(
+                "is_county",
+                "has_county_name",
+                condition=llm_response_starts_with_yes,
+            )
+            G.add_node(
+                "has_county_name",
+                prompt=(
+                    "Based on the legal text, is there clear and specific "
+                    "evidence that the ordinance applies specifically to "
+                    f"**{jurisdiction.full_name_the_prefixed}**? This could "
+                    f"include a direct mention of **{jurisdiction.county}**, "
+                    "a title, heading, or citation indicating it's an "
+                    f"ordinance for {jurisdiction.county} "
+                    f"{jurisdiction.type.casefold()}, or other language that "
+                    f"reasonably ties the text to {jurisdiction.full_name} "
+                    "specifically. Generic references such as 'the "
+                    f"{jurisdiction.type.casefold()}' or "
+                    f"'{jurisdiction.type} Zoning Administrator' are not "
+                    "sufficient on their own unless clearly linked to "
+                    f"{jurisdiction.full_name_the_prefixed}. "
+                    "Start your response with 'Yes' or 'No' and explain "
+                    "briefly."
+                ),
+            )
+            G.add_edge("has_county_name", "final")
+        else:
+            G.add_edge(
+                "is_county", "final", condition=llm_response_starts_with_yes
+            )
+            node_to_connect = "is_county"
 
     if jurisdiction.subdivision_name:
         G.add_edge(
@@ -234,17 +356,44 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             prompt=(
                 "Based on the legal text, is it reasonable to conclude that "
                 "the provisions apply specifically to "
-                f"{jurisdiction.full_subdivision_phrase_the_prefixed} (rather "
-                "than a county, state, or federal jurisdiction)? If the text "
-                "instead applies to a broader jurisdiction, or does not "
+                f"**{jurisdiction.full_subdivision_phrase_the_prefixed}** "
+                "(rather than a county, state, federal jurisdiction, or a "
+                f"different {jurisdiction.type.casefold()})? If the text "
+                "instead applies to a broader jurisdiction, or applies to "
+                f"a different {jurisdiction.type.casefold()}, or does not "
                 "provide a reasonable basis to infer that it is limited to "
                 "municipal governance, respond with 'No'. "
-                "Start your response with 'Yes' or 'No' and briefly explain."
+                "Start your response with 'Yes' or 'No' and explain briefly."
             ),
         )
-        node_to_connect = "is_city"
 
-    G.add_edge(node_to_connect, "final")
+        G.add_edge("is_city", "final", condition=llm_response_starts_with_no)
+        G.add_edge(
+            "is_city", "has_city_name", condition=llm_response_starts_with_yes
+        )
+        G.add_node(
+            "has_city_name",
+            prompt=(
+                "Based on the legal text, is there clear and specific "
+                "evidence that the ordinance applies specifically to "
+                f"**{jurisdiction.full_name_the_prefixed}**? This could "
+                "include a direct mention of "
+                f"**{jurisdiction.subdivision_name}**, "
+                "a title, heading, or citation indicating it's an ordinance "
+                f"for {jurisdiction.full_subdivision_phrase_the_prefixed}, "
+                "or other language that reasonably ties the text to "
+                f"{jurisdiction.full_name_the_prefixed} specifically. "
+                "Generic references such as 'the "
+                f"{jurisdiction.type.casefold()}' or "
+                f"'{jurisdiction.type} Zoning Administrator' are not "
+                "sufficient on their own unless clearly linked to "
+                f"{jurisdiction.full_name_the_prefixed}. "
+                "Start your response with 'Yes' or 'No' and explain "
+                "briefly."
+            ),
+        )
+        G.add_edge("has_city_name", "final")
+
     G.add_node(
         "final",
         prompt=(
@@ -255,8 +404,8 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "'correct_jurisdiction' key should be a boolean that is set to "
             "`true` **only if** it is reasonable to conclude that the "
             "provisions within apply to the entire area (i.e. "
-            f"{jurisdiction.type}-wide) governed by "
-            f"{jurisdiction.full_name_the_prefixed} "
+            f"{jurisdiction.type.casefold()}-wide) governed by "
+            f"**{jurisdiction.full_name_the_prefixed}** "
             "(`false` otherwise). The value of the 'explanation' key should "
             "be a string containing a brief explanation for your choice. "
         ),
@@ -386,3 +535,10 @@ def _compile_url_key_explain_text(keys_to_collect):
         f"short explanation for your {choices}. "
     )
     return "".join(explain_text)
+
+
+def _jurisdiction_names_to_extract(jurisdiction):
+    """Determine whether jurisdiction name is required or not"""
+    if not jurisdiction.subdivision_name and not jurisdiction.county:
+        return "the state name"
+    return f"the state name and the {jurisdiction.type.casefold()} name"

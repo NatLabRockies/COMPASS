@@ -1,5 +1,7 @@
 """Ordinance mutually-exclusive features class"""
 
+from compass.exceptions import COMPASSValueError
+
 
 class SetbackFeatures:
     """Utility class to get mutually-exclusive feature descriptions"""
@@ -79,7 +81,7 @@ class SetbackFeatures:
                 f"The following features are missing descriptors: "
                 f"{features_missing_descriptors}"
             )
-            raise ValueError(msg)
+            raise COMPASSValueError(msg)
 
     def _keep_and_ignore(self, feature_id):
         """Get the keep and ignore phrases for a feature"""

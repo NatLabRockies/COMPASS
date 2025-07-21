@@ -227,7 +227,9 @@ class LegalTextValidator(StructuredLLMCaller):
         "anything other than a legal statute for an existing jurisdiction."
     )
 
-    def __init__(self, *args, score_threshold=0.8, **kwargs):
+    def __init__(
+        self, *args, score_threshold=0.8, doc_is_from_ocr=False, **kwargs
+    ):
         """
 
         Parameters
@@ -244,6 +246,7 @@ class LegalTextValidator(StructuredLLMCaller):
         super().__init__(*args, **kwargs)
         self.score_threshold = score_threshold
         self._legal_text_mem = []
+        self.doc_is_from_ocr = doc_is_from_ocr
 
     @property
     def is_legal_text(self):
@@ -296,6 +299,7 @@ class LegalTextValidator(StructuredLLMCaller):
             key=key,
             text=text_chunk,
             chat_llm_caller=chat_llm_caller,
+            doc_is_from_ocr=self.doc_is_from_ocr,
         )
         out = await run_async_tree(tree, response_as_json=True)
         logger.debug("LLM response: %s", str(out))

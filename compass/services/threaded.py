@@ -529,6 +529,12 @@ def _compile_doc_info(doc):
         "checksum": doc.attrs.get("checksum"),
         "is_pdf": isinstance(doc, PDFDocument),
         "from_ocr": doc.attrs.get("from_ocr", False),
+        "ordinance_text_ngram_score": doc.attrs.get(
+            "ordinance_text_ngram_score"
+        ),
+        "permitted_use_text_ngram_score": doc.attrs.get(
+            "permitted_use_text_ngram_score"
+        ),
     }
 
 

@@ -91,6 +91,9 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     "repowering": (
         "requirements or regulations specific to **repowering** of the system"
     ),
+    "climbing prevention": "climbing prevention requirements",
+    "signage": "signage requirements",
+    "soil": "soil, erosion, and/or sediment control requirements",
 }
 UNIT_CLARIFICATIONS = {
     "noise": (

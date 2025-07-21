@@ -105,8 +105,11 @@ def _validate_jurisdiction_input(jurisdictions):
         msg = "The jurisdiction input must have at least a 'State' column!"
         raise COMPASSValueError(msg)
 
+    jurisdictions["State"] = jurisdictions["State"].str.strip()
     if "County" not in jurisdictions:
         jurisdictions["County"] = None
+    else:
+        jurisdictions["County"] = jurisdictions["County"].str.strip()
 
     if "Subdivision" in jurisdictions:
         if "Jurisdiction Type" not in jurisdictions:
@@ -117,9 +120,10 @@ def _validate_jurisdiction_input(jurisdictions):
             )
             raise COMPASSValueError(msg)
 
-        jurisdictions["Jurisdiction Type"] = jurisdictions[
-            "Jurisdiction Type"
-        ].str.casefold()
+        jurisdictions["Subdivision"] = jurisdictions["Subdivision"].str.strip()
+        jurisdictions["Jurisdiction Type"] = (
+            jurisdictions["Jurisdiction Type"].str.casefold().str.strip()
+        )
 
     return jurisdictions
 

@@ -277,6 +277,7 @@ async def download_jurisdiction_ordinances_from_website(
         crawler_config_kwargs=crawler_config_kwargs,
         include_external=True,
         max_pages=max_urls,
+        page_limit=int(max_urls * 3),
     )
 
     if pb_jurisdiction_name:
@@ -572,6 +573,7 @@ async def filter_ordinance_docs(
         )
         return docs
 
+    docs = _sort_final_ord_docs(docs)
     logger.info(
         "Found %d potential ordinance documents for %s\n\t- %s",
         len(docs),
@@ -580,7 +582,7 @@ async def filter_ordinance_docs(
             [doc.attrs.get("source", "Unknown source") for doc in docs]
         ),
     )
-    return _sort_final_ord_docs(docs)
+    return docs
 
 
 async def _docs_from_web_search(

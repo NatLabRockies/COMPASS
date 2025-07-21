@@ -312,20 +312,22 @@ def setup_conditional_min(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
+            "Focus on setbacks from {feature}. Exclude any setbacks that "
+            "relate to {ignore_features}. "
+            "Consider only setbacks that apply to systems that "
             "would typically be defined as {tech} based on the text itself "
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
-            "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems or to meteorological "
-            "towers. Does the setback from {feature} for {tech} mention a "
-            "minimum setback distance **regardless of the outcome** of the "
-            "multiplier calculation? This value acts like a threshold and is "
-            "often found within phrases like 'the greater of'. "
-            "Begin your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "or rated capacity. Do not consider any requirements that apply "
+            "only to smaller or clearly non-commercial systems or to "
+            "meteorological towers.\n"
+            "Does the setback from {feature} for {tech} define a **minimum** "
+            "setback distance that must be met in all cases, even "
+            "when a multiplier is used for the calculation? This value acts "
+            "like a threshold and is often found within phrases like 'the "
+            "greater of'. "
+            "Please begin your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
         ),
     )
 
@@ -393,20 +395,21 @@ def setup_conditional_max(**kwargs):
     G.add_node(
         "init",
         prompt=(
-            "Focus only on setbacks from {feature}; do not respond "
-            "based on any text related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
+            "Focus on setbacks from {feature}. Exclude any setbacks that "
+            "relate to {ignore_features}. "
+            "Consider only setbacks that apply to systems that "
             "would typically be defined as {tech} based on the text itself "
             "— for example, systems intended for electricity generation or "
             "sale, or those above thresholds such as height, rotor diameter, "
-            "or rated capacity. Ignore any requirements that apply only to "
-            "smaller or clearly non-commercial systems or to meteorological "
-            "towers. Does the setback from {feature} for {tech} mention a "
-            "maximum setback distance **regardless of the outcome** of the "
-            "multiplier calculation? This value acts like a limit and is "
-            "often found within phrases like 'the lesser of'. "
-            "Begin your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "or rated capacity. Do not consider any requirements that apply "
+            "only to smaller or clearly non-commercial systems or to "
+            "meteorological towers.\n"
+            "Does the setback from {feature} for {tech} define a **maximum** "
+            "setback distance that must be observed in all cases, even when "
+            "a multiplier is used for the calculation? This value acts like "
+            "a limit and is often found within phrases like 'the lesser of'. "
+            "Please begin your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
         ),
     )
 

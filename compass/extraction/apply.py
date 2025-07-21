@@ -14,6 +14,8 @@ from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
+# Multiplier used to consider text output from LLM to be hallucination
+_TEXT_OUT_CHAR_BUFFER = 1.05
 
 
 async def check_for_ordinance_info(
@@ -65,6 +67,7 @@ async def check_for_ordinance_info(
     legal_text_validator = LegalTextValidator(
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
+        doc_is_from_ocr=doc.attrs.get("from_ocr", False),
         **model_config.llm_call_kwargs,
     )
 
@@ -206,7 +209,8 @@ async def extract_ordinance_text_with_ngram_validation(
     original_text_key,
     n=4,
     num_extraction_attempts=3,
-    ngram_fraction_threshold=0.75,
+    ngram_fraction_threshold=0.9,
+    ngram_ocr_fraction_threshold=0.75,
 ):
     """Extract ordinance text for a single document with known ord info
 
@@ -247,9 +251,14 @@ async def extract_ordinance_text_with_ngram_validation(
         output text. Cannot be negative or 0. By default, ``3``.
     ngram_fraction_threshold : float, optional
         Fraction of ngrams in the cleaned text that are also found in
-        the original ordinance text for the extraction to be considered
-        successful. Should be a value between 0 and 1 (inclusive).
-        By default, ``0.95``.
+        the original ordinance text (parsed using poppler) for the
+        extraction to be considered successful. Should be a value
+        between 0 and 1 (inclusive). By default, ``0.9``.
+    ngram_ocr_fraction_threshold : float, optional
+        Fraction of ngrams in the cleaned text that are also found in
+        the original ordinance text (parsed using OCR) for the
+        extraction to be considered successful. Should be a value
+        between 0 and 1 (inclusive). By default, ``0.75``.
 
     Returns
     -------
@@ -274,6 +283,9 @@ async def extract_ordinance_text_with_ngram_validation(
         n=max(1, n),
         num_tries=max(1, num_extraction_attempts),
         ngram_fraction_threshold=max(0, min(1, ngram_fraction_threshold)),
+        ngram_ocr_fraction_threshold=max(
+            0, min(1, ngram_ocr_fraction_threshold)
+        ),
     )
 
 
@@ -284,12 +296,14 @@ async def _extract_with_ngram_check(
     original_text_key,
     n=4,
     num_tries=3,
-    ngram_fraction_threshold=0.75,
+    ngram_fraction_threshold=0.9,
+    ngram_ocr_fraction_threshold=0.75,
 ):
     """Extract ordinance info from doc and validate using ngrams."""
     from compass.extraction.ngrams import sentence_ngram_containment  # noqa
 
     source = doc.attrs.get("source", "Unknown")
+    doc_is_from_ocr = doc.attrs.get("from_ocr", False)
     original_text = doc.attrs[original_text_key]
     if not original_text:
         msg = (
@@ -300,8 +314,13 @@ async def _extract_with_ngram_check(
         warn(msg, COMPASSWarning)
         return doc
 
+    ngram_thresh = (
+        ngram_ocr_fraction_threshold
+        if doc_is_from_ocr
+        else ngram_fraction_threshold
+    )
+
     best_score = 0
-    best_summary = ""
     out_text_key = "extracted_text"
     for attempt in range(1, num_tries + 1):
         doc, out_text_key = await extract_ordinance_text_with_llm(
@@ -320,40 +339,42 @@ async def _extract_with_ngram_check(
         ngram_frac = sentence_ngram_containment(
             original=original_text, test=cleaned_text, n=n
         )
-        if ngram_frac >= ngram_fraction_threshold:
+        if ngram_frac >= ngram_thresh:
             logger.debug(
                 "Document extraction for %r passed ngram check on attempt %d "
-                "with score %.2f (Document source: %s)",
+                "with score %.2f (OCR: %r; Document source: %s)",
                 out_text_key,
                 attempt + 1,
                 ngram_frac,
+                doc_is_from_ocr,
                 source,
             )
             best_score = ngram_frac
             break
 
-        if ngram_frac > best_score:
-            best_score = ngram_frac
-            best_summary = cleaned_text
+        best_score = max(best_score, ngram_frac)
 
         logger.debug(
             "Document extraction for %r failed ngram check on attempt %d "
-            "with score %.2f (Document source: %s). Retrying...",
+            "with score %.2f (OCR: %r; Document source: %s). Retrying...",
             out_text_key,
             attempt + 1,
             ngram_frac,
+            doc_is_from_ocr,
             source,
         )
     else:
-        doc.attrs[out_text_key] = best_summary
         msg = (
-            f"Ngram check failed after {num_tries} tries. LLM hallucination "
-            "in cleaned ordinance text is possible! Proceed with caution!! "
-            f"(Score: {best_score:.2f}; Document source: {source})"
+            f"Ngram check failed after {num_tries} tries trying to extract "
+            f"{original_text_key!r}. Not returning any extracted text due to "
+            "high possibility of LLM hallucination! "
+            f"(Best score: {best_score:.2f}; OCR: {doc_is_from_ocr}; "
+            f"Document source: {source})"
         )
         warn(msg, COMPASSWarning)
+        return doc
 
-    doc.attrs["ngram_score"] = best_score
+    doc.attrs[f"{original_text_key}_ngram_score"] = best_score
     return doc
 
 
@@ -412,6 +433,15 @@ async def _parse_if_input_text_not_empty(
 
     text_chunks = text_splitter.split_text(text)
     extracted_text = await parser(text_chunks)
+
+    if len(extracted_text) > _TEXT_OUT_CHAR_BUFFER * len(text):
+        logger.debug(
+            "LLM output more text than was given (IN: %d, OUT: %d). "
+            "Throwing away response due to possible hallucination...",
+            len(text),
+            len(extracted_text),
+        )
+        return ""
 
     logger.debug_to_file(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text

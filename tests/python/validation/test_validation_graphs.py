@@ -8,6 +8,7 @@ from compass.utilities.location import Jurisdiction
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,
+    _jurisdiction_names_to_extract,
 )
 
 
@@ -16,8 +17,20 @@ def test_setup_graph_correct_jurisdiction_type_state():
     loc = Jurisdiction("state", state="New York")
     graph = setup_graph_correct_jurisdiction_type(loc)
 
-    assert set(graph.nodes) == {"init", "is_state", "final"}
-    assert list(graph.edges) == [("init", "is_state"), ("is_state", "final")]
+    assert set(graph.nodes) == {
+        "init",
+        "has_name",
+        "is_state",
+        "has_state_name",
+        "final",
+    }
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "has_state_name"),  # is_state --YES-> has_state_name
+        ("is_state", "final"),  # is_state --NO-> has_state_name
+        ("has_state_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -32,13 +45,23 @@ def test_setup_graph_correct_jurisdiction_type_county(county_type):
     loc = Jurisdiction(county_type, state="New York", county="Test")
     graph = setup_graph_correct_jurisdiction_type(loc)
 
-    assert set(graph.nodes) == {"init", "is_state", "is_county", "final"}
-    assert list(graph.edges) == [
-        ("init", "is_state"),
-        ("is_state", "is_county"),
-        ("is_state", "final"),
-        ("is_county", "final"),
-    ]
+    assert set(graph.nodes) == {
+        "init",
+        "has_name",
+        "is_state",
+        "is_county",
+        "has_county_name",
+        "final",
+    }
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "is_county"),  # is_state --NO-> is_county
+        ("is_state", "final"),  # is_state --YES-> final (bad jur)
+        ("is_county", "final"),  # is_county --NO-> final (bad jur)
+        ("is_county", "has_county_name"),  # is_county --YES-> has_county_name
+        ("has_county_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -59,13 +82,23 @@ def test_setup_graph_correct_jurisdiction_type_city_no_county():
     loc = Jurisdiction("city", state="New York", subdivision_name="test")
     graph = setup_graph_correct_jurisdiction_type(loc)
 
-    assert set(graph.nodes) == {"init", "is_state", "is_city", "final"}
-    assert list(graph.edges) == [
-        ("init", "is_state"),
-        ("is_state", "is_city"),
-        ("is_state", "final"),
-        ("is_city", "final"),
-    ]
+    assert set(graph.nodes) == {
+        "init",
+        "has_name",
+        "is_state",
+        "is_city",
+        "has_city_name",
+        "final",
+    }
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "final"),  # is_state --YES-> final (bad jur)
+        ("is_state", "is_city"),  # is_state --NO-> is_county
+        ("is_city", "final"),  # is_city --NO-> final (bad jur)
+        ("is_city", "has_city_name"),  # is_city --YES-> has_city_name
+        ("has_city_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -89,19 +122,24 @@ def test_setup_graph_correct_jurisdiction_type_city():
 
     assert set(graph.nodes) == {
         "init",
+        "has_name",
         "is_state",
         "is_county",
         "is_city",
+        "has_city_name",
         "final",
     }
-    assert list(graph.edges) == [
-        ("init", "is_state"),
-        ("is_state", "is_county"),
-        ("is_state", "final"),
-        ("is_county", "final"),
-        ("is_county", "is_city"),
-        ("is_city", "final"),
-    ]
+    assert set(graph.edges) == {
+        ("init", "has_name"),
+        ("has_name", "is_state"),
+        ("is_state", "final"),  # is_state --YES-> final (bad jur)
+        ("is_state", "is_county"),  # is_state --NO-> is_county
+        ("is_county", "final"),  # is_county --YES-> final (bad jur)
+        ("is_county", "is_city"),  # is_county --NO-> is_city
+        ("is_city", "final"),  # is_city --NO-> final (bad jur)
+        ("is_city", "has_city_name"),  # is_city --YES-> has_city_name
+        ("has_city_name", "final"),
+    }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
     assert "state" in graph.nodes["is_state"]["prompt"]
@@ -234,6 +272,64 @@ def test_setup_graph_correct_jurisdiction_from_url_gore():
 
     assert "correct_gore" in graph.nodes["final"]["prompt"]
     assert loc.full_subdivision_phrase in graph.nodes["final"]["prompt"]
+
+
+@pytest.mark.parametrize(
+    "loc,expected_text",
+    [
+        (
+            Jurisdiction(
+                "town",
+                state="Minnesota",
+                subdivision_name="Jefferson",
+            ),
+            "the state name and the town name",
+        ),
+        (
+            Jurisdiction(
+                "township",
+                state="Minnesota",
+                subdivision_name="Jefferson",
+            ),
+            "the state name and the township name",
+        ),
+        (
+            Jurisdiction(
+                "unincorporated area",
+                state="Minnesota",
+                county="Norman",
+                subdivision_name="Jefferson",
+            ),
+            "the state name and the unincorporated area name",
+        ),
+        (
+            Jurisdiction(
+                "county",
+                state="Minnesota",
+                county="Norman",
+            ),
+            "the state name and the county name",
+        ),
+        (
+            Jurisdiction(
+                "borough",
+                state="Minnesota",
+                county="Norman",
+            ),
+            "the state name and the borough name",
+        ),
+        (
+            Jurisdiction(
+                "state",
+                state="Minnesota",
+            ),
+            "the state name",
+        ),
+    ],
+)
+def test_jurisdiction_names_to_extract(loc, expected_text):
+    """Test the `_jurisdiction_names_to_extract` function"""
+    assert _jurisdiction_names_to_extract(loc) == expected_text
 
 
 if __name__ == "__main__":
