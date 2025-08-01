@@ -6,6 +6,7 @@ ARG PIXI_ENV=default
 
 COPY . /app
 WORKDIR /app
+VOLUME /app/outputs
 
 RUN apt-get update && \
 		apt-get install -y --no-install-recommends \
