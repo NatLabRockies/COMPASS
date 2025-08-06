@@ -101,7 +101,7 @@ def test_load_jurisdictions_from_fp_bad_input(tmp_path):
 
 
 def test_load_jurisdictions_from_fp_single_county(tmp_path):
-    """Test that`load_jurisdictions_from_fp` returns a single county"""
+    """Test that `load_jurisdictions_from_fp` returns a single county"""
 
     test_jurisdiction_fp = tmp_path / "out.csv"
     input_jurisdictions = pd.DataFrame(
@@ -117,6 +117,77 @@ def test_load_jurisdictions_from_fp_single_county(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+
+
+def test_load_jurisdictions_no_repeated_counties(tmp_path):
+    """Test that `load_jurisdictions_from_fp` doesn't have repeats"""
+
+    test_jurisdiction_fp = tmp_path / "out.csv"
+    input_jurisdictions = pd.DataFrame(
+        {
+            "County": ["Jefferson", "Jefferson", "Jefferson"],
+            "State": ["Alabama", "Colorado", "Alabama"],
+        }
+    )
+    input_jurisdictions.to_csv(test_jurisdiction_fp)
+
+    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+
+    assert len(jurisdictions) == 2
+    assert set(jurisdictions["County"]) == {"Jefferson"}
+    assert set(jurisdictions["State"]) == {"Alabama", "Colorado"}
+    assert set(jurisdictions["Subdivision"]) == {None}
+    assert set(jurisdictions["Subdivision"]) != {np.nan}
+    assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+
+
+def test_load_jurisdictions_no_repeated_townships(tmp_path):
+    """Test that `load_jurisdictions_from_fp` doesn't have repeats"""
+
+    test_jurisdiction_fp = tmp_path / "out.csv"
+    input_jurisdictions = pd.DataFrame(
+        {
+            "County": "Aroostook",
+            "State": "Maine",
+            "Subdivision": ["Perham", "Oakfield", "Perham"],
+            "Jurisdiction Type": "town",
+        }
+    )
+    input_jurisdictions.to_csv(test_jurisdiction_fp)
+
+    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+
+    assert len(jurisdictions) == 2
+    assert set(jurisdictions["County"]) == {"Aroostook"}
+    assert set(jurisdictions["State"]) == {"Maine"}
+    assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield"}
+    assert set(jurisdictions["Jurisdiction Type"]) == {"town"}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+
+
+def test_load_jurisdictions_no_repeated_townships_and_counties(tmp_path):
+    """Test that `load_jurisdictions_from_fp` doesn't have repeats"""
+
+    test_jurisdiction_fp = tmp_path / "out.csv"
+    input_jurisdictions = pd.DataFrame(
+        {
+            "County": "Aroostook",
+            "State": "Maine",
+            "Subdivision": ["Perham", "Oakfield", "Perham", None, None],
+            "Jurisdiction Type": ["town", "town", "town", "county", "county"],
+        }
+    )
+    input_jurisdictions.to_csv(test_jurisdiction_fp)
+
+    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
+
+    assert len(jurisdictions) == 3
+    assert set(jurisdictions["County"]) == {"Aroostook"}
+    assert set(jurisdictions["State"]) == {"Maine"}
+    assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield", None}
+    assert set(jurisdictions["Jurisdiction Type"]) == {"town", "county"}
     assert {type(val) for val in jurisdictions["FIPS"]} == {int}
 
 

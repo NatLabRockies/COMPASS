@@ -11,7 +11,7 @@ and convert it into structured values. By the end, you'll have a fully working s
 both a text file of the ordinance and a structured CSV.
 
 If you're only looking to download documents without extracting content, you may want to look at the
-`ELM tutorial <https://github.com/NREL/elm/blob/main/examples/web_scraping_pipeline/example_scrape_wiki.ipynb>`_,
+`ELM tutorial <https://github.com/NREL/elm/tree/main/examples/web_information_retrieval>`_,
 which focuses on scraping and saving documents alone.
 
 

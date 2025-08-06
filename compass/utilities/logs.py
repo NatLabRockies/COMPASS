@@ -237,6 +237,11 @@ class LogListener:
 class LocationFileLog:
     """Context manager to write logs for a location to a unique file"""
 
+    TEXT_FORMATTER = logging.Formatter(
+        fmt="[%(asctime)s] %(levelname)s: %(message)s"
+    )
+    """Formatter used for text logs"""
+
     def __init__(
         self, listener, log_dir, location, level="INFO", max_teardown_time=30
     ):
@@ -279,6 +284,7 @@ class LocationFileLog:
         )
         self._handler.setLevel(self.level)
         self._handler.addFilter(LocationFilter(self.location))
+        self._handler.setFormatter(self.TEXT_FORMATTER)
 
     def _setup_exception_handler(self):
         """Setup file handler for tracking errors for this location"""

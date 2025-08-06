@@ -6,6 +6,7 @@ import asyncio
 import logging
 import getpass
 from pathlib import Path
+from copy import deepcopy
 from functools import cached_property
 from collections import namedtuple
 from contextlib import AsyncExitStack, contextmanager
@@ -206,6 +207,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     perform_website_search=True,
     llm_costs=None,
     log_level="INFO",
+    keep_async_logs=False,
 ):
     """Download and extract ordinances for a list of jurisdictions
 
@@ -406,6 +408,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
     log_level : str, optional
         Logging level for ordinance scraping and parsing (e.g., "TRACE",
         "DEBUG", "INFO", "WARNING", or "ERROR"). By default, ``"INFO"``.
+    keep_async_logs : bool, default=False
+        Option to store the full asynchronous log record to a file. This
+        is only useful if you intend to monitor overall processing
+        progress from a file instead of from the terminal. If ``True``,
+        all of the unordered records are written to a "all.log" file in
+        the `log_dir` directory. By default, ``False``.
 
     Returns
     -------
@@ -457,7 +465,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         log_level=log_level,
     )
     async with log_listener as ll:
-        _setup_main_logging(dirs.logs, log_level, ll)
+        _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
         return await runner.run(jurisdiction_fp)
 
 
@@ -765,6 +773,13 @@ class _SingleJurisdictionRunner:
         self.validate_user_website_input = True
         self._jsp = None
 
+    @cached_property
+    def file_loader_kwargs_no_ocr(self):
+        """dict: Keyword arguments for `AsyncFileLoader` with no OCR"""
+        flk = deepcopy(self.file_loader_kwargs)
+        flk.pop("pdf_ocr_read_coroutine", None)
+        return flk
+
     @contextmanager
     def _tracked_progress(self):
         """Context manager to set up jurisdiction sub-progress bar"""
@@ -777,11 +792,15 @@ class _SingleJurisdictionRunner:
     async def run(self):
         """Download and parse document for a single jurisdiction"""
         start_time = time.monotonic()
-        doc = await self._run()
-        await self._record_usage()
-        await _record_jurisdiction_info(
-            self.jurisdiction, doc, start_time, self.usage_tracker
-        )
+        doc = None
+        try:
+            doc = await self._run()
+        finally:
+            await self._record_usage()
+            await _record_jurisdiction_info(
+                self.jurisdiction, doc, start_time, self.usage_tracker
+            )
+
         return doc
 
     async def _run(self):
@@ -953,7 +972,7 @@ class _SingleJurisdictionRunner:
         )
         validator = JurisdictionWebsiteValidator(
             browser_semaphore=self.browser_semaphore,
-            file_loader_kwargs=self.file_loader_kwargs,
+            file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             usage_tracker=self.usage_tracker,
             llm_service=model_config.llm_service,
             **model_config.llm_call_kwargs,
@@ -973,7 +992,7 @@ class _SingleJurisdictionRunner:
         return await find_jurisdiction_website(
             self.jurisdiction,
             self.models,
-            file_loader_kwargs=self.file_loader_kwargs,
+            file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             search_semaphore=self.search_engine_semaphore,
             browser_semaphore=self.browser_semaphore,
             usage_tracker=self.usage_tracker,
@@ -992,7 +1011,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction_website,
             heuristic=self.tech_specs.heuristic,
             keyword_points=self.tech_specs.website_url_keyword_points,
-            file_loader_kwargs=self.file_loader_kwargs,
+            file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             crawl_semaphore=self.crawl_semaphore,
             pb_jurisdiction_name=self.jurisdiction.full_name,
             return_c4ai_results=True,
@@ -1019,13 +1038,12 @@ class _SingleJurisdictionRunner:
         checked_urls = set()
         for scrape_result in scrape_results:
             checked_urls.update({sub_res.url for sub_res in scrape_result})
-
         docs = (
             await download_jurisdiction_ordinances_from_website_compass_crawl(
                 self.jurisdiction_website,
                 heuristic=self.tech_specs.heuristic,
                 keyword_points=self.tech_specs.website_url_keyword_points,
-                file_loader_kwargs=self.file_loader_kwargs,
+                file_loader_kwargs=self.file_loader_kwargs_no_ocr,
                 already_visited=checked_urls,
                 crawl_semaphore=self.crawl_semaphore,
                 pb_jurisdiction_name=self.jurisdiction.full_name,
@@ -1197,17 +1215,35 @@ def _compile_tech_specs(tech):
     raise COMPASSValueError(msg)
 
 
-def _setup_main_logging(log_dir, level, listener):
+def _setup_main_logging(log_dir, level, listener, keep_async_logs):
     """Setup main logger for catching exceptions during execution"""
+    fmt = logging.Formatter(fmt="[%(asctime)s] %(levelname)s: %(message)s")
     handler = logging.FileHandler(log_dir / "main.log", encoding="utf-8")
+    handler.setFormatter(fmt)
     handler.setLevel(level)
     handler.addFilter(NoLocationFilter())
     listener.addHandler(handler)
+
+    if keep_async_logs:
+        handler = logging.FileHandler(log_dir / "all.log", encoding="utf-8")
+        fmt = logging.Formatter(
+            fmt="[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s",
+        )
+        handler.setFormatter(fmt)
+        handler.setLevel(level)
+        listener.addHandler(handler)
 
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
     out_dir = _full_path(out_dir)
+    if out_dir.exists():
+        msg = (
+            f"Output directory '{out_dir!s}' already exists! Please specify a "
+            "new directory for every COMPASS run."
+        )
+        raise COMPASSValueError(msg)
+
     out_folders = Directories(
         out_dir,
         _full_path(log_dir) if log_dir else out_dir / "logs",

@@ -33,6 +33,7 @@ classifiers=[
 ]
 dependencies = [
   "click>=8.1.7,<9",
+  "html5lib>=1.1,<2",
   "langchain>=0.3.7,<0.4",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
@@ -150,6 +151,7 @@ beautifulsoup4 = ">=4.12.3,<5"
 click = ">=8.1.7,<9"
 google-api-python-client = ">=2.160.0,<3"
 html2text = ">=2024.2.26,<2025"
+html5lib = ">=1.1,<2"
 httpx = ">=0.28.1,<0.29"
 ipython = ">=8.29.0,<9"
 langchain = ">=0.3.7,<0.4"
