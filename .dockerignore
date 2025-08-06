@@ -5,11 +5,17 @@
 # VSCode
 .vscode
 
+# Scratch files
+*scratch*
+
 # Documentation
-docs/_build/
-docs/source/_autosummary/
-docs/source/jupyter/*.png
-docs/source/jupyter/*_*.rst
+docs/
+
+# Examples
+examples/
+
+# Tests
+tests/
 
 # Dynamic version
 compass/_version.py
@@ -42,6 +48,12 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+# Scrapy stuff:
+.scrapy
+
+# Jupyter Notebook
+.ipynb_checkpoints
 
 # Unit test / coverage reports
 htmlcov/
