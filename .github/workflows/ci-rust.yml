@@ -27,7 +27,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.14
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
@@ -54,7 +54,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.14
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
@@ -88,7 +88,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.14
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
@@ -113,7 +113,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.14
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
@@ -144,7 +144,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.14
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
@@ -173,7 +173,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@v0.8.14
         with:
-          pixi-version: v0.49.0
+          pixi-version: v0.50.2
           frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}

@@ -278,7 +278,9 @@ logging call shown above, internally, every time.
 Test File Structure
 ^^^^^^^^^^^^^^^^^^^
 
-All test files (e.g. ``test_scenario.py``) should start/end with the following block of code::
+All test files (e.g. ``test_scenario.py``) should start/end with the following block of code:
+
+.. code-block:: python
 
     from pathlib import Path
     import pytest
@@ -291,3 +293,59 @@ All test files (e.g. ``test_scenario.py``) should start/end with the following b
 
 This allows the (single) file to be executed, running only the tests contained
 within. This is extremely useful when updating/modifying/adding tests in the file.
+
+
+Docker Container
+^^^^^^^^^^^^^^^^
+When updating the Dockerfile, ensure that your changes can be built on both AMD and ARM
+linux. To do so, test building a multi-platform image with this command:
+
+.. code-block:: shell
+
+    $ docker build --platform linux/amd64,linux/arm64 -t compass:latest .
+
+
+You can then get a shell in your container using the following command:
+
+.. code-block:: shell
+
+    $ docker run -it --platform linux/amd64 -v my_output_volume:/app/outputs compass:latest /bin/bash
+
+Once you have a shell, you can verify that the container works as expected using the following steps:
+
+#. Run ``$ crawl4ai-doctor`` and ensure that the crawl tests pass
+#. Open up a python instance (``$ python``) and set up the following script:
+
+.. code-block:: python
+
+    import asyncio
+    from elm.web.search.run import web_search_links_as_docs
+
+    q = ["Decatur Indiana wind energy conversion system zoning ordinance"]
+
+
+You can then test playwright by running the following code:
+
+.. code-block:: python
+
+    docs = asyncio.run(
+        web_search_links_as_docs(
+            q,
+            search_engines=["PlaywrightDuckDuckGoLinkSearch"],
+            pw_launch_kwargs={"args": ["--no-sandbox"]}
+        )
+    )
+
+If you don't get any critical errors (poppler errors are ok) and you see some output in the ``docs``
+variable, then you are good to go. Similarly, you can test the camoufox browser using the following code:
+
+.. code-block:: python
+
+    docs = asyncio.run(
+        web_search_links_as_docs(
+            q, search_engines=["PlaywrightGoogleLinkSearch"]
+        )
+    )
+
+Again, if you don't get any critical errors (poppler errors are ok) and you see some output in the ``docs``
+variable, then you are good to go.

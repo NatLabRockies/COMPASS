@@ -39,6 +39,7 @@ dependencies = [
   "nrel-elm>=0.0.23,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
+  "pdftotext>=2.2.2,<3",
   "pyjson5>=1.6.8,<2",
   "rich>=13.9.4,<14",
 ]
@@ -104,15 +105,15 @@ version_file = "compass/_version.py"
 
 [tool.pixi.project]
 channels = ["conda-forge", "microsoft", "anaconda", "main"]
-platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
+platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
 
 [tool.pixi.environments]
-default = { features = ["rust-dev", "python-default"], solve-group = "default" }
+default = { features = ["python-default", "elm"], solve-group = "default" }
 rdev = { features = ["rust-dev"], solve-group = "rust" }
-pdev = { features = ["python-default", "python-dev", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
-ptest = { features = ["python-default", "python-test", "test"], solve-group = "python" }
-pdoc = { features = ["python-default", "python-doc", "doc"], solve-group = "python" }
-pbuild = { features = ["python-build"], solve-group = "python" }
+pdev = { features = ["python-default", "elm", "python-dev", "python-build", "python-test", "python-doc", "python-anthropic", "ocr", "dev", "test", "doc"], solve-group = "python" }
+ptest = { features = ["python-default", "elm", "python-test", "test"], solve-group = "python" }
+pdoc = { features = ["python-default", "elm", "python-doc", "doc"], solve-group = "python" }
+pbuild = { features = ["python-build", "python-default", "elm"], solve-group = "python" }
 
 [tool.pixi.tasks]
 openai-solar-demo = { cmd = "export OPENAI_API_KEY={{ api_key }}; compass process -c config.json5", args = ["api_key"], cwd = "examples/openai_solar_demo"}
@@ -131,9 +132,12 @@ tests-p = "pytest --durations=20 tests/python"
 make-html = { cmd = "make html", cwd = "docs"}
 
 [tool.pixi.feature.python-build.tasks]
-build-wheels = "python -m build --sdist --wheel --outdir dist/ ."
+build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
 check-wheels = { cmd = ["twine", "check", "dist/*"], depends-on = ["build-wheels"] }
 upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-wheels"] }
+
+[tool.pixi.dependencies]
+poppler = ">=24.8.0,<25"
 
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.88.0,<1.89"
@@ -144,12 +148,10 @@ graphviz = ">=12.2.1,<13"
 aiohttp = ">=3.11.6,<4"
 beautifulsoup4 = ">=4.12.3,<5"
 click = ">=8.1.7,<9"
-fake-useragent = ">=2.0.3,<3"
 google-api-python-client = ">=2.160.0,<3"
 html2text = ">=2024.2.26,<2025"
 httpx = ">=0.28.1,<0.29"
 ipython = ">=8.29.0,<9"
-libgraphene = ">=1.10.8,<2"
 langchain = ">=0.3.7,<0.4"
 lxml = ">=5.3.0,<6"
 networkx = ">=3.4.2,<4"
@@ -158,10 +160,8 @@ numpy = ">=1.26.4,<2"
 openai = ">=1.1.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
-pdftotext = ">=2.2.2,<3"
 pillow = ">=10.4,<11.dev0"  # version range required for c4ai
 playwright = ">=1.49.0,<1.52"  # version range required for c4ai
-poppler = ">=24.8.0,<25"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
 python = ">=3.12"
@@ -179,15 +179,29 @@ greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
 pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [tool.pixi.feature.python-default.pypi-dependencies]
-# These are all ELM dependencies explicitly enumerated
+NREL-COMPASS = { path = ".", editable = true}
+
+[tool.pixi.target.linux-aarch64.dependencies]
+compilers = ">=1.11.0,<2"
+clangdev = ">=20.1.8,<21"
+libclang = ">=20.1.8,<21"
+maturin = ">=1.8.6,<2"
+rust = ">=1.88.0,<1.89"
+
+[tool.pixi.target.win-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+# ELM dependencies explicitly enumerated
+# We should remove this once ELM better defines its dependencies
+[tool.pixi.feature.elm.pypi-dependencies]
 camoufox = ">=0.4.11,<0.5"
 crawl4ai = ">=0.6.3"
 ddgs = ">=9.2.3,<10"
+fake-useragent = ">=2.0.3,<3"
 rebrowser-playwright = ">=1.47.0,<2"
 scrapling = ">=0.2.99,<0.3"
 tavily-python = ">=0.5.0,<0.6"
 tf-playwright-stealth = ">=1.2.0,<2"
-NREL-COMPASS = { path = ".", editable = true}
 
 [tool.pixi.feature.python-dev.dependencies]
 geopandas = ">=1.0.1,<2"
@@ -225,8 +239,9 @@ boto3 = ">=1.35.71,<2"
 
 [tool.pixi.feature.python-build.dependencies]
 python-build = ">=1.2.2,<2"
-pkginfo= ">=1.12.1.2,<2"
-twine= ">=6.1.0,<7"
+pkginfo = ">=1.12.1.2,<2"
+twine = ">=6.1.0,<7"
+uv = ">=0.8.4,<0.9"
 
 
 [tool.ruff]
