@@ -1,22 +1,16 @@
 """Ordinance full processing logic"""
 
 import time
-import json
 import asyncio
 import logging
-import getpass
-from pathlib import Path
 from copy import deepcopy
 from functools import cached_property
-from collections import namedtuple
 from contextlib import AsyncExitStack, contextmanager
-from datetime import datetime, timedelta, UTC
+from datetime import datetime, UTC
 
 import pandas as pd
-from elm.version import __version__ as elm_version
 from elm.web.utilities import get_redirected_url
 
-from compass import __version__ as compass_version
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
@@ -74,12 +68,15 @@ from compass.services.threaded import (
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
+    doc_infos_to_db,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
-    extract_ord_year_from_doc_attrs,
     num_ordinances_in_doc,
-    num_ordinances_dataframe,
-    ordinances_bool_index,
+    save_db,
+    save_run_meta,
+    Directories,
+    ProcessKwargs,
+    TechSpec,
 )
 from compass.utilities.enums import LLMTasks
 from compass.utilities.location import Jurisdiction
@@ -94,59 +91,6 @@ from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
-TechSpec = namedtuple(
-    "TechSpec",
-    [
-        "questions",
-        "heuristic",
-        "ordinance_text_collector",
-        "ordinance_text_extractor",
-        "permitted_use_text_collector",
-        "permitted_use_text_extractor",
-        "structured_ordinance_parser",
-        "structured_permitted_use_parser",
-        "website_url_keyword_points",
-    ],
-)
-ProcessKwargs = namedtuple(
-    "ProcessKwargs",
-    [
-        "known_doc_urls",
-        "file_loader_kwargs",
-        "td_kwargs",
-        "tpe_kwargs",
-        "ppe_kwargs",
-        "max_num_concurrent_jurisdictions",
-    ],
-    defaults=[None, None, None, None, 25],
-)
-Directories = namedtuple(
-    "Directories",
-    ["out", "logs", "clean_files", "ordinance_files", "jurisdiction_dbs"],
-)
-AzureParams = namedtuple(
-    "AzureParams",
-    ["azure_api_key", "azure_version", "azure_endpoint"],
-    defaults=[None, None, None],
-)
-PARSED_COLS = [
-    "county",
-    "state",
-    "subdivision",
-    "jurisdiction_type",
-    "FIPS",
-    "feature",
-    "value",
-    "units",
-    "adder",
-    "min_dist",
-    "max_dist",
-    "summary",
-    "ord_year",
-    "section",
-    "source",
-    "quantitative",
-]
 EXCLUDE_FROM_ORD_DOC_CHECK = {
     # if doc only contains these, it's not good enough to count as an
     # ordinance. Note that prohibitions are explicitly not on this list
@@ -160,8 +104,6 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "special use districts",
     "accessory use districts",
 }
-QUANT_OUT_COLS = PARSED_COLS[:-1]
-QUAL_OUT_COLS = PARSED_COLS[:6] + PARSED_COLS[-5:-1]
 _TEXT_EXTRACTION_TASKS = {
     WindOrdinanceTextExtractor: "Extracting wind ordinance text",
     WindPermittedUseDistrictsTextExtractor: (
@@ -618,18 +560,17 @@ class _COMPASSRunner:
 
         num_jurisdictions = len(jurisdictions)
         COMPASS_PB.create_main_task(num_jurisdictions=num_jurisdictions)
-        start_date = datetime.now(UTC).isoformat()
-        start_time = time.monotonic()
+        start_date = datetime.now(UTC)
 
         doc_infos, total_cost = await self._run_all(jurisdictions)
 
-        db, num_docs_found = _doc_infos_to_db(doc_infos)
-        _save_db(db, self.dirs.out)
-        total_time = _save_run_meta(
+        db, num_docs_found = doc_infos_to_db(doc_infos)
+        save_db(db, self.dirs.out)
+        total_time = save_run_meta(
             self.dirs,
             self.tech,
-            start_time,
-            start_date,
+            start_date=start_date,
+            end_date=datetime.now(UTC),
             num_jurisdictions_searched=num_jurisdictions,
             num_jurisdictions_found=num_docs_found,
             total_cost=total_cost,
@@ -1236,29 +1177,17 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
     """Setup output directory folders"""
-    out_dir = _full_path(out_dir)
-    if out_dir.exists():
+    dirs = Directories(out_dir, log_dir, clean_dir, ofd, jdd)
+
+    if dirs.out.exists():
         msg = (
             f"Output directory '{out_dir!s}' already exists! Please specify a "
             "new directory for every COMPASS run."
         )
         raise COMPASSValueError(msg)
 
-    out_folders = Directories(
-        out_dir,
-        _full_path(log_dir) if log_dir else out_dir / "logs",
-        _full_path(clean_dir) if clean_dir else out_dir / "cleaned_text",
-        _full_path(ofd) if ofd else out_dir / "ordinance_files",
-        _full_path(jdd) if jdd else out_dir / "jurisdiction_dbs",
-    )
-    for folder in out_folders:
-        folder.mkdir(exist_ok=True, parents=True)
-    return out_folders
-
-
-def _full_path(in_path):
-    """Expand and resolve input path"""
-    return Path(in_path).expanduser().resolve()
+    dirs.make_dirs()
+    return dirs
 
 
 def _initialize_model_params(user_input):
@@ -1409,168 +1338,6 @@ def _concat_scrape_results(doc):
 
     doc.attrs["scraped_values"] = pd.concat(data)
     return doc
-
-
-def _doc_infos_to_db(doc_infos):
-    """Convert list of docs to output database"""
-    db = []
-    for doc_info in doc_infos:
-        if doc_info is None:
-            continue
-
-        ord_db_fp = doc_info.get("ord_db_fp")
-        if ord_db_fp is None:
-            continue
-
-        ord_db = pd.read_csv(ord_db_fp)
-
-        if num_ordinances_dataframe(ord_db) == 0:
-            continue
-
-        results = _db_results(ord_db, doc_info)
-        results = _formatted_db(results)
-        db.append(results)
-
-    if not db:
-        return pd.DataFrame(columns=PARSED_COLS), 0
-
-    logger.info("Compiling final database for %d jurisdiction(s)", len(db))
-    num_jurisdictions_found = len(db)
-    db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
-    db = _empirical_adjustments(db)
-    return _formatted_db(db), num_jurisdictions_found
-
-
-def _db_results(results, doc_info):
-    """Extract results from doc attrs to DataFrame"""
-
-    results["source"] = doc_info.get("source")
-    results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
-
-    jurisdiction = doc_info["jurisdiction"]
-    results["FIPS"] = jurisdiction.code
-    results["county"] = jurisdiction.county
-    results["state"] = jurisdiction.state
-    results["subdivision"] = jurisdiction.subdivision_name
-    results["jurisdiction_type"] = jurisdiction.type
-    return results
-
-
-def _empirical_adjustments(db):
-    """Post-processing adjustments based on empirical observations
-
-    Current adjustments include:
-
-        - Limit adder to max of 250 ft.
-            - Chat GPT likes to report large values here, but in
-            practice all values manually observed in ordinance documents
-            are below 250 ft. If large value is detected, assume it's an
-            error on Chat GPT's part and remove it.
-
-    """
-    if "adder" in db.columns:
-        db.loc[db["adder"] > 250, "adder"] = None  # noqa: PLR2004
-    return db
-
-
-def _formatted_db(db):
-    """Format DataFrame for output"""
-    for col in PARSED_COLS:
-        if col not in db.columns:
-            db[col] = None
-
-    db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
-    ord_rows = ordinances_bool_index(db)
-    return db[ord_rows][PARSED_COLS].reset_index(drop=True)
-
-
-def _save_db(db, out_dir):
-    """Split DB into qualitative vs quantitative and save to disk"""
-    if db.empty:
-        return
-    qual_db = db[~db["quantitative"]][QUAL_OUT_COLS]
-    quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
-    qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
-    quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
-
-
-def _save_run_meta(
-    dirs,
-    tech,
-    start_time,
-    start_date,
-    num_jurisdictions_searched,
-    num_jurisdictions_found,
-    total_cost,
-    models,
-):
-    """Write out meta information about ordinance collection run"""
-    end_date = datetime.now(UTC).isoformat()
-    end_time = time.monotonic()
-    seconds_elapsed = end_time - start_time
-
-    try:
-        username = getpass.getuser()
-    except OSError:
-        username = "Unknown"
-
-    meta_data = {
-        "username": username,
-        "versions": {"elm": elm_version, "compass": compass_version},
-        "technology": tech,
-        "models": _extract_model_info_from_all_models(models),
-        "time_start_utc": start_date,
-        "time_end_utc": end_date,
-        "total_time": seconds_elapsed,
-        "total_time_string": str(timedelta(seconds=seconds_elapsed)),
-        "num_jurisdictions_searched": num_jurisdictions_searched,
-        "num_jurisdictions_found": num_jurisdictions_found,
-        "cost": total_cost or None,
-        "manifest": {},
-    }
-    manifest = {
-        "LOG_DIR": dirs.logs,
-        "CLEAN_FILE_DIR": dirs.clean_files,
-        "JURISDICTION_DBS_DIR": dirs.jurisdiction_dbs,
-        "ORDINANCE_FILES_DIR": dirs.ordinance_files,
-        "USAGE_FILE": dirs.out / "usage.json",
-        "JURISDICTION_FILE": dirs.out / "jurisdictions.json",
-        "QUANT_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
-        "QUAL_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
-    }
-    for name, file_path in manifest.items():
-        if file_path.exists():
-            meta_data["manifest"][name] = str(file_path.relative_to(dirs.out))
-        else:
-            meta_data["manifest"][name] = None
-
-    meta_data["manifest"]["META_FILE"] = "meta.json"
-    with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
-        json.dump(meta_data, fh, indent=4)
-
-    return seconds_elapsed
-
-
-def _extract_model_info_from_all_models(models):
-    """Group model info together"""
-    models_to_tasks = {}
-    for task, caller_args in models.items():
-        models_to_tasks.setdefault(caller_args, []).append(task)
-
-    return [
-        {
-            "name": caller_args.name,
-            "llm_call_kwargs": caller_args.llm_call_kwargs or None,
-            "llm_service_rate_limit": caller_args.llm_service_rate_limit,
-            "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
-            "text_splitter_chunk_overlap": (
-                caller_args.text_splitter_chunk_overlap
-            ),
-            "client_type": caller_args.client_type,
-            "tasks": tasks,
-        }
-        for caller_args, tasks in models_to_tasks.items()
-    ]
 
 
 async def _compute_total_cost():

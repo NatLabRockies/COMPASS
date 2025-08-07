@@ -88,7 +88,7 @@ build = [
 ]
 
 [project.scripts]
-compass = "compass._cli:main"
+compass = "compass._cli.main:main"
 
 [project.urls]
 homepage = "https://github.com/NREL/COMPASS"

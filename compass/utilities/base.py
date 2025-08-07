@@ -1,5 +1,6 @@
 """Base COMPASS utility functions"""
 
+from pathlib import Path
 from copy import deepcopy
 from functools import cached_property
 
@@ -21,11 +22,6 @@ def title_preserving_caps(string):
         capitalization.
     """
     return " ".join(map(_cap, string.split(" ")))
-
-
-def _cap(word):
-    """Capitalize first letter of the word"""
-    return "".join([word[0].upper(), word[1:]])
 
 
 class WebSearchParams:
@@ -125,3 +121,78 @@ class WebSearchParams:
 
         extra_kwargs["search_engines"] = search_engines
         return extra_kwargs
+
+
+class Directories:
+    """Helper class to store directories used in COMPASS run"""
+
+    def __init__(
+        self,
+        out,
+        logs=None,
+        clean_files=None,
+        ordinance_files=None,
+        jurisdiction_dbs=None,
+    ):
+        """
+
+        Parameters
+        ----------
+        out : path-like
+            Output directory for COMPASS run.
+        logs : path-like, optional
+            Directory for storing logs. If not specified, defaults to
+            ``out/logs``. By default, ``None``.
+        clean_files : path-like, optional
+            Directory for storing cleaned ordinance files. If not
+            specified, defaults to ``out/cleaned_text``.
+            By default, ``None``.
+        ordinance_files : path-like, optional
+            Directory for storing ordinance files. If not specified,
+            defaults to ``out/ordinance_files``.
+            By default, ``None``.
+        jurisdiction_dbs : path-like, optional
+            Directory for storing jurisdiction databases. If not
+            specified, defaults to ``out/jurisdiction_dbs``.
+            By default, ``None``
+        """
+        self.out = _full_path(out)
+        self.logs = _full_path(logs) if logs else self.out / "logs"
+        self.clean_files = (
+            _full_path(clean_files)
+            if clean_files
+            else self.out / "cleaned_text"
+        )
+        self.ordinance_files = (
+            _full_path(ordinance_files)
+            if ordinance_files
+            else self.out / "ordinance_files"
+        )
+        self.jurisdiction_dbs = (
+            _full_path(jurisdiction_dbs)
+            if jurisdiction_dbs
+            else self.out / "jurisdiction_dbs"
+        )
+
+    def __iter__(self):
+        """Iterate over all directories"""
+        yield self.out
+        yield self.logs
+        yield self.clean_files
+        yield self.ordinance_files
+        yield self.jurisdiction_dbs
+
+    def make_dirs(self):
+        """Create all directories if they do not exist"""
+        for folder in self:
+            folder.mkdir(exist_ok=True, parents=True)
+
+
+def _cap(word):
+    """Capitalize first letter of the word"""
+    return "".join([word[0].upper(), word[1:]])
+
+
+def _full_path(in_path):
+    """Expand and resolve input path"""
+    return Path(in_path).expanduser().resolve()

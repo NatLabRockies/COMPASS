@@ -1,32 +1,23 @@
-"""Ordinances CLI"""
+"""COMPASS CLI process subcommand"""
 
-import click
 import asyncio
 import logging
 import warnings
 import multiprocessing
 
+import click
 from rich.live import Live
 from rich.theme import Theme
 from rich.logging import RichHandler
 from rich.console import Console
 
-from compass import __version__
 from compass.pb import COMPASS_PB
 from compass.scripts.process import process_jurisdictions_with_openai
 from compass.utilities.logs import AddLocationFilter
 from compass.utilities.parsing import load_config
 
 
-@click.group()
-@click.version_option(version=__version__)
-@click.pass_context
-def main(ctx):
-    """Ordinance command line interface"""
-    ctx.ensure_object(dict)
-
-
-@main.command()
+@click.command
 @click.option(
     "--config",
     "-c",
@@ -145,7 +136,3 @@ def _elapsed_time_as_str(seconds_elapsed):
     if days:
         time_str = f"{days:,d} day{'s' if abs(days) != 1 else ''}, {time_str}"
     return time_str
-
-
-if __name__ == "__main__":
-    main(obj={})
