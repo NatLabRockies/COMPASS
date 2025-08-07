@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 import pandas as pd
 from elm.web.utilities import get_redirected_url
 
+from compass import __version__
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
@@ -100,6 +101,10 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "visual impact",
     "glare",
     "repowering",
+    "fencing",
+    "climbing prevention",
+    "signage",
+    "soil",
     "primary use districts",
     "special use districts",
     "accessory use districts",
@@ -252,13 +257,13 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
     known_doc_urls : dict | str, optional
-        A dictionary where keys are the jurisdiction codes and values
-        are a string or list of strings representing known URL's to
-        check for those jurisdictions. If provided, these URL's will be
-        checked first and if an ordinance document is found, no further
-        scraping will be performed. This inout can also be a path to a
-        JSON file containing the dictionary of code-to-url mappings.
-        By default, ``None``.
+        A dictionary where keys are the jurisdiction codes (as strings)
+        and values are a string or list of strings representing known
+        URL's to check for those jurisdictions. If provided, these URL's
+        will be checked first and if an ordinance document is found, no
+        further scraping will be performed. This input can also be a
+        path to a JSON file containing the dictionary of code-to-url
+        mappings. By default, ``None``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
         :class:`elm.web.file_loader.AsyncFileLoader`. If found, the
@@ -556,6 +561,7 @@ class _COMPASSRunner:
             DataFrame containing scraped ordinance values (could be
             empty if no ordinances found).
         """
+        logger.info("Running COMPASS version %s", __version__)
         jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)

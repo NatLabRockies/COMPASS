@@ -89,6 +89,10 @@
         // e.g. a giant file with generic ordinances that should be skipped
         "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
     ],
+    "known_doc_urls": {
+        "18017": "https://www.in.gov/counties/cass/files/Cass-County-Zoning-Ordinance-2024.pdf",
+        // Can include more FIPS -> URL mappings here
+    },
     "file_loader_kwargs": {
         "pw_launch_kwargs": {
             // set to "false" to see browser open and watch
@@ -138,4 +142,5 @@
         "gpt-4o-mini": {"prompt": 2.5, "response": 10},
     },
     "log_level": "INFO",
+    "keep_async_logs": false,  // Not typically needed
 }
