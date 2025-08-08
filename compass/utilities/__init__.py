@@ -50,11 +50,19 @@ LLM_COST_REGISTRY = {
     "gpt-4.1": {"prompt": 2, "response": 8},
     "gpt-4.1-mini": {"prompt": 0.4, "response": 1.6},
     "gpt-4.1-nano": {"prompt": 0.1, "response": 0.4},
+    "gpt-5": {"prompt": 1.25, "response": 10},
+    "gpt-5-mini": {"prompt": 0.25, "response": 2},
+    "gpt-5-nano": {"prompt": 0.05, "response": 0.4},
+    "gpt-5-chat-latest": {"prompt": 1.25, "response": 10},
     "wetosa-gpt-4o": {"prompt": 2.5, "response": 10},
     "wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
     "wetosa-gpt-4.1": {"prompt": 2, "response": 8},
     "wetosa-gpt-4.1-mini": {"prompt": 0.4, "response": 1.6},
     "wetosa-gpt-4.1-nano": {"prompt": 0.1, "response": 0.4},
+    "wetosa-gpt-5": {"prompt": 1.25, "response": 10},
+    "wetosa-gpt-5-mini": {"prompt": 0.25, "response": 2},
+    "wetosa-gpt-5-nano": {"prompt": 0.05, "response": 0.4},
+    "wetosa-gpt-5-chat-latest": {"prompt": 1.25, "response": 10},
 }
 """LLM Costs registry
 
