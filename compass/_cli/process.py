@@ -78,21 +78,11 @@ def process(config, verbose, no_progress):
         transient=True,
     )
     with live_display:
-        total_seconds, total_cost, out_dir = loop.run_until_complete(
+        run_msg = loop.run_until_complete(
             process_jurisdictions_with_openai(**config)
         )
 
-    runtime = _elapsed_time_as_str(total_seconds)
-    total_cost = (
-        f"\nTotal cost: [#71906e]${total_cost:,.2f}[/#71906e]"
-        if total_cost
-        else ""
-    )
-
-    console.print(
-        f"✅ Scraping complete!\nOutput Directory: {out_dir}\n"
-        f"Total runtime: {runtime} {total_cost}"
-    )
+    console.print(run_msg)
     COMPASS_PB.console = None
 
 
@@ -125,14 +115,3 @@ def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
         handler.addFilter(AddLocationFilter())
         logger.addHandler(handler)
         logger.setLevel(log_level)
-
-
-def _elapsed_time_as_str(seconds_elapsed):
-    """Format elapsed time into human readable string"""
-    days, seconds = divmod(int(seconds_elapsed), 24 * 3600)
-    minutes, seconds = divmod(seconds, 60)
-    hours, minutes = divmod(minutes, 60)
-    time_str = f"{hours:d}:{minutes:02d}:{seconds:02d}"
-    if days:
-        time_str = f"{days:,d} day{'s' if abs(days) != 1 else ''}, {time_str}"
-    return time_str

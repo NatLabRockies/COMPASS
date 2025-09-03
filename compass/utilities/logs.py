@@ -457,8 +457,13 @@ class JsonExceptionFileHandler(logging.Handler):
                 .setdefault(exc_info, [])
                 .append(entry_dict)
             )
+            try:
+                serialized_exception_info = json.dumps(records, indent=4)
+            except TypeError:
+                return
+
             with self.filename.open("w", encoding=self.encoding) as f:
-                json.dump(records, f, indent=4)
+                f.write(serialized_exception_info)
 
     def _get_existing_records(self):
         """Get existing records from file"""

@@ -270,3 +270,49 @@ def _extract_model_info_from_all_models(models):
         }
         for caller_args, tasks in models_to_tasks.items()
     ]
+
+
+def compile_run_summary_message(
+    total_seconds, total_cost, out_dir, document_count
+):
+    """Summarize the run results into a formatted string
+
+    Parameters
+    ----------
+    total_seconds : int | float
+        Total number of seconds the run took to complete.
+    total_cost : int | float
+        Total cost of the run, in $.
+    out_dir : path-like
+        Path to output directory where the run results are saved.
+    document_count : int
+        Number of documents found during the run.
+
+    Returns
+    -------
+    str
+        Formatted string summarizing the run results.
+    """
+    runtime = _elapsed_time_as_str(total_seconds)
+    total_cost = (
+        f"\nTotal cost: [#71906e]${total_cost:,.2f}[/#71906e]"
+        if total_cost
+        else ""
+    )
+
+    return (
+        f"✅ Scraping complete!\nOutput Directory: {out_dir}\n"
+        f"Total runtime: {runtime} {total_cost}\n"
+        f"Number of documents found: {document_count}"
+    )
+
+
+def _elapsed_time_as_str(seconds_elapsed):
+    """Format elapsed time into human readable string"""
+    days, seconds = divmod(int(seconds_elapsed), 24 * 3600)
+    minutes, seconds = divmod(seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+    time_str = f"{hours:d}:{minutes:02d}:{seconds:02d}"
+    if days:
+        time_str = f"{days:,d} day{'s' if abs(days) != 1 else ''}, {time_str}"
+    return time_str

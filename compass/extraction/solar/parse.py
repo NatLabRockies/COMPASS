@@ -103,7 +103,8 @@ UNIT_CLARIFICATIONS = {
 ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size is typically specified as a maximum system "
-        "size value or as a maximum number of solar panels."
+        "size value (in MW) or as a maximum number of solar panels. It "
+        "should never be specified in terms of area."
     ),
     "density": (
         "Do **not** try to infer the spacing requirement based on other "

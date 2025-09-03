@@ -75,7 +75,7 @@ def finalize(config):
     num_jurisdictions_found = sum(
         jur.get("found", False) for jur in jurisdictions
     )
-    total_cost = sum(jur.get("cost", 0) for jur in jurisdictions)
+    total_cost = sum(jur.get("cost") or 0 for jur in jurisdictions)
 
     save_run_meta(
         dirs,

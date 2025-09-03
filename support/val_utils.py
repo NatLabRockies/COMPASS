@@ -47,7 +47,14 @@ def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
 
 
 def plot_compass_confusion_matrix_from_data(
-    data, score_cats, title, truth_labels_col, out_fp=None, score_col="Score"
+    data,
+    score_cats,
+    title,
+    truth_labels_col,
+    out_fp=None,
+    score_col="Score",
+    x_label="COMPASS Retrieved Ordinance",
+    y_label="Ordinance Exists",
 ):
     cm, a, p, r = compute_stats(
         data, score_cats, truth_labels_col, score_col=score_col
@@ -75,12 +82,28 @@ def plot_compass_confusion_matrix_from_data(
     table_data = [["", "Yes", "No"], ["Yes", tp, fn], ["No", fp, tn]]
 
     plot_compass_confusion_matrix(
-        table_data, a, p, r, title, num_ords=len(data), out_fp=out_fp
+        table_data,
+        a,
+        p,
+        r,
+        title,
+        num_ords=len(data),
+        out_fp=out_fp,
+        x_label=x_label,
+        y_label=y_label,
     )
 
 
 def plot_compass_confusion_matrix(
-    table_data, accuracy, precision, recall, title, num_ords=None, out_fp=None
+    table_data,
+    accuracy,
+    precision,
+    recall,
+    title,
+    num_ords=None,
+    out_fp=None,
+    x_label="COMPASS Retrieved Ordinance",
+    y_label="Ordinance Exists",
 ):
     __, ax = plt.subplots(figsize=(8, 5))
     ax.set_axis_off()
@@ -149,7 +172,7 @@ def plot_compass_confusion_matrix(
     ax.text(
         -0.2,
         0.45,
-        "Ordinance Exists",
+        y_label,
         va="center",
         ha="center",
         rotation="vertical",
@@ -159,7 +182,7 @@ def plot_compass_confusion_matrix(
     ax.text(
         0.55,
         0.8,
-        "COMPASS Retrieved Ordinance",
+        x_label,
         va="center",
         ha="center",
         fontsize=14,

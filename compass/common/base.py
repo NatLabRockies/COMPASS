@@ -437,7 +437,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
                 "exactly four keys. The keys are 'value', 'units', 'summary', "
-                "and 'section'. The value of the '[value]' key "
+                "and 'section'. The value of the 'value' key "
                 "should be a numerical value corresponding to the "
                 "{restriction} for {tech}, or `null` if the text "
                 "does not mention such a restriction. Use our conversation to "

@@ -69,6 +69,7 @@ from compass.services.threaded import (
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
+    compile_run_summary_message,
     doc_infos_to_db,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
@@ -364,13 +365,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
 
     Returns
     -------
-    seconds_elapsed : float
-        Total time taken to complete the processing, in seconds.
-    cost : float
-        Total estimated cost for the LLM calls made during this run. If
-        no cost info is provided, this will be 0.
-    output_directory : path-like
-        Path to output directory containing data.
+    str
+        Message summarizing run results, including total processing
+        time, total cost, output directory, and number of documents
+        found. The message is formatted for easy reading in the terminal
+        and may include color-coded cost information if the terminal
+        supports it.
     """
     if log_level == "DEBUG":
         log_level = "DEBUG_TO_FILE"
@@ -557,9 +557,12 @@ class _COMPASSRunner:
 
         Returns
         -------
-        pd.DataFrame
-            DataFrame containing scraped ordinance values (could be
-            empty if no ordinances found).
+        str
+            Message summarizing run results, including total processing
+            time, total cost, output directory, and number of documents
+            found. The message is formatted for easy reading in the
+            terminal and may include color-coded cost information if
+            the terminal supports it.
         """
         logger.info("Running COMPASS version %s", __version__)
         jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
@@ -582,7 +585,17 @@ class _COMPASSRunner:
             total_cost=total_cost,
             models=self.models,
         )
-        return total_time, total_cost, self.dirs.out
+        run_msg = compile_run_summary_message(
+            total_seconds=total_time,
+            total_cost=total_cost,
+            out_dir=self.dirs.out,
+            document_count=num_docs_found,
+        )
+        for sub_msg in run_msg.split("\n"):
+            logger.info(
+                sub_msg.replace("[#71906e]", "").replace("[/#71906e]", "")
+            )
+        return run_msg
 
     async def _run_all(self, jurisdictions):
         """Process all jurisdictions with running services"""

@@ -1,7 +1,12 @@
 """Ordinance utilities"""
 
 from .base import Directories, title_preserving_caps
-from .finalize import doc_infos_to_db, save_db, save_run_meta
+from .finalize import (
+    compile_run_summary_message,
+    doc_infos_to_db,
+    save_db,
+    save_run_meta,
+)
 from .jurisdictions import (
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
