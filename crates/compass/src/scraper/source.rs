@@ -39,7 +39,7 @@ pub(super) struct Jurisdiction {
     jurisdiction_type: Option<String>,
     #[serde(alias = "FIPS")]
     /// Federal Information Processing Standards code for the jurisdiction
-    fips: u32,
+    fips: u64,
     /// Whether the jurisdiction was found during the scraping
     found: bool,
     /// Total time spent scraping the jurisdiction, in seconds
@@ -134,7 +134,7 @@ impl Source {
             state TEXT,
             subdivision TEXT,
             jurisdiction_type TEXT,
-            fips INTEGER,
+            fips UBIGINT,
             found BOOLEAN,
             total_time REAL,
             total_time_string TEXT,

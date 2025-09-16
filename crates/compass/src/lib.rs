@@ -65,7 +65,7 @@ pub fn init_db(path: &str) -> Result<()> {
       id INTEGER PRIMARY KEY DEFAULT NEXTVAL('jurisdiction_sequence'),
       bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
       name TEXT NOT NULL,
-      FIPS INTEGER NOT NULL,
+      FIPS UBIGINT NOT NULL,
       geometry GEOMETRY NOT NULL,
       rank jurisdiction_rank NOT NULL,
       parent_id INTEGER REFERENCES jurisdiction(id),
@@ -169,7 +169,7 @@ pub fn load_ordinance<P: AsRef<std::path::Path> + std::fmt::Debug>(
 /// but we might expand this in the future to handle more complete outputs.
 struct OrdinanceRecord {
     /// FIPS code of the jurisdiction
-    FIPS: u32,
+    FIPS: u64,
     /// Feature type, e.g., "setback", "height", etc.
     feature: String,
     /// Feature subtype, currently not used but required by reVX standard.
