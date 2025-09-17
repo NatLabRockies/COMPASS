@@ -21,7 +21,9 @@ def setup_graph_sef_types(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Solar Energy Farm types", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -40,8 +42,8 @@ def setup_graph_sef_types(**kwargs):
     G.add_node(
         "get_text",
         prompt=(
-            "What are the different solar energy farm sizes regulated by "
-            "this ordinance? List them in order of increasing size. "
+            "What are the different solar energy farm sizes **regulated by "
+            "this ordinance**? List them in order of increasing size. "
             "Include any relevant numerical qualifiers in the name, if "
             "appropriate. Only include solar energy farm types; do not "
             "include generic types or other energy system types."
@@ -56,9 +58,9 @@ def setup_graph_sef_types(**kwargs):
             "JSON file must include exactly two keys. The keys are "
             "'largest_sef_type' and 'explanation'. The value of the "
             "'largest_sef_type' key should be a string that labels the "
-            "largest solar energy system size regulated by this ordinance. "
-            "The value of the 'explanation' key should be a string containing "
-            "a short explanation for your choice."
+            "largest solar energy system size **regulated by this "
+            "ordinance**. The value of the 'explanation' key should be a "
+            "string containing a short explanation for your choice."
         ),
     )
     return G
@@ -78,7 +80,9 @@ def setup_multiplier(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Setback distance", **kwargs
+    )
 
     G.add_node(
         "init",

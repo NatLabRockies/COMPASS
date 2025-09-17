@@ -20,7 +20,8 @@ _LARGE_SEF_SYNONYMS = (
     "solar panels, solar energy conversion systems (SECS), solar energy "
     "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
     "utility-scale solar energy systems (USES), commercial solar energy "
-    "systems (CSES), alternate energy systems (AES), or similar"
+    "systems (CSES), ground-mounted solar energy systems (GSES), "
+    "alternate energy systems (AES), or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, siting, setback, system design, and operational "
@@ -36,6 +37,8 @@ class SolarHeuristic(Heuristic):
     """Perform a heuristic check for mention of solar farms in text"""
 
     NOT_TECH_WORDS = [
+        "concentrated solar",
+        "csp",
         "micro secs",
         "small secs",
         "mini secs",

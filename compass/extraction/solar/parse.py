@@ -14,7 +14,6 @@ from compass.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
     run_async_tree,
     run_async_tree_with_bm,
-    found_ord,
     empty_output,
     setup_async_decision_tree,
     setup_base_setback_graph,
@@ -44,8 +43,8 @@ SETBACKS_SYSTEM_MESSAGE = (
     "Please only consider ordinances for systems that would typically be "
     "defined as {tech} based on the text itself — for example, systems "
     "intended for electricity generation or sale, or those above thresholds "
-    "such as height or rated capacity. Ignore any requirements that apply "
-    "only to smaller or clearly non-commercial systems. "
+    "such as height or rated capacity. Disregard any requirements that apply "
+    "**only** to smaller or clearly non-commercial systems. "
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
@@ -102,14 +101,19 @@ UNIT_CLARIFICATIONS = {
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
-        "Maximum project size is typically specified as a maximum system "
-        "size value (in MW) or as a maximum number of solar panels. It "
-        "should never be specified in terms of area."
+        "Maximum project size should be specified as a maximum system "
+        "size value (in MW) or as a maximum number of solar panels within "
+        "some geographical area. Do not confuse this with lot coverage or "
+        "min/max lot size."
     ),
     "density": (
         "Do **not** try to infer the spacing requirement based on other "
         "restrictions such as setbacks from facility perimeters, property "
         "lines, etc."
+    ),
+    "visual impact": (
+        "Do **not** consider glare restrictions as part of visual impact - "
+        "these are collected separately."
     ),
 }
 _FEATURE_TO_OWNED_TYPE = {
@@ -293,9 +297,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         feature_kwargs["tech"] = largest_sef_type
         logger.debug("Parsing feature %r", feature)
 
-        base_messages = await self._base_messages(text, **feature_kwargs)
-        if not found_ord(base_messages):
-            logger.debug("Failed `found_ord` check for feature %r", feature)
+        out, base_messages = await self._base_messages(text, **feature_kwargs)
+        if not out:
+            logger.debug("Did not find ordinance for feature %r", feature)
             sub_pb.update(task_id, advance=1, just_parsed=feature)
             return empty_output(feature)
 
@@ -327,15 +331,15 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             **feature_kwargs,
         )
-        await run_async_tree(tree, response_as_json=False)
-        return deepcopy(tree.chat_llm_caller.messages)
+        out = await run_async_tree(tree, response_as_json=False)
+        return out, deepcopy(tree.chat_llm_caller.messages)
 
     async def _extract_setback_values_for_p_or_np(
         self, text, base_messages, feature_id, **feature_kwargs
     ):
         """Extract setback values for participating ordinances"""
         logger.debug("Checking participating vs non-participating")
-        p_np_text = {"participating": "", "non-participating": ""}
+        p_np_text = {"participating": "", "non-participating": text}
         decision_tree_participating_out = await self._run_setback_graph(
             setup_participating_owner,
             text,

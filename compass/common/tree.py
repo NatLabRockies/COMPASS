@@ -1,8 +1,9 @@
 """Ordinance async decision tree"""
 
-import networkx as nx
 import logging
+from functools import cached_property
 
+import networkx as nx
 from elm.tree import DecisionTree
 
 from compass.utilities.enums import LLMUsageCategory
@@ -69,6 +70,11 @@ class AsyncDecisionTree(DecisionTree):
         """ChatLLMCaller: ChatLLMCaller instance for this tree"""
         return self.graph.graph["chat_llm_caller"]
 
+    @cached_property
+    def tree_name(self):
+        """str: Name of the decision tree"""
+        return self._g.graph.get("_d_tree_name", "Unknown decision tree")
+
     @property
     def messages(self):
         """Get a list of the conversation messages with the LLM
@@ -113,7 +119,11 @@ class AsyncDecisionTree(DecisionTree):
             prompt, usage_sub_label=self.usage_sub_label
         )
         logger.debug_to_file(
-            "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out
+            "Chat GPT prompt (node=%r; name=%r):\n%s\nChat GPT response:\n%s",
+            node0,
+            self.tree_name,
+            prompt,
+            out,
         )
         return self._parse_graph_output(node0, out or "")
 
@@ -167,6 +177,8 @@ class AsyncDecisionTree(DecisionTree):
             else:
                 break
 
-        logger.info("Final decision tree output: %s", out)
+        logger.info(
+            "Final decision tree output (name=%r): %s", self.tree_name, out
+        )
 
         return out

@@ -53,7 +53,9 @@ def setup_graph_correct_document_type(**kwargs):
     )
     is_draft_prompt = "\n".join(is_draft_prompt)
 
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Correct document type", **kwargs
+    )
     G.add_node(
         "init",
         prompt=(
@@ -89,7 +91,33 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_model", "is_pd", condition=llm_response_starts_with_no)
+    G.add_edge("is_model", "is_meeting", condition=llm_response_starts_with_no)
+    G.add_node(
+        "is_meeting",
+        prompt=(
+            "Does this text appear to be from town or board meeting notes? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_meeting",
+        "is_single_project",
+        condition=llm_response_starts_with_no,
+    )
+    G.add_node(
+        "is_single_project",
+        prompt=(
+            "Does this text appear to apply for a single specific project? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_single_project", "is_pd", condition=llm_response_starts_with_no
+    )
     G.add_node(
         "is_pd",
         prompt=(
@@ -211,7 +239,9 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Correct jurisdiction type", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -429,8 +459,9 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-
-    G = setup_graph_no_nodes(**kwargs)  # noqa: N806
+    G = setup_graph_no_nodes(  # noqa: N806
+        d_tree_name="Correct jurisdiction type from URL", **kwargs
+    )
 
     G.add_node(
         "init",

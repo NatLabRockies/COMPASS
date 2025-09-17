@@ -4,7 +4,6 @@ from .base import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
     BaseTextExtractor,
     empty_output,
-    found_ord,
     llm_response_starts_with_no,
     llm_response_starts_with_yes,
     run_async_tree,
