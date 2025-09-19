@@ -142,7 +142,7 @@ upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-whee
 poppler = ">=24.8.0,<25"
 
 [tool.pixi.feature.rust-dev.dependencies]
-rust = ">=1.88.0,<1.89"
+rust = ">=1.89.0,<1.90"
 cxx-compiler = ">=1.9.0,<2"
 graphviz = ">=12.2.1,<13"
 
@@ -189,7 +189,7 @@ compilers = ">=1.11.0,<2"
 clangdev = ">=20.1.8,<21"
 libclang = ">=20.1.8,<21"
 maturin = ">=1.8.6,<2"
-rust = ">=1.88.0,<1.89"
+rust = ">=1.89.0,<1.90"
 
 [tool.pixi.target.win-64.dependencies]
 pdftotext = ">=2.2.2,<3"
