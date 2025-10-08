@@ -210,7 +210,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
             content=text_chunk,
             usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
         )
-        logger.debug("LLM response: %s", str(content))
+        logger.debug("LLM response: %s", content)
         return content.get(key, False)
 
     async def _check_chunk_is_for_utility_scale(self, key, text_chunk):
@@ -220,7 +220,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
             content=text_chunk,
             usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
         )
-        logger.debug("LLM response: %s", str(content))
+        logger.debug("LLM response: %s", content)
         return content.get(key, False)
 
 
@@ -285,7 +285,7 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
                 LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION
             ),
         )
-        logger.debug("LLM response: %s", str(content))
+        logger.debug("LLM response: %s", content)
         contains_district_info = content.get(key, False)
 
         if contains_district_info:

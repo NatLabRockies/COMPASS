@@ -95,8 +95,19 @@ Ruff is an "opinionated" formatter and linter designed to enhance code readabili
 maintainability, and consistency that is extremely fast.
 
 You can use the `Ruff VSCode extension <https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff>`_
-if you are developing using VSCode. Alternatively, you can set a pre-commit hook to run Ruff.
-This would perform automatic code formatting before any code is committed to the repository.
+if you are developing using VSCode. If you do so, make sure to set the path to the ``ruff``
+executable in your VSCode settings to point to the ``ruff`` installed in the ``pdev`` environment.
+You can do this by adding the following to your ``settings.json`` file:
+
+.. code-block:: json
+
+    "ruff.path": [
+        "${workspaceFolder}/.pixi/envs/pdev/bin/ruff"
+    ]
+
+Alternatively, you can set a pre-commit hook to run Ruff. This would perform automatic code formatting
+before any code is committed to the repository.
+
 Both of these tools ensure that all code contributions meet the established quality standards,
 minimizing the chances of introducing formatting inconsistencies or potential issues.
 

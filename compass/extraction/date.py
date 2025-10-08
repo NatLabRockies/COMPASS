@@ -93,7 +93,7 @@ class DateExtractor:
             )
             if response:
                 date = _parse_date([response])
-                logger.debug("Parsed date from URL: %s", str(date))
+                logger.debug("Parsed date from URL: %s", date)
                 return date
 
         if not doc.raw_pages:

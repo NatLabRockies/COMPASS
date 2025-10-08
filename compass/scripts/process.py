@@ -652,7 +652,7 @@ class _COMPASSRunner:
 
         keys = ["source", "date", "jurisdiction", "ord_db_fp"]
         doc_info = {key: doc.attrs.get(key) for key in keys}
-        logger.debug("Saving the following doc info:\n%s", str(doc_info))
+        logger.debug("Saving the following doc info:\n%s", doc_info)
         return doc_info
 
     async def _process_jurisdiction_with_logging(

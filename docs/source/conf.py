@@ -205,6 +205,23 @@ texinfo_documents = [
     ),
 ]
 
+
+def skip_pydantic_methods(app, what, name, obj, skip, options):
+    if name in (
+        "model_dump_json",
+        "model_json_schema",
+        "model_dump",
+        "model_construct",
+        "model_copy",
+    ):
+        return True
+    return None
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_pydantic_methods)
+
+
 # -- Extension configuration -------------------------------------------------
 
 autosummary_generate = True  # Turn on sphinx.ext.autosummary

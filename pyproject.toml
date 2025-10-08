@@ -52,8 +52,8 @@ ocr = [
 dev = [
   "jupyter>=1.0.0,<1.1",
   "pipreqs>=0.4.13,<0.5",
-  "ruff>=0.8.0,<0.9",
-  "ruff-lsp>=0.0.60,<0.0.61",
+  "ruff>=0.13.3,<0.14",
+  "ruff-lsp>=0.0.62,<0.0.63",
 ]
 test = [
   "flaky>=3.8.1,<4",
@@ -211,8 +211,8 @@ tf-playwright-stealth = ">=1.2.0,<2"
 geopandas = ">=1.0.1,<2"
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
-ruff = ">=0.8.0,<0.9"
-ruff-lsp = ">=0.0.60,<0.0.61"
+ruff = ">=0.13.3,<0.14"
+ruff-lsp = ">=0.0.62,<0.0.63"
 seaborn = ">=0.13.2,<0.14"
 
 [tool.pixi.feature.python-test.dependencies]

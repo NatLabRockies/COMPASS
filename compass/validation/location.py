@@ -354,7 +354,7 @@ async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):
         validator.META_SCORE_KEY,
         score,
         doc.attrs.get("source", "Unknown"),
-        str(score >= score_thresh),
+        score >= score_thresh,
         score_thresh,
     )
     return score >= score_thresh

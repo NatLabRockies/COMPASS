@@ -302,7 +302,7 @@ class LegalTextValidator(StructuredLLMCaller):
             doc_is_from_ocr=self.doc_is_from_ocr,
         )
         out = await run_async_tree(tree, response_as_json=True)
-        logger.debug("LLM response: %s", str(out))
+        logger.debug("LLM response: %s", out)
         return out.get(key, False)
 
 
