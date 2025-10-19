@@ -12,6 +12,7 @@ from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
 from compass.extraction.features import SetbackFeatures
 from compass.common import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
+    SYSTEM_SIZE_REMINDER,
     run_async_tree,
     run_async_tree_with_bm,
     empty_output,
@@ -40,27 +41,18 @@ SETBACKS_SYSTEM_MESSAGE = (
     "For the duration of this conversation, only focus on ordinances"
     "relating to setbacks from {feature}; do not respond based on any text "
     "related to {ignore_features}. "
-    "Please only consider ordinances for systems that would typically be "
-    "defined as {tech} based on the text itself — for example, systems "
-    "intended for electricity generation or sale, or those above thresholds "
-    "such as height or rated capacity. Disregard any requirements that apply "
-    "**only** to smaller or clearly non-commercial systems. "
+    f"Please only consider ordinances for {SYSTEM_SIZE_REMINDER}"
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for systems that would "
-    "typically be defined as {tech} based on the text itself — for "
-    "example, systems intended for electricity generation or sale, "
-    "or those above thresholds such as height or rated capacity. Ignore "
-    "any requirements that apply only to smaller or clearly "
-    "non-commercial systems. "
+    "ordinances relating to {restriction} for "
+    f"{SYSTEM_SIZE_REMINDER}"
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on permitted uses for "
-    "{tech} (or similar). Ignore all text that only pertains to private, "
-    "micro, small, or medium sized wind energy systems."
+    f"{SYSTEM_SIZE_REMINDER}"
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "other secs": (
@@ -74,7 +66,10 @@ EXTRA_NUMERICAL_RESTRICTIONS = {
     ),
     "minimum lot size": "**minimum** lot, parcel, or tract size allowed",
     "maximum lot size": "**maximum** lot, parcel, or tract size allowed",
-    "density": "**minimum** allowed spacing between individual solar panels",
+    "panel spacing": (
+        "**minimum** allowed spacing between individual solar panels"
+    ),
+    "land density": "**maximum** allowed system size **per unit area**",
     "coverage": "**maximum** land coverage allowed",
 }
 EXTRA_QUALITATIVE_RESTRICTIONS = {
@@ -87,6 +82,7 @@ EXTRA_QUALITATIVE_RESTRICTIONS = {
     ),
     "fencing": "fencing requirements",
     "signage": "signage requirements",
+    "screening": "vegetative buffer and/or other screening requirements",
     "soil": "soil, erosion, and/or sediment control requirements",
 }
 UNIT_CLARIFICATIONS = {
@@ -94,26 +90,52 @@ UNIT_CLARIFICATIONS = {
         "For the purposes of this extraction, assume the standard units "
         "for noise are 'dBA'."
     ),
+    "panel spacing": (
+        "For the purposes of this extraction, assume the standard units for"
+        "spacing between individual solar panels are one of the following: "
+        "'height-multiplier', 'feet', or 'meters'."
+    ),
+    "land density": (
+        "This value should be specified as a maximum system "
+        "size value (in MW) per area (square meters, acres, etc.). "
+        "Do not confuse this with lot coverage or min/max lot size "
+        "requirements."
+    ),
     "coverage": (
         "Maximum land coverage should be specified as a fraction or "
         "percentage of the total land."
+    ),
+    "minimum lot size": (
+        "Minimum lot size should **always** be specified as an area value."
+    ),
+    "maximum lot size": (
+        "Maximum lot size should **always** be specified as an area value."
     ),
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
         "Maximum project size should be specified as a maximum system "
-        "size value (in MW) or as a maximum number of solar panels within "
-        "some geographical area. Do not confuse this with lot coverage or "
-        "min/max lot size."
+        "size value (in MW) or as a limit on installation size (e.g. maximum "
+        "number of systems or maximum number of solar panels). "
+        "Do not confuse this with lot coverage or min/max lot size "
+        "requirements."
     ),
-    "density": (
-        "Do **not** try to infer the spacing requirement based on other "
+    "land density": (
+        "Do **not** try to infer the density requirement based on other "
         "restrictions such as setbacks from facility perimeters, property "
         "lines, etc."
     ),
     "visual impact": (
         "Do **not** consider glare restrictions as part of visual impact - "
         "these are collected separately."
+    ),
+    "panel spacing": (
+        "Do **not** try to infer the spacing requirement based on other "
+        "restrictions such as setbacks from facility perimeters, property "
+        "lines, etc."
+    ),
+    "coverage": (
+        "Do not confuse this with density or min/max lot size requirements."
     ),
 }
 _FEATURE_TO_OWNED_TYPE = {
@@ -143,11 +165,21 @@ class StructuredSolarParser(BaseLLMCaller):
             chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
         )
         decision_tree_sef_types_out = await run_async_tree(tree)
-
-        return (
+        largest_system = (
             decision_tree_sef_types_out.get("largest_sef_type")
             or "utility-scale solar energy systems"
         )
+
+        if not decision_tree_sef_types_out.get("is_large", True):
+            logger.info(
+                "Did not find utility-scale systems in text. Largest "
+                "system found: %r",
+                largest_system,
+            )
+            return None
+
+        logger.info("Largest SEF type found in text: %r", largest_system)
+        return largest_system
 
 
 class StructuredSolarOrdinanceParser(StructuredSolarParser):
@@ -179,11 +211,14 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
 
         Returns
         -------
-        pd.DataFrame
-            DataFrame containing parsed-out ordinance values.
+        pd.DataFrame | None
+            DataFrame containing parsed-out ordinance values. Can also
+            be ``None`` if a large solar energy system is not found in
+            the text.
         """
         largest_sef_type = await self._check_solar_farm_type(text)
-        logger.info("Largest SEF type found in text: %r", largest_sef_type)
+        if not largest_sef_type:
+            return None
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
@@ -225,16 +260,18 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     sub_pb,
                     task_id,
                     text,
-                    feature,
+                    feature_id,
                     r_text,
                     largest_sef_type,
                     is_numerical=True,
-                    unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
-                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
+                    unit_clarification=UNIT_CLARIFICATIONS.get(feature_id, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(
+                        feature_id, ""
+                    ),
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
+            for feature_id, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
         ]
         extras_parsers += [
             asyncio.create_task(
@@ -242,15 +279,17 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     sub_pb,
                     task_id,
                     text,
-                    feature,
+                    feature_id,
                     r_text,
                     largest_sef_type,
                     is_numerical=False,
-                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(
+                        feature_id, ""
+                    ),
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
+            for feature_id, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
         ]
         return await asyncio.gather(*(feature_parsers + extras_parsers))
 
@@ -259,7 +298,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         sub_pb,
         task_id,
         text,
-        feature,
+        feature_id,
         restriction_text,
         largest_sef_type,
         is_numerical,
@@ -267,7 +306,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         feature_clarifications="",
     ):
         """Parse a non-setback restriction from the text"""
-        logger.debug("Parsing extra feature %r", feature)
+        logger.debug("Parsing extra feature %r", feature_id)
         system_message = RESTRICTIONS_SYSTEM_MESSAGE.format(
             restriction=restriction_text, tech=largest_sef_type
         )
@@ -276,6 +315,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             is_numerical=is_numerical,
             tech=largest_sef_type,
+            feature_id=feature_id,
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
@@ -283,28 +323,28 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             feature_clarifications=feature_clarifications,
         )
         info = await run_async_tree(tree)
-        info.update({"feature": feature, "quantitative": is_numerical})
+        info.update({"feature": feature_id, "quantitative": is_numerical})
         if is_numerical:
             info = _sanitize_output(info)
-        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return [info]
 
     async def _parse_setback_feature(
         self, sub_pb, task_id, text, feature_kwargs, largest_sef_type
     ):
         """Parse values for a setback feature"""
-        feature = feature_kwargs["feature_id"]
+        feature_id = feature_kwargs["feature_id"]
         feature_kwargs["tech"] = largest_sef_type
-        logger.debug("Parsing feature %r", feature)
+        logger.debug("Parsing feature %r", feature_id)
 
         out, base_messages = await self._base_messages(text, **feature_kwargs)
         if not out:
-            logger.debug("Did not find ordinance for feature %r", feature)
-            sub_pb.update(task_id, advance=1, just_parsed=feature)
-            return empty_output(feature)
+            logger.debug("Did not find ordinance for feature %r", feature_id)
+            sub_pb.update(task_id, advance=1, just_parsed=feature_id)
+            return empty_output(feature_id)
 
-        if feature not in {"structures", "property line"}:
-            output = {"feature": feature}
+        if feature_id not in {"structures", "property line"}:
+            output = {"feature": feature_id}
             output.update(
                 await self._extract_setback_values(
                     text=text,
@@ -312,13 +352,13 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     **feature_kwargs,
                 )
             )
-            sub_pb.update(task_id, advance=1, just_parsed=feature)
+            sub_pb.update(task_id, advance=1, just_parsed=feature_id)
             return [output]
 
         output = await self._extract_setback_values_for_p_or_np(
             text, base_messages, **feature_kwargs
         )
-        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return output
 
     async def _base_messages(self, text, **feature_kwargs):
@@ -443,24 +483,57 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         "panels, solar energy conversion systems (SECS), solar energy "
         "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
         "utility-scale solar energy systems (USES), commercial solar energy "
-        "systems (CSES), alternate energy systems (AES), or similar. "
+        "systems (CSES), alternate energy systems (AES), commercial energy "
+        "production systems (CEPCS), or similar"
     )
     _USE_TYPES = [
         {
             "feature_id": "primary use districts",
-            "use_type": "primary use or similar (e.g., without special "
-            "conditions or approval)",
+            "use_type": (
+                "permitted as primary use or similar (e.g., without special "
+                "conditions or approval)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use districts. {sef_clarification}"
+            ),
         },
         {
             "feature_id": "special use districts",
-            "use_type": "special use or similar (e.g., requires approval "
-            "by the zoning appeals board or meeting certain conditions like "
-            "completing a permitting process)",
+            "use_type": (
+                "permitted as special use or similar (e.g., requires approval "
+                "by the zoning appeals board or meeting certain conditions "
+                "like completing a permitting process)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use and **do not include** them in the output. "
+                "{sef_clarification}"
+            ),
         },
         {
             "feature_id": "accessory use districts",
-            "use_type": "accessory use or similar (e.g., when integrated "
-            "with an existing structure or secondary to another use)",
+            "use_type": (
+                "permitted as accessory use or similar (e.g., when integrated "
+                "with an existing structure or secondary to another use)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use and **do not include** them in the output. "
+                "{sef_clarification}"
+            ),
+        },
+        {
+            "feature_id": "prohibited use districts",
+            "use_type": (
+                "prohibited or similar (e.g., where solar energy "
+                "systems are not allowed or banned)"
+            ),
+            "clarifications": (
+                "Only output specific districts where solar energy systems "
+                "are prohibited **unconditionally**. "
+                "{sef_clarification}"
+            ),
         },
     ]
 
@@ -475,11 +548,14 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
 
         Returns
         -------
-        pd.DataFrame
+        pd.DataFrame | None
             DataFrame containing parsed-out allowed-use district names.
+            Can also be ``None`` if a large solar energy system is not
+            found in the text.
         """
         largest_sef_type = await self._check_solar_farm_type(text)
-        logger.info("Largest SEF type found in text: %r", largest_sef_type)
+        if not largest_sef_type:
+            return None
 
         loc = asyncio.current_task().get_name()
         with COMPASS_PB.jurisdiction_sub_prog_bar(loc) as sub_pb:
@@ -509,7 +585,14 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         return pd.DataFrame(chain.from_iterable(outputs))
 
     async def _parse_permitted_use_districts(
-        self, sub_pb, task_id, text, largest_sef_type, feature_id, use_type
+        self,
+        sub_pb,
+        task_id,
+        text,
+        largest_sef_type,
+        feature_id,
+        use_type,
+        clarifications,
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing use type: %r", feature_id)
@@ -519,8 +602,11 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         tree = setup_async_decision_tree(
             setup_graph_permitted_use_districts,
             usage_sub_label=LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION,
+            feature_id=feature_id,
             tech=largest_sef_type,
-            clarifications=self._LARGE_SEF_CLARIFICATION,
+            clarifications=clarifications.format(
+                sef_clarification=self._LARGE_SEF_CLARIFICATION
+            ),
             text=text,
             use_type=use_type,
             chat_llm_caller=self._init_chat_llm_caller(system_message),

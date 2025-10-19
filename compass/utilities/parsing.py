@@ -141,10 +141,7 @@ def num_ordinances_in_doc(doc, exclude_features=None):
     int
         Number of unique ordinance values extracted from this document.
     """
-    if doc is None:
-        return 0
-
-    if "ordinance_values" not in doc.attrs:
+    if doc is None or doc.attrs.get("ordinance_values") is None:
         return 0
 
     return num_ordinances_dataframe(

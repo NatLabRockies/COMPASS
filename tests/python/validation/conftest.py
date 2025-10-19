@@ -9,7 +9,7 @@ import openai
 from elm import ApiBase
 from elm.web.document import PDFDocument, HTMLDocument
 from elm.utilities.parse import read_pdf
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
 from compass.utilities import RTS_SEPARATORS
 from compass.services.openai import OpenAIService

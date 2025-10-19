@@ -7,7 +7,7 @@ from functools import partial, cached_property
 
 import openai
 from elm import ApiBase
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
 from compass.utilities import RTS_SEPARATORS

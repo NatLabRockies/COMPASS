@@ -22,6 +22,7 @@ async def check_for_ordinance_info(
     doc,
     model_config,
     heuristic,
+    tech,
     ordinance_text_collector_class,
     permitted_use_text_collector_class=None,
     usage_tracker=None,
@@ -36,6 +37,9 @@ async def check_for_ordinance_info(
         ``"contains_ord_info"`` key, it will not be processed. To force
         a document to be processed by this function, remove that key
         from the documents attrs.
+    tech : str
+        Technology of interest (e.g. "solar", "wind", etc). This is
+        used to set up some document validation decision trees.
     text_splitter : obj
         Instance of an object that implements a `split_text` method.
         The method should take text as input (str) and return a list
@@ -65,6 +69,7 @@ async def check_for_ordinance_info(
     chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
     legal_text_validator = LegalTextValidator(
+        tech=tech,
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
         doc_is_from_ocr=doc.attrs.get("from_ocr", False),

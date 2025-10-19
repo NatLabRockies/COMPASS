@@ -21,7 +21,8 @@ _LARGE_SEF_SYNONYMS = (
     "facilities (SEF), solar energy farms (SEF), solar farms (SF), "
     "utility-scale solar energy systems (USES), commercial solar energy "
     "systems (CSES), ground-mounted solar energy systems (GSES), "
-    "alternate energy systems (AES), or similar"
+    "alternate energy systems (AES), commercial energy production "
+    "systems (CEPCS), or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, siting, setback, system design, and operational "
@@ -29,7 +30,7 @@ _SEARCH_TERMS_AND = (
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = (
-    "private, residential, roof-mounted, micro, small, or medium sized"
+    "CSP, private, residential, roof-mounted, micro, small, or medium sized"
 )
 
 
@@ -175,7 +176,8 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
     def ordinance_text(self):
         """str: Combined ordinance text from the individual chunks"""
         logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
+            "Grabbing %d ordinance chunk(s) from original text at these "
+            "indices: %s",
             len(self._ordinance_chunks),
             list(self._ordinance_chunks),
         )
@@ -212,9 +214,12 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
 
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "whether the text explicitly details the districts where large "
-        "solar energy farms are a permitted use. Large solar energy systems "
-        f"(SES) may also be referred to as {_LARGE_SEF_SYNONYMS}. "
+        "whether it explicitly contains relevant information to determine the "
+        "districts (and especially the district names) where large solar "
+        "energy farms are a permitted use (primary, special, accessory, or "
+        "otherwise), as well as the districts where large solar energy farms "
+        "are prohibited entirely. Large solar energy systems (SES) may also "
+        f"be referred to as {_LARGE_SEF_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "
         "Note that relevant information may sometimes be found in tables. "
@@ -287,7 +292,8 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     def permitted_use_district_text(self):
         """str: Combined permitted use districts text from the chunks"""
         logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
+            "Grabbing %d permitted use chunk(s) from original text at these "
+            "indices: %s",
             len(self._district_chunks),
             list(self._district_chunks),
         )
@@ -333,6 +339,8 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         f"\t{_LARGE_SEF_SYNONYMS.capitalize()}.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
         "on solar energy systems.\n"
+        "- Explicitly include any text related to the adoption or enactment "
+        "date of the ordinance (if any).\n"
         "\n2. ## Exclusions ##:\n"
         "- Do **not** include text that does not pertain to solar energy "
         "systems.\n"
@@ -426,7 +434,8 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "\n1. ## Scope of Extraction ##:\n"
         "- Retain all text defining permitted use(s) for a district, "
         "including:\n"
-        "\t- **Primary, Special, Accessory, and other permitted use types.**\n"
+        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
+        "any other use types.**\n"
         "\t- **District names and zoning classifications.**\n"
         "- Pay extra attention to any references to **solar energy "
         "facilities** or related terms.\n"
@@ -471,7 +480,8 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "\n1. ## Scope of Extraction ##:\n"
         "- Retain all text defining permitted use(s) for a district, "
         "including:\n"
-        "\t- **Primary, Special, Accessory, and other permitted use types.**\n"
+        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
+        "any other use types.**\n"
         "\t- **District names and zoning classifications.**\n"
         "- Ensure that **tables, lists, and structured elements** are "
         "preserved as they may contain relevant details.\n"

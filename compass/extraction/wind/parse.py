@@ -22,6 +22,7 @@ from compass.common import (
     setup_graph_permitted_use_districts,
 )
 from compass.extraction.wind.graphs import (
+    WES_SYSTEM_SIZE_REMINDER,
     setup_graph_wes_types,
     setup_multiplier,
     setup_conditional_min,
@@ -42,28 +43,18 @@ SETBACKS_SYSTEM_MESSAGE = (
     "For the duration of this conversation, only focus on ordinances "
     "relating to setbacks from {feature}; do not respond based on any text "
     "related to {ignore_features}. "
-    "Please only consider ordinances for systems that would typically be "
-    "defined as {tech} based on the text itself — for example, systems "
-    "intended for electricity generation or sale, or those above thresholds "
-    "such as height, rotor diameter, or rated capacity. Ignore any "
-    "requirements that apply only to smaller or clearly non-commercial "
-    "systems. "
+    f"Please only consider ordinances for {WES_SYSTEM_SIZE_REMINDER}"
 )
 RESTRICTIONS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on "
-    "ordinances relating to {restriction} for systems that would "
-    "typically be defined as {tech} based on the text itself — for "
-    "example, systems intended for electricity generation or sale, "
-    "or those above thresholds such as height, rotor diameter, or rated "
-    "capacity. Disregard any requirements that apply **only** to smaller "
-    "or clearly non-commercial systems. "
+    "ordinances relating to {restriction} for "
+    f"{WES_SYSTEM_SIZE_REMINDER}"
 )
 PERMITTED_USE_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
     "For the duration of this conversation, only focus on permitted uses for "
-    "{tech} (or similar). Ignore all text that only pertains to private, "
-    "micro, small, or medium sized wind energy systems."
+    f"{WES_SYSTEM_SIZE_REMINDER}"
 )
 EXTRA_NUMERICAL_RESTRICTIONS = {
     "other wecs": (
@@ -109,6 +100,12 @@ UNIT_CLARIFICATIONS = {
         "'tip-height-multiplier', 'hub-height-multiplier', "
         "'rotor-diameter-multiplier', 'feet', or 'meters'."
     ),
+    "minimum lot size": (
+        "Minimum lot size should **always** be specified as an area value."
+    ),
+    "maximum lot size": (
+        "Maximum lot size should **always** be specified as an area value."
+    ),
 }
 ER_CLARIFICATIONS = {
     "maximum project size": (
@@ -153,10 +150,20 @@ class StructuredWindParser(BaseLLMCaller):
         )
         decision_tree_wes_types_out = await run_async_tree(tree)
 
-        return (
+        largest_system = (
             decision_tree_wes_types_out.get("largest_wes_type")
             or "**large** wind energy systems"
         )
+        if not decision_tree_wes_types_out.get("is_large", True):
+            logger.info(
+                "Did not find utility-scale systems in text. Largest "
+                "system found: %r",
+                largest_system,
+            )
+            return None
+
+        logger.info("Largest WES type found in text: %r", largest_system)
+        return largest_system
 
 
 class StructuredWindOrdinanceParser(StructuredWindParser):
@@ -188,11 +195,14 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame
-            DataFrame containing parsed-out ordinance values.
+        pd.DataFrame | None
+            DataFrame containing parsed-out ordinance values. Can also
+            be ``None`` if a large wind energy system is not found in
+            the text.
         """
         largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %r", largest_wes_type)
+        if not largest_wes_type:
+            return None
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
@@ -234,16 +244,18 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     sub_pb,
                     task_id,
                     text,
-                    feature,
+                    feature_id,
                     r_text,
                     largest_wes_type,
                     is_numerical=True,
-                    unit_clarification=UNIT_CLARIFICATIONS.get(feature, ""),
-                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
+                    unit_clarification=UNIT_CLARIFICATIONS.get(feature_id, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(
+                        feature_id, ""
+                    ),
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
+            for feature_id, r_text in EXTRA_NUMERICAL_RESTRICTIONS.items()
         ]
         extras_parsers += [
             asyncio.create_task(
@@ -251,15 +263,17 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     sub_pb,
                     task_id,
                     text,
-                    feature,
+                    feature_id,
                     r_text,
                     largest_wes_type,
                     is_numerical=False,
-                    feature_clarifications=ER_CLARIFICATIONS.get(feature, ""),
+                    feature_clarifications=ER_CLARIFICATIONS.get(
+                        feature_id, ""
+                    ),
                 ),
                 name=outer_task_name,
             )
-            for feature, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
+            for feature_id, r_text in EXTRA_QUALITATIVE_RESTRICTIONS.items()
         ]
         return await asyncio.gather(*(feature_parsers + extras_parsers))
 
@@ -268,7 +282,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         sub_pb,
         task_id,
         text,
-        feature,
+        feature_id,
         restriction_text,
         largest_wes_type,
         is_numerical,
@@ -276,7 +290,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
         feature_clarifications="",
     ):
         """Parse a non-setback restriction from the text"""
-        logger.debug("Parsing extra feature %r", feature)
+        logger.debug("Parsing extra feature %r", feature_id)
         system_message = RESTRICTIONS_SYSTEM_MESSAGE.format(
             restriction=restriction_text, tech=largest_wes_type
         )
@@ -285,6 +299,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             is_numerical=is_numerical,
             tech=largest_wes_type,
+            feature_id=feature_id,
             restriction=restriction_text,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
@@ -292,28 +307,28 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
             feature_clarifications=feature_clarifications,
         )
         info = await run_async_tree(tree)
-        info.update({"feature": feature, "quantitative": is_numerical})
+        info.update({"feature": feature_id, "quantitative": is_numerical})
         if is_numerical:
             info = _sanitize_output(info)
-        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return [info]
 
     async def _parse_setback_feature(
         self, sub_pb, task_id, text, feature_kwargs, largest_wes_type
     ):
         """Parse values for a setback feature"""
-        feature = feature_kwargs["feature_id"]
+        feature_id = feature_kwargs["feature_id"]
         feature_kwargs["tech"] = largest_wes_type
-        logger.debug("Parsing feature %r", feature)
+        logger.debug("Parsing feature %r", feature_id)
 
         out, base_messages = await self._base_messages(text, **feature_kwargs)
         if not out:
-            logger.debug("Did not find ordinance for feature %r", feature)
-            sub_pb.update(task_id, advance=1, just_parsed=feature)
-            return empty_output(feature)
+            logger.debug("Did not find ordinance for feature %r", feature_id)
+            sub_pb.update(task_id, advance=1, just_parsed=feature_id)
+            return empty_output(feature_id)
 
-        if feature not in {"structures", "property line"}:
-            output = {"feature": feature}
+        if feature_id not in {"structures", "property line"}:
+            output = {"feature": feature_id}
             output.update(
                 await self._extract_setback_values(
                     text,
@@ -321,13 +336,13 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
                     **feature_kwargs,
                 )
             )
-            sub_pb.update(task_id, advance=1, just_parsed=feature)
+            sub_pb.update(task_id, advance=1, just_parsed=feature_id)
             return [output]
 
         output = await self._extract_setback_values_for_p_or_np(
             text, base_messages, **feature_kwargs
         )
-        sub_pb.update(task_id, advance=1, just_parsed=feature)
+        sub_pb.update(task_id, advance=1, just_parsed=feature_id)
         return output
 
     async def _base_messages(self, text, **feature_kwargs):
@@ -466,24 +481,57 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
         "facilities (WEF), wind energy turbines (WET), large wind energy "
         "turbines (LWET), utility-scale wind energy turbines (UWET), "
         "commercial wind energy conversion systems (CWECS), alternate "
-        "energy systems (AES), or similar. "
+        "energy systems (AES), commercial energy production systems (CEPCS), "
+        "or similar"
     )
     _USE_TYPES = [
         {
             "feature_id": "primary use districts",
-            "use_type": "primary use or similar (e.g., without special "
-            "conditions or approval)",
+            "use_type": (
+                "permitted as primary use or similar (e.g., without special "
+                "conditions or approval)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use districts. {wes_clarification}"
+            ),
         },
         {
             "feature_id": "special use districts",
-            "use_type": "special use or similar (e.g., requires approval "
-            "by the zoning appeals board or meeting certain conditions like "
-            "completing a permitting process)",
+            "use_type": (
+                "permitted as special use or similar (e.g., requires approval "
+                "by the zoning appeals board or meeting certain conditions "
+                "like completing a permitting process)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use and **do not include** them in the output. "
+                "{wes_clarification}"
+            ),
         },
         {
             "feature_id": "accessory use districts",
-            "use_type": "accessory use or similar (e.g., when integrated "
-            "with an existing structure or secondary to another use)",
+            "use_type": (
+                "permitted as accessory use or similar (e.g., when integrated "
+                "with an existing structure or secondary to another use)"
+            ),
+            "clarifications": (
+                "Consider any solar overlay districts as "
+                "primary use and **do not include** them in the output. "
+                "{wes_clarification}"
+            ),
+        },
+        {
+            "feature_id": "prohibited use districts",
+            "use_type": (
+                "prohibited or similar (e.g., where wind energy "
+                "systems are not allowed or banned)"
+            ),
+            "clarifications": (
+                "Only output specific districts where wind energy systems "
+                "are prohibited **unconditionally**. "
+                "{wes_clarification}"
+            ),
         },
     ]
 
@@ -498,11 +546,14 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame
+        pd.DataFrame | None
             DataFrame containing parsed-out allowed-use district names.
+            Can also be ``None`` if a large wind energy system is not
+            found in the text.
         """
         largest_wes_type = await self._check_wind_turbine_type(text)
-        logger.info("Largest WES type found in text: %r", largest_wes_type)
+        if not largest_wes_type:
+            return None
 
         outer_task_name = asyncio.current_task().get_name()
         with COMPASS_PB.jurisdiction_sub_prog_bar(outer_task_name) as sub_pb:
@@ -532,7 +583,14 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
         return pd.DataFrame(chain.from_iterable(outputs))
 
     async def _parse_permitted_use_districts(
-        self, sub_pb, task_id, text, largest_wes_type, feature_id, use_type
+        self,
+        sub_pb,
+        task_id,
+        text,
+        largest_wes_type,
+        feature_id,
+        use_type,
+        clarifications,
     ):
         """Parse a non-setback restriction from the text"""
         logger.debug("Parsing use type: %r", feature_id)
@@ -542,8 +600,11 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
         tree = setup_async_decision_tree(
             setup_graph_permitted_use_districts,
             usage_sub_label=LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION,
+            feature_id=feature_id,
             tech=largest_wes_type,
-            clarifications=self._LARGE_WES_CLARIFICATION,
+            clarifications=clarifications.format(
+                wes_clarification=self._LARGE_WES_CLARIFICATION
+            ),
             text=text,
             use_type=use_type,
             chat_llm_caller=self._init_chat_llm_caller(system_message),

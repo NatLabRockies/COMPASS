@@ -44,8 +44,10 @@ class DateExtractor:
         structured_llm_caller : compass.llm.StructuredLLMCaller
             StructuredLLMCaller instance. Used for structured validation
             queries.
-        text_splitter : langchain.text_splitter.TextSplitter, optional
-            Optional text splitter instance to attach to doc (used for
+        text_splitter : TextSplitter, optional
+            Optional
+            :class:`langchain_text_splitters.character.TextSplitter`
+            text splitter instance to attach to doc (used for
             splitting out pages in an HTML document).
             By default, ``None``.
         """

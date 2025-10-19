@@ -235,6 +235,7 @@ class OpenAIService(LLMService):
                 )
             else:
                 logger.exception("Got 'BadRequestError'")
+            raise
 
 
 def _get_response_message(response):

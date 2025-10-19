@@ -21,7 +21,8 @@ _LARGE_WES_SYNONYMS = (
     "facilities (WEF), wind energy turbines (WET), large wind energy "
     "turbines (LWET), utility-scale wind energy turbines (UWET), "
     "commercial wind energy conversion systems (CWECS), alternate "
-    "energy systems (AES), or similar"
+    "energy systems (AES), commercial energy production "
+    "systems (CEPCS), or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, siting, setback, system design, and operational "
@@ -192,7 +193,8 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
     def ordinance_text(self):
         """str: Combined ordinance text from the individual chunks"""
         logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
+            "Grabbing %d ordinance chunk(s) from original text at these "
+            "indices: %s",
             len(self._ordinance_chunks),
             list(self._ordinance_chunks),
         )
@@ -229,8 +231,11 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
 
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        "whether the text explicitly details the districts where large "
-        "wind energy systems are a permitted use. Large wind energy systems "
+        "whether the text explicitly contains relevant information to "
+        "determine the districts (and especially the district names) where "
+        "large wind energy systems are a permitted use (primary, special, "
+        "accessory, or otherwise), as well as the districts where large wind "
+        "energy systems are prohibited entirely. Large wind energy systems "
         f"(WES) may also be referred to as {_LARGE_WES_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "
@@ -305,7 +310,8 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     def permitted_use_district_text(self):
         """str: Combined permitted use districts text from the chunks"""
         logger.debug(
-            "Grabbing %d chunk(s) from original text at these indices: %s",
+            "Grabbing %d permitted use chunk(s) from original text at "
+            "these indices: %s",
             len(self._district_chunks),
             list(self._district_chunks),
         )
@@ -349,6 +355,8 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "- Include all text that pertains to **wind energy systems**.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
         "on wind energy systems.\n"
+        "- Explicitly include any text related to the adoption or enactment "
+        "date of the ordinance (if any).\n"
         "\n2. ## Exclusions ##:\n"
         "- Do **not** include text that does not pertain to wind energy "
         "systems.\n"
@@ -389,6 +397,8 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         f"\t{_LARGE_WES_SYNONYMS.capitalize()}.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
         "on large wind energy systems.\n"
+        "- Explicitly include any text related to the adoption or enactment "
+        "date of the ordinance (if any).\n"
         "- **Retain all relevant technical, design, operational, safety, "
         "environmental, and infrastructure-related provisions** that apply "
         "to the topic, such as (but not limited to):\n"
@@ -519,8 +529,8 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "\n1. ## Scope of Extraction ##:\n"
         "- Retain all text defining permitted use(s) for a district, "
         "including:\n"
-        "\t- **Primary, Special, Conditional, Accessory, and other permitted "
-        "use types.**\n"
+        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
+        "any other use types.**\n"
         "\t- **District names and zoning classifications.**\n"
         "- Pay extra attention to any references to **wind energy "
         "facilities** or related terms.\n"
@@ -565,8 +575,8 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "\n1. ## Scope of Extraction ##:\n"
         "- Retain all text defining permitted use(s) for a district, "
         "including:\n"
-        "\t- **Primary, Special, Conditional, Accessory, and other permitted "
-        "use types.**\n"
+        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
+        "any other use types.**\n"
         "\t- **District names and zoning classifications.**\n"
         "- Ensure that **tables, lists, and structured elements** are "
         "preserved as they may contain relevant details.\n"

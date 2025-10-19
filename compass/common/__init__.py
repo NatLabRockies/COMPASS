@@ -2,6 +2,7 @@
 
 from .base import (
     EXTRACT_ORIGINAL_TEXT_PROMPT,
+    SYSTEM_SIZE_REMINDER,
     BaseTextExtractor,
     empty_output,
     llm_response_starts_with_no,

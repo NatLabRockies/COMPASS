@@ -228,12 +228,15 @@ class LegalTextValidator(StructuredLLMCaller):
     )
 
     def __init__(
-        self, *args, score_threshold=0.8, doc_is_from_ocr=False, **kwargs
+        self, tech, *args, score_threshold=0.8, doc_is_from_ocr=False, **kwargs
     ):
         """
 
         Parameters
         ----------
+        tech : str
+            Technology of interest (e.g. "solar", "wind", etc). This is
+            used to set up some document validation decision trees.
         score_threshold : float, optional
             Minimum fraction of text chunks that have to pass the legal
             check for the whole document to be considered legal text.
@@ -244,6 +247,7 @@ class LegalTextValidator(StructuredLLMCaller):
             initializer.
         """
         super().__init__(*args, **kwargs)
+        self.tech = tech
         self.score_threshold = score_threshold
         self._legal_text_mem = []
         self.doc_is_from_ocr = doc_is_from_ocr
@@ -296,6 +300,7 @@ class LegalTextValidator(StructuredLLMCaller):
         tree = setup_async_decision_tree(
             setup_graph_correct_document_type,
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
+            tech=self.tech,
             key=key,
             text=text_chunk,
             chat_llm_caller=chat_llm_caller,

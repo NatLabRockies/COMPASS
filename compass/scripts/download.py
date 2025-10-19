@@ -504,6 +504,7 @@ async def filter_ordinance_docs(
     jurisdiction,
     model_configs,
     heuristic,
+    tech,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
     usage_tracker=None,
@@ -519,6 +520,9 @@ async def filter_ordinance_docs(
         Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
         Should have at minium a "default" key that is used as a fallback
         for all tasks.
+    tech : str
+        Technology of interest (e.g. "solar", "wind", etc). This is
+        used to set up some document validation decision trees.
     usage_tracker : compass.services.usage.UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -562,6 +566,7 @@ async def filter_ordinance_docs(
         jurisdiction=jurisdiction,
         model_configs=model_configs,
         heuristic=heuristic,
+        tech=tech,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
         usage_tracker=usage_tracker,
@@ -650,6 +655,7 @@ async def _down_select_docs_correct_content(
     jurisdiction,
     model_configs,
     heuristic,
+    tech,
     ordinance_text_collector_class,
     permitted_use_text_collector_class,
     usage_tracker,
@@ -661,6 +667,7 @@ async def _down_select_docs_correct_content(
         task_name=jurisdiction.full_name,
         model_configs=model_configs,
         heuristic=heuristic,
+        tech=tech,
         ordinance_text_collector_class=ordinance_text_collector_class,
         permitted_use_text_collector_class=permitted_use_text_collector_class,
         usage_tracker=usage_tracker,

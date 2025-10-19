@@ -823,6 +823,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction,
             self.models,
             heuristic=self.tech_specs.heuristic,
+            tech=self.tech_specs.name,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
             ),
@@ -861,6 +862,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction,
             self.models,
             heuristic=self.tech_specs.heuristic,
+            tech=self.tech_specs.name,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
             ),
@@ -982,6 +984,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction,
             self.models,
             heuristic=self.tech_specs.heuristic,
+            tech=self.tech_specs.name,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
             ),
@@ -1014,6 +1017,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction,
             self.models,
             heuristic=self.tech_specs.heuristic,
+            tech=self.tech_specs.name,
             ordinance_text_collector_class=(
                 self.tech_specs.ordinance_text_collector
             ),
@@ -1148,6 +1152,7 @@ def _compile_tech_specs(tech):
     """Compile `TechSpec` tuple based on the user `tech` input"""
     if tech.casefold() == "wind":
         return TechSpec(
+            "wind",
             WIND_QUESTION_TEMPLATES,
             WindHeuristic(),
             WindOrdinanceTextCollector,
@@ -1160,6 +1165,7 @@ def _compile_tech_specs(tech):
         )
     if tech.casefold() == "solar":
         return TechSpec(
+            "solar",
             SOLAR_QUESTION_TEMPLATES,
             SolarHeuristic(),
             SolarOrdinanceTextCollector,

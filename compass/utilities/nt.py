@@ -18,6 +18,7 @@ ProcessKwargs = namedtuple(
 TechSpec = namedtuple(
     "TechSpec",
     [
+        "name",
         "questions",
         "heuristic",
         "ordinance_text_collector",

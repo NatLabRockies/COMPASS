@@ -47,4 +47,5 @@ BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS = {
     "renewable": 3,
     "municipal": 1,
     "department": 1,
+    # TODO: add board???
 }

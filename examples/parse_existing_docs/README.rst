@@ -134,6 +134,7 @@ in the document. Here's how that might look:
         doc,
         model_config=llm_config,
         heuristic=SolarHeuristic(),
+        tech="solar",
         ordinance_text_collector_class=SolarOrdinanceTextCollector,
         permitted_use_text_collector_class=None,
     )

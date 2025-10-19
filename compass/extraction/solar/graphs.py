@@ -4,6 +4,7 @@ from compass.common import (
     setup_graph_no_nodes,
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
+    SYSTEM_SIZE_REMINDER,
 )
 
 
@@ -45,22 +46,101 @@ def setup_graph_sef_types(**kwargs):
             "What are the different solar energy farm sizes **regulated by "
             "this ordinance**? List them in order of increasing size. "
             "Include any relevant numerical qualifiers in the name, if "
-            "appropriate. Only include solar energy farm types; do not "
-            "include generic types or other energy system types."
+            "appropriate. Only include systems that resemble ground-mounted "
+            "solar energy farms; do not include other solar energy system "
+            "types lice CSP or roof-mounted systems or other technologies "
+            "like wind energy systems, geothermal energy systems, etc."
         ),
     )
-    G.add_edge("get_text", "final")
+    G.add_edge("get_text", "get_regulated")
     G.add_node(
-        "final",
+        "get_regulated",
+        prompt=(
+            "Are any of these systems **not** regulated by this ordinance?"
+        ),
+    )
+
+    G.add_edge("get_regulated", "get_largest")
+    G.add_node(
+        "get_largest",
+        prompt=(
+            "What is the **largest** solar energy farm size that **is "
+            "regulated by this ordinance**?"
+        ),
+    )
+
+    G.add_edge("get_largest", "check_matches_definition")
+    G.add_node(
+        "check_matches_definition",
+        prompt=(
+            "Does the ordinance explicitly define this system as large, "
+            "commercial, utility-scale, or something akin to that? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "check_matches_definition",
+        "final_large",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_edge(
+        "check_matches_definition",
+        "check_scale_reason",
+        condition=llm_response_starts_with_no,
+    )
+    G.add_node(
+        "check_scale_reason",
+        prompt=(
+            "Would a reasonable person classify this kind of system as a "
+            "**large**, commercial, or even utility-scale** solar energy farm "
+            "(e.g. with the primary purpose of generating electricity for "
+            "sale, as opposed to small, residential, roof-mounted, private, "
+            "or other kinds of 'small' systems)? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "check_scale_reason",
+        "final_large",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_edge(
+        "check_scale_reason",
+        "final_small",
+        condition=llm_response_starts_with_no,
+    )
+    G.add_node(
+        "final_large",
         prompt=(
             "Respond based on our entire conversation so far. Return your "
             "answer as a dictionary in JSON format (not markdown). Your "
             "JSON file must include exactly two keys. The keys are "
-            "'largest_sef_type' and 'explanation'. The value of the "
-            "'largest_sef_type' key should be a string that labels the "
+            "'largest_sef_type' and 'explanation', and 'is_large'. The value "
+            "of the 'largest_sef_type' key should be a string that labels the "
             "largest solar energy system size **regulated by this "
             "ordinance**. The value of the 'explanation' key should be a "
-            "string containing a short explanation for your choice."
+            "string containing a short explanation for your choice. The value "
+            "of the 'is_large' key should be the boolean value `true`, since "
+            "we determined this is a large-scale system."
+        ),
+    )
+    G.add_node(
+        "final_small",
+        prompt=(
+            "Respond based on our entire conversation so far. Return your "
+            "answer as a dictionary in JSON format (not markdown). Your "
+            "JSON file must include exactly two keys. The keys are "
+            "'largest_sef_type' and 'explanation', and 'is_large'. The value "
+            "of the 'largest_sef_type' key should be a string that labels the "
+            "largest solar energy system size **regulated by this "
+            "ordinance**. The value of the 'explanation' key should be a "
+            "string containing a short explanation for your choice. The value "
+            "of the 'is_large' key should be the boolean value `false`, since "
+            "we determined this is not a large-scale system."
         ),
     )
     return G
@@ -90,14 +170,10 @@ def setup_multiplier(**kwargs):
             "Does the text mention a multiplier that should be applied to the "
             "structure height to compute the setback distance from {feature} "
             "for {tech}? "
-            "Focus only on {feature}; do not respond based on any text "
+            "Please consider only {feature}; do not respond based on any text "
             "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
+            "Please also only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
         ),
@@ -108,14 +184,10 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Does the ordinance give the setback from {feature} as a fixed "
             "distance value? "
-            "Focus only on {feature}; do not respond based on any text "
-            "related to {ignore_features}. "
-            "Please only consider setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself "
-            "— for example, systems intended for electricity generation or "
-            "sale, or those above thresholds such as height or rated "
-            "capacity. Ignore any requirements that apply only to smaller "
-            "or clearly non-commercial systems. "
+            "Please consider only on {feature}; do not respond based on any "
+            "text related to {ignore_features}. "
+            "Please also only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
@@ -156,8 +228,8 @@ def setup_multiplier(**kwargs):
             "of the 'units' key should be a string corresponding to the "
             "(standard) units of the setback distance value from {feature} "
             "or `null` if there was no such value. "
-            "As before, focus only on setbacks specifically for systems that "
-            "would typically be defined as {tech} based on the text itself. "
+            "As before, focus only on setbacks that would apply for"
+            f"{SYSTEM_SIZE_REMINDER}"
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
@@ -169,12 +241,8 @@ def setup_multiplier(**kwargs):
             "Are multiple values given for the multiplier used to "
             "compute the setback distance value from {feature} for {tech}? "
             "Remember to ignore any text related to {ignore_features}. "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height or rated capacity. "
-            "Ignore any requirements that apply only to smaller or clearly "
-            "non-commercial systems. "
+            "Please only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "If so, select and state the largest one. Otherwise, repeat the "
             "single multiplier value that was given in the text. "
         ),
@@ -187,12 +255,8 @@ def setup_multiplier(**kwargs):
             "static distance value that should be added to the result of "
             "the multiplication? "
             "Remember to ignore any text related to {ignore_features}. "
-            "Focus only on setbacks specifically for systems that would "
-            "typically be defined as {tech} based on the text itself — for "
-            "example, systems intended for electricity generation or sale, "
-            "or those above thresholds such as height or rated capacity. "
-            "Ignore any requirements that apply only to smaller or clearly "
-            "non-commercial systems. "
+            "Please only consider setbacks specifically for "
+            f"{SYSTEM_SIZE_REMINDER}"
             "Do not confuse this value with static setback requirements. "
             "Ignore text with clauses such as 'no lesser than', 'no greater "
             "than', 'the lesser of', or 'the greater of'. Please start your "

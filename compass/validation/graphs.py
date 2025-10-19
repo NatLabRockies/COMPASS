@@ -23,36 +23,6 @@ def setup_graph_correct_document_type(**kwargs):
     """
     doc_is_from_ocr = kwargs.pop("doc_is_from_ocr", False)
 
-    is_draft_prompt = [
-        "Does this text appear to be from a document that is currently "
-        "being edited or formatted, such as a draft or work in progress?\n"
-        "\n**Important**:\n"
-    ]
-    if doc_is_from_ocr:
-        is_draft_prompt.append(
-            "* Disregard formatting inconsistencies, typographical errors, or "
-            "visual artifacts (such as OCR noise, broken lines, or unusual "
-            "spacing). These do **not** indicate draft status unless "
-            "supported by actual content-based cues."
-        )
-    is_draft_prompt.append(
-        "* Do **not** assume that a document is a draft simply because it "
-        "refers to amendments, revisions of law, or changing legal "
-        "standards. Many finalized legal documents contain such "
-        "references as part of their normal content.\n"
-        "\nFocus instead on signs of incompleteness or active "
-        "editing, such as (but not limited to):\n"
-        "* Placeholder content (e.g., 'TBD', 'insert text here', etc.)\n"
-        "* Comments or revision marks\n"
-        "* Incomplete sentences or headings\n"
-        "* Unfinished sections or abrupt endings\n"
-        "* Explicit labels like 'draft', 'working version', or 'not "
-        "final'\n\n"
-        "Please begin your answer with **Yes** or **No**, and briefly "
-        "explain your reasoning based only on these content-based signals."
-    )
-    is_draft_prompt = "\n".join(is_draft_prompt)
-
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Correct document type", **kwargs
     )
@@ -60,7 +30,7 @@ def setup_graph_correct_document_type(**kwargs):
         "init",
         prompt=(
             "Does the following text resemble an excerpt from a legal "
-            "statute, such as an ordinance or code?"
+            "statute, such as an ordinance or code? "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
             '\n\n"""\n{text}\n"""'
@@ -71,7 +41,7 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_node(
         "check_for_laws",
         prompt=(
-            "Does the text excerpt detail in-effect legal statutes? "
+            "Does the text excerpt detail legal statutes/regulations? "
             "Please start your response with either 'Yes' or 'No' and "
             "briefly explain your answer."
         ),
@@ -91,7 +61,42 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_model", "is_meeting", condition=llm_response_starts_with_no)
+    G.add_edge("is_model", "in_effect", condition=llm_response_starts_with_no)
+    G.add_node(
+        "in_effect",
+        prompt=(
+            "Is this regulation in effect? Use only the **document's "
+            "content** to determine your answer (ignore editing/version "
+            "labels, track changes, and metadata).\n\n"
+            "Decision rules:\n\n"
+            "* If {tech} regulations are present, rely **only on the status "
+            "of those regulations in particular**.\n"
+            "* If the text explicitly states adoption/approval/enactment "
+            "status, rely only on that.\n"
+            "* If the text contains proposal-stage indicators (e.g., "
+            '"proposed ordinance," "notice of proposed rulemaking," "for '
+            'public comment," "draft for review," "public hearing scheduled," '
+            '"introduced," "pending adoption," etc.), treat it as **not** in '
+            "effect.\n"
+            '* If the text contains adoption indicators (e.g., "adopted," '
+            '"enacted," "approved," "codified," "final rule," "effective '
+            '[date]"), treat it as in effect.\n'
+            "* If the text contains other final-stage indicators (e.g., "
+            '"rejected," "not approved," etc.), treat it as **not** in '
+            "effect.\n\n"
+            "**IMPORTANT**\n"
+            "If evidence is mixed, or the text does not explicitly give the "
+            "adoption status, or there is not enough information to "
+            "**confidently** conclude one way or another, default to "
+            '"Yes".\n\n'
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "in_effect", "is_meeting", condition=llm_response_starts_with_yes
+    )
     G.add_node(
         "is_meeting",
         prompt=(
@@ -102,7 +107,19 @@ def setup_graph_correct_document_type(**kwargs):
     )
 
     G.add_edge(
-        "is_meeting",
+        "is_meeting", "is_public_notice", condition=llm_response_starts_with_no
+    )
+    G.add_node(
+        "is_public_notice",
+        prompt=(
+            "Does this text appear to be from a public notice or letter? "
+            "Please start your response with either 'Yes' or 'No' and briefly "
+            "explain why you chose your answer."
+        ),
+    )
+
+    G.add_edge(
+        "is_public_notice",
         "is_single_project",
         condition=llm_response_starts_with_no,
     )
@@ -116,10 +133,12 @@ def setup_graph_correct_document_type(**kwargs):
     )
 
     G.add_edge(
-        "is_single_project", "is_pd", condition=llm_response_starts_with_no
+        "is_single_project",
+        "is_planning_doc",
+        condition=llm_response_starts_with_no,
     )
     G.add_node(
-        "is_pd",
+        "is_planning_doc",
         prompt=(
             "Does this text appear to be from a project planning document? "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -127,7 +146,9 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("is_pd", "is_pres", condition=llm_response_starts_with_no)
+    G.add_edge(
+        "is_planning_doc", "is_pres", condition=llm_response_starts_with_no
+    )
     G.add_node(
         "is_pres",
         prompt=(
@@ -138,32 +159,64 @@ def setup_graph_correct_document_type(**kwargs):
     )
 
     G.add_edge("is_pres", "is_draft", condition=llm_response_starts_with_no)
-    G.add_node(
-        "is_draft",
-        prompt=(
-            "Does this text appear to be from a document that is currently "
-            "being edited or formatted, such as a draft or work in progress?\n"
-            "\n**Important**:\n\n"
+
+    is_draft_prompt = [
+        "Does this text appear to be from a document that is currently "
+        "being edited or formatted, such as a draft or work in progress?\n"
+        "\n**Important**:\n"
+    ]
+    if doc_is_from_ocr:
+        is_draft_prompt.append(
             "* Disregard formatting inconsistencies, typographical errors, or "
             "visual artifacts (such as OCR noise, broken lines, or unusual "
             "spacing). These do **not** indicate draft status unless "
-            "supported by actual content-based cues.\n"
-            "* Do **not** assume that a document is a draft simply because it "
-            "refers to amendments, revisions of law, or changing legal "
-            "standards. Many finalized legal documents contain such "
-            "references as part of their normal content.\n"
-            "\nFocus instead on signs of incompleteness or active "
-            "editing, such as (but not limited to):\n"
-            "* Placeholder content (e.g., 'TBD', 'insert text here', etc.)\n"
-            "* Comments or revision marks\n"
-            "* Incomplete sentences or headings\n"
-            "* Unfinished sections or abrupt endings\n"
-            "* Explicit labels like 'draft', 'working version', or 'not "
-            "final'\n\n"
-            "Please begin your answer with **Yes** or **No**, and briefly "
-            "explain your reasoning based only on these content-based signals."
-        ),
+            "supported by actual content-based cues."
+        )
+    is_draft_prompt.append(
+        "* Do **not** assume that a document is a draft simply because it "
+        "refers to amendments, revisions of law, or changing legal "
+        "standards. Many finalized legal documents contain such "
+        "references as part of their normal content.\n"
+        "* Do **not** assume the document is a draft for these common "
+        'non-indicative phrases: references to amendments, "shall", "may", '
+        '"as amended", "upon adoption", "effective date", "adopted", or the '
+        'presence of dates (including "Adopted Date", "Effective Date", '
+        '"Final Adopted"). These appear in both final and draft legal texts '
+        'and should **not** by themselves trigger a "Yes".\n'
+        "* Do **not** assume that a document is a draft if it contains "
+        'ambiguous phrases like "Section for Revision" but **no** '
+        "placeholders, comments, TODOs, or other explicit editing markers.\n"
+        "* Do **not** treat blank fields, bracketed fill-in areas, or form "
+        "templates appearing in **appendices, attachments, or exhibits** "
+        "(e.g., 'Appendix,' 'Form,' or 'Application Template') as indicators "
+        "of an unfinished draft. Many finalized ordinances and regulations "
+        "include such templates for public or administrative use.\n"
+        "\nFocus instead on signs of incompleteness or active "
+        "editing, such as (but not limited to):\n"
+        '* explicit labels: "DRAFT", "DRAFT VERSION", "NOT FINAL", "FOR '
+        'REVIEW", "WORKING VERSION", "DO NOT PUBLISH".\n'
+        '* placeholders: "TBD", "TBA", "INSERT TEXT", "INSERT [SECTION]", '
+        '"INSERT HERE", "___", "xxx", "[insert...]", "[?]", "[TO BE '
+        'DETERMINED]".\n'
+        "* editorial comments or markup: bracketed comments like "
+        '"[Comment: ...]", "/* ... */", HTML/XML comments `<!-- -->`, '
+        'tracked changes markers "Track Changes", "redline", "stet", change '
+        "bars, or visible revision marks.\n"
+        '* explicit TODOs or instructions to editors: "TODO", "REPLACE", '
+        '"REVISE SECTION", "CHECK CITATION".'
+        '* clear formatting markers left for future editing: "## HEADLINE ##, '
+        "repeated underscores, sequences of asterisks used as placeholders, "
+        'or visible template text such as "Section for Revision" immediately '
+        "adjacent to other placeholders or TODOs.\n\n"
+        "When both finalized indicators (e.g., enactment dates, official "
+        "signatures, or filing statements) and bracketed placeholders "
+        "appear, prioritize the **finalization evidence** unless there are "
+        "explicit editing markers.\n"
+        "Please begin your answer with **Yes** or **No**, and briefly "
+        "explain your reasoning based only on these content-based signals."
     )
+    is_draft_prompt = "\n".join(is_draft_prompt)
+    G.add_node("is_draft", prompt=is_draft_prompt)
 
     G.add_edge("is_draft", "is_report", condition=llm_response_starts_with_no)
     G.add_node(

@@ -176,8 +176,10 @@ class JurisdictionValidator:
         score_thresh : float, optional
             Score threshold to exceed when voting on content from raw
             pages. By default, ``0.8``.
-        text_splitter : langchain.text_splitter.TextSplitter, optional
-            Optional text splitter instance to attach to doc (used for
+        text_splitter : TextSplitter, optional
+            Optional
+            :class:`langchain_text_splitters.character.TextSplitter`
+            text splitter instance to attach to doc (used for
             splitting out pages in an HTML document).
             By default, ``None``.
         **kwargs
