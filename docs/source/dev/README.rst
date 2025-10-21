@@ -121,6 +121,7 @@ Use the following import conventions::
    import numpy as np
    import pandas as pd
 
+Note that ``ruff`` will monitor and enforce some style rules such as ordering of imports.
 
 Test coverage
 -------------
