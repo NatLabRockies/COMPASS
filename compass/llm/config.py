@@ -68,7 +68,7 @@ class LLMConfig(ABC):
 
     @cached_property
     def text_splitter(self):
-        """TextSplitter: Object that can be used to chunk text"""
+        """:class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter`: Text splitter for ordinance text"""  # noqa: W505, E501
         return RecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,

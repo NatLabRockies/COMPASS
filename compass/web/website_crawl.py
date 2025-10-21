@@ -82,7 +82,7 @@ class COMPASSLinkScorer(ELMLinkScorer):
         return score
 
 
-class Link(c4AILink):
+class _Link(c4AILink):
     """Crawl4AI Link subclass with a few utilities"""
 
     def __hash__(self):
@@ -155,7 +155,7 @@ class COMPASSCrawler:
             initialize the playwright instances used for the crawl.
             By default, ``None``.
         already_visited : set, optional
-            A set of URLs (either strings or :class:``Link`` objects)
+            A set of URLs (either strings or ``Link`` objects)
             that have already been visited. This is used to avoid
             re-visiting links that have already been checked.
             By default, ``None``.
@@ -212,7 +212,7 @@ class COMPASSCrawler:
         on_new_page_visit_hook : callable, optional
             An async callable that is called every time a new page is
             found during the crawl. The callable should accept a single
-            argument, which is the page :class:`Link` instance.
+            argument, which is the page ``Link`` instance.
             If ``None``, no additional processing is done on new pages.
             By default, ``None``.
 
@@ -267,7 +267,7 @@ class COMPASSCrawler:
             prev_len = len(self._out_docs)
             await self._run(
                 base_url,
-                link=Link(
+                link=_Link(
                     title=next_link["title"],
                     href=next_link["href"],
                     base_domain=base_url,
@@ -312,7 +312,7 @@ class COMPASSCrawler:
         self._out_docs = []
         self._already_visited = {}
         base_url = _sanitize_url(base_url)
-        return base_url, Link(
+        return base_url, _Link(
             title="Landing Page",
             href=_sanitize_url(urljoin(base_url, base_url.split(" ")[0])),
             base_domain=base_url,
@@ -530,7 +530,7 @@ def _extract_links_from_html(text, base_url):
     ]
 
     return {
-        Link(
+        _Link(
             title=title,
             href=_sanitize_url(urljoin(base_url, path)),
             base_domain=base_url,

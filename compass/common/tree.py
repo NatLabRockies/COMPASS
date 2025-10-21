@@ -31,8 +31,7 @@ class AsyncDecisionTree(DecisionTree):
            graph.
     Key Relationships:
         Inherits from :class:`~elm.tree.DecisionTree` to add ``async``
-        capabilities. Uses a
-        :class:`~compass.llm.calling.ChatLLMCaller` for LLm queries.
+        capabilities. Uses a ChatLLMCaller for LLm queries.
     """
 
     def __init__(self, graph, usage_sub_label=None):
@@ -40,7 +39,7 @@ class AsyncDecisionTree(DecisionTree):
 
         Parameters
         ----------
-        graph : nx.DiGraph
+        graph : networkx.DiGraph
             Directed acyclic graph where nodes are LLM prompts and edges
             are logical transitions based on the response. Must have
             high-level graph attribute "chat_llm_caller" which is a
@@ -138,7 +137,7 @@ class AsyncDecisionTree(DecisionTree):
 
         Returns
         -------
-        out : str | None
+        out : str or None
             Final response from LLM at the leaf node or ``None`` if an
             ``AttributeError`` was raised during execution.
         """

@@ -39,7 +39,7 @@ async def download_known_urls(
 
     Parameters
     ----------
-    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+    jurisdiction : Jurisdiction
         Jurisdiction instance representing the jurisdiction
         corresponding to the documents.
     urls : iterable of str
@@ -107,7 +107,7 @@ async def find_jurisdiction_website(
 
     Parameters
     ----------
-    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+    jurisdiction : Jurisdiction
         Jurisdiction instance representing the jurisdiction to find the
         main webpage for.
     model_configs : dict
@@ -129,13 +129,13 @@ async def find_jurisdiction_website(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
     Returns
     -------
-    str | None
+    str or None
         URL for the jurisdiction website, if found; ``None`` otherwise.
     """
     kwargs.update(file_loader_kwargs or {})
@@ -208,11 +208,11 @@ async def download_jurisdiction_ordinances_from_website(
         used for the Google URL search. By default, ``None``.
     browser_config_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize the
-        :class:`crawl4ai.async_configs.BrowserConfig` class used for the
+        ``crawl4ai.async_configs.BrowserConfig`` class used for the
         web crawl. By default, ``None``.
     crawler_config_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize the
-        :class:`crawl4ai.async_configs.CrawlerConfig` class used for the
+        ``crawl4ai.async_configs.CrawlerConfig`` class used for the
         web crawl. By default, ``None``.
     max_urls : int, optional
         Max number of URLs to check from the website before terminating
@@ -415,7 +415,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
 
     Parameters
     ----------
-    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+    jurisdiction : Jurisdiction
         Location objects representing the jurisdiction.
     model_configs : dict
         Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
@@ -442,7 +442,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
         playwright browsers used to download content from the web open
         concurrently. If ``None``, no limits are applied.
         By default, ``None``.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
@@ -514,16 +514,15 @@ async def filter_ordinance_docs(
 
     Parameters
     ----------
-    jurisdiction : :class:`~compass.utilities.location.Jurisdiction`
+    jurisdiction : Jurisdiction
         Location objects representing the jurisdiction.
     model_configs : dict
-        Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
-        Should have at minium a "default" key that is used as a fallback
-        for all tasks.
+        Dictionary of LLMConfig instances. Should have at minium a
+        "default" key that is used as a fallback for all tasks.
     tech : str
         Technology of interest (e.g. "solar", "wind", etc). This is
         used to set up some document validation decision trees.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 

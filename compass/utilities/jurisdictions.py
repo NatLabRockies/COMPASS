@@ -22,7 +22,7 @@ def load_all_jurisdiction_info():
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         DataFrame containing info like names, FIPS, websites, etc. for
         all jurisdictions.
     """
@@ -34,10 +34,10 @@ def jurisdiction_websites(jurisdiction_info=None):
 
     Parameters
     ----------
-    jurisdiction_info : pd.DataFrame, optional
+    jurisdiction_info : pandas.DataFrame, optional
         DataFrame containing jurisdiction names and websites. If
         ``None``, this info is loaded using
-        :func:`load_jurisdiction_info`.
+        :func:`load_all_jurisdiction_info`.
         By default, ``None``.
 
     Returns
@@ -65,7 +65,7 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
 
     Returns
     -------
-    pd.DataFrame
+    pandas.DataFrame
         DataFrame containing jurisdiction info like names, FIPS,
         websites, etc. for all requested jurisdictions (that were
         found).

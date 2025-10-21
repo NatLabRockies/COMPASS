@@ -66,7 +66,7 @@ def setup_graph_no_nodes(d_tree_name="Unknown Decision Tree", **kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph with no nodes but with global keywords set.
     """
     feat = kwargs.get("feature_id", kwargs.get("feature", kwargs.get("url")))
@@ -180,7 +180,7 @@ def setup_base_setback_graph(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -256,7 +256,7 @@ def setup_participating_owner(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -373,7 +373,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -762,7 +762,7 @@ def setup_graph_permitted_use_districts(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -858,6 +858,7 @@ class BaseTextExtractor:
         "the relevant content appears within a table, return the entire "
         "table, including headers and footers, exactly as formatted."
     )
+    """System message for text extraction LLM calls"""
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
     def __init__(self, llm_caller):
@@ -865,7 +866,7 @@ class BaseTextExtractor:
 
         Parameters
         ----------
-        llm_caller : compass.llm.LLMCaller
+        llm_caller : LLMCaller
             LLM Caller instance used to extract ordinance info with.
         """
         self.llm_caller = llm_caller

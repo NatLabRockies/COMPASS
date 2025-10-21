@@ -73,8 +73,11 @@ class WindHeuristic(Heuristic):
         "prevailing wind",
         "downwind",
     ]
+    """Words and phrases that indicate text is NOT about WECS"""
     GOOD_TECH_KEYWORDS = ["wind", "setback"]
+    """Words that indicate we should keep a chunk for analysis"""
     GOOD_TECH_ACRONYMS = ["wecs", "wes", "lwet", "uwet", "wef"]
+    """Acronyms for WECS that we want to capture"""
     GOOD_TECH_PHRASES = [
         "wind energy conversion",
         "wind turbine",
@@ -84,6 +87,7 @@ class WindHeuristic(Heuristic):
         "wind energy farm",
         "utility wind energy system",
     ]
+    """Phrases that indicate text is about WECS"""
 
 
 class WindOrdinanceTextCollector(StructuredLLMCaller):
@@ -108,6 +112,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         f"{_SEARCH_TERMS_OR} for a wind energy system (or wind turbine/tower) "
         "and False otherwise. "
     )
+    """Prompt to check if chunk contains WES ordinance info"""
 
     IS_UTILITY_SCALE_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
@@ -126,17 +131,9 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         "conversion systems** (or similar) that the client is interested in "
         "and False otherwise."
     )
+    """Prompt to check if chunk is for utility-scale WES"""
 
     def __init__(self, *args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
-        """
         super().__init__(*args, **kwargs)
         self._ordinance_chunks = {}
 
@@ -146,8 +143,7 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -249,17 +245,9 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         "on districts where **large wind energy systems** (or similar) are a "
         "permitted use in and False otherwise."
     )
+    """Prompt to check if chunk contains info on permitted districts"""
 
     def __init__(self, *args, **kwargs):
-        """
-
-        Parameters
-        ----------
-        *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
-        """
         super().__init__(*args, **kwargs)
         self._district_chunks = {}
 
@@ -269,8 +257,7 @@ class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -332,8 +319,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
            particular ordinance type (e.g. wind zoning for utility-scale
            systems).
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries.
+        Uses a StructuredLLMCaller for LLM queries.
     """
 
     WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
@@ -376,6 +362,8 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for WECS"""
+
     LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
@@ -430,6 +418,7 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for utility-scale WECS"""
 
     async def extract_wind_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for WES
@@ -481,9 +470,9 @@ class WindOrdinanceTextExtractor(BaseTextExtractor):
         ------
         name : str
             Name describing the type of text output by the parser.
-        parser
-            Parser that takes a `text_chunks` input and outputs parsed
-            text.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
         """
         yield (
             "wind_energy_systems_text",
@@ -505,8 +494,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
            particular ordinance type (e.g. wind zoning for utility-scale
            systems).
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries.
+        Uses a StructuredLLMCaller for LLM queries.
     """
 
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
@@ -555,6 +543,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for permitted uses"""
 
     WES_PERMITTED_USES_FILTER_PROMPT = (
         "# CONTEXT #\n"
@@ -599,6 +588,7 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
+    """Prompt to extract ordinance text for permitted uses for WECS"""
 
     async def extract_permitted_uses(self, text_chunks):
         """Extract permitted uses text from input text chunks
@@ -650,9 +640,9 @@ class WindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         ------
         name : str
             Name describing the type of text output by the parser.
-        parser
-            Parser that takes a `text_chunks` input and outputs parsed
-            text.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
         """
         yield "permitted_use_only_text", self.extract_permitted_uses
         yield "districts_text", self.extract_wes_permitted_uses

@@ -61,9 +61,8 @@ def save_run_meta(
         directories used for the run.
     tech : {"wind", "solar"}
         Technology that was the target of the run.
-    start_date, end_date : datetime
-        ``datetime`` instances representing the start and end dates,
-        respectively.
+    start_date, end_date : datetime.datetime
+        Instances representing the start and end dates, respectively.
     num_jurisdictions_searched, num_jurisdictions_found : int
         Total number of jurisdictions that were searched and actually
         found, respectively.
@@ -129,7 +128,7 @@ def doc_infos_to_db(doc_infos):
 
     Parameters
     ----------
-    doc_infos : iter of dicts
+    doc_infos : iterable of dict
         Iterable of dictionaries, where each dictionary has at least the
         following keys:
 
@@ -138,17 +137,15 @@ def doc_infos_to_db(doc_infos):
               extracted
             - "date": Tuple of (year, month, day). Any of the values can
               be ``None``.
-            - "jurisdiction": Instance of
-              :class:`compass.utilities.location.Jurisdiction`
-              representing the jurisdiction associated with these
-              ordinance values.
+            - "jurisdiction": Instance of Jurisdiction representing the
+              jurisdiction associated with these ordinance values.
 
         If this iterable is empty, and empty DataFrame (with the correct
         columns) is returned.
 
     Returns
     -------
-    ordinances : pd.DataFrame
+    ordinances : pandas.DataFrame
         DataFrame containing ordinances collected from all individual
         CSV's.
     count : int
@@ -187,7 +184,7 @@ def save_db(db, out_dir):
 
     Parameters
     ----------
-    db : pd.DataFrame
+    db : pandas.DataFrame
         Pandas DataFrame containing ordinance data to save. Must have
         all columns in :obj:`QUANT_OUT_COLS` and :obj:`QUAL_OUT_COLS`
         as well as a ``"quantitative"`` column that contains a boolean
@@ -279,9 +276,9 @@ def compile_run_summary_message(
 
     Parameters
     ----------
-    total_seconds : int | float
+    total_seconds : int or float
         Total number of seconds the run took to complete.
-    total_cost : int | float
+    total_cost : int or float
         Total cost of the run, in $.
     out_dir : path-like
         Path to output directory where the run results are saved.

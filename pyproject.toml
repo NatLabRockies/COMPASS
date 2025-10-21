@@ -37,7 +37,7 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.29,<1",
+  "nrel-elm>=0.0.30,<1",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
@@ -105,7 +105,7 @@ fallback_version = "9999"
 git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]
 version_file = "compass/_version.py"
 
-[tool.pixi.project]
+[tool.pixi.workspace]
 channels = ["conda-forge", "microsoft", "anaconda", "main"]
 platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
 
@@ -131,7 +131,7 @@ tests-p = "pytest --durations=20 tests/python"
 # it = "pytest --durations=20 tests/integration"
 
 [tool.pixi.feature.python-doc.tasks]
-make-html = { cmd = "make html", cwd = "docs"}
+python-doc = { cmd = "make html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
 
 [tool.pixi.feature.python-build.tasks]
 build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }

@@ -7,18 +7,31 @@ class LLMUsageCategory(StrEnum):
     """COMPASS LLM usage categories"""
 
     CHAT = auto()
+    """Usage related to general LLM chat calls"""
     DATE_EXTRACTION = auto()
+    """Usage related to date extraction tasks"""
     DECISION_TREE = auto()
+    """Usage related to decision tree calls"""
     DEFAULT = auto()
+    """Usage related to default/fallback calls"""
     DOCUMENT_CONTENT_VALIDATION = auto()
+    """Usage related to document content validation tasks"""
     DOCUMENT_ORDINANCE_SUMMARY = auto()
+    """Usage related to ordinance summary tasks"""
     DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION = auto()
+    """Usage related to permitted use content validation tasks"""
     DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY = auto()
+    """Usage related to permitted use districts summary tasks"""
     DOCUMENT_JURISDICTION_VALIDATION = auto()
+    """Usage related to document jurisdiction validation tasks"""
     URL_JURISDICTION_VALIDATION = auto()
+    """Usage related to URL jurisdiction validation tasks"""
     JURISDICTION_MAIN_WEBSITE_VALIDATION = auto()
+    """Usage related to jurisdiction main website validation tasks"""
     ORDINANCE_VALUE_EXTRACTION = auto()
+    """Usage related to ordinance value extraction tasks"""
     PERMITTED_USE_VALUE_EXTRACTION = auto()
+    """Usage related to permitted use value extraction tasks"""
 
 
 class LLMTasks(StrEnum):

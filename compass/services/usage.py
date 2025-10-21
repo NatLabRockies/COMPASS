@@ -25,7 +25,7 @@ class TimedEntry:
 
         Parameters
         ----------
-        value : obj
+        value : object
             Some value to store as an entry.
         """
         self.value = value
@@ -96,7 +96,7 @@ class TimeBoundedUsageTracker:
 
 
 class UsageTracker(UserDict):
-    """Rate or AIP usage tracker"""
+    """Rate or API usage tracker"""
 
     UNKNOWN_MODEL_LABEL = "unknown_model"
     """Label used in the usage dictionary for unknown models"""

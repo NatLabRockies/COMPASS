@@ -20,14 +20,15 @@ class BaseLLMCaller:
            :class:`~compass.services.openai.OpenAIService`) to query an
            LLM.
         2. Maintain a useful context to simplify LLM query.
+
             - Typically these classes are initialized with a single LLM
               model (and optionally a usage tracker)
             - This context is passed to every ``Service.call``
               invocation, allowing user to focus on only the message.
-        3. Track message history
-           (:class:`~compass.llm.calling.ChatLLMCaller`)
-           or convert output into JSON
-           (:class:`~compass.llm.calling.StructuredLLMCaller`).
+
+        3. Track message history (ChatLLMCaller) or convert output into
+           JSON (StructuredLLMCaller).
+
     Key Relationships:
         Delegates most of work to underlying ``Service`` class.
     """
@@ -37,15 +38,15 @@ class BaseLLMCaller:
 
         Parameters
         ----------
-        llm_service : compass.services.base.Service
+        llm_service : Service
             LLM service used for queries.
-        usage_tracker : compass.services.usage.UsageTracker, optional
+        usage_tracker : UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs
             Keyword arguments to be passed to the underlying service
-            processing function (i.e. `llm_service.call(**kwargs)`).
-            Should *not* contain the following keys:
+            processing function (i.e. ``llm_service.call(**kwargs)``).
+            Should **not** contain the following keys:
 
                 - usage_sub_label
                 - messages
@@ -58,12 +59,20 @@ class BaseLLMCaller:
 
 
 class LLMCaller(BaseLLMCaller):
-    """Simple LLM caller, with no memory and no parsing utilities."""
+    """Simple LLM caller, with no memory and no parsing utilities
+
+    See Also
+    --------
+    ChatLLMCaller
+        Chat-like LLM calling functionality.
+    StructuredLLMCaller
+        Structured (JSON) LLM calling functionality.
+    """
 
     async def call(
         self, sys_msg, content, usage_sub_label=LLMUsageCategory.DEFAULT
     ):
-        """Call LLM.
+        """Call LLM
 
         Parameters
         ----------
@@ -92,7 +101,15 @@ class LLMCaller(BaseLLMCaller):
 
 
 class ChatLLMCaller(BaseLLMCaller):
-    """Class to support chat-like LLM calling functionality."""
+    """Class to support chat-like LLM calling functionality
+
+    See Also
+    --------
+    LLMCaller
+        Simple LLM caller, with no memory and no parsing utilities.
+    StructuredLLMCaller
+        Structured (JSON) LLM calling functionality.
+    """
 
     def __init__(
         self, llm_service, system_message, usage_tracker=None, **kwargs
@@ -105,7 +122,7 @@ class ChatLLMCaller(BaseLLMCaller):
             LLM service used for queries.
         system_message : str
             System message to use for chat with LLM.
-        usage_tracker : compass.services.usage.UsageTracker, optional
+        usage_tracker : UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs
@@ -122,7 +139,7 @@ class ChatLLMCaller(BaseLLMCaller):
         self.messages = [{"role": "system", "content": system_message}]
 
     async def call(self, content, usage_sub_label=LLMUsageCategory.CHAT):
-        """Chat with the LLM.
+        """Chat with the LLM
 
         Parameters
         ----------
@@ -154,12 +171,20 @@ class ChatLLMCaller(BaseLLMCaller):
 
 
 class StructuredLLMCaller(BaseLLMCaller):
-    """Class to support structured (JSON) LLM calling functionality."""
+    """Class to support structured (JSON) LLM calling functionality
+
+    See Also
+    --------
+    LLMCaller
+        Simple LLM caller, with no memory and no parsing utilities.
+    ChatLLMCaller
+        Chat-like LLM calling functionality.
+    """
 
     async def call(
         self, sys_msg, content, usage_sub_label=LLMUsageCategory.DEFAULT
     ):
-        """Call LLM for structured data retrieval.
+        """Call LLM for structured data retrieval
 
         Parameters
         ----------
@@ -193,7 +218,7 @@ class StructuredLLMCaller(BaseLLMCaller):
 
 
 def _add_json_instructions_if_needed(system_message):
-    """Add JSON instruction to system message if needed."""
+    """Add JSON instruction to system message if needed"""
     if "JSON format" not in system_message:
         logger.debug(
             "JSON instructions not found in system message. Adding..."

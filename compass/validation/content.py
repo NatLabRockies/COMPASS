@@ -194,25 +194,25 @@ class Heuristic(ABC):
     @property
     @abstractmethod
     def NOT_TECH_WORDS(self):  # noqa: N802
-        """iter: Iterable of words that don't pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Not tech keywords"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def GOOD_TECH_KEYWORDS(self):  # noqa: N802
-        """iter: Iterable of keywords that pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Tech keywords"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def GOOD_TECH_ACRONYMS(self):  # noqa: N802
-        """iter: Iterable of acronyms that pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Tech acronyms"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def GOOD_TECH_PHRASES(self):  # noqa: N802
-        """iter: Iterable of phrases that pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Tech phrases"""
         raise NotImplementedError
 
 
@@ -226,6 +226,7 @@ class LegalTextValidator(StructuredLLMCaller):
         "enforceable bans)** and filter out text that was extracted from "
         "anything other than a legal statute for an existing jurisdiction."
     )
+    """System message for legal text validation LLM calls"""
 
     def __init__(
         self, tech, *args, score_threshold=0.8, doc_is_from_ocr=False, **kwargs
@@ -242,9 +243,7 @@ class LegalTextValidator(StructuredLLMCaller):
             check for the whole document to be considered legal text.
             By default, ``0.8``.
         *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
+            Parameters to pass to the StructuredLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
         self.tech = tech
@@ -266,8 +265,7 @@ class LegalTextValidator(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -328,9 +326,9 @@ async def parse_by_chunks(
     Parameters
     ----------
     chunk_parser : ParseChunksWithMemory
-        Instance of `ParseChunksWithMemory` that contains the attributes
-        `text_chunks` and `num_to_recall`. The chunks in the
-        `text_chunks` attribute will be iterated over.
+        Instance that contains the attributes ``text_chunks`` and
+        ``num_to_recall``. The chunks in the ``text_chunks`` attribute
+        will be iterated over.
     heuristic : Heuristic
         Instance of `Heuristic` with a `check` method. This should be a
         fast check meant to quickly dispose of chunks of text. Any chunk

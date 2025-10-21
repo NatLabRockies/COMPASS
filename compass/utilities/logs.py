@@ -118,7 +118,7 @@ class AddLocationFilter(logging.Filter):
         return True
 
 
-class LocalProcessQueueHandler(QueueHandler):
+class _LocalProcessQueueHandler(QueueHandler):
     """QueueHandler that works within a single process (locally)"""
 
     def emit(self, record):
@@ -155,7 +155,7 @@ class LogListener:
         self.logger_names = logger_names
         self.level = level
         self._listener = None
-        self._queue_handler = LocalProcessQueueHandler(LOGGING_QUEUE)
+        self._queue_handler = _LocalProcessQueueHandler(LOGGING_QUEUE)
         self._queue_handler.addFilter(AddLocationFilter())
 
     def _setup_listener(self):
@@ -249,7 +249,7 @@ class LocationFileLog:
 
         Parameters
         ----------
-        listener : `LoggingListener`
+        listener : LogListener
             A listener instance. The file handler will be added to this
             listener.
         log_dir : path-like
@@ -260,7 +260,7 @@ class LocationFileLog:
             contain only characters valid in a file name.
         level : str, optional
             Log level. By default, ``"INFO"``.
-        max_teardown_time : int | float, default=30
+        max_teardown_time : int or float, default=30
             Max number of seconds to wait for logs to flush to file
             before unhooking the handler from the queue listener.
             By default, ``30``.
@@ -288,7 +288,7 @@ class LocationFileLog:
 
     def _setup_exception_handler(self):
         """Setup file handler for tracking errors for this location"""
-        self._exception_handler = JsonExceptionFileHandler(
+        self._exception_handler = _JsonExceptionFileHandler(
             self.log_dir / f"{self.location} exceptions.json", encoding="utf-8"
         )
         self._exception_handler.addFilter(LocationFilter(self.location))
@@ -373,10 +373,10 @@ class ExceptionOnlyFilter(logging.Filter):
         return bool(record.exc_info)
 
 
-class JsonFormatter(logging.Formatter):
+class _JsonFormatter(logging.Formatter):
     """Formatter that converts a record into a dictionary"""
 
-    def format(self, record):  # noqa: D102
+    def format(self, record):
         exc_info = record.exc_info
         exc_text = None
         if exc_info:
@@ -405,7 +405,7 @@ class JsonFormatter(logging.Formatter):
         }
 
 
-class JsonExceptionFileHandler(logging.Handler):
+class _JsonExceptionFileHandler(logging.Handler):
     """File handler that writes exception info to JSON file"""
 
     def __init__(self, filename, encoding="utf-8"):
@@ -416,7 +416,7 @@ class JsonExceptionFileHandler(logging.Handler):
         filename : path-like
             Path to file where JSON output on exceptions should be
             stored.
-        encoding : str, optional
+        encoding : str, default="utf-8"
             File read/write encoding. By default, ``"utf-8"``.
         """
         super().__init__()
@@ -436,7 +436,7 @@ class JsonExceptionFileHandler(logging.Handler):
 
         self.addFilter(ExceptionOnlyFilter())
         self.setLevel(logging.ERROR)
-        self.setFormatter(JsonFormatter())
+        self.setFormatter(_JsonFormatter())
 
     def emit(self, record):
         """Log the specified logging record to a JSON file

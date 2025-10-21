@@ -28,9 +28,10 @@ def usage_from_response(current_usage, response):
         already existing tracking information. Empty dictionaries are
         allowed, in which case the three keys above will be added to
         this input.
-    response : openai.Completion
-        OpenAI Completion object. Must contain a ``usage`` attribute
-        that
+    response : object
+        OpenAI Completion object (``openai.Completion``). Must contain a
+        ``usage`` attribute that contains ``prompt_tokens`` and
+        ``completion_tokens`` counts as attributes.
 
     Returns
     -------
@@ -59,7 +60,7 @@ def count_tokens(messages, model):
         "content" key containing the string to count tokens for.
     model : str
         The OpenAI model being used. This input will be passed to
-        :func:`tiktoken.encoding_for_model`.
+        ``tiktoken.encoding_for_model``.
 
     Returns
     -------
@@ -108,9 +109,10 @@ class OpenAIService(LLMService):
 
         Parameters
         ----------
-        client : openai.AsyncOpenAI or openai.AsyncAzureOpenAI
-            Async OpenAI client instance. Must have an async
-            `client.chat.completions.create` method.
+        client : object
+            Async OpenAI client instance (``openai.AsyncOpenAI`` or
+            ``openai.AsyncAzureOpenAI``). Must have an async
+            ``client.chat.completions.create`` method.
         model_name : str
             Name of model being used.
         rate_limit : int or float, optional
@@ -118,10 +120,10 @@ class OpenAIService(LLMService):
             interval is ultimately controlled by the `rate_tracker`
             instance). By default, ``1e3``.
         rate_tracker : TimeBoundedUsageTracker, optional
-            A TimeBoundedUsageTracker instance. This will be used to
-            track usage per time interval and compare to `rate_limit`.
-            If ``None``, a `TimeBoundedUsageTracker` instance is created
-            with default parameters. By default, ``None``.
+            Instance used to track usage per time interval and compare
+            to `rate_limit` input. If ``None``, a
+            TimeBoundedUsageTracker instance is created with default
+            parameters. By default, ``None``.
         service_tag : str, optional
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
@@ -150,7 +152,7 @@ class OpenAIService(LLMService):
         ----------
         model : str
             OpenAI GPT model to query.
-        usage_tracker : `compass.services.usage.UsageTracker`, optional
+        usage_tracker : UsageTracker, optional
             UsageTracker instance. Providing this input will update your
             tracker with this call's token usage info.
             By default, ``None``.

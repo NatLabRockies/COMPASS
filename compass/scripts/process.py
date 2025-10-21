@@ -257,7 +257,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         all websites on the NREL domain, and the specific file located
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
-    known_doc_urls : dict | str, optional
+    known_doc_urls : dict or str, optional
         A dictionary where keys are the jurisdiction codes (as strings)
         and values are a string or list of strings representing known
         URL's to check for those jurisdictions. If provided, these URL's

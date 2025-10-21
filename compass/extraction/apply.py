@@ -32,20 +32,19 @@ async def check_for_ordinance_info(
     Parameters
     ----------
     doc : elm.web.document.BaseDocument
-        A document potentially containing ordinance information. Note
-        that if the document's attrs contains the
-        ``"contains_ord_info"`` key, it will not be processed. To force
-        a document to be processed by this function, remove that key
-        from the documents attrs.
+        A document instance (PDF, HTML, etc) potentially containing
+        ordinance information. Note that if the document's ``attrs``
+        has the ``"contains_ord_info"`` key, it will not be processed.
+        To force a document to be processed by this function, remove
+        that key from the documents ``attrs``.
     tech : str
         Technology of interest (e.g. "solar", "wind", etc). This is
         used to set up some document validation decision trees.
-    text_splitter : obj
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
@@ -131,7 +130,7 @@ async def extract_date(doc, model_config, usage_tracker=None):
     ----------
     doc : elm.web.document.BaseDocument
         A document potentially containing date information.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
@@ -165,20 +164,17 @@ async def extract_ordinance_text_with_llm(
     doc : elm.web.document.BaseDocument
         A document known to contain ordinance information. This means it
         must contain an ``"ordinance_text"`` key in the attrs. You can
-        run :func:`~compass.extraction.apply.check_for_ordinance_info`
+        run :func:`check_for_ordinance_info`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the ``"ordinance_text"``
         key, you will get an error.
-    text_splitter : obj
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
-    extractor : compass.extraction.ordinance.WindOrdinanceTextExtractor
-        Instance of
-        :class:`~compass.extraction.ordinance.WindOrdinanceTextExtractor`
-        used for ordinance text extraction.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
+    extractor : WindOrdinanceTextExtractor
+        Object used for ordinance text extraction.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).
@@ -237,11 +233,10 @@ async def extract_ordinance_text_with_ngram_validation(
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the ``"ordinance_text"``
         key, it will not be processed.
-    text_splitter : obj
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).

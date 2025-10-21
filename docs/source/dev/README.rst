@@ -191,6 +191,9 @@ As such, please adhere to these guidelines:
             For example, use ``:class:`plotly.graph_objects.Figure```, which renders as :class:`plotly.graph_objects.Figure`
         * Networkx: ``networkx``
             For example, use ``:class:`~networkx.MultiDiGraph```, which renders as :class:`~networkx.MultiDiGraph`
+        * langchain_text_splitters : ``langchain_text_splitters``
+            For example, use ``:class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter```,
+            which renders as :class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter`
         * elm: ``elm``
             For example, use ``:class:`elm.web.document.PDFDocument```, which renders as :class:`elm.web.document.PDFDocument`
 
@@ -199,7 +202,7 @@ To check your docstring additions/updates, you can build a local version of the 
 
 .. code-block:: shell
 
-    pixi r -e pdoc make-html
+    pixi r -e pdoc python-doc
 
 After running this command, simply open ``docs/_build/html/index.html`` using your favorite browser, e.g.:
 

@@ -201,11 +201,11 @@ class TempFileCache(ThreadedService):
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : elm.web.document.BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
+            :func:`elm.web.utilities.compute_fn_from_url`.
         file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.
@@ -241,11 +241,11 @@ class TempFileCachePB(TempFileCache):
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : elm.web.document.BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
+            :func:`elm.web.utilities.compute_fn_from_url`.
         file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.
@@ -301,7 +301,7 @@ class StoreFileOnDisk(ThreadedService):
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : elm.web.document.BaseDocument
             Document containing meta information about the file. Must
             have relevant processing keys in the ``attrs`` dict,
             otherwise the file may not be stored in the output
@@ -375,7 +375,7 @@ class UsageUpdater(ThreadedService):
 
         Parameters
         ----------
-        tracker : elm.ods.services.usage.UsageTracker
+        tracker : UsageTracker
             A usage tracker instance that contains usage info to be
             added to output file.
         """
@@ -425,9 +425,9 @@ class JurisdictionUpdater(ThreadedService):
 
         Parameters
         ----------
-        jurisdiction : compass.utilities.location.Jurisdiction
-            Jurisdiction to record.
-        doc : elm.web.document.Document | None
+        jurisdiction : Jurisdiction
+            The jurisdiction instance to record.
+        doc : elm.web.document.BaseDocument or None
             Document containing meta information about the jurisdiction.
             Must have relevant processing keys in the ``attrs`` dict,
             otherwise the jurisdiction may not be recorded properly.
@@ -436,7 +436,7 @@ class JurisdictionUpdater(ThreadedService):
         seconds_elapsed : int or float
             Total number of seconds it took to look for (and possibly
             parse) this document.
-        usage_tracker : compass.services.usage.UsageTracker, optional
+        usage_tracker : UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         """

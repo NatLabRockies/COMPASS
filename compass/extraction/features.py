@@ -33,6 +33,7 @@ class SetbackFeatures:
         ],
         "water": ["lakes", "reservoirs", "streams", "rivers", "wetlands"],
     }
+    """Aliases for mutually-exclusive setback features"""
     FEATURES_AS_IGNORE = {
         "structures": "structures",
         "property line": "property lines",
@@ -41,6 +42,7 @@ class SetbackFeatures:
         "transmission": "transmission lines",
         "water": "wetlands",
     }
+    """Features as they should appear in ignore phrases"""
     FEATURE_CLARIFICATIONS = {
         "structures": "",
         "property line": (
@@ -54,6 +56,7 @@ class SetbackFeatures:
         "transmission": "",
         "water": "",
     }
+    """Clarifications to add to feature prompts"""
 
     def __init__(self):
         self._validate_descriptions()

@@ -176,10 +176,9 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries and multiple
-        :class:`~compass.extraction.tree.AsyncDecisionTree` instances
-        to guide the extraction of individual values.
+        Uses a StructuredLLMCaller for LLM queries and multiple
+        AsyncDecisionTree instances to guide the extraction of
+        individual values.
     """
 
     async def parse(self, text):
@@ -195,7 +194,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame | None
+        pandas.DataFrame or None
             DataFrame containing parsed-out ordinance values. Can also
             be ``None`` if a large wind energy system is not found in
             the text.
@@ -469,10 +468,9 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries and multiple
-        :class:`~compass.extraction.tree.AsyncDecisionTree` instances
-        to guide the extraction of individual values.
+        Uses a StructuredLLMCaller for LLM queries and multiple
+        AsyncDecisionTree instances to guide the extraction of
+        individual values.
     """
 
     _LARGE_WES_CLARIFICATION = (
@@ -546,7 +544,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
 
         Returns
         -------
-        pd.DataFrame | None
+        pandas.DataFrame or None
             DataFrame containing parsed-out allowed-use district names.
             Can also be ``None`` if a large wind energy system is not
             found in the text.

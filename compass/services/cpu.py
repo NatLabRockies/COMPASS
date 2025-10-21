@@ -50,11 +50,11 @@ class PDFLoader(ProcessPoolService):
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : elm.web.document.BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
+            :func:`elm.web.utilities.compute_fn_from_url`.
         file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.

@@ -29,15 +29,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         "they contain information about jurisdictions. Only ever answer "
         "based on the information in the URL itself."
     )
+    """System message for URL jurisdiction validation LLM calls"""
 
     def __init__(self, jurisdiction, **kwargs):
         """
 
         Parameters
         ----------
-        structured_llm_caller : `StructuredLLMCaller`
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
+        structured_llm_caller : StructuredLLMCaller
+            Instance used for structured validation queries.
         **kwargs
             Additional keyword arguments to pass to the
             :class:`~compass.llm.calling.BaseLLMCaller` instance.
@@ -90,19 +90,21 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
     """Jurisdiction Validation using a decision tree"""
 
     META_SCORE_KEY = "Jurisdiction Validation Score"
+    """Key in doc.attrs where score is stored"""
+
     SYSTEM_MESSAGE = (
         "You are a legal expert assisting a user with determining the scope "
         "of applicability for their legal ordinance documents."
     )
+    """System message for jurisdiction validation LLM calls"""
 
     def __init__(self, jurisdiction, **kwargs):
         """
 
         Parameters
         ----------
-        structured_llm_caller : `StructuredLLMCaller`
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
+        structured_llm_caller : StructuredLLMCaller
+            Instance used for structured validation queries.
         **kwargs
             Additional keyword arguments to pass to the
             :class:`~compass.llm.calling.BaseLLMCaller` instance.
@@ -162,8 +164,8 @@ class JurisdictionValidator:
         1. Use a combination of heuristics and LLM queries to determine
            whether or not a document pertains to a particular county.
     Key Relationships:
-        Uses a :class:`~compass.llm.calling.StructuredLLMCaller` for
-        LLM queries and delegates sub-validation to
+        Uses a StructuredLLMCaller for LLM queries and delegates
+        sub-validation to
         :class:`DTreeJurisdictionValidator`,
         and :class:`DTreeURLJurisdictionValidator`.
     """
@@ -176,10 +178,8 @@ class JurisdictionValidator:
         score_thresh : float, optional
             Score threshold to exceed when voting on content from raw
             pages. By default, ``0.8``.
-        text_splitter : TextSplitter, optional
-            Optional
-            :class:`langchain_text_splitters.character.TextSplitter`
-            text splitter instance to attach to doc (used for
+        text_splitter : LCTextSplitter, optional
+            Optional text splitter instance to attach to doc (used for
             splitting out pages in an HTML document).
             By default, ``None``.
         **kwargs
@@ -195,7 +195,7 @@ class JurisdictionValidator:
 
         Parameters
         ----------
-        doc : :class:`elm.web.document.BaseDocument`
+        doc : elm.web.document.BaseDocument
             Document instance. Should contain a "source" key in the
             ``attrs`` that contains a URL (used for the URL validation
             check). Raw content will be parsed for county name and
@@ -252,6 +252,7 @@ class JurisdictionWebsiteValidator:
         "jurisdiction. Only ever answer based on the information from the "
         "website itself."
     )
+    """System message for main jurisdiction website validation calls"""
 
     def __init__(
         self, browser_semaphore=None, file_loader_kwargs=None, **kwargs

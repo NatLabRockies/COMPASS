@@ -4,8 +4,18 @@ permissions: write-all
 
 on:
   pull_request:
+    paths:
+      - compass/**
+      - .github/workflows/docs.yml
+      - pyproject.toml
+      - pixi.lock
   push:
     branches: [main]
+    paths:
+      - compass/**
+      - .github/workflows/docs.yml
+      - pyproject.toml
+      - pixi.lock
   release:
     types: [created, published]
   workflow_dispatch:
@@ -26,15 +36,11 @@ jobs:
         with:
           pixi-version: v0.50.2
           locked: true
-          cache: false
+          cache: false  # Don't use cache because we use the ``pdoc`` environment
           environments: pdoc
 
       - name: Build Docs
-        # Make documentation with warnings as errors.
-        # The stricter Sphinx options below are currently disabled due to known documentation warnings.
-        # Once all warnings are resolved, consider enabling this line to catch documentation issues early.
-        # run: SPHINXOPTS="-W --keep-going -n" pixi run -e pdoc make-html
-        run: pixi run -e pdoc make-html
+        run: pixi run -e pdoc python-doc  # This errors on warnings
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0

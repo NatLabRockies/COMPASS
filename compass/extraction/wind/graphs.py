@@ -25,7 +25,7 @@ def setup_graph_wes_types(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -155,7 +155,7 @@ def setup_multiplier(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -366,7 +366,7 @@ def setup_conditional_min(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
@@ -446,7 +446,7 @@ def setup_conditional_max(**kwargs):
 
     Returns
     -------
-    nx.DiGraph
+    networkx.DiGraph
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """

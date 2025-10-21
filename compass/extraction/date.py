@@ -35,20 +35,19 @@ class DateExtractor:
         "if you are confident that they represent the latest date this "
         "ordinance was enacted/updated"
     )
+    """System message for date extraction LLM calls"""
 
     def __init__(self, structured_llm_caller, text_splitter=None):
         """
 
         Parameters
         ----------
-        structured_llm_caller : compass.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
-        text_splitter : TextSplitter, optional
-            Optional
-            :class:`langchain_text_splitters.character.TextSplitter`
-            text splitter instance to attach to doc (used for
-            splitting out pages in an HTML document).
+        structured_llm_caller : StructuredLLMCaller
+            Instance used for structured validation queries.
+        text_splitter : LCTextSplitter, optional
+            Optional text splitter (or subclass instance, or any object
+            that implements a `split_text` method) to attach to doc
+            (used for splitting out pages in an HTML document).
             By default, ``None``.
         """
         self.slc = structured_llm_caller
