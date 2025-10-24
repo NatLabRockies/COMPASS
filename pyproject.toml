@@ -37,10 +37,12 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.30,<1",
+  "nrel-elm>=0.0.31,<1",
+  "numpy>=2.2.4,<3",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
+  "playwright>=1.49.0,<1.52",  # version range required for c4ai"
   "pyjson5>=1.6.8,<2",
   "rich>=13.9.4,<14",
 ]
@@ -126,9 +128,9 @@ publish-db = "cargo publish --locked -p infra-compass-db --all-features"
 publish-cli = "cargo publish --locked -p infra-compass-cli --all-features"
 
 [tool.pixi.feature.python-test.tasks]
-tests-p = "pytest --durations=20 tests/python"
-# ut = "pytest --durations=20 tests/unit"
-# it = "pytest --durations=20 tests/integration"
+tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
+tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
+tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=15 tests/python/integration"
 
 [tool.pixi.feature.python-doc.tasks]
 python-doc = { cmd = "make html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
@@ -159,7 +161,7 @@ langchain-text-splitters = ">=1.0.0,<2"
 lxml = ">=5.3.0,<6"
 networkx = ">=3.4.2,<4"
 nltk = ">=3.9.1,<4"
-numpy = ">=1.26.4,<2"
+numpy = ">=2.2.4,<3"
 openai = ">=1.1.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
@@ -402,11 +404,10 @@ omit = [
 
 
 [tool.pytest.ini_options]
-addopts = "--cov=compass --cov-report=html --cov-report=xml:coverage.xml --disable-warnings --cov-fail-under=80"
+addopts = "--disable-warnings"
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
 testpaths = [
-  "tests"
-  # "tests/unit",
-  # "tests/integration",
+  "tests/python/unit",
+  "tests/python/integration",
 ]

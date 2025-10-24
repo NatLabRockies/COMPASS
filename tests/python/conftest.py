@@ -50,8 +50,14 @@ def test_dir():
 
 @pytest.fixture(scope="session")
 def test_data_dir(test_dir):
+    """Directory containing test data"""
+    return test_dir.parent / "data"
+
+
+@pytest.fixture(scope="session")
+def test_data_files_dir(test_data_dir):
     """Directory containing test data files"""
-    return test_dir / "data_files"
+    return test_data_dir / "files"
 
 
 @pytest.fixture

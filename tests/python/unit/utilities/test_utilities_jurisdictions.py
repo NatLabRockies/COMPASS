@@ -15,7 +15,7 @@ from compass.exceptions import COMPASSValueError
 from compass.warn import COMPASSWarning
 
 
-def test_load_jurisdictions():
+def test_load_all_jurisdictions():
     """Test the `load_all_jurisdiction_info` function"""
 
     jurisdiction_info = load_all_jurisdiction_info()
@@ -30,6 +30,12 @@ def test_load_jurisdictions():
         "Website",
     ]
     assert all(col in jurisdiction_info for col in expected_cols)
+    for g, data in jurisdiction_info.groupby(
+        ["County", "State", "Subdivision", "Jurisdiction Type"]
+    ):
+        if len(data) > 1:
+            print(g)
+            print(data)
     assert len(jurisdiction_info) == len(
         jurisdiction_info.groupby(
             ["County", "State", "Subdivision", "Jurisdiction Type"]

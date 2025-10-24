@@ -72,14 +72,14 @@ def text_splitter():
 
 
 @pytest.fixture(scope="session")
-def doc_loader(test_data_dir):
+def doc_loader(test_data_files_dir):
     """Text splitter to uses for tests"""
-    return partial(_load_doc, test_data_dir)
+    return partial(_load_doc, test_data_files_dir)
 
 
-def _load_doc(test_data_dir, doc_fn):
+def _load_doc(test_data_files_dir, doc_fn):
     """Load PDF or HTML doc for tests"""
-    doc_fp = test_data_dir / doc_fn
+    doc_fp = test_data_files_dir / doc_fn
     if doc_fp.suffix == ".pdf":
         with doc_fp.open("rb") as fh:
             pages = read_pdf(fh.read())

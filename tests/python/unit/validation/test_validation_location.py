@@ -400,14 +400,14 @@ async def test_doc_text_matches_jurisdiction_pdf(
     ],
 )
 async def test_doc_text_matches_jurisdiction_ocr(
-    oai_llm_service, test_data_dir, loc, doc_fn, truth
+    oai_llm_service, test_data_files_dir, loc, doc_fn, truth
 ):
     """Test the `DTreeJurisdictionValidator` class for scanned doc"""
     import pytesseract  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = PYT_CMD
 
-    doc_fp = test_data_dir / doc_fn
+    doc_fp = test_data_files_dir / doc_fn
     with doc_fp.open("rb") as fh:
         pages = read_pdf_ocr(fh.read())
         doc = PDFDocument(pages)

@@ -41,7 +41,7 @@ jobs:
 
       - name: Run cargo check
         run: |
-          pixi run -e rdev --frozen cargo check --workspace --locked
+          pixi run -e rdev --locked cargo check --workspace --locked
 
   lints:
     # Only run tests if code looks OK
@@ -68,11 +68,11 @@ jobs:
 
       - name: Run cargo fmt
         run: |
-          pixi run -e rdev --frozen cargo fmt --all --check
+          pixi run -e rdev --locked cargo fmt --all --check
 
       - name: Run cargo clippy
         run: |
-          pixi run -e rdev --frozen cargo clippy --locked --all-features --tests -- -D warnings
+          pixi run -e rdev --locked cargo clippy --locked --all-features --tests -- -D warnings
 
   test:
     # Only run tests if code looks OK
@@ -100,7 +100,7 @@ jobs:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - run: pixi run -e rdev --frozen tests-r
+      - run: pixi run -e rdev --locked tests-r
 
   publish-dry:
     name: Rust - Publish (dry-run)
@@ -127,11 +127,11 @@ jobs:
 
       - name: Publish crates (DB)
         run: |
-          pixi run -e rdev --frozen publish-db --dry-run
+          pixi run -e rdev --locked publish-db --dry-run
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen publish-cli --dry-run
+          pixi run -e rdev --locked publish-cli --dry-run
 
   publish-cli:
     name: Publish Rust CLI crate
@@ -158,7 +158,7 @@ jobs:
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen publish-cli
+          pixi run -e rdev --locked publish-cli
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -187,6 +187,6 @@ jobs:
 
       - name: Publish crates (DB)
         run: |
-          pixi run -e rdev --frozen publish-db
+          pixi run -e rdev --locked publish-db
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

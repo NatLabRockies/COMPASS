@@ -62,7 +62,7 @@ async def test_openai_service(sample_openai_response, monkeypatch):
         if kwargs.get("bad_request"):
             response = httpx.Response(404)
             response.request = httpx.Request(method="test", url="test")
-            raise openai.BadRequestError(
+            raise openai.NotFoundError(
                 "for testing",
                 response=response,
                 body=None,
@@ -94,10 +94,11 @@ async def test_openai_service(sample_openai_response, monkeypatch):
         }
     }
 
-    message = await openai_service.process(
-        usage_tracker=usage_tracker, bad_request=True
-    )
-    assert message is None
+    with pytest.raises(openai.NotFoundError):
+        message = await openai_service.process(
+            usage_tracker=usage_tracker, bad_request=True
+        )
+
     assert openai_service.rate_tracker.total == 16
     assert usage_tracker == {
         "gpt-4": {

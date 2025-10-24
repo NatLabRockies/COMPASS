@@ -122,14 +122,14 @@ async def test_legal_text_validation(
     reason="requires Azure OpenAI key *and* PyTesseract command to be set",
 )
 async def test_legal_text_validation_ocr(
-    oai_llm_service, test_data_dir, text_splitter
+    oai_llm_service, test_data_files_dir, text_splitter
 ):
     """Test the `LegalTextValidator` class for scanned doc"""
     import pytesseract  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = PYT_CMD
 
-    doc_fp = test_data_dir / "Sedgwick Kansas.pdf"
+    doc_fp = test_data_files_dir / "Sedgwick Kansas.pdf"
     with doc_fp.open("rb") as fh:
         pages = read_pdf_ocr(fh.read())
         doc = PDFDocument(pages)

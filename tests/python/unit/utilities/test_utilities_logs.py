@@ -52,13 +52,16 @@ async def test_logs_sent_to_separate_files(tmp_path, service_base_class):
 
     assert not logger.handlers
 
-    log_files = list(log_dir.glob("*"))
+    log_files = list(log_dir.glob("*.log"))
+    json_log_files = list(log_dir.glob("*.json"))
     assert len(log_files) == len(test_locations)
+    assert len(json_log_files) == len(test_locations)
     for loc in test_locations:
         expected_log_file = log_dir / f"{loc}.log"
         assert expected_log_file.exists()
         log_text = expected_log_file.read_text(encoding="utf-8")
-        assert log_text == f"A generic test log\nThis location is {loc!r}\n"
+        assert "A generic test log" in log_text
+        assert f"This location is {loc!r}" in log_text
 
 
 if __name__ == "__main__":

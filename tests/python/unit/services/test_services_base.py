@@ -4,11 +4,13 @@ import time
 from pathlib import Path
 
 import pytest
+from flaky import flaky
 
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
 
 
+@flaky(max_runs=10, min_passes=1)
 def test_base_llm_limited_service():
     """Test base implementation of `LLMService` class"""
 

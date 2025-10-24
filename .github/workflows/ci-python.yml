@@ -1,0 +1,152 @@
+name: Python checks
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - compass/**
+      - .github/workflows/ci-python.yml
+      - pyproject.toml
+      - pixi.lock
+  pull_request:
+    paths:
+      - compass/**
+      - .github/workflows/ci-python.yml
+      - pyproject.toml
+      - pixi.lock
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint Python Code Base with Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: astral-sh/ruff-action@v3
+        with:
+          version: "latest"
+          args: "check"
+          src: "./compass"
+      - uses: astral-sh/ruff-action@v3
+        with:
+          version: "latest"
+          args: "format --check"
+          src: "./compass"
+
+  unit-tests:
+    needs: lint
+    name: Python Unit Tests (Pixi)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@v0.9.2
+      with:
+        pixi-version: v0.50.2
+        locked: true
+        cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        environments: pdev
+
+    - run: |
+        pixi run -e pdev --locked tests-u
+
+  integration-tests:
+    needs: lint
+    name: Python Integration Tests (Pixi)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@v0.9.2
+      with:
+        pixi-version: v0.50.2
+        locked: true
+        cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        environments: pdev
+
+    - run: |
+        pixi run -e pdev --locked tests-i
+
+  tox-tests:
+    needs: lint
+    name: Python tests (Tox)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ['3.13', '3.12']
+
+    steps:
+    - uses: actions/checkout@v5
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Install Poppler Reqs (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpoppler-cpp-dev poppler-utils
+
+    - name: Install Poppler Reqs (Mac)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      run: |
+        brew install poppler
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install tox tox-gh-actions>=2.0
+        python -m pip install pdftotext
+
+    - name: Load tox cache
+      uses: actions/cache/restore@v4
+      with:
+        path: .tox/
+        key: ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-
+
+    - name: Test with tox
+      run: tox -e ${{ matrix.python-version == '3.12' && 'msv' || 'latest' }}
+      env:
+        PYTHONDEVMODE: 1
+
+    - name: Save tox cache only on main
+      if: github.ref == 'refs/heads/main'
+      uses: actions/cache/save@v4
+      with:
+        path: .tox/
+        key: ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-${{ hashFiles('**/pyproject.toml') }}
