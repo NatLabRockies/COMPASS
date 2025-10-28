@@ -1,7 +1,7 @@
-"""Ordinance document content Validation logic
+"""Wind ordinance document content collection and extraction
 
-These are primarily used to validate that a legal document applies to a
-particular technology (e.g. Large Wind Energy Conversion Systems).
+These methods help filter down the document text to only the portions
+relevant to utility-scale wind ordinances.
 """
 
 import logging

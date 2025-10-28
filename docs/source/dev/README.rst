@@ -363,3 +363,24 @@ variable, then you are good to go. Similarly, you can test the camoufox browser 
 
 Again, if you don't get any critical errors (poppler errors are ok) and you see some output in the ``docs``
 variable, then you are good to go.
+
+
+Releases
+^^^^^^^^
+
+When you are ready to release a new version of COMPASS, please follow these steps:
+
+1) Ensure that all tests on the main branch are passing
+2) Wait until the "Release Drafter" GitHub Action has completed successfully
+3) Click on "Releases" on the bottom right of the main page of the GitHub repository
+4) You should see a draft release at the top of the page. Click on the pencil icon in the top left to edit
+5) Click on the "Select Tag" dropdown and type in a **new** tag. Be sure to follow `Semantic Versioning <https://semver.org/>`_. You may be prompted to create the new tag - make sure to do so
+6) Proofread the release notes and make any necessary adjustments
+7) Click "Publish Release"
+8) Once the release is published and the tag has been created, verify that a PR has been opened to update the pixi lockfile (you may have to wait some time for the GHA to run)
+9) Fill out any missing details in the PR (set yourself as the assignee, add any relevant project and milestone details, etc.)
+10) Request a review from another core COMPASS developer and merge the PR once approved
+
+Congratulations, you have just released a new version of COMPASS!
+You may want to verify that the release has been published to `PyPi <https://pypi.org/project/NREL-COMPASS/>`_
+(if not, check the "Upload to PyPi" GitHub Action).

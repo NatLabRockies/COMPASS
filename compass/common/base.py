@@ -30,14 +30,7 @@ _SUMMARY_PROMPT = (
 _UNITS_IN_SUMMARY_PROMPT = (
     "Include any clarifications about the units in the summary."
 )
-SYSTEM_SIZE_REMINDER = (
-    "systems that would typically be defined as {tech} based on the text "
-    "itself — for example, systems intended for offsite electricity "
-    "generation or sale, or those above thresholds such as height or rated "
-    "capacity (often 1MW+). Do not consider any text that applies **only** "
-    "to smaller or clearly non-commercial systems. "
-)
-EXTRACT_ORIGINAL_TEXT_PROMPT = (
+EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT = (
     "Extract all portions of the text (with original formatting) "
     "that state how close I can site {tech} to {feature}. "
     "{feature_clarifications}"
@@ -46,7 +39,7 @@ EXTRACT_ORIGINAL_TEXT_PROMPT = (
     "The extracted text will be used for structured data extraction, so it "
     "must be both **comprehensive** (retaining all relevant details) and "
     "**focused** (excluding unrelated content). Ensure that all retained "
-    f"information is **directly applicable** to {SYSTEM_SIZE_REMINDER}"
+    "information is **directly applicable** to {system_size_reminder}"
 )
 
 
@@ -196,7 +189,7 @@ def setup_base_setback_graph(**kwargs):
             "{feature_clarifications}"  # expected to end in space
             "Please consider only setbacks from {feature}. "
             "Please also only consider setbacks that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
             "Please start your response with either 'Yes' or 'No' and briefly "
@@ -241,7 +234,7 @@ def setup_base_setback_graph(**kwargs):
             "verify_feature", "get_text", condition=llm_response_starts_with_no
         )
 
-    G.add_node("get_text", prompt=EXTRACT_ORIGINAL_TEXT_PROMPT)
+    G.add_node("get_text", prompt=EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT)
 
     return G
 
@@ -269,11 +262,14 @@ def setup_participating_owner(**kwargs):
         prompt=(
             "Does the ordinance for {feature} setbacks explicitly distinguish "
             "between **participating** and **non-participating** {owned_type} "
-            "owners? {feature_clarifications} We are only interested in "
+            "owners? Participating may, for example, be able to sign a waiver "
+            "or enter some sort of agreement to reduce or completely "
+            "eliminate the setback requirement. "
+            "{feature_clarifications} We are only interested in "
             "setbacks from {feature}; do not base your response on any text "
             "related to {ignore_features}. "
             "Please only consider setbacks that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Please start your response with either 'Yes' or 'No' "
             "and briefly explain your answer."
         ),
@@ -401,7 +397,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "2) If the text only provides a definition of what {restriction} "
             "are without providing specifics, please respond with 'No'.\n"
             "3) Please focus only on {restriction} that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}\n"
+            "{system_size_reminder}\n"
             "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
             "5) Please start your response with either 'Yes' or 'No' and "
@@ -423,6 +419,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             _add_maximum_lot_size_clarification_nodes(G)
         elif "maximum project size" in feature_id:
             _add_maximum_project_size_clarification_nodes(G)
+        elif "maximum turbine height" in feature_id:
+            _add_maximum_turbine_height_clarification_nodes(G)
         else:
             G.add_edge("init", "value", condition=llm_response_starts_with_yes)
 
@@ -446,7 +444,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "below, or `null` if the text does not mention such a "
                 "restriction. "
                 "As before, focus only on {restriction} specifically for "
-                f"{SYSTEM_SIZE_REMINDER}"
+                "{system_size_reminder}"
                 "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
             ),
         )
@@ -601,13 +599,50 @@ def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
     return G
 
 
+def _add_maximum_turbine_height_clarification_nodes(G):  # noqa: N803
+    """Add nodes and edges to clarify max turbine height extraction"""
+    G.add_edge("init", "has_relative", condition=llm_response_starts_with_yes)
+    G.add_node(
+        "has_relative",
+        prompt=(
+            "Are any of the turbine height restrictions measured from a point "
+            "other than the ground (e.g. a building height or an airspace "
+            "level, etc.)? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+    G.add_edge(
+        "has_relative",
+        "has_non_relative",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_edge("has_relative", "value", condition=llm_response_starts_with_no)
+
+    G.add_node(
+        "has_non_relative",
+        prompt=(
+            "We are not interested in restrictions that are relative to some "
+            "level. Does the legal text enact any turbine height restrictions "
+            "measured from the ground? "
+            "Please start your response with either 'Yes' or 'No' and "
+            "briefly explain your answer."
+        ),
+    )
+
+    G.add_edge(
+        "has_non_relative", "value", condition=llm_response_starts_with_yes
+    )
+    return G
+
+
 def _add_value_and_units_clarification_nodes(G):  # noqa: N803
     """Add nodes and edges to clarify value and units extraction"""
 
     G.add_node(
         "value",
         prompt=(
-            "What is the **numerical** value given for the "  # noqa: S608
+            "What is the **numerical** value given for the "
             "{restriction} for {tech}? Follow these guidelines:\n"
             "1) Extract only the explicit numerical value provided for "
             "the restriction. Do not infer values from related "
@@ -616,7 +651,7 @@ def _add_value_and_units_clarification_nodes(G):  # noqa: N803
             "one (i.e., the smallest allowable limit, the lowest maximum, "
             "etc.).\n"
             "3) Please focus only on {restriction} that would apply for "
-            f"{SYSTEM_SIZE_REMINDER}\n"
+            "{system_size_reminder}\n"
             "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n\n"
             "Example Inputs and Outputs:\n"

@@ -4,7 +4,6 @@ from compass.common import (
     setup_graph_no_nodes,
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
-    SYSTEM_SIZE_REMINDER,
 )
 
 
@@ -173,7 +172,7 @@ def setup_multiplier(**kwargs):
             "Please consider only {feature}; do not respond based on any text "
             "related to {ignore_features}. "
             "Please also only consider setbacks specifically for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
         ),
@@ -187,7 +186,7 @@ def setup_multiplier(**kwargs):
             "Please consider only on {feature}; do not respond based on any "
             "text related to {ignore_features}. "
             "Please also only consider setbacks specifically for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Please start your response with either 'Yes' or "
             "'No' and briefly explain your answer."
         ),
@@ -229,7 +228,7 @@ def setup_multiplier(**kwargs):
             "(standard) units of the setback distance value from {feature} "
             "or `null` if there was no such value. "
             "As before, focus only on setbacks that would apply for"
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "{SUMMARY_PROMPT} {SECTION_PROMPT}"
         ),
     )
@@ -242,7 +241,7 @@ def setup_multiplier(**kwargs):
             "compute the setback distance value from {feature} for {tech}? "
             "Remember to ignore any text related to {ignore_features}. "
             "Please only consider setbacks specifically for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "If so, select and state the largest one. Otherwise, repeat the "
             "single multiplier value that was given in the text. "
         ),
@@ -256,7 +255,7 @@ def setup_multiplier(**kwargs):
             "the multiplication? "
             "Remember to ignore any text related to {ignore_features}. "
             "Please only consider setbacks specifically for "
-            f"{SYSTEM_SIZE_REMINDER}"
+            "{system_size_reminder}"
             "Do not confuse this value with static setback requirements. "
             "Ignore text with clauses such as 'no lesser than', 'no greater "
             "than', 'the lesser of', or 'the greater of'. Please start your "

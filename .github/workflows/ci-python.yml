@@ -33,6 +33,32 @@ jobs:
           args: "format --check"
           src: "./compass"
 
+  locked-tests:
+    needs: lint
+    name: Pixi-Locked Unit Tests
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@v5
+      with:
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@v0.9.2
+      with:
+        pixi-version: v0.50.2
+        locked: true
+        cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        environments: pdev
+
+    - run: |
+        pixi install -e pdev --locked
+        pixi run -e pdev --locked tests-u
+
   unit-tests:
     needs: lint
     name: Python Unit Tests (Pixi)
@@ -47,7 +73,6 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v5
       with:
-        fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.2
@@ -59,7 +84,8 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi run -e pdev --locked tests-u
+        pixi install -e pdev
+        pixi run -e pdev tests-u
 
   integration-tests:
     needs: lint
@@ -75,7 +101,6 @@ jobs:
     - name: Checkout Repo
       uses: actions/checkout@v5
       with:
-        fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.2
@@ -87,7 +112,8 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi run -e pdev --locked tests-i
+        pixi install -e pdev
+        pixi run -e pdev tests-i
 
   tox-tests:
     needs: lint
@@ -106,11 +132,18 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: Set up Python  ${{ matrix.python-version }} (with cache)
+      if: github.ref == 'refs/heads/main'
       uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python-version }}
         cache: 'pip'
+
+    - name: Set up Python  ${{ matrix.python-version }} (no cache)
+      if: github.ref != 'refs/heads/main'
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
 
     - name: Install Poppler Reqs (Linux)
       if: ${{ runner.os == 'Linux' }}

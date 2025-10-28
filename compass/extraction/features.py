@@ -44,7 +44,6 @@ class SetbackFeatures:
     }
     """Features as they should appear in ignore phrases"""
     FEATURE_CLARIFICATIONS = {
-        "structures": "",
         "property line": (
             "Dwelling units, structures, occupied buildings, residences, and "
             "other buildings **are not equivalent** to property lines or "
@@ -52,9 +51,6 @@ class SetbackFeatures:
             "connection. "
         ),
         "roads": "Roads may also be labeled as rights-of-way. ",
-        "railroads": "",
-        "transmission": "",
-        "water": "",
     }
     """Clarifications to add to feature prompts"""
 

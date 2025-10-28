@@ -100,7 +100,7 @@ jobs:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - run: pixi run -e rdev --locked tests-r
+      - run: pixi run -e rdev tests-r
 
   publish-dry:
     name: Rust - Publish (dry-run)

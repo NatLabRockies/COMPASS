@@ -47,6 +47,17 @@ from compass.extraction.wind import (
     WIND_QUESTION_TEMPLATES,
     BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
+from compass.extraction.accessory_wind import (
+    AccessoryWindHeuristic,
+    AccessoryWindOrdinanceTextCollector,
+    AccessoryWindOrdinanceTextExtractor,
+    AccessoryWindPermittedUseDistrictsTextCollector,
+    AccessoryWindPermittedUseDistrictsTextExtractor,
+    StructuredAccessoryWindOrdinanceParser,
+    StructuredAccessoryWindPermittedUseDistrictsParser,
+    ACCESSORY_WIND_QUESTION_TEMPLATES,
+    BEST_ACCESSORY_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
+)
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import LLMCaller, OpenAIConfig
 from compass.services.cpu import (
@@ -172,7 +183,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         CSV file, all downloaded ordinance documents (PDFs and HTML),
         usage metadata, and default subdirectories for logs and
         intermediate outputs (unless otherwise specified).
-    tech : {"wind", "solar"}
+    tech : {"wind", "solar", "accessory wind"}
         Label indicating which technology type is being processed.
     jurisdiction_fp : path-like
         Path to a CSV file specifying the jurisdictions to process.
@@ -1175,6 +1186,19 @@ def _compile_tech_specs(tech):
             StructuredSolarOrdinanceParser,
             StructuredSolarPermittedUseDistrictsParser,
             BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS,
+        )
+    if tech.casefold() == "accessory wind":
+        return TechSpec(
+            "accessory wind",
+            ACCESSORY_WIND_QUESTION_TEMPLATES,
+            AccessoryWindHeuristic(),
+            AccessoryWindOrdinanceTextCollector,
+            AccessoryWindOrdinanceTextExtractor,
+            AccessoryWindPermittedUseDistrictsTextCollector,
+            AccessoryWindPermittedUseDistrictsTextExtractor,
+            StructuredAccessoryWindOrdinanceParser,
+            StructuredAccessoryWindPermittedUseDistrictsParser,
+            BEST_ACCESSORY_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
         )
 
     msg = f"Unknown tech input: {tech}"

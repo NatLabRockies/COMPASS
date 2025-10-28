@@ -37,7 +37,7 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.31,<1",
+  "nrel-elm>=0.0.33,<1",
   "numpy>=2.2.4,<3",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
@@ -147,6 +147,7 @@ poppler = ">=24.8.0,<25"
 rust = ">=1.89.0,<1.90"
 cxx-compiler = ">=1.9.0,<2"
 graphviz = ">=12.2.1,<13"
+python = ">=3.12,<3.14"
 
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"

@@ -8,7 +8,7 @@ from compass.common import (
 
 
 def setup_graph_wes_types(**kwargs):
-    """Setup graph to get the largest turbine size in the ordinance text
+    """Setup graph to get the accessory turbine size in the text
 
     Parameters
     ----------
@@ -49,21 +49,23 @@ def setup_graph_wes_types(**kwargs):
             "include generic types or other energy system types."
         ),
     )
-    G.add_edge("get_text", "get_largest")
+    G.add_edge("get_text", "get_accessory")
     G.add_node(
-        "get_largest",
+        "get_accessory",
         prompt=(
-            "Based on your list, what is the **largest** wind energy system "
-            "size **regulated by this ordinance**?"
+            "Based on your list, what is the wind energy system size that is "
+            "**closest to the definition of accessory wind energy systems** "
+            "that is also **regulated by this ordinance**?"
         ),
     )
 
-    G.add_edge("get_largest", "check_matches_definition")
+    G.add_edge("get_accessory", "check_matches_definition")
     G.add_node(
         "check_matches_definition",
         prompt=(
-            "Does the ordinance explicitly define this system as large, "
-            "commercial, utility-scale, or something akin to that? "
+            "Does the ordinance explicitly define this system as small, "
+            "medium, private, accessory, or something akin to that (i.e. "
+            "**not** large, commercial, or utility-scale)? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
         ),
@@ -71,7 +73,7 @@ def setup_graph_wes_types(**kwargs):
 
     G.add_edge(
         "check_matches_definition",
-        "final_large",
+        "final_small",
         condition=llm_response_starts_with_yes,
     )
 
@@ -85,10 +87,10 @@ def setup_graph_wes_types(**kwargs):
         "check_scale_reason",
         prompt=(
             "Would a reasonable person classify this kind of system as a "
-            "**large, commercial, or even utility-scale** wind energy system "
-            "(e.g. with the primary purpose of generating electricity for "
-            "sale, as opposed to small, micro, private, onsite, or other "
-            "kinds of 'small' systems)? "
+            "**small, private, medium, accessory, or even residential** wind "
+            "energy generation system (e.g. with the primary purpose of "
+            "generating electricity for use on-site, as opposed to large, "
+            "commercial, utility-scale, or other kinds of 'large' systems)? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
         ),
@@ -96,13 +98,29 @@ def setup_graph_wes_types(**kwargs):
 
     G.add_edge(
         "check_scale_reason",
-        "final_large",
+        "final_small",
         condition=llm_response_starts_with_yes,
     )
     G.add_edge(
         "check_scale_reason",
-        "final_small",
+        "final_large",
         condition=llm_response_starts_with_no,
+    )
+    G.add_node(
+        "final_small",
+        prompt=(
+            "Respond based on our entire conversation so far. Return your "
+            "answer as a dictionary in JSON format (not markdown). Your JSON "
+            "file must include exactly three keys. The keys are "
+            "'wes_type', 'explanation', and 'is_accessory'. The value of "
+            "the 'wes_type' key should be a string that labels the system "
+            "size **closest to the definition of accessory wind energy "
+            "systems** that is also **regulated by this ordinance**. "
+            "The value of the 'explanation' key should be a "
+            "string containing a short explanation for your choice. The value "
+            "of the 'is_accessory' key should be the boolean value `true`, "
+            "since we determined this is an accessory system."
+        ),
     )
     G.add_node(
         "final_large",
@@ -110,28 +128,14 @@ def setup_graph_wes_types(**kwargs):
             "Respond based on our entire conversation so far. Return your "
             "answer as a dictionary in JSON format (not markdown). Your JSON "
             "file must include exactly three keys. The keys are "
-            "'largest_wes_type', 'explanation', and 'is_large'. The value of "
-            "the 'largest_wes_type' key should be a string that labels the "
-            "largest wind energy conversion system size **regulated by this "
-            "ordinance**. The value of the 'explanation' key should be a "
+            "'wes_type', 'explanation', and 'is_accessory'. The value of "
+            "the 'wes_type' key should be a string that labels the system "
+            "size **closest to the definition of accessory wind energy "
+            "systems** that is also **regulated by this ordinance**. "
+            "The value of the 'explanation' key should be a "
             "string containing a short explanation for your choice. The value "
-            "of the 'is_large' key should be the boolean value `true`, since "
-            "we determined this is a large-scale system."
-        ),
-    )
-    G.add_node(
-        "final_small",
-        prompt=(
-            "Respond based on our entire conversation so far. Return your "
-            "answer as a dictionary in JSON format (not markdown). Your JSON "
-            "file must include exactly three keys. The keys are "
-            "'largest_wes_type', 'explanation', and 'is_large'. The value of "
-            "the 'largest_wes_type' key should be a string that labels the "
-            "largest wind energy conversion system size **regulated by this "
-            "ordinance**. The value of the 'explanation' key should be a "
-            "string containing a short explanation for your choice. The value "
-            "of the 'is_large' key should be the boolean value `false`, since "
-            "we determined this is not a large-scale system."
+            "of the 'is_accessory' key should be the boolean value `false`, "
+            "since we determined this is not an accessory system."
         ),
     )
     return G
@@ -202,8 +206,8 @@ def setup_multiplier(**kwargs):
             "values are mentioned, return only the units for the most "
             "restrictive value that directly pertains to the setback.\n\n"
             "Example Inputs and Outputs:\n"
-            "Text: 'All Solar Farms shall be set back a distance of at least "
-            "one thousand (1000) feet, from any primary structure'\n"
+            "Text: 'All wind turbines shall be set back a distance of at "
+            "least one thousand (1000) feet, from any primary structure'\n"
             "Output: 'feet'\n"
         ),
     )
