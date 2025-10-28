@@ -12,7 +12,7 @@ import pytest
 import openai
 import elm.web.html_pw
 from elm.web.search.dux import DuxDistributedGlobalSearch
-from elm.web.file_loader import AsyncFileLoader
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.document import HTMLDocument
 from flaky import flaky
 
@@ -220,7 +220,7 @@ async def test_google_search_with_logging(tmp_path):
 async def test_async_file_loader_with_temp_cache(
     monkeypatch, mock_get_methods, sample_file
 ):
-    """Test `AsyncFileLoader` with a `TempFileCache` service"""
+    """Test `AsyncWebFileLoader` with a `TempFileCache` service"""
 
     get_meth, get_html = mock_get_methods
     monkeypatch.setattr(aiohttp.ClientSession, "get", get_meth, raising=True)
@@ -232,7 +232,7 @@ async def test_async_file_loader_with_temp_cache(
     truth = HTMLDocument([content])
 
     async with RunningAsyncServices([TempFileCache()]):
-        loader = AsyncFileLoader(file_cache_coroutine=TempFileCache.call)
+        loader = AsyncWebFileLoader(file_cache_coroutine=TempFileCache.call)
         doc = await loader.fetch("Whatcom")
         assert doc.text == truth.text
         assert doc.attrs["source"] == "Whatcom"

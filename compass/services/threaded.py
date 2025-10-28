@@ -1,6 +1,7 @@
 """COMPASS Ordinance Threaded services"""
 
 import json
+import uuid
 import shutil
 import asyncio
 import hashlib
@@ -12,7 +13,7 @@ from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
-from elm.web.document import PDFDocument
+from elm.web.document import PDFDocument, HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
 from compass import COMPASS_DEBUG_LEVEL
@@ -29,6 +30,13 @@ logger = logging.getLogger(__name__)
 
 def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
     """Cache file and compute its hash"""
+    if "source" not in doc.attrs:
+        doc.attrs["source"] = (
+            str(doc.attrs["source_fp"])
+            if "source_fp" in doc.attrs
+            else str(uuid.uuid4())
+        )
+
     cache_fp = write_url_doc_to_file(
         doc=doc,
         file_content=file_content,
@@ -456,6 +464,31 @@ class JurisdictionUpdater(ThreadedService):
             self._is_processing = False
 
 
+class HTMLFileLoader(ThreadedService):
+    """Service that loads HTML files from disk"""
+
+    @property
+    def can_process(self):
+        """bool: ``True`` because can always read file"""
+        return True
+
+    async def process(self, html_fp, **kwargs):
+        """Read HTML file from disk
+
+        Parameters
+        ----------
+        html_fp : path-like
+            Path to HTML file on disk.
+        **kwargs
+            Additional keyword-value argument pairs to pass to
+            :class:`elm.web.document.HTMLDocument`.
+        """
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(
+            self.pool, _read_html_file, html_fp, **kwargs
+        )
+
+
 def _dump_usage(fp, tracker):
     """Dump usage to an existing file"""
     if not Path(fp).exists():
@@ -556,3 +589,30 @@ def _compute_jurisdiction_cost(usage_tracker):
         )
 
     return total_cost
+
+
+def _read_html_file(html_fp, **kwargs):
+    """Default read HTML function (runs in main thread)"""
+    with Path(html_fp).open("r", encoding="utf-8") as fh:
+        text = fh.read()
+
+    return HTMLDocument([text], **kwargs), text
+
+
+async def read_html_file(html_fp, **kwargs):
+    """Read HTML file in a threaded pool
+
+    Parameters
+    ----------
+    html_fp : path-like
+        Path to HTML file on disk.
+    **kwargs
+        Keyword-value argument pairs to pass to
+        :class:`elm.web.document.HTMLDocument`.
+
+    Returns
+    -------
+    elm.web.document.HTMLDocument
+        HTMLDocument instance with text loaded into page.
+    """
+    return await HTMLFileLoader.call(html_fp, **kwargs)

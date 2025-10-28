@@ -3,6 +3,7 @@
 import ast
 import asyncio
 import contextlib
+from pathlib import Path
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 
@@ -94,6 +95,29 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
     return doc
 
 
+def _read_pdf_file(pdf_fp, **kwargs):
+    """Utility func so that pdftotext.PDF doesn't have to be pickled"""
+    with Path(pdf_fp).open("rb") as fh:
+        pdf_bytes = fh.read()
+
+    pages = read_pdf(pdf_bytes, verbose=False)
+    return PDFDocument(pages, **kwargs), pdf_bytes
+
+
+def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
+    """Utility function that mimics `_read_pdf_file`"""
+    if tesseract_cmd:
+        _configure_pytesseract(tesseract_cmd)
+
+    with Path(pdf_fp).open("rb") as fh:
+        pdf_bytes = fh.read()
+
+    pages = read_pdf_ocr(pdf_bytes, verbose=False)
+    doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
+    doc.attrs["from_ocr"] = True
+    return doc, pdf_bytes
+
+
 def _configure_pytesseract(tesseract_cmd):
     """Set the tesseract_cmd"""
     import pytesseract  # noqa: PLC0415
@@ -130,6 +154,25 @@ async def read_pdf_doc(pdf_bytes, **kwargs):
     return await PDFLoader.call(_read_pdf, pdf_bytes, **kwargs)
 
 
+async def read_pdf_file(pdf_fp, **kwargs):
+    """Read local PDF file in a Process Pool
+
+    Parameters
+    ----------
+    pdf_fp : path-like
+        Path to PDF file (non-OCR).
+    **kwargs
+        Keyword-value arguments to pass to
+        :class:`elm.web.document.PDFDocument` initializer.
+
+    Returns
+    -------
+    elm.web.document.PDFDocument
+        PDFDocument instances with pages loaded as text.
+    """
+    return await PDFLoader.call(_read_pdf_file, pdf_fp, **kwargs)
+
+
 async def read_pdf_doc_ocr(pdf_bytes, **kwargs):
     """Read PDF file using OCR (pytesseract)
 
@@ -155,6 +198,36 @@ async def read_pdf_doc_ocr(pdf_bytes, **kwargs):
     return await OCRPDFLoader.call(
         _read_pdf_ocr,
         pdf_bytes,
+        tesseract_cmd=pytesseract.pytesseract.tesseract_cmd,
+        **kwargs,
+    )
+
+
+async def read_pdf_file_ocr(pdf_fp, **kwargs):
+    """Read local PDF file using OCR (pytesseract)
+
+    Note that Pytesseract must be set up properly for this method to
+    work. In particular, the `pytesseract.pytesseract.tesseract_cmd`
+    attribute must be set to point to the pytesseract exe.
+
+    Parameters
+    ----------
+    pdf_fp : path-like
+        Path to PDF file (OCR).
+    **kwargs
+        Keyword-value arguments to pass to
+        :class:`elm.web.document.PDFDocument` initializer.
+
+    Returns
+    -------
+    elm.web.document.PDFDocument
+        PDFDocument instances with pages loaded as text.
+    """
+    import pytesseract  # noqa: PLC0415
+
+    return await OCRPDFLoader.call(
+        _read_pdf_file_ocr,
+        pdf_fp,
         tesseract_cmd=pytesseract.pytesseract.tesseract_cmd,
         **kwargs,
     )

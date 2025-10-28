@@ -399,6 +399,7 @@ async def test_doc_text_matches_jurisdiction_pdf(
         ),
     ],
 )
+@pytest.mark.asyncio
 async def test_doc_text_matches_jurisdiction_ocr(
     oai_llm_service, test_data_files_dir, loc, doc_fn, truth
 ):

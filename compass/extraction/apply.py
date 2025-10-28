@@ -67,12 +67,16 @@ async def check_for_ordinance_info(
 
     chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
-    legal_text_validator = LegalTextValidator(
-        tech=tech,
-        llm_service=model_config.llm_service,
-        usage_tracker=usage_tracker,
-        doc_is_from_ocr=doc.attrs.get("from_ocr", False),
-        **model_config.llm_call_kwargs,
+    legal_text_validator = (
+        None
+        if doc.attrs.get("is_legal_doc", False)
+        else LegalTextValidator(
+            tech=tech,
+            llm_service=model_config.llm_service,
+            usage_tracker=usage_tracker,
+            doc_is_from_ocr=doc.attrs.get("from_ocr", False),
+            **model_config.llm_call_kwargs,
+        )
     )
 
     ordinance_text_collector = ordinance_text_collector_class(
@@ -142,6 +146,15 @@ async def extract_date(doc, model_config, usage_tracker=None):
         the attrs will contain a ``"date"`` key that will contain the
         parsed date information.
     """
+    if "date" in doc.attrs:
+        logger.debug(
+            "Not extracting date for doc from %s. "
+            "Found existing date in doc attrs: %r",
+            doc.attrs.get("source"),
+            doc.attrs["date"],
+        )
+        return doc
+
     date_llm_caller = StructuredLLMCaller(
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,

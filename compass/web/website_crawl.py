@@ -26,7 +26,7 @@ from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
 from elm.web.document import PDFDocument, HTMLDocument
-from elm.web.file_loader import AsyncFileLoader
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
 
 
@@ -149,9 +149,9 @@ class COMPASSCrawler:
             contains the link title text.
         file_loader_kwargs : dict, optional
             Additional keyword-value argument pairs to pass to the
-            :class:`~elm.web.file_loader.AsyncFileLoader` class. If this
-            dictionary contains the ``pw_launch_kwargs`` key, it's value
-            (assumes to be another dictionary) will be used to
+            :class:`~elm.web.file_loader.AsyncWebFileLoader` class. If
+            this dictionary contains the ``pw_launch_kwargs`` key, it's
+            value (assumes to be another dictionary) will be used to
             initialize the playwright instances used for the crawl.
             By default, ``None``.
         already_visited : set, optional
@@ -181,7 +181,7 @@ class COMPASSCrawler:
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
         flk.update(file_loader_kwargs or {})
-        self.afl = AsyncFileLoader(**flk)
+        self.afl = AsyncWebFileLoader(**flk)
         self.pw_launch_kwargs = (
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )

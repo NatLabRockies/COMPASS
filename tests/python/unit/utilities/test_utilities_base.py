@@ -1,4 +1,4 @@
-"""Test COMPASS Ordinance logging logic."""
+"""Test COMPASS Ordinance logging logic"""
 
 from pathlib import Path
 

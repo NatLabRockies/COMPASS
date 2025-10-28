@@ -20,6 +20,7 @@ from .parsing import (
     ordinances_bool_index,
 )
 from .nt import ProcessKwargs, TechSpec
+from .io import load_local_docs
 
 
 RTS_SEPARATORS = [

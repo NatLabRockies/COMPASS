@@ -5,6 +5,7 @@ from collections import namedtuple
 ProcessKwargs = namedtuple(
     "ProcessKwargs",
     [
+        "known_local_docs",
         "known_doc_urls",
         "file_loader_kwargs",
         "td_kwargs",

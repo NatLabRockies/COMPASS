@@ -7,7 +7,7 @@ particular location.
 import asyncio
 import logging
 
-from elm.web.file_loader import AsyncFileLoader
+from elm.web.file_loader import AsyncWebFileLoader
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
 from compass.common import setup_async_decision_tree, run_async_tree
@@ -267,7 +267,7 @@ class JurisdictionWebsiteValidator:
             limits are applied. By default, ``None``.
         file_loader_kwargs : dict, optional
             Dictionary of keyword arguments pairs to initialize
-            :class:`elm.web.file_loader.AsyncFileLoader`.
+            :class:`elm.web.file_loader.AsyncWebFileLoader`.
             By default, ``None``.
         **kwargs
             Additional keyword arguments to pass to the
@@ -302,7 +302,7 @@ class JurisdictionWebsiteValidator:
         if url_is_correct_jurisdiction:
             return True
 
-        fl = AsyncFileLoader(
+        fl = AsyncWebFileLoader(
             browser_semaphore=self.browser_semaphore,
             **self.file_loader_kwargs,
         )

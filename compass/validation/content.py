@@ -312,7 +312,7 @@ class LegalTextValidator(StructuredLLMCaller):
 async def parse_by_chunks(
     chunk_parser,
     heuristic,
-    legal_text_validator,
+    legal_text_validator=None,
     callbacks=None,
     min_chunks_to_process=3,
 ):
@@ -334,9 +334,10 @@ async def parse_by_chunks(
         fast check meant to quickly dispose of chunks of text. Any chunk
         that fails this check will NOT be passed to the callback
         parsers.
-    legal_text_validator : LegalTextValidator
+    legal_text_validator : LegalTextValidator, optional
         Instance of `LegalTextValidator` that can be used to validate
-        each chunk for legal text.
+        each chunk for legal text. If not provided, the legal text check
+        will be skipped. By default, ``None``.
     callbacks : list, optional
         List of async callbacks that take a `chunk_parser` and `index`
         as inputs and return a boolean determining whether the text
@@ -353,14 +354,18 @@ async def parse_by_chunks(
     for ind, text in enumerate(chunk_parser.text_chunks):
         passed_heuristic_mem.append(heuristic.check(text))
         if ind < min_chunks_to_process:
-            is_legal = await legal_text_validator.check_chunk(
-                chunk_parser, ind
-            )
-            if not is_legal:  # don't bother checking this chunk
-                continue
+            if legal_text_validator is not None:
+                is_legal = await legal_text_validator.check_chunk(
+                    chunk_parser, ind
+                )
+                if not is_legal:  # don't bother checking this chunk
+                    continue
 
         # don't bother checking this document
-        elif not legal_text_validator.is_legal_text:
+        elif (
+            legal_text_validator is not None
+            and not legal_text_validator.is_legal_text
+        ):
             return
 
         # hasn't passed heuristic, so don't pass it to callbacks
