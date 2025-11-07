@@ -18,14 +18,15 @@ async def load_local_docs(fps, **kwargs):
         Iterable of paths representing documents to load.
     kwargs
         Keyword-argument pairs to initialize
-        :class:`elm.web.file_loader.AsyncFileLoader`.
+        :class:`elm.web.file_loader.AsyncLocalFileLoader`.
 
     Returns
     -------
     list
         List of non-empty document instances containing information from
-        the URL's. If a URL could not be fetched (i.e. document instance
-        is empty), it will not be included in the output list.
+        the local documents. If a file could not be loaded (i.e.
+        document instance is empty), it will not be included in the
+        output list.
     """
     logger.trace("Loading docs for the following paths:\n%r", fps)
     logger.trace(

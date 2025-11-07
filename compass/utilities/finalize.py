@@ -59,7 +59,7 @@ def save_run_meta(
     dirs : :class:`~compass.utilities.base.Directories`
         Directories instance containing information about the output
         directories used for the run.
-    tech : {"wind", "solar", "accessory wind"}
+    tech : {"wind", "solar", "small wind"}
         Technology that was the target of the run.
     start_date, end_date : datetime.datetime
         Instances representing the start and end dates, respectively.

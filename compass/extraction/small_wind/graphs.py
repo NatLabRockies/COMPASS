@@ -8,7 +8,7 @@ from compass.common import (
 
 
 def setup_graph_wes_types(**kwargs):
-    """Setup graph to get the accessory turbine size in the text
+    """Setup graph to get the small turbine size in the text
 
     Parameters
     ----------
@@ -49,23 +49,25 @@ def setup_graph_wes_types(**kwargs):
             "include generic types or other energy system types."
         ),
     )
-    G.add_edge("get_text", "get_accessory")
+    G.add_edge("get_text", "get_small_label")
     G.add_node(
-        "get_accessory",
+        "get_small_label",
         prompt=(
             "Based on your list, what is the wind energy system size that is "
-            "**closest to the definition of accessory wind energy systems** "
-            "that is also **regulated by this ordinance**?"
+            "**closest to the definition of small, medium, or non-commercial "
+            "wind energy systems** that is also **regulated by this "
+            "ordinance**?"
         ),
     )
 
-    G.add_edge("get_accessory", "check_matches_definition")
+    G.add_edge("get_small_label", "check_matches_definition")
     G.add_node(
         "check_matches_definition",
         prompt=(
             "Does the ordinance explicitly define this system as small, "
-            "medium, private, accessory, or something akin to that (i.e. "
-            "**not** large, commercial, or utility-scale)? "
+            "medium, non-commercial, or something akin to that (i.e. "
+            "**not** private, micro, building-mounted and **not** large, "
+            "commercial, or utility-scale)? "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
         ),
@@ -87,7 +89,7 @@ def setup_graph_wes_types(**kwargs):
         "check_scale_reason",
         prompt=(
             "Would a reasonable person classify this kind of system as a "
-            "**small, private, medium, accessory, or even residential** wind "
+            "**small, medium, or non-commercial** wind "
             "energy generation system (e.g. with the primary purpose of "
             "generating electricity for use on-site, as opposed to large, "
             "commercial, utility-scale, or other kinds of 'large' systems)? "
@@ -112,14 +114,14 @@ def setup_graph_wes_types(**kwargs):
             "Respond based on our entire conversation so far. Return your "
             "answer as a dictionary in JSON format (not markdown). Your JSON "
             "file must include exactly three keys. The keys are "
-            "'wes_type', 'explanation', and 'is_accessory'. The value of "
+            "'wes_type', 'explanation', and 'is_small'. The value of "
             "the 'wes_type' key should be a string that labels the system "
-            "size **closest to the definition of accessory wind energy "
-            "systems** that is also **regulated by this ordinance**. "
-            "The value of the 'explanation' key should be a "
+            "size **closest to the definition of small, medium, or "
+            "non-commercial wind energy systems** that is also **regulated by "
+            "this ordinance**. The value of the 'explanation' key should be a "
             "string containing a short explanation for your choice. The value "
-            "of the 'is_accessory' key should be the boolean value `true`, "
-            "since we determined this is an accessory system."
+            "of the 'is_small' key should be the boolean value `true`, "
+            "since we determined this is a small or non-commercial system."
         ),
     )
     G.add_node(
@@ -128,14 +130,14 @@ def setup_graph_wes_types(**kwargs):
             "Respond based on our entire conversation so far. Return your "
             "answer as a dictionary in JSON format (not markdown). Your JSON "
             "file must include exactly three keys. The keys are "
-            "'wes_type', 'explanation', and 'is_accessory'. The value of "
+            "'wes_type', 'explanation', and 'is_small'. The value of "
             "the 'wes_type' key should be a string that labels the system "
-            "size **closest to the definition of accessory wind energy "
-            "systems** that is also **regulated by this ordinance**. "
-            "The value of the 'explanation' key should be a "
+            "size **closest to the definition of small, medium, or "
+            "non-commercial wind energy systems** that is also **regulated by "
+            "this ordinance**. The value of the 'explanation' key should be a "
             "string containing a short explanation for your choice. The value "
-            "of the 'is_accessory' key should be the boolean value `false`, "
-            "since we determined this is not an accessory system."
+            "of the 'is_small' key should be the boolean value `false`, "
+            "since we determined this is not a small or non-commercial system."
         ),
     )
     return G

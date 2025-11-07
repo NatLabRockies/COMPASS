@@ -1,29 +1,29 @@
-"""Accessory wind ordinance extraction utilities"""
+"""Small wind ordinance extraction utilities"""
 
 from .ordinance import (
-    AccessoryWindHeuristic,
-    AccessoryWindOrdinanceTextCollector,
-    AccessoryWindOrdinanceTextExtractor,
-    AccessoryWindPermittedUseDistrictsTextCollector,
-    AccessoryWindPermittedUseDistrictsTextExtractor,
+    SmallWindHeuristic,
+    SmallWindOrdinanceTextCollector,
+    SmallWindOrdinanceTextExtractor,
+    SmallWindPermittedUseDistrictsTextCollector,
+    SmallWindPermittedUseDistrictsTextExtractor,
 )
 from .parse import (
-    StructuredAccessoryWindOrdinanceParser,
-    StructuredAccessoryWindPermittedUseDistrictsParser,
+    StructuredSmallWindOrdinanceParser,
+    StructuredSmallWindPermittedUseDistrictsParser,
 )
 
 
-ACCESSORY_WIND_QUESTION_TEMPLATES = [
+SMALL_WIND_QUESTION_TEMPLATES = [
     "filetype:pdf {jurisdiction} wind energy conversion system ordinances",
     "wind energy conversion system ordinances {jurisdiction}",
     "{jurisdiction} wind WECS ordinance",
-    "Where can I find the legal text for accessory wind energy "
+    "Where can I find the legal text for small wind energy "
     "turbine zoning ordinances in {jurisdiction}?",
     "What is the specific legal information regarding zoning "
-    "ordinances for accessory wind turbines in {jurisdiction}?",
+    "ordinances for small wind turbines in {jurisdiction}?",
 ]
 
-BEST_ACCESSORY_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
+BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
     "pdf": 92160,
     "wecs": 46080,
     "wind": 23040,

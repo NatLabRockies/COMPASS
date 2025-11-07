@@ -1,4 +1,4 @@
-"""Accessory wind ordinance structured parsing class"""
+"""Small wind ordinance structured parsing class"""
 
 import asyncio
 import logging
@@ -21,7 +21,7 @@ from compass.common import (
     setup_graph_extra_restriction,
     setup_graph_permitted_use_districts,
 )
-from compass.extraction.accessory_wind.graphs import (
+from compass.extraction.small_wind.graphs import (
     setup_graph_wes_types,
     setup_multiplier,
     setup_conditional_min,
@@ -35,15 +35,17 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 DEFAULT_SYSTEM_MESSAGE = (
     "You are a legal scholar informing a private resident about local "
-    "zoning ordinances for accessory wind energy systems. "
+    "zoning ordinances for small, medium, or non-commercial wind energy "
+    "systems. "
 )
 SYSTEM_SIZE_REMINDER = (
     "systems that would typically be defined as {tech} based on the text "
     "itself — for example, systems intended for onsite electricity "
     "generation or sale, systems that are a secondary or accessory use on "
-    "a parsel, or systems below defined thresholds such as height or rated "
+    "a parcel, or systems below defined thresholds such as height or rated "
     "capacity (often <1MW). Do not consider any text that applies **only** "
-    "to larger, utility, or commercial systems. "
+    "to private, micro, or building mounted systems, or larger, utility, or "
+    "commercial systems. "
 )
 SETBACKS_SYSTEM_MESSAGE = (
     f"{DEFAULT_SYSTEM_MESSAGE} "
@@ -133,8 +135,8 @@ _FEATURE_TO_OWNED_TYPE = {
 }
 
 
-class AccessoryWindSetbackFeatures(SetbackFeatures):
-    """Mutually-exclusive feature descriptions for accessory wind"""
+class SmallWindSetbackFeatures(SetbackFeatures):
+    """Mutually-exclusive feature descriptions for small wind systems"""
 
     DEFAULT_FEATURE_DESCRIPTIONS = {
         "structures": [
@@ -166,6 +168,11 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
             "transmission lines",
         ],
         "water": ["lakes", "reservoirs", "streams", "rivers", "wetlands"],
+        "public conservation lands": [
+            "public conservation lands",
+            "natural resource protection areas",
+            "preservation areas",
+        ],
     }
     """Aliases for mutually-exclusive setback features"""
     FEATURES_AS_IGNORE = {
@@ -176,6 +183,7 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
         "railroads": "railroads",
         "transmission": "transmission lines",
         "water": "wetlands",
+        "public conservation lands": "public conservation lands",
     }
     """Features as they should appear in ignore phrases"""
     FEATURE_CLARIFICATIONS = {
@@ -185,12 +193,17 @@ class AccessoryWindSetbackFeatures(SetbackFeatures):
             "parcel boundaries unless the text **explicitly** makes that "
             "connection. "
         ),
+        "water": (
+            "Public conservation lands (or similar) **are not equivalent** to "
+            "wetlands (or similar) unless the text **explicitly** makes that "
+            "connection. "
+        ),
         "roads": "Roads may also be labeled as rights-of-way. ",
     }
     """Clarifications to add to feature prompts"""
 
 
-class StructuredAccessoryWindParser(BaseLLMCaller):
+class StructuredSmallWindParser(BaseLLMCaller):
     """Base class for parsing structured data"""
 
     def _init_chat_llm_caller(self, system_message):
@@ -203,7 +216,7 @@ class StructuredAccessoryWindParser(BaseLLMCaller):
         )
 
     async def _check_wind_turbine_type(self, text):
-        """Get the accessory turbine size mentioned in the text"""
+        """Get the small turbine size mentioned in the text"""
         logger.info("Checking turbine types...")
         tree = setup_async_decision_tree(
             setup_graph_wes_types,
@@ -212,23 +225,23 @@ class StructuredAccessoryWindParser(BaseLLMCaller):
         )
         decision_tree_wes_types_out = await run_async_tree(tree)
 
-        accessory_system = (
+        small_wind_system = (
             decision_tree_wes_types_out.get("wes_type")
-            or "**accessory** wind energy systems"
+            or "**small, medium, or non-commercial** wind energy systems"
         )
-        if not decision_tree_wes_types_out.get("is_accessory", True):
+        if not decision_tree_wes_types_out.get("is_small", True):
             logger.info(
-                "Did not find accessory systems in text. Closest "
+                "Did not find small wind systems in text. Closest "
                 "system found: %r",
-                accessory_system,
+                small_wind_system,
             )
             return None
 
-        logger.info("Accessory WES type found in text: %r", accessory_system)
-        return accessory_system
+        logger.info("Small WES type found in text: %r", small_wind_system)
+        return small_wind_system
 
 
-class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
+class StructuredSmallWindOrdinanceParser(StructuredSmallWindParser):
     """LLM ordinance document structured data scraping utility
 
     Purpose:
@@ -258,7 +271,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
         -------
         pandas.DataFrame or None
             DataFrame containing parsed-out ordinance values. Can also
-            be ``None`` if an accessory wind energy system is not found
+            be ``None`` if a small wind energy system is not found
             in the text.
         """
         wes_type = await self._check_wind_turbine_type(text)
@@ -267,7 +280,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
 
         outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
-            len(AccessoryWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
+            len(SmallWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
             + len(EXTRA_NUMERICAL_RESTRICTIONS)
             + len(EXTRA_QUALITATIVE_RESTRICTIONS)
         )
@@ -297,7 +310,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
                 ),
                 name=outer_task_name,
             )
-            for feature_kwargs in AccessoryWindSetbackFeatures()
+            for feature_kwargs in SmallWindSetbackFeatures()
         ]
         extras_parsers = [
             asyncio.create_task(
@@ -366,7 +379,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             unit_clarification=unit_clarification,
             feature_clarifications=feature_clarifications,
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            system_size_reminder=SYSTEM_SIZE_REMINDER.format(tech=wes_type),
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature_id, "quantitative": is_numerical})
@@ -395,7 +408,9 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
                 await self._extract_setback_values(
                     text,
                     base_messages=base_messages,
-                    system_size_reminder=SYSTEM_SIZE_REMINDER,
+                    system_size_reminder=SYSTEM_SIZE_REMINDER.format(
+                        tech=wes_type
+                    ),
                     **feature_kwargs,
                 )
             )
@@ -405,7 +420,7 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
         output = await self._extract_setback_values_for_p_or_np(
             text,
             base_messages,
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            system_size_reminder=SYSTEM_SIZE_REMINDER.format(tech=wes_type),
             **feature_kwargs,
         )
         sub_pb.update(task_id, advance=1, just_parsed=feature_id)
@@ -419,7 +434,9 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            system_size_reminder=SYSTEM_SIZE_REMINDER.format(
+                tech=feature_kwargs["tech"]
+            ),
             **feature_kwargs,
         )
         out = await run_async_tree(tree, response_as_json=False)
@@ -479,7 +496,8 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
                     "feature_clarifications", ""
                 ),
                 system_size_reminder=feature_kwargs.get(
-                    "system_size_reminder", SYSTEM_SIZE_REMINDER
+                    "system_size_reminder",
+                    SYSTEM_SIZE_REMINDER.format(tech=feature_kwargs["tech"]),
                 ),
             )
         )
@@ -531,8 +549,8 @@ class StructuredAccessoryWindOrdinanceParser(StructuredAccessoryWindParser):
         return await run_async_tree(tree)
 
 
-class StructuredAccessoryWindPermittedUseDistrictsParser(
-    StructuredAccessoryWindParser
+class StructuredSmallWindPermittedUseDistrictsParser(
+    StructuredSmallWindParser
 ):
     """LLM permitted use districts scraping utility
 
@@ -548,17 +566,12 @@ class StructuredAccessoryWindPermittedUseDistrictsParser(
         individual values.
     """
 
-    _ACCESSORY_WES_CLARIFICATION = (
-        "Accessory wind energy systems (AWES) may also be referred to as "
-        "wind turbines, wind energy conversion systems (WECS), wind energy "
-        "turbines (WET), small wind energy turbines (SWET), private wind "
-        "energy turbines (PWET), on-site wind energy systems, distributed "
-        "wind energy systems (DWES), medium wind energy systems (MWES), "
+    _SMALL_WES_CLARIFICATION = (
+        "Small wind energy systems (AWES) may also be referred to as "
+        "non-commercial wind energy systems, on-site wind energy systems, "
+        "distributed wind energy systems, medium wind energy systems (MWES), "
         "agricultural wind energy systems (AWES), residential wind energy "
-        "systems (RWES), personal wind energy systems (PWES), private wind "
-        "turbines (PWT), micro turbines, small wind turbines (SWT), "
-        "accessory wind energy conversion systems (AWECS), alternate energy "
-        "systems (AES), or similar"
+        "systems, small wind turbines (SWT), or similar"
     )
     _USE_TYPES = [
         {
@@ -600,8 +613,8 @@ class StructuredAccessoryWindPermittedUseDistrictsParser(
         -------
         pandas.DataFrame or None
             DataFrame containing parsed-out allowed-use district names.
-            Can also be ``None`` if an accessory wind energy system is
-            not found in the text.
+            Can also be ``None`` if a small wind energy system is not
+            found in the text.
         """
         wes_type = await self._check_wind_turbine_type(text)
         if not wes_type:
@@ -653,7 +666,7 @@ class StructuredAccessoryWindPermittedUseDistrictsParser(
             feature_id=feature_id,
             tech=wes_type,
             clarifications=clarifications.format(
-                wes_clarification=self._ACCESSORY_WES_CLARIFICATION
+                wes_clarification=self._SMALL_WES_CLARIFICATION
             ),
             text=text,
             use_type=use_type,

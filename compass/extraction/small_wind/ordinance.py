@@ -1,7 +1,7 @@
-"""Accessory wind ordinance document content collection and extraction
+"""Small wind ordinance document content collection and extraction
 
 These methods help filter down the document text to only the portions
-relevant to accessory wind ordinances.
+relevant to small wind ordinances.
 """
 
 import logging
@@ -16,25 +16,23 @@ from compass.utilities.parsing import merge_overlapping_texts
 logger = logging.getLogger(__name__)
 
 
-_ACCESSORY_WES_SYNONYMS = (
-    "wind turbines, wind energy conversion systems (WECS), wind energy "
-    "turbines (WET), small wind energy turbines (SWET), private wind energy "
-    "turbines (PWET), on-site wind energy systems, distributed wind energy "
-    "systems (DWES), medium wind energy systems (MWES), agricultural wind "
-    "energy systems (AWES), residential wind energy systems (RWES), personal "
-    "wind energy systems (PWES), private wind turbines (PWT), micro turbines, "
-    "small wind turbines (SWT), accessory wind energy conversion systems "
-    "(AWECS), alternate energy systems (AES), or similar"
+_SMALL_WES_SYNONYMS = (
+    "small wind energy turbines (SWET), non-commercial wind energy systems, "
+    "on-site wind energy systems, distributed wind energy systems, medium "
+    "wind energy systems (MWES), agricultural wind energy systems (AWES), "
+    "residential wind energy systems, small wind turbines (SWT), "
+    "or similar"
 )
 _SEARCH_TERMS_AND = (
     "zoning, siting, setback, system design, and operational "
     "requirements/restrictions"
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
-_IGNORE_TYPES = "large, utility-scale, for-sale, or commercial"
+_IGNORE_TYPES_MICRO = "private, micro, personal, building-mounted"
+_IGNORE_TYPES_LARGE = "large, utility-scale, for-sale, commercial"
 
 
-class AccessoryWindHeuristic(Heuristic):
+class SmallWindHeuristic(Heuristic):
     """Perform a heuristic check for mention of wind turbines in text"""
 
     NOT_TECH_WORDS = [
@@ -73,27 +71,15 @@ class AccessoryWindHeuristic(Heuristic):
     GOOD_TECH_ACRONYMS = ["wecs", "wes", "swet", "pwet", "wef"]
     """Acronyms for WECS that we want to capture"""
     GOOD_TECH_PHRASES = [
-        "micro wecs",
-        "micro turbine",
-        "micro wind",
         "small wecs",
         "small turbine",
         "small wind",
-        "mini wecs",
-        "mini turbine",
-        "mini wind",
         "medium wecs",
         "medium turbine",
         "medium wind",
-        "private wecs",
-        "private turbine",
-        "private wind",
         "accessory wecs",
         "accessory turbine",
         "accessory wind",
-        "personal wecs",
-        "personal turbine",
-        "personal wind",
         "on-site wecs",
         "on-site turbine",
         "on-site wind",
@@ -131,7 +117,7 @@ class AccessoryWindHeuristic(Heuristic):
     """Phrases that indicate text is about WECS"""
 
 
-class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
+class SmallWindOrdinanceTextCollector(StructuredLLMCaller):
     """Check text chunks for ordinances and collect them if they do"""
 
     CONTAINS_ORD_PROMPT = (
@@ -155,24 +141,26 @@ class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
     )
     """Prompt to check if chunk contains WES ordinance info"""
 
-    IS_ACCESSORY_PROMPT = (
+    IS_SMALL_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
-        f"whether any of it applies to {_SEARCH_TERMS_OR} for "
-        "**accessory wind energy systems**. Accessory wind energy systems "
-        f"(AWES) may also be referred to as {_ACCESSORY_WES_SYNONYMS}. "
-        "Your client is a private resident that does not "
-        f"care about ordinances related to {_IGNORE_TYPES} wind energy "
-        "systems. Ignore any text related to such systems. "
+        f"whether any of it applies to {_SEARCH_TERMS_OR} for **small, "
+        "medium, or non-commercial wind energy systems**. Small, medium, or "
+        "non-commercial energy systems may also be referred to as "
+        f"{_SMALL_WES_SYNONYMS}. "
+        "Your client is a private resident that does not care about "
+        f"ordinances related to {_IGNORE_TYPES_MICRO} or "
+        f"{_IGNORE_TYPES_LARGE} wind energy systems. Ignore any text "
+        "related to such systems. "
         "Return your answer as a dictionary in JSON format (not markdown). "
         "Your JSON file must include exactly two keys. The first key is "
         "'summary' which contains a string that lists all of the types of "
         "wind energy systems the text applies to (if any). The second key is "
         "'{key}', which is a boolean that is set to True if any part of the "
-        f"text excerpt details {_SEARCH_TERMS_OR} for the **accessory wind "
-        "energy conversion systems** (or similar) that the client is "
-        "interested in and False otherwise."
+        f"text excerpt details {_SEARCH_TERMS_OR} for the **small, medium, or "
+        "non-commercial wind energy conversion systems** (or similar) that "
+        "the client is interested in and False otherwise."
     )
-    """Prompt to check if chunk is for accessory WES"""
+    """Prompt to check if chunk is for small WES"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -192,8 +180,7 @@ class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
         -------
         bool
             Boolean flag indicating whether or not the text in the chunk
-            contains accessory wind energy conversion system ordinance
-            text.
+            contains small wind energy conversion system ordinance text.
         """
         contains_ord_info = await chunk_parser.parse_from_ind(
             ind,
@@ -206,16 +193,16 @@ class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
 
         logger.debug("Text at ind %d does contain ordinance info", ind)
 
-        is_accessory_scale = await chunk_parser.parse_from_ind(
+        is_small_scale = await chunk_parser.parse_from_ind(
             ind,
             key="x",
-            llm_call_callback=self._check_chunk_is_for_accessory_scale,
+            llm_call_callback=self._check_chunk_is_for_small_scale,
         )
-        if not is_accessory_scale:
-            logger.debug("Text at ind %d is not for accessory WECS", ind)
+        if not is_small_scale:
+            logger.debug("Text at ind %d is not for small WECS", ind)
             return False
 
-        logger.debug("Text at ind %d is for accessory WECS", ind)
+        logger.debug("Text at ind %d is for small WECS", ind)
 
         _store_chunk(chunk_parser, ind, self._ordinance_chunks)
         logger.debug("Added text at ind %d to ordinances", ind)
@@ -253,10 +240,10 @@ class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
         logger.debug("LLM response: %s", content)
         return content.get(key, False)
 
-    async def _check_chunk_is_for_accessory_scale(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for accessory scale"""
+    async def _check_chunk_is_for_small_scale(self, key, text_chunk):
+        """Call LLM on a chunk of text to check for small scale"""
         content = await self.call(
-            sys_msg=self.IS_ACCESSORY_PROMPT.format(key=key),
+            sys_msg=self.IS_SMALL_PROMPT.format(key=key),
             content=text_chunk,
             usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
         )
@@ -264,28 +251,29 @@ class AccessoryWindOrdinanceTextCollector(StructuredLLMCaller):
         return content.get(key, False)
 
 
-class AccessoryWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
+class SmallWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     """Check text chunks for permitted wind districts; collect them"""
 
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         "whether the text explicitly contains relevant information to "
         "determine the districts (and especially the district names) where "
-        "accessory wind energy systems are a permitted use "
-        "(i.e. accessory use), as well as the districts where wind energy"
-        "systems are prohibited entirely. Accessory wind energy systems "
-        f"(AWES) may also be referred to as {_ACCESSORY_WES_SYNONYMS}. "
+        "small, medium, or non-commercial wind energy systems are a permitted "
+        "use (i.e. accessory use), as well as the districts where wind energy"
+        "systems are prohibited entirely. Small wind energy systems "
+        f"(SWES) may also be referred to as {_SMALL_WES_SYNONYMS}. "
         "Do not make any inferences; only answer based on information that "
         "is explicitly stated in the text. "
         "Note that relevant information may sometimes be found in tables. "
         "Return your answer as a dictionary in JSON format (not markdown). "
         "Your JSON file must include exactly two keys. The first key is "
         "'districts' which contains a string that lists all of the district "
-        "names for which the text explicitly permits **accessory wind energy "
-        "systems** (if any). The last key is '{key}', which is a boolean that "
-        "is set to True if any part of the text excerpt provides information "
-        "on districts where **accessory wind energy systems** (or similar) "
-        "are a permitted use (i.e. accessory use) in and False otherwise."
+        "names for which the text explicitly permits **small, medium, or "
+        "non-commercial wind energy systems** (if any). The last key is "
+        "'{key}', which is a boolean that is set to True if any part of the "
+        "text excerpt provides information on districts where **small, "
+        "medium, or non-commercial wind energy systems** (or similar) are a "
+        "permitted use (i.e. accessory use) in and False otherwise."
     )
     """Prompt to check if chunk contains info on permitted districts"""
 
@@ -307,8 +295,8 @@ class AccessoryWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         -------
         bool
             Boolean flag indicating whether or not the text in the chunk
-            contains accessory wind energy conversion system permitted
-            use text.
+            contains small wind energy conversion system permitted use
+            text.
         """
 
         key = "contains_district_info"
@@ -351,14 +339,14 @@ class AccessoryWindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         return merge_overlapping_texts(text)
 
 
-class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
+class SmallWindOrdinanceTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:
         Extract relevant ordinance text from document.
     Responsibilities:
         1. Extract portions from chunked document text relevant to
-           particular ordinance type (e.g. wind zoning for accessory
+           particular ordinance type (e.g. wind zoning for small wind
            systems).
     Key Relationships:
         Uses a StructuredLLMCaller for LLM queries.
@@ -406,27 +394,28 @@ class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
     )
     """Prompt to extract ordinance text for WECS"""
 
-    ACCESSORY_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
+    SMALL_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
         "# CONTEXT #\n"
         "We want to reduce the provided excerpt to only contain information "
-        "about **accessory wind energy systems**. The extracted text will be "
-        "used for structured data extraction, so it must be both "
-        "**comprehensive** (retaining all relevant details) and **focused** "
-        "(excluding unrelated content), with **zero rewriting or "
+        "about **small, medium, or non-commercial wind energy systems**. The "
+        "extracted text will be used for structured data extraction, so it "
+        "must be both **comprehensive** (retaining all relevant details) and "
+        "**focused** (excluding unrelated content), with **zero rewriting or "
         "paraphrasing**. Ensure that all retained information "
-        "is **directly applicable** to accessory wind energy systems while "
-        "preserving full context and accuracy.\n"
+        "is **directly applicable** to small, medium, or non-commercial wind "
+        "energy systems while preserving full context and accuracy.\n"
         "\n# OBJECTIVE #\n"
-        "Extract all text **pertaining to accessory wind energy systems** "
-        "from the provided excerpt.\n"
+        "Extract all text **pertaining to small, medium or non-commercial "
+        "wind energy systems** from the provided excerpt.\n"
         "\n# RESPONSE #\n"
         "Follow these guidelines carefully:\n"
         "\n1. ## Scope of Extraction ##:\n"
-        "- Include all text that pertains to **accessory wind energy "
-        "systems**, even if they are referred to by different names such as:\n"
-        f"\t{_ACCESSORY_WES_SYNONYMS.capitalize()}.\n"
+        "- Include all text that pertains to **small, medium, or "
+        "non-commercial wind energy systems**, even if they are referred to "
+        "by different names such as:\n"
+        f"\t{_SMALL_WES_SYNONYMS.capitalize()}.\n"
         "- Explicitly include any text related to **bans or prohibitions** "
-        "on accessory wind energy systems.\n"
+        "on small, medium, or non-commercial wind energy systems.\n"
         "- Explicitly include any text related to the adoption or enactment "
         "date of the ordinance (if any).\n"
         "- **Retain all relevant technical, design, operational, safety, "
@@ -441,7 +430,8 @@ class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
         "\t- All other **closely related provisions**.\n"
         "\n2. ## Exclusions ##:\n"
         "- Do **not** include text that explicitly applies **only** to "
-        f"{_IGNORE_TYPES} wind energy systems.\n"
+        f"{_IGNORE_TYPES_MICRO} or {_IGNORE_TYPES_LARGE} "
+        "wind energy systems.\n"
         f"- Do **not** include text that does not pertain at all to wind "
         "energy systems.\n"
         "\n3. ## Formatting & Structure ##:\n"
@@ -460,7 +450,7 @@ class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
         "- If **no relevant text** is found, return the response: "
         "'No relevant text.'"
     )
-    """Prompt to extract ordinance text for accessory WECS"""
+    """Prompt to extract ordinance text for small WECS"""
 
     async def extract_wind_energy_system_section(self, text_chunks):
         """Extract ordinance text from input text chunks for WES
@@ -483,8 +473,8 @@ class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
             is_valid_chunk=_valid_chunk,
         )
 
-    async def extract_accessory_wind_energy_system_section(self, text_chunks):
-        """Extract accessory WES ordinance text from input text chunks
+    async def extract_small_wind_energy_system_section(self, text_chunks):
+        """Extract small WES ordinance text from input text chunks
 
         Parameters
         ----------
@@ -500,9 +490,7 @@ class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
         """
         return await self._process(
             text_chunks=text_chunks,
-            instructions=(
-                self.ACCESSORY_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT
-            ),
+            instructions=self.SMALL_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
             is_valid_chunk=_valid_chunk,
         )
 
@@ -524,18 +512,18 @@ class AccessoryWindOrdinanceTextExtractor(BaseTextExtractor):
         )
         yield (
             "cleaned_ordinance_text",
-            self.extract_accessory_wind_energy_system_section,
+            self.extract_small_wind_energy_system_section,
         )
 
 
-class AccessoryWindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
+class SmallWindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
     """Extract succinct ordinance text from input
 
     Purpose:
         Extract relevant ordinance text from document.
     Responsibilities:
         1. Extract portions from chunked document text relevant to
-           particular ordinance type (e.g. wind zoning for accessory
+           particular ordinance type (e.g. wind zoning for small wind
            systems).
     Key Relationships:
         Uses a StructuredLLMCaller for LLM queries.
@@ -656,7 +644,7 @@ class AccessoryWindPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         )
 
     async def extract_wes_permitted_uses(self, text_chunks):
-        """Extract permitted uses text for accessory WES from input text
+        """Extract permitted uses text for small WES from input text
 
         Parameters
         ----------

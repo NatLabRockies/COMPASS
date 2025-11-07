@@ -48,16 +48,16 @@ from compass.extraction.wind import (
     WIND_QUESTION_TEMPLATES,
     BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
-from compass.extraction.accessory_wind import (
-    AccessoryWindHeuristic,
-    AccessoryWindOrdinanceTextCollector,
-    AccessoryWindOrdinanceTextExtractor,
-    AccessoryWindPermittedUseDistrictsTextCollector,
-    AccessoryWindPermittedUseDistrictsTextExtractor,
-    StructuredAccessoryWindOrdinanceParser,
-    StructuredAccessoryWindPermittedUseDistrictsParser,
-    ACCESSORY_WIND_QUESTION_TEMPLATES,
-    BEST_ACCESSORY_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
+from compass.extraction.small_wind import (
+    SmallWindHeuristic,
+    SmallWindOrdinanceTextCollector,
+    SmallWindOrdinanceTextExtractor,
+    SmallWindPermittedUseDistrictsTextCollector,
+    SmallWindPermittedUseDistrictsTextExtractor,
+    StructuredSmallWindOrdinanceParser,
+    StructuredSmallWindPermittedUseDistrictsParser,
+    SMALL_WIND_QUESTION_TEMPLATES,
+    BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import LLMCaller, OpenAIConfig
@@ -134,6 +134,10 @@ _TEXT_EXTRACTION_TASKS = {
     SolarPermittedUseDistrictsTextExtractor: (
         "Extracting solar permitted use text"
     ),
+    SmallWindOrdinanceTextExtractor: ("Extracting small wind ordinance text"),
+    SmallWindPermittedUseDistrictsTextExtractor: (
+        "Extracting small wind permitted use text"
+    ),
 }
 _JUR_COLS = [
     "Jurisdiction Type",
@@ -201,7 +205,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         CSV file, all downloaded ordinance documents (PDFs and HTML),
         usage metadata, and default subdirectories for logs and
         intermediate outputs (unless otherwise specified).
-    tech : {"wind", "solar", "accessory wind"}
+    tech : {"wind", "solar", "small wind"}
         Label indicating which technology type is being processed.
     jurisdiction_fp : path-like
         Path to a CSV file specifying the jurisdictions to process.
@@ -1337,18 +1341,18 @@ def _compile_tech_specs(tech):
             StructuredSolarPermittedUseDistrictsParser,
             BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS,
         )
-    if tech.casefold() == "accessory wind":
+    if tech.casefold() == "small wind":
         return TechSpec(
-            "accessory wind",
-            ACCESSORY_WIND_QUESTION_TEMPLATES,
-            AccessoryWindHeuristic(),
-            AccessoryWindOrdinanceTextCollector,
-            AccessoryWindOrdinanceTextExtractor,
-            AccessoryWindPermittedUseDistrictsTextCollector,
-            AccessoryWindPermittedUseDistrictsTextExtractor,
-            StructuredAccessoryWindOrdinanceParser,
-            StructuredAccessoryWindPermittedUseDistrictsParser,
-            BEST_ACCESSORY_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
+            "small wind",
+            SMALL_WIND_QUESTION_TEMPLATES,
+            SmallWindHeuristic(),
+            SmallWindOrdinanceTextCollector,
+            SmallWindOrdinanceTextExtractor,
+            SmallWindPermittedUseDistrictsTextCollector,
+            SmallWindPermittedUseDistrictsTextExtractor,
+            StructuredSmallWindOrdinanceParser,
+            StructuredSmallWindPermittedUseDistrictsParser,
+            BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
         )
 
     msg = f"Unknown tech input: {tech}"

@@ -326,7 +326,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             chat_llm_caller=self._init_chat_llm_caller(system_message),
             unit_clarification=unit_clarification,
             feature_clarifications=feature_clarifications,
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            system_size_reminder=SYSTEM_SIZE_REMINDER.format(
+                tech=largest_sef_type
+            ),
         )
         info = await run_async_tree(tree)
         info.update({"feature": feature_id, "quantitative": is_numerical})
@@ -355,7 +357,10 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                 await self._extract_setback_values(
                     text=text,
                     base_messages=base_messages,
-                    system_size_reminder=SYSTEM_SIZE_REMINDER**feature_kwargs,
+                    system_size_reminder=SYSTEM_SIZE_REMINDER.format(
+                        tech=largest_sef_type
+                    ),
+                    **feature_kwargs,
                 )
             )
             sub_pb.update(task_id, advance=1, just_parsed=feature_id)
@@ -364,7 +369,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         output = await self._extract_setback_values_for_p_or_np(
             text,
             base_messages,
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            system_size_reminder=SYSTEM_SIZE_REMINDER.format(
+                tech=largest_sef_type
+            ),
             **feature_kwargs,
         )
         sub_pb.update(task_id, advance=1, just_parsed=feature_id)
@@ -378,7 +385,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
             text=text,
             chat_llm_caller=self._init_chat_llm_caller(system_message),
-            system_size_reminder=SYSTEM_SIZE_REMINDER,
+            system_size_reminder=SYSTEM_SIZE_REMINDER.format(
+                tech=feature_kwargs["tech"]
+            ),
             **feature_kwargs,
         )
         out = await run_async_tree(tree, response_as_json=False)
@@ -438,7 +447,8 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
                     "feature_clarifications", ""
                 ),
                 system_size_reminder=feature_kwargs.get(
-                    "system_size_reminder", SYSTEM_SIZE_REMINDER
+                    "system_size_reminder",
+                    SYSTEM_SIZE_REMINDER.format(tech=feature_kwargs["tech"]),
                 ),
             )
         )
