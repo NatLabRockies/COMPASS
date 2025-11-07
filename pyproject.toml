@@ -37,7 +37,7 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.33,<1",
+  "nrel-elm>=0.0.34,<1",
   "numpy>=2.2.4,<3",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
@@ -212,6 +212,7 @@ tf-playwright-stealth = ">=1.2.0,<2"
 
 [tool.pixi.feature.python-dev.dependencies]
 geopandas = ">=1.0.1,<2"
+ipykernel = ">=7.1.0,<8"
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.13.3,<0.14"
