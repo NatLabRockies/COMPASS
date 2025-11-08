@@ -1,4 +1,4 @@
-name: Rust checks
+name: Rust Checks
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
       - Cargo.lock
       - .github/workflows/ci-rust.yml
       - pyproject.toml
-      - "*.lock"
+      - pixi.lock
   pull_request:
     paths:
       - crates/**
@@ -20,13 +20,13 @@ on:
       - Cargo.lock
       - .github/workflows/ci-rust.yml
       - pyproject.toml
-      - "*.lock"
+      - pixi.lock
   schedule:
     - cron: '0 5 * * 1'
 
 jobs:
   check:
-    name: Rust - Check
+    name: Rust - Cargo Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -53,7 +53,7 @@ jobs:
   lints:
     # Only run tests if code looks OK
     needs: check
-    name: Rust - Lint
+    name: Rust - Clippy Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -84,7 +84,7 @@ jobs:
   test:
     # Only run tests if code looks OK
     needs: check
-    name: Rust - Test
+    name: Rust - Tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -110,7 +110,7 @@ jobs:
       - run: pixi run -e rdev tests-r
 
   publish-dry:
-    name: Rust - Publish (dry-run)
+    name: Rust - Publishing (dry-run)
     # Only run tests if code looks OK
     needs: check
     runs-on: ubuntu-latest

@@ -7,13 +7,13 @@ on:
       - compass/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
-      - "*.lock"
+      - pixi.lock
   pull_request:
     paths:
       - compass/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
-      - "*.lock"
+      - pixi.lock
   workflow_dispatch:
 
 jobs:
@@ -56,6 +56,7 @@ jobs:
         environments: pdev
 
     - run: |
+        pixi reinstall -e pdev --locked NREL-COMPASS
         pixi run -e pdev --locked tests-u
 
   unit-tests:

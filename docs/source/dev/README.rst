@@ -377,10 +377,17 @@ When you are ready to release a new version of COMPASS, please follow these step
 5) Click on the "Select Tag" dropdown and type in a **new** tag. Be sure to follow `Semantic Versioning <https://semver.org/>`_. You may be prompted to create the new tag - make sure to do so
 6) Proofread the release notes and make any necessary adjustments
 7) Click "Publish Release"
-8) Once the release is published and the tag has been created, verify that a PR has been opened to update the pixi lockfile (you may have to wait some time for the GHA to run)
-9) Fill out any missing details in the PR (set yourself as the assignee, add any relevant project and milestone details, etc.)
-10) Request a review from another core COMPASS developer and merge the PR once approved
+8) Once the release is published and the tag has been created, you need to manually update the pixi lockfile:
+
+   a) Check out a new branch (e.g., ``update-lockfile-vX.Y.Z``)
+   b) Run ``pixi update nrel-compass`` to update the lockfile with the new COMPASS version
+   c) If needed, run ``pixi reinstall`` or ``pixi reinstall -e pdev`` to ensure the environment is consistent
+   d) Commit the updated ``pixi.lock`` file
+   e) Push your branch and open a PR with a title like "Update pixi lockfile for vX.Y.Z release"
+   f) Fill out any missing details in the PR (set yourself as the assignee, add any relevant project and milestone details, etc.)
+   g) Request a review from another core COMPASS developer and merge the PR once approved
 
 Congratulations, you have just released a new version of COMPASS!
+
 You may want to verify that the release has been published to `PyPi <https://pypi.org/project/NREL-COMPASS/>`_
 (if not, check the "Upload to PyPi" GitHub Action).
