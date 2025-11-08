@@ -7,13 +7,13 @@ on:
       - compass/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
-      - *.lock
+      - "*.lock"
   pull_request:
     paths:
       - compass/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
-      - *.lock
+      - "*.lock"
   workflow_dispatch:
 
 jobs:

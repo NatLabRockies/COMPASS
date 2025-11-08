@@ -12,7 +12,7 @@ on:
       - Cargo.lock
       - .github/workflows/ci-rust.yml
       - pyproject.toml
-      - *.lock
+      - "*.lock"
   pull_request:
     paths:
       - crates/**
@@ -20,7 +20,7 @@ on:
       - Cargo.lock
       - .github/workflows/ci-rust.yml
       - pyproject.toml
-      - *.lock
+      - "*.lock"
   schedule:
     - cron: '0 5 * * 1'
 
