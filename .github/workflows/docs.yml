@@ -8,7 +8,6 @@ on:
       - compass/**
       - .github/workflows/docs.yml
       - pyproject.toml
-      - pixi.lock
   push:
     branches: [main]
     paths:

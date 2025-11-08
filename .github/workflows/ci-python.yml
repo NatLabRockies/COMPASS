@@ -13,7 +13,6 @@ on:
       - compass/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
-      - pixi.lock
   workflow_dispatch:
 
 jobs:
@@ -56,7 +55,6 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi install -e pdev --locked
         pixi run -e pdev --locked tests-u
 
   unit-tests:
@@ -84,7 +82,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi install -e pdev
+        pixi reinstall -e pdev NREL-COMPASS
         pixi run -e pdev tests-u
 
   integration-tests:
@@ -112,7 +110,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi install -e pdev
+        pixi reinstall -e pdev NREL-COMPASS
         pixi run -e pdev tests-i
 
   tox-tests:

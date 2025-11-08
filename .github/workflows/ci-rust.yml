@@ -6,7 +6,6 @@ on:
     tags:
       - 'c*.*.*'
       - 'd*.*.*'
-  pull_request:
     paths:
       - crates/**
       - Cargo.toml
@@ -14,6 +13,13 @@ on:
       - .github/workflows/ci-rust.yml
       - pyproject.toml
       - pixi.lock
+  pull_request:
+    paths:
+      - crates/**
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/ci-rust.yml
+      - pyproject.toml
   schedule:
     - cron: '0 5 * * 1'
 

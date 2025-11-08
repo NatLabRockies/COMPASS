@@ -10,7 +10,6 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  workflows: write
 
 jobs:
   update:
@@ -32,7 +31,7 @@ jobs:
         run: |
           pixi update
           pixi update nrel-compass
-          pixi install
+          pixi reinstall -e pdev
 
       - name: Determine trigger message
         id: trigger
