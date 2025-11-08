@@ -10,6 +10,7 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  workflows: write
 
 jobs:
   update:
@@ -66,5 +67,4 @@ jobs:
           branch: "auto/pixi-update"
           base: "main"
           delete-branch: true
-          draft: always-true
           labels: dependencies, github_actions, chore
