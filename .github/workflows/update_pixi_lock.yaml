@@ -19,6 +19,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v5
         with:
+          ref: main
           fetch-depth: 0
           fetch-tags: true
 
@@ -29,6 +30,7 @@ jobs:
 
       - name: Run Pixi update
         run: |
+          git fetch origin main:main
           pixi update
           pixi update nrel-compass
           pixi reinstall -e pdev
