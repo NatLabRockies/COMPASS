@@ -8,13 +8,14 @@ on:
       - compass/**
       - .github/workflows/docs.yml
       - pyproject.toml
+      - *.lock
   push:
     branches: [main]
     paths:
       - compass/**
       - .github/workflows/docs.yml
       - pyproject.toml
-      - pixi.lock
+      - *.lock
   release:
     types: [created, published]
   workflow_dispatch:
