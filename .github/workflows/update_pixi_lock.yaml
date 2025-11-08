@@ -30,7 +30,6 @@ jobs:
 
       - name: Run Pixi update
         run: |
-          git fetch origin main:main
           pixi update
           pixi update nrel-compass
           pixi reinstall -e pdev
