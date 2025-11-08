@@ -26,7 +26,7 @@ on:
 
 jobs:
   check:
-    name: Rust - Cargo Check
+    name: Rust - Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -53,7 +53,7 @@ jobs:
   lints:
     # Only run tests if code looks OK
     needs: check
-    name: Rust - Clippy Lint
+    name: Rust - Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
@@ -110,7 +110,7 @@ jobs:
       - run: pixi run -e rdev tests-r
 
   publish-dry:
-    name: Rust - Publishing (dry-run)
+    name: Rust - Publish (dry-run)
     # Only run tests if code looks OK
     needs: check
     runs-on: ubuntu-latest

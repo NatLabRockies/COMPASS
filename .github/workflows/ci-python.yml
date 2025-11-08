@@ -5,12 +5,14 @@ on:
     branches: [main]
     paths:
       - compass/**
+      - tests/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
       - pixi.lock
   pull_request:
     paths:
       - compass/**
+      - tests/**
       - .github/workflows/ci-python.yml
       - pyproject.toml
       - pixi.lock
