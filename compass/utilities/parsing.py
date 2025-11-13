@@ -219,6 +219,10 @@ def load_config(config_fp):
     """
     config_fp = Path(config_fp)
 
+    if not config_fp.exists():
+        msg = f"Config file does not exist: {config_fp}"
+        raise COMPASSValueError(msg)
+
     if config_fp.suffix == ".json5":
         with config_fp.open(encoding="utf-8") as fh:
             return pyjson5.decode_io(fh)
