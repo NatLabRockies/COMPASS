@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - compass/**
+      - docs/**
       - .github/workflows/docs.yml
       - pyproject.toml
       - pixi.lock
@@ -13,6 +14,7 @@ on:
     branches: [main]
     paths:
       - compass/**
+      - docs/**
       - .github/workflows/docs.yml
       - pyproject.toml
       - pixi.lock

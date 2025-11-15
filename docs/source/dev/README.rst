@@ -132,7 +132,13 @@ You can run python COMPASS tests locally using ``pixi``:
 
 .. code-block:: shell
 
-    pixi r -e ptest tests
+    pixi r -e ptest tests-p
+
+To speed up testing, the tests can be run in parallel using ``-n auto``:
+
+.. code-block:: shell
+
+    pixi r -e ptest tests-p -n auto
 
 Tests for a module should ideally cover all code in that module,
 i.e., statement coverage should be at 100%, though this alone does not ensure that
@@ -391,3 +397,12 @@ Congratulations, you have just released a new version of COMPASS!
 
 You may want to verify that the release has been published to `PyPi <https://pypi.org/project/NREL-COMPASS/>`_
 (if not, check the "Upload to PyPi" GitHub Action).
+
+
+Copilot
+^^^^^^^
+This repo hosts a custom set of instructions for GitHub Copilot to help it write
+code aligned with COMPASS best practices. You can check out these instructions
+`here <https://github.com/NREL/COMPASS/blob/main/.github/copilot-instructions.md>`_
+(they may help your as well!). If you have any suggestions on how to improve these
+instructions, please open a PR!
