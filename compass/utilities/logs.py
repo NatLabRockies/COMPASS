@@ -242,6 +242,9 @@ class LocationFileLog:
     )
     """Formatter used for text logs"""
 
+    ASYNC_EXIT_SLEEP_SECONDS = 3
+    """Number of seconds to wait between async log flush checks"""
+
     def __init__(
         self, listener, log_dir, location, level="INFO", max_teardown_time=30
     ):
@@ -361,8 +364,8 @@ class LocationFileLog:
             not LOGGING_QUEUE.empty()
             and (time.monotonic() - start_time) < self.max_teardown_time
         ):
-            await asyncio.sleep(3)
-        await asyncio.sleep(3)  # Final recording
+            await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)
+        await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)  # Final recording
         self.__exit__(exc_type, exc, tb)
 
 
