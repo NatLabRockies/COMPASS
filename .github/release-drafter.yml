@@ -1,3 +1,6 @@
+name-template: 'Draft: v$RESOLVED_VERSION'
+tag-template: 'v$RESOLVED_VERSION'
+change-template: '- $TITLE (#$NUMBER) @$AUTHOR'
 categories:
   - title: 'Breaking Changes'
     labels:
@@ -21,6 +24,26 @@ categories:
       - 'dependencies'
       - 'chore'
       - 'github_actions'
+version-resolver:
+  major:
+    labels:
+      - 'breaking'
+  minor:
+    labels:
+      - 'feature'
+      - 'enhancement'
+      - 'new computation'
+  patch:
+    labels:
+      - 'fix'
+      - 'bug'
+      - 'bugfix'
+      - 'refactor'
+      - 'documentation'
+      - 'dependencies'
+      - 'chore'
+      - 'github_actions'
+  default: patch
 template: |
   # What's Changed
 
