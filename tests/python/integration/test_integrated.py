@@ -22,6 +22,7 @@ from compass.services.threaded import TempFileCache
 from compass.services.provider import RunningAsyncServices
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.logs import LocationFileLog, LogListener
+from elm.utilities import retry as retry_module
 
 
 class MockResponse:
@@ -60,13 +61,26 @@ def mock_get_methods(sample_file):
 
 
 @pytest.mark.asyncio
-async def test_openai_query(sample_openai_response, monkeypatch):
+async def test_openai_query(
+    sample_openai_response, monkeypatch, patched_clock
+):
     """Test querying OpenAI while tracking limits and usage"""
 
     start_time = None
     elapsed_times = []
     time_limit = 0.1
     sleep_mult = 1.2
+
+    original_sleep = asyncio.sleep
+
+    async def fake_sleep(delay, result=None):
+        patched_clock.advance(delay)
+        await original_sleep(0)
+        return result
+
+    monkeypatch.setattr(asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(retry_module.asyncio, "sleep", fake_sleep)
+    monkeypatch.setattr(retry_module.random, "random", lambda: 0.0)
 
     async def _test_response(*args, **kwargs):  # noqa: RUF029
         time_elapsed = time.monotonic() - start_time
@@ -104,6 +118,7 @@ async def test_openai_query(sample_openai_response, monkeypatch):
     async with RunningAsyncServices([openai_service]):
         start_time = time.monotonic()
         message = await openai_service.call(usage_tracker=usage_tracker)
+        patched_clock.advance(time_limit * 3)
         message2 = await openai_service.call()
 
         assert openai_service.rate_tracker.total == 13
@@ -124,11 +139,12 @@ async def test_openai_query(sample_openai_response, monkeypatch):
             }
         }
 
-        time.sleep(time_limit * sleep_mult)
+        patched_clock.advance(time_limit * sleep_mult)
         assert openai_service.rate_tracker.total == 0
 
         start_time = time.monotonic() - time_limit - 1
         await openai_service.call()
+        patched_clock.advance(time_limit * sleep_mult * 0.8 + 0.01)
         await openai_service.call()
         assert len(elapsed_times) == 5
         assert elapsed_times[-2] - time_limit - 1 < 1
@@ -136,7 +152,7 @@ async def test_openai_query(sample_openai_response, monkeypatch):
             elapsed_times[-1] - time_limit - 1 > time_limit * sleep_mult * 0.8
         )
 
-        time.sleep(time_limit * sleep_mult)
+        patched_clock.advance(time_limit * sleep_mult)
         start_time = time.monotonic() - time_limit - 1
         assert openai_service.rate_tracker.total == 0
 

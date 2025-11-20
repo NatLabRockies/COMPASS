@@ -1,17 +1,14 @@
 """Test Ordinances Base Services"""
 
-import time
 from pathlib import Path
 
 import pytest
-from flaky import flaky
 
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
 
 
-@flaky(max_runs=10, min_passes=1)
-def test_base_llm_limited_service():
+def test_base_llm_limited_service(patched_clock):
     """Test base implementation of `LLMService` class"""
 
     class TestService(LLMService):
@@ -29,9 +26,10 @@ def test_base_llm_limited_service():
     assert service.can_process
     service.rate_tracker.add(50)
     assert service.can_process
+    patched_clock.advance(0.01)
     service.rate_tracker.add(75)
     assert not service.can_process
-    time.sleep(0.1)
+    patched_clock.advance(0.099)
     assert service.can_process
 
 

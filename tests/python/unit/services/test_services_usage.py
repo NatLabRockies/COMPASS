@@ -1,10 +1,8 @@
 """Test COMPASS Ordinance service usage functions and classes"""
 
-import time
 from pathlib import Path
 
 import pytest
-from flaky import flaky
 
 from compass.services.usage import (
     TimedEntry,
@@ -23,15 +21,15 @@ def _sample_response_parser(current_usage, response):
     return current_usage
 
 
-def test_timed_entry():
+def test_timed_entry(patched_clock):
     """Test `TimedEntry` class"""
 
     a = TimedEntry(100)
-    assert a <= time.monotonic()
+    assert a <= patched_clock()
 
-    time.sleep(0.2)
-    sample_time = time.monotonic()
-    time.sleep(0.2)
+    patched_clock.advance(0.2)
+    sample_time = patched_clock()
+    patched_clock.advance(0.2)
     b = TimedEntry(10000)
     assert b > sample_time
     assert a < sample_time
@@ -40,20 +38,19 @@ def test_timed_entry():
     assert b.value == 10000
 
 
-@flaky(max_runs=10, min_passes=1)
-def test_time_bounded_usage_tracker():
+def test_time_bounded_usage_tracker(patched_clock):
     """Test the `TimeBoundedUsageTracker` class"""
 
     tracker = TimeBoundedUsageTracker(max_seconds=0.2)
     assert tracker.total == 0
     tracker.add(500)
     assert tracker.total == 500
-    time.sleep(0.1)
+    patched_clock.advance(0.1)
     tracker.add(200)
     assert tracker.total == 700
-    time.sleep(0.1)
+    patched_clock.advance(0.1 + 1e-6)
     assert tracker.total == 200
-    time.sleep(0.1)
+    patched_clock.advance(0.2)
     assert tracker.total == 0
 
 
