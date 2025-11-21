@@ -2,6 +2,7 @@
 
 import os
 import asyncio
+from contextlib import AsyncExitStack
 from functools import partial
 
 import pytest
@@ -27,7 +28,7 @@ TESTING_TEXT_SPLITTER = RecursiveCharacterTextSplitter(
 
 @pytest.fixture(scope="session")
 def event_loop():
-    """Override default event loop fixture to make it module-level"""
+    """Provide a session-scoped event loop for async validation tests"""
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
@@ -56,13 +57,19 @@ def oai_llm_service(oai_async_azure_client):
 
 
 @pytest.fixture(scope="session", autouse=True)
-async def running_openai_service(oai_llm_service):
+def running_openai_service(oai_llm_service, event_loop):
     """Set up running OpenAI service to use for tests"""
     if os.getenv("AZURE_OPENAI_API_KEY") is None:
         yield
-    else:
-        async with RunningAsyncServices([oai_llm_service]):
-            yield
+        return
+
+    manager = RunningAsyncServices([oai_llm_service])
+    stack = AsyncExitStack()
+    event_loop.run_until_complete(stack.enter_async_context(manager))
+    try:
+        yield
+    finally:
+        event_loop.run_until_complete(stack.aclose())
 
 
 @pytest.fixture(scope="session")
