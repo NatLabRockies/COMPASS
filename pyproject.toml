@@ -108,7 +108,7 @@ git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--ma
 version_file = "compass/_version.py"
 
 [tool.pixi.workspace]
-channels = ["conda-forge", "microsoft", "anaconda", "main"]
+channels = ["conda-forge", "microsoft"]
 platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
 
 [tool.pixi.environments]
@@ -144,10 +144,15 @@ upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-whee
 poppler = ">=24.8.0,<25"
 
 [tool.pixi.feature.rust-dev.dependencies]
-rust = ">=1.89.0,<1.90"
-cxx-compiler = ">=1.9.0,<2"
+rust = ">=1.89.0,<1.92"
+cxx-compiler = ">=1.11.0,<2"
 graphviz = ">=12.2.1,<13"
 python = ">=3.12,<3.14"
+
+[tool.pixi.feature.rust-dev.target.win-64.dependencies]
+cargo-c = ">=0.10.16,<0.11"
+clangdev = ">=21.1.6,<22"
+libclang = ">=21.1.6,<22"
 
 [tool.pixi.feature.python-default.dependencies]
 aiohttp = ">=3.11.6,<4"
