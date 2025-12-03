@@ -6,14 +6,11 @@ name: Docker
 # documentation.
 
 on:
-  # schedule:
-  #   - cron: '25 5 * * *'
   push:
     branches: [ "main" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
-  # pull_request:
-  #   branches: [ "main" ]
+  release:
+    types: [published]
+  workflow_dispatch:
 
 env:
   # Use docker.io for Docker Hub if empty
@@ -40,10 +37,10 @@ jobs:
           fetch-depth: 0
           fetch-tags: true
 
-      # Install the cosign tool except on PR
+      # Install the cosign tool if planning to release
       # https://github.com/sigstore/cosign-installer
       - name: Install cosign
-        if: github.event_name != 'pull_request'
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: sigstore/cosign-installer@faadad0cce49287aee09b3a48701e75088a2c6ad #v4.0.0
         with:
           cosign-release: 'v2.2.4'
@@ -54,10 +51,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435 # v3.11.1
 
-      # Login against a Docker registry except on PR
+      # Login against a Docker registry if planning to release
       # https://github.com/docker/login-action
       - name: Log into registry ${{ env.REGISTRY }}
-        if: github.event_name != 'pull_request'
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: docker/login-action@5e57cd118135c172c3672efd75eb46360885c0ef # v3.6.0
         with:
           registry: ${{ env.REGISTRY }}
@@ -79,19 +76,19 @@ jobs:
         uses: docker/build-push-action@263435318d21b8e681c14492fe198d362a7d2c83 # v6.18.0
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: ${{ startsWith(github.ref, 'refs/tags/v') }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Sign the resulting Docker image digest except on PRs.
+      # Sign the resulting Docker image digest if planning to release.
       # This will only write to the public Rekor transparency log when the Docker
       # repository is public to avoid leaking data.  If you would like to publish
       # transparency data even for private images, pass --force to cosign below.
       # https://github.com/sigstore/cosign
       - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
+        if: startsWith(github.ref, 'refs/tags/v')
         env:
           # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
           TAGS: ${{ steps.meta.outputs.tags }}
