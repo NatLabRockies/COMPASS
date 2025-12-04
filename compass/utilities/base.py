@@ -8,24 +8,41 @@ from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 
 def title_preserving_caps(string):
-    """Convert string to title case, preserving existing capitalization
+    """Convert text to title case while keeping intentional capitals
 
     Parameters
     ----------
     string : str
-        Input string potentially containing capitalized words.
+        Input text that may already contain capitalized acronyms or
+        proper nouns.
 
     Returns
     -------
     str
-        String converted to title case, preserving existing
-        capitalization.
+        Title-cased string in which words containing existing uppercase
+        characters retain their capitalization.
+
+    Examples
+    --------
+    >>> title_preserving_caps("NREL solar ordinance")
+    'NREL Solar Ordinance'
     """
     return " ".join(map(_cap, string.split(" ")))
 
 
 class WebSearchParams:
-    """Helper class to store web search params"""
+    """Capture configuration for jurisdiction web searches
+
+    The class normalizes and stores search-related settings that are
+    reused across multiple search operations, including browser
+    concurrency, engine preferences, and filtering rules.
+
+    Notes
+    -----
+    Instances lazily translate the provided search engine definitions
+    into ELM-compatible keyword arguments via :attr:`se_kwargs`,
+    enabling straightforward reuse when issuing queries.
+    """
 
     def __init__(
         self,
@@ -124,7 +141,19 @@ class WebSearchParams:
 
 
 class Directories:
-    """Helper class to store directories used in COMPASS run"""
+    """Encapsulate filesystem locations used by a COMPASS run
+
+    The helper centralizes directory computations so downstream code
+    can rely on fully resolved :class:`pathlib.Path` instances for
+    logging, cleaned text, downloaded ordinances, and intermediate
+    databases.
+
+    Notes
+    -----
+    All provided paths are expanded to absolute form when the class is
+    instantiated, guaranteeing consistent behavior across relative and
+    user-expanded paths.
+    """
 
     def __init__(
         self,
@@ -175,7 +204,14 @@ class Directories:
         )
 
     def __iter__(self):
-        """Iterate over all directories"""
+        """Yield managed directory paths in canonical order
+
+        Yields
+        ------
+        pathlib.Path
+            Each of the managed directories in the following order:
+            out, logs, clean_files, ordinance_files, jurisdiction_dbs.
+        """
         yield self.out
         yield self.logs
         yield self.clean_files
@@ -183,16 +219,16 @@ class Directories:
         yield self.jurisdiction_dbs
 
     def make_dirs(self):
-        """Create all directories if they do not exist"""
+        """Create the managed directories if they do not exist"""
         for folder in self:
             folder.mkdir(exist_ok=True, parents=True)
 
 
 def _cap(word):
-    """Capitalize first letter of the word"""
+    """Capitalize the first character of ``word``; preserve the rest"""
     return "".join([word[0].upper(), word[1:]])
 
 
 def _full_path(in_path):
-    """Expand and resolve input path"""
+    """Resolve an input path to an absolute :class:`pathlib.Path`"""
     return Path(in_path).expanduser().resolve()

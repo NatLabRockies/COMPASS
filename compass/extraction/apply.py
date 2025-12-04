@@ -37,13 +37,20 @@ async def check_for_ordinance_info(
         has the ``"contains_ord_info"`` key, it will not be processed.
         To force a document to be processed by this function, remove
         that key from the documents ``attrs``.
+    model_config : compass.llm.config.LLMConfig
+        Configuration describing which LLM service, splitter, and call
+        parameters should be used for extraction.
+    heuristic : object
+        Domain-specific heuristic implementing a ``check`` method to
+        qualify text chunks for further processing.
     tech : str
         Technology of interest (e.g. "solar", "wind", etc). This is
         used to set up some document validation decision trees.
-    text_splitter : LCTextSplitter, optional
-        Optional Langchain text splitter (or subclass instance), or any
-        object that implements a `split_text` method. The method should
-        take text as input (str) and return a list of text chunks.
+    ordinance_text_collector_class : type
+        Collector class invoked to capture ordinance text chunks.
+    permitted_use_text_collector_class : type, optional
+        Collector class used to capture permitted-use districts text.
+        When ``None``, the permitted-use workflow is skipped.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -61,6 +68,12 @@ async def check_for_ordinance_info(
         and an ``"ordinance_text"`` key containing the ordinance text
         snippet. Note that the snippet may contain other info as well,
         but should encapsulate all of the ordinance text.
+
+    Notes
+    -----
+    The function updates progress bar logging as chunks are processed
+    and sets ``contains_district_info`` when
+    ``permitted_use_text_collector_class`` is provided.
     """
     if "contains_ord_info" in doc.attrs:
         return doc
@@ -134,6 +147,9 @@ async def extract_date(doc, model_config, usage_tracker=None):
     ----------
     doc : elm.web.document.BaseDocument
         A document potentially containing date information.
+    model_config : compass.llm.config.LLMConfig
+        Configuration describing which LLM service, splitter, and call
+        parameters should be used for date extraction.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -145,6 +161,11 @@ async def extract_date(doc, model_config, usage_tracker=None):
         the parsing are stored in the documents attrs. In particular,
         the attrs will contain a ``"date"`` key that will contain the
         parsed date information.
+
+    Notes
+    -----
+    Documents already containing a ``"date"`` attribute are returned
+    without reprocessing.
     """
     if "date" in doc.attrs:
         logger.debug(
@@ -186,8 +207,9 @@ async def extract_ordinance_text_with_llm(
         Optional Langchain text splitter (or subclass instance), or any
         object that implements a `split_text` method. The method should
         take text as input (str) and return a list of text chunks.
-    extractor : WindOrdinanceTextExtractor
-        Object used for ordinance text extraction.
+    extractor : object
+        Extractor instance exposing ``parsers`` that consume text
+        chunks and update ``doc.attrs``.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).
@@ -250,6 +272,9 @@ async def extract_ordinance_text_with_ngram_validation(
         Optional Langchain text splitter (or subclass instance), or any
         object that implements a `split_text` method. The method should
         take text as input (str) and return a list of text chunks.
+    extractor : object
+        Extractor instance exposing ``parsers`` that consume text
+        chunks and update ``doc.attrs``.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).
@@ -406,6 +431,9 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the `text_key` key, it will
         not be processed.
+    parser : object
+        Parser instance with an async ``parse`` method that converts
+        cleaned ordinance text into structured values.
     text_key : str
         Name of the key under which cleaned text is stored in
         `doc.attrs`. This text should be ready for extraction.
@@ -418,6 +446,11 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
     elm.web.document.BaseDocument
         Document that has been parsed for ordinance values. The results
         of the extraction are stored in the document's attrs.
+
+    Notes
+    -----
+    When the cleaned text is missing or empty the function emits a
+    :class:`compass.warn.COMPASSWarning` and leaves ``doc`` unchanged.
     """
     if not doc.attrs.get(text_key):
         msg = (

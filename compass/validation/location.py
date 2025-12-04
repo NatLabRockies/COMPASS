@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 class DTreeURLJurisdictionValidator(BaseLLMCaller):
-    """Validator that checks whether a URL matches a jurisdiction"""
+    """Validate whether a URL appears to target a jurisdiction"""
 
     SYSTEM_MESSAGE = (
         "You are an expert data analyst that examines URLs to determine if "
@@ -36,28 +36,50 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
 
         Parameters
         ----------
-        structured_llm_caller : StructuredLLMCaller
-            Instance used for structured validation queries.
+        jurisdiction : compass.utilities.location.Jurisdiction
+            Jurisdiction descriptor with the target location attributes.
         **kwargs
-            Additional keyword arguments to pass to the
-            :class:`~compass.llm.calling.BaseLLMCaller` instance.
+            Additional keyword arguments forwarded to
+            :class:`~compass.llm.calling.BaseLLMCaller` for model
+            selection, temperature, or tracing control.
+
+        Notes
+        -----
+        The validator stores the input jurisdiction for subsequent URL
+        checks; it does not perform any validation work during
+        instantiation.
         """
         super().__init__(**kwargs)
         self.jurisdiction = jurisdiction
 
     async def check(self, url):
-        """Check if the content passes the validation
+        """Determine whether the supplied URL targets the jurisdiction
 
         Parameters
         ----------
-        content : str
-            Document content to validate.
+        url : str
+            URL string to evaluate. Empty values short-circuit to
+            ``False``.
 
         Returns
         -------
         bool
-            ``True`` if the content passes the validation check,
-            ``False`` otherwise.
+            ``True`` when the decision-tree evaluation finds all
+            jurisdiction criteria satisfied, ``False`` otherwise.
+
+        Raises
+        ------
+        compass.exceptions.COMPASSError
+            Propagated if underlying LLM interactions fail while the
+            caller has configured
+            :class:`~compass.llm.calling.BaseLLMCaller` to raise.
+
+        Notes
+        -----
+        The method delegates to an internal asynchronous decision tree
+        backed by :class:`~compass.llm.calling.ChatLLMCaller`. The
+        validator aggregates structured responses and only approves when
+        each required attribute matches the target jurisdiction.
         """
         if not url:
             return False
@@ -87,7 +109,7 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
 
 
 class DTreeJurisdictionValidator(BaseLLMCaller):
-    """Jurisdiction Validation using a decision tree"""
+    """Validate ordinance text against a target jurisdiction"""
 
     META_SCORE_KEY = "Jurisdiction Validation Score"
     """Key in doc.attrs where score is stored"""
@@ -103,28 +125,42 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
 
         Parameters
         ----------
-        structured_llm_caller : StructuredLLMCaller
-            Instance used for structured validation queries.
+        jurisdiction : compass.utilities.location.Jurisdiction
+            Jurisdiction descriptor identifying expected applicability.
         **kwargs
-            Additional keyword arguments to pass to the
-            :class:`~compass.llm.calling.BaseLLMCaller` instance.
+            Additional keyword arguments forwarded to
+            :class:`~compass.llm.calling.BaseLLMCaller` for configuring
+            LLM temperature, timeout, or similar options.
         """
         super().__init__(**kwargs)
         self.jurisdiction = jurisdiction
 
     async def check(self, content):
-        """Check if the content passes the validation
+        """Determine whether ordinance text matches the jurisdiction
+
+        The decision tree checks jurisdiction type, state, and
+        subdivision alignment.
 
         Parameters
         ----------
         content : str
-            Document content to validate.
+            Plain-text ordinance content extracted from a document.
 
         Returns
         -------
         bool
-            ``True`` if the content passes the validation check,
-            ``False`` otherwise.
+            ``True`` when the decision tree concludes the ordinance is
+            scoped to the configured jurisdiction, ``False`` otherwise.
+
+        Raises
+        ------
+        compass.exceptions.COMPASSError
+            Raised if the underlying LLM caller propagates an execution
+            failure.
+
+        Notes
+        -----
+        Empty content returns ``False`` without invoking the LLM.
         """
         if not content:
             return False
@@ -154,20 +190,13 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
 
 
 class JurisdictionValidator:
-    """COMPASS Ordinance Jurisdiction validator
+    """Coordinate URL and text jurisdiction validation for documents
 
-    Combines the logic of several validators into a single class.
-
-    Purpose:
-        Determine whether a document pertains to a specific county.
-    Responsibilities:
-        1. Use a combination of heuristics and LLM queries to determine
-           whether or not a document pertains to a particular county.
-    Key Relationships:
-        Uses a StructuredLLMCaller for LLM queries and delegates
-        sub-validation to
-        :class:`DTreeJurisdictionValidator`,
-        and :class:`DTreeURLJurisdictionValidator`.
+    Notes
+    -----
+    The validator stores the score threshold, optional text splitter,
+    and keyword arguments so they can be reused across many documents
+    without reconfiguration.
     """
 
     def __init__(self, score_thresh=0.8, text_splitter=None, **kwargs):
@@ -176,36 +205,58 @@ class JurisdictionValidator:
         Parameters
         ----------
         score_thresh : float, optional
-            Score threshold to exceed when voting on content from raw
-            pages. By default, ``0.8``.
+            Threshold applied to the weighted page vote. Documents at or
+            above the threshold are considered jurisdiction matches.
+            Default is ``0.8``.
         text_splitter : LCTextSplitter, optional
-            Optional text splitter instance to attach to doc (used for
-            splitting out pages in an HTML document).
-            By default, ``None``.
+            Optional splitter attached to documents lacking a
+            ``text_splitter`` attribute so validators can iterate page
+            content consistently. Default is ``None``.
         **kwargs
-            Additional keyword arguments to pass to the
-            :class:`~compass.llm.calling.BaseLLMCaller` instance.
+            Additional keyword arguments forwarded to
+            :class:`~compass.llm.calling.BaseLLMCaller` and reused when
+            instantiating subordinate validators.
         """
         self.score_thresh = score_thresh
         self.text_splitter = text_splitter
         self.kwargs = kwargs
 
     async def check(self, doc, jurisdiction):
-        """Check if the document belongs to the county
+        """Assess whether a document applies to the jurisdiction
 
         Parameters
         ----------
         doc : elm.web.document.BaseDocument
-            Document instance. Should contain a "source" key in the
-            ``attrs`` that contains a URL (used for the URL validation
-            check). Raw content will be parsed for county name and
-            correct jurisdiction.
+            Document to evaluate. The validator expects
+            ``doc.raw_pages`` and, when available, a
+            ``doc.attrs['source']`` URL for supplemental URL validation.
+        jurisdiction : compass.utilities.location.Jurisdiction
+            Target jurisdiction descriptor capturing the required
+            location attributes.
 
         Returns
         -------
         bool
-            `True` if the doc contents pertain to the input county.
-            `False` otherwise.
+            ``True`` when either the URL or document text validation
+            confirms jurisdiction alignment, ``False`` otherwise.
+
+        Raises
+        ------
+        compass.exceptions.COMPASSError
+            Propagated if subordinate validators encounter LLM caller
+            errors.
+
+        Notes
+        -----
+        The method temporarily overrides ``doc.text_splitter`` when a
+        custom splitter is provided, ensuring the original splitter is
+        restored after validation completes.
+
+        Examples
+        --------
+        >>> validator = JurisdictionValidator()
+        >>> await validator.check(document, jurisdiction)
+        True
         """
         if hasattr(doc, "text_splitter") and self.text_splitter is not None:
             old_splitter = doc.text_splitter
@@ -244,7 +295,13 @@ class JurisdictionValidator:
 
 
 class JurisdictionWebsiteValidator:
-    """COMPASS Ordinance Jurisdiction Website validator"""
+    """Validate whether a website is the primary jurisdiction portal
+
+    Notes
+    -----
+    The validator stores the initialization arguments so they can be
+    reused across many documents without reconfiguration.
+    """
 
     WEB_PAGE_CHECK_SYSTEM_MESSAGE = (
         "You are an expert data analyst that examines website text to "
@@ -261,36 +318,55 @@ class JurisdictionWebsiteValidator:
 
         Parameters
         ----------
-        browser_semaphore : :class:`asyncio.Semaphore`, optional
-            Semaphore instance that can be used to limit the number of
-            playwright browsers open concurrently. If ``None``, no
-            limits are applied. By default, ``None``.
+        browser_semaphore : asyncio.Semaphore, optional
+            Semaphore constraining concurrent Playwright usage.
+            ``None`` applies no concurrency limit. Default is ``None``.
         file_loader_kwargs : dict, optional
-            Dictionary of keyword arguments pairs to initialize
-            :class:`elm.web.file_loader.AsyncWebFileLoader`.
-            By default, ``None``.
+            Keyword arguments passed to
+            :class:`elm.web.file_loader.AsyncWebFileLoader`. Default is
+            ``None``.
         **kwargs
-            Additional keyword arguments to pass to the
-            :class:`~compass.llm.calling.BaseLLMCaller` instance.
-
+            Additional keyword arguments cached for downstream LLM
+            calls triggered during validation.
         """
         self.browser_semaphore = browser_semaphore
         self.file_loader_kwargs = file_loader_kwargs or {}
         self.kwargs = kwargs
 
     async def check(self, url, jurisdiction):
-        """Check if the website is the main website for a jurisdiction
+        """Determine whether a website serves as a jurisdiction's portal
+
+        The validator first performs an inexpensive URL classification
+        before downloading page content. Only when the URL fails the
+        initial check does it fetch and inspect the page text using a
+        generic LLM caller.
 
         Parameters
         ----------
         url : str
-            URL of the website to validate.
+            URL to inspect. Empty values return ``False`` immediately.
+        jurisdiction : compass.utilities.location.Jurisdiction
+            Target jurisdiction descriptor used to frame the validation
+            prompts.
 
         Returns
         -------
         bool
-            ``True`` if the website is the main website for the given
-            jurisdiction; ``False`` otherwise.
+            ``True`` when either the URL quick check or the full page
+            evaluation indicates the site is the official main website
+            for the jurisdiction.
+
+        Raises
+        ------
+        compass.exceptions.COMPASSError
+            Propagated from :class:`~compass.llm.calling.BaseLLMCaller`
+            if configured to raise on LLM failures.
+
+        Examples
+        --------
+        >>> validator = JurisdictionWebsiteValidator()
+        >>> await validator.check("https://county.gov", jurisdiction)
+        True
         """
 
         url_validator = DTreeURLJurisdictionValidator(

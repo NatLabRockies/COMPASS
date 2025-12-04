@@ -66,32 +66,22 @@ class AsyncDecisionTree(DecisionTree):
 
     @property
     def chat_llm_caller(self):
-        """ChatLLMCaller: ChatLLMCaller instance for this tree"""
+        """ChatLLMCaller: LLM caller bound to the decision tree"""
         return self.graph.graph["chat_llm_caller"]
 
     @cached_property
     def tree_name(self):
-        """str: Name of the decision tree"""
+        """str: Configured decision tree name"""
         return self._g.graph.get("_d_tree_name", "Unknown decision tree")
 
     @property
     def messages(self):
-        """Get a list of the conversation messages with the LLM
-
-        Returns
-        -------
-        list
-        """
+        """list: Conversation messages exchanged with the LLM"""
         return self.chat_llm_caller.messages
 
     @property
     def all_messages_txt(self):
-        """Get a printout of the full conversation with the LLM
-
-        Returns
-        -------
-        str
-        """
+        """str: Formatted conversation transcript"""
         messages = [
             f"{msg['role'].upper()}: {msg['content']}" for msg in self.messages
         ]
@@ -140,6 +130,12 @@ class AsyncDecisionTree(DecisionTree):
         out : str or None
             Final response from LLM at the leaf node or ``None`` if an
             ``AttributeError`` was raised during execution.
+
+        Raises
+        ------
+        compass.exceptions.COMPASSRuntimeError
+            Raised when the traversal encounters an unexpected
+            exception that is not an ``AttributeError``.
         """
 
         self._history = []

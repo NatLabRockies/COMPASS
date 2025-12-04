@@ -10,7 +10,6 @@ class COMPASSError(Exception):
     """Generic COMPASS Error"""
 
     def __init__(self, *args, **kwargs):
-        """Init exception and broadcast message to logger"""
         super().__init__(*args, **kwargs)
         if args:
             logger.error(

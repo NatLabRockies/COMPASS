@@ -10,7 +10,6 @@ class COMPASSWarning(UserWarning):
     """Generic COMPASS Warning"""
 
     def __init__(self, *args, **kwargs):
-        """Init exception and broadcast message to logger."""
         super().__init__(*args, **kwargs)
         if args:
             logger.warning(

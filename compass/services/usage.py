@@ -135,14 +135,7 @@ class UsageTracker(UserDict):
 
     @property
     def totals(self):
-        """Compute total usage across all sub-labels
-
-        Returns
-        -------
-        dict
-            Dictionary containing usage information totaled across all
-            sub-labels.
-        """
+        """dict: Aggregated usage totals across all sub-labels"""
         totals = {}
         for model, model_usage in self.items():
             total_model_usage = totals[model] = {}

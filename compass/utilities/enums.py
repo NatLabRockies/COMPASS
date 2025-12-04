@@ -4,7 +4,22 @@ from enum import StrEnum, auto
 
 
 class LLMUsageCategory(StrEnum):
-    """COMPASS LLM usage categories"""
+    """Enumerate semantic buckets for tracking LLM usage
+
+    The values in this enumeration provide consistent labels when
+    recording usage metrics, billing data, and telemetry associated
+    with LLM calls originating from COMPASS pipelines. Each category
+    maps to a specific functional concern (e.g., ordinance value
+    extraction, jurisdiction validation) allowing downstream analytics
+    to aggregate usage meaningfully.
+
+    Notes
+    -----
+    Values intentionally mirror the task names used when instantiating
+    :class:`~compass.llm.calling.BaseLLMCaller` implementations so that
+    the enumerations can be converted to strings without additional
+    mapping logic.
+    """
 
     CHAT = auto()
     """Usage related to general LLM chat calls"""
@@ -35,7 +50,20 @@ class LLMUsageCategory(StrEnum):
 
 
 class LLMTasks(StrEnum):
-    """LLM-based COMPASS tasks"""
+    """Human-friendly task identifiers for LLM workflows
+
+    This enumeration exposes the set of user-facing task names that map
+    onto :class:`LLMUsageCategory` entries. Pipeline components use
+    these values for configuration (e.g., selecting prompt templates)
+    while the paired usage categories ensure consistent metrics
+    tracking.
+
+    Notes
+    -----
+    When a task is defined as a direct alias of an
+    :class:`LLMUsageCategory`, it inherits the corresponding usage label
+    so downstream monitoring does not require additional translation.
+    """
 
     DATE_EXTRACTION = LLMUsageCategory.DATE_EXTRACTION
     """Date extraction task"""

@@ -52,32 +52,43 @@ def save_run_meta(
     total_cost,
     models,
 ):
-    """Write out meta information about ordinance collection run
+    """Persist metadata describing an ordinance collection run
 
     Parameters
     ----------
-    dirs : :class:`~compass.utilities.base.Directories`
-        Directories instance containing information about the output
-        directories used for the run.
+    dirs : compass.utilities.base.Directories
+        Directory container describing where outputs, logs, and working
+        files should be written during the run.
     tech : {"wind", "solar", "small wind"}
-        Technology that was the target of the run.
-    start_date, end_date : datetime.datetime
-        Instances representing the start and end dates, respectively.
-    num_jurisdictions_searched, num_jurisdictions_found : int
-        Total number of jurisdictions that were searched and actually
-        found, respectively.
+        Technology targeted by the collection run. The value is stored
+        verbatim in the metadata file for downstream reporting.
+    start_date : datetime.datetime
+        Timestamp marking when the run began.
+    end_date : datetime.datetime
+        Timestamp marking when the run finished.
+    num_jurisdictions_searched : int
+        Number of jurisdictions evaluated during the run.
+    num_jurisdictions_found : int
+        Number of jurisdictions that produced at least one ordinance.
     total_cost : float
-        Total cost of the processing, in $.
+        Aggregate cost incurred by LLM usage for the run. ``None`` or
+        zero values are recorded as ``null`` in the metadata.
     models : dict
-        Dictionary mapping task names (from
-        :class:`~compass.utilities.enums.LLMTasks`) to
-        :class:`~compass.llm.config.OpenAIConfig` instances used for the
-        run.
+        Mapping from LLM task identifiers (as str) to configuration
+        objects (:class:`~compass.llm.config.OpenAIConfig`) used
+        throughout the run. The function records a condensed summary of
+        each configuration.
 
     Returns
     -------
-    run_time : float
-        Total processing run-time, in seconds.
+    float
+        Total runtime of the collection, expressed in seconds.
+
+    Notes
+    -----
+    The function writes ``meta.json`` into ``dirs.out`` alongside
+    references to other artifacts generated during the run. The return
+    value mirrors the ``total_time`` entry stored in the metadata.
     """
 
     try:
@@ -124,32 +135,31 @@ def save_run_meta(
 
 
 def doc_infos_to_db(doc_infos):
-    """Convert list of docs to output database
+    """Aggregate parsed ordinance CSV files into a normalized database
 
     Parameters
     ----------
-    doc_infos : iterable of dict
-        Iterable of dictionaries, where each dictionary has at least the
-        following keys:
-
-            - "ord_db_fp": Path to parsed ordinance CSV file
-            - "source": URL of the file from which ordinances were
-              extracted
-            - "date": Tuple of (year, month, day). Any of the values can
-              be ``None``.
-            - "jurisdiction": Instance of Jurisdiction representing the
-              jurisdiction associated with these ordinance values.
-
-        If this iterable is empty, and empty DataFrame (with the correct
-        columns) is returned.
+    doc_infos : Iterable
+        Iterable of dictionaries describing ordinance extraction
+        results. Each dictionary must contain ``"ord_db_fp"`` (path to a
+        parsed CSV), ``"source"`` (document URL), ``"date"`` (tuple of
+        year, month, day, with ``None`` allowed), and ``"jurisdiction"``
+        (a :class:`~compass.utilities.location.Jurisdiction` instance).
 
     Returns
     -------
-    ordinances : pandas.DataFrame
-        DataFrame containing ordinances collected from all individual
-        CSV's.
-    count : int
-        Total number jurisdictions for which ordinances were found.
+    pandas.DataFrame
+        Consolidated ordinance dataset.
+    int
+        Number of jurisdictions contributing at least one ordinance to
+        the consolidated dataset.
+
+    Notes
+    -----
+    Empty or ``None`` entries in ``doc_infos`` are skipped. Ordinance
+    CSVs that lack parsed values (``num_ordinances_dataframe`` equals
+    zero) are ignored. The returned DataFrame enforces an ordered column
+    layout and casts the ``quantitative`` flag to nullable boolean.
     """
     db = []
     for doc_info in doc_infos:
@@ -180,19 +190,24 @@ def doc_infos_to_db(doc_infos):
 
 
 def save_db(db, out_dir):
-    """Split DB into qualitative vs quantitative and save to disk
+    """Write qualitative and quantitative ordinance outputs to disk
 
     Parameters
     ----------
     db : pandas.DataFrame
-        Pandas DataFrame containing ordinance data to save. Must have
-        all columns in :obj:`QUANT_OUT_COLS` and :obj:`QUAL_OUT_COLS`
-        as well as a ``"quantitative"`` column that contains a boolean
-        determining whether the rwo belongs in the quantitative output
-        file (``True``) or the qualitative output file (``False``).
+        Ordinance dataset containing the full set of columns listed in
+        :data:`QUANT_OUT_COLS` and :data:`QUAL_OUT_COLS`, plus the
+        ``quantitative`` boolean flag that dictates output routing.
     out_dir : path-like
-        Path to output directory where ordinance database csv files
-        should be written.
+        Directory where ``qualitative_ordinances.csv`` and
+        ``quantitative_ordinances.csv`` should be written. The directory
+        is created by :class:`pathlib.Path` if necessary.
+
+    Notes
+    -----
+    Empty DataFrames short-circuit without creating output files. The
+    function respects the boolean ``quantitative`` column and assumes it
+    has already been sanitized by :func:`doc_infos_to_db`.
     """
     if db.empty:
         return
@@ -272,23 +287,31 @@ def _extract_model_info_from_all_models(models):
 def compile_run_summary_message(
     total_seconds, total_cost, out_dir, document_count
 ):
-    """Summarize the run results into a formatted string
+    """Create a human-readable summary of a completed run
 
     Parameters
     ----------
-    total_seconds : int or float
-        Total number of seconds the run took to complete.
-    total_cost : int or float
-        Total cost of the run, in $.
+    total_seconds : float or int
+        Duration of the run in seconds.
+    total_cost : float or int or None
+        Monetary cost incurred by the run. ``None`` or zero suppresses
+        the cost line in the summary.
     out_dir : path-like
-        Path to output directory where the run results are saved.
+        Location of the run output directory. The value is embedded in
+        the summary text.
     document_count : int
-        Number of documents found during the run.
+        Number of documents discovered across all jurisdictions.
 
     Returns
     -------
     str
-        Formatted string summarizing the run results.
+        Summary string formatted for CLI presentation with ``rich``
+        markup.
+
+    Notes
+    -----
+    The function does not perform I/O; callers may log or display the
+    returned string as needed.
     """
     runtime = _elapsed_time_as_str(total_seconds)
     total_cost = (

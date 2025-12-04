@@ -161,6 +161,11 @@ async def find_jurisdiction_website(
 ):
     """Search for the main landing page of a given jurisdiction
 
+    This function submits two pre-determined queries based on the
+    jurisdiction name, prioritizing official landing pages. Additional
+    ``kwargs`` (for example, alternate search engines) can be supplied
+    to fine-tune behavior.
+
     Parameters
     ----------
     jurisdiction : Jurisdiction
@@ -188,6 +193,12 @@ async def find_jurisdiction_website(
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
+    url_ignore_substrings : list of str, optional
+        URL substrings that should be excluded from search results.
+        Substrings are applied case-insensitively. By default, ``None``.
+    **kwargs
+        Additional arguments forwarded to
+        :func:`elm.web.search.run.search_with_fallback`.
 
     Returns
     -------
@@ -251,6 +262,9 @@ async def download_jurisdiction_ordinances_from_website(
     ----------
     website : str
         URL of the jurisdiction website to search.
+    heuristic : callable
+        Callable taking an :class:`elm.web.document.BaseDocument` and
+        returning ``True`` when the document should be kept.
     keyword_points : dict
         Dictionary of keyword points to use for scoring links.
         Keys are keywords, values are points to assign to links
@@ -294,7 +308,7 @@ async def download_jurisdiction_ordinances_from_website(
         no ordinance document was found.
     results : list, optional
         List of crawl4ai results containing metadata about the crawled
-        pages. This is only returned if `return_c4ai_results` is
+        pages. Only returned when ``return_c4ai_results`` evaluates to
         ``True``.
 
     Notes
@@ -376,6 +390,9 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     ----------
     website : str
         URL of the jurisdiction website to search.
+    heuristic : callable
+        Callable taking an :class:`elm.web.document.BaseDocument` and
+        returning ``True`` when the document should be kept.
     keyword_points : dict
         Dictionary of keyword points to use for scoring links.
         Keys are keywords, values are points to assign to links
@@ -387,7 +404,13 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         "pw_launch_kwargs" key in these will also be used to initialize
         the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
         used for the Google URL search. By default, ``None``.
-    max_urls : int, optional
+    already_visited : set of str, optional
+        URLs that have already been crawled and should be skipped.
+        By default, ``None``.
+    num_link_scores_to_check_per_page : int, default=4
+        Number of top-scoring links to visit per page.
+        By default, ``4``.
+    max_urls : int, default=100
         Max number of URLs to check from the website before terminating
         the search. By default, ``100``.
     crawl_semaphore : :class:`asyncio.Semaphore`, optional
@@ -471,12 +494,11 @@ async def download_jurisdiction_ordinance_using_search_engine(
 
     Parameters
     ----------
+    question_templates : sequence of str
+        Query templates that will be formatted with the jurisdiction
+        name before submission to the search engine.
     jurisdiction : Jurisdiction
         Location objects representing the jurisdiction.
-    model_configs : dict
-        Dictionary of :class:`~compass.llm.config.LLMConfig` instances.
-        Should have at minium a "default" key that is used as a fallback
-        for all tasks.
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
@@ -499,9 +521,14 @@ async def download_jurisdiction_ordinance_using_search_engine(
         playwright browsers used to download content from the web open
         concurrently. If ``None``, no limits are applied.
         By default, ``None``.
-    usage_tracker : UsageTracker, optional
-        Optional tracker instance to monitor token usage during
-        LLM calls. By default, ``None``.
+    url_ignore_substrings : list of str, optional
+        URL substrings that should be excluded from search results.
+        Substrings are applied case-insensitively. By default, ``None``.
+    **kwargs
+        Additional keyword arguments forwarded to
+        :func:`elm.web.search.run.web_search_links_as_docs`. Common
+        entries include ``usage_tracker`` for logging LLM usage and
+        extra Playwright configuration.
 
     Returns
     -------
@@ -571,17 +598,29 @@ async def filter_ordinance_docs(
 
     Parameters
     ----------
+    docs : sequence of elm.web.document.BaseDocument
+        Documents to screen for ordinance content.
     jurisdiction : Jurisdiction
         Location objects representing the jurisdiction.
     model_configs : dict
         Dictionary of LLMConfig instances. Should have at minium a
         "default" key that is used as a fallback for all tasks.
+    heuristic : object
+        Domain-specific heuristic implementing a ``check`` method to
+        qualify ordinance content.
     tech : str
         Technology of interest (e.g. "solar", "wind", etc). This is
         used to set up some document validation decision trees.
+    ordinance_text_collector_class : type
+        Collector class used to extract ordinance text sections.
+    permitted_use_text_collector_class : type
+        Collector class used to extract permitted-use text sections.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
+    check_for_correct_jurisdiction : bool, default=True
+        If ``True`` run jurisdiction validation before, content checks.
+        By default, ``True``.
 
     Returns
     -------
@@ -589,6 +628,11 @@ async def filter_ordinance_docs(
         List of :obj:`~elm.web.document.BaseDocument` instances possibly
         containing ordinance information, or ``None`` if no ordinance
         document was found.
+
+    Notes
+    -----
+    The function updates CLI progress bars to reflect each filtering
+    phase and returns documents sorted by quality heuristics.
     """
     if check_for_correct_jurisdiction:
         COMPASS_PB.update_jurisdiction_task(
@@ -656,7 +700,7 @@ async def _docs_from_web_search(
     on_search_complete_hook,
     **kwargs,
 ):
-    """Download docs from web using jurisdiction queries"""
+    """Download documents from the web using jurisdiction queries"""
     queries = [
         question.format(jurisdiction=jurisdiction.full_name)
         for question in question_templates
@@ -690,7 +734,7 @@ async def _docs_from_web_search(
 async def _down_select_docs_correct_jurisdiction(
     docs, jurisdiction, usage_tracker, model_config
 ):
-    """Remove all documents not pertaining to the jurisdiction"""
+    """Remove documents that do not match the target jurisdiction"""
     jurisdiction_validator = JurisdictionValidator(
         text_splitter=model_config.text_splitter,
         llm_service=model_config.llm_service,
@@ -716,7 +760,7 @@ async def _down_select_docs_correct_content(
     permitted_use_text_collector_class,
     usage_tracker,
 ):
-    """Remove all documents that don't contain ordinance info"""
+    """Remove documents that do not contain ordinance information"""
     return await filter_documents(
         docs,
         validation_coroutine=_contains_ordinances,
@@ -733,7 +777,7 @@ async def _down_select_docs_correct_content(
 async def _contains_ordinances(
     doc, model_configs, usage_tracker=None, **kwargs
 ):
-    """Helper coroutine that checks for ordinance and date info"""
+    """Determine whether a document contains ordinance information"""
     model_config = model_configs.get(
         LLMTasks.DOCUMENT_CONTENT_VALIDATION,
         model_configs[LLMTasks.DEFAULT],
@@ -757,7 +801,7 @@ async def _contains_ordinances(
 
 
 def _sort_final_ord_docs(all_ord_docs):
-    """Sort the list of documents by year, type, and text length"""
+    """Sort ordinance documents by desirability heuristics"""
     if not all_ord_docs:
         return None
 
@@ -765,7 +809,7 @@ def _sort_final_ord_docs(all_ord_docs):
 
 
 def _ord_doc_sorting_key(doc):
-    """Sorting key for documents. The higher this value, the better"""
+    """Compute a composite sorting score for ordinance documents"""
     latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
     prefer_pdf_files = isinstance(doc, PDFDocument)

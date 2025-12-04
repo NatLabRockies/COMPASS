@@ -90,8 +90,11 @@ Use `pixi add --feature python-dev <package>` to add a dependency that is only u
 - Never include a period (".") at the end of the first line of docstrings.
 - Do not add a short summary to __init__ methods. Instead, keep the line blank and start the "Parameters" section after a second newline.
 - Do not document parameters in the class docstring - do that in the __init__ docstring instead.
-- All @property and @cached_property method documentation should be one line long and should start with the return type.
-- "Protected" functions and methods should always be documented using only one-line summary docstrings.
+- Do not add docstring to dunder methods (e.g., __str__, __repr__, etc.) unless absolutely necessary.
+- All @property and @cached_property method documentation should be one line long and should start with the return type followed by a colon (e.g. `"""str: My string property"""`).
+- If a parameter has a default value, always end the description with the sentence `"By default, <default value>."`
+- If the default value for a parameter is **not** `None`, document it using the format: `param_name : type, default=<default value>`. If the default value for a parameter **is** `None`, use the format : `param_name : type, optional`.
+- "Protected" functions and methods (i.e. starting with an underscore) should always be documented using **only** one-line summary docstrings.
 - To exclude functions or classes from the public API documentation, start the docstring with the token ``[NOT PUBLIC API]``.
 
 ## 7. Coding Guidelines (Rust)

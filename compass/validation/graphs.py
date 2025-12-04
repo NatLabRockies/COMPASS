@@ -8,18 +8,28 @@ from compass.common import (
 
 
 def setup_graph_correct_document_type(**kwargs):
-    """Setup graph to check for correct document type in legal text
+    """Build a decision tree for validating ordinance document types
 
     Parameters
     ----------
     **kwargs
-        Keyword-value pairs to add to graph.
+        Additional keyword arguments forwarded to
+        :func:`compass.common.base.setup_graph_no_nodes`. The helper
+        consumes ``doc_is_from_ocr`` (default ``False``) to alter
+        draft-detection prompts for scanned documents.
 
     Returns
     -------
     networkx.DiGraph
-        Graph instance that can be used to initialize an
-        `elm.tree.DecisionTree`.
+        Graph suitable for constructing an ``elm.tree.DecisionTree``
+        that distinguishes legally binding ordinances from draft,
+        planning, meeting, and similar documents.
+
+    Notes
+    -----
+    The resulting graph encodes a structured sequence of Yes/No prompts
+    that culminate in a JSON response containing summary metadata and a
+    legal-text boolean.
     """
     doc_is_from_ocr = kwargs.pop("doc_is_from_ocr", False)
 
@@ -262,20 +272,29 @@ def setup_graph_correct_document_type(**kwargs):
 
 
 def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
-    """Setup graph to check for correct jurisdiction type in legal text
+    """Build a decision tree for jurisdiction-type validation
 
     Parameters
     ----------
-    jurisdiction : Jurisdiction
-        Jurisdiction for which validation is being performed.
+    jurisdiction : compass.utilities.location.Jurisdiction
+        Target jurisdiction descriptor that guides prompt wording.
     **kwargs
-        Keyword-value pairs to add to graph.
+        Additional keyword arguments forwarded to
+        :func:`compass.common.base.setup_graph_no_nodes` (for example,
+        ``usage_tracker`` or ``llm_service`` identifiers).
 
     Returns
     -------
     networkx.DiGraph
-        Graph instance that can be used to initialize an
-        `elm.tree.DecisionTree`.
+        Graph capturing the sequence of questions needed to verify
+        whether ordinance text names the expected jurisdiction type and
+        geography.
+
+    Notes
+    -----
+    The prompts collected through this graph expect the LLM to return a
+    JSON payload keyed by ``correct_jurisdiction`` plus a human-readable
+    explanation summarizing the reasoning.
     """
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Correct jurisdiction type", **kwargs
@@ -478,20 +497,29 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
 
 
 def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
-    """Setup graph to check for correct jurisdiction in URL
+    """Build a decision tree for validating jurisdictions from URLs
 
     Parameters
     ----------
-    jurisdiction : Jurisdiction
-        Jurisdiction for which validation is being performed.
+    jurisdiction : compass.utilities.location.Jurisdiction
+        Jurisdiction descriptor supplying state, county, and subdivision
+        phrases used in prompts.
     **kwargs
-        Keyword-value pairs to add to graph.
+        Additional keyword arguments forwarded to
+        :func:`compass.common.base.setup_graph_no_nodes`.
 
     Returns
     -------
     networkx.DiGraph
-        Graph instance that can be used to initialize an
-        `elm.tree.DecisionTree`.
+        Graph that queries whether a URL explicitly references the
+        jurisdiction's state, county, and subdivision names and returns
+        a JSON verdict.
+
+    Notes
+    -----
+    The graph aggregates boolean keys such as ``correct_state`` and
+    ``correct_county``. The final prompt instructs the LLM to emit a
+    JSON document describing each match plus an explanatory string.
     """
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Correct jurisdiction type from URL", **kwargs

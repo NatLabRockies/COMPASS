@@ -133,7 +133,29 @@ def llm_response_does_not_start_with_no(response):
 def setup_async_decision_tree(
     graph_setup_func, usage_sub_label=None, **kwargs
 ):
-    """Setup Async Decision tree for ordinance extraction"""
+    """Setup an ``AsyncDecisionTree`` for ordinance extraction
+
+    Parameters
+    ----------
+    graph_setup_func : callable
+        Factory that returns a fully configured
+        :class:`networkx.DiGraph`.
+    usage_sub_label : str, optional
+        Optional usage label reported to the LLM usage tracker.
+    **kwargs
+        Keyword arguments forwarded to ``graph_setup_func``.
+
+    Returns
+    -------
+    AsyncDecisionTree
+        Decision tree wrapping the graph produced by
+        ``graph_setup_func``.
+
+    Notes
+    -----
+    The function asserts that the tree has recorded at least the system
+    prompt before returning the constructed wrapper.
+    """
     G = graph_setup_func(**kwargs)  # noqa: N806
     tree = AsyncDecisionTree(G, usage_sub_label=usage_sub_label)
     assert len(tree.chat_llm_caller.messages) == 1
@@ -141,7 +163,23 @@ def setup_async_decision_tree(
 
 
 async def run_async_tree(tree, response_as_json=True):
-    """Run Async Decision Tree and return output as dict"""
+    """Run an async decision tree and optionally parse JSON output
+
+    Parameters
+    ----------
+    tree : AsyncDecisionTree
+        Decision tree to execute.
+    response_as_json : bool, default=True
+        If ``True``, attempts to parse the LLM response as JSON using
+        :func:`compass.utilities.parsing.llm_response_as_json`.
+        By default, ``True``.
+
+    Returns
+    -------
+    dict or str or None
+        Parsed dictionary when ``response_as_json`` is ``True``, raw
+        response otherwise. Returns ``None`` if execution fails.
+    """
     try:
         response = await tree.async_run()
     except COMPASSRuntimeError:
@@ -154,14 +192,39 @@ async def run_async_tree(tree, response_as_json=True):
 
 
 async def run_async_tree_with_bm(tree, base_messages):
-    """Run Async Decision Tree from base messages; return dict output"""
+    """Run an async decision tree using seed "base" messages
+
+    Parameters
+    ----------
+    tree : AsyncDecisionTree
+        Decision tree to execute.
+    base_messages : list of dict
+        Messages to preload into the tree's chat caller before running.
+
+    Returns
+    -------
+    dict or str or None
+        Output from :func:`run_async_tree`, filtered by the
+        ``response_as_json`` default.
+    """
     tree.chat_llm_caller.messages = base_messages
     assert len(tree.chat_llm_caller.messages) == len(base_messages)
     return await run_async_tree(tree)
 
 
 def empty_output(feature):
-    """Empty output for a feature (not found in text)"""
+    """Return the default empty result for a missing feature
+
+    Parameters
+    ----------
+    feature : str
+        Name of the feature to seed in the empty output structure.
+
+    Returns
+    -------
+    list of dict
+        Empty result placeholders used by downstream extraction logic.
+    """
     if feature in {"structures", "property line"}:
         return [
             {"feature": f"{feature} (participating)"},

@@ -18,13 +18,12 @@ logger = logging.getLogger(__name__)
 
 
 class ParseChunksWithMemory:
-    """Check text chunks by sometimes looking at previous chunks
+    """Iterate through text chunks while caching prior LLM decisions
 
-    The idea behind this approach is that sometimes the context for a
-    setback or other ordinances is found in a previous chunk, so it may
-    be worthwhile (especially for validation purposes) to check a few
-    text chunks back for some validation pieces. In order to do this
-    semi-efficiently, we make use of a cache that's labeled "memory".
+    This helper stores an in-memory cache of prior validation results so
+    each chunk can optionally reuse outcomes from earlier LLM calls. The
+    design supports revisiting a configurable number of preceding text
+    chunks when newer chunks lack sufficient context.
     """
 
     def __init__(self, text_chunks, num_to_recall=2):
@@ -61,38 +60,30 @@ class ParseChunksWithMemory:
         yield from inverted_text[:self.num_to_recall]
 
     async def parse_from_ind(self, ind, key, llm_call_callback):
-        """Validate a chunk of text
+        """Validate a chunk by consulting current and prior context
 
-        Validation occurs by querying the LLM using the input prompt and
-        parsing the `key` from the response JSON. The prompt should
-        request that the key be a boolean output. If the key retrieved
-        from the LLM response is False, a number of previous text chunks
-        are checked as well, using the same prompt. This can be helpful
-        in cases where the answer to the validation prompt (e.g. does
-        this text pertain to a large WECS?) is only found in a previous
-        text chunk.
+        Cached verdicts are reused to avoid redundant LLM calls when
+        neighboring chunks have already been assessed. If the cache
+        lacks a verdict, the callback is executed and the result stored.
 
         Parameters
         ----------
         ind : int
-            Positive integer corresponding to the chunk index.
-            Must be less than `len(text_chunks)`.
+            Index of the chunk to inspect. Must be less than the number
+            of available chunks.
         key : str
-            A key expected in the JSON output of the LLM containing the
-            response for the validation question. This string will also
-            be used to format the system prompt before it is passed to
-            the LLM.
+            JSON key expected in the LLM response. The same key is used
+            to populate the decision cache.
         llm_call_callback : callable
-            Callable that takes a `key` and `text_chunk` as inputs and
-            returns a boolean indicating whether or not the text chunk
-            passes the validation check.
+            Awaitable invoked with ``(key, text_chunk)`` that returns a
+            boolean indicating whether the chunk satisfies the LLM
+            validation check.
 
         Returns
         -------
         bool
-            ``True`` if the LLM returned ``True`` for this text chunk or
-            `num_to_recall-1` text chunks before it.
-            ``False`` otherwise.
+            ``True`` if the selected or recalled chunk satisfies the
+            check, ``False`` otherwise.
         """
         logger.debug("Checking %r for ind %d", key, ind)
         mem_text = zip(
@@ -316,7 +307,7 @@ async def parse_by_chunks(
     callbacks=None,
     min_chunks_to_process=3,
 ):
-    """Parse text by chunks, passing to callbacks if it's legal text
+    """Stream text chunks through heuristic and legal validators
 
     This method goes through the chunks one by one, and passes them to
     the callback parsers if the `legal_text_validator` check passes. If
@@ -346,6 +337,13 @@ async def parse_by_chunks(
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
         not being legal. By default, ``3``.
+
+    Notes
+    -----
+    This coroutine only orchestrates validation. Callbacks are
+    responsible for persisting any extracted results. Callback futures
+    are awaited concurrently and share the same task name as the caller
+    to simplify tracing within structured logging.
     """
     passed_heuristic_mem = []
     callbacks = callbacks or []

@@ -386,6 +386,11 @@ class UsageUpdater(ThreadedService):
         tracker : UsageTracker
             A usage tracker instance that contains usage info to be
             added to output file.
+
+        Returns
+        -------
+        dict
+            Updated usage dictionary persisted to ``usage_fp``.
         """
         self._is_processing = True
         try:
@@ -425,11 +430,9 @@ class JurisdictionUpdater(ThreadedService):
     async def process(
         self, jurisdiction, doc, seconds_elapsed, usage_tracker=None
     ):
-        """Add usage from tracker to file
+        """Record jurisdiction metadata in the tracking file
 
-        Any existing usage info in the file will remain unchanged
-        EXCEPT for anything under the label of the input `tracker`,
-        all of which will be replaced with info from the tracker itself.
+        The file on disk is updated in-place.
 
         Parameters
         ----------
@@ -482,6 +485,13 @@ class HTMLFileLoader(ThreadedService):
         **kwargs
             Additional keyword-value argument pairs to pass to
             :class:`elm.web.document.HTMLDocument`.
+
+        Returns
+        -------
+        tuple
+            Two-item tuple of the loaded
+            :class:`~elm.web.document.HTMLDocument`
+            and the raw HTML string content.
         """
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
@@ -612,7 +622,9 @@ async def read_html_file(html_fp, **kwargs):
 
     Returns
     -------
-    elm.web.document.HTMLDocument
-        HTMLDocument instance with text loaded into page.
+    tuple
+        Two-item tuple of the loaded
+        :class:`~elm.web.document.HTMLDocument`
+        and the raw HTML string content.
     """
     return await HTMLFileLoader.call(html_fp, **kwargs)

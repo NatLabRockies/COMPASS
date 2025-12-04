@@ -1,4 +1,4 @@
-"""COMPASS Ordinances parsing utilities."""
+"""COMPASS ordinance parsing utilities"""
 
 import json
 import logging
@@ -19,32 +19,38 @@ def clean_backticks_from_llm_response(content):
     Parameters
     ----------
     content : str
-        LLM response that may or may not contain markdown-style triple
-        backticks.
+        LLM response that may contain markdown triple backticks.
 
     Returns
     -------
     str
-        LLM response stripped of the markdown-style backticks
+        Response stripped of all leading and trailing backtick markers.
     """
     content = content.lstrip().rstrip()
     return content.removeprefix("```").lstrip("\n").removesuffix("```")
 
 
 def llm_response_as_json(content):
-    """LLM response to JSON
+    """Parse a raw LLM response into JSON-compatible data
 
     Parameters
     ----------
     content : str
-        LLM response that contains a string representation of
-        a JSON file.
+        Response text expected to contain a JSON object, possibly with
+        Markdown fences or Python boolean literals.
 
     Returns
     -------
     dict
-        Response parsed into dictionary. This dictionary will be empty
-        if the response cannot be parsed by JSON.
+        Parsed JSON structure. When parsing fails, the function returns
+        an empty dictionary.
+
+    Notes
+    -----
+    The parser strips Markdown code fences, coerces Python-style
+    booleans to lowercase JSON literals, and logs the raw response on
+    decode failure. The logging includes guidance for increasing token
+    limits or updating prompts.
     """
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
@@ -65,7 +71,12 @@ def llm_response_as_json(content):
 
 
 def merge_overlapping_texts(text_chunks, n=300):
-    """Merge chunks of text by removing any overlap.
+    """Merge text chunks while trimming overlapping boundaries
+
+    Overlap detection compares at most ``n`` characters at each
+    boundary but never more than half the length of the accumulated
+    output. Chunks that do not overlap are concatenated with a newline
+    separator.
 
     Parameters
     ----------
@@ -81,7 +92,7 @@ def merge_overlapping_texts(text_chunks, n=300):
     Returns
     -------
     str
-        Merged text.
+        Merged text assembled from the non-overlapping portions.
     """
     text_chunks = list(filter(None, text_chunks))
     if not text_chunks:
@@ -103,7 +114,7 @@ def merge_overlapping_texts(text_chunks, n=300):
 
 
 def extract_ord_year_from_doc_attrs(doc_attrs):
-    """Extract year corresponding to the ordinance from doc instance
+    """Extract the ordinance year stored in document attributes
 
     Parameters
     ----------
@@ -117,15 +128,21 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
     Returns
     -------
     int or None
-        Parsed year for ordinance (int) or ``None`` if it wasn't found
-        in the document's attrs.
+        Parsed ordinance year or ``None`` when unavailable or invalid.
+
+    Examples
+    --------
+    >>> extract_ord_year_from_doc_attrs({"date": (2024, 5, 17)})
+    2024
+    >>> extract_ord_year_from_doc_attrs({"date": (None, None, None)})
+    None
     """
     year = doc_attrs.get("date", (None, None, None))[0]
     return year if year is not None and year > 0 else None
 
 
 def num_ordinances_in_doc(doc, exclude_features=None):
-    """Count number of ordinances found in document
+    """Count the number of ordinance entries on a document
 
     Parameters
     ----------
@@ -139,7 +156,7 @@ def num_ordinances_in_doc(doc, exclude_features=None):
     Returns
     -------
     int
-        Number of unique ordinance values extracted from this document.
+        Number of ordinance rows represented in ``doc``.
     """
     if doc is None or doc.attrs.get("ordinance_values") is None:
         return 0
@@ -150,7 +167,7 @@ def num_ordinances_in_doc(doc, exclude_features=None):
 
 
 def num_ordinances_dataframe(data, exclude_features=None):
-    """Count number of ordinances found in DataFrame
+    """Count ordinance rows contained in a DataFrame
 
     Parameters
     ----------
@@ -164,7 +181,13 @@ def num_ordinances_dataframe(data, exclude_features=None):
     Returns
     -------
     int
-        Number of unique ordinance values extracted from this DataFrame.
+        Count of rows meeting the ordinance criteria.
+
+    Raises
+    ------
+    KeyError
+        If the input DataFrame lacks the ``feature`` column when
+        ``exclude_features`` is provided.
     """
     if exclude_features:
         mask = ~data["feature"].str.casefold().isin(exclude_features)
@@ -174,7 +197,7 @@ def num_ordinances_dataframe(data, exclude_features=None):
 
 
 def ordinances_bool_index(data):
-    """Array of bools indicating rows containing ordinances in DataFrame
+    """Compute a boolean mask indicating ordinance rows
 
     Parameters
     ----------
@@ -184,9 +207,8 @@ def ordinances_bool_index(data):
 
     Returns
     -------
-    array-like
-        Array of bools indicating rows containing ordinances in
-        DataFrame.
+    numpy.ndarray
+        Boolean mask identifying rows that contain ordinance values.
     """
     if data is None or data.empty:
         return np.array([], dtype=bool)
@@ -200,7 +222,7 @@ def ordinances_bool_index(data):
 
 
 def load_config(config_fp):
-    """Load a JSON or JSON5 config file
+    """Load configuration data from JSON or JSON5 sources
 
     Parameters
     ----------
@@ -210,12 +232,18 @@ def load_config(config_fp):
     Returns
     -------
     dict
-        Dictionary containing the config file contents.
+        Parsed configuration object.
 
     Raises
     ------
     COMPASSValueError
-        If the config file does not end with `.json` or `.json5`.
+        If the file path does not exist or the extension is not
+        ``.json`` or ``.json5``.
+
+    Notes
+    -----
+    JSON5 enables comments and trailing commas, among other
+    quality-of-life improvements over vanilla JSON.
     """
     config_fp = Path(config_fp)
 

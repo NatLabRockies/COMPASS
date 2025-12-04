@@ -11,7 +11,7 @@ from compass._cli.finalize import finalize
 @click.version_option(version=__version__)
 @click.pass_context
 def main(ctx):
-    """Ordinance command line interface"""
+    """COMPASS command line interface"""
     ctx.ensure_object(dict)
 
 

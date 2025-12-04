@@ -10,23 +10,35 @@ logger = logging.getLogger(__name__)
 
 
 async def load_local_docs(fps, **kwargs):
-    """Load a document for each input filepath
+    """Load local documents into `elm` document instances
 
     Parameters
     ----------
-    fps : iterable of path-like
-        Iterable of paths representing documents to load.
-    kwargs
-        Keyword-argument pairs to initialize
-        :class:`elm.web.file_loader.AsyncLocalFileLoader`.
+    fps : Iterable
+        Iterable of paths referencing local files to load.
+    **kwargs
+        Additional keyword arguments forwarded to
+        :class:`elm.web.file_loader.AsyncLocalFileLoader` for
+        configuration such as ``loader``, caching, or parsing options.
 
     Returns
     -------
-    list
-        List of non-empty document instances containing information from
-        the local documents. If a file could not be loaded (i.e.
-        document instance is empty), it will not be included in the
-        output list.
+    list of elm.web.document.BaseDocument
+        Non-empty loaded documents corresponding to the supplied
+        filepaths. Empty results (e.g., unreadable files) are filtered
+        out of the returned list.
+
+    Raises
+    ------
+    elm.exceptions.ELMError
+        Propagated when the underlying loader fails to read one of the
+        provided files and is configured to raise on errors.
+
+    Notes
+    -----
+    Detailed debug information about loaded page counts is emitted via
+    the ``compass.utilities.io`` logger at ``TRACE`` level to assist
+    with troubleshooting ingestion runs.
     """
     logger.trace("Loading docs for the following paths:\n%r", fps)
     logger.trace(

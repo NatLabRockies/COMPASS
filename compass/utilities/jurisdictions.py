@@ -18,19 +18,24 @@ _COUNTY_DATA_FP = (
 
 
 def load_all_jurisdiction_info():
-    """Load DataFrame containing info for all jurisdictions
+    """Load canonical jurisdiction metadata for the continental US
 
     Returns
     -------
     pandas.DataFrame
-        DataFrame containing info like names, FIPS, websites, etc. for
-        all jurisdictions.
+        Table containing jurisdiction names, FIPS codes, official
+        websites, and related attributes.
+
+    Notes
+    -----
+    Missing values are normalized to ``None`` to simplify downstream
+    serialization.
     """
     return pd.read_csv(_COUNTY_DATA_FP).replace({np.nan: None})
 
 
 def jurisdiction_websites(jurisdiction_info=None):
-    """Load mapping of jurisdiction name and state to website
+    """Build a mapping of jurisdiction identifiers to website URLs
 
     Parameters
     ----------
@@ -43,8 +48,13 @@ def jurisdiction_websites(jurisdiction_info=None):
     Returns
     -------
     dict
-        Dictionary where keys are FIPS codes and values are the relevant
-        website URL.
+        Mapping from jurisdiction FIPS codes to their primary website
+        URLs.
+
+    Notes
+    -----
+    The helper uses FIPS codes rather than string names to avoid
+    collisions between same-named jurisdictions in different states.
     """
     if jurisdiction_info is None:
         jurisdiction_info = load_all_jurisdiction_info()
@@ -55,7 +65,10 @@ def jurisdiction_websites(jurisdiction_info=None):
 
 
 def load_jurisdictions_from_fp(jurisdiction_fp):
-    """Load jurisdiction info based on jurisdictions in the input fp
+    """Load jurisdiction metadata for entries listed in a CSV file
+
+    This loader trims whitespace, deduplicates request rows, and filters
+    out jurisdictions not present in the canonical data set.
 
     Parameters
     ----------
@@ -66,9 +79,18 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     Returns
     -------
     pandas.DataFrame
-        DataFrame containing jurisdiction info like names, FIPS,
-        websites, etc. for all requested jurisdictions (that were
-        found).
+        Jurisdiction information, including FIPS codes and websites,
+        for every matching entry in the lookup table.
+
+    Raises
+    ------
+    COMPASSValueError
+        If the input file is missing required columns (``State`` or
+        ``Jurisdiction Type`` when subdivisions are provided).
+
+    Notes
+    -----
+    Missing jurisdictions trigger warnings with a tabular summary.
     """
     jurisdictions = pd.read_csv(jurisdiction_fp).replace({np.nan: None})
     jurisdictions = _validate_jurisdiction_input(jurisdictions)

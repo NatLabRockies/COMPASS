@@ -45,7 +45,7 @@ class Service(ABC):
 
     @classmethod
     def _queue(cls):
-        """Get queue for class."""
+        """Return the service queue for the class"""
         service_name = cls.__name__
         queue = get_service_queue(service_name)
         if queue is None:
@@ -81,6 +81,8 @@ class Service(ABC):
     async def process_using_futures(self, fut, *args, **kwargs):
         """Process a call to the service
 
+        The result is communicated by updating ``fut``.
+
         Parameters
         ----------
         fut : asyncio.Future
@@ -109,12 +111,7 @@ class Service(ABC):
     @property
     @abstractmethod
     def can_process(self):
-        """Check if process function can be called.
-
-        This should be a fast-running method that returns a boolean
-        indicating whether or not the service can accept more
-        processing calls.
-        """
+        """bool: Flag indicating whether the service can accept work"""
 
     @abstractmethod
     async def process(self, *args, **kwargs):
@@ -177,7 +174,7 @@ class LLMService(Service):
         return f"{self.__class__.__name__}-{self.model_name}{self.service_tag}"
 
     def _queue(self):
-        """Get queue for class"""
+        """Return the service queue for this instance"""
         queue = get_service_queue(self.name)
         if queue is None:
             msg = MISSING_SERVICE_MESSAGE.format(service_name=self.name)
