@@ -29,6 +29,10 @@ _SUMMARY_PROMPT = (
     "If you had to make a selection when reporting the ordinance, be sure to "
     "list out all the other options and their conditions in the summary."
 )
+_YES_NO_PROMPT = (
+    "Please start your response with either 'Yes' or 'No' and briefly "
+    "explain your answer."
+)
 _UNITS_IN_SUMMARY_PROMPT = (
     "Also include any clarifications about the units in the summary."
 )
@@ -71,6 +75,7 @@ def setup_graph_no_nodes(d_tree_name="Unknown Decision Tree", **kwargs):
     return nx.DiGraph(
         SECTION_PROMPT=_SECTION_PROMPT,
         SUMMARY_PROMPT=_SUMMARY_PROMPT,
+        YES_NO_PROMPT=_YES_NO_PROMPT,
         UNITS_IN_SUMMARY_PROMPT=_UNITS_IN_SUMMARY_PROMPT,
         _d_tree_name=d_tree_name,
         **kwargs,
@@ -194,8 +199,7 @@ def setup_base_setback_graph(**kwargs):
             "{system_size_reminder}"  # expected to end in space
             "Don't forget to pay extra attention to clarifying text found "
             "in parentheses and footnotes. "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -208,8 +212,7 @@ def setup_base_setback_graph(**kwargs):
         prompt=(
             "Did you infer your answer based on setback requirements from "
             "something other than {feature}, such as {ignore_features}? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     if "roads" in kwargs.get("feature", ""):
@@ -222,8 +225,8 @@ def setup_base_setback_graph(**kwargs):
             "check_if_property_line",
             prompt=(
                 "Is this requirement better classified as a setback from "
-                "property lines? Please start your response with "
-                "either 'Yes' or 'No' and briefly explain your answer."
+                "property lines? "
+                "{YES_NO_PROMPT}"
             ),
         )
         G.add_edge(
@@ -272,8 +275,7 @@ def setup_participating_owner(**kwargs):
             "related to {ignore_features}. "
             "Please only consider setbacks that would apply for "
             "{system_size_reminder}"
-            "Please start your response with either 'Yes' or 'No' "
-            "and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge("init", "waiver", condition=llm_response_starts_with_yes)
@@ -283,8 +285,7 @@ def setup_participating_owner(**kwargs):
             "Does the ordinance allow **participating** {owned_type} owners "
             "to completely waive or reduce by an unspecified amount the "
             "{feature} setbacks requirements? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -295,8 +296,7 @@ def setup_participating_owner(**kwargs):
             "Does the ordinance for {feature} setbacks explicitly specify "
             "that **participating** {owned_type} owners must abide to the "
             "same setbacks as **non-participating** {owned_type} owners? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -327,8 +327,7 @@ def setup_participating_owner(**kwargs):
             "Does the ordinance for {feature} setbacks explicitly specify "
             "a **numerical** value that applies to **participating** "
             "{owned_type} owners? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge("part", "non_part", condition=llm_response_starts_with_yes)
@@ -402,8 +401,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "{system_size_reminder}\n"
             "4) Pay close attention to clarifying details in parentheses, "
             "footnotes, or additional explanatory text.\n"
-            "5) Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "5) {YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -475,8 +473,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "{restriction} for {tech}? "
             "As before, focus only on {restriction} specifically for "
             "{system_size_reminder}"
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge("enr", "enr_text", condition=llm_response_starts_with_yes)
@@ -494,8 +491,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
             "Based on your response, are you still confident that the text "
             "**directly** states that there are no regulations around "
             "{restriction} for {tech}? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -544,11 +540,7 @@ def _add_coverage_clarification_nodes(G):  # noqa: N803
     G.add_edge("init", "is_area", condition=llm_response_starts_with_yes)
     G.add_node(
         "is_area",
-        prompt=(
-            "Is the coverage reported as an area value? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
-        ),
+        prompt="Is the coverage reported as an area value? {YES_NO_PROMPT}",
     )
     G.add_edge("is_area", "value", condition=llm_response_starts_with_no)
     return G
@@ -562,10 +554,8 @@ def _add_land_density_clarification_nodes(G):  # noqa: N803
     G.add_node(
         "correct_density_units",
         prompt=(
-            "Is the density reported as a system size **per area** "
-            "value? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "Is the density reported as a system size **per area** value? "
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -585,8 +575,7 @@ def _add_minimum_lot_size_clarification_nodes(G):  # noqa: N803
         "correct_min_ls_units",
         prompt=(
             "Is the minimum lot size reported as an **area** value? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -604,8 +593,7 @@ def _add_maximum_lot_size_clarification_nodes(G):  # noqa: N803
         "correct_max_ls_units",
         prompt=(
             "Is the maximum lot size reported as an **area** value? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -620,12 +608,10 @@ def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
     G.add_node(
         "is_mps_area",
         prompt=(
-            "Does the project size requirement specifically provide "
-            "a system size in MW or an installation size (e.g. "
-            "maximum number of systems or maximum number of solar "
-            "panels)? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "Does the project size requirement specifically provide a system "
+            "size in MW or an installation size (e.g. maximum number of "
+            "systems or maximum number of solar panels)? "
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -638,8 +624,7 @@ def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
         prompt=(
             "Can the project size requirement be bypassed by applying "
             "for a permit? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -658,8 +643,7 @@ def _add_maximum_turbine_height_clarification_nodes(G):  # noqa: N803
             "Are any of the turbine height restrictions measured from a point "
             "other than the ground (e.g. a building height or an airspace "
             "level, etc.)? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -675,8 +659,7 @@ def _add_maximum_turbine_height_clarification_nodes(G):  # noqa: N803
             "We are not interested in restrictions that are relative to some "
             "level. Does the legal text enact any turbine height restrictions "
             "measured from the ground? "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -765,8 +748,7 @@ def _add_prohibitions_extraction_nodes(G):  # noqa: N803
         prompt=(
             "Is there reason to believe that this prohibition is only "
             "being proposed and not yet in effect? "
-            "Please start your response with either 'Yes' or 'No' "
-            "and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -787,8 +769,7 @@ def _add_prohibitions_extraction_nodes(G):  # noqa: N803
             "been previously approved?\n"
             "  - Does it only apply if some other condition is met?\n"
             "  - etc.\n"
-            "Please start your response with either 'Yes' or 'No' "
-            "and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -799,8 +780,7 @@ def _add_prohibitions_extraction_nodes(G):  # noqa: N803
         prompt=(
             "Does the legal text given an expiration date for the "
             "prohibition, moratorium, or ban? "
-            "Please start your response with either 'Yes' or 'No' "
-            "and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge("has_end_date", "final", condition=llm_response_starts_with_no)
@@ -815,8 +795,7 @@ def _add_prohibitions_extraction_nodes(G):  # noqa: N803
         prompt=(
             f"Today is {todays_date}. Has the prohibition, "
             "moratorium, or ban expired? "
-            "Please start your response with either 'Yes' or 'No' "
-            "and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -862,8 +841,8 @@ def setup_graph_permitted_use_districts(**kwargs):
             "Does the following legal text explicitly define districts where "
             "{tech} (or similar) are {use_type}? {clarifications}"
             "Pay extra attention to titles and clarifying text found in "
-            "parentheses and footnotes. Please start your response with "
-            "either 'Yes' or 'No' and briefly explain your answer."
+            "parentheses and footnotes. "
+            "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -888,8 +867,7 @@ def setup_graph_permitted_use_districts(**kwargs):
                 "developers can site {tech} (or similar) as the primary "
                 "use of the land/parcel/lot? Remember that this is true "
                 "by assumption for all overlay districts. "
-                "Please start your response with either 'Yes' or 'No' and "
-                "briefly explain your answer."
+                "{YES_NO_PROMPT}"
             ),
         )
         G.add_edge(
@@ -903,8 +881,7 @@ def setup_graph_permitted_use_districts(**kwargs):
                 "Are these districts representative of locations where "
                 "developers can site {tech} (or similar) as an accessory "
                 "structure and/or as a secondary use of the land/parcel/lot? "
-                "Please start your response with either 'Yes' or 'No' and "
-                "briefly explain your answer."
+                "{YES_NO_PROMPT}"
             ),
         )
         G.add_edge(

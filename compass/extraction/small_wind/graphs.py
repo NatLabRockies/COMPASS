@@ -32,8 +32,7 @@ def setup_graph_wes_types(**kwargs):
             "system sizes? Distinctions are often made as 'small', "
             "'personal', or 'private' vs 'large', 'commercial', or 'utility'. "
             "Sometimes the distinction uses actual MW values. "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -68,8 +67,7 @@ def setup_graph_wes_types(**kwargs):
             "medium, non-commercial, or something akin to that (i.e. "
             "**not** private, micro, building-mounted and **not** large, "
             "commercial, or utility-scale)? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -93,8 +91,7 @@ def setup_graph_wes_types(**kwargs):
             "energy generation system (e.g. with the primary purpose of "
             "generating electricity for use on-site, as opposed to large, "
             "commercial, utility-scale, or other kinds of 'large' systems)? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -173,8 +170,7 @@ def setup_multiplier(**kwargs):
             "{system_size_reminder}"
             "Remember that 1 is a valid multiplier, and treat any "
             "mention of 'fall zone' as a system height multiplier of 1. "
-            "Please start your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -187,8 +183,7 @@ def setup_multiplier(**kwargs):
             "related to {ignore_features}. "
             "Please also only consider setbacks specifically for "
             "{system_size_reminder}"
-            "Please start your response with either 'Yes' or "
-            "'No' and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -277,9 +272,9 @@ def setup_multiplier(**kwargs):
             "Do not confuse this value with static setback requirements. "
             "Ignore text with clauses such as "
             "'no lesser than', 'no greater than', 'the lesser of', or 'the "
-            "greater of'. Please start your response with either 'Yes' or "
-            "'No' and briefly explain your answer, stating the adder value "
-            "if it exists."
+            "greater of'. "
+            "{YES_NO_PROMPT} "
+            "State the adder value if it exists."
         ),
     )
     G.add_edge("adder", "out_no_adder", condition=llm_response_starts_with_no)
@@ -289,9 +284,8 @@ def setup_multiplier(**kwargs):
         "adder_eq",
         prompt=(
             "Does the adder value you identified satisfy the following "
-            "equation: `multiplier * height + <adder>`? Please begin your "
-            "response with either 'Yes' or 'No' and briefly explain your "
-            "answer."
+            "equation: `multiplier * height + <adder>`? "
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -384,8 +378,7 @@ def setup_conditional_min(**kwargs):
             "when a multiplier is used for the calculation? This value acts "
             "like a threshold and is often found within phrases like 'the "
             "greater of'. "
-            "Please begin your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -396,8 +389,7 @@ def setup_conditional_min(**kwargs):
             "Does the threshold value you identified satisfy the following "
             "equation: "
             "`setback_distance = max(<threshold>, multiplier_setback)`? "
-            "Please begin your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -463,8 +455,7 @@ def setup_conditional_max(**kwargs):
             "setback distance that must be observed in all cases, even when "
             "a multiplier is used for the calculation? This value acts like "
             "a limit and is often found within phrases like 'the lesser of'. "
-            "Please begin your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -475,8 +466,7 @@ def setup_conditional_max(**kwargs):
             "Does the limit value you identified satisfy the following "
             "equation: "
             "`setback_distance = min(multiplier_setback, <limit>)`? "
-            "Please begin your response with either 'Yes' or 'No' and "
-            "briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 

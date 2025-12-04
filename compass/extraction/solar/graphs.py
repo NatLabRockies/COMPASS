@@ -32,8 +32,7 @@ def setup_graph_sef_types(**kwargs):
             "energy farm sizes? Distinctions are often made as 'small', "
             "'personal', or 'private' vs 'large', 'commercial', or 'utility'. "
             "Sometimes the distinction uses actual MW values. "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
     )
@@ -74,8 +73,7 @@ def setup_graph_sef_types(**kwargs):
         prompt=(
             "Does the ordinance explicitly define this system as large, "
             "commercial, utility-scale, or something akin to that? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -97,8 +95,7 @@ def setup_graph_sef_types(**kwargs):
             "(e.g. with the primary purpose of generating electricity for "
             "sale, as opposed to small, residential, roof-mounted, private, "
             "or other kinds of 'small' systems)? "
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
 
@@ -173,8 +170,7 @@ def setup_multiplier(**kwargs):
             "related to {ignore_features}. "
             "Please also only consider setbacks specifically for "
             "{system_size_reminder}"
-            "Please start your response with either 'Yes' or 'No' and briefly "
-            "explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge("init", "no_multiplier", condition=llm_response_starts_with_no)
@@ -187,8 +183,7 @@ def setup_multiplier(**kwargs):
             "text related to {ignore_features}. "
             "Please also only consider setbacks specifically for "
             "{system_size_reminder}"
-            "Please start your response with either 'Yes' or "
-            "'No' and briefly explain your answer."
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
@@ -258,9 +253,9 @@ def setup_multiplier(**kwargs):
             "{system_size_reminder}"
             "Do not confuse this value with static setback requirements. "
             "Ignore text with clauses such as 'no lesser than', 'no greater "
-            "than', 'the lesser of', or 'the greater of'. Please start your "
-            "response with either 'Yes' or 'No' and briefly explain your "
-            "answer, stating the adder value if it exists."
+            "than', 'the lesser of', or 'the greater of'. "
+            "{YES_NO_PROMPT} "
+            "State the adder value if it exists."
         ),
     )
     G.add_edge("adder", "out_no_adder", condition=llm_response_starts_with_no)
@@ -270,9 +265,8 @@ def setup_multiplier(**kwargs):
         "adder_eq",
         prompt=(
             "Does the adder value you identified satisfy the following "
-            "equation: `multiplier * height + <adder>`? Begin your "
-            "response with either 'Yes' or 'No' and briefly explain your "
-            "answer."
+            "equation: `multiplier * height + <adder>`? "
+            "{YES_NO_PROMPT}"
         ),
     )
     G.add_edge(
