@@ -12,6 +12,7 @@ from compass.exceptions import (
     COMPASSError,
     COMPASSValueError,
     COMPASSNotInitializedError,
+    COMPASSRuntimeError,
 )
 
 
@@ -33,6 +34,7 @@ def test_exceptions_log_error(caplog, assert_message_was_logged):
     except COMPASSError:
         pass
 
+    assert_message_was_logged("COMPASSError", "ERROR")
     assert_message_was_logged(BASIC_ERROR_MESSAGE, "ERROR")
 
 
@@ -42,6 +44,7 @@ def test_exceptions_log_uncaught_error(assert_message_was_logged):
     with pytest.raises(COMPASSError):
         raise COMPASSError(BASIC_ERROR_MESSAGE)
 
+    assert_message_was_logged("COMPASSError", "ERROR")
     assert_message_was_logged(BASIC_ERROR_MESSAGE, "ERROR")
 
 
@@ -56,6 +59,10 @@ def test_exceptions_log_uncaught_error(assert_message_was_logged):
             COMPASSValueError,
             [COMPASSError, ValueError, COMPASSValueError],
         ),
+        (
+            COMPASSRuntimeError,
+            [COMPASSError, RuntimeError, COMPASSRuntimeError],
+        ),
     ],
 )
 def test_catching_error_by_type(
@@ -67,6 +74,7 @@ def test_catching_error_by_type(
             raise raise_type(BASIC_ERROR_MESSAGE)
 
         assert BASIC_ERROR_MESSAGE in str(exc_info.value)
+        assert_message_was_logged(raise_type.__name__, "ERROR")
         assert_message_was_logged(BASIC_ERROR_MESSAGE, "ERROR")
 
 

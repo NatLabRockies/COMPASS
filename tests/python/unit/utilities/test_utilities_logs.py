@@ -16,11 +16,12 @@ from compass.utilities.logs import (
     LocationFileLog,
     LocationFilter,
     LogListener,
+    log_versions,
     NoLocationFilter,
     _JsonExceptionFileHandler,
     _JsonFormatter,
     _LocalProcessQueueHandler,
-    _setup_logging_levels,
+    _get_version,
     LOGGING_QUEUE,
 )
 
@@ -35,6 +36,18 @@ def _speed_up_location_file_log_async_exit():
         yield
     finally:
         LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS = original_sleep
+
+
+@pytest.fixture(scope="module")
+def compass_logger():
+    """Provide compass logger with DEBUG_TO_FILE level for tests"""
+    logger = logging.getLogger("compass")
+    prev_level = logger.level
+    logger.setLevel("DEBUG_TO_FILE")
+    try:
+        yield logger
+    finally:
+        logger.setLevel(prev_level)
 
 
 class _DummyListener:
@@ -584,8 +597,7 @@ def test_json_exception_file_handler_multiple_exceptions(tmp_path):
 
 
 def test_setup_logging_levels():
-    """Test _setup_logging_levels adds custom logging levels"""
-    _setup_logging_levels()
+    """Test setup_logging_levels adds custom logging levels"""
 
     assert hasattr(logging, "TRACE")
     assert logging.TRACE == 5
@@ -621,6 +633,34 @@ def test_local_process_queue_handler_emit():
     assert not LOGGING_QUEUE.empty()
     queued_record = LOGGING_QUEUE.get()
     assert queued_record.msg == "test message"
+
+
+def test_log_versions_logs_expected_packages(
+    compass_logger, assert_message_was_logged
+):
+    """Test log_versions emits entries for each tracked package"""
+
+    log_versions(compass_logger)
+
+    expected_packages = [
+        "NREL-ELM",
+        "openai",
+        "playwright",
+        "tf-playwright-stealth",
+        "rebrowser-playwright",
+        "camoufox",
+        "pdftotext",
+        "pytesseract",
+        "langchain-text-splitters",
+        "crawl4ai",
+        "nltk",
+        "networkx",
+        "pandas",
+        "numpy",
+    ]
+    assert_message_was_logged("Running COMPASS version", log_level="INFO")
+    for pkg in expected_packages:
+        assert_message_was_logged(pkg, log_level="DEBUG_TO_FILE")
 
 
 def test_log_listener_context_manager():
@@ -672,6 +712,11 @@ async def test_log_listener_async_context_manager():
         assert getattr(captured_records[0], "location", None) == "main"
 
     assert len(logger.handlers) == 0
+
+
+def test_get_dne_package():
+    """Test _get_version for a non-existent package"""
+    assert _get_version("DNE") == "not installed"
 
 
 if __name__ == "__main__":

@@ -209,26 +209,8 @@ texinfo_documents = [
 ]
 
 
-def skip_external_methods(app, what, name, obj, skip, options):
-    if name in {
-        "clear",
-        "pop",
-        "popitem",
-        "setdefault",
-        "update",
-    } and "MutableMapping" in str(obj):
-        return True
-
-    if name in {"copy", "fromkeys"} and "UsageTracker" in str(obj):
-        return True
-
-    if name in {"items", "keys", "values"} and "Mapping" in str(obj):
-        return True
-
-    if name in {"copy", "get"} and "UserDict" in str(obj):
-        return True
-
-    if name in {
+def _skip_pydantic_methods(name, obj):
+    return name in {
         "model_dump_json",
         "model_json_schema",
         "model_dump",
@@ -254,14 +236,44 @@ def skip_external_methods(app, what, name, obj, skip, options):
         "schema_json",
         "update_forward_refs",
         "validate",
-    } and "BaseModel" in str(obj):
+    } and "BaseModel" in str(obj)
+
+
+def _skip_builtin_methods(name, obj):
+    if name in {
+        "clear",
+        "pop",
+        "popitem",
+        "setdefault",
+        "update",
+    } and "MutableMapping" in str(obj):
         return True
 
+    if name in {"items", "keys", "values"} and "Mapping" in str(obj):
+        return True
+
+    return name in {"copy", "get"} and "UserDict" in str(obj)
+
+
+def _skip_internal_api(name, obj):
+    if (getattr(obj, "__doc__", None) or "").startswith("[NOT PUBLIC API]"):
+        return True
+
+    return name in {"copy", "fromkeys"} and "UsageTracker" in str(obj)
+
+
+def _skip_member(app, what, name, obj, skip, options):
+    if (
+        _skip_internal_api(name, obj)
+        or _skip_builtin_methods(name, obj)
+        or _skip_pydantic_methods(name, obj)
+    ):
+        return True
     return None
 
 
 def setup(app):
-    app.connect("autodoc-skip-member", skip_external_methods)
+    app.connect("autodoc-skip-member", _skip_member)
 
 
 # -- Extension configuration -------------------------------------------------

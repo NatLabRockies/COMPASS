@@ -14,7 +14,9 @@ from pathlib import Path
 from queue import SimpleQueue
 from functools import partial, partialmethod
 from logging.handlers import QueueHandler, QueueListener
+from importlib.metadata import version, PackageNotFoundError
 
+from compass import __version__
 from compass.exceptions import COMPASSValueError
 
 
@@ -478,8 +480,38 @@ class _JsonExceptionFileHandler(logging.Handler):
         return records
 
 
-def _setup_logging_levels():
-    """Setup COMPASS logging levels"""
+def log_versions(logger):
+    """Log COMPASS and dependency package versions
+
+    Parameters
+    ----------
+    logger : logging.Logger
+        Logger object to log memory message to.
+    """
+
+    logger.info("Running COMPASS version %s", __version__)
+    packages_to_log = [
+        "NREL-ELM",
+        "openai",
+        "playwright",
+        "tf-playwright-stealth",
+        "rebrowser-playwright",
+        "camoufox",
+        "pdftotext",
+        "pytesseract",
+        "langchain-text-splitters",
+        "crawl4ai",
+        "nltk",
+        "networkx",
+        "pandas",
+        "numpy",
+    ]
+    for pkg in packages_to_log:
+        logger.debug_to_file("- %s version: %s", pkg, _get_version(pkg))
+
+
+def setup_logging_levels():
+    """[NOT PUBLIC API] Setup COMPASS logging levels"""
     logging.TRACE = 5
     logging.addLevelName(logging.TRACE, "TRACE")
     logging.Logger.trace = partialmethod(logging.Logger.log, logging.TRACE)
@@ -491,3 +523,11 @@ def _setup_logging_levels():
         logging.Logger.log, logging.DEBUG_TO_FILE
     )
     logging.debug_to_file = partial(logging.log, logging.DEBUG_TO_FILE)
+
+
+def _get_version(pkg_name):
+    """Get the version string for a package"""
+    try:
+        return version(pkg_name)
+    except PackageNotFoundError:
+        return "not installed"

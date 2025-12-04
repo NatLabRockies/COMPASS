@@ -1,6 +1,7 @@
 """Ordinance full processing logic"""
 
 import time
+import json
 import asyncio
 import logging
 from copy import deepcopy
@@ -11,7 +12,6 @@ from datetime import datetime, UTC
 import pandas as pd
 from elm.web.utilities import get_redirected_url
 
-from compass import __version__
 from compass.scripts.download import (
     find_jurisdiction_website,
     download_known_urls,
@@ -21,7 +21,7 @@ from compass.scripts.download import (
     download_jurisdiction_ordinances_from_website_compass_crawl,
     filter_ordinance_docs,
 )
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.extraction import (
     extract_ordinance_values,
     extract_ordinance_text_with_ngram_validation,
@@ -101,9 +101,10 @@ from compass.utilities.logs import (
     LocationFileLog,
     LogListener,
     NoLocationFilter,
+    log_versions,
 )
 from compass.utilities.base import WebSearchParams
-from compass.utilities.parsing import load_config
+from compass.utilities.parsing import load_config, convert_paths_to_strings
 from compass.pb import COMPASS_PB
 
 
@@ -445,6 +446,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         and may include color-coded cost information if the terminal
         supports it.
     """
+    called_args = locals()
     if log_level == "DEBUG":
         log_level = "DEBUG_TO_FILE"
 
@@ -457,38 +459,51 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         ofd=ordinance_file_dir,
         jdd=jurisdiction_dbs_dir,
     )
-    pk = ProcessKwargs(
-        known_local_docs,
-        known_doc_urls,
-        file_loader_kwargs,
-        td_kwargs,
-        tpe_kwargs,
-        ppe_kwargs,
-        max_num_concurrent_jurisdictions,
-    )
-    wsp = WebSearchParams(
-        num_urls_to_check_per_jurisdiction,
-        max_num_concurrent_browsers,
-        max_num_concurrent_website_searches,
-        url_ignore_substrings,
-        pytesseract_exe_fp,
-        search_engines,
-    )
-    models = _initialize_model_params(model)
-    runner = _COMPASSRunner(
-        dirs=dirs,
-        log_listener=log_listener,
-        tech=tech,
-        models=models,
-        web_search_params=wsp,
-        process_kwargs=pk,
-        perform_se_search=perform_se_search,
-        perform_website_search=perform_website_search,
-        log_level=log_level,
-    )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
-        return await runner.run(jurisdiction_fp)
+        steps = _check_enabled_steps(
+            known_local_docs=known_local_docs,
+            known_doc_urls=known_doc_urls,
+            perform_se_search=perform_se_search,
+            perform_website_search=perform_website_search,
+        )
+        _log_exec_info(called_args, steps)
+        try:
+            pk = ProcessKwargs(
+                known_local_docs,
+                known_doc_urls,
+                file_loader_kwargs,
+                td_kwargs,
+                tpe_kwargs,
+                ppe_kwargs,
+                max_num_concurrent_jurisdictions,
+            )
+            wsp = WebSearchParams(
+                num_urls_to_check_per_jurisdiction,
+                max_num_concurrent_browsers,
+                max_num_concurrent_website_searches,
+                url_ignore_substrings,
+                pytesseract_exe_fp,
+                search_engines,
+            )
+            models = _initialize_model_params(model)
+            runner = _COMPASSRunner(
+                dirs=dirs,
+                log_listener=log_listener,
+                tech=tech,
+                models=models,
+                web_search_params=wsp,
+                process_kwargs=pk,
+                perform_se_search=perform_se_search,
+                perform_website_search=perform_website_search,
+                log_level=log_level,
+            )
+            return await runner.run(jurisdiction_fp)
+        except COMPASSError:
+            raise
+        except Exception:
+            logger.exception("Fatal error during processing")
+            raise
 
 
 class _COMPASSRunner:
@@ -670,7 +685,6 @@ class _COMPASSRunner:
             terminal and may include color-coded cost information if
             the terminal supports it.
         """
-        logger.info("Running COMPASS version %s", __version__)
         jurisdictions = _load_jurisdictions_to_process(jurisdiction_fp)
 
         num_jurisdictions = len(jurisdictions)
@@ -871,6 +885,10 @@ class _SingleJurisdictionRunner:
         """Download and parse document for a single jurisdiction"""
         start_time = time.monotonic()
         doc = None
+        logger.info(
+            "Kicking off processing for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
         try:
             doc = await self._run()
         finally:
@@ -878,12 +896,20 @@ class _SingleJurisdictionRunner:
             await _record_jurisdiction_info(
                 self.jurisdiction, doc, start_time, self.usage_tracker
             )
+            logger.info(
+                "Completed processing for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
 
         return doc
 
     async def _run(self):
         """Search for docs and parse them for ordinances"""
         if self.known_local_docs:
+            logger.debug(
+                "Checking local docs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._load_known_local_documents,
             )
@@ -891,6 +917,10 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.known_doc_urls:
+            logger.debug(
+                "Checking known URLs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._download_known_url_documents,
             )
@@ -898,6 +928,11 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.perform_se_search:
+            logger.debug(
+                "Collecting documents using a search engine for "
+                "jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._find_documents_using_search_engine,
             )
@@ -905,6 +940,10 @@ class _SingleJurisdictionRunner:
                 return doc
 
         if self.perform_website_search:
+            logger.debug(
+                "Collecting documents from the jurisdiction website for: %s",
+                self.jurisdiction.full_name,
+            )
             doc = await self._try_find_ordinances(
                 method=self._find_documents_from_website,
             )
@@ -1370,12 +1409,55 @@ def _setup_main_logging(log_dir, level, listener, keep_async_logs):
 
     if keep_async_logs:
         handler = logging.FileHandler(log_dir / "all.log", encoding="utf-8")
-        fmt = logging.Formatter(
-            fmt="[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s",
-        )
+        log_fmt = "[%(asctime)s] %(levelname)s - %(taskName)s: %(message)s"
+        fmt = logging.Formatter(fmt=log_fmt)
         handler.setFormatter(fmt)
         handler.setLevel(level)
         listener.addHandler(handler)
+        logger.debug_to_file("Using async log format: %s", log_fmt)
+
+
+def _log_exec_info(called_args, steps):
+    """Log versions and function parameters to file"""
+    log_versions(logger)
+
+    logger.info(
+        "Using the following processing step(s):\n\t%s", " -> ".join(steps)
+    )
+
+    normalized_args = convert_paths_to_strings(called_args)
+    logger.debug_to_file(
+        "Called 'process_jurisdictions_with_openai' with:\n%s",
+        json.dumps(normalized_args, indent=4),
+    )
+
+
+def _check_enabled_steps(
+    known_local_docs=None,
+    known_doc_urls=None,
+    perform_se_search=True,
+    perform_website_search=True,
+):
+    """Check that at least one processing step is enabled"""
+    steps = []
+    if known_local_docs:
+        steps.append("Check local document")
+    if known_doc_urls:
+        steps.append("Check known document URL")
+    if perform_se_search:
+        steps.append("Look for document using search engine")
+    if perform_website_search:
+        steps.append("Look for document on jurisdiction website")
+
+    if not steps:
+        msg = (
+            "No processing steps enabled! Please provide at least one of "
+            "'known_local_docs', 'known_doc_urls', or set at least one of "
+            "'perform_se_search' or 'perform_website_search' to True."
+        )
+        raise COMPASSValueError(msg)
+
+    return steps
 
 
 def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):

@@ -6,11 +6,16 @@ We allow dev/local forms produced by setuptools_scm
 """
 
 import re
+from pathlib import Path
+
+import pytest
 
 import compass
 
 
-SEMVER_DEV_PATTERN = re.compile(r"^\d+\.\d+\.\d+(?:\.dev\d+\+g[0-9a-f]+)?$")
+SEMVER_DEV_PATTERN = re.compile(
+    r"^\d+\.\d+\.\d+(?:\.dev\d+\+g[0-9A-Fa-f]+(?:\.d\d{8})?)?$"
+)
 
 
 def test_version_string_present():
@@ -28,3 +33,7 @@ def test_version_semantic_shape():
     )
     assert v != "9999", "Version set to placeholder"
     assert not v.startswith("10000"), "Version set to placeholder"
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])

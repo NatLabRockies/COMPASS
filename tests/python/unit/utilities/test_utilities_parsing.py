@@ -10,6 +10,7 @@ import pytest
 
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
+    convert_paths_to_strings,
     extract_ord_year_from_doc_attrs,
     llm_response_as_json,
     load_config,
@@ -270,6 +271,49 @@ def test_load_config_invalid_extension(tmp_path):
         match=r"Got unknown config file extension: \.txt",
     ):
         load_config(config_file)
+
+
+def test_convert_paths_to_strings_all_structures():
+    """Test `convert_paths_to_strings` across nested containers"""
+
+    input_obj = {
+        Path("path_key"): {
+            "list": [
+                Path("inner_list_item"),
+                {Path("dict_key"): Path("dict_value")},
+            ],
+            "tuple": (Path("inner_tuple_item"), "preserve"),
+            "set": {Path("inner_set_item"), "inner_literal"},
+        },
+        "list": [Path("top_list_item"), (Path("tuple_in_list"),)],
+        "tuple": (Path("top_tuple_item"), {Path("tuple_set_item")}),
+        "set": {
+            Path("top_set_item"),
+            ("nested_tuple", Path("nested_tuple_path")),
+        },
+        "value": "literal",
+        "path_value": Path("top_value_path"),
+    }
+
+    result = convert_paths_to_strings(input_obj)
+
+    expected = {
+        "path_key": {
+            "list": [
+                "inner_list_item",
+                {"dict_key": "dict_value"},
+            ],
+            "tuple": ("inner_tuple_item", "preserve"),
+            "set": {"inner_set_item", "inner_literal"},
+        },
+        "list": ["top_list_item", ("tuple_in_list",)],
+        "tuple": ("top_tuple_item", {"tuple_set_item"}),
+        "set": {"top_set_item", ("nested_tuple", "nested_tuple_path")},
+        "value": "literal",
+        "path_value": "top_value_path",
+    }
+
+    assert result == expected
 
 
 if __name__ == "__main__":

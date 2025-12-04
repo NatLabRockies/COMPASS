@@ -13,4 +13,6 @@ class COMPASSWarning(UserWarning):
         """Init exception and broadcast message to logger."""
         super().__init__(*args, **kwargs)
         if args:
-            logger.warning(str(args[0]), stacklevel=2)
+            logger.warning(
+                "<%s> %s", self.__class__.__name__, args[0], stacklevel=2
+            )

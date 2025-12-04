@@ -1,7 +1,8 @@
 """Tests for `compass.pb` progress bar helpers"""
 
-from contextlib import ExitStack
 from io import StringIO
+from pathlib import Path
+from contextlib import ExitStack
 
 import pytest
 from rich.console import Console
@@ -499,3 +500,7 @@ async def test_compass_website_crawl_prog_bar_duplicate(
 def test_singleton_instance_accessible(console):
     """Expose singleton progress bar instance"""
     assert isinstance(compass.pb.COMPASS_PB, compass.pb._COMPASSProgressBars)
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
