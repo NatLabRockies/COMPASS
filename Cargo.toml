@@ -14,7 +14,7 @@ license = "BSD-3-Clause"
 rust-version = "1.87.0"
 repository = "https://github.com/NREL/COMPASS"
 categories = ["data-structures", "science"]
-keywords = ["NREL", "database", "energy", "ordinance"]
+keywords = ["NLR", "database", "energy", "ordinance"]
 
 [workspace.dependencies]
 infra-compass-db = { version = "0.0.8", path = "crates/compass" }

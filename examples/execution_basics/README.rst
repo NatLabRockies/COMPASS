@@ -94,7 +94,7 @@ You can also specify LLM credentials and endpoint details directly in the config
 Note that while this can be convenient for quick testing, storing credentials in plaintext is not recommended for production environments.
 
 **SSL Configuration**
-Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate verification errors, especially useful when running behind the NREL VPN.
+Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate verification errors, especially useful when running behind the NLR VPN.
 If you're not using the VPN, it's best to leave this value as the default (``true``).
 
 **OCR Integration**
@@ -215,5 +215,5 @@ After completion, you'll find several outputs in the ``out_dir``:
 - **Metadata Files**: JSON files describing metadata parameters corresponding to your run.
 - **Logs and Debug Files**: Helpful for reviewing LLM prompts and tracing any issues.
 
-You can now use these outputs for downstream analysis, visualization, or integration with other NREL tools like
+You can now use these outputs for downstream analysis, visualization, or integration with other NLR tools like
 `reVX setbacks <https://nrel.github.io/reVX/misc/examples.setbacks.html>`_.

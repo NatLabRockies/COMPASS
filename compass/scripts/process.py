@@ -282,12 +282,12 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
 
             url_ignore_substrings = [
                 "wikipedia",
-                "nrel.gov",
+                "nlr.gov",
                 "www.co.delaware.in.us/documents/1649699794_0382.pdf",
             ]
 
         The above configuration would ignore all `wikipedia` articles,
-        all websites on the NREL domain, and the specific file located
+        all websites on the NLR domain, and the specific file located
         at `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
         By default, ``None``.
     known_local_docs : dict or path-like, optional

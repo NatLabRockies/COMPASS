@@ -1,6 +1,6 @@
 #![deny(missing_docs)]
 
-//! NREL's ordinance database
+//! NLR's ordinance database
 
 mod error;
 mod scraper;

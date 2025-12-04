@@ -19,7 +19,7 @@ maintainers = [
   {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
 ]
 license = "BSD-3-Clause"
-keywords = ["COMPASS", "NREL", "Ordinance", "Database"]
+keywords = ["COMPASS", "NLR", "Ordinance", "Database"]
 requires-python = ">= 3.12"
 classifiers=[
   "Development Status :: 4 - Beta",

@@ -83,6 +83,7 @@
         // useful to filter out known noise
         "wiki",
         "nrel.gov",
+        "nlr.gov",
         "openei.org",
         "windexchange.energy.gov",
         // but can also be very specific if needed
