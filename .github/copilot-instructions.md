@@ -16,7 +16,7 @@ Primary outcomes: reproducible structured feature/value extraction and structure
 - Linting/Formatting: Ruff (configured in `pyproject.toml`). Line length 79 (72 for docstrings). Ruff also runs format check.
 - Testing: Pytest (unit/integration separation), Coverage (HTML + XML). Rust uses Cargo tests + Clippy + fmt.
 - CI: GitHub Actions workflows for Python (`ci-python.yml`), Rust (`ci-rust.yml`), docs, PyPI publishing.
-- Docs: Sphinx with `pydata-sphinx-theme`. Build via Pixi task `python-doc` or Makefile (`make html`). Fail on warnings.
+- Docs: Sphinx with `pydata-sphinx-theme`. Build via Pixi task `python-docs` or Makefile (`make html`). Fail on warnings.
 - Crawling/Search: Playwright + supplemental packages (rebrowser-playwright, camoufox, crawl4ai, tavily, ddgs, etc.).
 - LLM Providers: OpenAI (core), Anthropic optional (`anthropic` extras). Configurable via API key environment variables.
 
@@ -59,7 +59,7 @@ pixi run -e rdev cargo check --workspace --locked
 pixi run -e rdev tests-r
 
 # Build docs
-pixi run -e pdoc python-doc
+pixi run -e pdoc python-docs
 
 # Demo (requires OPENAI_API_KEY)
 pixi run openai-solar-demo <api_key>

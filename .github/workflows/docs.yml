@@ -42,7 +42,7 @@ jobs:
           environments: pdoc
 
       - name: Build Docs
-        run: pixi run -e pdoc python-doc  # This errors on warnings
+        run: pixi run -e pdoc python-docs  # This errors on warnings
 
       - name: deploy
         uses: peaceiris/actions-gh-pages@v4.0.0

@@ -211,7 +211,7 @@ To check your docstring additions/updates, you can build a local version of the 
 
 .. code-block:: shell
 
-    pixi r -e pdoc python-doc
+    pixi r -e pdoc python-docs
 
 After running this command, simply open ``docs/_build/html/index.html`` using your favorite browser, e.g.:
 

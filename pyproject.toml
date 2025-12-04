@@ -70,13 +70,12 @@ test = [
   "tox>=4.23.2,<5",
 ]
 doc = [
-  "ghp-import>=2.1",
-  "make>=0.1",
+  "ghp-import>=2.1.0,<3",
   "pydata-sphinx-theme>=0.16.1,<0.17",
-  "sphinx-click>=5.1",
+  "sphinx-click>=6.1.0,<7",
   "sphinx-copybutton>=0.5",
   "sphinx-tabs>=3.4",
-  "sphinxcontrib-mermaid>=1.0.0",
+  "sphinxcontrib-mermaid>=1.2.3,<2",
 ]
 anthropic = [
   "anthropic>=0.40.0,<0.41",
@@ -133,7 +132,7 @@ tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=15 tests/python/integration"
 
 [tool.pixi.feature.python-doc.tasks]
-python-doc = { cmd = "make html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
+python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
 
 [tool.pixi.feature.python-build.tasks]
 build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
@@ -240,10 +239,10 @@ tox = ">=4.23.2,<5"
 ghp-import = ">=2.1.0,<3"
 make = ">=4.4.1,<5"
 pydata-sphinx-theme = ">=0.16.1,<0.17"
-sphinx-click = ">=6.0.0,<7"
+sphinx-click = ">=6.1.0,<7"
 sphinx-copybutton = ">=0.5.2,<0.6"
 sphinx-tabs = ">=3.4.1,<4"
-sphinxcontrib-mermaid = ">=1.0.0,<2"
+sphinxcontrib-mermaid = ">=1.2.3,<2"
 
 [tool.pixi.feature.python-anthropic.dependencies]
 anthropic = ">=0.40.0,<0.41"
