@@ -30,7 +30,7 @@ pub(super) struct Jurisdiction {
     /// Full name of the jurisdiction, such as "Golden City, Colorado"
     full_name: String,
     /// County where the jurisdiction is located, such as "Jefferson County"
-    county: String,
+    county: Option<String>,
     /// State where the jurisdiction is located, such as "Colorado"
     state: String,
     /// Subdivision of the jurisdiction, if any, such as "Golden"
@@ -151,9 +151,17 @@ impl Source {
     }
 
     fn from_json(content: &str) -> Result<Self> {
-        trace!("Parsing sources from JSON: {:?}", content);
+        trace!("Parsing sources' jurisdictions from json: {:?}", content);
 
-        let source = serde_json::from_str(content).unwrap();
+        let source = match serde_json::from_str(content) {
+            Ok(source) => source,
+            Err(e) => {
+                error!("Error parsing sources' jurisdictions from json: {:?}", e);
+                return Err(crate::error::Error::Undefined(
+                    "Failed to parse sources' jurisdiction as a json".to_string(),
+                ));
+            }
+        };
         Ok(source)
     }
 
@@ -193,8 +201,14 @@ impl Source {
             ));
         }
 
-        let content = tokio::fs::read_to_string(path).await?;
-        let jurisdictions = Self::from_json(&content)?;
+        let content = tokio::fs::read_to_string(&path).await?;
+        let jurisdictions = match Self::from_json(&content) {
+            Ok(jurisdictions) => jurisdictions,
+            Err(e) => {
+                error!("Failed parsing file: {:?}", &path);
+                return Err(e);
+            }
+        };
         trace!("Jurisdictions loaded: {:?}", jurisdictions);
 
         // ========================
