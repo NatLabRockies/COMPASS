@@ -79,12 +79,12 @@ def sentence_ngram_containment(original, test, n):
     -------
     float
         Fraction of ngrams from the `test` input that were found in the
-        `original` text. Always returns ``True`` if test has no ngrams.
+        `original` text. Returns ``0`` if test has no ngrams.
     """
     ngrams_test = convert_text_to_sentence_ngrams(test, n)
     num_test_ngrams = len(ngrams_test)
     if not num_test_ngrams:
-        return True
+        return 0.0
 
     ngrams_original = set(convert_text_to_sentence_ngrams(original, n))
     num_ngrams_found = sum(t in ngrams_original for t in ngrams_test)

@@ -10,6 +10,7 @@ from compass.validation import (
     LegalTextValidator,
     parse_by_chunks,
 )
+from compass.utilities.ngrams import sentence_ngram_containment
 from compass.warn import COMPASSWarning
 
 
@@ -338,7 +339,6 @@ async def _extract_with_ngram_check(
     ngram_ocr_fraction_threshold=0.75,
 ):
     """Extract ordinance info from doc and validate using ngrams."""
-    from compass.extraction.ngrams import sentence_ngram_containment  # noqa
 
     source = doc.attrs.get("source", "Unknown")
     doc_is_from_ocr = doc.attrs.get("from_ocr", False)

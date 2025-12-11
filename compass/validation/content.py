@@ -7,11 +7,14 @@ particular technology (e.g. Large Wind Energy Conversion Systems).
 import asyncio
 import logging
 from abc import ABC, abstractmethod
+from warnings import warn
 
 from compass.llm.calling import ChatLLMCaller, StructuredLLMCaller
 from compass.validation.graphs import setup_graph_correct_document_type
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.ngrams import convert_text_to_sentence_ngrams
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -177,10 +180,31 @@ class Heuristic(ABC):
 
     def _count_phrase_matches(self, heuristics_text):
         """Count number of good tech phrases that appear in text"""
-        return sum(
-            all(keyword in heuristics_text for keyword in phrase.split(" "))
-            for phrase in self.GOOD_TECH_PHRASES
-        )
+        text_ngrams = {}
+        total = 0
+        for phrase in self.GOOD_TECH_PHRASES:
+            n = len(phrase.split(" "))
+            if n <= 1:
+                msg = (
+                    "Make sure your GOOD_TECH_PHRASES contain at least 2 "
+                    f"words! Got phrase: {phrase!r}"
+                )
+                warn(msg, COMPASSWarning)
+                continue
+
+            if n not in text_ngrams:
+                text_ngrams[n] = set(
+                    convert_text_to_sentence_ngrams(heuristics_text, n)
+                )
+
+            test_ngrams = (  # fmt: off
+                convert_text_to_sentence_ngrams(phrase, n)
+                + convert_text_to_sentence_ngrams(f"{phrase}s", n)
+            )
+            if any(t in text_ngrams[n] for t in test_ngrams):
+                total += 1
+
+        return total
 
     @property
     @abstractmethod
