@@ -172,7 +172,7 @@ jobs:
         python -m pip install pdftotext
 
     - name: Load tox cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: .tox/
         key: ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-${{ hashFiles('**/pyproject.toml') }}
@@ -186,7 +186,7 @@ jobs:
 
     - name: Save tox cache only on main
       if: github.ref == 'refs/heads/main'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: .tox/
         key: ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-${{ hashFiles('**/pyproject.toml') }}
