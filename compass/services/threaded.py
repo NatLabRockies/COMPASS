@@ -603,9 +603,7 @@ def _compute_jurisdiction_cost(usage_tracker):
 
 def _read_html_file(html_fp, **kwargs):
     """Default read HTML function (runs in main thread)"""
-    with Path(html_fp).open("r", encoding="utf-8") as fh:
-        text = fh.read()
-
+    text = Path(html_fp).read_text(encoding="utf-8")
     return HTMLDocument([text], **kwargs), text
 
 

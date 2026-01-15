@@ -93,9 +93,7 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
 
 def _read_pdf_file(pdf_fp, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
-    with Path(pdf_fp).open("rb") as fh:
-        pdf_bytes = fh.read()
-
+    pdf_bytes = Path(pdf_fp).read_bytes()
     pages = read_pdf(pdf_bytes, verbose=False)
     return PDFDocument(pages, **kwargs), pdf_bytes
 
@@ -105,9 +103,7 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     if tesseract_cmd:
         _configure_pytesseract(tesseract_cmd)
 
-    with Path(pdf_fp).open("rb") as fh:
-        pdf_bytes = fh.read()
-
+    pdf_bytes = Path(pdf_fp).read_bytes()
     pages = read_pdf_ocr(pdf_bytes, verbose=False)
     doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True

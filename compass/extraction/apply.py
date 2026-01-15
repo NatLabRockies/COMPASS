@@ -346,8 +346,7 @@ async def _extract_with_ngram_check(
     if not original_text:
         msg = (
             "Document missing original ordinance text! No extraction "
-            "performed (Document source: %s)",
-            source,
+            f"performed (Document source: {source})"
         )
         warn(msg, COMPASSWarning)
         return doc
