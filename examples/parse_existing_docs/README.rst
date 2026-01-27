@@ -11,7 +11,7 @@ and convert it into structured values. By the end, you'll have a fully working s
 both a text file of the ordinance and a structured CSV.
 
 If you're only looking to download documents without extracting content, you may want to look at the
-`ELM tutorial <https://github.com/NREL/elm/tree/main/examples/web_information_retrieval>`_,
+`ELM tutorial <https://github.com/NatLabRockies/elm/tree/main/examples/web_information_retrieval>`_,
 which focuses on scraping and saving documents alone.
 
 
@@ -238,7 +238,7 @@ one file. We also include additional logging setup so you can see the progress i
     :language: python
 
 You can also view this script in the repository:
-`parse_pdf.py <https://github.com/NREL/COMPASS/blob/main/examples/parse_existing_docs/parse_pdf.py>`_
+`parse_pdf.py <https://github.com/NatLabRockies/COMPASS/blob/main/examples/parse_existing_docs/parse_pdf.py>`_
 
 .. _running:
 

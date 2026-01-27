@@ -60,7 +60,7 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    "elm": ("https://nrel.github.io/elm", None),
+    "elm": ("https://natlabrockies.github.io/elm", None),
     "lc": ("https://reference.langchain.com/python/", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),

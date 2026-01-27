@@ -4,11 +4,11 @@ Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INF
 
 |License| |Zenodo| |PythonV| |PyPi| |Ruff| |Pixi| |SWR|
 
-.. |PythonV| image:: https://badge.fury.io/py/NREL-COMPASS.svg
-    :target: https://pypi.org/project/NREL-COMPASS/
+.. |PythonV| image:: https://badge.fury.io/py/INFRA-COMPASS.svg
+    :target: https://pypi.org/project/INFRA-COMPASS/
 
-.. |PyPi| image:: https://img.shields.io/pypi/pyversions/NREL-COMPASS.svg
-    :target: https://pypi.org/project/NREL-COMPASS/
+.. |PyPi| image:: https://img.shields.io/pypi/pyversions/INFRA-COMPASS.svg
+    :target: https://pypi.org/project/INFRA-COMPASS/
 
 .. |Ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
     :target: https://github.com/astral-sh/ruff
@@ -39,13 +39,13 @@ The quickest way to install INFRA-COMPASS for users is from PyPi:
 
 .. code-block:: bash
 
-    pip install nrel-compass
+    pip install infra-compass
 
 If you would like to install and run INFRA-COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
 
 .. code-block:: bash
 
-    git clone git@github.com:NREL/COMPASS.git; cd COMPASS
+    git clone git@github.com:NatLabRockies/COMPASS.git; cd COMPASS
     pixi run compass
 
 Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command:
@@ -55,7 +55,7 @@ Before performing any web searches (i.e. running the COMPASS pipeline), you will
     playwright install
 
 If you are using ``pixi``, don't forget to prefix this command with ``pixi run`` or initialize a shell using ``pixi shell``.
-For detailed instructions, see the `installation documentation <https://nrel.github.io/COMPASS/misc/installation.html>`_.
+For detailed instructions, see the `installation documentation <https://natlabrockies.github.io/COMPASS/misc/installation.html>`_.
 
 
 Quickstart
@@ -68,10 +68,10 @@ To run a quick INFRA-COMPASS demo, set up a personal OpenAI API key and run:
 
 This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.45).
 For more information on configuring an INFRA-COMPASS run, see the
-`execution basics example <https://nrel.github.io/COMPASS/examples/execution_basics/README.html>`_.
+`execution basics example <https://natlabrockies.github.io/COMPASS/examples/execution_basics/README.html>`_.
 
 
 Development
 ===========
-Please see the `Development Guidelines <https://nrel.github.io/COMPASS/dev/index.html>`_
+Please see the `Development Guidelines <https://natlabrockies.github.io/COMPASS/dev/index.html>`_
 if you wish to contribute code to this repository.
