@@ -112,7 +112,7 @@ Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 Kitchen Sink Config
 -------------------
 
-In `config_kitchen_sink.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_,
+In `config_kitchen_sink.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_kitchen_sink.json5>`_,
 we show what a configuration might look like that utilizes all available parameters.
 
 .. literalinclude:: config_kitchen_sink.json5
