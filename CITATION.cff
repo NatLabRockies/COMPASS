@@ -24,7 +24,7 @@ authors:
 identifiers:
   - type: doi
     value: 10.11578/dc.20250415.3
-repository-code: 'https://github.com/NREL/COMPASS'
+repository-code: 'https://github.com/NatLabRockies/COMPASS'
 abstract: >-
   INFRA-COMPASS is an innovative software tool utilizing
   Large Language Models (LLMs) to systematically compile and

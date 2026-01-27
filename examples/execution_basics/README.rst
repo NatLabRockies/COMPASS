@@ -26,7 +26,7 @@ Setting Up the Run Configuration
 ================================
 The INFRA-COMPASS configuration file—written in either ``JSON`` or ``JSON5`` format—is a simple config that
 defines parameters for running the process. Each key in the config corresponds to an argument for the function
-`process_jurisdictions_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
+`process_jurisdictions_with_openai <https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
 Refer to the linked documentation for detailed and up-to-date descriptions of each input.
 
 
@@ -35,10 +35,10 @@ Minimal Config
 At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
 
 - ``out_dir``: Path to the output directory. Will be created if it does not exist.
-- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv>`_.
+- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv>`_.
 - ``tech``: A string representing the infrastructure or technology focus for the run.
 
-In `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
+In `config_bare_minimum.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
 we show a minimal working configuration that includes only the required keys.
 
 .. literalinclude:: config_bare_minimum.json5
@@ -68,9 +68,9 @@ Typical Config
 --------------
 In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
 You can review all available inputs in the
-`process_jurisdictions_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_
+`process_jurisdictions_with_openai <https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_
 documentation.
-In `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
+In `config_recommended.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
 demonstrate a typical configuration that balances simplicity with additional control over execution parameters.
 
 .. literalinclude:: config_recommended.json5
@@ -112,7 +112,7 @@ Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 Kitchen Sink Config
 -------------------
 
-In `config_kitchen_sink.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_,
+In `config_kitchen_sink.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_,
 we show what a configuration might look like that utilizes all available parameters.
 
 .. literalinclude:: config_kitchen_sink.json5
@@ -216,4 +216,4 @@ After completion, you'll find several outputs in the ``out_dir``:
 - **Logs and Debug Files**: Helpful for reviewing LLM prompts and tracing any issues.
 
 You can now use these outputs for downstream analysis, visualization, or integration with other NLR tools like
-`reVX setbacks <https://nrel.github.io/reVX/misc/examples.setbacks.html>`_.
+`reVX setbacks <https://natlabrockies.github.io/reVX/misc/examples.setbacks.html>`_.

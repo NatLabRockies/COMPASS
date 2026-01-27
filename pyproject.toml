@@ -6,17 +6,17 @@ requires = [
 build-backend = 'setuptools.build_meta'
 
 [project]
-name="NREL-COMPASS"
+name="INFRA-COMPASS"
 dynamic = ["version"]
 description = "INFRA-COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
 readme = "README.rst"
 authors = [
-  {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
-  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
+  {name = "Paul Pinchuk", email = "ppinchuk@nlr.gov"},
+  {name = "Guilherme Castelão", email = "gpimenta@nlr.gov"},
 ]
 maintainers = [
-  {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
-  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
+  {name = "Paul Pinchuk", email = "ppinchuk@nlr.gov"},
+  {name = "Guilherme Castelão", email = "gpimenta@nlr.gov"},
 ]
 license = "BSD-3-Clause"
 keywords = ["COMPASS", "NLR", "Ordinance", "Database"]
@@ -38,7 +38,7 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.34,<1",
+  "nlr-elm>=0.0.35,<1",
   "numpy>=2.2.4,<3",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
@@ -93,9 +93,9 @@ build = [
 compass = "compass._cli.main:main"
 
 [project.urls]
-homepage = "https://github.com/NREL/COMPASS"
-documentation = "https://nrel.github.io/COMPASS/"
-repository = "https://github.com/NREL/COMPASS"
+homepage = "https://github.com/NatLabRockies/COMPASS"
+documentation = "https://natlabrockies.github.io/COMPASS/"
+repository = "https://github.com/NatLabRockies/COMPASS"
 
 [tool.setuptools.packages]
 find = { include = ["compass*"] }
@@ -194,7 +194,7 @@ greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
 pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [tool.pixi.feature.python-default.pypi-dependencies]
-NREL-COMPASS = { path = ".", editable = true}
+INFRA-COMPASS = { path = ".", editable = true}
 
 [tool.pixi.target.linux-aarch64.dependencies]
 compilers = ">=1.11.0,<2"
