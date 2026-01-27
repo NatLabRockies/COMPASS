@@ -10,4 +10,4 @@ This directory contains several examples/tutorials to help you get started with 
   file for structured solar ordinance values.
 
 For rendered versions of these guides, see the
-[online documentation](https://nrel.github.io/COMPASS/examples/index.html).
+[online documentation](https://natlabrockies.github.io/COMPASS/examples/index.html).

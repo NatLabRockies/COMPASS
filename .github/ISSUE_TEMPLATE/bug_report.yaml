@@ -13,7 +13,7 @@ body:
           required: true
         - label: >
             I have confirmed this bug exists on the
-            [latest version](https://github.com/NREL/COMPASS/releases/latest) of COMPASS.
+            [latest version](https://github.com/NatLabRockies/COMPASS/releases/latest) of COMPASS.
           required: true
         - label: >
             I have confirmed this bug exists on the main branch of COMPASS.

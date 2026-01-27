@@ -40,7 +40,7 @@ jobs:
 
     - name: Generate coverage report
       run: |
-        pixi reinstall -e pdev --locked NREL-COMPASS
+        pixi reinstall -e pdev --locked INFRA-COMPASS
         pixi run -e pdev --locked tests-p
 
     - name: Upload coverage to Codecov

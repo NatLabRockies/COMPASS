@@ -7,11 +7,11 @@ Installing from PyPI
 --------------------
 
 INFRA-COMPASS can be installed via pip from
-`PyPI <https://pypi.org/project/NREL-COMPASS>`__.
+`PyPI <https://pypi.org/project/INFRA-COMPASS>`__.
 
 .. code-block:: shell
 
-    pip install nrel-compass
+    pip install infra-compass
 
 .. note::
 
@@ -57,8 +57,8 @@ results.
 
 Start by cloning the ``COMPASS`` repository:
 
-- Using ssh: :code:`git clone git@github.com:NREL/COMPASS.git`
-- Using https: :code:`git clone https://github.com/NREL/COMPASS.git`
+- Using ssh: :code:`git clone git@github.com:NatLabRockies/COMPASS.git`
+- Using https: :code:`git clone https://github.com/NatLabRockies/COMPASS.git`
 
 If you don't already have ``pixi`` installed on your system, follow the (simple) `installation
 instructions <https://pixi.sh/latest/#installation>`_.

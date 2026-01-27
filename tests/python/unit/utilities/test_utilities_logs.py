@@ -643,7 +643,7 @@ def test_log_versions_logs_expected_packages(
     log_versions(compass_logger)
 
     expected_packages = [
-        "NREL-ELM",
+        "NLR-ELM",
         "openai",
         "playwright",
         "tf-playwright-stealth",

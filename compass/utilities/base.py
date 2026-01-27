@@ -24,8 +24,8 @@ def title_preserving_caps(string):
 
     Examples
     --------
-    >>> title_preserving_caps("NREL solar ordinance")
-    'NREL Solar Ordinance'
+    >>> title_preserving_caps("NLR solar ordinance")
+    'NLR Solar Ordinance'
     """
     return " ".join(map(_cap, string.split(" ")))
 

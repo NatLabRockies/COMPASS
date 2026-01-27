@@ -26,7 +26,7 @@ This validation effort is meant primarily as a sanity check and as a stepping st
 Info
 ^^^^
 
-- **COMPASS Version**: `v0.5.0 <https://github.com/NREL/COMPASS/releases/tag/v0.5.0>`_
+- **COMPASS Version**: `v0.5.0 <https://github.com/NatLabRockies/COMPASS/releases/tag/v0.5.0>`_
 - **Number of Documents**: 19 (Assuming 6,000 jurisdictions, there is a 95% chance that the metrics are within ±22.45% of the reported value)
 - **Features**:
 

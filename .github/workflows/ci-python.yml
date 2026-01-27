@@ -61,7 +61,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi reinstall -e pdev --locked NREL-COMPASS
+        pixi reinstall -e pdev --locked INFRA-COMPASS
         pixi run -e pdev --locked tests-u
 
   unit-tests:
@@ -90,7 +90,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi reinstall -e pdev NREL-COMPASS
+        pixi reinstall -e pdev INFRA-COMPASS
         pixi run -e pdev tests-u
 
   integration-tests:
@@ -119,7 +119,7 @@ jobs:
         environments: pdev
 
     - run: |
-        pixi reinstall -e pdev NREL-COMPASS
+        pixi reinstall -e pdev INFRA-COMPASS
         pixi run -e pdev tests-i
 
   tox-tests:

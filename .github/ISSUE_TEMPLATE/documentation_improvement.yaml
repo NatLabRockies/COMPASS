@@ -10,7 +10,7 @@ body:
       options:
         - label: >
             I have checked that the issue still exists on the latest versions of the docs
-            on `main` [here](https://nrel.github.io/COMPASS/)
+            on `main` [here](https://natlabrockies.github.io/COMPASS/)
           required: true
   - type: textarea
     id: location
@@ -18,7 +18,7 @@ body:
       label: Location of the documentation
       description: >
         Please provide the location of the documentation,
-      # placeholder: https://nrel.github.io/gaps/_autosummary/gaps.config.load_config.html#gaps.config.load_config
+      # placeholder: https://natlabrockies.github.io/gaps/_autosummary/gaps.config.load_config.html#gaps.config.load_config
     validations:
       required: true
   - type: textarea

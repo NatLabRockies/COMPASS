@@ -6,13 +6,13 @@ resolver = "2"
 [workspace.package]
 version = "0.0.8"
 authors = [
-  "Guilherme Castelão <gpimenta@nrel.gov>",
-  "Paul Pinchuk <Pavlo.Pinchuk@nrel.gov>",
+  "Guilherme Castelão <gpimenta@nlr.gov>",
+  "Paul Pinchuk <Pavlo.Pinchuk@nlr.gov>",
   ]
 edition = "2024"
 license = "BSD-3-Clause"
 rust-version = "1.87.0"
-repository = "https://github.com/NREL/COMPASS"
+repository = "https://github.com/NatLabRockies/COMPASS"
 categories = ["data-structures", "science"]
 keywords = ["NLR", "database", "energy", "ordinance"]
 

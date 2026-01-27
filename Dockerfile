@@ -25,7 +25,7 @@ RUN pixi run --frozen -e pbuild build-wheels
 # RUN pixi add --frozen pip
 # RUN pixi run --frozen -e ${PIXI_ENV} \
 #     python3 -m pip install --no-deps --disable-pip-version-check \
-#     dist/nrel_compass-*.whl
+#     dist/infra__compass-*.whl
 # Do we want to remove pip to reduce production's size?
 # RUN pixi remove --frozen -e ${PIXI_ENV} pip
 

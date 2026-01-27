@@ -491,7 +491,7 @@ def log_versions(logger):
 
     logger.info("Running COMPASS version %s", __version__)
     packages_to_log = [
-        "NREL-ELM",
+        "NLR-ELM",
         "openai",
         "playwright",
         "tf-playwright-stealth",
