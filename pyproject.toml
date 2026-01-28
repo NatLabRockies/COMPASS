@@ -86,7 +86,6 @@ anthropic = [
 build = [
   "build>=1.2.2,<2",
   "pkginfo>=1.12.1.2,<2",
-  "twine>=6.1.0,<7",
 ]
 
 [project.scripts]
@@ -141,8 +140,6 @@ python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--f
 
 [tool.pixi.feature.python-build.tasks]
 build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
-check-wheels = { cmd = ["twine", "check", "dist/*"], depends-on = ["build-wheels"] }
-upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-wheels"] }
 
 [tool.pixi.dependencies]
 poppler = ">=24.8.0,<25"
@@ -257,7 +254,6 @@ boto3 = ">=1.35.71,<2"
 [tool.pixi.feature.python-build.dependencies]
 python-build = ">=1.2.2,<2"
 pkginfo = ">=1.12.1.2,<2"
-twine = ">=6.1.0,<7"
 uv = ">=0.8.4,<0.9"
 
 
