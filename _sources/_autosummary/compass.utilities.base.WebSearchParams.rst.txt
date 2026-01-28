@@ -1,0 +1,29 @@
+compass.utilities.base.WebSearchParams
+======================================
+
+.. currentmodule:: compass.utilities.base
+
+.. autoclass:: WebSearchParams
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WebSearchParams.se_kwargs
+   
+   

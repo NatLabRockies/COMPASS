@@ -1,0 +1,33 @@
+compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector
+==========================================================================
+
+.. currentmodule:: compass.extraction.solar.ordinance
+
+.. autoclass:: SolarPermittedUseDistrictsTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SolarPermittedUseDistrictsTextCollector.call
+      ~SolarPermittedUseDistrictsTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SolarPermittedUseDistrictsTextCollector.DISTRICT_PROMPT
+      ~SolarPermittedUseDistrictsTextCollector.contains_district_info
+      ~SolarPermittedUseDistrictsTextCollector.permitted_use_district_text
+   
+   

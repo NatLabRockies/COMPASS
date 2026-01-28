@@ -1,0 +1,40 @@
+compass.utilities.nt.TechSpec
+=============================
+
+.. currentmodule:: compass.utilities.nt
+
+.. autoclass:: TechSpec
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TechSpec.count
+      ~TechSpec.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TechSpec.heuristic
+      ~TechSpec.name
+      ~TechSpec.ordinance_text_collector
+      ~TechSpec.ordinance_text_extractor
+      ~TechSpec.permitted_use_text_collector
+      ~TechSpec.permitted_use_text_extractor
+      ~TechSpec.questions
+      ~TechSpec.structured_ordinance_parser
+      ~TechSpec.structured_permitted_use_parser
+      ~TechSpec.website_url_keyword_points
+   
+   

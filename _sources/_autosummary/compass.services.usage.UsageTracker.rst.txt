@@ -1,0 +1,32 @@
+compass.services.usage.UsageTracker
+===================================
+
+.. currentmodule:: compass.services.usage
+
+.. autoclass:: UsageTracker
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~UsageTracker.add_to
+      ~UsageTracker.update_from_model
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~UsageTracker.UNKNOWN_MODEL_LABEL
+      ~UsageTracker.totals
+   
+   

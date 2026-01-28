@@ -1,0 +1,23 @@
+compass.extraction.solar.parse.StructuredSolarParser
+====================================================
+
+.. currentmodule:: compass.extraction.solar.parse
+
+.. autoclass:: StructuredSolarParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   

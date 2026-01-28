@@ -1,0 +1,34 @@
+compass.extraction.wind.ordinance.WindOrdinanceTextExtractor
+============================================================
+
+.. currentmodule:: compass.extraction.wind.ordinance
+
+.. autoclass:: WindOrdinanceTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WindOrdinanceTextExtractor.extract_large_wind_energy_system_section
+      ~WindOrdinanceTextExtractor.extract_wind_energy_system_section
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WindOrdinanceTextExtractor.LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT
+      ~WindOrdinanceTextExtractor.SYSTEM_MESSAGE
+      ~WindOrdinanceTextExtractor.WIND_ENERGY_SYSTEM_FILTER_PROMPT
+      ~WindOrdinanceTextExtractor.parsers
+   
+   

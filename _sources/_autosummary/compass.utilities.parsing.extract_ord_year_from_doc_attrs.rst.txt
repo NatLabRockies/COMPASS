@@ -1,0 +1,6 @@
+compass.utilities.parsing.extract\_ord\_year\_from\_doc\_attrs
+==============================================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: extract_ord_year_from_doc_attrs

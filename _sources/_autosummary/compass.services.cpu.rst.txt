@@ -1,0 +1,43 @@
+compass.services.cpu
+====================
+
+.. automodule:: compass.services.cpu
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      read_pdf_doc
+      read_pdf_doc_ocr
+      read_pdf_file
+      read_pdf_file_ocr
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      OCRPDFLoader
+      PDFLoader
+      ProcessPoolService
+   
+   
+
+   
+   
+   
+
+
+

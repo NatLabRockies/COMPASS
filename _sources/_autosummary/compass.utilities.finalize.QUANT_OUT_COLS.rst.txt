@@ -1,0 +1,6 @@
+compass.utilities.finalize.QUANT\_OUT\_COLS
+===========================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autodata:: QUANT_OUT_COLS

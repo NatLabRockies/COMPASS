@@ -1,0 +1,40 @@
+﻿compass
+=======
+
+.. automodule:: compass
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   common
+   exceptions
+   extraction
+   llm
+   pb
+   scripts
+   services
+   utilities
+   validation
+   warn
+   web
+

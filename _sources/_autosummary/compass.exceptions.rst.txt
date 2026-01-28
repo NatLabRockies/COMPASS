@@ -1,0 +1,33 @@
+compass.exceptions
+==================
+
+.. automodule:: compass.exceptions
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      COMPASSError
+      COMPASSNotInitializedError
+      COMPASSRuntimeError
+      COMPASSValueError
+   
+   
+
+
+

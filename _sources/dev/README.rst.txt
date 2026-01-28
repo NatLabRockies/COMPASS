@@ -1,0 +1,411 @@
+.. _contributing:
+
+Contributing to COMPASS
+=======================
+
+This document discusses working on the COMPASS code base and documentation.
+
+
+Overview
+--------
+
+* All code changes should be submitted via a pull request (PR) and
+  reviewed/approved by a core team member before merging  (see `Contributing Process`_ below for more details).
+* Before setting up your environment, see the `Development environment guidelines`_.
+* All code should adhere to `PEP8 <https://peps.python.org/pep-0008/>`_ (if you haven't
+  read over it in a while, we recommend you skim it again for a refresher).
+* All code should adhere to the `Stylistic guidelines`_.
+* All code should have tests (see `Test coverage`_ below for more details).
+* All code should be documented (see `Documentation`_ below for more details).
+
+
+Contributing Process
+--------------------
+
+If you need a refresher on contributing code via GitHub using a pull request, check out the
+`official GitHub documentation <https://docs.github.com/en/pull-requests>`_. There, you can
+learn how to `create a branch <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-and-deleting-branches-within-your-repository>`_,
+`open a pull request <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request>`_,
+and `request a review <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review>`_.
+
+If you are not sure where or how to start contributing to COMPASS, consider reaching out to the
+current developer(s): **Paul Pinchuk** ["ppinchuk@nlr.gov"] or **Guilherme Pimenta Castelao** ["gpimenta@nlr.gov"].
+
+When you are ready to contribute to COMPASS, clone a copy of the COMPASS repository from GitHub, check out your
+own branch, and make the appropriate changes locally. Ensure that your new code adheres to all of the guidelines
+below. When you are happy with your code, commit it locally. Ensure that you commit all tests that go along
+with your code change.
+
+Once all your code changes are committed locally and your code passes all tests, push it to the GitHub repository
+and open a PR. Give your PR a short title and briefly describe your changes. Request that one of the core COMPASS
+developers reviews your PR. We will likely ask you to make some modifications before you can merge. This is typical
+and ensures that the quality of the overall codebase remains somewhat consistent.
+
+Once your PR is approved, you may merge it into the main branch. If your code introduces significant new functionality
+or fixes a critical bug, it may warrant a release. Please coordinate with a core COMPASS developer to create a new release,
+which will automatically generate new wheels for installing COMPASS.
+
+
+.. index-dev-link-end:
+
+.. _dev-env-guidelines:
+.. index-dev-link-start:
+
+
+Development environment guidelines
+----------------------------------
+
+We use `pixi <https://pixi.sh/latest/>`_ to manage environments across developers.
+This tool allows developers to install libraries and applications in a reproducible
+way across multiple platforms. This means bugs are easier to reproduce, and it's easier
+to move your development environment to a new piece of hardware.
+
+We keep a version-controlled ``pixi.lock`` in the repository to allow locking with
+the full requirements tree so we can reproduce behaviors and bugs and easily compare
+results.
+
+You can use the ``pdev`` feature in ``pixi`` to get all necessary python development tools:
+
+.. code-block:: shell
+
+    pixi shell -e pdev
+
+To work on the Rust-based CLI, you can use the ``rdev`` feature instead:
+
+.. code-block:: shell
+
+    pixi shell -e rdev
+
+You are welcome to use a different environment manager (e.g. ``conda``, ``mamba``, etc),
+but we make no promises to provide support on environment-related issues/bugs in this case.
+
+
+Stylistic guidelines
+--------------------
+
+We define a set of stylistic standards for COMPASS code development. The intent
+is to maintain coherence when multiple developers contribute code to the repository.
+
+Ruff
+^^^^
+
+Maintaining consistent code quality is crucial for COMPASS. To ensure uniformity and
+adherence to coding standards, we employ the use `Ruff <https://docs.astral.sh/ruff/>`_.
+Ruff is an "opinionated" formatter and linter designed to enhance code readability,
+maintainability, and consistency that is extremely fast.
+
+You can use the `Ruff VSCode extension <https://marketplace.visualstudio.com/items?itemName=charliermarsh.ruff>`_
+if you are developing using VSCode. If you do so, make sure to set the path to the ``ruff``
+executable in your VSCode settings to point to the ``ruff`` installed in the ``pdev`` environment.
+You can do this by adding the following to your ``settings.json`` file:
+
+.. code-block:: json
+
+    "ruff.path": [
+        "${workspaceFolder}/.pixi/envs/pdev/bin/ruff"
+    ]
+
+Alternatively, you can set a pre-commit hook to run Ruff. This would perform automatic code formatting
+before any code is committed to the repository.
+
+Both of these tools ensure that all code contributions meet the established quality standards,
+minimizing the chances of introducing formatting inconsistencies or potential issues.
+
+
+Imports
+^^^^^^^
+
+Use the following import conventions::
+
+   import elm
+   import numpy as np
+   import pandas as pd
+
+
+Test coverage
+-------------
+
+Pull requests (PRs) that modify code should either have new tests, or modify existing
+tests to fail before the PR and pass afterwards.
+
+You can run python COMPASS tests locally using ``pixi``:
+
+.. code-block:: shell
+
+    pixi r -e ptest tests-p
+
+To speed up testing, the tests can be run in parallel using ``-n auto``:
+
+.. code-block:: shell
+
+    pixi r -e ptest tests-p -n auto
+
+Tests for a module should ideally cover all code in that module,
+i.e., statement coverage should be at 100%, though this alone does not ensure that
+your code is bug-free. Still, this is a good place to start, and you view the test
+coverage at ``build/coverage`` by running:
+
+.. code-block:: shell
+
+    firefox build/coverage/index.html
+
+
+Documentation
+-------------
+
+We strongly believe that documentation is a core part of code development, as it helps
+both users of your function as well as other developers (including your future self).
+As such, please adhere to these guidelines:
+
+1) Document all public functions and classes
+    Public functions and classes are defined as not having any leading underscores (``_``).
+    These functions are detected by Sphinx and therefore should have docstrings formatted according to the
+    `NumPy documentation style <https://numpydoc.readthedocs.io/en/latest/format.html>`_.
+2) Do not include a period (``.``) on the first line (short summary) of a docstring.
+    This is a stylistic decision particular to the COMPASS codebase.
+3) Do not include a short summary (first line docstring) for ``__init__`` methods.
+    Instead, document any object summaries using the class docstring. You can and should still document
+    initialization parameters in the ``__init__`` docstring. See any the docstring of the main COMPASS objects
+    (e.g. :class:`~compass.services.openai.OpenAIService`) for an example.
+4) Protected/private functions should contain minimal documentation.
+    Public functions and classes are defined as having one or more leading underscores (``_``).
+    These functions are **not** detected by Sphinx and therefor should contain minimal documentation
+    (typically a docstring with just a single sentence). Do not include *any* sections from the
+    NumPy documentation style. With minimal exceptions,
+    we treat protected and private functions as implementation details. As such, if you did not
+    write the function, you should probably not be modifying/calling/touching it in any way.
+    Such code is subject to change at any time, so you should never rely on private/protected
+    functionality unless you know what you are doing (in which case you should be relying on the
+    function's code, not docstring).
+5) If you want to create a function or method meant to be used across the repository but **not**
+    be included as part of the public API (i.e. not have it included in the autogenerated Sphinx
+    documentation), start the docstring with the token ``[NOT PUBLIC API]``.
+6) Link any functions and/or classes that you reference in your docstring.
+    Sphinx allows interlinks between different sets of documentation, which can be a really convenient
+    way for new users to learn more about the external libraries they are expected to use. For more
+    information on how to set up links in your documentation, please see
+    `this short blog post <https://kevin.burke.dev/kevin/sphinx-interlinks/>`_. In particular,
+    we use the ``:func:`` directive for standalone functions, ``:meth:`` for class methods,
+    ``:class:`` for references to classes, and ``:obj:`` for all other links. Please use this
+    list of available COMPASS intersphinx mappings:
+
+        * COMPASS: ``compass``
+            For example, use ``:func:`~compass.scripts.process.process_jurisdictions_with_openai```,
+            which renders as :func:`~compass.scripts.process.process_jurisdictions_with_openai`
+        * Pandas: ``pandas``
+            For example, use ``:obj:`~numpy.array```, which renders as :obj:`~numpy.array`
+        * MatplotLib: ``matplotlib``
+            For example, use ``:func:`~matplotlib.pyplot.plot```, which renders as :func:`~matplotlib.pyplot.plot`
+        * Plotly: ``plotly``
+            For example, use ``:class:`plotly.graph_objects.Figure```, which renders as :class:`plotly.graph_objects.Figure`
+        * Networkx: ``networkx``
+            For example, use ``:class:`~networkx.MultiDiGraph```, which renders as :class:`~networkx.MultiDiGraph`
+        * langchain_text_splitters : ``langchain_text_splitters``
+            For example, use ``:class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter```,
+            which renders as :class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter`
+        * elm: ``elm``
+            For example, use ``:class:`elm.web.document.PDFDocument```, which renders as :class:`elm.web.document.PDFDocument`
+
+
+To check your docstring additions/updates, you can build a local version of the HTML documentation:
+
+.. code-block:: shell
+
+    pixi r -e pdoc python-docs
+
+After running this command, simply open ``docs/_build/html/index.html`` using your favorite browser, e.g.:
+
+.. code-block:: shell
+
+    firefox docs/_build/html/index.html
+
+
+Miscellaneous
+-------------
+
+A collection of other miscellaneous guidelines.
+
+
+GitHub Actions Cache and Updating ``pyproject.toml``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Because we statically link the requirements, the Rust compilation process can
+extend to 30-60 minutes. That is mostly due to the ``duckdb`` and ``tokio``
+crates. To optimize this process, we use a GitHub Actions cache.
+
+When using the GitHub cache system, we have to be mindful of the 10 GB total
+storage limit. If we place too many items in the cache, it will rotate too
+frequently and defeat the entire purpose of the cache. For this reason,
+**we only cache environments that are run in actions on the main branch**!
+
+With this system, any PR can then pull from the cache built on the main branch
+and set up their environments that way.
+
+What this means for you
+"""""""""""""""""""""""
+When you open a PR, your environment will be built from a cache from the main branch.
+If you have no dependency updates, you are good to go!
+
+However, if you do have dependency updates, your environment will need to be updated.
+If you are working with Rust, you will download and compile the extra crate(s) in your
+branch. If the crate is small, this may not be a big deal, but keep in mind that this
+will happen for every new commit you push to your open PR.
+
+If you updated something in the ``pixi`` environment, the whole environment will be re-built.
+
+Therefore, in both of the latter cases, a good practice is to put your dependency updates
+in a separate branch and dedicated PR that you merge to main. Then, your feature PR
+can make full use of the cache that is built on the main branch without having to re-build
+or re-compile anything for the environment.
+
+
+Error Handling
+^^^^^^^^^^^^^^
+
+Do not throw default warning/errors. Always use some subclass of
+``compass.warn.COMPASSWarning`` or ``compass.exceptions.COMPASSError``, like so::
+
+    from warnings import warn
+
+    from compass.warn import COMPASSWarning
+    from compass.exceptions import COMPASSValueError
+
+    ...
+
+    def my_func():
+        if not_good_enough_data:
+            warn("Watch out for your data!", COMPASSWarning)
+
+        if unacceptable_value:
+            raise COMPASSValueError("This value is unacceptable")
+
+
+This allows maximum flexibility for downstream users of the library.
+In particular, they can choose whether to handle just errors that originate
+from COMPASS (i.e. by catching ``COMPASSValueError``) or to handle the generic
+version of the error (i.e. by catching ``ValueError``).
+
+In addition, all COMPASS warnings and errors have a logging call built in.
+This means you no longer need to do something like this::
+
+    # BAD - do not do this
+    if unacceptable_value:
+        msg = "This value is unacceptable"
+        logger.exception(msg)
+        raise ValueError(msg)
+
+Simply raising ``COMPASSValueError`` with the appropriate message performs the
+logging call shown above, internally, every time.
+
+
+Test File Structure
+^^^^^^^^^^^^^^^^^^^
+
+All test files (e.g. ``test_scenario.py``) should start/end with the following block of code:
+
+.. code-block:: python
+
+    from pathlib import Path
+    import pytest
+
+    ...
+
+    if __name__ == "__main__":
+        pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
+
+
+This allows the (single) file to be executed, running only the tests contained
+within. This is extremely useful when updating/modifying/adding tests in the file.
+
+
+Docker Container
+^^^^^^^^^^^^^^^^
+When updating the Dockerfile, ensure that your changes can be built on both AMD and ARM
+linux. To do so, test building a multi-platform image with this command:
+
+.. code-block:: shell
+
+    $ docker build --platform linux/amd64,linux/arm64 -t compass:latest .
+
+
+You can then get a shell in your container using the following command:
+
+.. code-block:: shell
+
+    $ docker run -it --platform linux/amd64 -v my_output_volume:/app/outputs compass:latest /bin/bash
+
+Once you have a shell, you can verify that the container works as expected using the following steps:
+
+#. Run ``$ crawl4ai-doctor`` and ensure that the crawl tests pass
+#. Open up a python instance (``$ python``) and set up the following script:
+
+.. code-block:: python
+
+    import asyncio
+    from elm.web.search.run import web_search_links_as_docs
+
+    q = ["Decatur Indiana wind energy conversion system zoning ordinance"]
+
+
+You can then test playwright by running the following code:
+
+.. code-block:: python
+
+    docs = asyncio.run(
+        web_search_links_as_docs(
+            q,
+            search_engines=["PlaywrightDuckDuckGoLinkSearch"],
+            pw_launch_kwargs={"args": ["--no-sandbox"]}
+        )
+    )
+
+If you don't get any critical errors (poppler errors are ok) and you see some output in the ``docs``
+variable, then you are good to go. Similarly, you can test the camoufox browser using the following code:
+
+.. code-block:: python
+
+    docs = asyncio.run(
+        web_search_links_as_docs(
+            q, search_engines=["PlaywrightGoogleLinkSearch"]
+        )
+    )
+
+Again, if you don't get any critical errors (poppler errors are ok) and you see some output in the ``docs``
+variable, then you are good to go.
+
+
+Releases
+^^^^^^^^
+
+When you are ready to release a new version of COMPASS, please follow these steps:
+
+1) Ensure that all tests on the main branch are passing
+2) Wait until the "Release Drafter" GitHub Action has completed successfully
+3) Click on "Releases" on the bottom right of the main page of the GitHub repository
+4) You should see a draft release at the top of the page. Click on the pencil icon in the top left to edit
+5) Click on the "Select Tag" dropdown and type in a **new** tag. Be sure to follow `Semantic Versioning <https://semver.org/>`_. You may be prompted to create the new tag - make sure to do so
+6) Proofread the release notes and make any necessary adjustments
+7) Click "Publish Release"
+8) Once the release is published and the tag has been created, you need to manually update the pixi lockfile:
+
+   a) Check out a new branch (e.g., ``update-lockfile-vX.Y.Z``)
+   b) Run ``pixi update infra-compass`` to update the lockfile with the new COMPASS version
+   c) If needed, run ``pixi reinstall`` or ``pixi reinstall -e pdev`` to ensure the environment is consistent
+   d) Commit the updated ``pixi.lock`` file
+   e) Push your branch and open a PR with a title like "Update pixi lockfile for vX.Y.Z release"
+   f) Fill out any missing details in the PR (set yourself as the assignee, add any relevant project and milestone details, etc.)
+   g) Request a review from another core COMPASS developer and merge the PR once approved
+
+Congratulations, you have just released a new version of COMPASS!
+
+You may want to verify that the release has been published to `PyPi <https://pypi.org/project/INFRA-COMPASS/>`_
+(if not, check the "Upload to PyPi" GitHub Action).
+
+
+Copilot
+^^^^^^^
+This repo hosts a custom set of instructions for GitHub Copilot to help it write
+code aligned with COMPASS best practices. You can check out these instructions
+`here <https://github.com/NatLabRockies/COMPASS/blob/main/.github/copilot-instructions.md>`_
+(they may help you as well!). If you have any suggestions on how to improve these
+instructions, please open a PR!

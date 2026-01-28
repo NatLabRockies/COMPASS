@@ -1,0 +1,34 @@
+compass.extraction.small\_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor
+====================================================================================
+
+.. currentmodule:: compass.extraction.small_wind.ordinance
+
+.. autoclass:: SmallWindPermittedUseDistrictsTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SmallWindPermittedUseDistrictsTextExtractor.extract_permitted_uses
+      ~SmallWindPermittedUseDistrictsTextExtractor.extract_wes_permitted_uses
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SmallWindPermittedUseDistrictsTextExtractor.PERMITTED_USES_FILTER_PROMPT
+      ~SmallWindPermittedUseDistrictsTextExtractor.SYSTEM_MESSAGE
+      ~SmallWindPermittedUseDistrictsTextExtractor.WES_PERMITTED_USES_FILTER_PROMPT
+      ~SmallWindPermittedUseDistrictsTextExtractor.parsers
+   
+   

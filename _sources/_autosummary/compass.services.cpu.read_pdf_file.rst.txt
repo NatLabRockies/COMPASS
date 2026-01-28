@@ -1,0 +1,6 @@
+compass.services.cpu.read\_pdf\_file
+====================================
+
+.. currentmodule:: compass.services.cpu
+
+.. autofunction:: read_pdf_file

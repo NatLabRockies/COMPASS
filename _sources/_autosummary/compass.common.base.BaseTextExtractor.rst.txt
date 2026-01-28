@@ -1,0 +1,29 @@
+compass.common.base.BaseTextExtractor
+=====================================
+
+.. currentmodule:: compass.common.base
+
+.. autoclass:: BaseTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseTextExtractor.SYSTEM_MESSAGE
+   
+   

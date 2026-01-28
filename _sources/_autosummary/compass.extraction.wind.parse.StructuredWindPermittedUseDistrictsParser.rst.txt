@@ -1,0 +1,24 @@
+compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser
+=======================================================================
+
+.. currentmodule:: compass.extraction.wind.parse
+
+.. autoclass:: StructuredWindPermittedUseDistrictsParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StructuredWindPermittedUseDistrictsParser.parse
+   
+   
+
+   
+   
+   

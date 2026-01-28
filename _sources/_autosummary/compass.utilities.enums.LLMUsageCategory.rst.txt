@@ -1,0 +1,88 @@
+compass.utilities.enums.LLMUsageCategory
+========================================
+
+.. currentmodule:: compass.utilities.enums
+
+.. autoclass:: LLMUsageCategory
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMUsageCategory.encode
+      ~LLMUsageCategory.replace
+      ~LLMUsageCategory.split
+      ~LLMUsageCategory.rsplit
+      ~LLMUsageCategory.join
+      ~LLMUsageCategory.capitalize
+      ~LLMUsageCategory.casefold
+      ~LLMUsageCategory.title
+      ~LLMUsageCategory.center
+      ~LLMUsageCategory.count
+      ~LLMUsageCategory.expandtabs
+      ~LLMUsageCategory.find
+      ~LLMUsageCategory.partition
+      ~LLMUsageCategory.index
+      ~LLMUsageCategory.ljust
+      ~LLMUsageCategory.lower
+      ~LLMUsageCategory.lstrip
+      ~LLMUsageCategory.rfind
+      ~LLMUsageCategory.rindex
+      ~LLMUsageCategory.rjust
+      ~LLMUsageCategory.rstrip
+      ~LLMUsageCategory.rpartition
+      ~LLMUsageCategory.splitlines
+      ~LLMUsageCategory.strip
+      ~LLMUsageCategory.swapcase
+      ~LLMUsageCategory.translate
+      ~LLMUsageCategory.upper
+      ~LLMUsageCategory.startswith
+      ~LLMUsageCategory.endswith
+      ~LLMUsageCategory.removeprefix
+      ~LLMUsageCategory.removesuffix
+      ~LLMUsageCategory.isascii
+      ~LLMUsageCategory.islower
+      ~LLMUsageCategory.isupper
+      ~LLMUsageCategory.istitle
+      ~LLMUsageCategory.isspace
+      ~LLMUsageCategory.isdecimal
+      ~LLMUsageCategory.isdigit
+      ~LLMUsageCategory.isnumeric
+      ~LLMUsageCategory.isalpha
+      ~LLMUsageCategory.isalnum
+      ~LLMUsageCategory.isidentifier
+      ~LLMUsageCategory.isprintable
+      ~LLMUsageCategory.zfill
+      ~LLMUsageCategory.format
+      ~LLMUsageCategory.format_map
+      ~LLMUsageCategory.maketrans
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMUsageCategory.CHAT
+      ~LLMUsageCategory.DATE_EXTRACTION
+      ~LLMUsageCategory.DECISION_TREE
+      ~LLMUsageCategory.DEFAULT
+      ~LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION
+      ~LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
+      ~LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION
+      ~LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
+      ~LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION
+      ~LLMUsageCategory.URL_JURISDICTION_VALIDATION
+      ~LLMUsageCategory.JURISDICTION_MAIN_WEBSITE_VALIDATION
+      ~LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION
+      ~LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION
+   
+   

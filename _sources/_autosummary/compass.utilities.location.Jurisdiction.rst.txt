@@ -1,0 +1,33 @@
+compass.utilities.location.Jurisdiction
+=======================================
+
+.. currentmodule:: compass.utilities.location
+
+.. autoclass:: Jurisdiction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~Jurisdiction.full_county_phrase
+      ~Jurisdiction.full_name
+      ~Jurisdiction.full_name_the_prefixed
+      ~Jurisdiction.full_subdivision_phrase
+      ~Jurisdiction.full_subdivision_phrase_the_prefixed
+   
+   

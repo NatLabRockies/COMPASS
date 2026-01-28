@@ -1,0 +1,30 @@
+compass.validation.location.DTreeURLJurisdictionValidator
+=========================================================
+
+.. currentmodule:: compass.validation.location
+
+.. autoclass:: DTreeURLJurisdictionValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DTreeURLJurisdictionValidator.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DTreeURLJurisdictionValidator.SYSTEM_MESSAGE
+   
+   

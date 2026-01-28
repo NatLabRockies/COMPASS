@@ -1,0 +1,30 @@
+compass.warn
+============
+
+.. automodule:: compass.warn
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Exceptions
+
+   .. autosummary::
+      :toctree:
+   
+      COMPASSWarning
+   
+   
+
+
+

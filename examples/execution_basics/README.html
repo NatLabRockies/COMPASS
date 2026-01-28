@@ -1,0 +1,895 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>INFRA-COMPASS Execution Basics &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Parsing Existing PDF Documents" href="../parse_existing_docs/README.html" />
+    <link rel="prev" title="Examples" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">INFRA-COMPASS Execution Basics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parse_existing_docs/README.html">Parsing Existing PDF Documents</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">INFRA-COMPASS Execution Basics</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="infra-compass-execution-basics">
+<h1>INFRA-COMPASS Execution Basics<a class="headerlink" href="#infra-compass-execution-basics" title="Link to this heading">#</a></h1>
+<p>This example walks you through setting up and executing your first INFRA-COMPASS run.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<p>We recommend enabling Optical Character Recognition (OCR) for PDF parsing, which
+allows the program to process scanned documents. To enable OCR, you’ll need to install <code class="docutils literal notranslate"><span class="pre">pytesseract</span></code>.
+If you installed COMPASS via PyPI, you may need to install a few additional dependencies:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>pytesseract<span class="w"> </span>pdf2image
+</pre></div>
+</div>
+<p>If you’re using <code class="docutils literal notranslate"><span class="pre">pixi</span></code> to run the pipeline (recommended), these libraries are included by default.</p>
+<p>In either case, you may still need to complete a few additional setup steps if this is your first time
+installing Google’s <code class="docutils literal notranslate"><span class="pre">tesseract</span></code> utility. Follow the installation instructions
+<a class="reference external" href="https://pypi.org/project/pytesseract/#:~:text=lang%5D%20image_file-,INSTALLATION,-Prerequisites%3A">here</a>.</p>
+</section>
+<section id="setting-up-the-run-configuration">
+<h2>Setting Up the Run Configuration<a class="headerlink" href="#setting-up-the-run-configuration" title="Link to this heading">#</a></h2>
+<p>The INFRA-COMPASS configuration file—written in either <code class="docutils literal notranslate"><span class="pre">JSON</span></code> or <code class="docutils literal notranslate"><span class="pre">JSON5</span></code> format—is a simple config that
+defines parameters for running the process. Each key in the config corresponds to an argument for the function
+<a class="reference external" href="https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai">process_jurisdictions_with_openai</a>.
+Refer to the linked documentation for detailed and up-to-date descriptions of each input.</p>
+<section id="minimal-config">
+<h3>Minimal Config<a class="headerlink" href="#minimal-config" title="Link to this heading">#</a></h3>
+<p>At a minimum, the INFRA-COMPASS config file requires three keys: <code class="docutils literal notranslate"><span class="pre">&quot;out_dir&quot;</span></code>, <code class="docutils literal notranslate"><span class="pre">&quot;jurisdiction_fp&quot;</span></code>, and <code class="docutils literal notranslate"><span class="pre">&quot;tech&quot;</span></code>.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">out_dir</span></code>: Path to the output directory. Will be created if it does not exist.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jurisdiction_fp</span></code>: Path to a CSV file containing <code class="docutils literal notranslate"><span class="pre">County</span></code> and <code class="docutils literal notranslate"><span class="pre">State</span></code> columns. Each row defines a jurisdiction to process. See the <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv">example CSV</a>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tech</span></code>: A string representing the infrastructure or technology focus for the run.</p></li>
+</ul>
+<p>In <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5">config_bare_minimum.json5</a>,
+we show a minimal working configuration that includes only the required keys.</p>
+<div class="highlight-json5 notranslate"><div class="highlight"><pre><span></span><span class="c1">// config_bare_minimum.json5</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nv">&quot;out_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./outputs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;jurisdiction_fp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;jurisdictions.csv&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;tech&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;solar&quot;</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// Note that this assumes your LLM API keys and endpoints</span>
+<span class="w">    </span><span class="c1">// have been configured as environment variables!!</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This configuration is sufficient for a basic run using default settings and assumes the following:</p>
+<p><strong>Environment Configuration</strong></p>
+<p>Your LLM credentials and endpoints should be configured as environment variables. For example, when using Azure OpenAI:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">AZURE_OPENAI_API_KEY</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AZURE_OPENAI_VERSION</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AZURE_OPENAI_ENDPOINT</span></code></p></li>
+</ul>
+<p><strong>LLM Model Defaults</strong></p>
+<p>This minimal setup uses the default LLM model for INFRA-COMPASS — <code class="docutils literal notranslate"><span class="pre">gpt-4o</span></code> as of April 11, 2025.
+To override this default, add a <code class="docutils literal notranslate"><span class="pre">model</span></code> key to your config:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;gpt-4o-mini&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="typical-config">
+<h3>Typical Config<a class="headerlink" href="#typical-config" title="Link to this heading">#</a></h3>
+<p>In most cases, you’ll want more control over the execution parameters, especially those related to the LLM configuration.
+You can review all available inputs in the
+<a class="reference external" href="https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai">process_jurisdictions_with_openai</a>
+documentation.
+In <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_recommended.json5">config_recommended.json5</a>, we
+demonstrate a typical configuration that balances simplicity with additional control over execution parameters.</p>
+<div class="highlight-json5 notranslate"><div class="highlight"><pre><span></span><span class="c1">// config_recommended.json5</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nv">&quot;out_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./outputs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;tech&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;solar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;jurisdiction_fp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;jurisdictions.csv&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;llm_call_kwargs&quot;</span><span class="p">:{</span>
+<span class="w">                </span><span class="nv">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nv">&quot;llm_service_rate_limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_overlap&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;client_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="c1">// default client is Azure OpenAI</span>
+<span class="w">                </span><span class="nv">&quot;azure_api_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI API KEY HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;azure_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI VERSION HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;azure_endpoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI ENDPOINT HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nv">&quot;file_loader_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">&quot;verify_ssl&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nv">&quot;pytesseract_exe_fp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD tesseract.exe PATH HERE OR REMOVE THIS KEY&gt;&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This setup supports most users’ needs while providing flexibility for key configurations:</p>
+<p><strong>LLM Configuration</strong>
+Customize the LLM behavior and performance using:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">llm_call_kwargs</span></code>: Sets LLM-specific query parameters like <code class="docutils literal notranslate"><span class="pre">temperature</span></code> and <code class="docutils literal notranslate"><span class="pre">timeout</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">llm_service_rate_limit</span></code>: Controls how many tokens can be processed per minute. Set this as high as your deployment will allow to speed up processing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text_splitter_chunk_size</span></code> and <code class="docutils literal notranslate"><span class="pre">text_splitter_chunk_overlap</span></code>: Controls how large each text chunk sent to the model is.</p></li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be cautious when adjusting the <code class="docutils literal notranslate"><span class="pre">&quot;text_splitter_chunk_size&quot;</span></code>. Larger chunk sizes increase token usage, which may result in higher costs per query.</p>
+</div>
+<p><strong>LLM Credentials</strong>
+You can also specify LLM credentials and endpoint details directly in the config under the <code class="docutils literal notranslate"><span class="pre">client_kwargs</span></code> key.
+Note that while this can be convenient for quick testing, storing credentials in plaintext is not recommended for production environments.</p>
+<p><strong>SSL Configuration</strong>
+Set <code class="docutils literal notranslate"><span class="pre">verify_ssl</span></code> to <code class="docutils literal notranslate"><span class="pre">false</span></code> in <code class="docutils literal notranslate"><span class="pre">file_loader_kwargs</span></code> to bypass certificate verification errors, especially useful when running behind the NLR VPN.
+If you’re not using the VPN, it’s best to leave this value as the default (<code class="docutils literal notranslate"><span class="pre">true</span></code>).</p>
+<p><strong>OCR Integration</strong>
+As noted in the <a class="reference internal" href="#prerequisites">Prerequisites</a> section, we recommend enabling OCR using <code class="docutils literal notranslate"><span class="pre">pytesseract</span></code>. To enable OCR for scanned PDFs,
+you must provide the path to the <code class="docutils literal notranslate"><span class="pre">tesseract</span></code> executable using the <code class="docutils literal notranslate"><span class="pre">pytesseract_exe_fp</span></code> input.
+You can locate the executable path by running:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>which<span class="w"> </span>tesseract
+</pre></div>
+</div>
+<p>Omit the <code class="docutils literal notranslate"><span class="pre">pytesseract_exe_fp</span></code> key to disable OCR functionality.</p>
+</section>
+<section id="kitchen-sink-config">
+<h3>Kitchen Sink Config<a class="headerlink" href="#kitchen-sink-config" title="Link to this heading">#</a></h3>
+<p>In <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_kitchen_sink.json5">config_kitchen_sink.json5</a>,
+we show what a configuration might look like that utilizes all available parameters.</p>
+<div class="highlight-json5 notranslate"><div class="highlight"><pre><span></span><span class="c1">// config_kitchen_sink.json5</span>
+<span class="p">{</span>
+<span class="w">    </span><span class="nv">&quot;out_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./outputs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;tech&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;solar&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;jurisdiction_fp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;jurisdictions.csv&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;deployment-gpt-4o-mini&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;llm_call_kwargs&quot;</span><span class="p">:{</span>
+<span class="w">                </span><span class="nv">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">42</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nv">&quot;llm_service_rate_limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_overlap&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;client_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;azure&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// this is the default</span>
+<span class="w">            </span><span class="nv">&quot;client_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nv">&quot;azure_api_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI API KEY HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;azure_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI VERSION HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;azure_endpoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI ENDPOINT HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="c1">// &quot;default&quot; has to appear as a task exactly once across</span>
+<span class="w">            </span><span class="c1">// all models, or you will get an error</span>
+<span class="w">            </span><span class="nv">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;default&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;deployment-gpt-4o&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;llm_call_kwargs&quot;</span><span class="p">:{</span>
+<span class="w">                </span><span class="nv">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;seed&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">42</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nv">&quot;llm_service_rate_limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">20000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_overlap&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">1000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;client_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;azure&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// this is the default</span>
+<span class="w">            </span><span class="nv">&quot;client_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nv">&quot;azure_api_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI API KEY HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;azure_version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI VERSION HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;azure_endpoint&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD AZURE OPENAI ENDPOINT HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nv">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s">&quot;ordinance_text_extraction&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;ordinance_value_extraction&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;permitted_use_text_extraction&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;permitted_use_value_extraction&quot;</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;llm_call_kwargs&quot;</span><span class="p">:{</span>
+<span class="w">                </span><span class="nv">&quot;temperature&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0</span><span class="p">,</span>
+<span class="w">                </span><span class="nv">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nv">&quot;llm_service_rate_limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">30000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10000</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;text_splitter_chunk_overlap&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">500</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;client_type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;openai&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;client_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nv">&quot;api_key&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD OPENAI API KEY HERE&gt;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="nv">&quot;tasks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                </span><span class="s">&quot;date_extraction&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;document_content_validation&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="s">&quot;document_location_validation&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="p">]</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="c1">// Number of URLs to check per jurisdiction</span>
+<span class="w">    </span><span class="c1">// larger number = more docs to search</span>
+<span class="w">    </span><span class="nv">&quot;num_urls_to_check_per_jurisdiction&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// Try to keep reasonably low , especially on laptops</span>
+<span class="w">    </span><span class="nv">&quot;max_num_concurrent_browsers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;max_num_concurrent_website_searches&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10</span><span class="p">,</span>
+<span class="w">    </span><span class="c1">// Only search 25 jurisdictions concurrently (at a time)</span>
+<span class="w">    </span><span class="c1">// Most likely you are limited by LLM rate limits, so setting this</span>
+<span class="w">    </span><span class="c1">// to some value will prevent submitting too many concurrent</span>
+<span class="w">    </span><span class="c1">// futures to sit idly, awaiting their turn to query the LLM</span>
+<span class="w">    </span><span class="nv">&quot;max_num_concurrent_jurisdictions&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">25</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;url_ignore_substrings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="c1">// ignore any URLs with these strings</span>
+<span class="w">        </span><span class="c1">// useful to filter out known noise</span>
+<span class="w">        </span><span class="s">&quot;wiki&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;nrel.gov&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;nlr.gov&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;openei.org&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="s">&quot;windexchange.energy.gov&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="c1">// but can also be very specific if needed</span>
+<span class="w">        </span><span class="c1">// e.g. a giant file with generic ordinances that should be skipped</span>
+<span class="w">        </span><span class="s">&quot;www.co.delaware.in.us/egov/documents/1649699794_0382.pdf&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nv">&quot;known_doc_urls&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">&quot;18017&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;https://www.in.gov/counties/cass/files/Cass-County-Zoning-Ordinance-2024.pdf&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="c1">// Can include more FIPS -&gt; URL mappings here</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nv">&quot;file_loader_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">&quot;pw_launch_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="c1">// set to &quot;false&quot; to see browser open and watch</span>
+<span class="w">            </span><span class="c1">// the search queries happen in real time</span>
+<span class="w">            </span><span class="nv">&quot;headless&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<span class="w">            </span><span class="c1">// slow-mo delay, in milliseconds</span>
+<span class="w">            </span><span class="c1">// only applies if headless=false</span>
+<span class="w">            </span><span class="nv">&quot;slow_mo&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">5000</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nv">&quot;verify_ssl&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="c1">// Control the search engines used, their configuration,</span>
+<span class="w">    </span><span class="c1">// and their fallback order (not recommended to change from</span>
+<span class="w">    </span><span class="c1">// default unless you know what you are doing)</span>
+<span class="w">    </span><span class="nv">search_engines</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">&quot;se_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;PlaywrightGoogleLinkSearch&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;use_homepage&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">            </span><span class="nv">&quot;se_name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;APIDuckDuckGoSearch&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;timeout&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">300</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;backend&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;html&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nv">&quot;verify&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">    </span><span class="p">],</span>
+<span class="w">    </span><span class="nv">&quot;pytesseract_exe_fp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;&lt;ADD tesseract.exe PATH HERE OR REMOVE THIS KEY&gt;&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;td_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">&quot;dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;.temp&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nv">&quot;tpe_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">&quot;max_workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nv">&quot;ppe_kwargs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nv">&quot;max_workers&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">4</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nv">&quot;log_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;logs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;clean_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;cleaned_text&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;ordinance_file_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ordinance_files&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;jurisdiction_dbs_dir&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;jurisdiction_dbs&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;perform_website_search&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span><span class="w">  </span><span class="c1">// set to false to only use search engines</span>
+<span class="w">    </span><span class="nv">&quot;llm_costs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="c1">// required input to display running cost</span>
+<span class="w">        </span><span class="c1">// cost values are in $/million tokens</span>
+<span class="w">        </span><span class="nv">&quot;deployment-gpt-4o-mini&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nv">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.15</span><span class="p">,</span><span class="w"> </span><span class="nv">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.6</span><span class="p">},</span>
+<span class="w">        </span><span class="nv">&quot;deployment-gpt-4o&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nv">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w"> </span><span class="nv">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10</span><span class="p">},</span>
+<span class="w">        </span><span class="nv">&quot;gpt-4o-mini&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nv">&quot;prompt&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">2.5</span><span class="p">,</span><span class="w"> </span><span class="nv">&quot;response&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">10</span><span class="p">},</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nv">&quot;log_level&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;INFO&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nv">&quot;keep_async_logs&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">false</span><span class="p">,</span><span class="w">  </span><span class="c1">// Not typically needed</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This setup provides maximum flexibility and is suitable for power users who need fine-grained control
+over processing behavior, model assignment, cost monitoring, and concurrency. Below are descriptions of
+the most notable components:</p>
+<p><strong>Multiple Model Definitions</strong>
+You can specify multiple LLMs under the <code class="docutils literal notranslate"><span class="pre">&quot;model&quot;</span></code> key, each with a unique name and a list of associated tasks.
+Every task must be handled by exactly one model, and one of the entries must have <code class="docutils literal notranslate"><span class="pre">&quot;tasks&quot;:</span> <span class="pre">&quot;default&quot;</span></code> to catch anything unspecified.
+The full list of assignable tasks are found as <code class="docutils literal notranslate"><span class="pre">Attributes</span></code> of the <a class="reference internal" href="../../_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks" title="compass.utilities.enums.LLMTasks"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMTasks</span></code></a> enum.</p>
+<p><strong>LLM Configuration</strong>
+Each model includes:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">llm_call_kwargs</span></code>: Sets LLM-specific query parameters like <code class="docutils literal notranslate"><span class="pre">temperature</span></code> or <code class="docutils literal notranslate"><span class="pre">timeout</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">llm_service_rate_limit</span></code>: Controls how many tokens can be processed per minute (useful for avoiding rate limit errors from the LLM provider). Set this as high as your deployment will allow to speed up processing.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text_splitter_chunk_size</span></code> / <code class="docutils literal notranslate"><span class="pre">text_splitter_chunk_overlap</span></code>: Controls how large each text chunk sent to the model is. Larger chunks increase context at the cost of higher token usage.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client_type</span></code>: Specifies the API provider (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;azure&quot;</span></code> or <code class="docutils literal notranslate"><span class="pre">&quot;openai&quot;</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">client_kwargs</span></code>: Holds credentials and endpoint configuration for the model client, if not specified using environment variables.</p></li>
+</ul>
+<p><strong>Concurrency Settings</strong>
+The following settings allow tuning for system resource usage and rate limits:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">max_num_concurrent_browsers</span></code>: Limits the number of browsers launched for retrieving information from web links.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_num_concurrent_website_searches</span></code>: Limits the number of concurrently-running website searches/crawls for relevant documents.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">max_num_concurrent_jurisdictions</span></code>: Controls how many jurisdictions are processed in parallel.</p></li>
+</ul>
+<p><strong>OCR Integration</strong>
+Set the <code class="docutils literal notranslate"><span class="pre">pytesseract_exe_fp</span></code> key to enable OCR support for scanned PDFs. Omit this key if OCR is not needed.</p>
+<p><strong>Directories</strong>
+Several directory names are configurable to manage where outputs and intermediate files are stored:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">out_dir</span></code>: Final results and processed outputs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">log_dir</span></code>: Execution logs.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clean_dir</span></code>: Cleaned text files.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ordinance_file_dir</span></code>: Raw ordinance documents.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">jurisdiction_dbs_dir</span></code>: Internal DBs for tracking progress.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Be sure to provide full paths to all files/directories unless you are executing the program from your working folder.</p>
+</div>
+<p><strong>LLM Cost Reporting</strong>
+The <code class="docutils literal notranslate"><span class="pre">llm_costs</span></code> block provides per-million-token pricing for each model.
+This allows the script to display real-time and final cost estimates based on tracked usage.
+Any model not found in the <code class="docutils literal notranslate"><span class="pre">llm_costs</span></code> block will not contribute to the final cost estimate.</p>
+</section>
+</section>
+<section id="execution">
+<h2>Execution<a class="headerlink" href="#execution" title="Link to this heading">#</a></h2>
+<p>Once you are happy with the configuration parameters, you can kick off the processing using</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>compass<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>config.json
+</pre></div>
+</div>
+<p>If you’re using <code class="docutils literal notranslate"><span class="pre">pixi</span></code>, activate the shell first:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>shell
+compass<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>config.json5
+</pre></div>
+</div>
+<p>or run with <code class="docutils literal notranslate"><span class="pre">pixi</span></code> directly:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>run<span class="w"> </span>compass<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>config.json5
+</pre></div>
+</div>
+<p>Replace <code class="docutils literal notranslate"><span class="pre">config.json5</span></code> with the path to your actual configuration file.</p>
+<p>You may also wish to add a <code class="docutils literal notranslate"><span class="pre">-v</span></code> option to print logs to the terminal (however, keep in mind that the code runs
+asynchronously, so the the logs will not print in order).</p>
+<p>During execution, INFRA-COMPASS will:</p>
+<ol class="arabic simple">
+<li><p>Load and validate the jurisdiction CSV.</p></li>
+<li><p>Attempt to locate and download relevant ordinance documents for each jurisdiction.</p></li>
+<li><p>Parse and validate the documents.</p></li>
+<li><p>Extract relevant ordinance text from the documents.</p></li>
+<li><p>Parse the extracted text to determine the quantitative and qualitative ordinance values within, using decision tree-based LLM queries.</p></li>
+<li><p>Output structured results to your configured <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>.</p></li>
+</ol>
+<p>The runtime duration varies depending on the number of jurisdictions, the number of documents found for each jurisdiction,
+and the rate limit/output token rate of the LLM(s) used.</p>
+</section>
+<section id="outputs">
+<h2>Outputs<a class="headerlink" href="#outputs" title="Link to this heading">#</a></h2>
+<p>After completion, you’ll find several outputs in the <code class="docutils literal notranslate"><span class="pre">out_dir</span></code>:</p>
+<ul class="simple">
+<li><p><strong>Extracted Ordinances</strong>: Structured CSV files containing parsed ordinance values.</p></li>
+<li><p><strong>Ordinance Documents</strong>: PDF or text (HTML) documents containing the legal ordinance.</p></li>
+<li><p><strong>Cleaned Text Files</strong>: Text files containing the ordinance-specific text excerpts portions of the downloaded documents.</p></li>
+<li><p><strong>Metadata Files</strong>: JSON files describing metadata parameters corresponding to your run.</p></li>
+<li><p><strong>Logs and Debug Files</strong>: Helpful for reviewing LLM prompts and tracing any issues.</p></li>
+</ul>
+<p>You can now use these outputs for downstream analysis, visualization, or integration with other NLR tools like
+<a class="reference external" href="https://natlabrockies.github.io/reVX/misc/examples.setbacks.html">reVX setbacks</a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Examples</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../parse_existing_docs/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Parsing Existing PDF Documents</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-run-configuration">Setting Up the Run Configuration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#minimal-config">Minimal Config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#typical-config">Typical Config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#kitchen-sink-config">Kitchen Sink Config</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution">Execution</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#outputs">Outputs</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

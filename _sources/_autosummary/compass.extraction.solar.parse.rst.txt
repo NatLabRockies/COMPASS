@@ -1,0 +1,33 @@
+compass.extraction.solar.parse
+==============================
+
+.. automodule:: compass.extraction.solar.parse
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      StructuredSolarOrdinanceParser
+      StructuredSolarParser
+      StructuredSolarPermittedUseDistrictsParser
+   
+   
+
+   
+   
+   
+
+
+

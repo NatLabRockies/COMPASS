@@ -1,0 +1,33 @@
+compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector
+========================================================================
+
+.. currentmodule:: compass.extraction.wind.ordinance
+
+.. autoclass:: WindPermittedUseDistrictsTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WindPermittedUseDistrictsTextCollector.call
+      ~WindPermittedUseDistrictsTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WindPermittedUseDistrictsTextCollector.DISTRICT_PROMPT
+      ~WindPermittedUseDistrictsTextCollector.contains_district_info
+      ~WindPermittedUseDistrictsTextCollector.permitted_use_district_text
+   
+   

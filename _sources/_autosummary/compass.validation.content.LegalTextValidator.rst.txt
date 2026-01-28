@@ -1,0 +1,32 @@
+compass.validation.content.LegalTextValidator
+=============================================
+
+.. currentmodule:: compass.validation.content
+
+.. autoclass:: LegalTextValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LegalTextValidator.call
+      ~LegalTextValidator.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LegalTextValidator.SYSTEM_MESSAGE
+      ~LegalTextValidator.is_legal_text
+   
+   

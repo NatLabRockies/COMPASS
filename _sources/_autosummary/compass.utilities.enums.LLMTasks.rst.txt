@@ -1,0 +1,84 @@
+compass.utilities.enums.LLMTasks
+================================
+
+.. currentmodule:: compass.utilities.enums
+
+.. autoclass:: LLMTasks
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMTasks.encode
+      ~LLMTasks.replace
+      ~LLMTasks.split
+      ~LLMTasks.rsplit
+      ~LLMTasks.join
+      ~LLMTasks.capitalize
+      ~LLMTasks.casefold
+      ~LLMTasks.title
+      ~LLMTasks.center
+      ~LLMTasks.count
+      ~LLMTasks.expandtabs
+      ~LLMTasks.find
+      ~LLMTasks.partition
+      ~LLMTasks.index
+      ~LLMTasks.ljust
+      ~LLMTasks.lower
+      ~LLMTasks.lstrip
+      ~LLMTasks.rfind
+      ~LLMTasks.rindex
+      ~LLMTasks.rjust
+      ~LLMTasks.rstrip
+      ~LLMTasks.rpartition
+      ~LLMTasks.splitlines
+      ~LLMTasks.strip
+      ~LLMTasks.swapcase
+      ~LLMTasks.translate
+      ~LLMTasks.upper
+      ~LLMTasks.startswith
+      ~LLMTasks.endswith
+      ~LLMTasks.removeprefix
+      ~LLMTasks.removesuffix
+      ~LLMTasks.isascii
+      ~LLMTasks.islower
+      ~LLMTasks.isupper
+      ~LLMTasks.istitle
+      ~LLMTasks.isspace
+      ~LLMTasks.isdecimal
+      ~LLMTasks.isdigit
+      ~LLMTasks.isnumeric
+      ~LLMTasks.isalpha
+      ~LLMTasks.isalnum
+      ~LLMTasks.isidentifier
+      ~LLMTasks.isprintable
+      ~LLMTasks.zfill
+      ~LLMTasks.format
+      ~LLMTasks.format_map
+      ~LLMTasks.maketrans
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMTasks.DATE_EXTRACTION
+      ~LLMTasks.DEFAULT
+      ~LLMTasks.DOCUMENT_CONTENT_VALIDATION
+      ~LLMTasks.DOCUMENT_JURISDICTION_VALIDATION
+      ~LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION
+      ~LLMTasks.ORDINANCE_TEXT_EXTRACTION
+      ~LLMTasks.PERMITTED_USE_TEXT_EXTRACTION
+      ~LLMTasks.ORDINANCE_VALUE_EXTRACTION
+      ~LLMTasks.PERMITTED_USE_VALUE_EXTRACTION
+   
+   

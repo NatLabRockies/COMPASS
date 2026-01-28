@@ -1,0 +1,592 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Glossary &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/tabs.js?v=3030b3cb"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Contributing to COMPASS" href="dev/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="#">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Glossary</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="glossary">
+<span id="id1"></span><h1>Glossary<a class="headerlink" href="#glossary" title="Link to this heading">#</a></h1>
+<dl class="simple glossary">
+<dt id="term-analysis-run">analysis run<a class="headerlink" href="#term-analysis-run" title="Link to this term">#</a></dt><dd><p>Complete invocation of <code class="docutils literal notranslate"><span class="pre">compass</span> <span class="pre">process</span></code> that ingests a
+configuration file, processes jurisdictions, and writes results to
+the run directory.</p>
+</dd>
+<dt id="term-clean-directory">clean directory<a class="headerlink" href="#term-clean-directory" title="Link to this term">#</a></dt><dd><p>Intermediate folder storing cleaned ordinance text used for LLM
+prompting during feature extraction.</p>
+</dd>
+<dt id="term-clean-text-file">clean text file<a class="headerlink" href="#term-clean-text-file" title="Link to this term">#</a></dt><dd><p>Plain-text excerpt derived from ordinance documents that isolates
+relevant sections for prompts and validation.</p>
+</dd>
+<dt id="term-compass-process">compass process<a class="headerlink" href="#term-compass-process" title="Link to this term">#</a></dt><dd><p>CLI command that executes the end-to-end pipeline using the inputs
+defined in the configuration file.</p>
+</dd>
+<dt id="term-configuration-file">configuration file<a class="headerlink" href="#term-configuration-file" title="Link to this term">#</a></dt><dd><p>JSON or JSON5 document that declares inputs, model assignments,
+concurrency, and output directories for a run.</p>
+</dd>
+<dt id="term-decision-tree">decision tree<a class="headerlink" href="#term-decision-tree" title="Link to this term">#</a></dt><dd><p>Hierarchical rubric of questions and outcomes that organizes how
+ordinance features are extracted and validated.</p>
+</dd>
+<dt id="term-decision-tree-prompt">decision tree prompt<a class="headerlink" href="#term-decision-tree-prompt" title="Link to this term">#</a></dt><dd><p>Structured prompt template that guides the LLM through branching
+questions to extract quantitative and qualitative ordinance data.</p>
+</dd>
+<dt id="term-extraction-pipeline">extraction pipeline<a class="headerlink" href="#term-extraction-pipeline" title="Link to this term">#</a></dt><dd><p>Crawlers, parsers, and feature detectors that transform raw
+ordinance text into structured records.</p>
+</dd>
+<dt id="term-INFRA-COMPASS">INFRA-COMPASS<a class="headerlink" href="#term-INFRA-COMPASS" title="Link to this term">#</a></dt><dd><p>End-to-end pipeline that discovers, parses, and validates energy
+infrastructure ordinances with LLM tooling.</p>
+</dd>
+<dt id="term-jurisdiction">jurisdiction<a class="headerlink" href="#term-jurisdiction" title="Link to this term">#</a></dt><dd><p>County or municipality defined in the jurisdiction CSV that
+frames the geographic scope of an analysis run.</p>
+</dd>
+<dt id="term-jurisdiction-CSV">jurisdiction CSV<a class="headerlink" href="#term-jurisdiction-CSV" title="Link to this term">#</a></dt><dd><p>Input spreadsheet whose <code class="docutils literal notranslate"><span class="pre">County</span></code> and <code class="docutils literal notranslate"><span class="pre">State</span></code> columns list the
+locations processed in a run.</p>
+</dd>
+<dt id="term-LLM">LLM<a class="headerlink" href="#term-LLM" title="Link to this term">#</a></dt><dd><p>Large Language Model that interprets ordinance text, classifies
+features, and answers structured extraction questions.</p>
+</dd>
+<dt id="term-llm-cost-tracker">llm cost tracker<a class="headerlink" href="#term-llm-cost-tracker" title="Link to this term">#</a></dt><dd><p>Runtime utility that multiplies token usage by configured pricing
+to report estimated spend per model.</p>
+</dd>
+<dt id="term-llm-service">llm service<a class="headerlink" href="#term-llm-service" title="Link to this term">#</a></dt><dd><p>Abstraction over providers such as OpenAI or Azure OpenAI that
+enforces authentication, rate limits, and retry policies.</p>
+</dd>
+<dt id="term-llm-service-rate-limit">llm service rate limit<a class="headerlink" href="#term-llm-service-rate-limit" title="Link to this term">#</a></dt><dd><p>Configuration value that caps tokens per minute for a model to
+avoid provider throttling.</p>
+</dd>
+<dt id="term-llm-task">llm task<a class="headerlink" href="#term-llm-task" title="Link to this term">#</a></dt><dd><p>Logical label assigned to prompt templates that maps to a specific
+model entry within the configuration.</p>
+</dd>
+<dt id="term-location">location<a class="headerlink" href="#term-location" title="Link to this term">#</a></dt><dd><p>Combination of county and state identifiers that maps to one row
+in the jurisdiction CSV and produces a single output bundle.</p>
+</dd>
+<dt id="term-location-file-log">location file log<a class="headerlink" href="#term-location-file-log" title="Link to this term">#</a></dt><dd><p>Per-location structured log that aggregates runtime diagnostics
+and JSON exception summaries.</p>
+</dd>
+<dt id="term-location-manifest">location manifest<a class="headerlink" href="#term-location-manifest" title="Link to this term">#</a></dt><dd><p>JSON metadata file emitted per location summarizing source
+documents, extraction status, and validation outcomes.</p>
+</dd>
+<dt id="term-log-directory">log directory<a class="headerlink" href="#term-log-directory" title="Link to this term">#</a></dt><dd><p>Folder defined by <code class="docutils literal notranslate"><span class="pre">log_dir</span></code> that stores run-level logs, prompt
+archives, and timing summaries.</p>
+</dd>
+<dt id="term-OCR">OCR<a class="headerlink" href="#term-OCR" title="Link to this term">#</a></dt><dd><p>Optical Character Recognition stage powered by <code class="docutils literal notranslate"><span class="pre">pytesseract</span></code>
+that converts scanned ordinance PDFs into searchable text.</p>
+</dd>
+<dt id="term-ordinance">ordinance<a class="headerlink" href="#term-ordinance" title="Link to this term">#</a></dt><dd><p>Legal text that governs energy infrastructure within a
+jurisdiction and feeds the extraction workflows.</p>
+</dd>
+<dt id="term-ordinance-document">ordinance document<a class="headerlink" href="#term-ordinance-document" title="Link to this term">#</a></dt><dd><p>Source PDF or HTML retrieved during crawling that contains the
+legal language for the targeted technology.</p>
+</dd>
+<dt id="term-ordinance-file-directory">ordinance file directory<a class="headerlink" href="#term-ordinance-file-directory" title="Link to this term">#</a></dt><dd><p>Folder defined by <code class="docutils literal notranslate"><span class="pre">ordinance_file_dir</span></code> that caches downloaded
+ordinance PDFs and HTML files.</p>
+</dd>
+<dt id="term-out-directory">out directory<a class="headerlink" href="#term-out-directory" title="Link to this term">#</a></dt><dd><p>Root folder defined by <code class="docutils literal notranslate"><span class="pre">out_dir</span></code> where structured results,
+cleaned text, and logs for each run are written.</p>
+</dd>
+<dt id="term-Pixi">Pixi<a class="headerlink" href="#term-Pixi" title="Link to this term">#</a></dt><dd><p>Environment manager used to install dependencies, run tasks, and
+maintain reproducible shells for COMPASS.</p>
+</dd>
+<dt id="term-Playwright">Playwright<a class="headerlink" href="#term-Playwright" title="Link to this term">#</a></dt><dd><p>Browser automation framework used to crawl web portals and
+download ordinance documents reliably.</p>
+</dd>
+<dt id="term-pytesseract"><code class="docutils literal notranslate"><span class="pre">pytesseract</span></code><a class="headerlink" href="#term-pytesseract" title="Link to this term">#</a></dt><dd><p>Python wrapper for the Tesseract OCR engine used to enable text
+extraction from scanned ordinance documents.</p>
+</dd>
+<dt id="term-rate-limiter">rate limiter<a class="headerlink" href="#term-rate-limiter" title="Link to this term">#</a></dt><dd><p>Token-based throttle that keeps LLM requests within provider
+quotas while maximizing throughput.</p>
+</dd>
+<dt id="term-structured-record">structured record<a class="headerlink" href="#term-structured-record" title="Link to this term">#</a></dt><dd><p>Tabular representation of ordinance features, thresholds, and
+metadata exported for downstream analysis.</p>
+</dd>
+<dt id="term-technology">technology<a class="headerlink" href="#term-technology" title="Link to this term">#</a></dt><dd><p><code class="docutils literal notranslate"><span class="pre">tech</span></code> configuration key that defines the target infrastructure
+domain, such as solar or wind.</p>
+</dd>
+<dt id="term-text-splitter">text splitter<a class="headerlink" href="#term-text-splitter" title="Link to this term">#</a></dt><dd><p>Utility that chunks ordinance text into overlapping segments sized
+for LLM context windows.</p>
+</dd>
+<dt id="term-validation-pipeline">validation pipeline<a class="headerlink" href="#term-validation-pipeline" title="Link to this term">#</a></dt><dd><p>Post-processing stage that verifies extracted features, resolves
+conflicts, and confirms location metadata.</p>
+</dd>
+<dt id="term-web-search">web search<a class="headerlink" href="#term-web-search" title="Link to this term">#</a></dt><dd><p>Search-and-crawl phase that discovers ordinance links using
+providers such as Tavily, DuckDuckGo Search, or custom engines.</p>
+</dd>
+</dl>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dev/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Contributing to COMPASS</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

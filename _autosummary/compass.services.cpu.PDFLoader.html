@@ -1,0 +1,1001 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>compass.services.cpu.PDFLoader &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/tabs.js?v=3030b3cb"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="compass.services.cpu.ProcessPoolService" href="compass.services.cpu.ProcessPoolService.html" />
+    <link rel="prev" title="compass.services.cpu.OCRPDFLoader" href="compass.services.cpu.OCRPDFLoader.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.common.html">compass.common</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.common.base.html">compass.common.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.empty_output.html">compass.common.base.empty_output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_does_not_start_with_no.html">compass.common.base.llm_response_does_not_start_with_no</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_starts_with_no.html">compass.common.base.llm_response_starts_with_no</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_starts_with_yes.html">compass.common.base.llm_response_starts_with_yes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.run_async_tree.html">compass.common.base.run_async_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.run_async_tree_with_bm.html">compass.common.base.run_async_tree_with_bm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_async_decision_tree.html">compass.common.base.setup_async_decision_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_base_setback_graph.html">compass.common.base.setup_base_setback_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_extra_restriction.html">compass.common.base.setup_graph_extra_restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_no_nodes.html">compass.common.base.setup_graph_no_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_permitted_use_districts.html">compass.common.base.setup_graph_permitted_use_districts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_participating_owner.html">compass.common.base.setup_participating_owner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.BaseTextExtractor.html">compass.common.base.BaseTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.common.tree.html">compass.common.tree</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.tree.AsyncDecisionTree.html">compass.common.tree.AsyncDecisionTree</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.exceptions.html">compass.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSError.html">compass.exceptions.COMPASSError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSNotInitializedError.html">compass.exceptions.COMPASSNotInitializedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSRuntimeError.html">compass.exceptions.COMPASSRuntimeError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSValueError.html">compass.exceptions.COMPASSValueError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.extraction.html">compass.extraction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.apply.html">compass.extraction.apply</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.check_for_ordinance_info.html">compass.extraction.apply.check_for_ordinance_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_date.html">compass.extraction.apply.extract_date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_text_with_llm.html">compass.extraction.apply.extract_ordinance_text_with_llm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_text_with_ngram_validation.html">compass.extraction.apply.extract_ordinance_text_with_ngram_validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_values.html">compass.extraction.apply.extract_ordinance_values</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.date.html">compass.extraction.date</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.date.DateExtractor.html">compass.extraction.date.DateExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.features.html">compass.extraction.features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.features.SetbackFeatures.html">compass.extraction.features.SetbackFeatures</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.small_wind.html">compass.extraction.small_wind</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.graphs.html">compass.extraction.small_wind.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_conditional_max.html">compass.extraction.small_wind.graphs.setup_conditional_max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_conditional_min.html">compass.extraction.small_wind.graphs.setup_conditional_min</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_graph_wes_types.html">compass.extraction.small_wind.graphs.setup_graph_wes_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_multiplier.html">compass.extraction.small_wind.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.ordinance.html">compass.extraction.small_wind.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindHeuristic.html">compass.extraction.small_wind.ordinance.SmallWindHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html">compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html">compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html">compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html">compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.parse.html">compass.extraction.small_wind.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html">compass.extraction.small_wind.parse.SmallWindSetbackFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser.html">compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindParser.html">compass.extraction.small_wind.parse.StructuredSmallWindParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser.html">compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.solar.html">compass.extraction.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.graphs.html">compass.extraction.solar.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.graphs.setup_graph_sef_types.html">compass.extraction.solar.graphs.setup_graph_sef_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.graphs.setup_multiplier.html">compass.extraction.solar.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.ordinance.html">compass.extraction.solar.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarHeuristic.html">compass.extraction.solar.ordinance.SolarHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html">compass.extraction.solar.ordinance.SolarOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html">compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html">compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html">compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.parse.html">compass.extraction.solar.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarOrdinanceParser.html">compass.extraction.solar.parse.StructuredSolarOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarParser.html">compass.extraction.solar.parse.StructuredSolarParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser.html">compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.wind.html">compass.extraction.wind</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.graphs.html">compass.extraction.wind.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_conditional_max.html">compass.extraction.wind.graphs.setup_conditional_max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_conditional_min.html">compass.extraction.wind.graphs.setup_conditional_min</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_graph_wes_types.html">compass.extraction.wind.graphs.setup_graph_wes_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_multiplier.html">compass.extraction.wind.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.ordinance.html">compass.extraction.wind.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindHeuristic.html">compass.extraction.wind.ordinance.WindHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html">compass.extraction.wind.ordinance.WindOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html">compass.extraction.wind.ordinance.WindOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html">compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html">compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.parse.html">compass.extraction.wind.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindOrdinanceParser.html">compass.extraction.wind.parse.StructuredWindOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindParser.html">compass.extraction.wind.parse.StructuredWindParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser.html">compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.llm.html">compass.llm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.llm.calling.html">compass.llm.calling</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.BaseLLMCaller.html">compass.llm.calling.BaseLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.ChatLLMCaller.html">compass.llm.calling.ChatLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.LLMCaller.html">compass.llm.calling.LLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.StructuredLLMCaller.html">compass.llm.calling.StructuredLLMCaller</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.llm.config.html">compass.llm.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.config.LLMConfig.html">compass.llm.config.LLMConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.config.OpenAIConfig.html">compass.llm.config.OpenAIConfig</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.pb.html">compass.pb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.pb.COMPASS_PB.html">compass.pb.COMPASS_PB</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.scripts.html">compass.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.scripts.download.html">compass.scripts.download</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinance_using_search_engine.html">compass.scripts.download.download_jurisdiction_ordinance_using_search_engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinances_from_website.html">compass.scripts.download.download_jurisdiction_ordinances_from_website</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl.html">compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_known_urls.html">compass.scripts.download.download_known_urls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.filter_ordinance_docs.html">compass.scripts.download.filter_ordinance_docs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.find_jurisdiction_website.html">compass.scripts.download.find_jurisdiction_website</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.load_known_docs.html">compass.scripts.download.load_known_docs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.scripts.process.html">compass.scripts.process</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.process.process_jurisdictions_with_openai.html">compass.scripts.process.process_jurisdictions_with_openai</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="compass.services.html">compass.services</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.base.html">compass.services.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.base.LLMService.html">compass.services.base.LLMService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.base.Service.html">compass.services.base.Service</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="compass.services.cpu.html">compass.services.cpu</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_doc.html">compass.services.cpu.read_pdf_doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_doc_ocr.html">compass.services.cpu.read_pdf_doc_ocr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_file.html">compass.services.cpu.read_pdf_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_file_ocr.html">compass.services.cpu.read_pdf_file_ocr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.OCRPDFLoader.html">compass.services.cpu.OCRPDFLoader</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">compass.services.cpu.PDFLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.ProcessPoolService.html">compass.services.cpu.ProcessPoolService</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.openai.html">compass.services.openai</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.count_tokens.html">compass.services.openai.count_tokens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.usage_from_response.html">compass.services.openai.usage_from_response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.OpenAIService.html">compass.services.openai.OpenAIService</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.provider.html">compass.services.provider</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.provider.RunningAsyncServices.html">compass.services.provider.RunningAsyncServices</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.queues.html">compass.services.queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.get_service_queue.html">compass.services.queues.get_service_queue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.initialize_service_queue.html">compass.services.queues.initialize_service_queue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.tear_down_service_queue.html">compass.services.queues.tear_down_service_queue</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.threaded.html">compass.services.threaded</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.read_html_file.html">compass.services.threaded.read_html_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.CleanedFileWriter.html">compass.services.threaded.CleanedFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.FileMover.html">compass.services.threaded.FileMover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.HTMLFileLoader.html">compass.services.threaded.HTMLFileLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.JurisdictionUpdater.html">compass.services.threaded.JurisdictionUpdater</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.OrdDBFileWriter.html">compass.services.threaded.OrdDBFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.StoreFileOnDisk.html">compass.services.threaded.StoreFileOnDisk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCache.html">compass.services.threaded.TempFileCache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCachePB.html">compass.services.threaded.TempFileCachePB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.ThreadedService.html">compass.services.threaded.ThreadedService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.UsageUpdater.html">compass.services.threaded.UsageUpdater</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.usage.html">compass.services.usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.TimeBoundedUsageTracker.html">compass.services.usage.TimeBoundedUsageTracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.TimedEntry.html">compass.services.usage.TimedEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.UsageTracker.html">compass.services.usage.UsageTracker</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.utilities.html">compass.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.utilities.LLM_COST_REGISTRY.html">compass.utilities.LLM_COST_REGISTRY</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.base.html">compass.utilities.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.title_preserving_caps.html">compass.utilities.base.title_preserving_caps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.Directories.html">compass.utilities.base.Directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.WebSearchParams.html">compass.utilities.base.WebSearchParams</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.enums.html">compass.utilities.enums</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.LLMTasks.html">compass.utilities.enums.LLMTasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.LLMUsageCategory.html">compass.utilities.enums.LLMUsageCategory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.finalize.html">compass.utilities.finalize</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.QUANT_OUT_COLS.html">compass.utilities.finalize.QUANT_OUT_COLS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.QUAL_OUT_COLS.html">compass.utilities.finalize.QUAL_OUT_COLS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.compile_run_summary_message.html">compass.utilities.finalize.compile_run_summary_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.doc_infos_to_db.html">compass.utilities.finalize.doc_infos_to_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.save_db.html">compass.utilities.finalize.save_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.save_run_meta.html">compass.utilities.finalize.save_run_meta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.io.html">compass.utilities.io</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.load_local_docs.html">compass.utilities.io.load_local_docs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.jurisdictions.html">compass.utilities.jurisdictions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.jurisdiction_websites.html">compass.utilities.jurisdictions.jurisdiction_websites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_all_jurisdiction_info.html">compass.utilities.jurisdictions.load_all_jurisdiction_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_jurisdictions_from_fp.html">compass.utilities.jurisdictions.load_jurisdictions_from_fp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.location.html">compass.utilities.location</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.location.Jurisdiction.html">compass.utilities.location.Jurisdiction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.logs.html">compass.utilities.logs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.log_versions.html">compass.utilities.logs.log_versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.AddLocationFilter.html">compass.utilities.logs.AddLocationFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.ExceptionOnlyFilter.html">compass.utilities.logs.ExceptionOnlyFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LocationFileLog.html">compass.utilities.logs.LocationFileLog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LocationFilter.html">compass.utilities.logs.LocationFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LogListener.html">compass.utilities.logs.LogListener</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.NoLocationFilter.html">compass.utilities.logs.NoLocationFilter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.ngrams.html">compass.utilities.ngrams</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.ngrams.convert_text_to_sentence_ngrams.html">compass.utilities.ngrams.convert_text_to_sentence_ngrams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.ngrams.sentence_ngram_containment.html">compass.utilities.ngrams.sentence_ngram_containment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.nt.html">compass.utilities.nt</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.nt.ProcessKwargs.html">compass.utilities.nt.ProcessKwargs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.nt.TechSpec.html">compass.utilities.nt.TechSpec</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.parsing.html">compass.utilities.parsing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.clean_backticks_from_llm_response.html">compass.utilities.parsing.clean_backticks_from_llm_response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.extract_ord_year_from_doc_attrs.html">compass.utilities.parsing.extract_ord_year_from_doc_attrs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.llm_response_as_json.html">compass.utilities.parsing.llm_response_as_json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.load_config.html">compass.utilities.parsing.load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.merge_overlapping_texts.html">compass.utilities.parsing.merge_overlapping_texts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.num_ordinances_dataframe.html">compass.utilities.parsing.num_ordinances_dataframe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.num_ordinances_in_doc.html">compass.utilities.parsing.num_ordinances_in_doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.ordinances_bool_index.html">compass.utilities.parsing.ordinances_bool_index</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.validation.html">compass.validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.content.html">compass.validation.content</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.parse_by_chunks.html">compass.validation.content.parse_by_chunks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.Heuristic.html">compass.validation.content.Heuristic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.LegalTextValidator.html">compass.validation.content.LegalTextValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.ParseChunksWithMemory.html">compass.validation.content.ParseChunksWithMemory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.graphs.html">compass.validation.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_document_type.html">compass.validation.graphs.setup_graph_correct_document_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_jurisdiction_from_url.html">compass.validation.graphs.setup_graph_correct_jurisdiction_from_url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_jurisdiction_type.html">compass.validation.graphs.setup_graph_correct_jurisdiction_type</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.location.html">compass.validation.location</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.DTreeJurisdictionValidator.html">compass.validation.location.DTreeJurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.DTreeURLJurisdictionValidator.html">compass.validation.location.DTreeURLJurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.JurisdictionValidator.html">compass.validation.location.JurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.JurisdictionWebsiteValidator.html">compass.validation.location.JurisdictionWebsiteValidator</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.warn.html">compass.warn</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.warn.COMPASSWarning.html">compass.warn.COMPASSWarning</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.web.html">compass.web</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.web.website_crawl.html">compass.web.website_crawl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.DOC_THRESHOLD.html">compass.web.website_crawl.DOC_THRESHOLD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.COMPASSCrawler.html">compass.web.website_crawl.COMPASSCrawler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.COMPASSLinkScorer.html">compass.web.website_crawl.COMPASSLinkScorer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="compass.html" class="nav-link">compass</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.services.html" class="nav-link">compass.services</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.services.cpu.html" class="nav-link">compass.services.cpu</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.services.cpu.PDFLoader</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="compass-services-cpu-pdfloader">
+<h1>compass.services.cpu.PDFLoader<a class="headerlink" href="#compass-services-cpu-pdfloader" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">PDFLoader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compass/services/cpu.html#PDFLoader"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compass.services.cpu.PDFLoader" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService" title="compass.services.cpu.ProcessPoolService"><code class="xref py py-class docutils literal notranslate"><span class="pre">ProcessPoolService</span></code></a></p>
+<p>Class to load PDFs in a ProcessPoolExecutor</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> – Keyword-value argument pairs to pass to
+<a class="reference external" href="https://docs.python.org/3/library/concurrent.futures.html#concurrent.futures.ProcessPoolExecutor" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">concurrent.futures.ProcessPoolExecutor</span></code></a>.
+By default, <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.acquire_resources" title="compass.services.cpu.PDFLoader.acquire_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">acquire_resources</span></code></a>()</p></td>
+<td><p>Open thread pool and temp directory</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.call" title="compass.services.cpu.PDFLoader.call"><code class="xref py py-obj docutils literal notranslate"><span class="pre">call</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Call the service</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.process" title="compass.services.cpu.PDFLoader.process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process</span></code></a>(fn, pdf_bytes, **kwargs)</p></td>
+<td><p>Execute a PDF parsing function in the process pool</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.process_using_futures" title="compass.services.cpu.PDFLoader.process_using_futures"><code class="xref py py-obj docutils literal notranslate"><span class="pre">process_using_futures</span></code></a>(fut, *args, **kwargs)</p></td>
+<td><p>Process a call to the service</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.release_resources" title="compass.services.cpu.PDFLoader.release_resources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">release_resources</span></code></a>()</p></td>
+<td><p>Shutdown thread pool and cleanup temp directory</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.MAX_CONCURRENT_JOBS" title="compass.services.cpu.PDFLoader.MAX_CONCURRENT_JOBS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAX_CONCURRENT_JOBS</span></code></a></p></td>
+<td><p>Max number of concurrent job submissions.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.can_process" title="compass.services.cpu.PDFLoader.can_process"><code class="xref py py-obj docutils literal notranslate"><span class="pre">can_process</span></code></a></p></td>
+<td><p>Always <code class="docutils literal notranslate"><span class="pre">True</span></code> (limiting is handled by asyncio)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.services.cpu.PDFLoader.name" title="compass.services.cpu.PDFLoader.name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">name</span></code></a></p></td>
+<td><p>Service name used to pull the correct queue object</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py property">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.can_process">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">can_process</span></span><a class="headerlink" href="#compass.services.cpu.PDFLoader.can_process" title="Link to this definition">#</a></dt>
+<dd><p>Always <code class="docutils literal notranslate"><span class="pre">True</span></code> (limiting is handled by asyncio)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.14)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.process">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">process</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fn</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pdf_bytes</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compass/services/cpu.html#PDFLoader.process"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compass.services.cpu.PDFLoader.process" title="Link to this definition">#</a></dt>
+<dd><p>Execute a PDF parsing function in the process pool</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fn</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#callable" title="(in Python v3.14)"><code class="xref py py-func docutils literal notranslate"><span class="pre">callable()</span></code></a>) – Callable executed inside the process pool. Receives
+<code class="docutils literal notranslate"><span class="pre">pdf_bytes</span></code> as the first argument.</p></li>
+<li><p><strong>pdf_bytes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#bytes" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">bytes</span></code></a>) – Raw PDF payload forwarded to <code class="docutils literal notranslate"><span class="pre">fn</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Additional keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">fn</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><code class="xref py py-class docutils literal notranslate"><span class="pre">Any</span></code> – Result returned by <code class="docutils literal notranslate"><span class="pre">fn</span></code> after execution.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.MAX_CONCURRENT_JOBS">
+<span class="sig-name descname"><span class="pre">MAX_CONCURRENT_JOBS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">10000</span></span><a class="headerlink" href="#compass.services.cpu.PDFLoader.MAX_CONCURRENT_JOBS" title="Link to this definition">#</a></dt>
+<dd><p>Max number of concurrent job submissions.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.acquire_resources">
+<span class="sig-name descname"><span class="pre">acquire_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.services.cpu.PDFLoader.acquire_resources" title="Link to this definition">#</a></dt>
+<dd><p>Open thread pool and temp directory</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.call">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.services.cpu.PDFLoader.call" title="Link to this definition">#</a></dt>
+<dd><p>Call the service</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>*args</strong> – Positional and keyword arguments to be passed to the
+underlying service processing function.</p></li>
+<li><p><strong>**kwargs</strong> – Positional and keyword arguments to be passed to the
+underlying service processing function.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a> – A response object from the underlying service.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.name">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#compass.services.cpu.PDFLoader.name" title="Link to this definition">#</a></dt>
+<dd><p>Service name used to pull the correct queue object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.process_using_futures">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">process_using_futures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fut</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.services.cpu.PDFLoader.process_using_futures" title="Link to this definition">#</a></dt>
+<dd><p>Process a call to the service</p>
+<p>The result is communicated by updating <code class="docutils literal notranslate"><span class="pre">fut</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fut</strong> (<a class="reference external" href="https://docs.python.org/3/library/asyncio-future.html#asyncio.Future" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">asyncio.Future</span></code></a>) – A future object that should get the result of the processing
+operation. If the processing function returns <code class="docutils literal notranslate"><span class="pre">answer</span></code>,
+this method should call <code class="docutils literal notranslate"><span class="pre">fut.set_result(answer)</span></code>.</p></li>
+<li><p><strong>**kwargs</strong> – Keyword arguments to be passed to the
+underlying processing function.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.services.cpu.PDFLoader.release_resources">
+<span class="sig-name descname"><span class="pre">release_resources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.services.cpu.PDFLoader.release_resources" title="Link to this definition">#</a></dt>
+<dd><p>Shutdown thread pool and cleanup temp directory</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="compass.services.cpu.OCRPDFLoader.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">compass.services.cpu.OCRPDFLoader</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="compass.services.cpu.ProcessPoolService.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">compass.services.cpu.ProcessPoolService</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader"><code class="docutils literal notranslate"><span class="pre">PDFLoader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.can_process"><code class="docutils literal notranslate"><span class="pre">PDFLoader.can_process</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.process"><code class="docutils literal notranslate"><span class="pre">PDFLoader.process()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.MAX_CONCURRENT_JOBS"><code class="docutils literal notranslate"><span class="pre">PDFLoader.MAX_CONCURRENT_JOBS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.acquire_resources"><code class="docutils literal notranslate"><span class="pre">PDFLoader.acquire_resources()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.call"><code class="docutils literal notranslate"><span class="pre">PDFLoader.call()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.name"><code class="docutils literal notranslate"><span class="pre">PDFLoader.name</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.process_using_futures"><code class="docutils literal notranslate"><span class="pre">PDFLoader.process_using_futures()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.services.cpu.PDFLoader.release_resources"><code class="docutils literal notranslate"><span class="pre">PDFLoader.release_resources()</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

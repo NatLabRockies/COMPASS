@@ -1,0 +1,32 @@
+compass.extraction.wind
+=======================
+
+.. automodule:: compass.extraction.wind
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   graphs
+   ordinance
+   parse
+

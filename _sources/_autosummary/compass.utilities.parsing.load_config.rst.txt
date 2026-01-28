@@ -1,0 +1,6 @@
+compass.utilities.parsing.load\_config
+======================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: load_config

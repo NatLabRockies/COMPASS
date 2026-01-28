@@ -1,0 +1,49 @@
+compass.common.base
+===================
+
+.. automodule:: compass.common.base
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      empty_output
+      llm_response_does_not_start_with_no
+      llm_response_starts_with_no
+      llm_response_starts_with_yes
+      run_async_tree
+      run_async_tree_with_bm
+      setup_async_decision_tree
+      setup_base_setback_graph
+      setup_graph_extra_restriction
+      setup_graph_no_nodes
+      setup_graph_permitted_use_districts
+      setup_participating_owner
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BaseTextExtractor
+   
+   
+
+   
+   
+   
+
+
+

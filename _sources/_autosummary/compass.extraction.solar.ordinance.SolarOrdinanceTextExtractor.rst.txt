@@ -1,0 +1,32 @@
+compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor
+==============================================================
+
+.. currentmodule:: compass.extraction.solar.ordinance
+
+.. autoclass:: SolarOrdinanceTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SolarOrdinanceTextExtractor.extract_solar_energy_system_section
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SolarOrdinanceTextExtractor.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT
+      ~SolarOrdinanceTextExtractor.SYSTEM_MESSAGE
+      ~SolarOrdinanceTextExtractor.parsers
+   
+   

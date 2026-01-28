@@ -1,0 +1,6 @@
+compass.extraction.apply.extract\_date
+======================================
+
+.. currentmodule:: compass.extraction.apply
+
+.. autofunction:: extract_date

@@ -1,0 +1,1688 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.scripts.download &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/tabs.js?v=3030b3cb"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/scripts/download';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.scripts.download</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.scripts.download</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Ordinance file downloading logic&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncExitStack</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDFDocument</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.search.run</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">load_docs</span><span class="p">,</span>
+    <span class="n">search_with_fallback</span><span class="p">,</span>
+    <span class="n">web_search_links_as_docs</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.website_crawl</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_SCORE_KEY</span><span class="p">,</span>  <span class="c1"># noqa: PLC2701</span>
+    <span class="n">ELMWebsiteCrawler</span><span class="p">,</span>
+    <span class="n">ELMLinkScorer</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_documents</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_for_ordinance_info</span><span class="p">,</span> <span class="n">extract_date</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.threaded</span><span class="w"> </span><span class="kn">import</span> <span class="n">TempFileCache</span><span class="p">,</span> <span class="n">TempFileCachePB</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.validation.location</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DTreeJurisdictionValidator</span><span class="p">,</span>
+    <span class="n">JurisdictionValidator</span><span class="p">,</span>
+    <span class="n">JurisdictionWebsiteValidator</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.web.website_crawl</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSCrawler</span><span class="p">,</span> <span class="n">COMPASSLinkScorer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMTasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_local_docs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.pb</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASS_PB</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">_NEG_INF</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;infinity&quot;</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="download_known_urls">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.download_known_urls.html#compass.scripts.download.download_known_urls">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_known_urls</span><span class="p">(</span>
+    <span class="n">jurisdiction</span><span class="p">,</span> <span class="n">urls</span><span class="p">,</span> <span class="n">browser_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download documents from known URLs</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jurisdiction : Jurisdiction</span>
+<span class="sd">        Jurisdiction instance representing the jurisdiction</span>
+<span class="sd">        corresponding to the documents.</span>
+<span class="sd">    urls : iterable of str</span>
+<span class="sd">        Collection of URLs to download documents from.</span>
+<span class="sd">    browser_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        downloads happening concurrently. If ``None``, no limits</span>
+<span class="sd">        are applied. By default, ``None``.</span>
+<span class="sd">    file_loader_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize</span>
+<span class="sd">        :class:`elm.web.file_loader.AsyncWebFileLoader`.</span>
+<span class="sd">        By default, ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out_docs : list</span>
+<span class="sd">        List of :obj:`~elm.web.document.BaseDocument` instances</span>
+<span class="sd">        containing documents from the URL&#39;s, or an empty list if</span>
+<span class="sd">        something went wrong during the retrieval process.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Requires :class:`~compass.services.threaded.TempFileCachePB`</span>
+<span class="sd">    service to be running.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Downloading known URL(s)...&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">file_loader_kwargs</span> <span class="o">=</span> <span class="n">file_loader_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">file_loader_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;file_cache_coroutine&quot;</span><span class="p">:</span> <span class="n">TempFileCachePB</span><span class="o">.</span><span class="n">call</span><span class="p">})</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">file_download_prog_bar</span><span class="p">(</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out_docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">load_docs</span><span class="p">(</span>
+                <span class="n">urls</span><span class="p">,</span> <span class="n">browser_semaphore</span><span class="o">=</span><span class="n">browser_semaphore</span><span class="p">,</span> <span class="o">**</span><span class="n">file_loader_kwargs</span>
+            <span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Encountered error of type </span><span class="si">%r</span><span class="s2"> while downloading known URLs: </span><span class="si">%r</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">err_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">urls</span><span class="p">)</span>
+            <span class="n">out_docs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">out_docs</span></div>
+
+
+
+<div class="viewcode-block" id="load_known_docs">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.load_known_docs.html#compass.scripts.download.load_known_docs">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">load_known_docs</span><span class="p">(</span><span class="n">jurisdiction</span><span class="p">,</span> <span class="n">fps</span><span class="p">,</span> <span class="n">local_file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load documents from known local paths</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jurisdiction : Jurisdiction</span>
+<span class="sd">        Jurisdiction instance representing the jurisdiction</span>
+<span class="sd">        corresponding to the documents.</span>
+<span class="sd">    fps : iterable of path-like</span>
+<span class="sd">        Collection of paths to load documents from.</span>
+<span class="sd">    local_file_loader_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize</span>
+<span class="sd">        :class:`elm.web.file_loader.AsyncLocalFileLoader`.</span>
+<span class="sd">        By default, ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out_docs : list</span>
+<span class="sd">        List of :obj:`~elm.web.document.BaseDocument` instances</span>
+<span class="sd">        containing documents from the paths, or an empty list if</span>
+<span class="sd">        something went wrong during the retrieval process.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Requires :class:`~compass.services.threaded.TempFileCachePB`</span>
+<span class="sd">    service to be running.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Loading known document(s)...&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">local_file_loader_kwargs</span> <span class="o">=</span> <span class="n">local_file_loader_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">local_file_loader_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;file_cache_coroutine&quot;</span><span class="p">:</span> <span class="n">TempFileCachePB</span><span class="o">.</span><span class="n">call</span><span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">file_download_prog_bar</span><span class="p">(</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">fps</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">out_docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">load_local_docs</span><span class="p">(</span><span class="n">fps</span><span class="p">,</span> <span class="o">**</span><span class="n">local_file_loader_kwargs</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+            <span class="k">raise</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;Encountered error of type </span><span class="si">%r</span><span class="s2"> while loading known documents: &quot;</span>
+                <span class="s2">&quot;</span><span class="si">%r</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">err_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">fps</span><span class="p">)</span>
+            <span class="n">out_docs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">out_docs</span></div>
+
+
+
+<div class="viewcode-block" id="find_jurisdiction_website">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.find_jurisdiction_website.html#compass.scripts.download.find_jurisdiction_website">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">find_jurisdiction_website</span><span class="p">(</span>
+    <span class="n">jurisdiction</span><span class="p">,</span>
+    <span class="n">model_configs</span><span class="p">,</span>
+    <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">search_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">browser_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">usage_tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search for the main landing page of a given jurisdiction</span>
+
+<span class="sd">    This function submits two pre-determined queries based on the</span>
+<span class="sd">    jurisdiction name, prioritizing official landing pages. Additional</span>
+<span class="sd">    ``kwargs`` (for example, alternate search engines) can be supplied</span>
+<span class="sd">    to fine-tune behavior.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jurisdiction : Jurisdiction</span>
+<span class="sd">        Jurisdiction instance representing the jurisdiction to find the</span>
+<span class="sd">        main webpage for.</span>
+<span class="sd">    model_configs : dict</span>
+<span class="sd">        Dictionary of :class:`~compass.llm.config.LLMConfig` instances.</span>
+<span class="sd">        Should have at minium a &quot;default&quot; key that is used as a fallback</span>
+<span class="sd">        for all tasks.</span>
+<span class="sd">    file_loader_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize</span>
+<span class="sd">        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the</span>
+<span class="sd">        &quot;pw_launch_kwargs&quot; key in these will also be used to initialize</span>
+<span class="sd">        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`</span>
+<span class="sd">        used for the Google URL search. By default, ``None``.</span>
+<span class="sd">    search_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        playwright browsers used to submit search engine queries open</span>
+<span class="sd">        concurrently.  If ``None``, no limits are applied.</span>
+<span class="sd">        By default, ``None``.</span>
+<span class="sd">    browser_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        playwright browsers open concurrently. If ``None``, no limits</span>
+<span class="sd">        are applied. By default, ``None``.</span>
+<span class="sd">    usage_tracker : UsageTracker, optional</span>
+<span class="sd">        Optional tracker instance to monitor token usage during</span>
+<span class="sd">        LLM calls. By default, ``None``.</span>
+<span class="sd">    url_ignore_substrings : list of str, optional</span>
+<span class="sd">        URL substrings that should be excluded from search results.</span>
+<span class="sd">        Substrings are applied case-insensitively. By default, ``None``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional arguments forwarded to</span>
+<span class="sd">        :func:`elm.web.search.run.search_with_fallback`.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or None</span>
+<span class="sd">        URL for the jurisdiction website, if found; ``None`` otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">file_loader_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name_the_prefixed</span>
+    <span class="n">name_no_the</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">removeprefix</span><span class="p">(</span><span class="s2">&quot;the &quot;</span><span class="p">)</span>
+    <span class="n">query_1</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name_no_the</span><span class="si">}</span><span class="s2"> website&quot;</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">query_2</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;main website </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">potential_website_links</span> <span class="o">=</span> <span class="k">await</span> <span class="n">search_with_fallback</span><span class="p">(</span>
+        <span class="n">queries</span><span class="o">=</span><span class="p">[</span><span class="n">query_1</span><span class="p">,</span> <span class="n">query_2</span><span class="p">],</span>
+        <span class="n">num_urls</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">ignore_url_parts</span><span class="o">=</span><span class="n">url_ignore_substrings</span><span class="p">,</span>
+        <span class="n">browser_sem</span><span class="o">=</span><span class="n">search_semaphore</span><span class="p">,</span>
+        <span class="n">task_name</span><span class="o">=</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">potential_website_links</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">LLMTasks</span><span class="o">.</span><span class="n">JURISDICTION_MAIN_WEBSITE_VALIDATION</span><span class="p">,</span>
+        <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">validator</span> <span class="o">=</span> <span class="n">JurisdictionWebsiteValidator</span><span class="p">(</span>
+        <span class="n">browser_semaphore</span><span class="o">=</span><span class="n">browser_semaphore</span><span class="p">,</span>
+        <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="n">file_loader_kwargs</span><span class="p">,</span>
+        <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span><span class="p">,</span>
+        <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">potential_website_links</span><span class="p">:</span>
+        <span class="k">if</span> <span class="k">await</span> <span class="n">validator</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">url</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="download_jurisdiction_ordinances_from_website">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.download_jurisdiction_ordinances_from_website.html#compass.scripts.download.download_jurisdiction_ordinances_from_website">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_jurisdiction_ordinances_from_website</span><span class="p">(</span>
+    <span class="n">website</span><span class="p">,</span>
+    <span class="n">heuristic</span><span class="p">,</span>
+    <span class="n">keyword_points</span><span class="p">,</span>
+    <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">browser_config_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">crawler_config_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">max_urls</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">crawl_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pb_jurisdiction_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">return_c4ai_results</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download ordinance documents from a jurisdiction website</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    website : str</span>
+<span class="sd">        URL of the jurisdiction website to search.</span>
+<span class="sd">    heuristic : callable</span>
+<span class="sd">        Callable taking an :class:`elm.web.document.BaseDocument` and</span>
+<span class="sd">        returning ``True`` when the document should be kept.</span>
+<span class="sd">    keyword_points : dict</span>
+<span class="sd">        Dictionary of keyword points to use for scoring links.</span>
+<span class="sd">        Keys are keywords, values are points to assign to links</span>
+<span class="sd">        containing the keyword. If a link contains multiple keywords,</span>
+<span class="sd">        the points are summed up.</span>
+<span class="sd">    file_loader_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize</span>
+<span class="sd">        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the</span>
+<span class="sd">        &quot;pw_launch_kwargs&quot; key in these will also be used to initialize</span>
+<span class="sd">        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`</span>
+<span class="sd">        used for the Google URL search. By default, ``None``.</span>
+<span class="sd">    browser_config_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize the</span>
+<span class="sd">        ``crawl4ai.async_configs.BrowserConfig`` class used for the</span>
+<span class="sd">        web crawl. By default, ``None``.</span>
+<span class="sd">    crawler_config_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize the</span>
+<span class="sd">        ``crawl4ai.async_configs.CrawlerConfig`` class used for the</span>
+<span class="sd">        web crawl. By default, ``None``.</span>
+<span class="sd">    max_urls : int, optional</span>
+<span class="sd">        Max number of URLs to check from the website before terminating</span>
+<span class="sd">        the search. By default, ``100``.</span>
+<span class="sd">    crawl_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        website searches happening concurrently. If ``None``, no limits</span>
+<span class="sd">        are applied. By default, ``None``.</span>
+<span class="sd">    pb_jurisdiction_name : str, optional</span>
+<span class="sd">        Optional jurisdiction name to use to update progress bar, if</span>
+<span class="sd">        it&#39;s being used. By default, ``None``.</span>
+<span class="sd">    return_c4ai_results : bool, default=False</span>
+<span class="sd">        If ``True``, the crawl4ai results will be returned as a second</span>
+<span class="sd">        return value. This is useful for debugging and examining the</span>
+<span class="sd">        crawled URLs. If ``False``, only the documents will be returned.</span>
+<span class="sd">        By default, ``False``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out_docs : list</span>
+<span class="sd">        List of :obj:`~elm.web.document.BaseDocument` instances</span>
+<span class="sd">        containing potential ordinance information, or an empty list if</span>
+<span class="sd">        no ordinance document was found.</span>
+<span class="sd">    results : list, optional</span>
+<span class="sd">        List of crawl4ai results containing metadata about the crawled</span>
+<span class="sd">        pages. Only returned when ``return_c4ai_results`` evaluates to</span>
+<span class="sd">        ``True``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Requires :class:`~compass.services.threaded.TempFileCache` service</span>
+<span class="sd">    to be running.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">crawl_semaphore</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crawl_semaphore</span> <span class="o">=</span> <span class="n">AsyncExitStack</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_doc_heuristic</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>  <span class="c1"># noqa: RUF029</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Heuristic check for wind ordinance documents&quot;&quot;&quot;</span>
+        <span class="n">is_valid_document</span> <span class="o">=</span> <span class="n">heuristic</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">is_valid_document</span> <span class="ow">and</span> <span class="n">pb_jurisdiction_name</span><span class="p">:</span>
+            <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_website_crawl_doc_found</span><span class="p">(</span><span class="n">pb_jurisdiction_name</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">is_valid_document</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_crawl_hook</span><span class="p">(</span><span class="o">*</span><span class="n">__</span><span class="p">,</span> <span class="o">**</span><span class="n">___</span><span class="p">):</span>  <span class="c1"># noqa: RUF029</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update progress bar as pages are searched&quot;&quot;&quot;</span>
+        <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_website_crawl_task</span><span class="p">(</span><span class="n">pb_jurisdiction_name</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">file_loader_kwargs</span> <span class="o">=</span> <span class="n">file_loader_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">file_loader_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;file_cache_coroutine&quot;</span><span class="p">:</span> <span class="n">TempFileCache</span><span class="o">.</span><span class="n">call</span><span class="p">})</span>
+
+    <span class="n">browser_config_kwargs</span> <span class="o">=</span> <span class="n">browser_config_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">pw_launch_kwargs</span> <span class="o">=</span> <span class="n">file_loader_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pw_launch_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">browser_config_kwargs</span><span class="p">[</span><span class="s2">&quot;headless&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pw_launch_kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;headless&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">crawler</span> <span class="o">=</span> <span class="n">ELMWebsiteCrawler</span><span class="p">(</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_doc_heuristic</span><span class="p">,</span>
+        <span class="n">url_scorer</span><span class="o">=</span><span class="n">ELMLinkScorer</span><span class="p">(</span><span class="n">keyword_points</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+        <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="n">file_loader_kwargs</span><span class="p">,</span>
+        <span class="n">browser_config_kwargs</span><span class="o">=</span><span class="n">browser_config_kwargs</span><span class="p">,</span>
+        <span class="n">crawler_config_kwargs</span><span class="o">=</span><span class="n">crawler_config_kwargs</span><span class="p">,</span>
+        <span class="n">include_external</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">max_pages</span><span class="o">=</span><span class="n">max_urls</span><span class="p">,</span>
+        <span class="n">page_limit</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">max_urls</span> <span class="o">*</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pb_jurisdiction_name</span><span class="p">:</span>
+        <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+            <span class="n">pb_jurisdiction_name</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Searching for documents from </span><span class="si">{</span><span class="n">website</span><span class="si">}</span><span class="s2"> ...&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cpb</span> <span class="o">=</span> <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">website_crawl_prog_bar</span><span class="p">(</span><span class="n">pb_jurisdiction_name</span><span class="p">,</span> <span class="n">max_urls</span><span class="p">)</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="n">_crawl_hook</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cpb</span> <span class="o">=</span> <span class="n">AsyncExitStack</span><span class="p">()</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">crawl_semaphore</span><span class="p">,</span> <span class="n">cpb</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">crawler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="n">website</span><span class="p">,</span>
+            <span class="n">on_result_hook</span><span class="o">=</span><span class="n">ch</span><span class="p">,</span>
+            <span class="n">return_c4ai_results</span><span class="o">=</span><span class="n">return_c4ai_results</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_jurisdiction_ordinances_from_website_compass_crawl">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl.html#compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_jurisdiction_ordinances_from_website_compass_crawl</span><span class="p">(</span>
+    <span class="n">website</span><span class="p">,</span>
+    <span class="n">heuristic</span><span class="p">,</span>
+    <span class="n">keyword_points</span><span class="p">,</span>
+    <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">already_visited</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">num_link_scores_to_check_per_page</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">max_urls</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">crawl_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pb_jurisdiction_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download ord documents from a website using the COMPASS crawler</span>
+
+<span class="sd">    The COMPASS crawler is much more simplistic than the Crawl4AI</span>
+<span class="sd">    crawler, but is designed to access some links that Crawl4AI cannot</span>
+<span class="sd">    (such as those behind a button interface).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    website : str</span>
+<span class="sd">        URL of the jurisdiction website to search.</span>
+<span class="sd">    heuristic : callable</span>
+<span class="sd">        Callable taking an :class:`elm.web.document.BaseDocument` and</span>
+<span class="sd">        returning ``True`` when the document should be kept.</span>
+<span class="sd">    keyword_points : dict</span>
+<span class="sd">        Dictionary of keyword points to use for scoring links.</span>
+<span class="sd">        Keys are keywords, values are points to assign to links</span>
+<span class="sd">        containing the keyword. If a link contains multiple keywords,</span>
+<span class="sd">        the points are summed up.</span>
+<span class="sd">    file_loader_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword arguments pairs to initialize</span>
+<span class="sd">        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the</span>
+<span class="sd">        &quot;pw_launch_kwargs&quot; key in these will also be used to initialize</span>
+<span class="sd">        the :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`</span>
+<span class="sd">        used for the Google URL search. By default, ``None``.</span>
+<span class="sd">    already_visited : set of str, optional</span>
+<span class="sd">        URLs that have already been crawled and should be skipped.</span>
+<span class="sd">        By default, ``None``.</span>
+<span class="sd">    num_link_scores_to_check_per_page : int, default=4</span>
+<span class="sd">        Number of top-scoring links to visit per page.</span>
+<span class="sd">        By default, ``4``.</span>
+<span class="sd">    max_urls : int, default=100</span>
+<span class="sd">        Max number of URLs to check from the website before terminating</span>
+<span class="sd">        the search. By default, ``100``.</span>
+<span class="sd">    crawl_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        website crawls happening concurrently. If ``None``, no limits</span>
+<span class="sd">        are applied. By default, ``None``.</span>
+<span class="sd">    pb_jurisdiction_name : str, optional</span>
+<span class="sd">        Optional jurisdiction name to use to update progress bar, if</span>
+<span class="sd">        it&#39;s being used. By default, ``None``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    out_docs : list</span>
+<span class="sd">        List of :obj:`~elm.web.document.BaseDocument` instances</span>
+<span class="sd">        containing potential ordinance information, or an empty list if</span>
+<span class="sd">        no ordinance document was found.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Requires :class:`~compass.services.threaded.TempFileCache` service</span>
+<span class="sd">    to be running.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">crawl_semaphore</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">crawl_semaphore</span> <span class="o">=</span> <span class="n">AsyncExitStack</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_doc_heuristic</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>  <span class="c1"># noqa: RUF029</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Heuristic check for wind ordinance documents&quot;&quot;&quot;</span>
+        <span class="n">is_valid_document</span> <span class="o">=</span> <span class="n">heuristic</span><span class="o">.</span><span class="n">check</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+        <span class="k">if</span> <span class="n">is_valid_document</span> <span class="ow">and</span> <span class="n">pb_jurisdiction_name</span><span class="p">:</span>
+            <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_compass_website_crawl_doc_found</span><span class="p">(</span>
+                <span class="n">pb_jurisdiction_name</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">is_valid_document</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_crawl_hook</span><span class="p">(</span><span class="o">*</span><span class="n">__</span><span class="p">,</span> <span class="o">**</span><span class="n">___</span><span class="p">):</span>  <span class="c1"># noqa: RUF029</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update progress bar as pages are searched&quot;&quot;&quot;</span>
+        <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_compass_website_crawl_task</span><span class="p">(</span>
+            <span class="n">pb_jurisdiction_name</span><span class="p">,</span> <span class="n">advance</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span>
+
+    <span class="n">file_loader_kwargs</span> <span class="o">=</span> <span class="n">file_loader_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">file_loader_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;file_cache_coroutine&quot;</span><span class="p">:</span> <span class="n">TempFileCache</span><span class="o">.</span><span class="n">call</span><span class="p">})</span>
+
+    <span class="n">crawler</span> <span class="o">=</span> <span class="n">COMPASSCrawler</span><span class="p">(</span>
+        <span class="n">validator</span><span class="o">=</span><span class="n">_doc_heuristic</span><span class="p">,</span>
+        <span class="n">url_scorer</span><span class="o">=</span><span class="n">COMPASSLinkScorer</span><span class="p">(</span><span class="n">keyword_points</span><span class="p">)</span><span class="o">.</span><span class="n">score</span><span class="p">,</span>
+        <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="n">file_loader_kwargs</span><span class="p">,</span>
+        <span class="n">num_link_scores_to_check_per_page</span><span class="o">=</span><span class="n">num_link_scores_to_check_per_page</span><span class="p">,</span>
+        <span class="n">already_visited</span><span class="o">=</span><span class="n">already_visited</span><span class="p">,</span>
+        <span class="n">max_pages</span><span class="o">=</span><span class="n">max_urls</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">pb_jurisdiction_name</span><span class="p">:</span>
+        <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+            <span class="n">pb_jurisdiction_name</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Double-checking </span><span class="si">{</span><span class="n">website</span><span class="si">}</span><span class="s2"> for documents ...&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">cpb</span> <span class="o">=</span> <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">compass_website_crawl_prog_bar</span><span class="p">(</span>
+            <span class="n">pb_jurisdiction_name</span><span class="p">,</span> <span class="n">max_urls</span>
+        <span class="p">)</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="n">_crawl_hook</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cpb</span> <span class="o">=</span> <span class="n">AsyncExitStack</span><span class="p">()</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">async</span> <span class="k">with</span> <span class="n">crawl_semaphore</span><span class="p">,</span> <span class="n">cpb</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">crawler</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">website</span><span class="p">,</span> <span class="n">on_new_page_visit_hook</span><span class="o">=</span><span class="n">ch</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="download_jurisdiction_ordinance_using_search_engine">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.download_jurisdiction_ordinance_using_search_engine.html#compass.scripts.download.download_jurisdiction_ordinance_using_search_engine">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">download_jurisdiction_ordinance_using_search_engine</span><span class="p">(</span>
+    <span class="n">question_templates</span><span class="p">,</span>
+    <span class="n">jurisdiction</span><span class="p">,</span>
+    <span class="n">num_urls</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">search_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">browser_semaphore</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the ordinance document(s) for a single jurisdiction</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    question_templates : sequence of str</span>
+<span class="sd">        Query templates that will be formatted with the jurisdiction</span>
+<span class="sd">        name before submission to the search engine.</span>
+<span class="sd">    jurisdiction : Jurisdiction</span>
+<span class="sd">        Location objects representing the jurisdiction.</span>
+<span class="sd">    num_urls : int, optional</span>
+<span class="sd">        Number of unique Google search result URL&#39;s to check for</span>
+<span class="sd">        ordinance document. By default, ``5``.</span>
+<span class="sd">    file_loader_kwargs : dict, optional</span>
+<span class="sd">        Dictionary of keyword-argument pairs to initialize</span>
+<span class="sd">        :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,</span>
+<span class="sd">        the &quot;pw_launch_kwargs&quot; key in these will also be used to</span>
+<span class="sd">        initialize the</span>
+<span class="sd">        :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`</span>
+<span class="sd">        used for the google URL search. By default, ``None``.</span>
+<span class="sd">    search_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        playwright browsers used to submit search engine queries open</span>
+<span class="sd">        concurrently. If this input is ``None``, the input from</span>
+<span class="sd">        `browser_semaphore` will be used in its place (i.e. the searches</span>
+<span class="sd">        and file downloads will be limited using the same semaphore).</span>
+<span class="sd">        By default, ``None``.</span>
+<span class="sd">    browser_semaphore : :class:`asyncio.Semaphore`, optional</span>
+<span class="sd">        Semaphore instance that can be used to limit the number of</span>
+<span class="sd">        playwright browsers used to download content from the web open</span>
+<span class="sd">        concurrently. If ``None``, no limits are applied.</span>
+<span class="sd">        By default, ``None``.</span>
+<span class="sd">    url_ignore_substrings : list of str, optional</span>
+<span class="sd">        URL substrings that should be excluded from search results.</span>
+<span class="sd">        Substrings are applied case-insensitively. By default, ``None``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments forwarded to</span>
+<span class="sd">        :func:`elm.web.search.run.web_search_links_as_docs`. Common</span>
+<span class="sd">        entries include ``usage_tracker`` for logging LLM usage and</span>
+<span class="sd">        extra Playwright configuration.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list or None</span>
+<span class="sd">        List of :obj:`~elm.web.document.BaseDocument` instances possibly</span>
+<span class="sd">        containing ordinance information, or ``None`` if no ordinance</span>
+<span class="sd">        document was found.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Requires :class:`~compass.services.threaded.TempFileCachePB`</span>
+<span class="sd">    service to be running.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Searching web...&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">pb_store</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_download_hook</span><span class="p">(</span><span class="n">urls</span><span class="p">):</span>  <span class="c1"># noqa: RUF029</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update progress bar as file download starts&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">urls</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+            <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Downloading files...&quot;</span>
+        <span class="p">)</span>
+        <span class="n">pb</span><span class="p">,</span> <span class="n">task</span> <span class="o">=</span> <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">start_file_download_prog_bar</span><span class="p">(</span>
+            <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">urls</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">pb_store</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">pb</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">urls</span><span class="p">)))</span>
+
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">file_loader_kwargs</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out_docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_docs_from_web_search</span><span class="p">(</span>
+            <span class="n">question_templates</span><span class="o">=</span><span class="n">question_templates</span><span class="p">,</span>
+            <span class="n">jurisdiction</span><span class="o">=</span><span class="n">jurisdiction</span><span class="p">,</span>
+            <span class="n">num_urls</span><span class="o">=</span><span class="n">num_urls</span><span class="p">,</span>
+            <span class="n">search_semaphore</span><span class="o">=</span><span class="n">search_semaphore</span><span class="p">,</span>
+            <span class="n">browser_semaphore</span><span class="o">=</span><span class="n">browser_semaphore</span><span class="p">,</span>
+            <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="n">url_ignore_substrings</span><span class="p">,</span>
+            <span class="n">on_search_complete_hook</span><span class="o">=</span><span class="n">_download_hook</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pb_store</span><span class="p">:</span>
+            <span class="n">pb</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">num_urls</span> <span class="o">=</span> <span class="n">pb_store</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">await</span> <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">tear_down_file_download_prog_bar</span><span class="p">(</span>
+                <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">num_urls</span><span class="p">,</span> <span class="n">pb</span><span class="p">,</span> <span class="n">task</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out_docs</span></div>
+
+
+
+<div class="viewcode-block" id="filter_ordinance_docs">
+<a class="viewcode-back" href="../../../_autosummary/compass.scripts.download.filter_ordinance_docs.html#compass.scripts.download.filter_ordinance_docs">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">filter_ordinance_docs</span><span class="p">(</span>
+    <span class="n">docs</span><span class="p">,</span>
+    <span class="n">jurisdiction</span><span class="p">,</span>
+    <span class="n">model_configs</span><span class="p">,</span>
+    <span class="n">heuristic</span><span class="p">,</span>
+    <span class="n">tech</span><span class="p">,</span>
+    <span class="n">ordinance_text_collector_class</span><span class="p">,</span>
+    <span class="n">permitted_use_text_collector_class</span><span class="p">,</span>
+    <span class="n">usage_tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">check_for_correct_jurisdiction</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Filter a list of documents to only those that contain ordinances</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    docs : sequence of elm.web.document.BaseDocument</span>
+<span class="sd">        Documents to screen for ordinance content.</span>
+<span class="sd">    jurisdiction : Jurisdiction</span>
+<span class="sd">        Location objects representing the jurisdiction.</span>
+<span class="sd">    model_configs : dict</span>
+<span class="sd">        Dictionary of LLMConfig instances. Should have at minium a</span>
+<span class="sd">        &quot;default&quot; key that is used as a fallback for all tasks.</span>
+<span class="sd">    heuristic : object</span>
+<span class="sd">        Domain-specific heuristic implementing a ``check`` method to</span>
+<span class="sd">        qualify ordinance content.</span>
+<span class="sd">    tech : str</span>
+<span class="sd">        Technology of interest (e.g. &quot;solar&quot;, &quot;wind&quot;, etc). This is</span>
+<span class="sd">        used to set up some document validation decision trees.</span>
+<span class="sd">    ordinance_text_collector_class : type</span>
+<span class="sd">        Collector class used to extract ordinance text sections.</span>
+<span class="sd">    permitted_use_text_collector_class : type</span>
+<span class="sd">        Collector class used to extract permitted-use text sections.</span>
+<span class="sd">    usage_tracker : UsageTracker, optional</span>
+<span class="sd">        Optional tracker instance to monitor token usage during</span>
+<span class="sd">        LLM calls. By default, ``None``.</span>
+<span class="sd">    check_for_correct_jurisdiction : bool, default=True</span>
+<span class="sd">        If ``True`` run jurisdiction validation before, content checks.</span>
+<span class="sd">        By default, ``True``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list or None</span>
+<span class="sd">        List of :obj:`~elm.web.document.BaseDocument` instances possibly</span>
+<span class="sd">        containing ordinance information, or ``None`` if no ordinance</span>
+<span class="sd">        document was found.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function updates CLI progress bars to reflect each filtering</span>
+<span class="sd">    phase and returns documents sorted by quality heuristics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">check_for_correct_jurisdiction</span><span class="p">:</span>
+        <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+            <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Checking files for correct jurisdiction...&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_down_select_docs_correct_jurisdiction</span><span class="p">(</span>
+            <span class="n">docs</span><span class="p">,</span>
+            <span class="n">jurisdiction</span><span class="o">=</span><span class="n">jurisdiction</span><span class="p">,</span>
+            <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span><span class="p">,</span>
+            <span class="n">model_config</span><span class="o">=</span><span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DOCUMENT_JURISDICTION_VALIDATION</span><span class="p">,</span>
+                <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> document(s) remaining after jurisdiction filter for </span><span class="si">%s</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">- </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">),</span>
+            <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">- &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown source&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">COMPASS_PB</span><span class="o">.</span><span class="n">update_jurisdiction_task</span><span class="p">(</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Checking files for legal text...&quot;</span>
+    <span class="p">)</span>
+    <span class="n">docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_down_select_docs_correct_content</span><span class="p">(</span>
+        <span class="n">docs</span><span class="p">,</span>
+        <span class="n">jurisdiction</span><span class="o">=</span><span class="n">jurisdiction</span><span class="p">,</span>
+        <span class="n">model_configs</span><span class="o">=</span><span class="n">model_configs</span><span class="p">,</span>
+        <span class="n">heuristic</span><span class="o">=</span><span class="n">heuristic</span><span class="p">,</span>
+        <span class="n">tech</span><span class="o">=</span><span class="n">tech</span><span class="p">,</span>
+        <span class="n">ordinance_text_collector_class</span><span class="o">=</span><span class="n">ordinance_text_collector_class</span><span class="p">,</span>
+        <span class="n">permitted_use_text_collector_class</span><span class="o">=</span><span class="n">permitted_use_text_collector_class</span><span class="p">,</span>
+        <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">docs</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Did not find any potential ordinance documents for </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">docs</span>
+
+    <span class="n">docs</span> <span class="o">=</span> <span class="n">_sort_final_ord_docs</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;Found </span><span class="si">%d</span><span class="s2"> potential ordinance documents for </span><span class="si">%s</span><span class="se">\n\t</span><span class="s2">- </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">),</span>
+        <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">- &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown source&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">docs</span></div>
+
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_docs_from_web_search</span><span class="p">(</span>
+    <span class="n">question_templates</span><span class="p">,</span>
+    <span class="n">jurisdiction</span><span class="p">,</span>
+    <span class="n">num_urls</span><span class="p">,</span>
+    <span class="n">search_semaphore</span><span class="p">,</span>
+    <span class="n">browser_semaphore</span><span class="p">,</span>
+    <span class="n">url_ignore_substrings</span><span class="p">,</span>
+    <span class="n">on_search_complete_hook</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Download documents from the web using jurisdiction queries&quot;&quot;&quot;</span>
+    <span class="n">queries</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">question</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">jurisdiction</span><span class="o">=</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">question</span> <span class="ow">in</span> <span class="n">question_templates</span>
+    <span class="p">]</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;file_cache_coroutine&quot;</span><span class="p">:</span> <span class="n">TempFileCachePB</span><span class="o">.</span><span class="n">call</span><span class="p">})</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">web_search_links_as_docs</span><span class="p">(</span>
+            <span class="n">queries</span><span class="p">,</span>
+            <span class="n">num_urls</span><span class="o">=</span><span class="n">num_urls</span><span class="p">,</span>
+            <span class="n">search_semaphore</span><span class="o">=</span><span class="n">search_semaphore</span><span class="p">,</span>
+            <span class="n">browser_semaphore</span><span class="o">=</span><span class="n">browser_semaphore</span><span class="p">,</span>
+            <span class="n">ignore_url_parts</span><span class="o">=</span><span class="n">url_ignore_substrings</span><span class="p">,</span>
+            <span class="n">task_name</span><span class="o">=</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+            <span class="n">on_search_complete_hook</span><span class="o">=</span><span class="n">on_search_complete_hook</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Encountered error of type </span><span class="si">%r</span><span class="s2"> while searching web for docs for </span><span class="si">%s</span><span class="s2">:&quot;</span>
+        <span class="p">)</span>
+        <span class="n">err_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">err_type</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">)</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">return</span> <span class="n">docs</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_down_select_docs_correct_jurisdiction</span><span class="p">(</span>
+    <span class="n">docs</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">,</span> <span class="n">usage_tracker</span><span class="p">,</span> <span class="n">model_config</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove documents that do not match the target jurisdiction&quot;&quot;&quot;</span>
+    <span class="n">jurisdiction_validator</span> <span class="o">=</span> <span class="n">JurisdictionValidator</span><span class="p">(</span>
+        <span class="n">text_splitter</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">text_splitter</span><span class="p">,</span>
+        <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">,</span>
+        <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Validating documents for </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">filter_documents</span><span class="p">(</span>
+        <span class="n">docs</span><span class="p">,</span>
+        <span class="n">validation_coroutine</span><span class="o">=</span><span class="n">jurisdiction_validator</span><span class="o">.</span><span class="n">check</span><span class="p">,</span>
+        <span class="n">jurisdiction</span><span class="o">=</span><span class="n">jurisdiction</span><span class="p">,</span>
+        <span class="n">task_name</span><span class="o">=</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_down_select_docs_correct_content</span><span class="p">(</span>
+    <span class="n">docs</span><span class="p">,</span>
+    <span class="n">jurisdiction</span><span class="p">,</span>
+    <span class="n">model_configs</span><span class="p">,</span>
+    <span class="n">heuristic</span><span class="p">,</span>
+    <span class="n">tech</span><span class="p">,</span>
+    <span class="n">ordinance_text_collector_class</span><span class="p">,</span>
+    <span class="n">permitted_use_text_collector_class</span><span class="p">,</span>
+    <span class="n">usage_tracker</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove documents that do not contain ordinance information&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">filter_documents</span><span class="p">(</span>
+        <span class="n">docs</span><span class="p">,</span>
+        <span class="n">validation_coroutine</span><span class="o">=</span><span class="n">_contains_ordinances</span><span class="p">,</span>
+        <span class="n">task_name</span><span class="o">=</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="n">model_configs</span><span class="o">=</span><span class="n">model_configs</span><span class="p">,</span>
+        <span class="n">heuristic</span><span class="o">=</span><span class="n">heuristic</span><span class="p">,</span>
+        <span class="n">tech</span><span class="o">=</span><span class="n">tech</span><span class="p">,</span>
+        <span class="n">ordinance_text_collector_class</span><span class="o">=</span><span class="n">ordinance_text_collector_class</span><span class="p">,</span>
+        <span class="n">permitted_use_text_collector_class</span><span class="o">=</span><span class="n">permitted_use_text_collector_class</span><span class="p">,</span>
+        <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_contains_ordinances</span><span class="p">(</span>
+    <span class="n">doc</span><span class="p">,</span> <span class="n">model_configs</span><span class="p">,</span> <span class="n">usage_tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine whether a document contains ordinance information&quot;&quot;&quot;</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DOCUMENT_CONTENT_VALIDATION</span><span class="p">,</span>
+        <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_for_ordinance_info</span><span class="p">(</span>
+        <span class="n">doc</span><span class="p">,</span>
+        <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+        <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">contains_ordinances</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contains_ord_info&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">contains_ordinances</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detected ordinance info; parsing date...&quot;</span><span class="p">)</span>
+        <span class="n">date_model_config</span> <span class="o">=</span> <span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DATE_EXTRACTION</span><span class="p">,</span> <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">extract_date</span><span class="p">(</span>
+            <span class="n">doc</span><span class="p">,</span> <span class="n">date_model_config</span><span class="p">,</span> <span class="n">usage_tracker</span><span class="o">=</span><span class="n">usage_tracker</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="n">contains_ordinances</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sort_final_ord_docs</span><span class="p">(</span><span class="n">all_ord_docs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Sort ordinance documents by desirability heuristics&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_ord_docs</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">all_ord_docs</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">_ord_doc_sorting_key</span><span class="p">,</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ord_doc_sorting_key</span><span class="p">(</span><span class="n">doc</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute a composite sorting score for ordinance documents&quot;&quot;&quot;</span>
+    <span class="n">latest_year</span><span class="p">,</span> <span class="n">latest_month</span><span class="p">,</span> <span class="n">latest_day</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+    <span class="n">best_docs_from_website</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_SCORE_KEY</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">prefer_pdf_files</span> <span class="o">=</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">PDFDocument</span><span class="p">)</span>
+    <span class="n">highest_jurisdiction_score</span> <span class="o">=</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="c1"># If not present, URL check passed with confidence so we set</span>
+        <span class="c1"># score to 1</span>
+        <span class="n">DTreeJurisdictionValidator</span><span class="o">.</span><span class="n">META_SCORE_KEY</span><span class="p">,</span>
+        <span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">shortest_text_length</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">best_docs_from_website</span><span class="p">,</span>
+        <span class="n">latest_year</span> <span class="ow">or</span> <span class="n">_NEG_INF</span><span class="p">,</span>
+        <span class="n">prefer_pdf_files</span><span class="p">,</span>
+        <span class="n">highest_jurisdiction_score</span><span class="p">,</span>
+        <span class="n">shortest_text_length</span><span class="p">,</span>
+        <span class="n">latest_month</span> <span class="ow">or</span> <span class="n">_NEG_INF</span><span class="p">,</span>
+        <span class="n">latest_day</span> <span class="ow">or</span> <span class="n">_NEG_INF</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

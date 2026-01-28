@@ -1,0 +1,32 @@
+compass.utilities.jurisdictions
+===============================
+
+.. automodule:: compass.utilities.jurisdictions
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      jurisdiction_websites
+      load_all_jurisdiction_info
+      load_jurisdictions_from_fp
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

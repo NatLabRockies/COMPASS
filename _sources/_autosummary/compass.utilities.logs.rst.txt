@@ -1,0 +1,43 @@
+compass.utilities.logs
+======================
+
+.. automodule:: compass.utilities.logs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      log_versions
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AddLocationFilter
+      ExceptionOnlyFilter
+      LocationFileLog
+      LocationFilter
+      LogListener
+      NoLocationFilter
+   
+   
+
+   
+   
+   
+
+
+

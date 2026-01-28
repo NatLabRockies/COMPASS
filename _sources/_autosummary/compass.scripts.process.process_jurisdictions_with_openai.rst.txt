@@ -1,0 +1,6 @@
+compass.scripts.process.process\_jurisdictions\_with\_openai
+============================================================
+
+.. currentmodule:: compass.scripts.process
+
+.. autofunction:: process_jurisdictions_with_openai

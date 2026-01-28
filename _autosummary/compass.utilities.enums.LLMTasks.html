@@ -1,0 +1,1609 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>compass.utilities.enums.LLMTasks &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script src="../_static/tabs.js?v=3030b3cb"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="compass.utilities.enums.LLMUsageCategory" href="compass.utilities.enums.LLMUsageCategory.html" />
+    <link rel="prev" title="compass.utilities.enums" href="compass.utilities.enums.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.common.html">compass.common</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.common.base.html">compass.common.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.empty_output.html">compass.common.base.empty_output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_does_not_start_with_no.html">compass.common.base.llm_response_does_not_start_with_no</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_starts_with_no.html">compass.common.base.llm_response_starts_with_no</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_starts_with_yes.html">compass.common.base.llm_response_starts_with_yes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.run_async_tree.html">compass.common.base.run_async_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.run_async_tree_with_bm.html">compass.common.base.run_async_tree_with_bm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_async_decision_tree.html">compass.common.base.setup_async_decision_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_base_setback_graph.html">compass.common.base.setup_base_setback_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_extra_restriction.html">compass.common.base.setup_graph_extra_restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_no_nodes.html">compass.common.base.setup_graph_no_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_permitted_use_districts.html">compass.common.base.setup_graph_permitted_use_districts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_participating_owner.html">compass.common.base.setup_participating_owner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.BaseTextExtractor.html">compass.common.base.BaseTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.common.tree.html">compass.common.tree</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.tree.AsyncDecisionTree.html">compass.common.tree.AsyncDecisionTree</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.exceptions.html">compass.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSError.html">compass.exceptions.COMPASSError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSNotInitializedError.html">compass.exceptions.COMPASSNotInitializedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSRuntimeError.html">compass.exceptions.COMPASSRuntimeError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSValueError.html">compass.exceptions.COMPASSValueError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.extraction.html">compass.extraction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.apply.html">compass.extraction.apply</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.check_for_ordinance_info.html">compass.extraction.apply.check_for_ordinance_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_date.html">compass.extraction.apply.extract_date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_text_with_llm.html">compass.extraction.apply.extract_ordinance_text_with_llm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_text_with_ngram_validation.html">compass.extraction.apply.extract_ordinance_text_with_ngram_validation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_values.html">compass.extraction.apply.extract_ordinance_values</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.date.html">compass.extraction.date</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.date.DateExtractor.html">compass.extraction.date.DateExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.features.html">compass.extraction.features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.features.SetbackFeatures.html">compass.extraction.features.SetbackFeatures</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.small_wind.html">compass.extraction.small_wind</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.graphs.html">compass.extraction.small_wind.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_conditional_max.html">compass.extraction.small_wind.graphs.setup_conditional_max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_conditional_min.html">compass.extraction.small_wind.graphs.setup_conditional_min</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_graph_wes_types.html">compass.extraction.small_wind.graphs.setup_graph_wes_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_multiplier.html">compass.extraction.small_wind.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.ordinance.html">compass.extraction.small_wind.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindHeuristic.html">compass.extraction.small_wind.ordinance.SmallWindHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html">compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html">compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html">compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html">compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.parse.html">compass.extraction.small_wind.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html">compass.extraction.small_wind.parse.SmallWindSetbackFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser.html">compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindParser.html">compass.extraction.small_wind.parse.StructuredSmallWindParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser.html">compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.solar.html">compass.extraction.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.graphs.html">compass.extraction.solar.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.graphs.setup_graph_sef_types.html">compass.extraction.solar.graphs.setup_graph_sef_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.graphs.setup_multiplier.html">compass.extraction.solar.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.ordinance.html">compass.extraction.solar.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarHeuristic.html">compass.extraction.solar.ordinance.SolarHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html">compass.extraction.solar.ordinance.SolarOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html">compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html">compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html">compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.parse.html">compass.extraction.solar.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarOrdinanceParser.html">compass.extraction.solar.parse.StructuredSolarOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarParser.html">compass.extraction.solar.parse.StructuredSolarParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser.html">compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.wind.html">compass.extraction.wind</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.graphs.html">compass.extraction.wind.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_conditional_max.html">compass.extraction.wind.graphs.setup_conditional_max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_conditional_min.html">compass.extraction.wind.graphs.setup_conditional_min</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_graph_wes_types.html">compass.extraction.wind.graphs.setup_graph_wes_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_multiplier.html">compass.extraction.wind.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.ordinance.html">compass.extraction.wind.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindHeuristic.html">compass.extraction.wind.ordinance.WindHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html">compass.extraction.wind.ordinance.WindOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html">compass.extraction.wind.ordinance.WindOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html">compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html">compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.parse.html">compass.extraction.wind.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindOrdinanceParser.html">compass.extraction.wind.parse.StructuredWindOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindParser.html">compass.extraction.wind.parse.StructuredWindParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser.html">compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.llm.html">compass.llm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.llm.calling.html">compass.llm.calling</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.BaseLLMCaller.html">compass.llm.calling.BaseLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.ChatLLMCaller.html">compass.llm.calling.ChatLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.LLMCaller.html">compass.llm.calling.LLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.StructuredLLMCaller.html">compass.llm.calling.StructuredLLMCaller</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.llm.config.html">compass.llm.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.config.LLMConfig.html">compass.llm.config.LLMConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.config.OpenAIConfig.html">compass.llm.config.OpenAIConfig</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.pb.html">compass.pb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.pb.COMPASS_PB.html">compass.pb.COMPASS_PB</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.scripts.html">compass.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.scripts.download.html">compass.scripts.download</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinance_using_search_engine.html">compass.scripts.download.download_jurisdiction_ordinance_using_search_engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinances_from_website.html">compass.scripts.download.download_jurisdiction_ordinances_from_website</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl.html">compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_known_urls.html">compass.scripts.download.download_known_urls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.filter_ordinance_docs.html">compass.scripts.download.filter_ordinance_docs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.find_jurisdiction_website.html">compass.scripts.download.find_jurisdiction_website</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.load_known_docs.html">compass.scripts.download.load_known_docs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.scripts.process.html">compass.scripts.process</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.process.process_jurisdictions_with_openai.html">compass.scripts.process.process_jurisdictions_with_openai</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.services.html">compass.services</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.base.html">compass.services.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.base.LLMService.html">compass.services.base.LLMService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.base.Service.html">compass.services.base.Service</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.cpu.html">compass.services.cpu</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_doc.html">compass.services.cpu.read_pdf_doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_doc_ocr.html">compass.services.cpu.read_pdf_doc_ocr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_file.html">compass.services.cpu.read_pdf_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_file_ocr.html">compass.services.cpu.read_pdf_file_ocr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.OCRPDFLoader.html">compass.services.cpu.OCRPDFLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.PDFLoader.html">compass.services.cpu.PDFLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.ProcessPoolService.html">compass.services.cpu.ProcessPoolService</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.openai.html">compass.services.openai</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.count_tokens.html">compass.services.openai.count_tokens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.usage_from_response.html">compass.services.openai.usage_from_response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.OpenAIService.html">compass.services.openai.OpenAIService</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.provider.html">compass.services.provider</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.provider.RunningAsyncServices.html">compass.services.provider.RunningAsyncServices</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.queues.html">compass.services.queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.get_service_queue.html">compass.services.queues.get_service_queue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.initialize_service_queue.html">compass.services.queues.initialize_service_queue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.tear_down_service_queue.html">compass.services.queues.tear_down_service_queue</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.threaded.html">compass.services.threaded</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.read_html_file.html">compass.services.threaded.read_html_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.CleanedFileWriter.html">compass.services.threaded.CleanedFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.FileMover.html">compass.services.threaded.FileMover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.HTMLFileLoader.html">compass.services.threaded.HTMLFileLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.JurisdictionUpdater.html">compass.services.threaded.JurisdictionUpdater</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.OrdDBFileWriter.html">compass.services.threaded.OrdDBFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.StoreFileOnDisk.html">compass.services.threaded.StoreFileOnDisk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCache.html">compass.services.threaded.TempFileCache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCachePB.html">compass.services.threaded.TempFileCachePB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.ThreadedService.html">compass.services.threaded.ThreadedService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.UsageUpdater.html">compass.services.threaded.UsageUpdater</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.usage.html">compass.services.usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.TimeBoundedUsageTracker.html">compass.services.usage.TimeBoundedUsageTracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.TimedEntry.html">compass.services.usage.TimedEntry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.UsageTracker.html">compass.services.usage.UsageTracker</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="compass.utilities.html">compass.utilities</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="compass.utilities.LLM_COST_REGISTRY.html">compass.utilities.LLM_COST_REGISTRY</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.base.html">compass.utilities.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.title_preserving_caps.html">compass.utilities.base.title_preserving_caps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.Directories.html">compass.utilities.base.Directories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.WebSearchParams.html">compass.utilities.base.WebSearchParams</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="compass.utilities.enums.html">compass.utilities.enums</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">compass.utilities.enums.LLMTasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.LLMUsageCategory.html">compass.utilities.enums.LLMUsageCategory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.finalize.html">compass.utilities.finalize</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.QUANT_OUT_COLS.html">compass.utilities.finalize.QUANT_OUT_COLS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.QUAL_OUT_COLS.html">compass.utilities.finalize.QUAL_OUT_COLS</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.compile_run_summary_message.html">compass.utilities.finalize.compile_run_summary_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.doc_infos_to_db.html">compass.utilities.finalize.doc_infos_to_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.save_db.html">compass.utilities.finalize.save_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.save_run_meta.html">compass.utilities.finalize.save_run_meta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.io.html">compass.utilities.io</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.load_local_docs.html">compass.utilities.io.load_local_docs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.jurisdictions.html">compass.utilities.jurisdictions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.jurisdiction_websites.html">compass.utilities.jurisdictions.jurisdiction_websites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_all_jurisdiction_info.html">compass.utilities.jurisdictions.load_all_jurisdiction_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_jurisdictions_from_fp.html">compass.utilities.jurisdictions.load_jurisdictions_from_fp</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.location.html">compass.utilities.location</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.location.Jurisdiction.html">compass.utilities.location.Jurisdiction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.logs.html">compass.utilities.logs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.log_versions.html">compass.utilities.logs.log_versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.AddLocationFilter.html">compass.utilities.logs.AddLocationFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.ExceptionOnlyFilter.html">compass.utilities.logs.ExceptionOnlyFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LocationFileLog.html">compass.utilities.logs.LocationFileLog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LocationFilter.html">compass.utilities.logs.LocationFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LogListener.html">compass.utilities.logs.LogListener</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.NoLocationFilter.html">compass.utilities.logs.NoLocationFilter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.ngrams.html">compass.utilities.ngrams</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.ngrams.convert_text_to_sentence_ngrams.html">compass.utilities.ngrams.convert_text_to_sentence_ngrams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.ngrams.sentence_ngram_containment.html">compass.utilities.ngrams.sentence_ngram_containment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.nt.html">compass.utilities.nt</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.nt.ProcessKwargs.html">compass.utilities.nt.ProcessKwargs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.nt.TechSpec.html">compass.utilities.nt.TechSpec</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.parsing.html">compass.utilities.parsing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.clean_backticks_from_llm_response.html">compass.utilities.parsing.clean_backticks_from_llm_response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.extract_ord_year_from_doc_attrs.html">compass.utilities.parsing.extract_ord_year_from_doc_attrs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.llm_response_as_json.html">compass.utilities.parsing.llm_response_as_json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.load_config.html">compass.utilities.parsing.load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.merge_overlapping_texts.html">compass.utilities.parsing.merge_overlapping_texts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.num_ordinances_dataframe.html">compass.utilities.parsing.num_ordinances_dataframe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.num_ordinances_in_doc.html">compass.utilities.parsing.num_ordinances_in_doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.ordinances_bool_index.html">compass.utilities.parsing.ordinances_bool_index</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.validation.html">compass.validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.content.html">compass.validation.content</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.parse_by_chunks.html">compass.validation.content.parse_by_chunks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.Heuristic.html">compass.validation.content.Heuristic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.LegalTextValidator.html">compass.validation.content.LegalTextValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.ParseChunksWithMemory.html">compass.validation.content.ParseChunksWithMemory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.graphs.html">compass.validation.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_document_type.html">compass.validation.graphs.setup_graph_correct_document_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_jurisdiction_from_url.html">compass.validation.graphs.setup_graph_correct_jurisdiction_from_url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_jurisdiction_type.html">compass.validation.graphs.setup_graph_correct_jurisdiction_type</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.location.html">compass.validation.location</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.DTreeJurisdictionValidator.html">compass.validation.location.DTreeJurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.DTreeURLJurisdictionValidator.html">compass.validation.location.DTreeURLJurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.JurisdictionValidator.html">compass.validation.location.JurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.JurisdictionWebsiteValidator.html">compass.validation.location.JurisdictionWebsiteValidator</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.warn.html">compass.warn</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.warn.COMPASSWarning.html">compass.warn.COMPASSWarning</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.web.html">compass.web</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.web.website_crawl.html">compass.web.website_crawl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.DOC_THRESHOLD.html">compass.web.website_crawl.DOC_THRESHOLD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.COMPASSCrawler.html">compass.web.website_crawl.COMPASSCrawler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.COMPASSLinkScorer.html">compass.web.website_crawl.COMPASSLinkScorer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="compass.html" class="nav-link">compass</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.utilities.html" class="nav-link">compass.utilities</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.utilities.enums.html" class="nav-link">compass.utilities.enums</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.utilities.enums.LLMTasks</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="compass-utilities-enums-llmtasks">
+<h1>compass.utilities.enums.LLMTasks<a class="headerlink" href="#compass-utilities-enums-llmtasks" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">LLMTasks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compass/utilities/enums.html#LLMTasks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compass.utilities.enums.LLMTasks" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.StrEnum" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">StrEnum</span></code></a></p>
+<p>Human-friendly task identifiers for LLM workflows</p>
+<p>This enumeration exposes the set of user-facing task names that map
+onto <a class="reference internal" href="compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory" title="compass.utilities.enums.LLMUsageCategory"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMUsageCategory</span></code></a> entries. Pipeline components use
+these values for configuration (e.g., selecting prompt templates)
+while the paired usage categories ensure consistent metrics
+tracking.</p>
+<p class="rubric">Notes</p>
+<p>When a task is defined as a direct alias of an
+<a class="reference internal" href="compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory" title="compass.utilities.enums.LLMUsageCategory"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMUsageCategory</span></code></a>, it inherits the corresponding usage label
+so downstream monitoring does not require additional translation.</p>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.encode" title="compass.utilities.enums.LLMTasks.encode"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encode</span></code></a>([encoding, errors])</p></td>
+<td><p>Encode the string using the codec registered for encoding.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.replace" title="compass.utilities.enums.LLMTasks.replace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">replace</span></code></a>(old, new, /[, count])</p></td>
+<td><p>Return a copy with all occurrences of substring old replaced by new.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.split" title="compass.utilities.enums.LLMTasks.split"><code class="xref py py-obj docutils literal notranslate"><span class="pre">split</span></code></a>([sep, maxsplit])</p></td>
+<td><p>Return a list of the substrings in the string, using sep as the separator string.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.rsplit" title="compass.utilities.enums.LLMTasks.rsplit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rsplit</span></code></a>([sep, maxsplit])</p></td>
+<td><p>Return a list of the substrings in the string, using sep as the separator string.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.join" title="compass.utilities.enums.LLMTasks.join"><code class="xref py py-obj docutils literal notranslate"><span class="pre">join</span></code></a>(iterable, /)</p></td>
+<td><p>Concatenate any number of strings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.capitalize" title="compass.utilities.enums.LLMTasks.capitalize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capitalize</span></code></a>()</p></td>
+<td><p>Return a capitalized version of the string.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.casefold" title="compass.utilities.enums.LLMTasks.casefold"><code class="xref py py-obj docutils literal notranslate"><span class="pre">casefold</span></code></a>()</p></td>
+<td><p>Return a version of the string suitable for caseless comparisons.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.title" title="compass.utilities.enums.LLMTasks.title"><code class="xref py py-obj docutils literal notranslate"><span class="pre">title</span></code></a>()</p></td>
+<td><p>Return a version of the string where each word is titlecased.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.center" title="compass.utilities.enums.LLMTasks.center"><code class="xref py py-obj docutils literal notranslate"><span class="pre">center</span></code></a>(width[, fillchar])</p></td>
+<td><p>Return a centered string of length width.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.count" title="compass.utilities.enums.LLMTasks.count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">count</span></code></a></p></td>
+<td><p>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.expandtabs" title="compass.utilities.enums.LLMTasks.expandtabs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expandtabs</span></code></a>([tabsize])</p></td>
+<td><p>Return a copy where all tab characters are expanded using spaces.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.find" title="compass.utilities.enums.LLMTasks.find"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find</span></code></a></p></td>
+<td><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.partition" title="compass.utilities.enums.LLMTasks.partition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">partition</span></code></a>(sep, /)</p></td>
+<td><p>Partition the string into three parts using the given separator.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.index" title="compass.utilities.enums.LLMTasks.index"><code class="xref py py-obj docutils literal notranslate"><span class="pre">index</span></code></a></p></td>
+<td><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.ljust" title="compass.utilities.enums.LLMTasks.ljust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ljust</span></code></a>(width[, fillchar])</p></td>
+<td><p>Return a left-justified string of length width.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.lower" title="compass.utilities.enums.LLMTasks.lower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lower</span></code></a>()</p></td>
+<td><p>Return a copy of the string converted to lowercase.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.lstrip" title="compass.utilities.enums.LLMTasks.lstrip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">lstrip</span></code></a>([chars])</p></td>
+<td><p>Return a copy of the string with leading whitespace removed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.rfind" title="compass.utilities.enums.LLMTasks.rfind"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rfind</span></code></a></p></td>
+<td><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.rindex" title="compass.utilities.enums.LLMTasks.rindex"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rindex</span></code></a></p></td>
+<td><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.rjust" title="compass.utilities.enums.LLMTasks.rjust"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rjust</span></code></a>(width[, fillchar])</p></td>
+<td><p>Return a right-justified string of length width.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.rstrip" title="compass.utilities.enums.LLMTasks.rstrip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rstrip</span></code></a>([chars])</p></td>
+<td><p>Return a copy of the string with trailing whitespace removed.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.rpartition" title="compass.utilities.enums.LLMTasks.rpartition"><code class="xref py py-obj docutils literal notranslate"><span class="pre">rpartition</span></code></a>(sep, /)</p></td>
+<td><p>Partition the string into three parts using the given separator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.splitlines" title="compass.utilities.enums.LLMTasks.splitlines"><code class="xref py py-obj docutils literal notranslate"><span class="pre">splitlines</span></code></a>([keepends])</p></td>
+<td><p>Return a list of the lines in the string, breaking at line boundaries.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.strip" title="compass.utilities.enums.LLMTasks.strip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">strip</span></code></a>([chars])</p></td>
+<td><p>Return a copy of the string with leading and trailing whitespace removed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.swapcase" title="compass.utilities.enums.LLMTasks.swapcase"><code class="xref py py-obj docutils literal notranslate"><span class="pre">swapcase</span></code></a>()</p></td>
+<td><p>Convert uppercase characters to lowercase and lowercase characters to uppercase.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.translate" title="compass.utilities.enums.LLMTasks.translate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">translate</span></code></a>(table, /)</p></td>
+<td><p>Replace each character in the string using the given translation table.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.upper" title="compass.utilities.enums.LLMTasks.upper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">upper</span></code></a>()</p></td>
+<td><p>Return a copy of the string converted to uppercase.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.startswith" title="compass.utilities.enums.LLMTasks.startswith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">startswith</span></code></a></p></td>
+<td><p>Return True if the string starts with the specified prefix, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.endswith" title="compass.utilities.enums.LLMTasks.endswith"><code class="xref py py-obj docutils literal notranslate"><span class="pre">endswith</span></code></a></p></td>
+<td><p>Return True if the string ends with the specified suffix, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.removeprefix" title="compass.utilities.enums.LLMTasks.removeprefix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">removeprefix</span></code></a>(prefix, /)</p></td>
+<td><p>Return a str with the given prefix string removed if present.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.removesuffix" title="compass.utilities.enums.LLMTasks.removesuffix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">removesuffix</span></code></a>(suffix, /)</p></td>
+<td><p>Return a str with the given suffix string removed if present.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isascii" title="compass.utilities.enums.LLMTasks.isascii"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isascii</span></code></a>()</p></td>
+<td><p>Return True if all characters in the string are ASCII, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.islower" title="compass.utilities.enums.LLMTasks.islower"><code class="xref py py-obj docutils literal notranslate"><span class="pre">islower</span></code></a>()</p></td>
+<td><p>Return True if the string is a lowercase string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isupper" title="compass.utilities.enums.LLMTasks.isupper"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isupper</span></code></a>()</p></td>
+<td><p>Return True if the string is an uppercase string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.istitle" title="compass.utilities.enums.LLMTasks.istitle"><code class="xref py py-obj docutils literal notranslate"><span class="pre">istitle</span></code></a>()</p></td>
+<td><p>Return True if the string is a title-cased string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isspace" title="compass.utilities.enums.LLMTasks.isspace"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isspace</span></code></a>()</p></td>
+<td><p>Return True if the string is a whitespace string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isdecimal" title="compass.utilities.enums.LLMTasks.isdecimal"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdecimal</span></code></a>()</p></td>
+<td><p>Return True if the string is a decimal string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isdigit" title="compass.utilities.enums.LLMTasks.isdigit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isdigit</span></code></a>()</p></td>
+<td><p>Return True if the string is a digit string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isnumeric" title="compass.utilities.enums.LLMTasks.isnumeric"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isnumeric</span></code></a>()</p></td>
+<td><p>Return True if the string is a numeric string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isalpha" title="compass.utilities.enums.LLMTasks.isalpha"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalpha</span></code></a>()</p></td>
+<td><p>Return True if the string is an alphabetic string, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isalnum" title="compass.utilities.enums.LLMTasks.isalnum"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isalnum</span></code></a>()</p></td>
+<td><p>Return True if the string is an alpha-numeric string, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isidentifier" title="compass.utilities.enums.LLMTasks.isidentifier"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isidentifier</span></code></a>()</p></td>
+<td><p>Return True if the string is a valid Python identifier, False otherwise.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.isprintable" title="compass.utilities.enums.LLMTasks.isprintable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">isprintable</span></code></a>()</p></td>
+<td><p>Return True if all characters in the string are printable, False otherwise.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.zfill" title="compass.utilities.enums.LLMTasks.zfill"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zfill</span></code></a>(width, /)</p></td>
+<td><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.format" title="compass.utilities.enums.LLMTasks.format"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format</span></code></a>(*args, **kwargs)</p></td>
+<td><p>Return a formatted version of the string, using substitutions from args and kwargs.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.format_map" title="compass.utilities.enums.LLMTasks.format_map"><code class="xref py py-obj docutils literal notranslate"><span class="pre">format_map</span></code></a>(mapping, /)</p></td>
+<td><p>Return a formatted version of the string, using substitutions from mapping.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.maketrans" title="compass.utilities.enums.LLMTasks.maketrans"><code class="xref py py-obj docutils literal notranslate"><span class="pre">maketrans</span></code></a></p></td>
+<td><p>Return a translation table usable for str.translate().</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.DATE_EXTRACTION" title="compass.utilities.enums.LLMTasks.DATE_EXTRACTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DATE_EXTRACTION</span></code></a></p></td>
+<td><p>Date extraction task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.DEFAULT" title="compass.utilities.enums.LLMTasks.DEFAULT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT</span></code></a></p></td>
+<td><p>Default fallback option for all tasks</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.DOCUMENT_CONTENT_VALIDATION" title="compass.utilities.enums.LLMTasks.DOCUMENT_CONTENT_VALIDATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DOCUMENT_CONTENT_VALIDATION</span></code></a></p></td>
+<td><p>Document content validation task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.DOCUMENT_JURISDICTION_VALIDATION" title="compass.utilities.enums.LLMTasks.DOCUMENT_JURISDICTION_VALIDATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DOCUMENT_JURISDICTION_VALIDATION</span></code></a></p></td>
+<td><p>Document belongs to correct jurisdiction validation task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION" title="compass.utilities.enums.LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JURISDICTION_MAIN_WEBSITE_VALIDATION</span></code></a></p></td>
+<td><p>Webpage is main page for jurisdiction validation task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.ORDINANCE_TEXT_EXTRACTION" title="compass.utilities.enums.LLMTasks.ORDINANCE_TEXT_EXTRACTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ORDINANCE_TEXT_EXTRACTION</span></code></a></p></td>
+<td><p>Ordinance text extraction task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.PERMITTED_USE_TEXT_EXTRACTION" title="compass.utilities.enums.LLMTasks.PERMITTED_USE_TEXT_EXTRACTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PERMITTED_USE_TEXT_EXTRACTION</span></code></a></p></td>
+<td><p>Permitted use text extraction task</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.ORDINANCE_VALUE_EXTRACTION" title="compass.utilities.enums.LLMTasks.ORDINANCE_VALUE_EXTRACTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ORDINANCE_VALUE_EXTRACTION</span></code></a></p></td>
+<td><p>Ordinance structured value extraction task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.utilities.enums.LLMTasks.PERMITTED_USE_VALUE_EXTRACTION" title="compass.utilities.enums.LLMTasks.PERMITTED_USE_VALUE_EXTRACTION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PERMITTED_USE_VALUE_EXTRACTION</span></code></a></p></td>
+<td><p>Permitted use structured value extraction task</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.__add__">
+<span class="sig-name descname"><span class="pre">__add__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.__add__" title="Link to this definition">#</a></dt>
+<dd><p>Return self+value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.__mul__">
+<span class="sig-name descname"><span class="pre">__mul__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.__mul__" title="Link to this definition">#</a></dt>
+<dd><p>Return self*value.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.encode">
+<span class="sig-name descname"><span class="pre">encode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'utf-8'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">errors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'strict'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.encode" title="Link to this definition">#</a></dt>
+<dd><p>Encode the string using the codec registered for encoding.</p>
+<dl class="simple">
+<dt>encoding</dt><dd><p>The encoding in which to encode the string.</p>
+</dd>
+<dt>errors</dt><dd><p>The error handling scheme to use for encoding errors.
+The default is ‘strict’ meaning that encoding errors raise a
+UnicodeEncodeError.  Other possible values are ‘ignore’, ‘replace’ and
+‘xmlcharrefreplace’ as well as any other name registered with
+codecs.register_error that can handle UnicodeEncodeErrors.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.replace">
+<span class="sig-name descname"><span class="pre">replace</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">old</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">count</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.replace" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy with all occurrences of substring old replaced by new.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>count</dt><dd><p>Maximum number of occurrences to replace.
+-1 (the default value) means replace all occurrences.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>If the optional argument count is given, only the first count occurrences are
+replaced.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.split">
+<span class="sig-name descname"><span class="pre">split</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsplit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.split" title="Link to this definition">#</a></dt>
+<dd><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+<blockquote>
+<div><dl>
+<dt>sep</dt><dd><p>The separator used to split the string.</p>
+<p>When set to None (the default value), will split on any whitespace
+character (including n r t f and spaces) and will discard
+empty strings from the result.</p>
+</dd>
+<dt>maxsplit</dt><dd><p>Maximum number of splits.
+-1 (the default value) means no limit.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Splitting starts at the front of the string and works to the end.</p>
+<p>Note, str.split() is mainly useful for data that has been intentionally
+delimited.  With natural text that includes punctuation, consider using
+the regular expression module.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.rsplit">
+<span class="sig-name descname"><span class="pre">rsplit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">maxsplit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">-1</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.rsplit" title="Link to this definition">#</a></dt>
+<dd><p>Return a list of the substrings in the string, using sep as the separator string.</p>
+<blockquote>
+<div><dl>
+<dt>sep</dt><dd><p>The separator used to split the string.</p>
+<p>When set to None (the default value), will split on any whitespace
+character (including n r t f and spaces) and will discard
+empty strings from the result.</p>
+</dd>
+<dt>maxsplit</dt><dd><p>Maximum number of splits.
+-1 (the default value) means no limit.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>Splitting starts at the end of the string and works to the front.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.join">
+<span class="sig-name descname"><span class="pre">join</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">iterable</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.join" title="Link to this definition">#</a></dt>
+<dd><p>Concatenate any number of strings.</p>
+<p>The string whose method is called is inserted in between each given string.
+The result is returned as a new string.</p>
+<p>Example: ‘.’.join([‘ab’, ‘pq’, ‘rs’]) -&gt; ‘ab.pq.rs’</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.capitalize">
+<span class="sig-name descname"><span class="pre">capitalize</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.capitalize" title="Link to this definition">#</a></dt>
+<dd><p>Return a capitalized version of the string.</p>
+<p>More specifically, make the first character have upper case and the rest lower
+case.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.casefold">
+<span class="sig-name descname"><span class="pre">casefold</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.casefold" title="Link to this definition">#</a></dt>
+<dd><p>Return a version of the string suitable for caseless comparisons.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.title">
+<span class="sig-name descname"><span class="pre">title</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.title" title="Link to this definition">#</a></dt>
+<dd><p>Return a version of the string where each word is titlecased.</p>
+<p>More specifically, words start with uppercased characters and all remaining
+cased characters have lower case.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.center">
+<span class="sig-name descname"><span class="pre">center</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.center" title="Link to this definition">#</a></dt>
+<dd><p>Return a centered string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.count">
+<span class="sig-name descname"><span class="pre">count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.count" title="Link to this definition">#</a></dt>
+<dd><p>Return the number of non-overlapping occurrences of substring sub in string S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.expandtabs">
+<span class="sig-name descname"><span class="pre">expandtabs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tabsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">8</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.expandtabs" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy where all tab characters are expanded using spaces.</p>
+<p>If tabsize is not given, a tab size of 8 characters is assumed.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.find">
+<span class="sig-name descname"><span class="pre">find</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.find" title="Link to this definition">#</a></dt>
+<dd><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Return -1 on failure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.partition">
+<span class="sig-name descname"><span class="pre">partition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.partition" title="Link to this definition">#</a></dt>
+<dd><p>Partition the string into three parts using the given separator.</p>
+<p>This will search for the separator in the string.  If the separator is found,
+returns a 3-tuple containing the part before the separator, the separator
+itself, and the part after it.</p>
+<p>If the separator is not found, returns a 3-tuple containing the original string
+and two empty strings.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.index">
+<span class="sig-name descname"><span class="pre">index</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.index" title="Link to this definition">#</a></dt>
+<dd><p>Return the lowest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Raises ValueError when the substring is not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.ljust">
+<span class="sig-name descname"><span class="pre">ljust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.ljust" title="Link to this definition">#</a></dt>
+<dd><p>Return a left-justified string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.lower">
+<span class="sig-name descname"><span class="pre">lower</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.lower" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string converted to lowercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.lstrip">
+<span class="sig-name descname"><span class="pre">lstrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.lstrip" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string with leading whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.rfind">
+<span class="sig-name descname"><span class="pre">rfind</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.rfind" title="Link to this definition">#</a></dt>
+<dd><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Return -1 on failure.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.rindex">
+<span class="sig-name descname"><span class="pre">rindex</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.rindex" title="Link to this definition">#</a></dt>
+<dd><p>Return the highest index in S where substring sub is found, such that sub is contained within S[start:end].</p>
+<p>Optional arguments start and end are interpreted as in slice notation.
+Raises ValueError when the substring is not found.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.rjust">
+<span class="sig-name descname"><span class="pre">rjust</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fillchar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'</span> <span class="pre">'</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.rjust" title="Link to this definition">#</a></dt>
+<dd><p>Return a right-justified string of length width.</p>
+<p>Padding is done using the specified fill character (default is a space).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.rstrip">
+<span class="sig-name descname"><span class="pre">rstrip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.rstrip" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string with trailing whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.rpartition">
+<span class="sig-name descname"><span class="pre">rpartition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sep</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.rpartition" title="Link to this definition">#</a></dt>
+<dd><p>Partition the string into three parts using the given separator.</p>
+<p>This will search for the separator in the string, starting at the end. If
+the separator is found, returns a 3-tuple containing the part before the
+separator, the separator itself, and the part after it.</p>
+<p>If the separator is not found, returns a 3-tuple containing two empty strings
+and the original string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.splitlines">
+<span class="sig-name descname"><span class="pre">splitlines</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keepends</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.splitlines" title="Link to this definition">#</a></dt>
+<dd><p>Return a list of the lines in the string, breaking at line boundaries.</p>
+<p>Line breaks are not included in the resulting list unless keepends is given and
+true.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.strip">
+<span class="sig-name descname"><span class="pre">strip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chars</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.strip" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string with leading and trailing whitespace removed.</p>
+<p>If chars is given and not None, remove characters in chars instead.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.swapcase">
+<span class="sig-name descname"><span class="pre">swapcase</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.swapcase" title="Link to this definition">#</a></dt>
+<dd><p>Convert uppercase characters to lowercase and lowercase characters to uppercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.translate">
+<span class="sig-name descname"><span class="pre">translate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.translate" title="Link to this definition">#</a></dt>
+<dd><p>Replace each character in the string using the given translation table.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>table</dt><dd><p>Translation table, which must be a mapping of Unicode ordinals to
+Unicode ordinals, strings, or None.</p>
+</dd>
+</dl>
+</div></blockquote>
+<p>The table must implement lookup/indexing via __getitem__, for instance a
+dictionary or list.  If this operation raises LookupError, the character is
+left untouched.  Characters mapped to None are deleted.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.upper">
+<span class="sig-name descname"><span class="pre">upper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.upper" title="Link to this definition">#</a></dt>
+<dd><p>Return a copy of the string converted to uppercase.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.startswith">
+<span class="sig-name descname"><span class="pre">startswith</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.startswith" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string starts with the specified prefix, False otherwise.</p>
+<dl class="simple">
+<dt>prefix</dt><dd><p>A string or a tuple of strings to try.</p>
+</dd>
+<dt>start</dt><dd><p>Optional start position. Default: start of the string.</p>
+</dd>
+<dt>end</dt><dd><p>Optional stop position. Default: end of the string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.endswith">
+<span class="sig-name descname"><span class="pre">endswith</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.endswith" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string ends with the specified suffix, False otherwise.</p>
+<dl class="simple">
+<dt>suffix</dt><dd><p>A string or a tuple of strings to try.</p>
+</dd>
+<dt>start</dt><dd><p>Optional start position. Default: start of the string.</p>
+</dd>
+<dt>end</dt><dd><p>Optional stop position. Default: end of the string.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.removeprefix">
+<span class="sig-name descname"><span class="pre">removeprefix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.removeprefix" title="Link to this definition">#</a></dt>
+<dd><p>Return a str with the given prefix string removed if present.</p>
+<p>If the string starts with the prefix string, return string[len(prefix):].
+Otherwise, return a copy of the original string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.removesuffix">
+<span class="sig-name descname"><span class="pre">removesuffix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">suffix</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.removesuffix" title="Link to this definition">#</a></dt>
+<dd><p>Return a str with the given suffix string removed if present.</p>
+<p>If the string ends with the suffix string and that suffix is not empty,
+return string[:-len(suffix)]. Otherwise, return a copy of the original
+string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isascii">
+<span class="sig-name descname"><span class="pre">isascii</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isascii" title="Link to this definition">#</a></dt>
+<dd><p>Return True if all characters in the string are ASCII, False otherwise.</p>
+<p>ASCII characters have code points in the range U+0000-U+007F.
+Empty string is ASCII too.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.islower">
+<span class="sig-name descname"><span class="pre">islower</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.islower" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a lowercase string, False otherwise.</p>
+<p>A string is lowercase if all cased characters in the string are lowercase and
+there is at least one cased character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isupper">
+<span class="sig-name descname"><span class="pre">isupper</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isupper" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is an uppercase string, False otherwise.</p>
+<p>A string is uppercase if all cased characters in the string are uppercase and
+there is at least one cased character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.istitle">
+<span class="sig-name descname"><span class="pre">istitle</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.istitle" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a title-cased string, False otherwise.</p>
+<p>In a title-cased string, upper- and title-case characters may only
+follow uncased characters and lowercase characters only cased ones.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isspace">
+<span class="sig-name descname"><span class="pre">isspace</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isspace" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a whitespace string, False otherwise.</p>
+<p>A string is whitespace if all characters in the string are whitespace and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isdecimal">
+<span class="sig-name descname"><span class="pre">isdecimal</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isdecimal" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a decimal string, False otherwise.</p>
+<p>A string is a decimal string if all characters in the string are decimal and
+there is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isdigit">
+<span class="sig-name descname"><span class="pre">isdigit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isdigit" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a digit string, False otherwise.</p>
+<p>A string is a digit string if all characters in the string are digits and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isnumeric">
+<span class="sig-name descname"><span class="pre">isnumeric</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isnumeric" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a numeric string, False otherwise.</p>
+<p>A string is numeric if all characters in the string are numeric and there is at
+least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isalpha">
+<span class="sig-name descname"><span class="pre">isalpha</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isalpha" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is an alphabetic string, False otherwise.</p>
+<p>A string is alphabetic if all characters in the string are alphabetic and there
+is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isalnum">
+<span class="sig-name descname"><span class="pre">isalnum</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isalnum" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is an alpha-numeric string, False otherwise.</p>
+<p>A string is alpha-numeric if all characters in the string are alpha-numeric and
+there is at least one character in the string.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isidentifier">
+<span class="sig-name descname"><span class="pre">isidentifier</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isidentifier" title="Link to this definition">#</a></dt>
+<dd><p>Return True if the string is a valid Python identifier, False otherwise.</p>
+<p>Call keyword.iskeyword(s) to test whether string s is a reserved identifier,
+such as “def” or “class”.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.isprintable">
+<span class="sig-name descname"><span class="pre">isprintable</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.isprintable" title="Link to this definition">#</a></dt>
+<dd><p>Return True if all characters in the string are printable, False otherwise.</p>
+<p>A character is printable if repr() may use it in its output.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.zfill">
+<span class="sig-name descname"><span class="pre">zfill</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">width</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.zfill" title="Link to this definition">#</a></dt>
+<dd><p>Pad a numeric string with zeros on the left, to fill a field of the given width.</p>
+<p>The string is never truncated.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.format">
+<span class="sig-name descname"><span class="pre">format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.format" title="Link to this definition">#</a></dt>
+<dd><p>Return a formatted version of the string, using substitutions from args and kwargs.
+The substitutions are identified by braces (‘{’ and ‘}’).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.format_map">
+<span class="sig-name descname"><span class="pre">format_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mapping</span></span></em>, <em class="sig-param"><span class="positional-only-separator o"><abbr title="Positional-only parameter separator (PEP 570)"><span class="pre">/</span></abbr></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.format_map" title="Link to this definition">#</a></dt>
+<dd><p>Return a formatted version of the string, using substitutions from mapping.
+The substitutions are identified by braces (‘{’ and ‘}’).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.maketrans">
+<span class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">maketrans</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.maketrans" title="Link to this definition">#</a></dt>
+<dd><p>Return a translation table usable for str.translate().</p>
+<p>If there is only one argument, it must be a dictionary mapping Unicode
+ordinals (integers) or characters to Unicode ordinals, strings or None.
+Character keys will be then converted to ordinals.
+If there are two arguments, they must be strings of equal length, and
+in the resulting dictionary, each character in x will be mapped to the
+character at the same position in y. If there is a third argument, it
+must be a string, whose characters will be mapped to None in the result.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.DATE_EXTRACTION">
+<span class="sig-name descname"><span class="pre">DATE_EXTRACTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'date_extraction'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.DATE_EXTRACTION" title="Link to this definition">#</a></dt>
+<dd><p>Date extraction task</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.DEFAULT">
+<span class="sig-name descname"><span class="pre">DEFAULT</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'default'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.DEFAULT" title="Link to this definition">#</a></dt>
+<dd><p>Default fallback option for all tasks</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.DOCUMENT_CONTENT_VALIDATION">
+<span class="sig-name descname"><span class="pre">DOCUMENT_CONTENT_VALIDATION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'document_content_validation'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.DOCUMENT_CONTENT_VALIDATION" title="Link to this definition">#</a></dt>
+<dd><p>Document content validation task</p>
+<p>This represents a task like “does the document contain ordinance
+values” or “does the document contain permitted use specifications”.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.DOCUMENT_JURISDICTION_VALIDATION">
+<span class="sig-name descname"><span class="pre">DOCUMENT_JURISDICTION_VALIDATION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'document_jurisdiction_validation'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.DOCUMENT_JURISDICTION_VALIDATION" title="Link to this definition">#</a></dt>
+<dd><p>Document belongs to correct jurisdiction validation task</p>
+<p>This represents all the tasks associated with validation that the
+document pertains to a particular jurisdiction.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION">
+<span class="sig-name descname"><span class="pre">JURISDICTION_MAIN_WEBSITE_VALIDATION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'jurisdiction_main_website_validation'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION" title="Link to this definition">#</a></dt>
+<dd><p>Webpage is main page for jurisdiction validation task</p>
+<p>This represents all the tasks associated with validation that the
+document pertains to a particular jurisdiction.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.ORDINANCE_TEXT_EXTRACTION">
+<span class="sig-name descname"><span class="pre">ORDINANCE_TEXT_EXTRACTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ordinance_text_extraction'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.ORDINANCE_TEXT_EXTRACTION" title="Link to this definition">#</a></dt>
+<dd><p>Ordinance text extraction task</p>
+<p>This task represents the extraction/summarization of text containing
+ordinance values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.PERMITTED_USE_TEXT_EXTRACTION">
+<span class="sig-name descname"><span class="pre">PERMITTED_USE_TEXT_EXTRACTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'permitted_use_text_extraction'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.PERMITTED_USE_TEXT_EXTRACTION" title="Link to this definition">#</a></dt>
+<dd><p>Permitted use text extraction task</p>
+<p>This task represents the extraction/summarization of text containing
+permitted use descriptions and allowances.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.ORDINANCE_VALUE_EXTRACTION">
+<span class="sig-name descname"><span class="pre">ORDINANCE_VALUE_EXTRACTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'ordinance_value_extraction'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.ORDINANCE_VALUE_EXTRACTION" title="Link to this definition">#</a></dt>
+<dd><p>Ordinance structured value extraction task</p>
+<p>This task represents the extraction of structured ordinance values.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.utilities.enums.LLMTasks.PERMITTED_USE_VALUE_EXTRACTION">
+<span class="sig-name descname"><span class="pre">PERMITTED_USE_VALUE_EXTRACTION</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'permitted_use_value_extraction'</span></span><a class="headerlink" href="#compass.utilities.enums.LLMTasks.PERMITTED_USE_VALUE_EXTRACTION" title="Link to this definition">#</a></dt>
+<dd><p>Permitted use structured value extraction task</p>
+<p>This task represents the extraction of structured permitted use
+values.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="compass.utilities.enums.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">compass.utilities.enums</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="compass.utilities.enums.LLMUsageCategory.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">compass.utilities.enums.LLMUsageCategory</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks"><code class="docutils literal notranslate"><span class="pre">LLMTasks</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.__add__"><code class="docutils literal notranslate"><span class="pre">LLMTasks.__add__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.__mul__"><code class="docutils literal notranslate"><span class="pre">LLMTasks.__mul__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.encode"><code class="docutils literal notranslate"><span class="pre">LLMTasks.encode()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.replace"><code class="docutils literal notranslate"><span class="pre">LLMTasks.replace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.split"><code class="docutils literal notranslate"><span class="pre">LLMTasks.split()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.rsplit"><code class="docutils literal notranslate"><span class="pre">LLMTasks.rsplit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.join"><code class="docutils literal notranslate"><span class="pre">LLMTasks.join()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.capitalize"><code class="docutils literal notranslate"><span class="pre">LLMTasks.capitalize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.casefold"><code class="docutils literal notranslate"><span class="pre">LLMTasks.casefold()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.title"><code class="docutils literal notranslate"><span class="pre">LLMTasks.title()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.center"><code class="docutils literal notranslate"><span class="pre">LLMTasks.center()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.count"><code class="docutils literal notranslate"><span class="pre">LLMTasks.count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.expandtabs"><code class="docutils literal notranslate"><span class="pre">LLMTasks.expandtabs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.find"><code class="docutils literal notranslate"><span class="pre">LLMTasks.find()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.partition"><code class="docutils literal notranslate"><span class="pre">LLMTasks.partition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.index"><code class="docutils literal notranslate"><span class="pre">LLMTasks.index()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.ljust"><code class="docutils literal notranslate"><span class="pre">LLMTasks.ljust()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.lower"><code class="docutils literal notranslate"><span class="pre">LLMTasks.lower()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.lstrip"><code class="docutils literal notranslate"><span class="pre">LLMTasks.lstrip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.rfind"><code class="docutils literal notranslate"><span class="pre">LLMTasks.rfind()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.rindex"><code class="docutils literal notranslate"><span class="pre">LLMTasks.rindex()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.rjust"><code class="docutils literal notranslate"><span class="pre">LLMTasks.rjust()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.rstrip"><code class="docutils literal notranslate"><span class="pre">LLMTasks.rstrip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.rpartition"><code class="docutils literal notranslate"><span class="pre">LLMTasks.rpartition()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.splitlines"><code class="docutils literal notranslate"><span class="pre">LLMTasks.splitlines()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.strip"><code class="docutils literal notranslate"><span class="pre">LLMTasks.strip()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.swapcase"><code class="docutils literal notranslate"><span class="pre">LLMTasks.swapcase()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.translate"><code class="docutils literal notranslate"><span class="pre">LLMTasks.translate()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.upper"><code class="docutils literal notranslate"><span class="pre">LLMTasks.upper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.startswith"><code class="docutils literal notranslate"><span class="pre">LLMTasks.startswith()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.endswith"><code class="docutils literal notranslate"><span class="pre">LLMTasks.endswith()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.removeprefix"><code class="docutils literal notranslate"><span class="pre">LLMTasks.removeprefix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.removesuffix"><code class="docutils literal notranslate"><span class="pre">LLMTasks.removesuffix()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isascii"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isascii()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.islower"><code class="docutils literal notranslate"><span class="pre">LLMTasks.islower()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isupper"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isupper()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.istitle"><code class="docutils literal notranslate"><span class="pre">LLMTasks.istitle()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isspace"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isspace()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isdecimal"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isdecimal()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isdigit"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isdigit()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isnumeric"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isnumeric()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isalpha"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isalpha()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isalnum"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isalnum()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isidentifier"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isidentifier()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.isprintable"><code class="docutils literal notranslate"><span class="pre">LLMTasks.isprintable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.zfill"><code class="docutils literal notranslate"><span class="pre">LLMTasks.zfill()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.format"><code class="docutils literal notranslate"><span class="pre">LLMTasks.format()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.format_map"><code class="docutils literal notranslate"><span class="pre">LLMTasks.format_map()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.maketrans"><code class="docutils literal notranslate"><span class="pre">LLMTasks.maketrans()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.DATE_EXTRACTION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.DATE_EXTRACTION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.DEFAULT"><code class="docutils literal notranslate"><span class="pre">LLMTasks.DEFAULT</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.DOCUMENT_CONTENT_VALIDATION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.DOCUMENT_CONTENT_VALIDATION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.DOCUMENT_JURISDICTION_VALIDATION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.DOCUMENT_JURISDICTION_VALIDATION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.ORDINANCE_TEXT_EXTRACTION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.ORDINANCE_TEXT_EXTRACTION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.PERMITTED_USE_TEXT_EXTRACTION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.PERMITTED_USE_TEXT_EXTRACTION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.ORDINANCE_VALUE_EXTRACTION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.ORDINANCE_VALUE_EXTRACTION</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.utilities.enums.LLMTasks.PERMITTED_USE_VALUE_EXTRACTION"><code class="docutils literal notranslate"><span class="pre">LLMTasks.PERMITTED_USE_VALUE_EXTRACTION</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

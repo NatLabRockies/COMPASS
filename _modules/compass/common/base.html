@@ -1,0 +1,1908 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.common.base &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../../_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../../_static/tabs.js?v=3030b3cb"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/common/base';</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.common.base</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.common.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Common ordinance extraction components&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ApiBase</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.common.tree</span><span class="w"> </span><span class="kn">import</span> <span class="n">AsyncDecisionTree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">llm_response_as_json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMUsageCategory</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.parsing</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">merge_overlapping_texts</span><span class="p">,</span>
+    <span class="n">clean_backticks_from_llm_response</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSRuntimeError</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">_SECTION_PROMPT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;The value of the &#39;section&#39; key should be a string representing the &quot;</span>
+    <span class="s2">&quot;title of the section (including numerical labels), if it&#39;s given, &quot;</span>
+    <span class="s2">&quot;and `null` otherwise.&quot;</span>
+<span class="p">)</span>
+<span class="n">_SUMMARY_PROMPT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;The value of the &#39;summary&#39; key should be a short summary of the relevant &quot;</span>
+    <span class="s2">&quot;ordinance, **using direct text excerpts as much as possible.** &quot;</span>
+    <span class="s2">&quot;If you had to make a selection when reporting the ordinance, be sure to &quot;</span>
+    <span class="s2">&quot;list out all the other options and their conditions in the summary.&quot;</span>
+<span class="p">)</span>
+<span class="n">_YES_NO_PROMPT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Please start your response with either &#39;Yes&#39; or &#39;No&#39; and briefly &quot;</span>
+    <span class="s2">&quot;explain your answer.&quot;</span>
+<span class="p">)</span>
+<span class="n">_UNITS_IN_SUMMARY_PROMPT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Also include any clarifications about the units in the summary.&quot;</span>
+<span class="p">)</span>
+<span class="n">EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;Extract all portions of the text (with original formatting) &quot;</span>
+    <span class="s2">&quot;that state how close I can site </span><span class="si">{tech}</span><span class="s2"> to </span><span class="si">{feature}</span><span class="s2">. &quot;</span>
+    <span class="s2">&quot;</span><span class="si">{feature_clarifications}</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;Please consider only ordinances relating to setbacks from </span><span class="si">{feature}</span><span class="s2">; &quot;</span>
+    <span class="s2">&quot;do not respond based on any text related to </span><span class="si">{ignore_features}</span><span class="s2">. &quot;</span>
+    <span class="s2">&quot;The extracted text will be used for structured data extraction, so it &quot;</span>
+    <span class="s2">&quot;must be both **comprehensive** (retaining all relevant details) and &quot;</span>
+    <span class="s2">&quot;**focused** (excluding unrelated content). Ensure that all retained &quot;</span>
+    <span class="s2">&quot;information is **directly applicable** to </span><span class="si">{system_size_reminder}</span><span class="s2">&quot;</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="setup_graph_no_nodes">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.setup_graph_no_nodes.html#compass.common.base.setup_graph_no_nodes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_no_nodes</span><span class="p">(</span><span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Unknown Decision Tree&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup a graph with no nodes</span>
+
+<span class="sd">    This function is used to set keywords on the graph that can be used</span>
+<span class="sd">    in text prompts on the graph nodes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    d_tree_name : str, default=&quot;Unknown Decision Tree&quot;</span>
+<span class="sd">        Name of the decision tree being set up (used for logging).</span>
+<span class="sd">        By default, &quot;Unknown Decision Tree&quot;.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    networkx.DiGraph</span>
+<span class="sd">        Graph with no nodes but with global keywords set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feat</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feature_id&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;url&quot;</span><span class="p">)))</span>
+    <span class="k">if</span> <span class="n">feat</span><span class="p">:</span>
+        <span class="n">d_tree_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">d_tree_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">feat</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">return</span> <span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">(</span>
+        <span class="n">SECTION_PROMPT</span><span class="o">=</span><span class="n">_SECTION_PROMPT</span><span class="p">,</span>
+        <span class="n">SUMMARY_PROMPT</span><span class="o">=</span><span class="n">_SUMMARY_PROMPT</span><span class="p">,</span>
+        <span class="n">YES_NO_PROMPT</span><span class="o">=</span><span class="n">_YES_NO_PROMPT</span><span class="p">,</span>
+        <span class="n">UNITS_IN_SUMMARY_PROMPT</span><span class="o">=</span><span class="n">_UNITS_IN_SUMMARY_PROMPT</span><span class="p">,</span>
+        <span class="n">_d_tree_name</span><span class="o">=</span><span class="n">d_tree_name</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="llm_response_starts_with_yes">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.llm_response_starts_with_yes.html#compass.common.base.llm_response_starts_with_yes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">llm_response_starts_with_yes</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if LLM response begins with &quot;yes&quot; (case-insensitive)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    response : str</span>
+<span class="sd">        LLM response string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        `True` if LLM response begins with &quot;Yes&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;yes&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="llm_response_starts_with_no">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.llm_response_starts_with_no.html#compass.common.base.llm_response_starts_with_no">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">llm_response_starts_with_no</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if LLM response begins with &quot;no&quot; (case-insensitive)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    response : str</span>
+<span class="sd">        LLM response string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        `True` if LLM response begins with &quot;No&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;no&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="llm_response_does_not_start_with_no">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.llm_response_does_not_start_with_no.html#compass.common.base.llm_response_does_not_start_with_no">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">llm_response_does_not_start_with_no</span><span class="p">(</span><span class="n">response</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if LLM response does not start with &quot;no&quot; (case-insensitive)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    response : str</span>
+<span class="sd">        LLM response string.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        `True` if LLM response does not begin with &quot;No&quot;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">llm_response_starts_with_no</span><span class="p">(</span><span class="n">response</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="setup_async_decision_tree">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.setup_async_decision_tree.html#compass.common.base.setup_async_decision_tree">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_async_decision_tree</span><span class="p">(</span>
+    <span class="n">graph_setup_func</span><span class="p">,</span> <span class="n">usage_sub_label</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup an ``AsyncDecisionTree`` for ordinance extraction</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    graph_setup_func : callable</span>
+<span class="sd">        Factory that returns a fully configured</span>
+<span class="sd">        :class:`networkx.DiGraph`.</span>
+<span class="sd">    usage_sub_label : str, optional</span>
+<span class="sd">        Optional usage label reported to the LLM usage tracker.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword arguments forwarded to ``graph_setup_func``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    AsyncDecisionTree</span>
+<span class="sd">        Decision tree wrapping the graph produced by</span>
+<span class="sd">        ``graph_setup_func``.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function asserts that the tree has recorded at least the system</span>
+<span class="sd">    prompt before returning the constructed wrapper.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">graph_setup_func</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>  <span class="c1"># noqa: N806</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">AsyncDecisionTree</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">usage_sub_label</span><span class="o">=</span><span class="n">usage_sub_label</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">chat_llm_caller</span><span class="o">.</span><span class="n">messages</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">tree</span></div>
+
+
+
+<div class="viewcode-block" id="run_async_tree">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.run_async_tree.html#compass.common.base.run_async_tree">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_async_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">response_as_json</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run an async decision tree and optionally parse JSON output</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tree : AsyncDecisionTree</span>
+<span class="sd">        Decision tree to execute.</span>
+<span class="sd">    response_as_json : bool, default=True</span>
+<span class="sd">        If ``True``, attempts to parse the LLM response as JSON using</span>
+<span class="sd">        :func:`compass.utilities.parsing.llm_response_as_json`.</span>
+<span class="sd">        By default, ``True``.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or str or None</span>
+<span class="sd">        Parsed dictionary when ``response_as_json`` is ``True``, raw</span>
+<span class="sd">        response otherwise. Returns ``None`` if execution fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">tree</span><span class="o">.</span><span class="n">async_run</span><span class="p">()</span>
+    <span class="k">except</span> <span class="n">COMPASSRuntimeError</span><span class="p">:</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">response_as_json</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">llm_response_as_json</span><span class="p">(</span><span class="n">response</span><span class="p">)</span> <span class="k">if</span> <span class="n">response</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="k">return</span> <span class="n">response</span></div>
+
+
+
+<div class="viewcode-block" id="run_async_tree_with_bm">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.run_async_tree_with_bm.html#compass.common.base.run_async_tree_with_bm">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run_async_tree_with_bm</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">base_messages</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run an async decision tree using seed &quot;base&quot; messages</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tree : AsyncDecisionTree</span>
+<span class="sd">        Decision tree to execute.</span>
+<span class="sd">    base_messages : list of dict</span>
+<span class="sd">        Messages to preload into the tree&#39;s chat caller before running.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or str or None</span>
+<span class="sd">        Output from :func:`run_async_tree`, filtered by the</span>
+<span class="sd">        ``response_as_json`` default.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tree</span><span class="o">.</span><span class="n">chat_llm_caller</span><span class="o">.</span><span class="n">messages</span> <span class="o">=</span> <span class="n">base_messages</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">chat_llm_caller</span><span class="o">.</span><span class="n">messages</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">base_messages</span><span class="p">)</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">run_async_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="empty_output">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.empty_output.html#compass.common.base.empty_output">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">empty_output</span><span class="p">(</span><span class="n">feature</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the default empty result for a missing feature</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature : str</span>
+<span class="sd">        Name of the feature to seed in the empty output structure.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of dict</span>
+<span class="sd">        Empty result placeholders used by downstream extraction logic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">feature</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;structures&quot;</span><span class="p">,</span> <span class="s2">&quot;property line&quot;</span><span class="p">}:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;feature&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s2"> (participating)&quot;</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;feature&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">feature</span><span class="si">}</span><span class="s2"> (non-participating)&quot;</span><span class="p">},</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[{</span><span class="s2">&quot;feature&quot;</span><span class="p">:</span> <span class="n">feature</span><span class="p">}]</span></div>
+
+
+
+<div class="viewcode-block" id="setup_base_setback_graph">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.setup_base_setback_graph.html#compass.common.base.setup_base_setback_graph">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_base_setback_graph</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get setback ordinance text for a given feature</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    networkx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># noqa: N806</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Base setback questions&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is there text in the following legal document that describes &quot;</span>
+            <span class="s2">&quot;how far I have to setback </span><span class="si">{tech}</span><span class="s2"> from </span><span class="si">{feature}</span><span class="s2">? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{feature_clarifications}</span><span class="s2">&quot;</span>  <span class="c1"># expected to end in space</span>
+            <span class="s2">&quot;Please consider only setbacks from </span><span class="si">{feature}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Please also only consider setbacks that would apply for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{system_size_reminder}</span><span class="s2">&quot;</span>  <span class="c1"># expected to end in space</span>
+            <span class="s2">&quot;Don&#39;t forget to pay extra attention to clarifying text found &quot;</span>
+            <span class="s2">&quot;in parentheses and footnotes. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;verify_feature&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_does_not_start_with_no</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;verify_feature&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Did you infer your answer based on setback requirements from &quot;</span>
+            <span class="s2">&quot;something other than </span><span class="si">{feature}</span><span class="s2">, such as </span><span class="si">{ignore_features}</span><span class="s2">? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="s2">&quot;roads&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feature&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+            <span class="s2">&quot;verify_feature&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;check_if_property_line&quot;</span><span class="p">,</span>
+            <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+            <span class="s2">&quot;check_if_property_line&quot;</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Is this requirement better classified as a setback from &quot;</span>
+                <span class="s2">&quot;property lines? &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+            <span class="s2">&quot;check_if_property_line&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;get_text&quot;</span><span class="p">,</span>
+            <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+            <span class="s2">&quot;verify_feature&quot;</span><span class="p">,</span> <span class="s2">&quot;get_text&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span>
+        <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s2">&quot;get_text&quot;</span><span class="p">,</span> <span class="n">prompt</span><span class="o">=</span><span class="n">EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_participating_owner">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.setup_participating_owner.html#compass.common.base.setup_participating_owner">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_participating_owner</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to check for &quot;participating&quot; setbacks for a feature</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    networkx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># noqa: N806</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Participating owner&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the ordinance for </span><span class="si">{feature}</span><span class="s2"> setbacks explicitly distinguish &quot;</span>
+            <span class="s2">&quot;between **participating** and **non-participating** </span><span class="si">{owned_type}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;owners? Participating may, for example, be able to sign a waiver &quot;</span>
+            <span class="s2">&quot;or enter some sort of agreement to reduce or completely &quot;</span>
+            <span class="s2">&quot;eliminate the setback requirement. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{feature_clarifications}</span><span class="s2"> We are only interested in &quot;</span>
+            <span class="s2">&quot;setbacks from </span><span class="si">{feature}</span><span class="s2">; do not base your response on any text &quot;</span>
+            <span class="s2">&quot;related to </span><span class="si">{ignore_features}</span><span class="s2">. &quot;</span>
+            <span class="s2">&quot;Please only consider setbacks that would apply for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{system_size_reminder}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;waiver&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;waiver&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the ordinance allow **participating** </span><span class="si">{owned_type}</span><span class="s2"> owners &quot;</span>
+            <span class="s2">&quot;to completely waive or reduce by an unspecified amount the &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{feature}</span><span class="s2"> setbacks requirements? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;waiver&quot;</span><span class="p">,</span> <span class="s2">&quot;p_same_as_np&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;p_same_as_np&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the ordinance for </span><span class="si">{feature}</span><span class="s2"> setbacks explicitly specify &quot;</span>
+            <span class="s2">&quot;that **participating** </span><span class="si">{owned_type}</span><span class="s2"> owners must abide to the &quot;</span>
+            <span class="s2">&quot;same setbacks as **non-participating** </span><span class="si">{owned_type}</span><span class="s2"> owners? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;p_same_as_np&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;final_p_same_as_np&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final_p_same_as_np&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+            <span class="s2">&quot;Return your answer as a single dictionary in JSON format (not &quot;</span>
+            <span class="s2">&quot;markdown). Your JSON file must include exactly one key. The &quot;</span>
+            <span class="s2">&quot;key is &#39;participating&#39;. The value of the &#39;participating&#39; key &quot;</span>
+            <span class="s2">&quot;should be a string containing the raw text with original &quot;</span>
+            <span class="s2">&quot;formatting from the ordinance that applies to both &quot;</span>
+            <span class="s2">&quot;**participating** and **non-participating** owners. Be sure to &quot;</span>
+            <span class="s2">&quot;include the numerical value for </span><span class="si">{feature}</span><span class="s2"> setbacks that these &quot;</span>
+            <span class="s2">&quot;owners must abide by.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;p_same_as_np&quot;</span><span class="p">,</span> <span class="s2">&quot;part&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;part&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the ordinance for </span><span class="si">{feature}</span><span class="s2"> setbacks explicitly specify &quot;</span>
+            <span class="s2">&quot;a **numerical** value that applies to **participating** &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{owned_type}</span><span class="s2"> owners? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;part&quot;</span><span class="p">,</span> <span class="s2">&quot;non_part&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;non_part&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the ordinance for </span><span class="si">{feature}</span><span class="s2"> setbacks explicitly specify &quot;</span>
+            <span class="s2">&quot;a **numerical** value that applies to **non-participating** &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{owned_type}</span><span class="s2"> owners? &quot;</span>
+            <span class="s2">&quot;If your answer is &#39;yes&#39;, justify it by quoting the raw text &quot;</span>
+            <span class="s2">&quot;directly.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;non_part&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+            <span class="s2">&quot;Return your answer as a single dictionary in JSON format (not &quot;</span>
+            <span class="s2">&quot;markdown). Your JSON file must include exactly two keys. The &quot;</span>
+            <span class="s2">&quot;keys are &#39;participating&#39; and &#39;non-participating&#39;. The value of &quot;</span>
+            <span class="s2">&quot;the &#39;participating&#39; key should be a string containing the raw &quot;</span>
+            <span class="s2">&quot;text with original formatting from the ordinance that applies to &quot;</span>
+            <span class="s2">&quot;**participating** owners. The value of the &#39;non-participating&#39; &quot;</span>
+            <span class="s2">&quot;key should be a string containing the raw text with original &quot;</span>
+            <span class="s2">&quot;formatting from the ordinance that applies to &quot;</span>
+            <span class="s2">&quot;**non-participating** owners for </span><span class="si">{feature}</span><span class="s2"> setbacks.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_extra_restriction">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.setup_graph_extra_restriction.html#compass.common.base.setup_graph_extra_restriction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_extra_restriction</span><span class="p">(</span><span class="n">is_numerical</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup Graph to extract non-setback ordinance values from text</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    networkx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;unit_clarification&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;feature_clarifications&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">feature_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feature_id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># noqa: N806</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Extra restriction&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following legal text explicitly enact </span><span class="si">{restriction}</span><span class="s2"> for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{tech}</span><span class="s2"> that an energy system developer would have to abide to? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{feature_clarifications}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Make sure your answer adheres to these guidelines:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;1) Respond based only on the explicit text provided for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2">. Do not infer or assume relevance based on general &quot;</span>
+            <span class="s2">&quot;definitions, interpretations, or overlap with other categories. &quot;</span>
+            <span class="s2">&quot;Do not include content just because it could be considered &quot;</span>
+            <span class="s2">&quot;related to </span><span class="si">{restriction}</span><span class="s2"> by definition. If the text does not &quot;</span>
+            <span class="s2">&quot;directly mention or clearly describe </span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;respond with &#39;No&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;2) If the text only provides a definition of what </span><span class="si">{restriction}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;are without providing specifics, please respond with &#39;No&#39;.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;3) Please focus only on </span><span class="si">{restriction}</span><span class="s2"> that would apply for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{system_size_reminder}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;4) Pay close attention to clarifying details in parentheses, &quot;</span>
+            <span class="s2">&quot;footnotes, or additional explanatory text.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;5) </span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_numerical</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;other&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_other_system_setback_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;coverage&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_coverage_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;land density&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_land_density_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;minimum lot size&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_minimum_lot_size_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;maximum lot size&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_maximum_lot_size_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;maximum project size&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_maximum_project_size_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="s2">&quot;maximum turbine height&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+            <span class="n">_add_maximum_turbine_height_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+        <span class="n">_add_value_and_units_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;units&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+            <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+                <span class="s2">&quot;Return your answer as a dictionary in &quot;</span>
+                <span class="s2">&quot;JSON format (not markdown). Your JSON file must include &quot;</span>
+                <span class="s2">&quot;exactly four keys. The keys are &#39;value&#39;, &#39;units&#39;, &#39;summary&#39;, &quot;</span>
+                <span class="s2">&quot;and &#39;section&#39;. The value of the &#39;value&#39; key &quot;</span>
+                <span class="s2">&quot;should be a numerical value corresponding to the &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">, or `null` if the text &quot;</span>
+                <span class="s2">&quot;does not mention such a restriction. Use our conversation to &quot;</span>
+                <span class="s2">&quot;fill out this value. The value of the &#39;units&#39; key should be &quot;</span>
+                <span class="s2">&quot;a string corresponding to the (standard) units for the &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2"> allowed for </span><span class="si">{tech}</span><span class="s2"> by the text &quot;</span>
+                <span class="s2">&quot;below, or `null` if the text does not mention such a &quot;</span>
+                <span class="s2">&quot;restriction. &quot;</span>
+                <span class="s2">&quot;As before, focus only on </span><span class="si">{restriction}</span><span class="s2"> specifically for &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{system_size_reminder}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;</span><span class="si">{SUMMARY_PROMPT}</span><span class="s2"> </span><span class="si">{UNITS_IN_SUMMARY_PROMPT}</span><span class="s2"> </span><span class="si">{SECTION_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">elif</span> <span class="s2">&quot;prohibitions&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+        <span class="n">_add_prohibitions_extraction_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+            <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+                <span class="s2">&quot;Return your answer as a dictionary in &quot;</span>
+                <span class="s2">&quot;JSON format (not markdown). Your JSON file must include &quot;</span>
+                <span class="s2">&quot;exactly two keys. The keys are &#39;summary&#39; and &#39;section&#39;. &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{SUMMARY_PROMPT}</span><span class="s2"> </span><span class="si">{SECTION_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;enr&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;enr&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the legal text **directly** mention not regulating &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">? &quot;</span>
+            <span class="s2">&quot;As before, focus only on </span><span class="si">{restriction}</span><span class="s2"> specifically for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{system_size_reminder}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;enr&quot;</span><span class="p">,</span> <span class="s2">&quot;enr_text&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;enr_text&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the **exact text excerpt** that explicitly states there &quot;</span>
+            <span class="s2">&quot;are no regulations around </span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">? &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;enr_text&quot;</span><span class="p">,</span> <span class="s2">&quot;enr_validate&quot;</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;enr_validate&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Based on your response, are you still confident that the text &quot;</span>
+            <span class="s2">&quot;**directly** states that there are no regulations around &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;enr_validate&quot;</span><span class="p">,</span> <span class="s2">&quot;final_enr&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final_enr&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+            <span class="s2">&quot;Return your answer as a dictionary in JSON format (not &quot;</span>
+            <span class="s2">&quot;markdown). Your JSON file must include exactly three keys. &quot;</span>
+            <span class="s2">&quot;The keys are &#39;value&#39;, &#39;summary&#39;, and &#39;section&#39;. The value of &quot;</span>
+            <span class="s2">&quot;the &#39;value&#39; key should be the string &#39;ENR&#39; if the text &quot;</span>
+            <span class="s2">&quot;clearly states that the jurisdiction does not regulate &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2"> or `null` otherwise. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{SUMMARY_PROMPT}</span><span class="s2"> </span><span class="si">{SECTION_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_other_system_setback_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify &quot;other system&quot; setbacks&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;is_intra_farm&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;is_intra_farm&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the separation requirement apply to full farms &quot;</span>
+            <span class="s2">&quot;and/or utility-size installations? If so, please start &quot;</span>
+            <span class="s2">&quot;your answer with &#39;Yes&#39;. If the separation requirement &quot;</span>
+            <span class="s2">&quot;only applies to individual farm components (i.e. &quot;</span>
+            <span class="s2">&quot;individual energy generation system units), please start &quot;</span>
+            <span class="s2">&quot;your response with &#39;No&#39;. In either case, briefly explain &quot;</span>
+            <span class="s2">&quot;your answer.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;is_intra_farm&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_coverage_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify &quot;coverage&quot; extraction&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;is_area&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;is_area&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;Is the coverage reported as an area value? </span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;is_area&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_land_density_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify &quot;land density&quot; extraction&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;correct_density_units&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;correct_density_units&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is the density reported as a system size **per area** value? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;correct_density_units&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_minimum_lot_size_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify &quot;minimum lot size&quot; extraction&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;correct_min_ls_units&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;correct_min_ls_units&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is the minimum lot size reported as an **area** value? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;correct_min_ls_units&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_maximum_lot_size_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify &quot;maximum lot size&quot; extraction&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;correct_max_ls_units&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;correct_max_ls_units&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is the maximum lot size reported as an **area** value? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;correct_max_ls_units&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_maximum_project_size_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify &quot;max project size&quot; extraction&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;is_mps_area&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;is_mps_area&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the project size requirement specifically provide a system &quot;</span>
+            <span class="s2">&quot;size in MW or an installation size (e.g. maximum number of &quot;</span>
+            <span class="s2">&quot;systems or maximum number of solar panels)? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;is_mps_area&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;is_mps_conditional&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;is_mps_conditional&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Can the project size requirement be bypassed by applying &quot;</span>
+            <span class="s2">&quot;for a permit? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;is_mps_conditional&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_maximum_turbine_height_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify max turbine height extraction&quot;&quot;&quot;</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;has_relative&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;has_relative&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Are any of the turbine height restrictions measured from a point &quot;</span>
+            <span class="s2">&quot;other than the ground (e.g. a building height or an airspace &quot;</span>
+            <span class="s2">&quot;level, etc.)? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;has_relative&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;has_non_relative&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;has_relative&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;has_non_relative&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;We are not interested in restrictions that are relative to some &quot;</span>
+            <span class="s2">&quot;level. Does the legal text enact any turbine height restrictions &quot;</span>
+            <span class="s2">&quot;measured from the ground? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;has_non_relative&quot;</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_value_and_units_clarification_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to clarify value and units extraction&quot;&quot;&quot;</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;value&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the **numerical** value given for the &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">? Follow these guidelines:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;1) Extract only the explicit numerical value provided for &quot;</span>
+            <span class="s2">&quot;the restriction. Do not infer values from related &quot;</span>
+            <span class="s2">&quot;restrictions.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;2) If multiple values are given, select the most restrictive &quot;</span>
+            <span class="s2">&quot;one (i.e., the smallest allowable limit, the lowest maximum, &quot;</span>
+            <span class="s2">&quot;etc.).</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;3) Please focus only on </span><span class="si">{restriction}</span><span class="s2"> that would apply for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{system_size_reminder}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;4) Pay close attention to clarifying details in parentheses, &quot;</span>
+            <span class="s2">&quot;footnotes, or additional explanatory text.</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Example Inputs and Outputs:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: &#39;For all WES there is a limitation of overall height &quot;</span>
+            <span class="s2">&quot;of 200 feet (including blades).&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: 200</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: &#39;The noise level of all SES shall be no greater than &quot;</span>
+            <span class="s2">&quot;thirty-two (32) decibels measured from the nearest property &quot;</span>
+            <span class="s2">&quot;line. This level may only be exceeded during short-term &quot;</span>
+            <span class="s2">&quot;events such as utility outages and/or severe wind storms.&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: 32</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: &#39;At no time shall a wind turbine tower, nacelle, or &quot;</span>
+            <span class="s2">&quot;blade create shadow flicker on any non-participating &quot;</span>
+            <span class="s2">&quot;landowner property&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: 0</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: Solar Panels shall not exceed 22&#39;6</span><span class="se">\&quot;</span><span class="s2"> in height. The &quot;</span>
+            <span class="s2">&quot;height is determined from the ground to the top of the panel &quot;</span>
+            <span class="s2">&quot;at any angle.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: 22.5</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What are the units for the </span><span class="si">{restriction}</span><span class="s2"> for </span><span class="si">{tech}</span><span class="s2">? Ensure &quot;</span>
+            <span class="s2">&quot;that:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;1) You accurately identify the unit value associated with &quot;</span>
+            <span class="s2">&quot;the restriction.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;2) The unit is expressed using standard, conventional unit &quot;</span>
+            <span class="s2">&quot;names (e.g., &#39;feet&#39;, &#39;meters&#39;, &#39;acres&#39;, &#39;dBA&#39;, etc.). &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{unit_clarification}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;3) If multiple values are mentioned, return only the units &quot;</span>
+            <span class="s2">&quot;for the most restrictive value that directly pertains to the &quot;</span>
+            <span class="s2">&quot;restriction.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Example Inputs and Outputs:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: &#39;For all WES there is a limitation of overall height &quot;</span>
+            <span class="s2">&quot;of 200 feet (including blades).&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: &#39;feet&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: &#39;The noise level of all SES shall be no greater than &quot;</span>
+            <span class="s2">&quot;thirty-two (32) decibels measured from the nearest property &quot;</span>
+            <span class="s2">&quot;line. This level may only be exceeded during short-term &quot;</span>
+            <span class="s2">&quot;events such as utility outages and/or severe wind storms.&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: &#39;dBA&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Text: &#39;At no time shall a wind turbine tower, nacelle, or &quot;</span>
+            <span class="s2">&quot;blade create shadow flicker on any non-participating &quot;</span>
+            <span class="s2">&quot;landowner property&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Output: &#39;hr/year&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_add_prohibitions_extraction_nodes</span><span class="p">(</span><span class="n">G</span><span class="p">):</span>  <span class="c1"># noqa: N803</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add nodes and edges to extract &#39;prohibitions&#39;&quot;&quot;&quot;</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;is_proposed&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;is_proposed&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is there reason to believe that this prohibition is only &quot;</span>
+            <span class="s2">&quot;being proposed and not yet in effect? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;is_proposed&quot;</span><span class="p">,</span> <span class="s2">&quot;is_conditional&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;is_conditional&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the prohibition, moratorium, or ban only apply &quot;</span>
+            <span class="s2">&quot;conditionally? For example:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Does it only apply to those who have not complied &quot;</span>
+            <span class="s2">&quot;with the provisions in this text?</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Does it only apply within some distance of an area, &quot;</span>
+            <span class="s2">&quot;landmark, or feature?</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Does it only apply to a subset of districts/areas &quot;</span>
+            <span class="s2">&quot;within the jurisdiction?</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Does it only apply if a permit application has **not** &quot;</span>
+            <span class="s2">&quot;been previously approved?</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Does it only apply if some other condition is met?</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - etc.</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;is_conditional&quot;</span><span class="p">,</span> <span class="s2">&quot;has_end_date&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;has_end_date&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the legal text given an expiration date for the &quot;</span>
+            <span class="s2">&quot;prohibition, moratorium, or ban? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;has_end_date&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;has_end_date&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;check_end_date&quot;</span><span class="p">,</span>
+        <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">todays_date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%B </span><span class="si">%d</span><span class="s2">, %Y&quot;</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;check_end_date&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Today is </span><span class="si">{</span><span class="n">todays_date</span><span class="si">}</span><span class="s2">. Has the prohibition, &quot;</span>
+            <span class="s2">&quot;moratorium, or ban expired? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;check_end_date&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+            <span class="s2">&quot;Return your answer as a dictionary in &quot;</span>
+            <span class="s2">&quot;JSON format (not markdown). Your JSON file must include &quot;</span>
+            <span class="s2">&quot;exactly two keys. The keys are &#39;summary&#39; and &#39;section&#39;. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{SUMMARY_PROMPT}</span><span class="s2"> If the prohibition is a moratorium, be &quot;</span>
+            <span class="s2">&quot;sure to include that distinction in your summary and &quot;</span>
+            <span class="s2">&quot;provide any relevant expiration dates. </span><span class="si">{SECTION_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span>
+
+
+<div class="viewcode-block" id="setup_graph_permitted_use_districts">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.setup_graph_permitted_use_districts.html#compass.common.base.setup_graph_permitted_use_districts">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_permitted_use_districts</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to extract permitted use districts for technology</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    networkx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">feature_id</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;feature_id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># noqa: N806</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Permitted use districts&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following legal text explicitly define districts where &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{tech}</span><span class="s2"> (or similar) are </span><span class="si">{use_type}</span><span class="s2">? </span><span class="si">{clarifications}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;Pay extra attention to titles and clarifying text found in &quot;</span>
+            <span class="s2">&quot;parentheses and footnotes. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;district_names&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;district_names&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What are all of the district names (and abbreviations if given) &quot;</span>
+            <span class="s2">&quot;where </span><span class="si">{tech}</span><span class="s2"> (or similar) are </span><span class="si">{use_type}</span><span class="s2">?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;primary&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;district_names&quot;</span><span class="p">,</span> <span class="s2">&quot;check_primary&quot;</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+            <span class="s2">&quot;check_primary&quot;</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Are these districts representative of locations where &quot;</span>
+                <span class="s2">&quot;developers can site </span><span class="si">{tech}</span><span class="s2"> (or similar) as the primary &quot;</span>
+                <span class="s2">&quot;use of the land/parcel/lot? Remember that this is true &quot;</span>
+                <span class="s2">&quot;by assumption for all overlay districts. &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+            <span class="s2">&quot;check_primary&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="s2">&quot;accessory&quot;</span> <span class="ow">in</span> <span class="n">feature_id</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;district_names&quot;</span><span class="p">,</span> <span class="s2">&quot;check_accessory&quot;</span><span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+            <span class="s2">&quot;check_accessory&quot;</span><span class="p">,</span>
+            <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+                <span class="s2">&quot;Are these districts representative of locations where &quot;</span>
+                <span class="s2">&quot;developers can site </span><span class="si">{tech}</span><span class="s2"> (or similar) as an accessory &quot;</span>
+                <span class="s2">&quot;structure and/or as a secondary use of the land/parcel/lot? &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+            <span class="s2">&quot;check_accessory&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;district_names&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Please respond based on our entire conversation so far. &quot;</span>
+            <span class="s2">&quot;Return your answer as a dictionary in &quot;</span>
+            <span class="s2">&quot;JSON format (not markdown). Your JSON file must include &quot;</span>
+            <span class="s2">&quot;exactly three keys. The keys are &#39;value&#39;, &#39;summary&#39;, &quot;</span>
+            <span class="s2">&quot;and &#39;section&#39;. The value of the &#39;value&#39; key &quot;</span>
+            <span class="s2">&quot;should be a list of all district names (and abbreviations if &quot;</span>
+            <span class="s2">&quot;given) where </span><span class="si">{tech}</span><span class="s2"> (or similar) &quot;</span>
+            <span class="s2">&quot;are </span><span class="si">{use_type}</span><span class="s2">, or `null` if the text does not &quot;</span>
+            <span class="s2">&quot;mention this use type for </span><span class="si">{tech}</span><span class="s2"> (or similar). Use our &quot;</span>
+            <span class="s2">&quot;conversation to fill out this value. </span><span class="si">{SUMMARY_PROMPT}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{SECTION_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="BaseTextExtractor">
+<a class="viewcode-back" href="../../../_autosummary/compass.common.base.BaseTextExtractor.html#compass.common.base.BaseTextExtractor">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseTextExtractor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base implementation for a text extractor&quot;&quot;&quot;</span>
+
+    <span class="n">SYSTEM_MESSAGE</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;You are a text extraction assistant. Your job is to extract only &quot;</span>
+        <span class="s2">&quot;verbatim, **unmodified** excerpts from provided legal or policy &quot;</span>
+        <span class="s2">&quot;documents. Do not interpret or paraphrase. Do not summarize. Only &quot;</span>
+        <span class="s2">&quot;return exactly copied segments that match the specified scope. If &quot;</span>
+        <span class="s2">&quot;the relevant content appears within a table, return the entire &quot;</span>
+        <span class="s2">&quot;table, including headers and footers, exactly as formatted.&quot;</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;System message for text extraction LLM calls&quot;&quot;&quot;</span>
+    <span class="n">_USAGE_LABEL</span> <span class="o">=</span> <span class="n">LLMUsageCategory</span><span class="o">.</span><span class="n">DOCUMENT_ORDINANCE_SUMMARY</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">llm_caller</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        llm_caller : LLMCaller</span>
+<span class="sd">            LLM Caller instance used to extract ordinance info with.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm_caller</span> <span class="o">=</span> <span class="n">llm_caller</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text_chunks</span><span class="p">,</span> <span class="n">instructions</span><span class="p">,</span> <span class="n">is_valid_chunk</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform extraction processing&quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Extracting summary text from </span><span class="si">%d</span><span class="s2"> text chunks asynchronously...&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">text_chunks</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Model instructions are:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">instructions</span><span class="p">)</span>
+        <span class="n">outer_task_name</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">current_task</span><span class="p">()</span><span class="o">.</span><span class="n">get_name</span><span class="p">()</span>
+        <span class="n">summaries</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">llm_caller</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+                    <span class="n">sys_msg</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SYSTEM_MESSAGE</span><span class="p">,</span>
+                    <span class="n">content</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">instructions</span><span class="si">}</span><span class="se">\n\n</span><span class="s2"># TEXT #</span><span class="se">\n\n</span><span class="si">{</span><span class="n">chunk</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">usage_sub_label</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_USAGE_LABEL</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="n">name</span><span class="o">=</span><span class="n">outer_task_name</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">text_chunks</span>
+        <span class="p">]</span>
+        <span class="n">summary_chunks</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">summaries</span><span class="p">)</span>
+        <span class="n">summary_chunks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">clean_backticks_from_llm_response</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">summary_chunks</span>
+            <span class="k">if</span> <span class="n">is_valid_chunk</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="n">text_summary</span> <span class="o">=</span> <span class="n">merge_overlapping_texts</span><span class="p">(</span><span class="n">summary_chunks</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Final summary contains </span><span class="si">%d</span><span class="s2"> tokens&quot;</span><span class="p">,</span>
+            <span class="n">ApiBase</span><span class="o">.</span><span class="n">count_tokens</span><span class="p">(</span>
+                <span class="n">text_summary</span><span class="p">,</span>
+                <span class="n">model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">llm_caller</span><span class="o">.</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">),</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">text_summary</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

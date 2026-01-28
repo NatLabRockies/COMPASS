@@ -1,0 +1,33 @@
+compass.extraction.small\_wind.graphs
+=====================================
+
+.. automodule:: compass.extraction.small_wind.graphs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      setup_conditional_max
+      setup_conditional_min
+      setup_graph_wes_types
+      setup_multiplier
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

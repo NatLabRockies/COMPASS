@@ -1,0 +1,30 @@
+compass.web
+===========
+
+.. automodule:: compass.web
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   website_crawl
+

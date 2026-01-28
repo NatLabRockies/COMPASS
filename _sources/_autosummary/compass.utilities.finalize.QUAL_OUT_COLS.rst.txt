@@ -1,0 +1,6 @@
+compass.utilities.finalize.QUAL\_OUT\_COLS
+==========================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autodata:: QUAL_OUT_COLS

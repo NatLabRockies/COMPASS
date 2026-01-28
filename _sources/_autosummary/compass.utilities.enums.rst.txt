@@ -1,0 +1,32 @@
+compass.utilities.enums
+=======================
+
+.. automodule:: compass.utilities.enums
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      LLMTasks
+      LLMUsageCategory
+   
+   
+
+   
+   
+   
+
+
+

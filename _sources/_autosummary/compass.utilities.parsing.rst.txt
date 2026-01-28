@@ -1,0 +1,37 @@
+compass.utilities.parsing
+=========================
+
+.. automodule:: compass.utilities.parsing
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      clean_backticks_from_llm_response
+      extract_ord_year_from_doc_attrs
+      llm_response_as_json
+      load_config
+      merge_overlapping_texts
+      num_ordinances_dataframe
+      num_ordinances_in_doc
+      ordinances_bool_index
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

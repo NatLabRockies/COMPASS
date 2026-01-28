@@ -1,0 +1,1290 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Parsing Existing PDF Documents &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../../_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/tabs.js?v=3030b3cb"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="compass" href="../../_autosummary/compass.html" />
+    <link rel="prev" title="INFRA-COMPASS Execution Basics" href="../execution_basics/README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../execution_basics/README.html">INFRA-COMPASS Execution Basics</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Parsing Existing PDF Documents</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Parsing Existing PDF Documents</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="parsing-existing-pdf-documents">
+<h1>Parsing Existing PDF Documents<a class="headerlink" href="#parsing-existing-pdf-documents" title="Link to this heading">#</a></h1>
+<p>If you already have PDF documents you’d like to analyze, there’s no need to run the entire web scraping and
+ingestion pipeline. This tutorial walks you through how to process those existing PDFs using only the
+ordinance extraction portion of the workflow.</p>
+<p>We’ll focus on using the <code class="docutils literal notranslate"><span class="pre">COMPASS</span></code> and <code class="docutils literal notranslate"><span class="pre">ELM</span></code> libraries to load a local PDF file, extract ordinance-related text,
+and convert it into structured values. By the end, you’ll have a fully working script that reads a PDF and outputs
+both a text file of the ordinance and a structured CSV.</p>
+<p>If you’re only looking to download documents without extracting content, you may want to look at the
+<a class="reference external" href="https://github.com/NatLabRockies/elm/tree/main/examples/web_information_retrieval">ELM tutorial</a>,
+which focuses on scraping and saving documents alone.</p>
+<section id="extraction-components">
+<h2>Extraction Components<a class="headerlink" href="#extraction-components" title="Link to this heading">#</a></h2>
+<p>The ordinance extraction pipeline is composed of several components, which are visualized in the diagram below:</p>
+<pre  class="mermaid">
+        flowchart LR
+    A --&gt;|Ordinance Content Checker&lt;br&gt;&amp;#40&lt;span style='color: #c792ea'&gt;&lt;code&gt;check_for_ordinance_info&lt;/code&gt;&lt;/span&gt;&amp;#41| B
+    B --&gt;|Ordinance Text Extractor&lt;br&gt;&amp;#40&lt;span style='color: #c792ea'&gt;&lt;code&gt;extract_ordinance_text_with_llm&lt;/code&gt;&lt;/span&gt;&amp;#41| C
+    C --&gt;|Ordinance Extractor&lt;br&gt;&amp;#40&lt;span style='color: #c792ea'&gt;&lt;code&gt;extract_ordinance_values&lt;/code&gt;&lt;/span&gt;&amp;#41| D
+    A&#64;{ shape: lined-document, label: &quot;Ordinance Document&lt;br&gt;&amp;#40&lt;span style='color: #a9c77d'&gt;&lt;code&gt;PDFDocument&lt;/code&gt;&lt;/span&gt;&amp;#41&quot; }
+    B&#64;{ shape: docs, label: &quot;Ordinance Text Chunks&lt;br&gt;&amp;#40&lt;span style='color: #a9c77d'&gt;&lt;code&gt;str&lt;/code&gt;&lt;/span&gt;&amp;#41&quot;}
+    C&#64;{ shape: doc, label: &quot;Ordinance Text&lt;br&gt;&amp;#40&lt;span style='color: #a9c77d'&gt;&lt;code&gt;str&lt;/code&gt;&lt;/span&gt;&amp;#41&quot;}
+    D&#64;{ shape: lin-cyl, label: &quot;Structured Ordinances&lt;br&gt;&amp;#40&lt;span style='color: #a9c77d'&gt;&lt;code&gt;DataFrame/CSV&lt;/code&gt;&lt;/span&gt;&amp;#41&quot; }
+    </pre><p>In the following sections, we will discuss how to invoke each of these components and then
+put them together in a short script to perform ordinance extraction on a local PDF document.</p>
+<section id="document-class">
+<h3>Document Class<a class="headerlink" href="#document-class" title="Link to this heading">#</a></h3>
+<p>The first thing we need is a way to represent the PDF we’re working with. In this workflow, documents are wrapped
+using the <a class="reference external" href="https://natlabrockies.github.io/elm/_autosummary/elm.web.document.PDFDocument.html#elm.web.document.PDFDocument" title="(in elm v0.0.35)"><code class="xref py py-class docutils literal notranslate"><span class="pre">elm.web.document.PDFDocument</span></code></a> class (or the corresponding <a class="reference external" href="https://natlabrockies.github.io/elm/_autosummary/elm.web.document.HTMLDocument.html#elm.web.document.HTMLDocument" title="(in elm v0.0.35)"><code class="xref py py-class docutils literal notranslate"><span class="pre">elm.web.document.HTMLDocument</span></code></a>
+class for HTML content stored as text). This class loads the raw text from a file and includes helpful processing
+routines (e.g., removing headers). This class also tracks metadata associated with the document metadata in the
+<code class="docutils literal notranslate"><span class="pre">doc.attrs</span></code> attribute. This attribute helps <code class="docutils literal notranslate"><span class="pre">COMPASS</span></code> track metadata such as the source URL, document date,
+ordinance text, and extracted structured values. Many of the <code class="docutils literal notranslate"><span class="pre">COMPASS</span></code> functions require a document as an input.</p>
+<p>To load a local file, simply use:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDFDocument</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="n">PDFDocument</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="s2">&quot;Decatur County, Indiana.pdf&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>At this stage, the document’s <code class="docutils literal notranslate"><span class="pre">attrs</span></code> dictionary is still empty. As we go through the steps below, that dictionary
+will be filled with the output of each stage in the extraction process.</p>
+</section>
+<section id="setting-up-the-llm-configuration">
+<h3>Setting Up the LLM Configuration<a class="headerlink" href="#setting-up-the-llm-configuration" title="Link to this heading">#</a></h3>
+<p>Next, we’ll configure how we want to interact with an OpenAI large language model (LLM). This is done using the
+<a class="reference internal" href="../../_autosummary/compass.llm.config.OpenAIConfig.html#compass.llm.config.OpenAIConfig" title="compass.llm.config.OpenAIConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">OpenAIConfig</span></code></a> class. Let’s take a look at a basic configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIConfig</span>
+
+<span class="n">llm_config</span> <span class="o">=</span> <span class="n">OpenAIConfig</span><span class="p">(</span>
+    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
+    <span class="n">llm_call_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+    <span class="n">llm_service_rate_limit</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>
+    <span class="n">text_splitter_chunk_size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+    <span class="n">text_splitter_chunk_overlap</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+    <span class="n">client_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span>
+    <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your API key&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;api_version&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your API version&gt;&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;azure_endpoint&quot;</span><span class="p">:</span> <span class="s2">&quot;&lt;your API endpoint&gt;&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This object specifies the model we’ll use (in this case, <code class="docutils literal notranslate"><span class="pre">gpt-4o-mini</span></code>), the rate limit for this model
+(500k tokens per minute), what parameters to use for the LLM queries (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;temperature&quot;:</span> <span class="pre">0</span></code>), how to
+split text into manageable chunks (10k tokens per chunk with a 500 token overlap), and how to authenticate
+with Azure OpenAI. While API credentials can be included inline like this, it’s much safer and more flexible
+to use environment variables instead. We’ll revisit this in the <a class="reference internal" href="#running"><span class="std std-ref">final execution step</span></a>.</p>
+<p>You can create multiple <code class="docutils literal notranslate"><span class="pre">OpenAIConfig</span></code> objects if you need different models for different stages of extraction,
+but in this tutorial, we’ll stick to a single configuration for simplicity.</p>
+</section>
+<section id="compass-services">
+<h3>COMPASS Services<a class="headerlink" href="#compass-services" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">COMPASS</span></code> Services are utility classes designed to run asynchronously alongside your script. You can
+invoke these services using class methods, allowing you to access them anywhere in your code without
+needing to pass around object instances. Internally, each service maintains a queue of processing “requests,”
+which are handled as soon as the necessary resources become available (e.g., when the process is within the
+rate limit for LLM queries).</p>
+<p>To use these services, you must ensure that their queue is properly initialized and that each service
+is actively monitoring the queue and ready to process requests. In practice, this requires using the
+<a class="reference internal" href="../../_autosummary/compass.services.provider.RunningAsyncServices.html#compass.services.provider.RunningAsyncServices" title="compass.services.provider.RunningAsyncServices"><code class="xref py py-class docutils literal notranslate"><span class="pre">RunningAsyncServices</span></code></a> context manager, as demonstrated below:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunningAsyncServices</span>
+
+<span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="o">...</span><span class="p">]</span>  <span class="c1"># Define your services here</span>
+<span class="k">async</span> <span class="k">with</span> <span class="n">RunningAsyncServices</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+    <span class="c1"># Your extraction steps go here</span>
+</pre></div>
+</div>
+<p>Under the hood, this starts a queue manager that feeds tasks to the appropriate services. Each service runs in parallel,
+ensuring that multiple documents (or stages) can be handled efficiently.</p>
+</section>
+<section id="checking-for-ordinance-content">
+<h3>Checking for Ordinance Content<a class="headerlink" href="#checking-for-ordinance-content" title="Link to this heading">#</a></h3>
+<p>The first functional step in extraction is to determine whether the document contains any ordinance-related information.
+Even if you’re fairly sure that it does, this step is essential because it saves the text chunks from the document that
+contain ordinance information, enabling the next step — ordinance text extraction.</p>
+<p>To do this, we’ll use the <a class="reference internal" href="../../_autosummary/compass.extraction.apply.check_for_ordinance_info.html#compass.extraction.apply.check_for_ordinance_info" title="compass.extraction.apply.check_for_ordinance_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_for_ordinance_info()</span></code></a> function. This function uses a
+combination of keyword heuristics and LLM evaluation to identify ordinance content and collect it into a new field
+in the document. Here’s how that might look:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.apply</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_for_ordinance_info</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.solar</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolarHeuristic</span><span class="p">,</span> <span class="n">SolarOrdinanceTextCollector</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_for_ordinance_info</span><span class="p">(</span>
+    <span class="n">doc</span><span class="p">,</span>
+    <span class="n">model_config</span><span class="o">=</span><span class="n">llm_config</span><span class="p">,</span>
+    <span class="n">heuristic</span><span class="o">=</span><span class="n">SolarHeuristic</span><span class="p">(),</span>
+    <span class="n">tech</span><span class="o">=</span><span class="s2">&quot;solar&quot;</span><span class="p">,</span>
+    <span class="n">ordinance_text_collector_class</span><span class="o">=</span><span class="n">SolarOrdinanceTextCollector</span><span class="p">,</span>
+    <span class="n">permitted_use_text_collector_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>What this function does is scan the text for solar-related ordinance language. If it finds any, it stores the relevant
+(concatenated) chunks in <code class="docutils literal notranslate"><span class="pre">doc.attrs[&quot;ordinance_text&quot;]</span></code>. To call this function, we passed in the document along with
+the LLM calling arguments that we set up in <a class="reference internal" href="#setting-up-the-llm-configuration">Setting Up the LLM Configuration</a>. We also specified the use of the
+<a class="reference internal" href="../../_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic" title="compass.extraction.solar.ordinance.SolarHeuristic"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolarHeuristic</span></code></a>, which helps reduce LLM costs by applying a simple
+keyword-based heuristic to each document chunk before sending it to the LLM. Finally, we indicated that the
+<a class="reference internal" href="../../_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector" title="compass.extraction.solar.ordinance.SolarOrdinanceTextCollector"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolarOrdinanceTextCollector</span></code></a> class should be used to search for solar ordinance
+text in the document — rather than, for example, the
+<a class="reference internal" href="../../_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector" title="compass.extraction.wind.ordinance.WindOrdinanceTextCollector"><code class="xref py py-class docutils literal notranslate"><span class="pre">WindOrdinanceTextCollector</span></code></a>, which would look for wind ordinance text instead.</p>
+<p>You can also enable permitted-use extraction by specifying a permitted use collector class (e.g.
+<a class="reference internal" href="../../_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector" title="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolarPermittedUseDistrictsTextCollector</span></code></a>) for the
+<code class="docutils literal notranslate"><span class="pre">permitted_use_text_collector_class</span></code> parameter. For this tutorial, we’ll keep things focused on ordinances, so
+we have left that output as <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</section>
+<section id="isolating-the-ordinance-text">
+<h3>Isolating the Ordinance Text<a class="headerlink" href="#isolating-the-ordinance-text" title="Link to this heading">#</a></h3>
+<p>Once we’ve located the general sections where the ordinances are mentioned, we’ll want to refine the text further.
+The identified chunks are often too broad to use directly in downstream processing, so we’ll pass them through another
+LLM-powered step that filters the content to only the most relevant ordinance language.</p>
+<p>We’ll do that using the <a class="reference internal" href="../../_autosummary/compass.extraction.apply.extract_ordinance_text_with_llm.html#compass.extraction.apply.extract_ordinance_text_with_llm" title="compass.extraction.apply.extract_ordinance_text_with_llm"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_ordinance_text_with_llm()</span></code></a> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMCaller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.apply</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_ordinance_text_with_llm</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.solar</span><span class="w"> </span><span class="kn">import</span> <span class="n">SolarOrdinanceTextExtractor</span>
+
+<span class="n">doc</span><span class="p">,</span> <span class="n">ord_text_key</span> <span class="o">=</span> <span class="k">await</span> <span class="n">extract_ordinance_text_with_llm</span><span class="p">(</span>
+    <span class="n">doc</span><span class="p">,</span>
+    <span class="n">llm_config</span><span class="o">.</span><span class="n">text_splitter</span><span class="p">,</span>
+    <span class="n">extractor</span><span class="o">=</span><span class="n">SolarOrdinanceTextExtractor</span><span class="p">(</span>
+        <span class="n">LLMCaller</span><span class="p">(</span><span class="n">llm_service</span><span class="o">=</span><span class="n">llm_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">)</span>
+    <span class="p">),</span>
+    <span class="n">original_text_key</span><span class="o">=</span><span class="s2">&quot;ordinance_text&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This step reads the raw text chunks stored in <code class="docutils literal notranslate"><span class="pre">doc.attrs[&quot;ordinance_text&quot;]</span></code> and returns a more focused subset — just
+the ordinance language itself. The first argument to this function is the ordinance document, which must contain an
+<code class="docutils literal notranslate"><span class="pre">&quot;ordinance_text&quot;</span></code> key in its <code class="docutils literal notranslate"><span class="pre">doc.attrs</span></code> dictionary. This key holds the concatenated text chunks identified as
+likely containing ordinance information. It’s automatically added for us by the
+<a class="reference internal" href="../../_autosummary/compass.extraction.apply.check_for_ordinance_info.html#compass.extraction.apply.check_for_ordinance_info" title="compass.extraction.apply.check_for_ordinance_info"><code class="xref py py-func docutils literal notranslate"><span class="pre">check_for_ordinance_info()</span></code></a> function — assuming ordinance text is present.</p>
+<p>Next, we pass in the text splitter instance, which will be used to divide the concatenated text into smaller chunks.
+We also provide a <a class="reference internal" href="../../_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html#compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor" title="compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">SolarOrdinanceTextExtractor</span></code></a> instance, which performs the
+actual ordinance text extraction.</p>
+<p>Finally, we specify that the concatenated text is located under the <code class="docutils literal notranslate"><span class="pre">&quot;ordinance_text&quot;</span></code> key in <code class="docutils literal notranslate"><span class="pre">doc.attrs</span></code>. If the extraction
+is successful, the resulting ordinance text is stored back in the <code class="docutils literal notranslate"><span class="pre">doc.attrs</span></code> dictionary under the key specified by
+<code class="docutils literal notranslate"><span class="pre">ord_text_key</span></code> (which depends on the extractor instance being used). We’ll use that key in the next step.</p>
+</section>
+<section id="extracting-structured-values">
+<h3>Extracting Structured Values<a class="headerlink" href="#extracting-structured-values" title="Link to this heading">#</a></h3>
+<p>With the ordinance language in hand, we’re now ready to extract structured ordinance values — things like setback requirements,
+noise restrictions, or installation constraints. This is the final step in the pipeline.</p>
+<p>We’ll use the <a class="reference internal" href="../../_autosummary/compass.extraction.apply.extract_ordinance_values.html#compass.extraction.apply.extract_ordinance_values" title="compass.extraction.apply.extract_ordinance_values"><code class="xref py py-func docutils literal notranslate"><span class="pre">extract_ordinance_values()</span></code></a> function to convert natural language into
+structured data:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.apply</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_ordinance_values</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.solar</span><span class="w"> </span><span class="kn">import</span> <span class="n">StructuredSolarOrdinanceParser</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">extract_ordinance_values</span><span class="p">(</span>
+    <span class="n">doc</span><span class="p">,</span>
+    <span class="n">parser</span><span class="o">=</span><span class="n">StructuredSolarOrdinanceParser</span><span class="p">(</span>
+        <span class="n">llm_service</span><span class="o">=</span><span class="n">llm_config</span><span class="o">.</span><span class="n">llm_service</span>
+    <span class="p">),</span>
+    <span class="n">text_key</span><span class="o">=</span><span class="n">ord_text_key</span><span class="p">,</span>
+    <span class="n">out_key</span><span class="o">=</span><span class="s2">&quot;ordinance_values&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The first argument to this function is the ordinance document, which must include the <code class="docutils literal notranslate"><span class="pre">ord_text_key</span></code> in its
+<code class="docutils literal notranslate"><span class="pre">doc.attrs</span></code> dictionary. This key contains the ordinance text that will be used as context for running decision
+trees to extract structured values. (The specific value of this key depends on the text extractor used in
+<a class="reference internal" href="#isolating-the-ordinance-text">Isolating the Ordinance Text</a>.)</p>
+<p>Next, we provide a <a class="reference internal" href="../../_autosummary/compass.extraction.solar.parse.StructuredSolarOrdinanceParser.html#compass.extraction.solar.parse.StructuredSolarOrdinanceParser" title="compass.extraction.solar.parse.StructuredSolarOrdinanceParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">StructuredSolarOrdinanceParser</span></code></a> instance. This class sets up
+and runs the decision trees, returning the extracted results in a structured format — typically as CSV.</p>
+<p>Finally, we specify which keys in the <code class="docutils literal notranslate"><span class="pre">doc.attrs</span></code> dictionary should be used to store the input ordinance text
+and the output structured data. When this function completes, you’ll have a list of parsed values stored in
+<code class="docutils literal notranslate"><span class="pre">doc.attrs[&quot;ordinance_values&quot;]</span></code>, ready to be written to a CSV or used in a downstream application.</p>
+</section>
+</section>
+<section id="putting-it-all-together">
+<h2>Putting It All Together<a class="headerlink" href="#putting-it-all-together" title="Link to this heading">#</a></h2>
+<p>To wrap everything into a working script, we combine the document loading, LLM configuration, and the extraction steps into
+one file. We also include additional logging setup so you can see the progress in your terminal. Here’s the full example script:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># noqa: INP001</span>
+<span class="sd">&quot;&quot;&quot;Example on parsing an existing PDF file on-disk for ordinances&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.theme</span><span class="w"> </span><span class="kn">import</span> <span class="n">Theme</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">RichHandler</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">rich.console</span><span class="w"> </span><span class="kn">import</span> <span class="n">Console</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDFDocument</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_azure_api_params</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMCaller</span><span class="p">,</span> <span class="n">OpenAIConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.solar</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SolarOrdinanceTextExtractor</span><span class="p">,</span>
+    <span class="n">SolarHeuristic</span><span class="p">,</span>
+    <span class="n">SolarOrdinanceTextCollector</span><span class="p">,</span>
+    <span class="n">StructuredSolarOrdinanceParser</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.provider</span><span class="w"> </span><span class="kn">import</span> <span class="n">RunningAsyncServices</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.apply</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">extract_ordinance_values</span><span class="p">,</span>
+    <span class="n">check_for_ordinance_info</span><span class="p">,</span>
+    <span class="n">extract_ordinance_text_with_llm</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.logs</span><span class="w"> </span><span class="kn">import</span> <span class="n">AddLocationFilter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMTasks</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;compass&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_setup_logging</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup logging&quot;&quot;&quot;</span>
+    <span class="n">custom_theme</span> <span class="o">=</span> <span class="n">Theme</span><span class="p">({</span><span class="s2">&quot;logging.level.trace&quot;</span><span class="p">:</span> <span class="s2">&quot;rgb(94,79,162)&quot;</span><span class="p">})</span>
+    <span class="n">console</span> <span class="o">=</span> <span class="n">Console</span><span class="p">(</span><span class="n">theme</span><span class="o">=</span><span class="n">custom_theme</span><span class="p">)</span>
+
+    <span class="n">handler</span> <span class="o">=</span> <span class="n">RichHandler</span><span class="p">(</span>
+        <span class="n">console</span><span class="o">=</span><span class="n">console</span><span class="p">,</span>
+        <span class="n">rich_tracebacks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">omit_repeated_times</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">markup</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">fmt</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">Formatter</span><span class="p">(</span>
+        <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;[[magenta]</span><span class="si">%(location)s</span><span class="s2">[/magenta]]: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">defaults</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;location&quot;</span><span class="p">:</span> <span class="s2">&quot;main&quot;</span><span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">setFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">)</span>
+    <span class="n">handler</span><span class="o">.</span><span class="n">addFilter</span><span class="p">(</span><span class="n">AddLocationFilter</span><span class="p">())</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">handler</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_extract_ordinances</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">model_configs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run ordinance extraction pipeline&quot;&quot;&quot;</span>
+
+    <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">model</span><span class="o">.</span><span class="n">llm_service</span> <span class="k">for</span> <span class="n">model</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">model_configs</span><span class="o">.</span><span class="n">values</span><span class="p">())]</span>
+    <span class="k">async</span> <span class="k">with</span> <span class="n">RunningAsyncServices</span><span class="p">(</span><span class="n">services</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking for ordinances in document...&quot;</span><span class="p">)</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DOCUMENT_CONTENT_VALIDATION</span><span class="p">,</span>
+            <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">check_for_ordinance_info</span><span class="p">(</span>
+            <span class="n">doc</span><span class="p">,</span>
+            <span class="n">model_config</span><span class="o">=</span><span class="n">model_config</span><span class="p">,</span>
+            <span class="n">heuristic</span><span class="o">=</span><span class="n">SolarHeuristic</span><span class="p">(),</span>
+            <span class="n">tech</span><span class="o">=</span><span class="s2">&quot;solar&quot;</span><span class="p">,</span>
+            <span class="n">ordinance_text_collector_class</span><span class="o">=</span><span class="n">SolarOrdinanceTextCollector</span><span class="p">,</span>
+            <span class="n">permitted_use_text_collector_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Extracting ordinance text from document...&quot;</span><span class="p">)</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">LLMTasks</span><span class="o">.</span><span class="n">ORDINANCE_TEXT_EXTRACTION</span><span class="p">,</span>
+            <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">doc</span><span class="p">,</span> <span class="n">ord_text_key</span> <span class="o">=</span> <span class="k">await</span> <span class="n">extract_ordinance_text_with_llm</span><span class="p">(</span>
+            <span class="n">doc</span><span class="p">,</span>
+            <span class="n">model_config</span><span class="o">.</span><span class="n">text_splitter</span><span class="p">,</span>
+            <span class="n">extractor</span><span class="o">=</span><span class="n">SolarOrdinanceTextExtractor</span><span class="p">(</span>
+                <span class="n">LLMCaller</span><span class="p">(</span><span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">)</span>
+            <span class="p">),</span>
+            <span class="n">original_text_key</span><span class="o">=</span><span class="s2">&quot;ordinance_text&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;Extracting structured ordinance values from ordinance text...&quot;</span>
+        <span class="p">)</span>
+        <span class="n">model_config</span> <span class="o">=</span> <span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">LLMTasks</span><span class="o">.</span><span class="n">ORDINANCE_VALUE_EXTRACTION</span><span class="p">,</span>
+            <span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">extract_ordinance_values</span><span class="p">(</span>
+            <span class="n">doc</span><span class="p">,</span>
+            <span class="n">parser</span><span class="o">=</span><span class="n">StructuredSolarOrdinanceParser</span><span class="p">(</span>
+                <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span>
+            <span class="p">),</span>
+            <span class="n">text_key</span><span class="o">=</span><span class="n">ord_text_key</span><span class="p">,</span>
+            <span class="n">out_key</span><span class="o">=</span><span class="s2">&quot;ordinance_values&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">_setup_logging</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">)</span>
+
+    <span class="n">fp_pdf</span> <span class="o">=</span> <span class="s2">&quot;Decatur County, Indiana.pdf&quot;</span>
+    <span class="n">fp_txt_ord_text</span> <span class="o">=</span> <span class="n">fp_pdf</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot; Ordinance Text.txt&quot;</span><span class="p">)</span>
+    <span class="n">fp_ord</span> <span class="o">=</span> <span class="n">fp_pdf</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.pdf&quot;</span><span class="p">,</span> <span class="s2">&quot; Ordinances.csv&quot;</span><span class="p">)</span>
+
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">PDFDocument</span><span class="o">.</span><span class="n">from_file</span><span class="p">(</span><span class="n">fp_pdf</span><span class="p">)</span>
+
+    <span class="c1"># setup LLM calling parameters</span>
+    <span class="n">azure_api_key</span><span class="p">,</span> <span class="n">azure_version</span><span class="p">,</span> <span class="n">azure_endpoint</span> <span class="o">=</span> <span class="n">validate_azure_api_params</span><span class="p">()</span>
+    <span class="n">gpt_4o_mini_config</span> <span class="o">=</span> <span class="n">OpenAIConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
+        <span class="n">llm_call_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">},</span>
+        <span class="n">llm_service_rate_limit</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>
+        <span class="n">text_splitter_chunk_size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+        <span class="n">text_splitter_chunk_overlap</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">client_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span>
+        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="n">azure_api_key</span><span class="p">,</span>
+            <span class="s2">&quot;api_version&quot;</span><span class="p">:</span> <span class="n">azure_version</span><span class="p">,</span>
+            <span class="s2">&quot;azure_endpoint&quot;</span><span class="p">:</span> <span class="n">azure_endpoint</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">gpt_41_mini_config</span> <span class="o">=</span> <span class="n">OpenAIConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;wetosa-gpt-4.1-mini&quot;</span><span class="p">,</span>
+        <span class="n">llm_call_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">},</span>
+        <span class="n">llm_service_rate_limit</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>
+        <span class="n">text_splitter_chunk_size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+        <span class="n">text_splitter_chunk_overlap</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">client_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span>
+        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="n">azure_api_key</span><span class="p">,</span>
+            <span class="s2">&quot;api_version&quot;</span><span class="p">:</span> <span class="n">azure_version</span><span class="p">,</span>
+            <span class="s2">&quot;azure_endpoint&quot;</span><span class="p">:</span> <span class="n">azure_endpoint</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">gpt_41_config</span> <span class="o">=</span> <span class="n">OpenAIConfig</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;wetosa-gpt-4.1&quot;</span><span class="p">,</span>
+        <span class="n">llm_call_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;seed&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">:</span> <span class="mi">300</span><span class="p">},</span>
+        <span class="n">llm_service_rate_limit</span><span class="o">=</span><span class="mi">500_000</span><span class="p">,</span>
+        <span class="n">text_splitter_chunk_size</span><span class="o">=</span><span class="mi">10_000</span><span class="p">,</span>
+        <span class="n">text_splitter_chunk_overlap</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span>
+        <span class="n">client_type</span><span class="o">=</span><span class="s2">&quot;azure&quot;</span><span class="p">,</span>
+        <span class="n">client_kwargs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;api_key&quot;</span><span class="p">:</span> <span class="n">azure_api_key</span><span class="p">,</span>
+            <span class="s2">&quot;api_version&quot;</span><span class="p">:</span> <span class="n">azure_version</span><span class="p">,</span>
+            <span class="s2">&quot;azure_endpoint&quot;</span><span class="p">:</span> <span class="n">azure_endpoint</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+    <span class="n">model_configs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">:</span> <span class="n">gpt_4o_mini_config</span><span class="p">,</span>
+        <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DOCUMENT_CONTENT_VALIDATION</span><span class="p">:</span> <span class="n">gpt_41_mini_config</span><span class="p">,</span>
+        <span class="n">LLMTasks</span><span class="o">.</span><span class="n">ORDINANCE_VALUE_EXTRACTION</span><span class="p">:</span> <span class="n">gpt_41_mini_config</span><span class="p">,</span>
+        <span class="n">LLMTasks</span><span class="o">.</span><span class="n">ORDINANCE_TEXT_EXTRACTION</span><span class="p">:</span> <span class="n">gpt_41_config</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">_extract_ordinances</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">model_configs</span><span class="p">))</span>
+
+    <span class="c1"># save outputs</span>
+    <span class="p">(</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;ordinance_values&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;quantitative&quot;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">fp_ord</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">with</span> <span class="n">Path</span><span class="p">(</span><span class="n">fp_txt_ord_text</span><span class="p">)</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cleaned_ordinance_text&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>You can also view this script in the repository:
+<a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/parse_existing_docs/parse_pdf.py">parse_pdf.py</a></p>
+</section>
+<section id="running-the-script">
+<span id="running"></span><h2>Running the Script<a class="headerlink" href="#running-the-script" title="Link to this heading">#</a></h2>
+<p>Before executing the script, you’ll need to define some environment variables that allow it to authenticate with Azure OpenAI:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">AZURE_OPENAI_API_KEY</span><span class="o">=</span>&lt;your<span class="w"> </span>API<span class="w"> </span>key&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">AZURE_OPENAI_ENDPOINT</span><span class="o">=</span>&lt;your<span class="w"> </span>API<span class="w"> </span>endpoint&gt;
+<span class="nb">export</span><span class="w"> </span><span class="nv">AZURE_OPENAI_VERSION</span><span class="o">=</span>&lt;your<span class="w"> </span>API<span class="w"> </span>version&gt;
+</pre></div>
+</div>
+<p>Alternatively, you can hardcode them in the script, but environment variables are the preferred option for both security and
+portability.</p>
+<p>You may also need to change the model name in the script to match the model name of your deployment. Once everything is set,
+run the script from your terminal:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>parse_pdf.py
+</pre></div>
+</div>
+<p>You should see logs as each stage completes. When the script completes, you’ll see two new files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">Decatur</span> <span class="pre">County,</span> <span class="pre">Indiana</span> <span class="pre">Ordinance</span> <span class="pre">Text.txt</span></code>: file containing the extracted ordinance language.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Decatur</span> <span class="pre">County,</span> <span class="pre">Indiana</span> <span class="pre">Ordinances.csv</span></code>: file with the structured ordinance values.</p></li>
+</ul>
+<p>With ~100 lines of code, you can use <code class="docutils literal notranslate"><span class="pre">COMPASS</span></code> and <code class="docutils literal notranslate"><span class="pre">ELM</span></code> to extract structured ordinance data from existing PDFs.
+This approach avoids the overhead of a full scraping pipeline and makes it easy to apply ordinance extraction to any
+local documents you already have on hand.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../execution_basics/README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">INFRA-COMPASS Execution Basics</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../_autosummary/compass.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">compass</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extraction-components">Extraction Components</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#document-class">Document Class</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-the-llm-configuration">Setting Up the LLM Configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass-services">COMPASS Services</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#checking-for-ordinance-content">Checking for Ordinance Content</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#isolating-the-ordinance-text">Isolating the Ordinance Text</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#extracting-structured-values">Extracting Structured Values</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#putting-it-all-together">Putting It All Together</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#running-the-script">Running the Script</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

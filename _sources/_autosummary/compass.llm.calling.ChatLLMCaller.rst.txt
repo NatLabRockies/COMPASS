@@ -1,0 +1,24 @@
+compass.llm.calling.ChatLLMCaller
+=================================
+
+.. currentmodule:: compass.llm.calling
+
+.. autoclass:: ChatLLMCaller
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ChatLLMCaller.call
+   
+   
+
+   
+   
+   

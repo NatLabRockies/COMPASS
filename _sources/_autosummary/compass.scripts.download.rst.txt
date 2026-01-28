@@ -1,0 +1,36 @@
+compass.scripts.download
+========================
+
+.. automodule:: compass.scripts.download
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      download_jurisdiction_ordinance_using_search_engine
+      download_jurisdiction_ordinances_from_website
+      download_jurisdiction_ordinances_from_website_compass_crawl
+      download_known_urls
+      filter_ordinance_docs
+      find_jurisdiction_website
+      load_known_docs
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

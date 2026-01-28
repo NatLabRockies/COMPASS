@@ -1,0 +1,6 @@
+compass.utilities.parsing.clean\_backticks\_from\_llm\_response
+===============================================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: clean_backticks_from_llm_response

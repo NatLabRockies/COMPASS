@@ -1,0 +1,31 @@
+compass.utilities.ngrams
+========================
+
+.. automodule:: compass.utilities.ngrams
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      convert_text_to_sentence_ngrams
+      sentence_ngram_containment
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

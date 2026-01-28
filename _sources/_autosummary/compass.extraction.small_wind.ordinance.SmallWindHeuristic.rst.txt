@@ -1,0 +1,33 @@
+compass.extraction.small\_wind.ordinance.SmallWindHeuristic
+===========================================================
+
+.. currentmodule:: compass.extraction.small_wind.ordinance
+
+.. autoclass:: SmallWindHeuristic
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SmallWindHeuristic.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SmallWindHeuristic.GOOD_TECH_ACRONYMS
+      ~SmallWindHeuristic.GOOD_TECH_KEYWORDS
+      ~SmallWindHeuristic.GOOD_TECH_PHRASES
+      ~SmallWindHeuristic.NOT_TECH_WORDS
+   
+   

@@ -1,0 +1,6 @@
+compass.utilities.io.load\_local\_docs
+======================================
+
+.. currentmodule:: compass.utilities.io
+
+.. autofunction:: load_local_docs

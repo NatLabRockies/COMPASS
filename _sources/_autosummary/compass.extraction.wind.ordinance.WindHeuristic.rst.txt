@@ -1,0 +1,33 @@
+compass.extraction.wind.ordinance.WindHeuristic
+===============================================
+
+.. currentmodule:: compass.extraction.wind.ordinance
+
+.. autoclass:: WindHeuristic
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WindHeuristic.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WindHeuristic.GOOD_TECH_ACRONYMS
+      ~WindHeuristic.GOOD_TECH_KEYWORDS
+      ~WindHeuristic.GOOD_TECH_PHRASES
+      ~WindHeuristic.NOT_TECH_WORDS
+   
+   

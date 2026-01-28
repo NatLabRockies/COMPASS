@@ -1,0 +1,30 @@
+compass.scripts.process
+=======================
+
+.. automodule:: compass.scripts.process
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      process_jurisdictions_with_openai
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

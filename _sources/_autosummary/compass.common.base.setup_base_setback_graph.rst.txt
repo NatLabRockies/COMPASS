@@ -1,0 +1,6 @@
+compass.common.base.setup\_base\_setback\_graph
+===============================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: setup_base_setback_graph

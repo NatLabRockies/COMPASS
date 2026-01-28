@@ -1,0 +1,41 @@
+compass.utilities.finalize
+==========================
+
+.. automodule:: compass.utilities.finalize
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      QUANT_OUT_COLS
+      QUAL_OUT_COLS
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      compile_run_summary_message
+      doc_infos_to_db
+      save_db
+      save_run_meta
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

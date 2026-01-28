@@ -1,0 +1,6 @@
+compass.extraction.apply.extract\_ordinance\_text\_with\_llm
+============================================================
+
+.. currentmodule:: compass.extraction.apply
+
+.. autofunction:: extract_ordinance_text_with_llm

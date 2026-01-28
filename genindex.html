@@ -1,0 +1,3044 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; COMPASS 0.13.1 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/tabs.css?v=a5c4661c" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="_static/documentation_options.js?v=b4617fb1"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=f281be69"></script>
+    <script src="_static/tabs.js?v=3030b3cb"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'genindex';</script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.13.1" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">COMPASS 0.13.1 documentation</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="_cli/cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none"></div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#Symbols"><strong>Symbols</strong></a>
+ | <a href="#_"><strong>_</strong></a>
+ | <a href="#A"><strong>A</strong></a>
+ | <a href="#B"><strong>B</strong></a>
+ | <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#N"><strong>N</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#U"><strong>U</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
+ 
+</div>
+<h2 id="Symbols">Symbols</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    --config
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-c">compass-process command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --no_progress
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-np">compass-process command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --verbose
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-v">compass-process command line option</a>
+</li>
+      </ul></li>
+      <li>
+    --version
+
+      <ul>
+        <li><a href="_cli/compass.html#cmdoption-compass-version">compass command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    -c
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-c">compass-process command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -np
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-np">compass-process command line option</a>
+</li>
+      </ul></li>
+      <li>
+    -v
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-v">compass-process command line option</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="_">_</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.__add__">__add__() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.__add__">(LLMUsageCategory method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.__add__">(ProcessKwargs method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.__add__">(TechSpec method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.__mul__">__mul__() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.__mul__">(LLMUsageCategory method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.__mul__">(ProcessKwargs method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.__mul__">(TechSpec method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="A">A</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.acquire_resources">acquire_resources() (CleanedFileWriter method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.acquire_resources">(FileMover method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.acquire_resources">(HTMLFileLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.acquire_resources">(JurisdictionUpdater method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.acquire_resources">(LLMService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.acquire_resources">(OCRPDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.acquire_resources">(OpenAIService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.acquire_resources">(OrdDBFileWriter method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.acquire_resources">(PDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.acquire_resources">(ProcessPoolService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.acquire_resources">(Service method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.acquire_resources">(StoreFileOnDisk method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.acquire_resources">(TempFileCache method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.acquire_resources">(TempFileCachePB method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.acquire_resources">(ThreadedService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.acquire_resources">(UsageUpdater method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.services.usage.TimeBoundedUsageTracker.html#compass.services.usage.TimeBoundedUsageTracker.add">add() (TimeBoundedUsageTracker method)</a>
+</li>
+      <li><a href="_autosummary/compass.services.usage.UsageTracker.html#compass.services.usage.UsageTracker.add_to">add_to() (UsageTracker method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.LogListener.html#compass.utilities.logs.LogListener.addHandler">addHandler() (LogListener method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.AddLocationFilter.html#compass.utilities.logs.AddLocationFilter">AddLocationFilter (class in compass.utilities.logs)</a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.all_messages_txt">all_messages_txt (AsyncDecisionTree property)</a>
+</li>
+      <li><a href="glossary.html#term-analysis-run"><strong>analysis run</strong></a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.api">api (AsyncDecisionTree property)</a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.async_call_node">async_call_node() (AsyncDecisionTree method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.LocationFileLog.html#compass.utilities.logs.LocationFileLog.ASYNC_EXIT_SLEEP_SECONDS">ASYNC_EXIT_SLEEP_SECONDS (LocationFileLog attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.async_run">async_run() (AsyncDecisionTree method)</a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree">AsyncDecisionTree (class in compass.common.tree)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="B">B</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.llm.calling.BaseLLMCaller.html#compass.llm.calling.BaseLLMCaller">BaseLLMCaller (class in compass.llm.calling)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.common.base.BaseTextExtractor.html#compass.common.base.BaseTextExtractor">BaseTextExtractor (class in compass.common.base)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.llm.calling.ChatLLMCaller.html#compass.llm.calling.ChatLLMCaller.call">call() (ChatLLMCaller method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.call">(CleanedFileWriter class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.call">(FileMover class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.call">(HTMLFileLoader class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.call">(JurisdictionUpdater class method)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.content.LegalTextValidator.html#compass.validation.content.LegalTextValidator.call">(LegalTextValidator method)</a>
+</li>
+        <li><a href="_autosummary/compass.llm.calling.LLMCaller.html#compass.llm.calling.LLMCaller.call">(LLMCaller method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.call">(LLMService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.call">(OCRPDFLoader class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.call">(OpenAIService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.call">(OrdDBFileWriter class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.call">(PDFLoader class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.call">(ProcessPoolService class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.call">(Service class method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.call">(SmallWindOrdinanceTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.call">(SmallWindPermittedUseDistrictsTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.call">(SolarOrdinanceTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.call">(SolarPermittedUseDistrictsTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.call">(StoreFileOnDisk class method)</a>
+</li>
+        <li><a href="_autosummary/compass.llm.calling.StructuredLLMCaller.html#compass.llm.calling.StructuredLLMCaller.call">(StructuredLLMCaller method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.call">(TempFileCache class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.call">(TempFileCachePB class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.call">(ThreadedService class method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.call">(UsageUpdater class method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector.call">(WindOrdinanceTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.call">(WindPermittedUseDistrictsTextCollector method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.call_node">call_node() (AsyncDecisionTree method)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.can_process">can_process (CleanedFileWriter property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.can_process">(FileMover property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.can_process">(HTMLFileLoader property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.can_process">(JurisdictionUpdater property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.can_process">(LLMService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.can_process">(OCRPDFLoader property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.can_process">(OpenAIService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.can_process">(OrdDBFileWriter property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.can_process">(PDFLoader property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.can_process">(ProcessPoolService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.can_process">(Service property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.can_process">(StoreFileOnDisk property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.can_process">(TempFileCache property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.can_process">(TempFileCachePB property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.can_process">(ThreadedService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.can_process">(UsageUpdater property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.capitalize">capitalize() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.capitalize">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.casefold">casefold() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.casefold">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.center">center() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.center">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.CHAT">CHAT (LLMUsageCategory attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.chat_llm_caller">chat_llm_caller (AsyncDecisionTree property)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.calling.ChatLLMCaller.html#compass.llm.calling.ChatLLMCaller">ChatLLMCaller (class in compass.llm.calling)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.DTreeJurisdictionValidator.html#compass.validation.location.DTreeJurisdictionValidator.check">check() (DTreeJurisdictionValidator method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.validation.location.DTreeURLJurisdictionValidator.html#compass.validation.location.DTreeURLJurisdictionValidator.check">(DTreeURLJurisdictionValidator method)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.content.Heuristic.html#compass.validation.content.Heuristic.check">(Heuristic method)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.location.JurisdictionValidator.html#compass.validation.location.JurisdictionValidator.check">(JurisdictionValidator method)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.location.JurisdictionWebsiteValidator.html#compass.validation.location.JurisdictionWebsiteValidator.check">(JurisdictionWebsiteValidator method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic.check">(SmallWindHeuristic method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic.check">(SolarHeuristic method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindHeuristic.html#compass.extraction.wind.ordinance.WindHeuristic.check">(WindHeuristic method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.validation.content.LegalTextValidator.html#compass.validation.content.LegalTextValidator.check_chunk">check_chunk() (LegalTextValidator method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.check_chunk">(SmallWindOrdinanceTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.check_chunk">(SmallWindPermittedUseDistrictsTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.check_chunk">(SolarOrdinanceTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.check_chunk">(SolarPermittedUseDistrictsTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector.check_chunk">(WindOrdinanceTextCollector method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.check_chunk">(WindPermittedUseDistrictsTextCollector method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.apply.check_for_ordinance_info.html#compass.extraction.apply.check_for_ordinance_info">check_for_ordinance_info() (in module compass.extraction.apply)</a>
+</li>
+      <li><a href="glossary.html#term-clean-directory"><strong>clean directory</strong></a>
+</li>
+      <li><a href="glossary.html#term-clean-text-file"><strong>clean text file</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.parsing.clean_backticks_from_llm_response.html#compass.utilities.parsing.clean_backticks_from_llm_response">clean_backticks_from_llm_response() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter">CleanedFileWriter (class in compass.services.threaded)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.config.OpenAIConfig.html#compass.llm.config.OpenAIConfig.client_kwargs">client_kwargs (OpenAIConfig property)</a>
+</li>
+      <li>
+    compass
+
+      <ul>
+        <li><a href="_autosummary/compass.html#module-compass">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass command line option
+
+      <ul>
+        <li><a href="_cli/compass.html#cmdoption-compass-version">--version</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-compass-process"><strong>compass process</strong></a>
+</li>
+      <li>
+    compass-process command line option
+
+      <ul>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-c">--config</a>
+</li>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-np">--no_progress</a>
+</li>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-v">--verbose</a>
+</li>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-c">-c</a>
+</li>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-np">-np</a>
+</li>
+        <li><a href="_cli/compass%20process.html#cmdoption-compass-process-v">-v</a>
+</li>
+      </ul></li>
+      <li>
+    compass.common
+
+      <ul>
+        <li><a href="_autosummary/compass.common.html#module-compass.common">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.common.base
+
+      <ul>
+        <li><a href="_autosummary/compass.common.base.html#module-compass.common.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.common.tree
+
+      <ul>
+        <li><a href="_autosummary/compass.common.tree.html#module-compass.common.tree">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.exceptions
+
+      <ul>
+        <li><a href="_autosummary/compass.exceptions.html#module-compass.exceptions">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.html#module-compass.extraction">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.apply
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.apply.html#module-compass.extraction.apply">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.date
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.date.html#module-compass.extraction.date">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.features
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.features.html#module-compass.extraction.features">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.small_wind
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.html#module-compass.extraction.small_wind">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.small_wind.graphs
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.graphs.html#module-compass.extraction.small_wind.graphs">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.small_wind.ordinance
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.html#module-compass.extraction.small_wind.ordinance">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.small_wind.parse
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.html#module-compass.extraction.small_wind.parse">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li>
+    compass.extraction.solar
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.html#module-compass.extraction.solar">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.solar.graphs
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.graphs.html#module-compass.extraction.solar.graphs">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.solar.ordinance
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.html#module-compass.extraction.solar.ordinance">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.solar.parse
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.parse.html#module-compass.extraction.solar.parse">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.wind
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.html#module-compass.extraction.wind">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.wind.graphs
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.graphs.html#module-compass.extraction.wind.graphs">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.wind.ordinance
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.html#module-compass.extraction.wind.ordinance">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.extraction.wind.parse
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.parse.html#module-compass.extraction.wind.parse">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.llm
+
+      <ul>
+        <li><a href="_autosummary/compass.llm.html#module-compass.llm">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.llm.calling
+
+      <ul>
+        <li><a href="_autosummary/compass.llm.calling.html#module-compass.llm.calling">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.llm.config
+
+      <ul>
+        <li><a href="_autosummary/compass.llm.config.html#module-compass.llm.config">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.pb
+
+      <ul>
+        <li><a href="_autosummary/compass.pb.html#module-compass.pb">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.scripts
+
+      <ul>
+        <li><a href="_autosummary/compass.scripts.html#module-compass.scripts">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.scripts.download
+
+      <ul>
+        <li><a href="_autosummary/compass.scripts.download.html#module-compass.scripts.download">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.scripts.process
+
+      <ul>
+        <li><a href="_autosummary/compass.scripts.process.html#module-compass.scripts.process">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services
+
+      <ul>
+        <li><a href="_autosummary/compass.services.html#module-compass.services">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.base
+
+      <ul>
+        <li><a href="_autosummary/compass.services.base.html#module-compass.services.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.cpu
+
+      <ul>
+        <li><a href="_autosummary/compass.services.cpu.html#module-compass.services.cpu">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.openai
+
+      <ul>
+        <li><a href="_autosummary/compass.services.openai.html#module-compass.services.openai">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.provider
+
+      <ul>
+        <li><a href="_autosummary/compass.services.provider.html#module-compass.services.provider">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.queues
+
+      <ul>
+        <li><a href="_autosummary/compass.services.queues.html#module-compass.services.queues">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.threaded
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.html#module-compass.services.threaded">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.services.usage
+
+      <ul>
+        <li><a href="_autosummary/compass.services.usage.html#module-compass.services.usage">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.html#module-compass.utilities">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.base
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.base.html#module-compass.utilities.base">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.enums
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.html#module-compass.utilities.enums">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.finalize
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.finalize.html#module-compass.utilities.finalize">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.io
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.io.html#module-compass.utilities.io">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.jurisdictions
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.jurisdictions.html#module-compass.utilities.jurisdictions">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.location
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.location.html#module-compass.utilities.location">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.logs
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.logs.html#module-compass.utilities.logs">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.ngrams
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.ngrams.html#module-compass.utilities.ngrams">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.nt
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.nt.html#module-compass.utilities.nt">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.utilities.parsing
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.parsing.html#module-compass.utilities.parsing">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.validation
+
+      <ul>
+        <li><a href="_autosummary/compass.validation.html#module-compass.validation">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.validation.content
+
+      <ul>
+        <li><a href="_autosummary/compass.validation.content.html#module-compass.validation.content">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.validation.graphs
+
+      <ul>
+        <li><a href="_autosummary/compass.validation.graphs.html#module-compass.validation.graphs">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.validation.location
+
+      <ul>
+        <li><a href="_autosummary/compass.validation.location.html#module-compass.validation.location">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.warn
+
+      <ul>
+        <li><a href="_autosummary/compass.warn.html#module-compass.warn">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.web
+
+      <ul>
+        <li><a href="_autosummary/compass.web.html#module-compass.web">module</a>
+</li>
+      </ul></li>
+      <li>
+    compass.web.website_crawl
+
+      <ul>
+        <li><a href="_autosummary/compass.web.website_crawl.html#module-compass.web.website_crawl">module</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.pb.COMPASS_PB.html#compass.pb.COMPASS_PB">COMPASS_PB (in module compass.pb)</a>
+</li>
+      <li><a href="_autosummary/compass.web.website_crawl.COMPASSCrawler.html#compass.web.website_crawl.COMPASSCrawler">COMPASSCrawler (class in compass.web.website_crawl)</a>
+</li>
+      <li><a href="_autosummary/compass.exceptions.COMPASSError.html#compass.exceptions.COMPASSError">COMPASSError</a>
+</li>
+      <li><a href="_autosummary/compass.web.website_crawl.COMPASSLinkScorer.html#compass.web.website_crawl.COMPASSLinkScorer">COMPASSLinkScorer (class in compass.web.website_crawl)</a>
+</li>
+      <li><a href="_autosummary/compass.exceptions.COMPASSNotInitializedError.html#compass.exceptions.COMPASSNotInitializedError">COMPASSNotInitializedError</a>
+</li>
+      <li><a href="_autosummary/compass.exceptions.COMPASSRuntimeError.html#compass.exceptions.COMPASSRuntimeError">COMPASSRuntimeError</a>
+</li>
+      <li><a href="_autosummary/compass.exceptions.COMPASSValueError.html#compass.exceptions.COMPASSValueError">COMPASSValueError</a>
+</li>
+      <li><a href="_autosummary/compass.warn.COMPASSWarning.html#compass.warn.COMPASSWarning">COMPASSWarning</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.finalize.compile_run_summary_message.html#compass.utilities.finalize.compile_run_summary_message">compile_run_summary_message() (in module compass.utilities.finalize)</a>
+</li>
+      <li><a href="glossary.html#term-configuration-file"><strong>configuration file</strong></a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.contains_district_info">contains_district_info (SmallWindPermittedUseDistrictsTextCollector property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.contains_district_info">(SolarPermittedUseDistrictsTextCollector property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.contains_district_info">(WindPermittedUseDistrictsTextCollector property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.contains_ord_info">contains_ord_info (SmallWindOrdinanceTextCollector property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.contains_ord_info">(SolarOrdinanceTextCollector property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector.contains_ord_info">(WindOrdinanceTextCollector property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.CONTAINS_ORD_PROMPT">CONTAINS_ORD_PROMPT (SmallWindOrdinanceTextCollector attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.CONTAINS_ORD_PROMPT">(SolarOrdinanceTextCollector attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector.CONTAINS_ORD_PROMPT">(WindOrdinanceTextCollector attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.ngrams.convert_text_to_sentence_ngrams.html#compass.utilities.ngrams.convert_text_to_sentence_ngrams">convert_text_to_sentence_ngrams() (in module compass.utilities.ngrams)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.count">count() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.count">(LLMUsageCategory method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.count">(ProcessKwargs method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.count">(TechSpec method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.services.openai.count_tokens.html#compass.services.openai.count_tokens">count_tokens() (in module compass.services.openai)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.DATE_EXTRACTION">DATE_EXTRACTION (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DATE_EXTRACTION">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.date.DateExtractor.html#compass.extraction.date.DateExtractor">DateExtractor (class in compass.extraction.date)</a>
+</li>
+      <li><a href="glossary.html#term-decision-tree"><strong>decision tree</strong></a>
+</li>
+      <li><a href="glossary.html#term-decision-tree-prompt"><strong>decision tree prompt</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DECISION_TREE">DECISION_TREE (LLMUsageCategory attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.DEFAULT">DEFAULT (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DEFAULT">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.features.SetbackFeatures.html#compass.extraction.features.SetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS">DEFAULT_FEATURE_DESCRIPTIONS (SetbackFeatures attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html#compass.extraction.small_wind.parse.SmallWindSetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS">(SmallWindSetbackFeatures attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.base.Directories.html#compass.utilities.base.Directories">Directories (class in compass.utilities.base)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.DISTRICT_PROMPT">DISTRICT_PROMPT (SmallWindPermittedUseDistrictsTextCollector attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.DISTRICT_PROMPT">(SolarPermittedUseDistrictsTextCollector attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.DISTRICT_PROMPT">(WindPermittedUseDistrictsTextCollector attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.finalize.doc_infos_to_db.html#compass.utilities.finalize.doc_infos_to_db">doc_infos_to_db() (in module compass.utilities.finalize)</a>
+</li>
+      <li><a href="_autosummary/compass.web.website_crawl.DOC_THRESHOLD.html#compass.web.website_crawl.DOC_THRESHOLD">DOC_THRESHOLD (in module compass.web.website_crawl)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.DOCUMENT_CONTENT_VALIDATION">DOCUMENT_CONTENT_VALIDATION (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.DOCUMENT_JURISDICTION_VALIDATION">DOCUMENT_JURISDICTION_VALIDATION (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY">DOCUMENT_ORDINANCE_SUMMARY (LLMUsageCategory attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION">DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION (LLMUsageCategory attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY">DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY (LLMUsageCategory attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.scripts.download.download_jurisdiction_ordinance_using_search_engine.html#compass.scripts.download.download_jurisdiction_ordinance_using_search_engine">download_jurisdiction_ordinance_using_search_engine() (in module compass.scripts.download)</a>
+</li>
+      <li><a href="_autosummary/compass.scripts.download.download_jurisdiction_ordinances_from_website.html#compass.scripts.download.download_jurisdiction_ordinances_from_website">download_jurisdiction_ordinances_from_website() (in module compass.scripts.download)</a>
+</li>
+      <li><a href="_autosummary/compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl.html#compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl">download_jurisdiction_ordinances_from_website_compass_crawl() (in module compass.scripts.download)</a>
+</li>
+      <li><a href="_autosummary/compass.scripts.download.download_known_urls.html#compass.scripts.download.download_known_urls">download_known_urls() (in module compass.scripts.download)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.DTreeJurisdictionValidator.html#compass.validation.location.DTreeJurisdictionValidator">DTreeJurisdictionValidator (class in compass.validation.location)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.DTreeURLJurisdictionValidator.html#compass.validation.location.DTreeURLJurisdictionValidator">DTreeURLJurisdictionValidator (class in compass.validation.location)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.common.base.empty_output.html#compass.common.base.empty_output">empty_output() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.encode">encode() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.encode">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.endswith">endswith() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.endswith">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.logs.ExceptionOnlyFilter.html#compass.utilities.logs.ExceptionOnlyFilter">ExceptionOnlyFilter (class in compass.utilities.logs)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.expandtabs">expandtabs() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.expandtabs">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.apply.extract_date.html#compass.extraction.apply.extract_date">extract_date() (in module compass.extraction.apply)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.extract_large_wind_energy_system_section">extract_large_wind_energy_system_section() (WindOrdinanceTextExtractor method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.parsing.extract_ord_year_from_doc_attrs.html#compass.utilities.parsing.extract_ord_year_from_doc_attrs">extract_ord_year_from_doc_attrs() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.apply.extract_ordinance_text_with_llm.html#compass.extraction.apply.extract_ordinance_text_with_llm">extract_ordinance_text_with_llm() (in module compass.extraction.apply)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.extraction.apply.extract_ordinance_text_with_ngram_validation.html#compass.extraction.apply.extract_ordinance_text_with_ngram_validation">extract_ordinance_text_with_ngram_validation() (in module compass.extraction.apply)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.apply.extract_ordinance_values.html#compass.extraction.apply.extract_ordinance_values">extract_ordinance_values() (in module compass.extraction.apply)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.extract_permitted_uses">extract_permitted_uses() (SmallWindPermittedUseDistrictsTextExtractor method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.extract_permitted_uses">(SolarPermittedUseDistrictsTextExtractor method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.extract_permitted_uses">(WindPermittedUseDistrictsTextExtractor method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.extract_sef_permitted_uses">extract_sef_permitted_uses() (SolarPermittedUseDistrictsTextExtractor method)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.extract_small_wind_energy_system_section">extract_small_wind_energy_system_section() (SmallWindOrdinanceTextExtractor method)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html#compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.extract_solar_energy_system_section">extract_solar_energy_system_section() (SolarOrdinanceTextExtractor method)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.extract_wes_permitted_uses">extract_wes_permitted_uses() (SmallWindPermittedUseDistrictsTextExtractor method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.extract_wes_permitted_uses">(WindPermittedUseDistrictsTextExtractor method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.extract_wind_energy_system_section">extract_wind_energy_system_section() (SmallWindOrdinanceTextExtractor method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.extract_wind_energy_system_section">(WindOrdinanceTextExtractor method)</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-extraction-pipeline"><strong>extraction pipeline</strong></a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.extraction.features.SetbackFeatures.html#compass.extraction.features.SetbackFeatures.FEATURE_CLARIFICATIONS">FEATURE_CLARIFICATIONS (SetbackFeatures attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html#compass.extraction.small_wind.parse.SmallWindSetbackFeatures.FEATURE_CLARIFICATIONS">(SmallWindSetbackFeatures attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.features.SetbackFeatures.html#compass.extraction.features.SetbackFeatures.FEATURES_AS_IGNORE">FEATURES_AS_IGNORE (SetbackFeatures attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html#compass.extraction.small_wind.parse.SmallWindSetbackFeatures.FEATURES_AS_IGNORE">(SmallWindSetbackFeatures attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.file_loader_kwargs">file_loader_kwargs (ProcessKwargs attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover">FileMover (class in compass.services.threaded)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.AddLocationFilter.html#compass.utilities.logs.AddLocationFilter.filter">filter() (AddLocationFilter method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.logs.ExceptionOnlyFilter.html#compass.utilities.logs.ExceptionOnlyFilter.filter">(ExceptionOnlyFilter method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.logs.LocationFilter.html#compass.utilities.logs.LocationFilter.filter">(LocationFilter method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.logs.NoLocationFilter.html#compass.utilities.logs.NoLocationFilter.filter">(NoLocationFilter method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.scripts.download.filter_ordinance_docs.html#compass.scripts.download.filter_ordinance_docs">filter_ordinance_docs() (in module compass.scripts.download)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.find">find() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.find">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.scripts.download.find_jurisdiction_website.html#compass.scripts.download.find_jurisdiction_website">find_jurisdiction_website() (in module compass.scripts.download)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.format">format() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.format">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.format_map">format_map() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.format_map">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.location.Jurisdiction.html#compass.utilities.location.Jurisdiction.full_county_phrase">full_county_phrase (Jurisdiction property)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.location.Jurisdiction.html#compass.utilities.location.Jurisdiction.full_name">full_name (Jurisdiction property)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.location.Jurisdiction.html#compass.utilities.location.Jurisdiction.full_name_the_prefixed">full_name_the_prefixed (Jurisdiction property)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.location.Jurisdiction.html#compass.utilities.location.Jurisdiction.full_subdivision_phrase">full_subdivision_phrase (Jurisdiction property)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.location.Jurisdiction.html#compass.utilities.location.Jurisdiction.full_subdivision_phrase_the_prefixed">full_subdivision_phrase_the_prefixed (Jurisdiction property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.services.queues.get_service_queue.html#compass.services.queues.get_service_queue">get_service_queue() (in module compass.services.queues)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.content.Heuristic.html#compass.validation.content.Heuristic.GOOD_TECH_ACRONYMS">GOOD_TECH_ACRONYMS (Heuristic property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic.GOOD_TECH_ACRONYMS">(SmallWindHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic.GOOD_TECH_ACRONYMS">(SolarHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindHeuristic.html#compass.extraction.wind.ordinance.WindHeuristic.GOOD_TECH_ACRONYMS">(WindHeuristic attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.validation.content.Heuristic.html#compass.validation.content.Heuristic.GOOD_TECH_KEYWORDS">GOOD_TECH_KEYWORDS (Heuristic property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic.GOOD_TECH_KEYWORDS">(SmallWindHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic.GOOD_TECH_KEYWORDS">(SolarHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindHeuristic.html#compass.extraction.wind.ordinance.WindHeuristic.GOOD_TECH_KEYWORDS">(WindHeuristic attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.validation.content.Heuristic.html#compass.validation.content.Heuristic.GOOD_TECH_PHRASES">GOOD_TECH_PHRASES (Heuristic property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic.GOOD_TECH_PHRASES">(SmallWindHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic.GOOD_TECH_PHRASES">(SolarHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindHeuristic.html#compass.extraction.wind.ordinance.WindHeuristic.GOOD_TECH_PHRASES">(WindHeuristic attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.graph">graph (AsyncDecisionTree property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.validation.content.Heuristic.html#compass.validation.content.Heuristic">Heuristic (class in compass.validation.content)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.heuristic">heuristic (TechSpec attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.history">history (AsyncDecisionTree property)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader">HTMLFileLoader (class in compass.services.threaded)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.index">index() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.index">(LLMUsageCategory method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.index">(ProcessKwargs method)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.index">(TechSpec method)</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-INFRA-COMPASS"><strong>INFRA-COMPASS</strong></a>
+</li>
+      <li><a href="_autosummary/compass.services.queues.initialize_service_queue.html#compass.services.queues.initialize_service_queue">initialize_service_queue() (in module compass.services.queues)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.content.LegalTextValidator.html#compass.validation.content.LegalTextValidator.is_legal_text">is_legal_text (LegalTextValidator property)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.IS_SMALL_PROMPT">IS_SMALL_PROMPT (SmallWindOrdinanceTextCollector attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.IS_UTILITY_SCALE_PROMPT">IS_UTILITY_SCALE_PROMPT (SolarOrdinanceTextCollector attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector.IS_UTILITY_SCALE_PROMPT">(WindOrdinanceTextCollector attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isalnum">isalnum() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isalnum">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isalpha">isalpha() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isalpha">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isascii">isascii() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isascii">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isdecimal">isdecimal() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isdecimal">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isdigit">isdigit() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isdigit">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isidentifier">isidentifier() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isidentifier">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.islower">islower() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.islower">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isnumeric">isnumeric() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isnumeric">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isprintable">isprintable() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isprintable">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isspace">isspace() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isspace">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.istitle">istitle() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.istitle">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.isupper">isupper() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.isupper">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.join">join() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.join">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-jurisdiction"><strong>jurisdiction</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.location.Jurisdiction.html#compass.utilities.location.Jurisdiction">Jurisdiction (class in compass.utilities.location)</a>
+</li>
+      <li><a href="glossary.html#term-jurisdiction-CSV"><strong>jurisdiction CSV</strong></a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION">JURISDICTION_MAIN_WEBSITE_VALIDATION (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.JURISDICTION_MAIN_WEBSITE_VALIDATION">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.jurisdictions.jurisdiction_websites.html#compass.utilities.jurisdictions.jurisdiction_websites">jurisdiction_websites() (in module compass.utilities.jurisdictions)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater">JurisdictionUpdater (class in compass.services.threaded)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.JurisdictionValidator.html#compass.validation.location.JurisdictionValidator">JurisdictionValidator (class in compass.validation.location)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.JurisdictionWebsiteValidator.html#compass.validation.location.JurisdictionWebsiteValidator">JurisdictionWebsiteValidator (class in compass.validation.location)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.known_doc_urls">known_doc_urls (ProcessKwargs attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.known_local_docs">known_local_docs (ProcessKwargs attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT">LARGE_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT (WindOrdinanceTextExtractor attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.content.LegalTextValidator.html#compass.validation.content.LegalTextValidator">LegalTextValidator (class in compass.validation.content)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.ljust">ljust() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.ljust">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-LLM"><strong>LLM</strong></a>
+</li>
+      <li><a href="glossary.html#term-llm-cost-tracker"><strong>llm cost tracker</strong></a>
+</li>
+      <li><a href="glossary.html#term-llm-service"><strong>llm service</strong></a>
+</li>
+      <li><a href="glossary.html#term-llm-service-rate-limit"><strong>llm service rate limit</strong></a>
+</li>
+      <li><a href="glossary.html#term-llm-task"><strong>llm task</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.LLM_COST_REGISTRY.html#compass.utilities.LLM_COST_REGISTRY">LLM_COST_REGISTRY (in module compass.utilities)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.parsing.llm_response_as_json.html#compass.utilities.parsing.llm_response_as_json">llm_response_as_json() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.llm_response_does_not_start_with_no.html#compass.common.base.llm_response_does_not_start_with_no">llm_response_does_not_start_with_no() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.llm_response_starts_with_no.html#compass.common.base.llm_response_starts_with_no">llm_response_starts_with_no() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.llm_response_starts_with_yes.html#compass.common.base.llm_response_starts_with_yes">llm_response_starts_with_yes() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.config.LLMConfig.html#compass.llm.config.LLMConfig.llm_service">llm_service (LLMConfig property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.llm.config.OpenAIConfig.html#compass.llm.config.OpenAIConfig.llm_service">(OpenAIConfig property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.llm.calling.LLMCaller.html#compass.llm.calling.LLMCaller">LLMCaller (class in compass.llm.calling)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.config.LLMConfig.html#compass.llm.config.LLMConfig">LLMConfig (class in compass.llm.config)</a>
+</li>
+      <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService">LLMService (class in compass.services.base)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks">LLMTasks (class in compass.utilities.enums)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory">LLMUsageCategory (class in compass.utilities.enums)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.jurisdictions.load_all_jurisdiction_info.html#compass.utilities.jurisdictions.load_all_jurisdiction_info">load_all_jurisdiction_info() (in module compass.utilities.jurisdictions)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.parsing.load_config.html#compass.utilities.parsing.load_config">load_config() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.jurisdictions.load_jurisdictions_from_fp.html#compass.utilities.jurisdictions.load_jurisdictions_from_fp">load_jurisdictions_from_fp() (in module compass.utilities.jurisdictions)</a>
+</li>
+      <li><a href="_autosummary/compass.scripts.download.load_known_docs.html#compass.scripts.download.load_known_docs">load_known_docs() (in module compass.scripts.download)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.io.load_local_docs.html#compass.utilities.io.load_local_docs">load_local_docs() (in module compass.utilities.io)</a>
+</li>
+      <li><a href="glossary.html#term-location"><strong>location</strong></a>
+</li>
+      <li><a href="glossary.html#term-location-file-log"><strong>location file log</strong></a>
+</li>
+      <li><a href="glossary.html#term-location-manifest"><strong>location manifest</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.LocationFileLog.html#compass.utilities.logs.LocationFileLog">LocationFileLog (class in compass.utilities.logs)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.LocationFilter.html#compass.utilities.logs.LocationFilter">LocationFilter (class in compass.utilities.logs)</a>
+</li>
+      <li><a href="glossary.html#term-log-directory"><strong>log directory</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.log_versions.html#compass.utilities.logs.log_versions">log_versions() (in module compass.utilities.logs)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.LogListener.html#compass.utilities.logs.LogListener">LogListener (class in compass.utilities.logs)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.lower">lower() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.lower">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.lstrip">lstrip() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.lstrip">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.base.Directories.html#compass.utilities.base.Directories.make_dirs">make_dirs() (Directories method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.maketrans">maketrans() (LLMTasks static method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.maketrans">(LLMUsageCategory static method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.MAX_CONCURRENT_JOBS">MAX_CONCURRENT_JOBS (CleanedFileWriter attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.MAX_CONCURRENT_JOBS">(FileMover attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.MAX_CONCURRENT_JOBS">(HTMLFileLoader attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.MAX_CONCURRENT_JOBS">(JurisdictionUpdater attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.MAX_CONCURRENT_JOBS">(LLMService attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.MAX_CONCURRENT_JOBS">(OCRPDFLoader attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.MAX_CONCURRENT_JOBS">(OpenAIService attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.MAX_CONCURRENT_JOBS">(OrdDBFileWriter attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.MAX_CONCURRENT_JOBS">(PDFLoader attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.MAX_CONCURRENT_JOBS">(ProcessPoolService attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.MAX_CONCURRENT_JOBS">(Service attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.MAX_CONCURRENT_JOBS">(StoreFileOnDisk attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.MAX_CONCURRENT_JOBS">(TempFileCache attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.MAX_CONCURRENT_JOBS">(TempFileCachePB attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.MAX_CONCURRENT_JOBS">(ThreadedService attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.MAX_CONCURRENT_JOBS">(UsageUpdater attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.max_num_concurrent_jurisdictions">max_num_concurrent_jurisdictions (ProcessKwargs attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.parsing.merge_overlapping_texts.html#compass.utilities.parsing.merge_overlapping_texts">merge_overlapping_texts() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.messages">messages (AsyncDecisionTree property)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.DTreeJurisdictionValidator.html#compass.validation.location.DTreeJurisdictionValidator.META_SCORE_KEY">META_SCORE_KEY (DTreeJurisdictionValidator attribute)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="_autosummary/compass.html#module-compass">compass</a>
+</li>
+        <li><a href="_autosummary/compass.common.html#module-compass.common">compass.common</a>
+</li>
+        <li><a href="_autosummary/compass.common.base.html#module-compass.common.base">compass.common.base</a>
+</li>
+        <li><a href="_autosummary/compass.common.tree.html#module-compass.common.tree">compass.common.tree</a>
+</li>
+        <li><a href="_autosummary/compass.exceptions.html#module-compass.exceptions">compass.exceptions</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.html#module-compass.extraction">compass.extraction</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.apply.html#module-compass.extraction.apply">compass.extraction.apply</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.date.html#module-compass.extraction.date">compass.extraction.date</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.features.html#module-compass.extraction.features">compass.extraction.features</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.html#module-compass.extraction.small_wind">compass.extraction.small_wind</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.graphs.html#module-compass.extraction.small_wind.graphs">compass.extraction.small_wind.graphs</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.html#module-compass.extraction.small_wind.ordinance">compass.extraction.small_wind.ordinance</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.html#module-compass.extraction.small_wind.parse">compass.extraction.small_wind.parse</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.html#module-compass.extraction.solar">compass.extraction.solar</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.graphs.html#module-compass.extraction.solar.graphs">compass.extraction.solar.graphs</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.html#module-compass.extraction.solar.ordinance">compass.extraction.solar.ordinance</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.parse.html#module-compass.extraction.solar.parse">compass.extraction.solar.parse</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.html#module-compass.extraction.wind">compass.extraction.wind</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.graphs.html#module-compass.extraction.wind.graphs">compass.extraction.wind.graphs</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.html#module-compass.extraction.wind.ordinance">compass.extraction.wind.ordinance</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.parse.html#module-compass.extraction.wind.parse">compass.extraction.wind.parse</a>
+</li>
+        <li><a href="_autosummary/compass.llm.html#module-compass.llm">compass.llm</a>
+</li>
+        <li><a href="_autosummary/compass.llm.calling.html#module-compass.llm.calling">compass.llm.calling</a>
+</li>
+        <li><a href="_autosummary/compass.llm.config.html#module-compass.llm.config">compass.llm.config</a>
+</li>
+        <li><a href="_autosummary/compass.pb.html#module-compass.pb">compass.pb</a>
+</li>
+        <li><a href="_autosummary/compass.scripts.html#module-compass.scripts">compass.scripts</a>
+</li>
+        <li><a href="_autosummary/compass.scripts.download.html#module-compass.scripts.download">compass.scripts.download</a>
+</li>
+        <li><a href="_autosummary/compass.scripts.process.html#module-compass.scripts.process">compass.scripts.process</a>
+</li>
+        <li><a href="_autosummary/compass.services.html#module-compass.services">compass.services</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.html#module-compass.services.base">compass.services.base</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.html#module-compass.services.cpu">compass.services.cpu</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.html#module-compass.services.openai">compass.services.openai</a>
+</li>
+        <li><a href="_autosummary/compass.services.provider.html#module-compass.services.provider">compass.services.provider</a>
+</li>
+        <li><a href="_autosummary/compass.services.queues.html#module-compass.services.queues">compass.services.queues</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.html#module-compass.services.threaded">compass.services.threaded</a>
+</li>
+        <li><a href="_autosummary/compass.services.usage.html#module-compass.services.usage">compass.services.usage</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.html#module-compass.utilities">compass.utilities</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.base.html#module-compass.utilities.base">compass.utilities.base</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.enums.html#module-compass.utilities.enums">compass.utilities.enums</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.finalize.html#module-compass.utilities.finalize">compass.utilities.finalize</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.io.html#module-compass.utilities.io">compass.utilities.io</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.jurisdictions.html#module-compass.utilities.jurisdictions">compass.utilities.jurisdictions</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.location.html#module-compass.utilities.location">compass.utilities.location</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.logs.html#module-compass.utilities.logs">compass.utilities.logs</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.ngrams.html#module-compass.utilities.ngrams">compass.utilities.ngrams</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.html#module-compass.utilities.nt">compass.utilities.nt</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.parsing.html#module-compass.utilities.parsing">compass.utilities.parsing</a>
+</li>
+        <li><a href="_autosummary/compass.validation.html#module-compass.validation">compass.validation</a>
+</li>
+        <li><a href="_autosummary/compass.validation.content.html#module-compass.validation.content">compass.validation.content</a>
+</li>
+        <li><a href="_autosummary/compass.validation.graphs.html#module-compass.validation.graphs">compass.validation.graphs</a>
+</li>
+        <li><a href="_autosummary/compass.validation.location.html#module-compass.validation.location">compass.validation.location</a>
+</li>
+        <li><a href="_autosummary/compass.warn.html#module-compass.warn">compass.warn</a>
+</li>
+        <li><a href="_autosummary/compass.web.html#module-compass.web">compass.web</a>
+</li>
+        <li><a href="_autosummary/compass.web.website_crawl.html#module-compass.web.website_crawl">compass.web.website_crawl</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.name">name (CleanedFileWriter property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.name">(FileMover property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.name">(HTMLFileLoader property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.name">(JurisdictionUpdater property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.name">(LLMService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.name">(OCRPDFLoader property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.name">(OpenAIService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.name">(OrdDBFileWriter property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.name">(PDFLoader property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.name">(ProcessPoolService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.name">(Service property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.name">(StoreFileOnDisk property)</a>
+</li>
+        <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.name">(TechSpec attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.name">(TempFileCache property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.name">(TempFileCachePB property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.name">(ThreadedService property)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.name">(UsageUpdater property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.logs.NoLocationFilter.html#compass.utilities.logs.NoLocationFilter">NoLocationFilter (class in compass.utilities.logs)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.content.Heuristic.html#compass.validation.content.Heuristic.NOT_TECH_WORDS">NOT_TECH_WORDS (Heuristic property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic.NOT_TECH_WORDS">(SmallWindHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic.NOT_TECH_WORDS">(SolarHeuristic attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindHeuristic.html#compass.extraction.wind.ordinance.WindHeuristic.NOT_TECH_WORDS">(WindHeuristic attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.parsing.num_ordinances_dataframe.html#compass.utilities.parsing.num_ordinances_dataframe">num_ordinances_dataframe() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.parsing.num_ordinances_in_doc.html#compass.utilities.parsing.num_ordinances_in_doc">num_ordinances_in_doc() (in module compass.utilities.parsing)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="glossary.html#term-OCR"><strong>OCR</strong></a>
+</li>
+      <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader">OCRPDFLoader (class in compass.services.cpu)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.config.OpenAIConfig.html#compass.llm.config.OpenAIConfig">OpenAIConfig (class in compass.llm.config)</a>
+</li>
+      <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService">OpenAIService (class in compass.services.openai)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter">OrdDBFileWriter (class in compass.services.threaded)</a>
+</li>
+      <li><a href="glossary.html#term-ordinance"><strong>ordinance</strong></a>
+</li>
+      <li><a href="glossary.html#term-ordinance-document"><strong>ordinance document</strong></a>
+</li>
+      <li><a href="glossary.html#term-ordinance-file-directory"><strong>ordinance file directory</strong></a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.ordinance_text">ordinance_text (SmallWindOrdinanceTextCollector property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.ordinance_text">(SolarOrdinanceTextCollector property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector.ordinance_text">(WindOrdinanceTextCollector property)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.ordinance_text_collector">ordinance_text_collector (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.ORDINANCE_TEXT_EXTRACTION">ORDINANCE_TEXT_EXTRACTION (LLMTasks attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.ordinance_text_extractor">ordinance_text_extractor (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.ORDINANCE_VALUE_EXTRACTION">ORDINANCE_VALUE_EXTRACTION (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.parsing.ordinances_bool_index.html#compass.utilities.parsing.ordinances_bool_index">ordinances_bool_index() (in module compass.utilities.parsing)</a>
+</li>
+      <li><a href="glossary.html#term-out-directory"><strong>out directory</strong></a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.extraction.date.DateExtractor.html#compass.extraction.date.DateExtractor.parse">parse() (DateExtractor method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser.html#compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser.parse">(StructuredSmallWindOrdinanceParser method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser.html#compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser.parse">(StructuredSmallWindPermittedUseDistrictsParser method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.parse.StructuredSolarOrdinanceParser.html#compass.extraction.solar.parse.StructuredSolarOrdinanceParser.parse">(StructuredSolarOrdinanceParser method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser.html#compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser.parse">(StructuredSolarPermittedUseDistrictsParser method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.parse.StructuredWindOrdinanceParser.html#compass.extraction.wind.parse.StructuredWindOrdinanceParser.parse">(StructuredWindOrdinanceParser method)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser.html#compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser.parse">(StructuredWindPermittedUseDistrictsParser method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.validation.content.parse_by_chunks.html#compass.validation.content.parse_by_chunks">parse_by_chunks() (in module compass.validation.content)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.content.ParseChunksWithMemory.html#compass.validation.content.ParseChunksWithMemory.parse_from_ind">parse_from_ind() (ParseChunksWithMemory method)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.content.ParseChunksWithMemory.html#compass.validation.content.ParseChunksWithMemory">ParseChunksWithMemory (class in compass.validation.content)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.parsers">parsers (SmallWindOrdinanceTextExtractor property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.parsers">(SmallWindPermittedUseDistrictsTextExtractor property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html#compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.parsers">(SolarOrdinanceTextExtractor property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.parsers">(SolarPermittedUseDistrictsTextExtractor property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.parsers">(WindOrdinanceTextExtractor property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.parsers">(WindPermittedUseDistrictsTextExtractor property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.partition">partition() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.partition">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader">PDFLoader (class in compass.services.cpu)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.permitted_use_district_text">permitted_use_district_text (SmallWindPermittedUseDistrictsTextCollector property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.permitted_use_district_text">(SolarPermittedUseDistrictsTextCollector property)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.permitted_use_district_text">(WindPermittedUseDistrictsTextCollector property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.permitted_use_text_collector">permitted_use_text_collector (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.PERMITTED_USE_TEXT_EXTRACTION">PERMITTED_USE_TEXT_EXTRACTION (LLMTasks attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.permitted_use_text_extractor">permitted_use_text_extractor (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.PERMITTED_USE_VALUE_EXTRACTION">PERMITTED_USE_VALUE_EXTRACTION (LLMTasks attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION">(LLMUsageCategory attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.PERMITTED_USES_FILTER_PROMPT">PERMITTED_USES_FILTER_PROMPT (SmallWindPermittedUseDistrictsTextExtractor attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.PERMITTED_USES_FILTER_PROMPT">(SolarPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.PERMITTED_USES_FILTER_PROMPT">(WindPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-Pixi"><strong>Pixi</strong></a>
+</li>
+      <li><a href="glossary.html#term-Playwright"><strong>Playwright</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.ppe_kwargs">ppe_kwargs (ProcessKwargs attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.process">process() (CleanedFileWriter method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.process">(FileMover method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.process">(HTMLFileLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.process">(JurisdictionUpdater method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.process">(LLMService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.process">(OCRPDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.process">(OpenAIService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.process">(OrdDBFileWriter method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.process">(PDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.process">(ProcessPoolService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.process">(Service method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.process">(StoreFileOnDisk method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.process">(TempFileCache method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.process">(TempFileCachePB method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.process">(ThreadedService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.process">(UsageUpdater method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai">process_jurisdictions_with_openai() (in module compass.scripts.process)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.process_using_futures">process_using_futures() (CleanedFileWriter method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.process_using_futures">(FileMover method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.process_using_futures">(HTMLFileLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.process_using_futures">(JurisdictionUpdater method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.process_using_futures">(LLMService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.process_using_futures">(OCRPDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.process_using_futures">(OpenAIService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.process_using_futures">(OrdDBFileWriter method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.process_using_futures">(PDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.process_using_futures">(ProcessPoolService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.process_using_futures">(Service method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.process_using_futures">(StoreFileOnDisk method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.process_using_futures">(TempFileCache method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.process_using_futures">(TempFileCachePB method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.process_using_futures">(ThreadedService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.process_using_futures">(UsageUpdater method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs">ProcessKwargs (class in compass.utilities.nt)</a>
+</li>
+      <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService">ProcessPoolService (class in compass.services.cpu)</a>
+</li>
+      <li><a href="glossary.html#term-pytesseract"><strong>pytesseract</strong></a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.finalize.QUAL_OUT_COLS.html#compass.utilities.finalize.QUAL_OUT_COLS">QUAL_OUT_COLS (in module compass.utilities.finalize)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.finalize.QUANT_OUT_COLS.html#compass.utilities.finalize.QUANT_OUT_COLS">QUANT_OUT_COLS (in module compass.utilities.finalize)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.questions">questions (TechSpec attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="glossary.html#term-rate-limiter"><strong>rate limiter</strong></a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.read_html_file.html#compass.services.threaded.read_html_file">read_html_file() (in module compass.services.threaded)</a>
+</li>
+      <li><a href="_autosummary/compass.services.cpu.read_pdf_doc.html#compass.services.cpu.read_pdf_doc">read_pdf_doc() (in module compass.services.cpu)</a>
+</li>
+      <li><a href="_autosummary/compass.services.cpu.read_pdf_doc_ocr.html#compass.services.cpu.read_pdf_doc_ocr">read_pdf_doc_ocr() (in module compass.services.cpu)</a>
+</li>
+      <li><a href="_autosummary/compass.services.cpu.read_pdf_file.html#compass.services.cpu.read_pdf_file">read_pdf_file() (in module compass.services.cpu)</a>
+</li>
+      <li><a href="_autosummary/compass.services.cpu.read_pdf_file_ocr.html#compass.services.cpu.read_pdf_file_ocr">read_pdf_file_ocr() (in module compass.services.cpu)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.CleanedFileWriter.html#compass.services.threaded.CleanedFileWriter.release_resources">release_resources() (CleanedFileWriter method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.services.threaded.FileMover.html#compass.services.threaded.FileMover.release_resources">(FileMover method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.HTMLFileLoader.html#compass.services.threaded.HTMLFileLoader.release_resources">(HTMLFileLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.JurisdictionUpdater.html#compass.services.threaded.JurisdictionUpdater.release_resources">(JurisdictionUpdater method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.LLMService.html#compass.services.base.LLMService.release_resources">(LLMService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader.release_resources">(OCRPDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.openai.OpenAIService.html#compass.services.openai.OpenAIService.release_resources">(OpenAIService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.OrdDBFileWriter.html#compass.services.threaded.OrdDBFileWriter.release_resources">(OrdDBFileWriter method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.PDFLoader.html#compass.services.cpu.PDFLoader.release_resources">(PDFLoader method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.release_resources">(ProcessPoolService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service.release_resources">(Service method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk.release_resources">(StoreFileOnDisk method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache.release_resources">(TempFileCache method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB.release_resources">(TempFileCachePB method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService.release_resources">(ThreadedService method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater.release_resources">(UsageUpdater method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.logs.LogListener.html#compass.utilities.logs.LogListener.removeHandler">removeHandler() (LogListener method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.removeprefix">removeprefix() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.removeprefix">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.removesuffix">removesuffix() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.removesuffix">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.replace">replace() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.replace">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.rfind">rfind() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.rfind">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.rindex">rindex() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.rindex">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.rjust">rjust() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.rjust">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.rpartition">rpartition() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.rpartition">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.rsplit">rsplit() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.rsplit">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.rstrip">rstrip() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.rstrip">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.run">run() (AsyncDecisionTree method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.web.website_crawl.COMPASSCrawler.html#compass.web.website_crawl.COMPASSCrawler.run">(COMPASSCrawler method)</a>
+</li>
+        <li><a href="_autosummary/compass.services.provider.RunningAsyncServices.html#compass.services.provider.RunningAsyncServices.run">(RunningAsyncServices class method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.base.run_async_tree.html#compass.common.base.run_async_tree">run_async_tree() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.run_async_tree_with_bm.html#compass.common.base.run_async_tree_with_bm">run_async_tree_with_bm() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.services.provider.RunningAsyncServices.html#compass.services.provider.RunningAsyncServices">RunningAsyncServices (class in compass.services.provider)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.finalize.save_db.html#compass.utilities.finalize.save_db">save_db() (in module compass.utilities.finalize)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.finalize.save_run_meta.html#compass.utilities.finalize.save_run_meta">save_run_meta() (in module compass.utilities.finalize)</a>
+</li>
+      <li><a href="_autosummary/compass.web.website_crawl.COMPASSLinkScorer.html#compass.web.website_crawl.COMPASSLinkScorer.score">score() (COMPASSLinkScorer method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.base.WebSearchParams.html#compass.utilities.base.WebSearchParams.se_kwargs">se_kwargs (WebSearchParams property)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.SEF_PERMITTED_USES_FILTER_PROMPT">SEF_PERMITTED_USES_FILTER_PROMPT (SolarPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.ngrams.sentence_ngram_containment.html#compass.utilities.ngrams.sentence_ngram_containment">sentence_ngram_containment() (in module compass.utilities.ngrams)</a>
+</li>
+      <li><a href="_autosummary/compass.services.base.Service.html#compass.services.base.Service">Service (class in compass.services.base)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.features.SetbackFeatures.html#compass.extraction.features.SetbackFeatures">SetbackFeatures (class in compass.extraction.features)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.setup_async_decision_tree.html#compass.common.base.setup_async_decision_tree">setup_async_decision_tree() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.setup_base_setback_graph.html#compass.common.base.setup_base_setback_graph">setup_base_setback_graph() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.graphs.setup_conditional_max.html#compass.extraction.small_wind.graphs.setup_conditional_max">setup_conditional_max() (in module compass.extraction.small_wind.graphs)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.graphs.setup_conditional_max.html#compass.extraction.wind.graphs.setup_conditional_max">(in module compass.extraction.wind.graphs)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.small_wind.graphs.setup_conditional_min.html#compass.extraction.small_wind.graphs.setup_conditional_min">setup_conditional_min() (in module compass.extraction.small_wind.graphs)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.graphs.setup_conditional_min.html#compass.extraction.wind.graphs.setup_conditional_min">(in module compass.extraction.wind.graphs)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.validation.graphs.setup_graph_correct_document_type.html#compass.validation.graphs.setup_graph_correct_document_type">setup_graph_correct_document_type() (in module compass.validation.graphs)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.graphs.setup_graph_correct_jurisdiction_from_url.html#compass.validation.graphs.setup_graph_correct_jurisdiction_from_url">setup_graph_correct_jurisdiction_from_url() (in module compass.validation.graphs)</a>
+</li>
+      <li><a href="_autosummary/compass.validation.graphs.setup_graph_correct_jurisdiction_type.html#compass.validation.graphs.setup_graph_correct_jurisdiction_type">setup_graph_correct_jurisdiction_type() (in module compass.validation.graphs)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.setup_graph_extra_restriction.html#compass.common.base.setup_graph_extra_restriction">setup_graph_extra_restriction() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.setup_graph_no_nodes.html#compass.common.base.setup_graph_no_nodes">setup_graph_no_nodes() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.common.base.setup_graph_permitted_use_districts.html#compass.common.base.setup_graph_permitted_use_districts">setup_graph_permitted_use_districts() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.graphs.setup_graph_sef_types.html#compass.extraction.solar.graphs.setup_graph_sef_types">setup_graph_sef_types() (in module compass.extraction.solar.graphs)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.graphs.setup_graph_wes_types.html#compass.extraction.small_wind.graphs.setup_graph_wes_types">setup_graph_wes_types() (in module compass.extraction.small_wind.graphs)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.graphs.setup_graph_wes_types.html#compass.extraction.wind.graphs.setup_graph_wes_types">(in module compass.extraction.wind.graphs)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.small_wind.graphs.setup_multiplier.html#compass.extraction.small_wind.graphs.setup_multiplier">setup_multiplier() (in module compass.extraction.small_wind.graphs)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.solar.graphs.setup_multiplier.html#compass.extraction.solar.graphs.setup_multiplier">(in module compass.extraction.solar.graphs)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.graphs.setup_multiplier.html#compass.extraction.wind.graphs.setup_multiplier">(in module compass.extraction.wind.graphs)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.base.setup_participating_owner.html#compass.common.base.setup_participating_owner">setup_participating_owner() (in module compass.common.base)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.SMALL_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT">SMALL_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT (SmallWindOrdinanceTextExtractor attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic">SmallWindHeuristic (class in compass.extraction.small_wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector">SmallWindOrdinanceTextCollector (class in compass.extraction.small_wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor">SmallWindOrdinanceTextExtractor (class in compass.extraction.small_wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector">SmallWindPermittedUseDistrictsTextCollector (class in compass.extraction.small_wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor">SmallWindPermittedUseDistrictsTextExtractor (class in compass.extraction.small_wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html#compass.extraction.small_wind.parse.SmallWindSetbackFeatures">SmallWindSetbackFeatures (class in compass.extraction.small_wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html#compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT">SOLAR_ENERGY_SYSTEM_FILTER_PROMPT (SolarOrdinanceTextExtractor attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarHeuristic.html#compass.extraction.solar.ordinance.SolarHeuristic">SolarHeuristic (class in compass.extraction.solar.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html#compass.extraction.solar.ordinance.SolarOrdinanceTextCollector">SolarOrdinanceTextCollector (class in compass.extraction.solar.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html#compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor">SolarOrdinanceTextExtractor (class in compass.extraction.solar.ordinance)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector">SolarPermittedUseDistrictsTextCollector (class in compass.extraction.solar.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor">SolarPermittedUseDistrictsTextExtractor (class in compass.extraction.solar.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.split">split() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.split">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.splitlines">splitlines() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.splitlines">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.startswith">startswith() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.startswith">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.services.threaded.StoreFileOnDisk.html#compass.services.threaded.StoreFileOnDisk">StoreFileOnDisk (class in compass.services.threaded)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.strip">strip() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.strip">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="glossary.html#term-structured-record"><strong>structured record</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.structured_ordinance_parser">structured_ordinance_parser (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.structured_permitted_use_parser">structured_permitted_use_parser (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.calling.StructuredLLMCaller.html#compass.llm.calling.StructuredLLMCaller">StructuredLLMCaller (class in compass.llm.calling)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser.html#compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser">StructuredSmallWindOrdinanceParser (class in compass.extraction.small_wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.parse.StructuredSmallWindParser.html#compass.extraction.small_wind.parse.StructuredSmallWindParser">StructuredSmallWindParser (class in compass.extraction.small_wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser.html#compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser">StructuredSmallWindPermittedUseDistrictsParser (class in compass.extraction.small_wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.parse.StructuredSolarOrdinanceParser.html#compass.extraction.solar.parse.StructuredSolarOrdinanceParser">StructuredSolarOrdinanceParser (class in compass.extraction.solar.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.parse.StructuredSolarParser.html#compass.extraction.solar.parse.StructuredSolarParser">StructuredSolarParser (class in compass.extraction.solar.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser.html#compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser">StructuredSolarPermittedUseDistrictsParser (class in compass.extraction.solar.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.parse.StructuredWindOrdinanceParser.html#compass.extraction.wind.parse.StructuredWindOrdinanceParser">StructuredWindOrdinanceParser (class in compass.extraction.wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.parse.StructuredWindParser.html#compass.extraction.wind.parse.StructuredWindParser">StructuredWindParser (class in compass.extraction.wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser.html#compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser">StructuredWindPermittedUseDistrictsParser (class in compass.extraction.wind.parse)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.config.OpenAIConfig.html#compass.llm.config.OpenAIConfig.SUPPORTED_CLIENTS">SUPPORTED_CLIENTS (OpenAIConfig attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.swapcase">swapcase() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.swapcase">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.base.BaseTextExtractor.html#compass.common.base.BaseTextExtractor.SYSTEM_MESSAGE">SYSTEM_MESSAGE (BaseTextExtractor attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.date.DateExtractor.html#compass.extraction.date.DateExtractor.SYSTEM_MESSAGE">(DateExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.location.DTreeJurisdictionValidator.html#compass.validation.location.DTreeJurisdictionValidator.SYSTEM_MESSAGE">(DTreeJurisdictionValidator attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.location.DTreeURLJurisdictionValidator.html#compass.validation.location.DTreeURLJurisdictionValidator.SYSTEM_MESSAGE">(DTreeURLJurisdictionValidator attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.validation.content.LegalTextValidator.html#compass.validation.content.LegalTextValidator.SYSTEM_MESSAGE">(LegalTextValidator attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.SYSTEM_MESSAGE">(SmallWindOrdinanceTextExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.SYSTEM_MESSAGE">(SmallWindPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html#compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.SYSTEM_MESSAGE">(SolarOrdinanceTextExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html#compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.SYSTEM_MESSAGE">(SolarPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.SYSTEM_MESSAGE">(WindOrdinanceTextExtractor attribute)</a>
+</li>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.SYSTEM_MESSAGE">(WindPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.td_kwargs">td_kwargs (ProcessKwargs attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.services.queues.tear_down_service_queue.html#compass.services.queues.tear_down_service_queue">tear_down_service_queue() (in module compass.services.queues)</a>
+</li>
+      <li><a href="glossary.html#term-technology"><strong>technology</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec">TechSpec (class in compass.utilities.nt)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.TempFileCache.html#compass.services.threaded.TempFileCache">TempFileCache (class in compass.services.threaded)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.TempFileCachePB.html#compass.services.threaded.TempFileCachePB">TempFileCachePB (class in compass.services.threaded)</a>
+</li>
+      <li><a href="glossary.html#term-text-splitter"><strong>text splitter</strong></a>
+</li>
+      <li><a href="_autosummary/compass.utilities.logs.LocationFileLog.html#compass.utilities.logs.LocationFileLog.TEXT_FORMATTER">TEXT_FORMATTER (LocationFileLog attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.llm.config.LLMConfig.html#compass.llm.config.LLMConfig.text_splitter">text_splitter (LLMConfig property)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.llm.config.OpenAIConfig.html#compass.llm.config.OpenAIConfig.text_splitter">(OpenAIConfig property)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.services.threaded.ThreadedService.html#compass.services.threaded.ThreadedService">ThreadedService (class in compass.services.threaded)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.services.usage.TimeBoundedUsageTracker.html#compass.services.usage.TimeBoundedUsageTracker">TimeBoundedUsageTracker (class in compass.services.usage)</a>
+</li>
+      <li><a href="_autosummary/compass.services.usage.TimedEntry.html#compass.services.usage.TimedEntry">TimedEntry (class in compass.services.usage)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.title">title() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.title">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.utilities.base.title_preserving_caps.html#compass.utilities.base.title_preserving_caps">title_preserving_caps() (in module compass.utilities.base)</a>
+</li>
+      <li><a href="_autosummary/compass.services.usage.TimeBoundedUsageTracker.html#compass.services.usage.TimeBoundedUsageTracker.total">total (TimeBoundedUsageTracker property)</a>
+</li>
+      <li><a href="_autosummary/compass.services.usage.UsageTracker.html#compass.services.usage.UsageTracker.totals">totals (UsageTracker property)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.ProcessKwargs.html#compass.utilities.nt.ProcessKwargs.tpe_kwargs">tpe_kwargs (ProcessKwargs attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.translate">translate() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.translate">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.common.tree.AsyncDecisionTree.html#compass.common.tree.AsyncDecisionTree.tree_name">tree_name (AsyncDecisionTree property)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="U">U</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.services.usage.UsageTracker.html#compass.services.usage.UsageTracker.UNKNOWN_MODEL_LABEL">UNKNOWN_MODEL_LABEL (UsageTracker attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.services.usage.UsageTracker.html#compass.services.usage.UsageTracker.update_from_model">update_from_model() (UsageTracker method)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.upper">upper() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.upper">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.URL_JURISDICTION_VALIDATION">URL_JURISDICTION_VALIDATION (LLMUsageCategory attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.services.openai.usage_from_response.html#compass.services.openai.usage_from_response">usage_from_response() (in module compass.services.openai)</a>
+</li>
+      <li><a href="_autosummary/compass.services.usage.UsageTracker.html#compass.services.usage.UsageTracker">UsageTracker (class in compass.services.usage)</a>
+</li>
+      <li><a href="_autosummary/compass.services.threaded.UsageUpdater.html#compass.services.threaded.UsageUpdater">UsageUpdater (class in compass.services.threaded)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="glossary.html#term-validation-pipeline"><strong>validation pipeline</strong></a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="glossary.html#term-web-search"><strong>web search</strong></a>
+</li>
+      <li><a href="_autosummary/compass.validation.location.JurisdictionWebsiteValidator.html#compass.validation.location.JurisdictionWebsiteValidator.WEB_PAGE_CHECK_SYSTEM_MESSAGE">WEB_PAGE_CHECK_SYSTEM_MESSAGE (JurisdictionWebsiteValidator attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.base.WebSearchParams.html#compass.utilities.base.WebSearchParams">WebSearchParams (class in compass.utilities.base)</a>
+</li>
+      <li><a href="_autosummary/compass.utilities.nt.TechSpec.html#compass.utilities.nt.TechSpec.website_url_keyword_points">website_url_keyword_points (TechSpec attribute)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.WES_PERMITTED_USES_FILTER_PROMPT">WES_PERMITTED_USES_FILTER_PROMPT (SmallWindPermittedUseDistrictsTextExtractor attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.WES_PERMITTED_USES_FILTER_PROMPT">(WindPermittedUseDistrictsTextExtractor attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html#compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.WIND_ENERGY_SYSTEM_FILTER_PROMPT">WIND_ENERGY_SYSTEM_FILTER_PROMPT (SmallWindOrdinanceTextExtractor attribute)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.WIND_ENERGY_SYSTEM_FILTER_PROMPT">(WindOrdinanceTextExtractor attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindHeuristic.html#compass.extraction.wind.ordinance.WindHeuristic">WindHeuristic (class in compass.extraction.wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html#compass.extraction.wind.ordinance.WindOrdinanceTextCollector">WindOrdinanceTextCollector (class in compass.extraction.wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html#compass.extraction.wind.ordinance.WindOrdinanceTextExtractor">WindOrdinanceTextExtractor (class in compass.extraction.wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector">WindPermittedUseDistrictsTextCollector (class in compass.extraction.wind.ordinance)</a>
+</li>
+      <li><a href="_autosummary/compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html#compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor">WindPermittedUseDistrictsTextExtractor (class in compass.extraction.wind.ordinance)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="_autosummary/compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks.zfill">zfill() (LLMTasks method)</a>
+
+      <ul>
+        <li><a href="_autosummary/compass.utilities.enums.LLMUsageCategory.html#compass.utilities.enums.LLMUsageCategory.zfill">(LLMUsageCategory method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

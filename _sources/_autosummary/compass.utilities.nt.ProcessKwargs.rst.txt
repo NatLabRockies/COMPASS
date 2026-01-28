@@ -1,0 +1,37 @@
+compass.utilities.nt.ProcessKwargs
+==================================
+
+.. currentmodule:: compass.utilities.nt
+
+.. autoclass:: ProcessKwargs
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ProcessKwargs.count
+      ~ProcessKwargs.index
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ProcessKwargs.file_loader_kwargs
+      ~ProcessKwargs.known_doc_urls
+      ~ProcessKwargs.known_local_docs
+      ~ProcessKwargs.max_num_concurrent_jurisdictions
+      ~ProcessKwargs.ppe_kwargs
+      ~ProcessKwargs.td_kwargs
+      ~ProcessKwargs.tpe_kwargs
+   
+   

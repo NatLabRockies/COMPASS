@@ -1,0 +1,6 @@
+compass.extraction.apply.check\_for\_ordinance\_info
+====================================================
+
+.. currentmodule:: compass.extraction.apply
+
+.. autofunction:: check_for_ordinance_info

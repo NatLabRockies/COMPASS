@@ -1,0 +1,46 @@
+compass.utilities
+=================
+
+.. automodule:: compass.utilities
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      LLM_COST_REGISTRY
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   base
+   enums
+   finalize
+   io
+   jurisdictions
+   location
+   logs
+   ngrams
+   nt
+   parsing
+

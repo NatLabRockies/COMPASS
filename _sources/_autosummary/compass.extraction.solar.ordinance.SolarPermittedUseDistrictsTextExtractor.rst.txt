@@ -1,0 +1,34 @@
+compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor
+==========================================================================
+
+.. currentmodule:: compass.extraction.solar.ordinance
+
+.. autoclass:: SolarPermittedUseDistrictsTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SolarPermittedUseDistrictsTextExtractor.extract_permitted_uses
+      ~SolarPermittedUseDistrictsTextExtractor.extract_sef_permitted_uses
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SolarPermittedUseDistrictsTextExtractor.PERMITTED_USES_FILTER_PROMPT
+      ~SolarPermittedUseDistrictsTextExtractor.SEF_PERMITTED_USES_FILTER_PROMPT
+      ~SolarPermittedUseDistrictsTextExtractor.SYSTEM_MESSAGE
+      ~SolarPermittedUseDistrictsTextExtractor.parsers
+   
+   

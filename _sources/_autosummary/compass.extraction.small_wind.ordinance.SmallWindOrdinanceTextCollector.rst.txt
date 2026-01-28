@@ -1,0 +1,34 @@
+compass.extraction.small\_wind.ordinance.SmallWindOrdinanceTextCollector
+========================================================================
+
+.. currentmodule:: compass.extraction.small_wind.ordinance
+
+.. autoclass:: SmallWindOrdinanceTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SmallWindOrdinanceTextCollector.call
+      ~SmallWindOrdinanceTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SmallWindOrdinanceTextCollector.CONTAINS_ORD_PROMPT
+      ~SmallWindOrdinanceTextCollector.IS_SMALL_PROMPT
+      ~SmallWindOrdinanceTextCollector.contains_ord_info
+      ~SmallWindOrdinanceTextCollector.ordinance_text
+   
+   

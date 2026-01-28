@@ -1,0 +1,6 @@
+compass.utilities.LLM\_COST\_REGISTRY
+=====================================
+
+.. currentmodule:: compass.utilities
+
+.. autodata:: LLM_COST_REGISTRY

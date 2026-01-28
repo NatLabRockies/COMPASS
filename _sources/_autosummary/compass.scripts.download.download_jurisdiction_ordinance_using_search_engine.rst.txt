@@ -1,0 +1,6 @@
+compass.scripts.download.download\_jurisdiction\_ordinance\_using\_search\_engine
+=================================================================================
+
+.. currentmodule:: compass.scripts.download
+
+.. autofunction:: download_jurisdiction_ordinance_using_search_engine

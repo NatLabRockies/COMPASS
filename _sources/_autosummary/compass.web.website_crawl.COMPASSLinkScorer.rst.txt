@@ -1,0 +1,24 @@
+compass.web.website\_crawl.COMPASSLinkScorer
+============================================
+
+.. currentmodule:: compass.web.website_crawl
+
+.. autoclass:: COMPASSLinkScorer
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSLinkScorer.score
+   
+   
+
+   
+   
+   

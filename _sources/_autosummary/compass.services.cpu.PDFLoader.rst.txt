@@ -1,0 +1,36 @@
+compass.services.cpu.PDFLoader
+==============================
+
+.. currentmodule:: compass.services.cpu
+
+.. autoclass:: PDFLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PDFLoader.acquire_resources
+      ~PDFLoader.call
+      ~PDFLoader.process
+      ~PDFLoader.process_using_futures
+      ~PDFLoader.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PDFLoader.MAX_CONCURRENT_JOBS
+      ~PDFLoader.can_process
+      ~PDFLoader.name
+   
+   

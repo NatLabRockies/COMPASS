@@ -1,0 +1,6 @@
+compass.utilities.parsing.num\_ordinances\_in\_doc
+==================================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: num_ordinances_in_doc

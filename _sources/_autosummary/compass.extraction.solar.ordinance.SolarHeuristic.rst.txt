@@ -1,0 +1,33 @@
+compass.extraction.solar.ordinance.SolarHeuristic
+=================================================
+
+.. currentmodule:: compass.extraction.solar.ordinance
+
+.. autoclass:: SolarHeuristic
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SolarHeuristic.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SolarHeuristic.GOOD_TECH_ACRONYMS
+      ~SolarHeuristic.GOOD_TECH_KEYWORDS
+      ~SolarHeuristic.GOOD_TECH_PHRASES
+      ~SolarHeuristic.NOT_TECH_WORDS
+   
+   
