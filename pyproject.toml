@@ -6,17 +6,17 @@ requires = [
 build-backend = 'setuptools.build_meta'
 
 [project]
-name="NREL-COMPASS"
+name="INFRA-COMPASS"
 dynamic = ["version"]
 description = "INFRA-COMPASS is a tool that leverages Large Language Models (LLMs) to create and maintain an inventory of state and local codes and ordinances applicable to energy infrastructure."
 readme = "README.rst"
 authors = [
-  {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
-  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
+  {name = "Paul Pinchuk", email = "ppinchuk@nlr.gov"},
+  {name = "Guilherme Castelão", email = "gpimenta@nlr.gov"},
 ]
 maintainers = [
-  {name = "Paul Pinchuk", email = "ppinchuk@nrel.gov"},
-  {name = "Guilherme Castelão", email = "gpimenta@nrel.gov"},
+  {name = "Paul Pinchuk", email = "ppinchuk@nlr.gov"},
+  {name = "Guilherme Castelão", email = "gpimenta@nlr.gov"},
 ]
 license = "BSD-3-Clause"
 keywords = ["COMPASS", "NLR", "Ordinance", "Database"]
@@ -32,18 +32,19 @@ classifiers=[
   "Topic :: Software Development :: Libraries :: Application Frameworks",
 ]
 dependencies = [
+  "beautifulsoup4>=4.12.3,<5",
   "click>=8.1.7,<9",
   "html5lib>=1.1,<2",
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nrel-elm>=0.0.34,<1",
+  "nlr-elm>=0.0.35,<1",
   "numpy>=2.2.4,<3",
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
-  "pyjson5>=1.6.8,<2",
+  "pyjson5>=2.0.0,<3",
   "rich>=13.9.4,<14",
 ]
 
@@ -54,7 +55,7 @@ ocr = [
 dev = [
   "jupyter>=1.0.0,<1.1",
   "pipreqs>=0.4.13,<0.5",
-  "ruff>=0.13.3,<0.14",
+  "ruff>=0.14.11,<0.15",
   "ruff-lsp>=0.0.62,<0.0.63",
 ]
 test = [
@@ -85,16 +86,15 @@ anthropic = [
 build = [
   "build>=1.2.2,<2",
   "pkginfo>=1.12.1.2,<2",
-  "twine>=6.1.0,<7",
 ]
 
 [project.scripts]
 compass = "compass._cli.main:main"
 
 [project.urls]
-homepage = "https://github.com/NREL/COMPASS"
-documentation = "https://nrel.github.io/COMPASS/"
-repository = "https://github.com/NREL/COMPASS"
+homepage = "https://github.com/NatLabRockies/COMPASS"
+documentation = "https://natlabrockies.github.io/COMPASS/"
+repository = "https://github.com/NatLabRockies/COMPASS"
 
 [tool.setuptools.packages]
 find = { include = ["compass*"] }
@@ -126,6 +126,10 @@ tests-r = "cargo test --locked --workspace --no-fail-fast"
 publish-db = "cargo publish --locked -p infra-compass-db --all-features"
 publish-cli = "cargo publish --locked -p infra-compass-cli --all-features"
 
+[tool.pixi.feature.python-dev.tasks]
+lint = "ruff check ./compass"
+format = "ruff format ./compass"
+
 [tool.pixi.feature.python-test.tasks]
 tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
 tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
@@ -136,8 +140,6 @@ python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--f
 
 [tool.pixi.feature.python-build.tasks]
 build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
-check-wheels = { cmd = ["twine", "check", "dist/*"], depends-on = ["build-wheels"] }
-upload-wheels = { cmd = ["twine", "upload", "dist/*"], depends-on = ["check-wheels"] }
 
 [tool.pixi.dependencies]
 poppler = ">=24.8.0,<25"
@@ -182,14 +184,14 @@ scipy = ">=1.14.1,<2"
 snowballstemmer = ">=2.2,<3.dev0"  # version range required for c4ai
 tabulate = ">=0.9.0,<0.10"
 tesseract = ">=5.5.0,<6"
-tiktoken = ">=0.8.0,<0.9"
+tiktoken = ">=0.12.0,<0.13"
 
 # rebrowser-playwright
 greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
 pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [tool.pixi.feature.python-default.pypi-dependencies]
-NREL-COMPASS = { path = ".", editable = true}
+INFRA-COMPASS = { path = ".", editable = true}
 
 [tool.pixi.target.linux-aarch64.dependencies]
 compilers = ">=1.11.0,<2"
@@ -219,7 +221,7 @@ geopandas = ">=1.0.1,<2"
 ipykernel = ">=7.1.0,<8"
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
-ruff = ">=0.13.3,<0.14"
+ruff = ">=0.14.11,<0.15"
 ruff-lsp = ">=0.0.62,<0.0.63"
 seaborn = ">=0.13.2,<0.14"
 
@@ -252,7 +254,6 @@ boto3 = ">=1.35.71,<2"
 [tool.pixi.feature.python-build.dependencies]
 python-build = ">=1.2.2,<2"
 pkginfo = ">=1.12.1.2,<2"
-twine = ">=6.1.0,<7"
 uv = ">=0.8.4,<0.9"
 
 
@@ -319,6 +320,7 @@ ignore = [
   "PYI024", # collections-named-tuple
   "RUF012", # mutable-class-default
   "RUF031", # incorrectly-parenthesized-tuple-in-subscript
+  "RUF067", # non-empty-init-module
   "S101", # assert
   "S324", # hashlib-insecure-hash-function
   "S403", # suspicious-pickle-import

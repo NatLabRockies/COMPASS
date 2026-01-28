@@ -25,7 +25,7 @@ jobs:
     name: Lint Python Code Base with Ruff
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - uses: astral-sh/ruff-action@v3
         with:
           version: "latest"
@@ -39,7 +39,7 @@ jobs:
 
   locked-tests:
     needs: lint
-    name: Pixi-Locked Unit Tests
+    name: Pixi-Locked Test
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -47,21 +47,21 @@ jobs:
 
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
       with:
-        pixi-version: v0.59.0
+        pixi-version: v0.62.2
         locked: true
         cache: true
         cache-write: false
         environments: pdev
 
     - run: |
-        pixi reinstall -e pdev --locked NREL-COMPASS
+        pixi reinstall -e pdev --locked INFRA-COMPASS
         pixi run -e pdev --locked tests-u
 
   unit-tests:
@@ -76,21 +76,21 @@ jobs:
 
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
       with:
-        pixi-version: v0.59.0
+        pixi-version: v0.62.2
         locked: true
         cache: true
         cache-write: ${{ github.ref == 'refs/heads/main' }}
         environments: pdev
 
     - run: |
-        pixi reinstall -e pdev NREL-COMPASS
+        pixi reinstall -e pdev INFRA-COMPASS
         pixi run -e pdev tests-u
 
   integration-tests:
@@ -105,21 +105,21 @@ jobs:
 
     steps:
     - name: Checkout Repo
-      uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
       with:
-        pixi-version: v0.59.0
+        pixi-version: v0.62.2
         locked: true
         cache: true
         cache-write: false
         environments: pdev
 
     - run: |
-        pixi reinstall -e pdev NREL-COMPASS
+        pixi reinstall -e pdev INFRA-COMPASS
         pixi run -e pdev tests-i
 
   tox-tests:
@@ -134,7 +134,7 @@ jobs:
         python-version: ['3.13', '3.12']
 
     steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         fetch-tags: true
@@ -172,7 +172,7 @@ jobs:
         python -m pip install pdftotext
 
     - name: Load tox cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: .tox/
         key: ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-${{ hashFiles('**/pyproject.toml') }}
@@ -186,7 +186,7 @@ jobs:
 
     - name: Save tox cache only on main
       if: github.ref == 'refs/heads/main'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: .tox/
         key: ${{ runner.os }}-${{ matrix.python-version }}-tox-v1-${{ hashFiles('**/pyproject.toml') }}

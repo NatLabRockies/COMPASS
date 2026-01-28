@@ -29,7 +29,7 @@ learn how to `create a branch <https://docs.github.com/en/pull-requests/collabor
 and `request a review <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review>`_.
 
 If you are not sure where or how to start contributing to COMPASS, consider reaching out to the
-current developer(s): **Paul Pinchuk** ["ppinchuk@nrel.gov"] or **Guilherme Pimenta Castelao** ["gpimenta@nrel.gov"].
+current developer(s): **Paul Pinchuk** ["ppinchuk@nlr.gov"] or **Guilherme Pimenta Castelao** ["gpimenta@nlr.gov"].
 
 When you are ready to contribute to COMPASS, clone a copy of the COMPASS repository from GitHub, check out your
 own branch, and make the appropriate changes locally. Ensure that your new code adheres to all of the guidelines
@@ -389,7 +389,7 @@ When you are ready to release a new version of COMPASS, please follow these step
 8) Once the release is published and the tag has been created, you need to manually update the pixi lockfile:
 
    a) Check out a new branch (e.g., ``update-lockfile-vX.Y.Z``)
-   b) Run ``pixi update nrel-compass`` to update the lockfile with the new COMPASS version
+   b) Run ``pixi update infra-compass`` to update the lockfile with the new COMPASS version
    c) If needed, run ``pixi reinstall`` or ``pixi reinstall -e pdev`` to ensure the environment is consistent
    d) Commit the updated ``pixi.lock`` file
    e) Push your branch and open a PR with a title like "Update pixi lockfile for vX.Y.Z release"
@@ -398,7 +398,7 @@ When you are ready to release a new version of COMPASS, please follow these step
 
 Congratulations, you have just released a new version of COMPASS!
 
-You may want to verify that the release has been published to `PyPi <https://pypi.org/project/NREL-COMPASS/>`_
+You may want to verify that the release has been published to `PyPi <https://pypi.org/project/INFRA-COMPASS/>`_
 (if not, check the "Upload to PyPi" GitHub Action).
 
 
@@ -406,6 +406,6 @@ Copilot
 ^^^^^^^
 This repo hosts a custom set of instructions for GitHub Copilot to help it write
 code aligned with COMPASS best practices. You can check out these instructions
-`here <https://github.com/NREL/COMPASS/blob/main/.github/copilot-instructions.md>`_
-(they may help your as well!). If you have any suggestions on how to improve these
+`here <https://github.com/NatLabRockies/COMPASS/blob/main/.github/copilot-instructions.md>`_
+(they may help you as well!). If you have any suggestions on how to improve these
 instructions, please open a PR!

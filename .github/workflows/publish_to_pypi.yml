@@ -9,25 +9,27 @@ jobs:
   deploy:
     name: Build and upload wheels
     permissions:
+      # IMPORTANT: write permission is mandatory for Trusted Publishing
+      id-token: write
       contents: read
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/v')
 
     steps:
-    - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       with:
         fetch-depth: 0
         fetch-tags: true
 
     - uses: prefix-dev/setup-pixi@v0.9.3
       with:
-        pixi-version: v0.59.0
+        pixi-version: v0.62.2
         locked: true
         cache: false
         environments: pbuild
 
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
-      run: pixi run -e pbuild upload-wheels
+    - name: Build
+      run: pixi run -e pbuild build-wheels
+
+    - name: Publish package distributions to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1

@@ -17,10 +17,14 @@ SMALL_WIND_QUESTION_TEMPLATES = [
     "filetype:pdf {jurisdiction} wind energy conversion system ordinances",
     "wind energy conversion system ordinances {jurisdiction}",
     "{jurisdiction} wind WECS ordinance",
-    "Where can I find the legal text for small wind energy "
-    "turbine zoning ordinances in {jurisdiction}?",
-    "What is the specific legal information regarding zoning "
-    "ordinances for small wind turbines in {jurisdiction}?",
+    (
+        "Where can I find the legal text for small wind energy "
+        "turbine zoning ordinances in {jurisdiction}?"
+    ),
+    (
+        "What is the specific legal information regarding zoning "
+        "ordinances for small wind turbines in {jurisdiction}?"
+    ),
 ]
 
 BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {

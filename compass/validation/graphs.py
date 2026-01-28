@@ -161,9 +161,11 @@ def setup_graph_correct_document_type(**kwargs):
     G.add_edge("is_pres", "is_draft", condition=llm_response_starts_with_no)
 
     is_draft_prompt = [
-        "Does this text appear to be from a document that is currently "
-        "being edited or formatted, such as a draft or work in progress?\n"
-        "\n**Important**:\n"
+        (
+            "Does this text appear to be from a document that is currently "
+            "being edited or formatted, such as a draft or work in progress?\n"
+            "\n**Important**:\n"
+        )
     ]
     if doc_is_from_ocr:
         is_draft_prompt.append(
