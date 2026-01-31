@@ -55,7 +55,13 @@ TechSpec = namedtuple(
         "structured_ordinance_parser",
         "structured_permitted_use_parser",
         "website_url_keyword_points",
+        "post_download_docs_hook",
+        "post_filter_docs_hook",
+        "extract_ordinances_callback",
+        "num_ordinances_in_df_callback",
+        "save_db_callback",
     ],
+    defaults=[None, None, None, None, None],
 )
 TechSpec.__doc__ = """Bundle extraction configuration for a technology
 
@@ -81,4 +87,12 @@ structured_permitted_use_parser : callable
     Callable that transforms permitted-use text into structured values.
 website_url_keyword_points : dict or None
     Weightings for scoring website URLs during search.
+post_download_docs_hook : callable or None
+    Optional async function to filter/process downloaded documents.
+post_filter_docs_hook : callable or None
+    Optional async function to filter/process filtered documents.
+extract_ordinances_callback : callable or None
+    Optional async function to extract ordinance data from documents.
+save_db_callback : callable or None
+    Optional **sync** function to save ordinance database to disk.
 """
