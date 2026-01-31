@@ -59,6 +59,18 @@ from compass.extraction.small_wind import (
     SMALL_WIND_QUESTION_TEMPLATES,
     BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
+from compass.extraction.water import (
+    build_corpus,
+    extract_water_rights_ordinance_values,
+    label_docs_no_legal_check,
+    write_water_rights_data_to_disk,
+    WaterRightsHeuristic,
+    WaterRightsTextCollector,
+    WaterRightsTextExtractor,
+    StructuredWaterParser,
+    WATER_RIGHTS_QUESTION_TEMPLATES,
+    BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS,
+)
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import LLMCaller, OpenAIConfig
 from compass.services.cpu import (
@@ -139,6 +151,7 @@ _TEXT_EXTRACTION_TASKS = {
     SmallWindPermittedUseDistrictsTextExtractor: (
         "Extracting small wind permitted use text"
     ),
+    WaterRightsTextExtractor: "Extracting water rights ordinance text",
 }
 _JUR_COLS = [
     "Jurisdiction Type",
@@ -1451,6 +1464,25 @@ def _compile_tech_specs(tech):
             StructuredSmallWindOrdinanceParser,
             StructuredSmallWindPermittedUseDistrictsParser,
             BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
+        )
+
+    if tech.casefold() == "water rights":
+        return TechSpec(
+            "water rights",
+            WATER_RIGHTS_QUESTION_TEMPLATES,
+            WaterRightsHeuristic(),
+            WaterRightsTextCollector,
+            WaterRightsTextExtractor,
+            None,
+            None,
+            StructuredWaterParser,
+            None,
+            BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS,
+            label_docs_no_legal_check,
+            build_corpus,
+            extract_water_rights_ordinance_values,
+            len,
+            write_water_rights_data_to_disk,
         )
 
     msg = f"Unknown tech input: {tech}"
