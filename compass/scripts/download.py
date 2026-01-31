@@ -590,7 +590,7 @@ async def filter_ordinance_docs(
     heuristic,
     tech,
     ordinance_text_collector_class,
-    permitted_use_text_collector_class,
+    permitted_use_text_collector_class=None,
     usage_tracker=None,
     check_for_correct_jurisdiction=True,
 ):
@@ -613,7 +613,7 @@ async def filter_ordinance_docs(
         used to set up some document validation decision trees.
     ordinance_text_collector_class : type
         Collector class used to extract ordinance text sections.
-    permitted_use_text_collector_class : type
+    permitted_use_text_collector_class : type, optional
         Collector class used to extract permitted-use text sections.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
