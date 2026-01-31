@@ -1607,6 +1607,15 @@ def _initialize_model_params(user_input):
                 raise COMPASSValueError(msg)
             caller_instances[task] = model_config
 
+    if LLMTasks.DEFAULT not in caller_instances:
+        msg = (
+            "No 'default' LLM caller defined in the `model` portion of the "
+            "input config! Please ensure exactly one of the model "
+            "definitions has 'tasks' set to 'default' or left unspecified.\n"
+            f"Found tasks: {list(caller_instances)}"
+        )
+        raise COMPASSValueError(msg)
+
     return caller_instances
 
 
