@@ -768,6 +768,10 @@ async def _contains_ordinances(
         LLMTasks.DOCUMENT_CONTENT_VALIDATION,
         model_configs[LLMTasks.DEFAULT],
     )
+    logger.debug(
+        "Checking doc for ordinance info (source: %r)...",
+        doc.attrs.get("source", "unknown"),
+    )
     doc = await check_for_ordinance_info(
         doc,
         model_config=model_config,
