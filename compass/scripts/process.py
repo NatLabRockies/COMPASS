@@ -1563,22 +1563,10 @@ async def _extract_ordinances_from_text(
     )
 
 
-async def _move_files(doc, jurisdiction):
+async def _move_files(doc):
     """Move files to output folders, if applicable"""
-    ord_count = num_ordinances_in_doc(doc)
-    if ord_count == 0:
-        logger.info("No ordinances found for %s.", jurisdiction.full_name)
-        return doc
-
     doc = await _move_file_to_out_dir(doc)
-    doc = await _write_ord_db(doc)
-    logger.info(
-        "%d ordinance value(s) found for %s. Outputs are here: '%s'",
-        ord_count,
-        jurisdiction.full_name,
-        doc.attrs["ord_db_fp"],
-    )
-    return doc
+    return await _write_ord_db(doc)
 
 
 async def _move_file_to_out_dir(doc):
