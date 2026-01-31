@@ -1702,6 +1702,13 @@ async def _write_ord_db(doc):
     return doc
 
 
+def _write_data_to_disk(doc_infos, out_dir):
+    """Write extracted data to disk"""
+    db, num_docs_found = doc_infos_to_db(doc_infos)
+    save_db(db, out_dir)
+    return num_docs_found
+
+
 async def _record_jurisdiction_info(loc, doc, start_time, usage_tracker):
     """Record info about jurisdiction"""
     seconds_elapsed = time.monotonic() - start_time
