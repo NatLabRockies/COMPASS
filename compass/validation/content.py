@@ -78,7 +78,8 @@ class ParseChunksWithMemory:
             JSON key expected in the LLM response. The same key is used
             to populate the decision cache.
         llm_call_callback : callable
-            Awaitable invoked with ``(key, text_chunk)`` that returns a
+            Awaitable invoked with
+            ``await llm_call_callback(key, text_chunk)`` that returns a
             boolean indicating whether the chunk satisfies the LLM
             validation check.
 
