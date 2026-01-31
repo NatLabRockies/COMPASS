@@ -634,6 +634,15 @@ async def filter_ordinance_docs(
     The function updates CLI progress bars to reflect each filtering
     phase and returns documents sorted by quality heuristics.
     """
+    logger.info(
+        "%d document(s) passed in to COMPASS filter for %s\n\t- %s",
+        len(docs),
+        jurisdiction.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
+    )
+
     if check_for_correct_jurisdiction:
         COMPASS_PB.update_jurisdiction_task(
             jurisdiction.full_name,
@@ -661,9 +670,10 @@ async def filter_ordinance_docs(
     COMPASS_PB.update_jurisdiction_task(
         jurisdiction.full_name, description="Checking files for legal text..."
     )
-    docs = await _down_select_docs_correct_content(
+    docs = await filter_documents(
         docs,
-        jurisdiction=jurisdiction,
+        validation_coroutine=_contains_ordinances,
+        task_name=jurisdiction.full_name,
         model_configs=model_configs,
         heuristic=heuristic,
         tech=tech,
@@ -747,30 +757,6 @@ async def _down_select_docs_correct_jurisdiction(
         validation_coroutine=jurisdiction_validator.check,
         jurisdiction=jurisdiction,
         task_name=jurisdiction.full_name,
-    )
-
-
-async def _down_select_docs_correct_content(
-    docs,
-    jurisdiction,
-    model_configs,
-    heuristic,
-    tech,
-    ordinance_text_collector_class,
-    permitted_use_text_collector_class,
-    usage_tracker,
-):
-    """Remove documents that do not contain ordinance information"""
-    return await filter_documents(
-        docs,
-        validation_coroutine=_contains_ordinances,
-        task_name=jurisdiction.full_name,
-        model_configs=model_configs,
-        heuristic=heuristic,
-        tech=tech,
-        ordinance_text_collector_class=ordinance_text_collector_class,
-        permitted_use_text_collector_class=permitted_use_text_collector_class,
-        usage_tracker=usage_tracker,
     )
 
 
