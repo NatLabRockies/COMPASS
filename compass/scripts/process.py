@@ -1015,20 +1015,8 @@ class _SingleJurisdictionRunner:
         _add_known_doc_attrs_to_all_docs(
             docs, self.known_local_docs, key="source_fp"
         )
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=False,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=False
         )
         if not docs:
             return None
