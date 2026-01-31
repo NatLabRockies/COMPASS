@@ -22,7 +22,8 @@ def setup_graph_permits(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Permit Requirements", **kwargs)
+        d_tree_name="Permit Requirements", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -33,26 +34,24 @@ def setup_graph_permits(**kwargs):
             "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
-        db_query=("Is an application or permit required to drill a "
-                  "groundwater well in the {DISTRICT_NAME}?"),
+        db_query=(
+            "Is an application or permit required to drill a "
+            "groundwater well in the {DISTRICT_NAME}?"
+        ),
     )
 
     G.add_edge("init", "get_reqs", condition=llm_response_starts_with_yes)
 
     G.add_node(
         "get_reqs",
-        prompt=(
-            "What are the requirements the text mentions? "
-        ),
+        prompt=("What are the requirements the text mentions? "),
     )
 
     G.add_edge("get_reqs", "get_exempt")
 
     G.add_node(
         "get_exempt",
-        prompt=(
-            "Are any wells exempt from the permitting process? "
-        ),
+        prompt=("Are any wells exempt from the permitting process? "),
     )
 
     G.add_edge("get_exempt", "final")
@@ -93,7 +92,8 @@ def setup_graph_extraction(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Water Extraction Requirements", **kwargs)
+        d_tree_name="Water Extraction Requirements", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -103,17 +103,17 @@ def setup_graph_extraction(**kwargs):
             "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
-        db_query=("Is an application or permit required to extract or "
-                  "produce groundwater in the {DISTRICT_NAME}?"),
+        db_query=(
+            "Is an application or permit required to extract or "
+            "produce groundwater in the {DISTRICT_NAME}?"
+        ),
     )
 
     G.add_edge("init", "get_reqs", condition=llm_response_starts_with_yes)
 
     G.add_node(
         "get_reqs",
-        prompt=(
-            "What are the requirements the text mentions? "
-        ),
+        prompt=("What are the requirements the text mentions? "),
     )
 
     G.add_edge("get_reqs", "final")
@@ -150,7 +150,8 @@ def setup_graph_geothermal(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Geothermal Policies", **kwargs)
+        d_tree_name="Geothermal Policies", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -160,8 +161,10 @@ def setup_graph_geothermal(**kwargs):
             "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
-        db_query=("Does {DISTRICT_NAME} implement policies that are specific "
-                  "to geothermal systems?"),
+        db_query=(
+            "Does {DISTRICT_NAME} implement policies that are specific "
+            "to geothermal systems?"
+        ),
     )
 
     G.add_edge("init", "get_reqs", condition=llm_response_starts_with_yes)
@@ -211,7 +214,8 @@ def setup_graph_oil_and_gas(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Oil and Gas Policies", **kwargs)
+        d_tree_name="Oil and Gas Policies", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -221,8 +225,10 @@ def setup_graph_oil_and_gas(**kwargs):
             "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
         ),
-        db_query=("Does {DISTRICT_NAME} implement policies that are specific "
-                  "to oil and gas operations?"),
+        db_query=(
+            "Does {DISTRICT_NAME} implement policies that are specific "
+            "to oil and gas operations?"
+        ),
     )
 
     G.add_edge("init", "get_reqs", condition=llm_response_starts_with_yes)
@@ -272,7 +278,8 @@ def setup_graph_limits(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Extraction Limits", **kwargs)
+        d_tree_name="Extraction Limits", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -288,7 +295,7 @@ def setup_graph_limits(**kwargs):
         db_query=(
             "Does {DISTRICT_NAME} have {interval} water well production, "
             "extraction, or withdrawal limits? "
-    ),
+        ),
     )
 
     G.add_edge("init", "get_permit", condition=llm_response_starts_with_yes)
@@ -313,10 +320,10 @@ def setup_graph_limits(**kwargs):
         ),
     )
 
-    G.add_edge("get_type", "get_limit",
-               condition=llm_response_starts_with_yes)
-    G.add_edge("get_type", "permit_final",
-               condition=llm_response_starts_with_no)
+    G.add_edge("get_type", "get_limit", condition=llm_response_starts_with_yes)
+    G.add_edge(
+        "get_type", "permit_final", condition=llm_response_starts_with_no
+    )
 
     G.add_node(
         "get_limit",
@@ -381,7 +388,8 @@ def setup_graph_well_spacing(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Well Spacing", **kwargs)
+        d_tree_name="Well Spacing", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -399,7 +407,7 @@ def setup_graph_well_spacing(**kwargs):
         db_query=(
             "Does {DISTRICT_NAME} have restrictions related to well spacing "
             "or a required distance between wells? "
-        )
+        ),
     )
 
     G.add_edge("init", "get_spacing", condition=llm_response_starts_with_yes)
@@ -423,8 +431,9 @@ def setup_graph_well_spacing(**kwargs):
         ),
     )
 
-    G.add_edge("get_wells", "get_qualifier",
-               condition=llm_response_starts_with_yes)
+    G.add_edge(
+        "get_wells", "get_qualifier", condition=llm_response_starts_with_yes
+    )
 
     G.add_node(
         "get_qualifier",
@@ -473,7 +482,8 @@ def setup_graph_time(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Drilling Window", **kwargs)
+        d_tree_name="Drilling Window", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -537,7 +547,8 @@ def setup_graph_metering_device(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Metering Device", **kwargs)
+        d_tree_name="Metering Device", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -552,16 +563,13 @@ def setup_graph_metering_device(**kwargs):
             "Is a metering device that monitors water usage required "
             "in {DISTRICT_NAME}?"
         ),
-
     )
 
     G.add_edge("init", "get_device", condition=llm_response_starts_with_yes)
 
     G.add_node(
         "get_device",
-        prompt=(
-            "What device is mentioned in the text? "
-        ),
+        prompt=("What device is mentioned in the text? "),
     )
 
     G.add_edge("get_device", "final")
@@ -598,7 +606,8 @@ def setup_graph_drought(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Drought Management Plan", **kwargs)
+        d_tree_name="Drought Management Plan", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -661,7 +670,8 @@ def setup_graph_contingency(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Contingency Plan Requirements", **kwargs)
+        d_tree_name="Contingency Plan Requirements", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -724,7 +734,8 @@ def setup_graph_plugging_reqs(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="Plugging Requirements", **kwargs)
+        d_tree_name="Plugging Requirements", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -739,16 +750,14 @@ def setup_graph_plugging_reqs(**kwargs):
         db_query=(
             "Does {DISTRICT_NAME} implement plugging requirements specific "
             "to water wells?"
-        )
+        ),
     )
 
     G.add_edge("init", "get_plugging", condition=llm_response_starts_with_yes)
 
     G.add_node(
         "get_plugging",
-        prompt=(
-            "What are the plugging requirements mentioned in the text? "
-        ),
+        prompt=("What are the plugging requirements mentioned in the text? "),
     )
 
     G.add_edge("get_plugging", "final")
@@ -785,7 +794,8 @@ def setup_graph_external_transfer(**kwargs):
         `elm.tree.DecisionTree`.
     """
     G = setup_graph_no_nodes(  # noqa: N806
-        d_tree_name="External Transfer Restrictions", **kwargs)
+        d_tree_name="External Transfer Restrictions", **kwargs
+    )
 
     G.add_node(
         "init",
@@ -796,23 +806,22 @@ def setup_graph_external_transfer(**kwargs):
             "a location outside of the district boundaries. "
             "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
-            ),
+        ),
         db_query=(
             "Does {DISTRICT_NAME} implement restrictions or costs related to "
             "the external transport or export of water? External transport "
             "refers to cases in which well owners sell or transport water to "
             "a location outside of the district boundaries. "
-        )
+        ),
     )
 
-    G.add_edge("init", "get_restrictions",
-               condition=llm_response_starts_with_yes)
+    G.add_edge(
+        "init", "get_restrictions", condition=llm_response_starts_with_yes
+    )
 
     G.add_node(
         "get_restrictions",
-        prompt=(
-            "What are the restrictions the text mentions?"
-        ),
+        prompt=("What are the restrictions the text mentions?"),
     )
 
     G.add_edge("get_restrictions", "get_permit")
@@ -837,8 +846,9 @@ def setup_graph_external_transfer(**kwargs):
         ),
     )
 
-    G.add_edge("get_cost", "get_cost_amount",
-               condition=llm_response_starts_with_yes)
+    G.add_edge(
+        "get_cost", "get_cost_amount", condition=llm_response_starts_with_yes
+    )
 
     G.add_node(
         "get_cost_amount",
@@ -894,7 +904,7 @@ def setup_graph_production_reporting(**kwargs):
     """
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Water Well Production Reporting", **kwargs
-        )
+    )
 
     G.add_node(
         "init",
@@ -910,16 +920,13 @@ def setup_graph_production_reporting(**kwargs):
             "Does {DISTRICT_NAME} require production reporting for water "
             "wells?"
         ),
-
     )
 
     G.add_edge("init", "get_reporting", condition=llm_response_starts_with_yes)
 
     G.add_node(
         "get_reporting",
-        prompt=(
-            "What are the requirements mentioned in the text?"
-        ),
+        prompt=("What are the requirements mentioned in the text?"),
     )
 
     G.add_edge("get_reporting", "final")
@@ -957,7 +964,7 @@ def setup_graph_production_cost(**kwargs):
     """
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Water Well Production Cost", **kwargs
-        )
+    )
 
     G.add_node(
         "init",
@@ -969,12 +976,12 @@ def setup_graph_production_cost(**kwargs):
             "gallon or acre-foot figures) rather than one-time permit costs."
             "{YES_NO_PROMPT}"
             '\n\n"""\n{text}\n"""'
-            ),
+        ),
         db_query=(
             "Does {DISTRICT_NAME} charge well operators or owners to "
             "produce or extract water from a groundwater well? "
             "This is likely a dollar amount per gallon or acre-foot fee."
-        )
+        ),
     )
 
     G.add_edge("init", "get_type", condition=llm_response_starts_with_yes)
@@ -1040,7 +1047,7 @@ def setup_graph_setback_features(**kwargs):
     """
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Setback Features", **kwargs
-        )
+    )
 
     G.add_node(
         "init",
@@ -1058,18 +1065,15 @@ def setup_graph_setback_features(**kwargs):
             "systems, or located relative to property lines, buildings, "
             "septic systems, or other sources of contamination'?"
         ),
-
     )
 
-    G.add_edge("init", "get_restrictions",
-               condition=llm_response_starts_with_yes)
-
+    G.add_edge(
+        "init", "get_restrictions", condition=llm_response_starts_with_yes
+    )
 
     G.add_node(
         "get_restrictions",
-        prompt=(
-            "What are the restrictions mentioned in the text? "
-        ),
+        prompt=("What are the restrictions mentioned in the text? "),
     )
 
     G.add_edge("get_restrictions", "final")
@@ -1107,7 +1111,7 @@ def setup_graph_redrilling(**kwargs):
     """
     G = setup_graph_no_nodes(  # noqa: N806
         d_tree_name="Redrilling Restrictions", **kwargs
-        )
+    )
 
     G.add_node(
         "init",
@@ -1122,11 +1126,12 @@ def setup_graph_redrilling(**kwargs):
         db_query=(
             "Does {DISTRICT_NAME} implement restrictions related to "
             "redrilling or deepening water wells?"
-        )
+        ),
     )
 
-    G.add_edge("init", "get_redrilling",
-               condition=llm_response_starts_with_yes)
+    G.add_edge(
+        "init", "get_redrilling", condition=llm_response_starts_with_yes
+    )
 
     G.add_node(
         "get_redrilling",
