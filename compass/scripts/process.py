@@ -1035,20 +1035,8 @@ class _SingleJurisdictionRunner:
         _add_known_doc_attrs_to_all_docs(
             docs, self.known_doc_urls, key="source"
         )
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=False,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=False
         )
         if not docs:
             return None
@@ -1074,20 +1062,8 @@ class _SingleJurisdictionRunner:
             url_ignore_substrings=self.web_search_params.url_ignore_substrings,
             **self.web_search_params.se_kwargs,
         )
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=True,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=True
         )
         if not docs:
             return None
@@ -1196,20 +1172,8 @@ class _SingleJurisdictionRunner:
             return_c4ai_results=True,
         )
         docs, scrape_results = out
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=True,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=True
         )
         return docs, scrape_results
 
@@ -1229,7 +1193,40 @@ class _SingleJurisdictionRunner:
                 pb_jurisdiction_name=self.jurisdiction.full_name,
             )
         )
-        return await filter_ordinance_docs(
+        return await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=True
+        )
+
+    async def _filter_down_docs(self, docs, check_for_correct_jurisdiction):
+        """Filter down candidate documents before parsing"""
+        if docs and self.tech_specs.post_download_docs_hook is not None:
+            logger.debug(
+                "%d document(s) passed in to `post_download_docs_hook` for "
+                "%s\n\t- %s",
+                len(docs),
+                self.jurisdiction.full_name,
+                "\n\t- ".join(
+                    [doc.attrs.get("source", "Unknown source") for doc in docs]
+                ),
+            )
+
+            docs = await self.tech_specs.post_download_docs_hook(
+                docs,
+                jurisdiction=self.jurisdiction,
+                model_configs=self.models,
+                usage_tracker=self.usage_tracker,
+            )
+            logger.info(
+                "%d document(s) remaining after `post_download_docs_hook` for "
+                "%s\n\t- %s",
+                len(docs),
+                self.jurisdiction.full_name,
+                "\n\t- ".join(
+                    [doc.attrs.get("source", "Unknown source") for doc in docs]
+                ),
+            )
+
+        docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
             self.models,
@@ -1242,8 +1239,31 @@ class _SingleJurisdictionRunner:
                 self.tech_specs.permitted_use_text_collector
             ),
             usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=True,
+            check_for_correct_jurisdiction=check_for_correct_jurisdiction,
         )
+
+        if docs and self.tech_specs.post_filter_docs_hook is not None:
+            logger.debug(
+                "Passing %d document(s) in to `post_filter_docs_hook` ",
+                len(docs),
+            )
+            docs = await self.tech_specs.post_filter_docs_hook(
+                docs,
+                jurisdiction=self.jurisdiction,
+                model_configs=self.models,
+                usage_tracker=self.usage_tracker,
+            )
+            logger.info(
+                "%d document(s) remaining after `post_filter_docs_hook` for "
+                "%s\n\t- %s",
+                len(docs),
+                self.jurisdiction.full_name,
+                "\n\t- ".join(
+                    [doc.attrs.get("source", "Unknown source") for doc in docs]
+                ),
+            )
+
+        return docs or None
 
     async def _parse_docs_for_ordinances(self, docs):
         """Parse candidate documents in order until ordinances found"""
