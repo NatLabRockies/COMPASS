@@ -800,7 +800,7 @@ class _COMPASSRunner:
         ):
             task = asyncio.create_task(
                 _SingleJurisdictionRunner(
-                    self.tech,
+                    self.tech_specs,
                     jurisdiction,
                     self.models,
                     self.web_search_params,
