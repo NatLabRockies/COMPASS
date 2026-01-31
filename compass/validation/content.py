@@ -232,7 +232,64 @@ class Heuristic(ABC):
         raise NotImplementedError
 
 
-class LegalTextValidator(StructuredLLMCaller):
+class TextKindValidator(ABC):
+    """Base class for a text kind validator
+
+    This class is in charge of parsing text in chunks and ultimately
+    (after some X number of chunks have been parsed) determining if the
+    text is the right 'kind' of text for a given extraction.
+    """
+
+    @property
+    @abstractmethod
+    def is_correct_kind_of_text(self):
+        """bool: ``True`` if text is a good fit for extraction"""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk to see if it contains the right kind of text
+
+        You should validate chunks like so::
+
+            is_correct_kind_of_text = await chunk_parser.parse_from_ind(
+                ind,
+                key="my_unique_validation_key",
+                llm_call_callback=my_async_llm_call_function,
+            )
+
+        where the `"key"` is unique to this particular validation (it
+        will be used to cache the validation result in the chunk
+        parser's memory) and `my_async_llm_call_function` is an async
+        function that takes in a key and text chunk and returns a
+        boolean indicating whether or not the text chunk passes the
+        validation. You can call `chunk_parser.parse_from_ind` as many
+        times as you want within this method, but be sure to use unique
+        keys for each validation.
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance that contains a ``parse_from_ind`` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            resembles legal text.
+
+        See Also
+        --------
+        ParseChunksWithMemory.parse_from_ind
+            Method used to parse text from a chunk with memory of prior
+            chunk validations.
+        """
+        raise NotImplementedError
+
+
+class LegalTextValidator(TextKindValidator, StructuredLLMCaller):
     """Parse chunks to determine if they contain legal text"""
 
     SYSTEM_MESSAGE = (
