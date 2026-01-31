@@ -632,6 +632,11 @@ class _COMPASSRunner:
         return _configure_thread_pool_kwargs(self.process_kwargs.tpe_kwargs)
 
     @cached_property
+    def tech_specs(self):
+        """TechSpec: TechSpec for the current technology"""
+        return _compile_tech_specs(self.tech)
+
+    @cached_property
     def _base_services(self):
         """list: Services required to support jurisdiction processing"""
         base_services = [
@@ -831,7 +836,7 @@ class _SingleJurisdictionRunner:
 
     def __init__(  # noqa: PLR0913
         self,
-        tech,
+        tech_specs,
         jurisdiction,
         models,
         web_search_params,
@@ -848,7 +853,7 @@ class _SingleJurisdictionRunner:
         perform_website_search=True,
         usage_tracker=None,
     ):
-        self.tech_specs = _compile_tech_specs(tech)
+        self.tech_specs = tech_specs
         self.jurisdiction = jurisdiction
         self.models = models
         self.web_search_params = web_search_params
