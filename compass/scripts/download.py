@@ -800,7 +800,8 @@ def _sort_final_ord_docs(all_ord_docs):
 
 def _ord_doc_sorting_key(doc):
     """Compute a composite sorting score for ordinance documents"""
-    latest_year, latest_month, latest_day = doc.attrs.get("date", (-1, -1, -1))
+    no_date = (-1, -1, -1)
+    latest_year, latest_month, latest_day = doc.attrs.get("date") or no_date
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
     prefer_pdf_files = isinstance(doc, PDFDocument)
     highest_jurisdiction_score = doc.attrs.get(
