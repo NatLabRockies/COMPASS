@@ -1317,7 +1317,7 @@ class _SingleJurisdictionRunner:
     @property
     def _extraction_task_kwargs(self):
         """list: Dictionaries describing extraction task config"""
-        return [
+        tasks = [
             {
                 "extractor_class": self.tech_specs.ordinance_text_extractor,
                 "original_text_key": "ordinance_text",
@@ -1332,7 +1332,15 @@ class _SingleJurisdictionRunner:
                     LLMTasks.ORDINANCE_VALUE_EXTRACTION,
                     self.models[LLMTasks.DEFAULT],
                 ),
-            },
+            }
+        ]
+        if (
+            self.tech_specs.permitted_use_text_extractor is None
+            or self.tech_specs.structured_permitted_use_parser is None
+        ):
+            return tasks
+
+        tasks.append(
             {
                 "extractor_class": (
                     self.tech_specs.permitted_use_text_extractor
@@ -1351,8 +1359,9 @@ class _SingleJurisdictionRunner:
                     LLMTasks.PERMITTED_USE_VALUE_EXTRACTION,
                     self.models[LLMTasks.DEFAULT],
                 ),
-            },
-        ]
+            }
+        )
+        return tasks
 
     async def _try_extract_ordinances(
         self,
