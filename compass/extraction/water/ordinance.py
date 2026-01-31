@@ -1,22 +1,30 @@
 """Water ordinance document content collection and extraction
 
 These methods help filter down the document text to only the portions
-relevant to utility-scale water ordinances.
+relevant to water rights ordinances.
 """
+
 import logging
 
-from elm.ords.validation.content import (
-    ValidationWithMemory,  # compass equivalent = ParseChunksWithMemory?
-)
-from compass.validation.content import ParseChunksWithMemory
+from compass.common import BaseTextExtractor
+from compass.llm.calling import StructuredLLMCaller
 from compass.utilities.parsing import merge_overlapping_texts
+from compass.utilities.enums import LLMUsageCategory
 
 
 logger = logging.getLogger(__name__)
 
 
-class OrdinanceValidator(ParseChunksWithMemory):
-    """Check document text for water ordinances."""
+class WaterRightsHeuristic:
+    """NoOp heuristic check"""
+
+    def check(self, *__, **___):  # noqa: PLR6301
+        """Always return ``True`` for water rights documents"""
+        return True
+
+
+class WaterRightsTextCollector(StructuredLLMCaller):
+    """Check text chunks for ordinances and collect them if they do"""
 
     WELL_PERMITS_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
@@ -29,94 +37,102 @@ class OrdinanceValidator(ParseChunksWithMemory):
         "text excerpt provides substantive information related to the "
         "groundwater conservation district's rules or management plans. "
     )
+    """Prompt to check if chunk contains water rights ordinance info"""
 
-    def __init__(self, structured_llm_caller, text_chunks, num_to_recall=2):
-        """
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._ordinance_chunks = {}
 
-        Parameters
-        ----------
-        structured_llm_caller : elm.ords.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks. This validator may refer to previous text chunks to
-            answer validation questions.
-        num_to_recall : int, optional
-            Number of chunks to check for each validation call. This
-            includes the original chunk! For example, if
-            `num_to_recall=2`, the validator will first check the chunk
-            at the requested index, and then the previous chunk as well.
-            By default, ``2``.
-        """
-        super().__init__(
-            structured_llm_caller=structured_llm_caller,
-            text_chunks=text_chunks,
-            num_to_recall=num_to_recall,
-        )
-        # self._legal_text_mem = []
-        # self._wind_mention_mem = []
-        self._ordinance_chunks = []
+    @property
+    def contains_ord_info(self):
+        """bool: Flag indicating whether text contains ordinance info"""
+        return bool(self._ordinance_chunks)
 
     @property
     def ordinance_text(self):
-        """str: Combined ordinance text from the individual chunks."""
-        inds_to_grab = set()
-        for info in self._ordinance_chunks:
-            inds_to_grab |= {
-                info["ind"] + x for x in range(1 - self.num_to_recall, 2)
-            }
+        """str: Combined ordinance text from the individual chunks"""
+        logger.debug(
+            "Grabbing %d ordinance chunk(s) from original text at these "
+            "indices: %s",
+            len(self._ordinance_chunks),
+            list(self._ordinance_chunks),
+        )
 
         text = [
-            self.text_chunks[ind]
-            for ind in sorted(inds_to_grab)
-            if 0 <= ind < len(self.text_chunks)
+            self._ordinance_chunks[ind]
+            for ind in sorted(self._ordinance_chunks)
         ]
         return merge_overlapping_texts(text)
 
-    async def parse(self, min_chunks_to_process=3):
-        """Parse text chunks and look for ordinance text.
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
 
         Parameters
         ----------
-        min_chunks_to_process : int, optional
-            Minimum number of chunks to process before checking if
-            document resembles legal text and ignoring chunks that don't
-            pass the wind heuristic. By default, ``3``.
+        chunk_parser : ParseChunksWithMemory
+            Instance that contains a ``parse_from_ind`` method.
+        ind : int
+            Index of the chunk to check.
 
         Returns
         -------
         bool
-            ``True`` if any ordinance text was found in the chunks.
+            Boolean flag indicating whether or not the text in the chunk
+            contains water rights ordinance text.
         """
-        for ind, text in enumerate(self.text_chunks):
-            # TODO: I got good results without a similar test for water
-            # but is it worth including for the sake of being thorough?
+        contains_ord_info = await chunk_parser.parse_from_ind(
+            ind,
+            key="contains_ord_info",
+            llm_call_callback=self._check_chunk_contains_ord,
+        )
 
-            # self._wind_mention_mem.append(possibly_mentions_wind(text))
-            # if ind >= min_chunks_to_process:
-            #     # fmt: off
-            #     if not any(self._wind_mention_mem[-self.num_to_recall:]):
-            #         continue
-
-            logger.debug("Processing text at ind %d", ind)
-            logger.debug("Text:\n%s", text)
-
-            contains_ord_info = await self.parse_from_ind(
-                ind, self.WELL_PERMITS_PROMPT, key="contains_ord_info"
+        if contains_ord_info:
+            logger.debug(
+                "Text at ind %d contains water rights ordinance info", ind
             )
-            if not contains_ord_info:
-                logger.debug(
-                    "Text at ind %d does not contain ordinance info", ind
-                )
-                continue
+            _store_chunk(chunk_parser, ind, self._ordinance_chunks)
+        else:
+            logger.debug(
+                "Text at ind %d does not contain water rights ordinance info",
+                ind,
+            )
 
-            logger.debug("Text at ind %d does contain ordinance info", ind)
+        return contains_ord_info
 
-            self._ordinance_chunks.append({"text": text, "ind": ind})
-            logger.debug("Added text at ind %d to ordinances", ind)
-            # mask, since we got a good result
-            # self._wind_mention_mem[-1] = False
+    async def _check_chunk_contains_ord(self, key, text_chunk):
+        """Call LLM on a chunk of text to check for ordinance"""
+        content = await self.call(
+            sys_msg=self.WELL_PERMITS_PROMPT.format(key=key),
+            content=text_chunk,
+            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
+        )
+        logger.debug("LLM response: %s", content)
+        return content.get(key, False)
 
-        return bool(self._ordinance_chunks)
+
+class WaterRightsTextExtractor(BaseTextExtractor):
+    """No-Op text extractor"""
+
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
+        """
+        yield "cleaned_ordinance_text", merge_overlapping_texts
+
+
+def _store_chunk(parser, chunk_ind, store):
+    """Store chunk and its neighbors if it is not already stored"""
+    for offset in range(1 - parser.num_to_recall, 2):
+        ind_to_grab = chunk_ind + offset
+        if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
+            continue
+
+        store.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])
