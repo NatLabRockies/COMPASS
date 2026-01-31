@@ -1413,14 +1413,24 @@ class _SingleJurisdictionRunner:
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
-        out = await _extract_ordinances_from_text(
-            doc,
-            parser_class=parser_class,
-            text_key=cleaned_text_key,
-            out_key=out_key,
-            usage_tracker=self.usage_tracker,
-            model_config=value_model,
-        )
+        if self.tech_specs.extract_ordinances_callback is None:
+            out = await _extract_ordinances_from_text(
+                doc,
+                parser_class=parser_class,
+                text_key=cleaned_text_key,
+                out_key=out_key,
+                usage_tracker=self.usage_tracker,
+                model_config=value_model,
+            )
+        else:
+            out = await self.tech_specs.extract_ordinances_callback(
+                doc,
+                parser_class=parser_class,
+                text_key=cleaned_text_key,
+                out_key=out_key,
+                usage_tracker=self.usage_tracker,
+                model_config=value_model,
+            )
         await self._record_usage()
         return out
 
