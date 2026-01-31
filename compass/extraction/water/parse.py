@@ -2,17 +2,11 @@
 
 import asyncio
 import logging
-from copy import deepcopy
-from itertools import chain
-from warnings import warn
 
 import pandas as pd
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
-from compass.common import (
-    run_async_tree,
-    setup_async_decision_tree
-)
+from compass.common import run_async_tree, setup_async_decision_tree
 from compass.extraction.water.graphs import (
     setup_graph_permits,
     setup_graph_extraction,
@@ -42,7 +36,21 @@ DEFAULT_SYSTEM_MESSAGE = (
 
 
 class StructuredWaterParser(BaseLLMCaller):
-    """LLM ordinance document structured data scraping utility."""
+    """LLM ordinance document structured data scraping utility"""
+
+    def __init__(self, wizard, location, **kwargs):
+        """
+
+        Parameters
+        ----------
+        wizard : elm.wizard.EnergyWizard
+            Instance of the EnergyWizard class used for RAG.
+        location : str
+            Name of the groundwater conservation district or county.
+        """
+        super().__init__(**kwargs)
+        self.location = location
+        self.wizard = wizard
 
     def _init_chat_llm_caller(self, system_message):
         """Initialize a ChatLLMCaller instance for the DecisionTree"""
@@ -53,24 +61,9 @@ class StructuredWaterParser(BaseLLMCaller):
             **self.kwargs,
         )
 
-    def __init__(self, wizard, location, **kwargs):
-        """
-        Parameters
-        ----------
-        wizard : elm.wizard.EnergyWizard
-            Instance of the EnergyWizard class used for RAG.
-        location : str
-            Name of the groundwater conservation district or county.
-        """
-        self.location = location
-        self.wizard = wizard
-
-        super().__init__(**kwargs)
-
-    async def parse(self, location):
-        """Parse text and extract structured ordinance data."""
-        self.location = location
-        values = {"location": location}
+    async def parse(self):
+        """Parse text and extract structured ordinance data"""
+        values = {"location": self.location}
 
         check_map = {
             "requirements": self._check_reqs,
@@ -88,19 +81,23 @@ class StructuredWaterParser(BaseLLMCaller):
             "redrilling": self._check_redrilling,
         }
 
-        tasks = {name: asyncio.create_task(func()) for name, func in
-                 check_map.items()}
+        tasks = {
+            name: asyncio.create_task(func())
+            for name, func in check_map.items()
+        }
 
         limit_intervals = ["daily", "monthly", "annual"]
         for interval in limit_intervals:
             task_name = f"{interval}_limits"
-            tasks[task_name] = asyncio.create_task(self._check_limits(interval))
+            tasks[task_name] = asyncio.create_task(
+                self._check_limits(interval)
+            )
 
         logger.debug("Starting value extraction with %d tasks.", len(tasks))
 
         results = await asyncio.gather(*tasks.values(), return_exceptions=True)
 
-        for key, result in zip(tasks.keys(), results):
+        for key, result in zip(tasks.keys(), results, strict=True):
             if isinstance(result, Exception):
                 logger.warning("Task %s failed: %s", key, result)
                 values[key] = None
@@ -108,18 +105,15 @@ class StructuredWaterParser(BaseLLMCaller):
                 values[key] = result
 
         logger.debug("Value extraction complete.")
+        return pd.DataFrame(values)
 
-        return values
-
-    async def _check_with_graph(self, graph_setup_func,
-                                limit=50, **format_kwargs):
-        """Generic method to check requirements using a graph setup
-        function.
+    async def _check_with_graph(
+        self, graph_setup_func, limit=50, **format_kwargs
+    ):
+        """Generic method to check requirements using a graph setup func
 
         Parameters
         ----------
-        wizard : elm.wizard.EnergyWizard
-            Instance of the EnergyWizard class used for RAG.
         graph_setup_func : callable
             Function that returns a graph for the decision tree
         limit : int, optional
@@ -147,104 +141,73 @@ class StructuredWaterParser(BaseLLMCaller):
             graph_setup_func,
             text=all_text,
             chat_llm_caller=self._init_chat_llm_caller(DEFAULT_SYSTEM_MESSAGE),
-            **(format_kwargs or {})
+            **(format_kwargs or {}),
         )
 
         return await run_async_tree(tree)
 
     async def _check_reqs(self):
-        """Get the requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_permits,
-        )
+        """Get the requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_permits)
 
     async def _check_extraction(self):
-        """Get the extraction requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_extraction,
-        )
+        """Get the extraction requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_extraction)
 
     async def _check_geothermal(self):
-        """Get the geothermal requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_geothermal,
-        )
+        """Get the geothermal requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_geothermal)
 
     async def _check_oil_and_gas(self):
-        """Get the oil and gas requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_oil_and_gas,
-        )
+        """Get the oil and gas requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_oil_and_gas)
 
     async def _check_limits(self, interval):
-        """Get the extraction limits mentioned in the text."""
+        """Get the extraction limits mentioned in the text"""
         return await self._check_with_graph(
-            setup_graph_limits,
-            interval=interval
+            setup_graph_limits, interval=interval
         )
 
     async def _check_spacing(self):
-        """Get the spacing requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_well_spacing,
-        )
+        """Get the spacing requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_well_spacing)
 
     async def _check_time(self):
-        """Get the time requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_time,
-        )
+        """Get the time requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_time)
 
     async def _check_metering_device(self):
-        """Get the metering device mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_metering_device,
-        )
+        """Get the metering device mentioned in the text"""
+        return await self._check_with_graph(setup_graph_metering_device)
 
     async def _check_district_drought(self):
-        """Get the drought management plan mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_drought,
-        )
+        """Get the drought management plan mentioned in the text"""
+        return await self._check_with_graph(setup_graph_drought)
 
     async def _check_well_drought(self):
-        """Get the well drought management plan mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_contingency,
-        )
+        """Get the well drought management plan mentioned in the text"""
+        return await self._check_with_graph(setup_graph_contingency)
 
     async def _check_plugging(self):
-        """Get the plugging requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_plugging_reqs,
-        )
+        """Get the plugging requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_plugging_reqs)
 
     async def _check_transfer(self):
-        """Get the transfer requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_external_transfer,
-        )
+        """Get the transfer requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_external_transfer)
 
     async def _check_production_reporting(self):
-        """Get the reporting requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_production_reporting,
-        )
+        """Get the reporting requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_production_reporting)
 
     async def _check_production_cost(self):
-        """Get the production cost requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_production_cost,
-        )
+        """Get the production cost requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_production_cost)
 
     async def _check_setbacks(self):
-        """Get the setback requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_setback_features,
-        )
+        """Get the setback requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_setback_features)
 
     async def _check_redrilling(self):
-        """Get the redrilling requirements mentioned in the text."""
-        return await self._check_with_graph(
-            setup_graph_redrilling,
-        )
+        """Get the redrilling requirements mentioned in the text"""
+        return await self._check_with_graph(setup_graph_redrilling)
