@@ -711,9 +711,19 @@ class _COMPASSRunner:
         start_date = datetime.now(UTC)
 
         doc_infos, total_cost = await self._run_all(jurisdictions)
+        doc_infos = [
+            di
+            for di in doc_infos
+            if di is not None and di.get("ord_db_fp") is not None
+        ]
 
-        db, num_docs_found = doc_infos_to_db(doc_infos)
-        save_db(db, self.dirs.out)
+        if self.tech_specs.save_db_callback is not None:
+            num_docs_found = self.tech_specs.save_db_callback(
+                doc_infos, self.dirs.out
+            )
+        else:
+            num_docs_found = _write_data_to_disk(doc_infos, self.dirs.out)
+
         total_time = save_run_meta(
             self.dirs,
             self.tech,
