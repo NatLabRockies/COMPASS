@@ -1269,18 +1269,35 @@ class _SingleJurisdictionRunner:
         """Parse candidate documents in order until ordinances found"""
         for possible_ord_doc in docs:
             doc = await self._try_extract_all_ordinances(possible_ord_doc)
-            ord_count = num_ordinances_in_doc(
-                doc, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
-            )
+            ord_count = self._get_ordinance_count(doc)
             if ord_count > 0:
-                logger.debug(
-                    "Found ordinances in doc from %s",
+                doc = await _move_files(doc)
+                logger.info(
+                    "%d ordinance value(s) found in doc from %s for %s. "
+                    "Outputs are here: '%s'",
+                    ord_count,
                     possible_ord_doc.attrs.get("source", "unknown source"),
+                    self.jurisdiction.full_name,
+                    doc.attrs["ord_db_fp"],
                 )
-                return await _move_files(doc, self.jurisdiction)
+                return doc
 
         logger.debug("No ordinances found; searched %d docs", len(docs))
         return None
+
+    def _get_ordinance_count(self, doc):
+        """Get the number of ordinances extracted from a document"""
+        if doc is None or doc.attrs.get("ordinance_values") is None:
+            return 0
+
+        ord_df = doc.attrs["ordinance_values"]
+
+        if self.tech_specs.num_ordinances_in_df_callback is not None:
+            return self.tech_specs.num_ordinances_in_df_callback(ord_df)
+
+        return num_ordinances_dataframe(
+            ord_df, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
+        )
 
     async def _try_extract_all_ordinances(self, possible_ord_doc):
         """Extract both ordinance values and permitted-use districts"""
