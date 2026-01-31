@@ -100,7 +100,7 @@ from compass.utilities import (
     doc_infos_to_db,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
-    num_ordinances_in_doc,
+    num_ordinances_dataframe,
     save_db,
     save_run_meta,
     Directories,
