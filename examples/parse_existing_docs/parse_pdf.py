@@ -22,8 +22,8 @@ from compass.extraction.solar import (
 from compass.services.provider import RunningAsyncServices
 from compass.extraction.apply import (
     extract_ordinance_values,
-    check_for_ordinance_info,
-    extract_ordinance_text_with_llm,
+    check_for_relevant_text,
+    extract_relevant_text_with_llm,
 )
 from compass.utilities.logs import AddLocationFilter
 from compass.utilities.enums import LLMTasks
@@ -63,13 +63,12 @@ async def _extract_ordinances(doc, model_configs):
             LLMTasks.DOCUMENT_CONTENT_VALIDATION,
             model_configs[LLMTasks.DEFAULT],
         )
-        doc = await check_for_ordinance_info(
+        doc = await check_for_relevant_text(
             doc,
             model_config=model_config,
             heuristic=SolarHeuristic(),
             tech="solar",
-            ordinance_text_collector_class=SolarOrdinanceTextCollector,
-            permitted_use_text_collector_class=None,
+            text_collectors=[SolarOrdinanceTextCollector],
         )
 
         logger.info("Extracting ordinance text from document...")
@@ -77,13 +76,13 @@ async def _extract_ordinances(doc, model_configs):
             LLMTasks.ORDINANCE_TEXT_EXTRACTION,
             model_configs[LLMTasks.DEFAULT],
         )
-        doc, ord_text_key = await extract_ordinance_text_with_llm(
+        doc, ord_text_key = await extract_relevant_text_with_llm(
             doc,
             model_config.text_splitter,
             extractor=SolarOrdinanceTextExtractor(
                 LLMCaller(llm_service=model_config.llm_service)
             ),
-            original_text_key="ordinance_text",
+            original_text_key=SolarOrdinanceTextCollector.LABEL,
         )
 
         logger.info(
@@ -167,5 +166,6 @@ if __name__ == "__main__":
         .drop(columns=["quantitative"], errors="ignore")
         .to_csv(fp_ord, index=False)
     )
-    with Path(fp_txt_ord_text).open("w", encoding="utf-8") as fh:
-        fh.write(doc.attrs["cleaned_ordinance_text"])
+    Path(fp_txt_ord_text).write_text(
+        doc.attrs["cleaned_text_for_extraction"], encoding="utf-8"
+    )
