@@ -78,7 +78,8 @@ class ParseChunksWithMemory:
             JSON key expected in the LLM response. The same key is used
             to populate the decision cache.
         llm_call_callback : callable
-            Awaitable invoked with ``(key, text_chunk)`` that returns a
+            Awaitable invoked with
+            ``await llm_call_callback(key, text_chunk)`` that returns a
             boolean indicating whether the chunk satisfies the LLM
             validation check.
 
@@ -231,7 +232,64 @@ class Heuristic(ABC):
         raise NotImplementedError
 
 
-class LegalTextValidator(StructuredLLMCaller):
+class TextKindValidator(ABC):
+    """Base class for a text kind validator
+
+    This class is in charge of parsing text in chunks and ultimately
+    (after some X number of chunks have been parsed) determining if the
+    text is the right 'kind' of text for a given extraction.
+    """
+
+    @property
+    @abstractmethod
+    def is_correct_kind_of_text(self):
+        """bool: ``True`` if text is a good fit for extraction"""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk to see if it contains the right kind of text
+
+        You should validate chunks like so::
+
+            is_correct_kind_of_text = await chunk_parser.parse_from_ind(
+                ind,
+                key="my_unique_validation_key",
+                llm_call_callback=my_async_llm_call_function,
+            )
+
+        where the `"key"` is unique to this particular validation (it
+        will be used to cache the validation result in the chunk
+        parser's memory) and `my_async_llm_call_function` is an async
+        function that takes in a key and text chunk and returns a
+        boolean indicating whether or not the text chunk passes the
+        validation. You can call `chunk_parser.parse_from_ind` as many
+        times as you want within this method, but be sure to use unique
+        keys for each validation.
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance that contains a ``parse_from_ind`` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            resembles legal text.
+
+        See Also
+        --------
+        ParseChunksWithMemory.parse_from_ind
+            Method used to parse text from a chunk with memory of prior
+            chunk validations.
+        """
+        raise NotImplementedError
+
+
+class LegalTextValidator(TextKindValidator, StructuredLLMCaller):
     """Parse chunks to determine if they contain legal text"""
 
     SYSTEM_MESSAGE = (
@@ -267,7 +325,7 @@ class LegalTextValidator(StructuredLLMCaller):
         self.doc_is_from_ocr = doc_is_from_ocr
 
     @property
-    def is_legal_text(self):
+    def is_correct_kind_of_text(self):
         """bool: ``True`` if text was found to be from a legal source"""
         if not self._legal_text_mem:
             return False
@@ -327,14 +385,14 @@ class LegalTextValidator(StructuredLLMCaller):
 async def parse_by_chunks(
     chunk_parser,
     heuristic,
-    legal_text_validator=None,
+    text_kind_validator=None,
     callbacks=None,
     min_chunks_to_process=3,
 ):
     """Stream text chunks through heuristic and legal validators
 
     This method goes through the chunks one by one, and passes them to
-    the callback parsers if the `legal_text_validator` check passes. If
+    the callback parsers if the `text_kind_validator` check passes. If
     `min_chunks_to_process` number of chunks fail the legal text check,
     parsing is aborted.
 
@@ -349,10 +407,11 @@ async def parse_by_chunks(
         fast check meant to quickly dispose of chunks of text. Any chunk
         that fails this check will NOT be passed to the callback
         parsers.
-    legal_text_validator : LegalTextValidator, optional
-        Instance of `LegalTextValidator` that can be used to validate
-        each chunk for legal text. If not provided, the legal text check
-        will be skipped. By default, ``None``.
+    text_kind_validator : TextKindValidator, optional
+        Instance of `TextKindValidator` subclass that can be used to
+        validate whether each chunk of text is the kind needed for
+        extraction (e.g. is it legal text?). If not provided, the text
+        'kind' check will be skipped. By default, ``None``.
     callbacks : list, optional
         List of async callbacks that take a `chunk_parser` and `index`
         as inputs and return a boolean determining whether the text
@@ -376,19 +435,18 @@ async def parse_by_chunks(
     for ind, text in enumerate(chunk_parser.text_chunks):
         passed_heuristic_mem.append(heuristic.check(text))
         if ind < min_chunks_to_process:
-            if legal_text_validator is not None:
-                is_legal = await legal_text_validator.check_chunk(
+            if text_kind_validator is not None:
+                is_correct_text_kind = await text_kind_validator.check_chunk(
                     chunk_parser, ind
                 )
-                if not is_legal:  # don't bother checking this chunk
-                    continue
+                if not is_correct_text_kind:
+                    continue  # don't bother checking this chunk
 
-        # don't bother checking this document
         elif (
-            legal_text_validator is not None
-            and not legal_text_validator.is_legal_text
+            text_kind_validator is not None
+            and not text_kind_validator.is_correct_kind_of_text
         ):
-            return
+            return  # don't bother checking this document
 
         # hasn't passed heuristic, so don't pass it to callbacks
         elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):
