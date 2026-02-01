@@ -25,7 +25,7 @@ async def label_docs_no_legal_check(docs, **__):  # noqa: RUF029
 
     Returns
     -------
-    docs
+    iterable of elm.web.document.PDFDocument
         Input docs with the "check_if_legal_doc" attribute set to False.
     """
     for doc in docs:
@@ -40,14 +40,14 @@ async def build_corpus(docs, jurisdiction, model_configs, **__):
     ----------
     docs : iterable of elm.web.document.PDFDocument
         Documents to build corpus from.
-    jurisdiction : compass.jurisdictions.jurisdiction.Jurisdiction
+    jurisdiction : compass.utilities.location.Jurisdiction
         Jurisdiction being processed.
     model_configs : dict
         Dictionary of model configurations for various LLM tasks.
 
     Returns
     -------
-    list | None
+    list or None
         List containing a single PDFDocument with the corpus, or None
         if no corpus could be built.
 
@@ -115,9 +115,9 @@ async def extract_water_rights_ordinance_values(
         Class used to parse the vector store.
     out_key : str
         Key used to store extracted values in the document attributes.
-    usage_tracker : compass.tracking.usage.UsageTracker
+    usage_tracker : compass.services.usage.UsageTracker
         Instance of the UsageTracker class used to track LLM usage.
-    model_config : compass.config.model.ModelConfig
+    model_config : compass.llm.config.LLMConfig
         Model configuration used for LLM calls.
 
     Returns
