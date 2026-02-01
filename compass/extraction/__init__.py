@@ -1,9 +1,9 @@
 """Ordinance text extraction tooling"""
 
 from .apply import (
-    check_for_ordinance_info,
+    check_for_relevant_text,
     extract_date,
-    extract_ordinance_text_with_llm,
-    extract_ordinance_text_with_ngram_validation,
+    extract_relevant_text_with_llm,
+    extract_relevant_text_with_ngram_validation,
     extract_ordinance_values,
 )

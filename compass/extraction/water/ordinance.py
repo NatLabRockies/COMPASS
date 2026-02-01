@@ -26,6 +26,9 @@ class WaterRightsHeuristic:
 class WaterRightsTextCollector(StructuredLLMCaller):
     """Check text chunks for ordinances and collect them if they do"""
 
+    LABEL = "relevant_text"
+    """Identifier for text collected by this class"""
+
     WELL_PERMITS_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
         "format (not markdown). Your JSON file must include exactly three "
@@ -41,27 +44,25 @@ class WaterRightsTextCollector(StructuredLLMCaller):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self._ordinance_chunks = {}
+        self._chunks = {}
 
     @property
-    def contains_ord_info(self):
-        """bool: Flag indicating whether text contains ordinance info"""
-        return bool(self._ordinance_chunks)
-
-    @property
-    def ordinance_text(self):
+    def relevant_text(self):
         """str: Combined ordinance text from the individual chunks"""
+        if not self._chunks:
+            logger.debug(
+                "No relevant water rights chunk(s) found in original text",
+            )
+            return ""
+
         logger.debug(
-            "Grabbing %d ordinance chunk(s) from original text at these "
+            "Grabbing %d water rights chunk(s) from original text at these "
             "indices: %s",
-            len(self._ordinance_chunks),
-            list(self._ordinance_chunks),
+            len(self._chunks),
+            list(self._chunks),
         )
 
-        text = [
-            self._ordinance_chunks[ind]
-            for ind in sorted(self._ordinance_chunks)
-        ]
+        text = [self._chunks[ind] for ind in sorted(self._chunks)]
         return merge_overlapping_texts(text)
 
     async def check_chunk(self, chunk_parser, ind):
@@ -90,7 +91,7 @@ class WaterRightsTextCollector(StructuredLLMCaller):
             logger.debug(
                 "Text at ind %d contains water rights ordinance info", ind
             )
-            _store_chunk(chunk_parser, ind, self._ordinance_chunks)
+            _store_chunk(chunk_parser, ind, self._chunks)
         else:
             logger.debug(
                 "Text at ind %d does not contain water rights ordinance info",
@@ -125,7 +126,7 @@ class WaterRightsTextExtractor(BaseTextExtractor):
             Async function that takes a ``text_chunks`` input and
             outputs parsed text.
         """
-        yield "cleaned_ordinance_text", merge_overlapping_texts
+        yield "cleaned_text_for_extraction", merge_overlapping_texts
 
 
 def _store_chunk(parser, chunk_ind, store):

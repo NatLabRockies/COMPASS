@@ -120,6 +120,9 @@ class SmallWindHeuristic(Heuristic):
 class SmallWindOrdinanceTextCollector(StructuredLLMCaller):
     """Check text chunks for ordinances and collect them if they do"""
 
+    LABEL = "relevant_text"
+    """Identifier for text collected by this class"""
+
     CONTAINS_ORD_PROMPT = (
         "You extract structured data from text. Return your answer in JSON "
         "format (not markdown). Your JSON file must include exactly two "
@@ -210,13 +213,14 @@ class SmallWindOrdinanceTextCollector(StructuredLLMCaller):
         return True
 
     @property
-    def contains_ord_info(self):
-        """bool: Flag indicating whether text contains ordinance info"""
-        return bool(self._ordinance_chunks)
-
-    @property
-    def ordinance_text(self):
+    def relevant_text(self):
         """str: Combined ordinance text from the individual chunks"""
+        if not self._ordinance_chunks:
+            logger.debug(
+                "No relevant ordinance chunk(s) found in original text",
+            )
+            return ""
+
         logger.debug(
             "Grabbing %d ordinance chunk(s) from original text at these "
             "indices: %s",
@@ -511,7 +515,7 @@ class SmallWindOrdinanceTextExtractor(BaseTextExtractor):
             self.extract_wind_energy_system_section,
         )
         yield (
-            "cleaned_ordinance_text",
+            "cleaned_text_for_extraction",
             self.extract_small_wind_energy_system_section,
         )
 
