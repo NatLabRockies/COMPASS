@@ -16,7 +16,7 @@ from elm.web.website_crawl import (
 )
 from elm.web.utilities import filter_documents
 
-from compass.extraction import check_for_ordinance_info, extract_date
+from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.validation.location import (
     DTreeJurisdictionValidator,
@@ -589,8 +589,7 @@ async def filter_ordinance_docs(
     model_configs,
     heuristic,
     tech,
-    ordinance_text_collector_class,
-    permitted_use_text_collector_class=None,
+    text_collectors,
     usage_tracker=None,
     check_for_correct_jurisdiction=True,
 ):
@@ -611,10 +610,13 @@ async def filter_ordinance_docs(
     tech : str
         Technology of interest (e.g. "solar", "wind", etc). This is
         used to set up some document validation decision trees.
-    ordinance_text_collector_class : type
-        Collector class used to extract ordinance text sections.
-    permitted_use_text_collector_class : type, optional
-        Collector class used to extract permitted-use text sections.
+    text_collectors : iterable
+        Iterable of text collector classes to run during document
+        parsing. Each class must implement the
+        :class:`BaseTextCollector` interface. If the document already
+        contains text collected by a given collector (i.e. the
+        collector's ``LABEL`` is found in ``doc.attrs``), that collector
+        will be skipped.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -672,13 +674,12 @@ async def filter_ordinance_docs(
     )
     docs = await filter_documents(
         docs,
-        validation_coroutine=_contains_ordinances,
+        validation_coroutine=_contains_relevant_text,
         task_name=jurisdiction.full_name,
         model_configs=model_configs,
         heuristic=heuristic,
         tech=tech,
-        ordinance_text_collector_class=ordinance_text_collector_class,
-        permitted_use_text_collector_class=permitted_use_text_collector_class,
+        text_collectors=text_collectors,
         usage_tracker=usage_tracker,
     )
     if not docs:
@@ -760,7 +761,7 @@ async def _down_select_docs_correct_jurisdiction(
     )
 
 
-async def _contains_ordinances(
+async def _contains_relevant_text(
     doc, model_configs, usage_tracker=None, **kwargs
 ):
     """Determine whether a document contains ordinance information"""
@@ -772,22 +773,21 @@ async def _contains_ordinances(
         "Checking doc for ordinance info (source: %r)...",
         doc.attrs.get("source", "unknown"),
     )
-    doc = await check_for_ordinance_info(
+    found_text = await check_for_relevant_text(
         doc,
         model_config=model_config,
         usage_tracker=usage_tracker,
         **kwargs,
     )
-    contains_ordinances = doc.attrs.get("contains_ord_info", False)
-    if contains_ordinances:
-        logger.debug("Detected ordinance info; parsing date...")
+    if found_text:
+        logger.debug("Detected relevant text; parsing date...")
         date_model_config = model_configs.get(
             LLMTasks.DATE_EXTRACTION, model_configs[LLMTasks.DEFAULT]
         )
         doc = await extract_date(
             doc, date_model_config, usage_tracker=usage_tracker
         )
-    return contains_ordinances
+    return found_text
 
 
 def _sort_final_ord_docs(all_ord_docs):

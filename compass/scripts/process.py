@@ -24,7 +24,7 @@ from compass.scripts.download import (
 from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.extraction import (
     extract_ordinance_values,
-    extract_ordinance_text_with_ngram_validation,
+    extract_relevant_text_with_ngram_validation,
 )
 from compass.extraction.solar import (
     SolarHeuristic,
@@ -1237,18 +1237,19 @@ class _SingleJurisdictionRunner:
                 ),
             )
 
+        text_collectors = [self.tech_specs.text_collector]
+        if self.tech_specs.permitted_use_text_collector is not None:
+            text_collectors.append(
+                self.tech_specs.permitted_use_text_collector
+            )
+
         docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
             self.models,
             heuristic=self.tech_specs.heuristic,
             tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
+            text_collectors=text_collectors,
             usage_tracker=self.usage_tracker,
             check_for_correct_jurisdiction=check_for_correct_jurisdiction,
         )
@@ -1330,9 +1331,9 @@ class _SingleJurisdictionRunner:
         """list: Dictionaries describing extraction task config"""
         tasks = [
             {
-                "extractor_class": self.tech_specs.ordinance_text_extractor,
-                "original_text_key": "ordinance_text",
-                "cleaned_text_key": "cleaned_ordinance_text",
+                "extractor_class": self.tech_specs.text_extractor,
+                "original_text_key": "relevant_text",
+                "cleaned_text_key": "cleaned_text_for_extraction",
                 "text_model": self.models.get(
                     LLMTasks.ORDINANCE_TEXT_EXTRACTION,
                     self.models[LLMTasks.DEFAULT],
@@ -1392,7 +1393,7 @@ class _SingleJurisdictionRunner:
         )
         assert self._jsp is not None, "No progress bar set!"
         task_id = self._jsp.add_task(_TEXT_EXTRACTION_TASKS[extractor_class])
-        doc = await _extract_ordinance_text(
+        doc = await _extract_relevant_text(
             possible_ord_doc,
             extractor_class=extractor_class,
             original_text_key=original_text_key,
@@ -1629,7 +1630,7 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     return file_loader_kwargs
 
 
-async def _extract_ordinance_text(
+async def _extract_relevant_text(
     doc, extractor_class, original_text_key, usage_tracker, model_config
 ):
     """Extract text pertaining to ordinance of interest"""
@@ -1639,7 +1640,7 @@ async def _extract_ordinance_text(
         **model_config.llm_call_kwargs,
     )
     extractor = extractor_class(llm_caller)
-    doc = await extract_ordinance_text_with_ngram_validation(
+    doc = await extract_relevant_text_with_ngram_validation(
         doc,
         model_config.text_splitter,
         extractor,

@@ -83,7 +83,9 @@ def _write_cleaned_file(doc, out_dir):
         _write_interim_cleaned_files(doc, out_dir, jurisdiction_name)
 
     key_to_fp = {
-        "cleaned_ordinance_text": f"{jurisdiction_name} Ordinance Summary.txt",
+        "cleaned_text_for_extraction": (
+            f"{jurisdiction_name} Cleaned Text.txt"
+        ),
         "districts_text": f"{jurisdiction_name} Districts.txt",
     }
     out_paths = []
@@ -102,7 +104,7 @@ def _write_cleaned_file(doc, out_dir):
 def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
     """Write intermediate output texts to file; helpful for debugging"""
     key_to_fp = {
-        "ordinance_text": f"{jurisdiction_name} Ordinance Original text.txt",
+        "relevant_text": f"{jurisdiction_name} Ordinance Original text.txt",
         "wind_energy_systems_text": (
             f"{jurisdiction_name} Wind Ordinance text.txt"
         ),
@@ -572,8 +574,8 @@ def _compile_doc_info(doc):
         "checksum": doc.attrs.get("checksum"),
         "is_pdf": isinstance(doc, PDFDocument),
         "from_ocr": doc.attrs.get("from_ocr", False),
-        "ordinance_text_ngram_score": doc.attrs.get(
-            "ordinance_text_ngram_score"
+        "relevant_text_ngram_score": doc.attrs.get(
+            "relevant_text_ngram_score"
         ),
         "permitted_use_text_ngram_score": doc.attrs.get(
             "permitted_use_text_ngram_score"
