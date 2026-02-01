@@ -432,13 +432,15 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
 
     if jurisdiction.subdivision_name:
         G.add_edge(
-            node_to_connect, "is_city", condition=llm_response_starts_with_no
+            node_to_connect,
+            "is_subdivision",
+            condition=llm_response_starts_with_no,
         )
         G.add_edge(
             node_to_connect, "final", condition=llm_response_starts_with_yes
         )
         G.add_node(
-            "is_city",
+            "is_subdivision",
             prompt=(
                 "Based on the legal text, is it reasonable to conclude that "
                 "the provisions apply specifically to "
@@ -453,12 +455,16 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             ),
         )
 
-        G.add_edge("is_city", "final", condition=llm_response_starts_with_no)
         G.add_edge(
-            "is_city", "has_city_name", condition=llm_response_starts_with_yes
+            "is_subdivision", "final", condition=llm_response_starts_with_no
+        )
+        G.add_edge(
+            "is_subdivision",
+            "has_subdivision_name",
+            condition=llm_response_starts_with_yes,
         )
         G.add_node(
-            "has_city_name",
+            "has_subdivision_name",
             prompt=(
                 "Based on the legal text, is there clear and specific "
                 "evidence that the ordinance applies specifically to "
@@ -477,7 +483,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 "{YES_NO_PROMPT}"
             ),
         )
-        G.add_edge("has_city_name", "final")
+        G.add_edge("has_subdivision_name", "final")
 
     G.add_node(
         "final",

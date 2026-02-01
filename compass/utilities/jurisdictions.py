@@ -2,7 +2,7 @@
 
 import logging
 from warnings import warn
-from pathlib import Path
+import importlib.resources
 
 import numpy as np
 import pandas as pd
@@ -12,9 +12,10 @@ from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
-_COUNTY_DATA_FP = (
-    Path(__file__).parent.parent / "data" / "conus_jurisdictions.csv"
-)
+KNOWN_JURISDICTIONS_REGISTRY = {
+    importlib.resources.files("compass") / "data" / "conus_jurisdictions.csv",
+    importlib.resources.files("compass") / "data" / "tx_water_districts.csv",
+}
 
 
 def load_all_jurisdiction_info():
@@ -31,7 +32,10 @@ def load_all_jurisdiction_info():
     Missing values are normalized to ``None`` to simplify downstream
     serialization.
     """
-    return pd.read_csv(_COUNTY_DATA_FP).replace({np.nan: None})
+    return pd.concat(
+        pd.read_csv(fp).replace({np.nan: None})
+        for fp in KNOWN_JURISDICTIONS_REGISTRY
+    )
 
 
 def jurisdiction_websites(jurisdiction_info=None):

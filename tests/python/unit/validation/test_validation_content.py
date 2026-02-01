@@ -108,12 +108,12 @@ async def test_legal_text_validation(
     await parse_by_chunks(
         chunk_parser,
         heuristic=WindHeuristic(),
-        legal_text_validator=legal_text_validator,
+        text_kind_validator=legal_text_validator,
         callbacks=None,
         min_chunks_to_process=3,
     )
 
-    assert legal_text_validator.is_legal_text == truth
+    assert legal_text_validator.is_correct_kind_of_text == truth
 
 
 @flaky(max_runs=3, min_passes=1)
@@ -144,12 +144,12 @@ async def test_legal_text_validation_ocr(
     await parse_by_chunks(
         chunk_parser,
         heuristic=WindHeuristic(),
-        legal_text_validator=legal_text_validator,
+        text_kind_validator=legal_text_validator,
         callbacks=None,
         min_chunks_to_process=3,
     )
 
-    assert legal_text_validator.is_legal_text
+    assert legal_text_validator.is_correct_kind_of_text
 
 
 if __name__ == "__main__":

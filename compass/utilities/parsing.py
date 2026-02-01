@@ -137,7 +137,7 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
     >>> extract_ord_year_from_doc_attrs({"date": (None, None, None)})
     None
     """
-    year = doc_attrs.get("date", (None, None, None))[0]
+    year, *__ = doc_attrs.get("date") or (None, None, None)
     return year if year is not None and year > 0 else None
 
 

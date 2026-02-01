@@ -1,0 +1,25 @@
+{
+    out_dir: "./outputs",
+    tech: "water rights",
+    jurisdiction_fp: "jurisdictions.csv",
+    model: [
+        {
+            name: "text-embedding-ada-002",
+            text_splitter_chunk_size: 500,
+            text_splitter_chunk_overlap: 1,
+            "tasks": "embedding",
+        },
+        {
+            name: "egswaterord-gpt4.1-mini",
+            llm_call_kwargs: {temperature: 0, timeout: 300},
+            llm_service_rate_limit: 500000,
+            text_splitter_chunk_size: 10000,
+            text_splitter_chunk_overlap: 500,
+            "client_kwargs": {
+                "api_key": "<your INFERENCE API key>",
+                "api_version": "<your INFERENCE API version>",
+                "azure_endpoint": "<your INFERENCE API endpoint>",
+            },
+        },
+    ],
+}

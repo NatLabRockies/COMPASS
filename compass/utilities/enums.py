@@ -87,6 +87,9 @@ class LLMTasks(StrEnum):
     document pertains to a particular jurisdiction.
     """
 
+    EMBEDDING = auto()
+    """Text chunk embedding task"""
+
     JURISDICTION_MAIN_WEBSITE_VALIDATION = (
         LLMUsageCategory.JURISDICTION_MAIN_WEBSITE_VALIDATION
     )

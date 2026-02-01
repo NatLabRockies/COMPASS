@@ -59,6 +59,18 @@ from compass.extraction.small_wind import (
     SMALL_WIND_QUESTION_TEMPLATES,
     BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
 )
+from compass.extraction.water import (
+    build_corpus,
+    extract_water_rights_ordinance_values,
+    label_docs_no_legal_check,
+    write_water_rights_data_to_disk,
+    WaterRightsHeuristic,
+    WaterRightsTextCollector,
+    WaterRightsTextExtractor,
+    StructuredWaterParser,
+    WATER_RIGHTS_QUESTION_TEMPLATES,
+    BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS,
+)
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import LLMCaller, OpenAIConfig
 from compass.services.cpu import (
@@ -88,7 +100,7 @@ from compass.utilities import (
     doc_infos_to_db,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
-    num_ordinances_in_doc,
+    num_ordinances_dataframe,
     save_db,
     save_run_meta,
     Directories,
@@ -139,6 +151,7 @@ _TEXT_EXTRACTION_TASKS = {
     SmallWindPermittedUseDistrictsTextExtractor: (
         "Extracting small wind permitted use text"
     ),
+    WaterRightsTextExtractor: "Extracting water rights ordinance text",
 }
 _JUR_COLS = [
     "Jurisdiction Type",
@@ -298,15 +311,16 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         least the key ``"source_fp"`` pointing to the **full** path of
         the local document file. All other keys will be added as
         attributes to the loaded document instance. You can include the
-        key ``"is_legal_doc"`` to skip the legal document check for
-        known documents. Similarly, you can provide the ``"date"`` key,
-        which is a list of ``[year, month, day]``, some or all of which
-        can be null, to skip the date extraction step of the processing
-        pipeline. If this input is provided, local documents will be
-        checked first. See the top-level documentation of this function
-        for the full processing of the pipeline. This input can also be
-        a path to a JSON file containing the dictionary of
-        code-to-document-info mappings. By default, ``None``.
+        key ``"check_if_legal_doc"`` to manually enable/disable the
+        legal document check for known documents. Similarly, you can
+        provide the ``"date"`` key, which is a list of
+        ``[year, month, day]``, some or all of which can be null, to
+        skip the date extraction step of the processing pipeline. If
+        this input is provided, local documents will be checked first.
+        See the top-level documentation of this function for the full
+        processing of the pipeline. This input can also be a path to a
+        JSON file containing the dictionary of code-to-document-info
+        mappings. By default, ``None``.
     known_doc_urls : dict or path-like, optional
         A dictionary where keys are the jurisdiction codes (as strings)
         and values are lists of dictionaries containing information
@@ -314,16 +328,16 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         least the key ``"source"`` representing the known URL to check
         for that document. All other keys will be added as attributes
         to the loaded document instance. You can include the key
-        ``"is_legal_doc"`` to skip the legal document check for known
-        documents. Similarly, you can provide the ``"date"`` key, which
-        is a list of ``[year, month, day]``, some or all of which can
-        be null, to skip the date extraction step of the processing
-        pipeline. If this input is provided, the known URLs will be
-        checked before applying the search engine search. See the
-        top-level documentation of this function for the full processing
-        order of the pipeline. This input can also be a path to a JSON
-        file containing the dictionary of code-to-document-info
-        mappings.
+        ``"check_if_legal_doc"`` to manually enable/disable the legal
+        document check for documents at known URLs. Similarly, you can
+        provide the ``"date"`` key, which is a list of
+        ``[year, month, day]``, some or all of which can be null, to
+        skip the date extraction step of the processing pipeline. If
+        this input is provided, the known URLs will be checked before
+        applying the search engine search. See the top-level
+        documentation of this function for the full processing order of
+        the pipeline. This input can also be a path to a JSON file
+        containing the dictionary of code-to-document-info mappings.
 
         .. Note:: The same input can be used for both `known_local_docs`
                   and `known_doc_urls` as long as both ``"source_fp"``
@@ -631,6 +645,11 @@ class _COMPASSRunner:
         return _configure_thread_pool_kwargs(self.process_kwargs.tpe_kwargs)
 
     @cached_property
+    def tech_specs(self):
+        """TechSpec: TechSpec for the current technology"""
+        return _compile_tech_specs(self.tech)
+
+    @cached_property
     def _base_services(self):
         """list: Services required to support jurisdiction processing"""
         base_services = [
@@ -692,9 +711,19 @@ class _COMPASSRunner:
         start_date = datetime.now(UTC)
 
         doc_infos, total_cost = await self._run_all(jurisdictions)
+        doc_infos = [
+            di
+            for di in doc_infos
+            if di is not None and di.get("ord_db_fp") is not None
+        ]
 
-        db, num_docs_found = doc_infos_to_db(doc_infos)
-        save_db(db, self.dirs.out)
+        if self.tech_specs.save_db_callback is not None:
+            num_docs_found = self.tech_specs.save_db_callback(
+                doc_infos, self.dirs.out
+            )
+        else:
+            num_docs_found = _write_data_to_disk(doc_infos, self.dirs.out)
+
         total_time = save_run_meta(
             self.dirs,
             self.tech,
@@ -794,7 +823,7 @@ class _COMPASSRunner:
         ):
             task = asyncio.create_task(
                 _SingleJurisdictionRunner(
-                    self.tech,
+                    self.tech_specs,
                     jurisdiction,
                     self.models,
                     self.web_search_params,
@@ -830,7 +859,7 @@ class _SingleJurisdictionRunner:
 
     def __init__(  # noqa: PLR0913
         self,
-        tech,
+        tech_specs,
         jurisdiction,
         models,
         web_search_params,
@@ -847,7 +876,7 @@ class _SingleJurisdictionRunner:
         perform_website_search=True,
         usage_tracker=None,
     ):
-        self.tech_specs = _compile_tech_specs(tech)
+        self.tech_specs = tech_specs
         self.jurisdiction = jurisdiction
         self.models = models
         self.web_search_params = web_search_params
@@ -986,20 +1015,8 @@ class _SingleJurisdictionRunner:
         _add_known_doc_attrs_to_all_docs(
             docs, self.known_local_docs, key="source_fp"
         )
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=False,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=False
         )
         if not docs:
             return None
@@ -1029,20 +1046,8 @@ class _SingleJurisdictionRunner:
         _add_known_doc_attrs_to_all_docs(
             docs, self.known_doc_urls, key="source"
         )
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=False,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=False
         )
         if not docs:
             return None
@@ -1068,20 +1073,8 @@ class _SingleJurisdictionRunner:
             url_ignore_substrings=self.web_search_params.url_ignore_substrings,
             **self.web_search_params.se_kwargs,
         )
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=True,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=True
         )
         if not docs:
             return None
@@ -1190,20 +1183,8 @@ class _SingleJurisdictionRunner:
             return_c4ai_results=True,
         )
         docs, scrape_results = out
-        docs = await filter_ordinance_docs(
-            docs,
-            self.jurisdiction,
-            self.models,
-            heuristic=self.tech_specs.heuristic,
-            tech=self.tech_specs.name,
-            ordinance_text_collector_class=(
-                self.tech_specs.ordinance_text_collector
-            ),
-            permitted_use_text_collector_class=(
-                self.tech_specs.permitted_use_text_collector
-            ),
-            usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=True,
+        docs = await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=True
         )
         return docs, scrape_results
 
@@ -1223,7 +1204,40 @@ class _SingleJurisdictionRunner:
                 pb_jurisdiction_name=self.jurisdiction.full_name,
             )
         )
-        return await filter_ordinance_docs(
+        return await self._filter_down_docs(
+            docs, check_for_correct_jurisdiction=True
+        )
+
+    async def _filter_down_docs(self, docs, check_for_correct_jurisdiction):
+        """Filter down candidate documents before parsing"""
+        if docs and self.tech_specs.post_download_docs_hook is not None:
+            logger.debug(
+                "%d document(s) passed in to `post_download_docs_hook` for "
+                "%s\n\t- %s",
+                len(docs),
+                self.jurisdiction.full_name,
+                "\n\t- ".join(
+                    [doc.attrs.get("source", "Unknown source") for doc in docs]
+                ),
+            )
+
+            docs = await self.tech_specs.post_download_docs_hook(
+                docs,
+                jurisdiction=self.jurisdiction,
+                model_configs=self.models,
+                usage_tracker=self.usage_tracker,
+            )
+            logger.info(
+                "%d document(s) remaining after `post_download_docs_hook` for "
+                "%s\n\t- %s",
+                len(docs),
+                self.jurisdiction.full_name,
+                "\n\t- ".join(
+                    [doc.attrs.get("source", "Unknown source") for doc in docs]
+                ),
+            )
+
+        docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
             self.models,
@@ -1236,25 +1250,65 @@ class _SingleJurisdictionRunner:
                 self.tech_specs.permitted_use_text_collector
             ),
             usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=True,
+            check_for_correct_jurisdiction=check_for_correct_jurisdiction,
         )
+
+        if docs and self.tech_specs.post_filter_docs_hook is not None:
+            logger.debug(
+                "Passing %d document(s) in to `post_filter_docs_hook` ",
+                len(docs),
+            )
+            docs = await self.tech_specs.post_filter_docs_hook(
+                docs,
+                jurisdiction=self.jurisdiction,
+                model_configs=self.models,
+                usage_tracker=self.usage_tracker,
+            )
+            logger.info(
+                "%d document(s) remaining after `post_filter_docs_hook` for "
+                "%s\n\t- %s",
+                len(docs),
+                self.jurisdiction.full_name,
+                "\n\t- ".join(
+                    [doc.attrs.get("source", "Unknown source") for doc in docs]
+                ),
+            )
+
+        return docs or None
 
     async def _parse_docs_for_ordinances(self, docs):
         """Parse candidate documents in order until ordinances found"""
         for possible_ord_doc in docs:
             doc = await self._try_extract_all_ordinances(possible_ord_doc)
-            ord_count = num_ordinances_in_doc(
-                doc, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
-            )
+            ord_count = self._get_ordinance_count(doc)
             if ord_count > 0:
-                logger.debug(
-                    "Found ordinances in doc from %s",
+                doc = await _move_files(doc)
+                logger.info(
+                    "%d ordinance value(s) found in doc from %s for %s. "
+                    "Outputs are here: '%s'",
+                    ord_count,
                     possible_ord_doc.attrs.get("source", "unknown source"),
+                    self.jurisdiction.full_name,
+                    doc.attrs["ord_db_fp"],
                 )
-                return await _move_files(doc, self.jurisdiction)
+                return doc
 
         logger.debug("No ordinances found; searched %d docs", len(docs))
         return None
+
+    def _get_ordinance_count(self, doc):
+        """Get the number of ordinances extracted from a document"""
+        if doc is None or doc.attrs.get("ordinance_values") is None:
+            return 0
+
+        ord_df = doc.attrs["ordinance_values"]
+
+        if self.tech_specs.num_ordinances_in_df_callback is not None:
+            return self.tech_specs.num_ordinances_in_df_callback(ord_df)
+
+        return num_ordinances_dataframe(
+            ord_df, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
+        )
 
     async def _try_extract_all_ordinances(self, possible_ord_doc):
         """Extract both ordinance values and permitted-use districts"""
@@ -1274,7 +1328,7 @@ class _SingleJurisdictionRunner:
     @property
     def _extraction_task_kwargs(self):
         """list: Dictionaries describing extraction task config"""
-        return [
+        tasks = [
             {
                 "extractor_class": self.tech_specs.ordinance_text_extractor,
                 "original_text_key": "ordinance_text",
@@ -1289,7 +1343,15 @@ class _SingleJurisdictionRunner:
                     LLMTasks.ORDINANCE_VALUE_EXTRACTION,
                     self.models[LLMTasks.DEFAULT],
                 ),
-            },
+            }
+        ]
+        if (
+            self.tech_specs.permitted_use_text_extractor is None
+            or self.tech_specs.structured_permitted_use_parser is None
+        ):
+            return tasks
+
+        tasks.append(
             {
                 "extractor_class": (
                     self.tech_specs.permitted_use_text_extractor
@@ -1308,8 +1370,9 @@ class _SingleJurisdictionRunner:
                     LLMTasks.PERMITTED_USE_VALUE_EXTRACTION,
                     self.models[LLMTasks.DEFAULT],
                 ),
-            },
-        ]
+            }
+        )
+        return tasks
 
     async def _try_extract_ordinances(
         self,
@@ -1338,14 +1401,24 @@ class _SingleJurisdictionRunner:
         )
         await self._record_usage()
         self._jsp.remove_task(task_id)
-        out = await _extract_ordinances_from_text(
-            doc,
-            parser_class=parser_class,
-            text_key=cleaned_text_key,
-            out_key=out_key,
-            usage_tracker=self.usage_tracker,
-            model_config=value_model,
-        )
+        if self.tech_specs.extract_ordinances_callback is None:
+            out = await _extract_ordinances_from_text(
+                doc,
+                parser_class=parser_class,
+                text_key=cleaned_text_key,
+                out_key=out_key,
+                usage_tracker=self.usage_tracker,
+                model_config=value_model,
+            )
+        else:
+            out = await self.tech_specs.extract_ordinances_callback(
+                doc,
+                parser_class=parser_class,
+                text_key=cleaned_text_key,
+                out_key=out_key,
+                usage_tracker=self.usage_tracker,
+                model_config=value_model,
+            )
         await self._record_usage()
         return out
 
@@ -1399,6 +1472,25 @@ def _compile_tech_specs(tech):
             StructuredSmallWindOrdinanceParser,
             StructuredSmallWindPermittedUseDistrictsParser,
             BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS,
+        )
+
+    if tech.casefold() == "water rights":
+        return TechSpec(
+            "water rights",
+            WATER_RIGHTS_QUESTION_TEMPLATES,
+            WaterRightsHeuristic(),
+            WaterRightsTextCollector,
+            WaterRightsTextExtractor,
+            None,
+            None,
+            StructuredWaterParser,
+            None,
+            BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS,
+            label_docs_no_legal_check,
+            build_corpus,
+            extract_water_rights_ordinance_values,
+            len,
+            write_water_rights_data_to_disk,
         )
 
     msg = f"Unknown tech input: {tech}"
@@ -1503,6 +1595,15 @@ def _initialize_model_params(user_input):
                 raise COMPASSValueError(msg)
             caller_instances[task] = model_config
 
+    if LLMTasks.DEFAULT not in caller_instances:
+        msg = (
+            "No 'default' LLM caller defined in the `model` portion of the "
+            "input config! Please ensure exactly one of the model "
+            "definitions has 'tasks' set to 'default' or left unspecified.\n"
+            f"Found tasks: {list(caller_instances)}"
+        )
+        raise COMPASSValueError(msg)
+
     return caller_instances
 
 
@@ -1562,22 +1663,10 @@ async def _extract_ordinances_from_text(
     )
 
 
-async def _move_files(doc, jurisdiction):
+async def _move_files(doc):
     """Move files to output folders, if applicable"""
-    ord_count = num_ordinances_in_doc(doc)
-    if ord_count == 0:
-        logger.info("No ordinances found for %s.", jurisdiction.full_name)
-        return doc
-
     doc = await _move_file_to_out_dir(doc)
-    doc = await _write_ord_db(doc)
-    logger.info(
-        "%d ordinance value(s) found for %s. Outputs are here: '%s'",
-        ord_count,
-        jurisdiction.full_name,
-        doc.attrs["ord_db_fp"],
-    )
-    return doc
+    return await _write_ord_db(doc)
 
 
 async def _move_file_to_out_dir(doc):
@@ -1599,6 +1688,13 @@ async def _write_ord_db(doc):
     out_fp = await OrdDBFileWriter.call(doc)
     doc.attrs["ord_db_fp"] = out_fp
     return doc
+
+
+def _write_data_to_disk(doc_infos, out_dir):
+    """Write extracted data to disk"""
+    db, num_docs_found = doc_infos_to_db(doc_infos)
+    save_db(db, out_dir)
+    return num_docs_found
 
 
 async def _record_jurisdiction_info(loc, doc, start_time, usage_tracker):

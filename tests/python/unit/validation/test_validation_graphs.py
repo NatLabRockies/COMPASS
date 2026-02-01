@@ -86,18 +86,21 @@ def test_setup_graph_correct_jurisdiction_type_city_no_county():
         "init",
         "has_name",
         "is_state",
-        "is_city",
-        "has_city_name",
+        "is_subdivision",
+        "has_subdivision_name",
         "final",
     }
     assert set(graph.edges) == {
         ("init", "has_name"),
         ("has_name", "is_state"),
         ("is_state", "final"),  # is_state --YES-> final (bad jur)
-        ("is_state", "is_city"),  # is_state --NO-> is_county
-        ("is_city", "final"),  # is_city --NO-> final (bad jur)
-        ("is_city", "has_city_name"),  # is_city --YES-> has_city_name
-        ("has_city_name", "final"),
+        ("is_state", "is_subdivision"),  # is_state --NO-> is_county
+        ("is_subdivision", "final"),  # is_subdivision --NO-> final (bad jur)
+        (
+            "is_subdivision",
+            "has_subdivision_name",
+        ),  # is_subdivision --YES-> has_subdivision_name
+        ("has_subdivision_name", "final"),
     }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
@@ -106,7 +109,7 @@ def test_setup_graph_correct_jurisdiction_type_city_no_county():
 
     assert (
         f"the {loc.full_subdivision_phrase}"
-        in graph.nodes["is_city"]["prompt"]
+        in graph.nodes["is_subdivision"]["prompt"]
     )
 
     assert loc.full_name in graph.nodes["final"]["prompt"]
@@ -125,8 +128,8 @@ def test_setup_graph_correct_jurisdiction_type_city():
         "has_name",
         "is_state",
         "is_county",
-        "is_city",
-        "has_city_name",
+        "is_subdivision",
+        "has_subdivision_name",
         "final",
     }
     assert set(graph.edges) == {
@@ -135,10 +138,13 @@ def test_setup_graph_correct_jurisdiction_type_city():
         ("is_state", "final"),  # is_state --YES-> final (bad jur)
         ("is_state", "is_county"),  # is_state --NO-> is_county
         ("is_county", "final"),  # is_county --YES-> final (bad jur)
-        ("is_county", "is_city"),  # is_county --NO-> is_city
-        ("is_city", "final"),  # is_city --NO-> final (bad jur)
-        ("is_city", "has_city_name"),  # is_city --YES-> has_city_name
-        ("has_city_name", "final"),
+        ("is_county", "is_subdivision"),  # is_county --NO-> is_subdivision
+        ("is_subdivision", "final"),  # is_subdivision --NO-> final (bad jur)
+        (
+            "is_subdivision",
+            "has_subdivision_name",
+        ),  # is_subdivision --YES-> has_subdivision_name
+        ("has_subdivision_name", "final"),
     }
 
     assert f"{loc.state}" in graph.nodes["is_state"]["prompt"]
@@ -148,7 +154,7 @@ def test_setup_graph_correct_jurisdiction_type_city():
     assert loc.full_county_phrase in graph.nodes["is_county"]["prompt"]
     assert (
         f"the {loc.full_subdivision_phrase}"
-        in graph.nodes["is_city"]["prompt"]
+        in graph.nodes["is_subdivision"]["prompt"]
     )
 
     assert loc.full_name in graph.nodes["final"]["prompt"]
