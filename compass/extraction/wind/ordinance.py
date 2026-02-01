@@ -229,6 +229,9 @@ class WindOrdinanceTextCollector(StructuredLLMCaller):
 class WindPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     """Check text chunks for permitted wind districts; collect them"""
 
+    LABEL = "permitted_use_text"
+    """Identifier for text collected by this class"""
+
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         "whether the text explicitly contains relevant information to "

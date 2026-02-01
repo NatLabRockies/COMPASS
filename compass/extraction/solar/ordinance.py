@@ -212,6 +212,9 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
 class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
     """Check text chunks for permitted solar districts; collect them"""
 
+    LABEL = "permitted_use_text"
+    """Identifier for text collected by this class"""
+
     DISTRICT_PROMPT = (
         "You are a legal scholar that reads ordinance text and determines "
         "whether it explicitly contains relevant information to determine the "
