@@ -1332,7 +1332,7 @@ class _SingleJurisdictionRunner:
         tasks = [
             {
                 "extractor_class": self.tech_specs.text_extractor,
-                "original_text_key": "relevant_text",
+                "original_text_key": self.tech_specs.text_extractor.LABEL,
                 "cleaned_text_key": "cleaned_text_for_extraction",
                 "text_model": self.models.get(
                     LLMTasks.ORDINANCE_TEXT_EXTRACTION,
@@ -1357,7 +1357,9 @@ class _SingleJurisdictionRunner:
                 "extractor_class": (
                     self.tech_specs.permitted_use_text_extractor
                 ),
-                "original_text_key": "permitted_use_text",
+                "original_text_key": (
+                    self.tech_specs.permitted_use_text_extractor.LABEL
+                ),
                 "cleaned_text_key": "districts_text",
                 "text_model": self.models.get(
                     LLMTasks.PERMITTED_USE_TEXT_EXTRACTION,
