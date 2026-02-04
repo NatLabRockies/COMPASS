@@ -8,7 +8,7 @@ from warnings import warn
 
 import pandas as pd
 
-from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
+from compass.plugin.ordinance import OrdinanceParser
 from compass.extraction.features import SetbackFeatures
 from compass.common import (
     EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT,
@@ -203,17 +203,8 @@ class SmallWindSetbackFeatures(SetbackFeatures):
     """Clarifications to add to feature prompts"""
 
 
-class StructuredSmallWindParser(BaseLLMCaller):
+class StructuredSmallWindParser(OrdinanceParser):
     """Base class for parsing structured data"""
-
-    def _init_chat_llm_caller(self, system_message):
-        """Initialize a ChatLLMCaller instance for the DecisionTree"""
-        return ChatLLMCaller(
-            self.llm_service,
-            system_message=system_message,
-            usage_tracker=self.usage_tracker,
-            **self.kwargs,
-        )
 
     async def _check_wind_turbine_type(self, text):
         """Get the small turbine size mentioned in the text"""
@@ -255,6 +246,12 @@ class StructuredSmallWindOrdinanceParser(StructuredSmallWindParser):
         AsyncDecisionTree instances to guide the extraction of
         individual values.
     """
+
+    IN_LABEL = "cleaned_text_for_extraction"
+    """Identifier for text ingested by this class"""
+
+    OUT_LABEL = "ordinance_values"
+    """Identifier for structured ordinance data output by this class"""
 
     async def parse(self, text):
         """Parse text and extract structure ordinance data
@@ -565,6 +562,12 @@ class StructuredSmallWindPermittedUseDistrictsParser(
         AsyncDecisionTree instances to guide the extraction of
         individual values.
     """
+
+    IN_LABEL = "districts_text"
+    """Identifier for text ingested by this class"""
+
+    OUT_LABEL = "permitted_district_values"
+    """Identifier for structured ordinance data output by this class"""
 
     _SMALL_WES_CLARIFICATION = (
         "Small wind energy systems (AWES) may also be referred to as "

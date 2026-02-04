@@ -6,11 +6,12 @@ relevant to utility-scale solar ordinances.
 
 import logging
 
-from compass.common import BaseTextExtractor
-from compass.validation.content import Heuristic
-from compass.llm.calling import StructuredLLMCaller
+from compass.plugin.ordinance import (
+    OrdinanceHeuristic,
+    OrdinanceTextCollector,
+    OrdinanceTextExtractor,
+)
 from compass.utilities.enums import LLMUsageCategory
-from compass.utilities.parsing import merge_overlapping_texts
 
 
 logger = logging.getLogger(__name__)
@@ -34,7 +35,7 @@ _IGNORE_TYPES = (
 )
 
 
-class SolarHeuristic(Heuristic):
+class SolarHeuristic(OrdinanceHeuristic):
     """Perform a heuristic check for mention of solar farms in text"""
 
     NOT_TECH_WORDS = [
@@ -75,10 +76,10 @@ class SolarHeuristic(Heuristic):
     """Phrases that indicate text is about solar farms"""
 
 
-class SolarOrdinanceTextCollector(StructuredLLMCaller):
+class SolarOrdinanceTextCollector(OrdinanceTextCollector):
     """Check text chunks for ordinances and collect them if they do"""
 
-    LABEL = "relevant_text"
+    OUT_LABEL = "relevant_text"
     """Identifier for text collected by this class"""
 
     CONTAINS_ORD_PROMPT = (
@@ -119,10 +120,6 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
     )
     """Prompt to check if chunk is for utility-scale SEF"""
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._ordinance_chunks = {}
-
     async def check_chunk(self, chunk_parser, ind):
         """Check a chunk at a given ind to see if it contains ordinance
 
@@ -161,32 +158,10 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
 
         logger.debug("Text at ind %d is for utility-scale SEF", ind)
 
-        _store_chunk(chunk_parser, ind, self._ordinance_chunks)
+        self._store_chunk(chunk_parser, ind)
         logger.debug("Added text at ind %d to ordinances", ind)
 
         return True
-
-    @property
-    def relevant_text(self):
-        """str: Combined ordinance text from the individual chunks"""
-        if not self._ordinance_chunks:
-            logger.debug(
-                "No relevant ordinance chunk(s) found in original text",
-            )
-            return ""
-
-        logger.debug(
-            "Grabbing %d ordinance chunk(s) from original text at these "
-            "indices: %s",
-            len(self._ordinance_chunks),
-            list(self._ordinance_chunks),
-        )
-
-        text = [
-            self._ordinance_chunks[ind]
-            for ind in sorted(self._ordinance_chunks)
-        ]
-        return merge_overlapping_texts(text)
 
     async def _check_chunk_contains_ord(self, key, text_chunk):
         """Call LLM on a chunk of text to check for ordinance"""
@@ -209,10 +184,10 @@ class SolarOrdinanceTextCollector(StructuredLLMCaller):
         return content.get(key, False)
 
 
-class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
+class SolarPermittedUseDistrictsTextCollector(OrdinanceTextCollector):
     """Check text chunks for permitted solar districts; collect them"""
 
-    LABEL = "permitted_use_text"
+    OUT_LABEL = "permitted_use_text"
     """Identifier for text collected by this class"""
 
     DISTRICT_PROMPT = (
@@ -236,10 +211,6 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         "permitted use and False otherwise."
     )
     """Prompt to check if chunk contains info on permitted districts"""
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self._district_chunks = {}
 
     async def check_chunk(self, chunk_parser, ind):
         """Check a chunk to see if it contains permitted uses
@@ -270,46 +241,28 @@ class SolarPermittedUseDistrictsTextCollector(StructuredLLMCaller):
         contains_district_info = content.get(key, False)
 
         if contains_district_info:
-            _store_chunk(chunk_parser, ind, self._district_chunks)
+            self._store_chunk(chunk_parser, ind)
             logger.debug("Text at ind %d contains district info", ind)
             return True
 
         logger.debug("Text at ind %d does not contain district info", ind)
         return False
 
-    @property
-    def contains_district_info(self):
-        """bool: Flag indicating whether text contains district info"""
-        return bool(self._district_chunks)
 
-    @property
-    def permitted_use_district_text(self):
-        """str: Combined permitted use districts text from the chunks"""
-        logger.debug(
-            "Grabbing %d permitted use chunk(s) from original text at these "
-            "indices: %s",
-            len(self._district_chunks),
-            list(self._district_chunks),
-        )
+class SolarOrdinanceTextExtractor(OrdinanceTextExtractor):
+    """Extract succinct ordinance text from input"""
 
-        text = [
-            self._district_chunks[ind] for ind in sorted(self._district_chunks)
-        ]
-        return merge_overlapping_texts(text)
+    IN_LABEL = SolarOrdinanceTextCollector.OUT_LABEL
+    """Identifier for collected text ingested by this class"""
 
+    OUT_LABEL = "cleaned_text_for_extraction"
+    """Identifier for ordinance text extracted by this class"""
 
-class SolarOrdinanceTextExtractor(BaseTextExtractor):
-    """Extract succinct ordinance text from input
+    TASK_DESCRIPTION = "Extracting wind ordinance text"
+    """Task description to show in progress bar"""
 
-    Purpose:
-        Extract relevant ordinance text from document.
-    Responsibilities:
-        1. Extract portions from chunked document text relevant to
-           particular ordinance type (e.g. solar zoning for
-           utility-scale systems).
-    Key Relationships:
-        Uses a StructuredLLMCaller for LLM queries.
-    """
+    TASK_ID = "ordinance_text_extraction"
+    """ID to use for this extraction for linking with LLM configs"""
 
     SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
         "# CONTEXT #\n"
@@ -373,7 +326,6 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT,
-            is_valid_chunk=_valid_chunk,
         )
 
     @property
@@ -388,24 +340,23 @@ class SolarOrdinanceTextExtractor(BaseTextExtractor):
             Async function that takes a ``text_chunks`` input and
             outputs parsed text.
         """
-        yield (
-            "cleaned_text_for_extraction",
-            self.extract_solar_energy_system_section,
-        )
+        yield self.OUT_LABEL, self.extract_solar_energy_system_section
 
 
-class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
-    """Extract succinct ordinance text from input
+class SolarPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
+    """Extract succinct permitted use districts text from input"""
 
-    Purpose:
-        Extract relevant ordinance text from document.
-    Responsibilities:
-        1. Extract portions from chunked document text relevant to
-           particular ordinance type (e.g. solar zoning for
-           utility-scale systems).
-    Key Relationships:
-        Uses a StructuredLLMCaller for LLM queries.
-    """
+    IN_LABEL = SolarPermittedUseDistrictsTextCollector.OUT_LABEL
+    """Identifier for collected text ingested by this class"""
+
+    OUT_LABEL = "districts_text"
+    """Identifier for permitted use text extracted by this class"""
+
+    TASK_DESCRIPTION = "Extracting wind permitted use text"
+    """Task description to show in progress bar"""
+
+    TASK_ID = "permitted_use_text_extraction"
+    """ID to use for this extraction for linking with LLM configs"""
 
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
 
@@ -518,7 +469,6 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.PERMITTED_USES_FILTER_PROMPT,
-            is_valid_chunk=_valid_chunk,
         )
 
     async def extract_sef_permitted_uses(self, text_chunks):
@@ -539,7 +489,6 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
         return await self._process(
             text_chunks=text_chunks,
             instructions=self.SEF_PERMITTED_USES_FILTER_PROMPT,
-            is_valid_chunk=_valid_chunk,
         )
 
     @property
@@ -555,19 +504,4 @@ class SolarPermittedUseDistrictsTextExtractor(BaseTextExtractor):
             outputs parsed text.
         """
         yield "permitted_use_only_text", self.extract_permitted_uses
-        yield "districts_text", self.extract_sef_permitted_uses
-
-
-def _valid_chunk(chunk):
-    """True if chunk has content"""
-    return chunk and "no relevant text" not in chunk.lower()
-
-
-def _store_chunk(parser, chunk_ind, store):
-    """Store chunk and its neighbors if it is not already stored"""
-    for offset in range(1 - parser.num_to_recall, 2):
-        ind_to_grab = chunk_ind + offset
-        if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
-            continue
-
-        store.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])
+        yield self.OUT_LABEL, self.extract_sef_permitted_uses
