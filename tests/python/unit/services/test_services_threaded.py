@@ -202,9 +202,9 @@ def test_write_cleaned_file_with_debug(tmp_path, monkeypatch):
     doc.attrs.update(
         {
             "jurisdiction_name": "Sample Jurisdiction",
-            "cleaned_ordinance_text": "clean",
+            "cleaned_text_for_extraction": "clean",
             "districts_text": "districts",
-            "ordinance_text": "orig",
+            "relevant_text": "orig",
             "permitted_use_text": "perm",
             "permitted_use_only_text": None,
         }
@@ -229,7 +229,7 @@ def test_write_cleaned_file_without_jurisdiction_returns_none(tmp_path):
     """If jurisdiction name missing, cleaned file writer should do nothing"""
 
     doc = HTMLDocument(["payload"])
-    doc.attrs["cleaned_ordinance_text"] = "clean"
+    doc.attrs["cleaned_text_for_extraction"] = "clean"
     assert threaded._write_cleaned_file(doc, tmp_path) is None
 
 
@@ -240,7 +240,7 @@ def test_write_cleaned_file_skips_missing_section(tmp_path):
     doc.attrs.update(
         {
             "jurisdiction_name": "Partial",
-            "cleaned_ordinance_text": "clean",
+            "cleaned_text_for_extraction": "clean",
         }
     )
 
@@ -263,7 +263,7 @@ def test_write_ord_db_creates_csv(tmp_path):
     doc.attrs.update(
         {
             "jurisdiction_name": "Sample",
-            "scraped_values": df,
+            "structured_data": df,
         }
     )
 
@@ -341,7 +341,7 @@ async def test_cleaned_file_writer_process(tmp_path, monkeypatch):
     doc.attrs.update(
         {
             "jurisdiction_name": "Writer",
-            "cleaned_ordinance_text": "clean",
+            "cleaned_text_for_extraction": "clean",
             "districts_text": "district",
         }
     )
@@ -373,7 +373,7 @@ async def test_ord_db_file_writer_process(tmp_path):
     doc.attrs.update(
         {
             "jurisdiction_name": "Ord",
-            "scraped_values": df,
+            "structured_data": df,
         }
     )
 
@@ -464,7 +464,7 @@ async def test_jurisdiction_updater_process(tmp_path):
             "out_fp": tmp_path / "ord" / "doc.pdf",
             "checksum": "sha256:abc",
             "from_ocr": True,
-            "ordinance_text_ngram_score": 0.9,
+            "relevant_text_ngram_score": 0.9,
             "permitted_use_text_ngram_score": 0.8,
             "jurisdiction_website": "http://jurisdiction.gov",
             "compass_crawl": True,
