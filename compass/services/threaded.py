@@ -19,8 +19,8 @@ from elm.web.utilities import write_url_doc_to_file
 from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
 from compass.utilities import (
-    LLM_COST_REGISTRY,
     num_ordinances_in_doc,
+    compute_cost_from_totals,
 )
 from compass.pb import COMPASS_PB
 
@@ -128,7 +128,7 @@ def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
 
 def _write_ord_db(doc, out_dir):
     """Write parsed ordinance database to directory"""
-    ord_db = doc.attrs.get("scraped_values")
+    ord_db = doc.attrs.get("structured_data")
     jurisdiction_name = doc.attrs.get("jurisdiction_name")
 
     if ord_db is None or jurisdiction_name is None:
@@ -545,7 +545,7 @@ def _dump_jurisdiction_info(
     }
 
     if usage_tracker is not None:
-        cost = _compute_jurisdiction_cost(usage_tracker)
+        cost = compute_cost_from_totals(usage_tracker.totals)
         new_info["cost"] = cost or None
 
     if doc is not None and num_ordinances_in_doc(doc) > 0:
@@ -581,26 +581,6 @@ def _compile_doc_info(doc):
             "permitted_use_text_ngram_score"
         ),
     }
-
-
-def _compute_jurisdiction_cost(usage_tracker):
-    """Compute total cost from total tracked usage"""
-
-    total_cost = 0
-    for model, total_usage in usage_tracker.totals.items():
-        model_costs = LLM_COST_REGISTRY.get(model, {})
-        total_cost += (
-            total_usage.get("prompt_tokens", 0)
-            / 1e6
-            * model_costs.get("prompt", 0)
-        )
-        total_cost += (
-            total_usage.get("response_tokens", 0)
-            / 1e6
-            * model_costs.get("response", 0)
-        )
-
-    return total_cost
 
 
 def _read_html_file(html_fp, **kwargs):
