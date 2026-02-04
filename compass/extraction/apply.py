@@ -56,8 +56,8 @@ async def check_for_relevant_text(
         parsing. Each class must implement the
         :class:`BaseTextCollector` interface. If the document already
         contains text collected by a given collector (i.e. the
-        collector's ``LABEL`` is found in ``doc.attrs``), that collector
-        will be skipped.
+        collector's ``OUT_LABEL`` is found in ``doc.attrs``), that
+        collector will be skipped.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
@@ -74,9 +74,7 @@ async def check_for_relevant_text(
 
     Notes
     -----
-    The function updates progress bar logging as chunks are processed
-    and sets ``contains_district_info`` when
-    ``permitted_use_text_collector_class`` is provided.
+    The function updates progress bar logging as chunks are processed.
     """
     chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
@@ -95,7 +93,7 @@ async def check_for_relevant_text(
     collectors_to_run = []
     callbacks = []
     for collector_class in text_collectors:
-        if collector_class is None or collector_class.LABEL in doc.attrs:
+        if collector_class is None or collector_class.OUT_LABEL in doc.attrs:
             continue
 
         collector = collector_class(
@@ -125,10 +123,10 @@ async def check_for_relevant_text(
     for collector in collectors_to_run:
         if text := collector.relevant_text:
             found_text = True
-            doc.attrs[collector.LABEL] = text
+            doc.attrs[collector.OUT_LABEL] = text
             logger.debug_to_file(
                 "%r text for %s is:\n%s",
-                collector.LABEL,
+                collector.OUT_LABEL,
                 doc.attrs.get("source", "unknown source"),
                 text,
             )
