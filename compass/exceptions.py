@@ -27,3 +27,7 @@ class COMPASSValueError(COMPASSError, ValueError):
 
 class COMPASSRuntimeError(COMPASSError, RuntimeError):
     """COMPASS RuntimeError"""
+
+
+class COMPASSPluginConfigurationError(COMPASSRuntimeError):
+    """COMPASS Plugin Configuration Error"""
