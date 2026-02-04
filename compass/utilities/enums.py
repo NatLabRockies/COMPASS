@@ -65,6 +65,9 @@ class LLMTasks(StrEnum):
     so downstream monitoring does not require additional translation.
     """
 
+    DATA_EXTRACTION = auto()
+    """Default Data extraction task"""
+
     DATE_EXTRACTION = LLMUsageCategory.DATE_EXTRACTION
     """Date extraction task"""
 
@@ -89,6 +92,13 @@ class LLMTasks(StrEnum):
 
     EMBEDDING = auto()
     """Text chunk embedding task"""
+
+    TEXT_EXTRACTION = auto()
+    """Default Text extraction task
+
+    This task represents the extraction/summarization of text containing
+    information to be extracted into structured data.
+    """
 
     JURISDICTION_MAIN_WEBSITE_VALIDATION = (
         LLMUsageCategory.JURISDICTION_MAIN_WEBSITE_VALIDATION
