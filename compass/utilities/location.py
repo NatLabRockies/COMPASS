@@ -37,6 +37,7 @@ class Jurisdiction:
         county=None,
         subdivision_name=None,
         code=None,
+        website_url=None,
     ):
         """
 
@@ -70,12 +71,16 @@ class Jurisdiction:
         code : int or str, optional
             Optional jurisdiction code (typically FIPS or similar).
             By default, ``None``.
+        website_url : str, optional
+            Optional URL for the jurisdiction's main website.
+            By default, ``None``.
         """
         self.type = subdivision_type.title()
         self.state = state.title()
         self.county = county
         self.subdivision_name = subdivision_name
         self.code = code
+        self.website_url = website_url
 
     @cached_property
     def full_name(self):
