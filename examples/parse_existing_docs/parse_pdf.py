@@ -82,7 +82,7 @@ async def _extract_ordinances(doc, model_configs):
             extractor=SolarOrdinanceTextExtractor(
                 LLMCaller(llm_service=model_config.llm_service)
             ),
-            original_text_key=SolarOrdinanceTextCollector.LABEL,
+            original_text_key=SolarOrdinanceTextExtractor.IN_LABEL,
         )
 
         logger.info(
