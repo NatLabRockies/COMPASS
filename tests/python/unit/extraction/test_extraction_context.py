@@ -317,17 +317,17 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
 
 
 @pytest.mark.parametrize(
-    "input_val,expected",
+    "input_val",
     [
-        (None, []),
-        (PDFDocument([]), [PDFDocument([])]),
-        ([PDFDocument([])], [PDFDocument([])]),
-        (["a", "b", "c"], ["a", "b", "c"]),
-        (("x", "y"), ["x", "y"]),
-        ({"key": "value"}, [{"key": "value"}]),
+        None,
+        PDFDocument([]),
+        [PDFDocument([])],
+        ["a", "b", "c"],
+        ("x", "y"),
+        {"key": "value"},
     ],
 )
-def test_as_list_conversions(input_val, expected):
+def test_as_list_conversions(input_val):
     """Test _as_list helper with various inputs"""
     result = _as_list(input_val)
     assert isinstance(result, list)
