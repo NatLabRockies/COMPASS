@@ -21,7 +21,6 @@ from .parsing import (
     extract_ord_year_from_doc_attrs,
     llm_response_as_json,
     merge_overlapping_texts,
-    num_ordinances_in_doc,
     num_ordinances_dataframe,
     ordinances_bool_index,
 )

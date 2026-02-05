@@ -116,16 +116,7 @@ def _compile_db(jurisdictions, dirs):
 
         doc_info = doc_info[0]
         all_doc_infos.append(
-            {
-                "ord_db_fp": ord_db_fp,
-                "source": doc_info.get("source"),
-                "date": (
-                    doc_info.get("effective_year"),
-                    doc_info.get("effective_month"),
-                    doc_info.get("effective_day"),
-                ),
-                "jurisdiction": jurisdiction,
-            }
+            {"ord_db_fp": ord_db_fp, "jurisdiction": jurisdiction}
         )
 
     db, __ = doc_infos_to_db(all_doc_infos)

@@ -10,7 +10,6 @@ from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
 from compass.utilities.parsing import (
-    extract_ord_year_from_doc_attrs,
     num_ordinances_dataframe,
     ordinances_bool_index,
 )
@@ -175,7 +174,7 @@ def doc_infos_to_db(doc_infos):
         if num_ordinances_dataframe(ord_db) == 0:
             continue
 
-        results = _db_results(ord_db, doc_info)
+        results = _db_results(ord_db, doc_info["jurisdiction"])
         results = _formatted_db(results)
         db.append(results)
 
@@ -219,13 +218,9 @@ def save_db(db, out_dir):
     quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
 
 
-def _db_results(results, doc_info):
+def _db_results(results, jurisdiction):
     """Extract results from doc attrs to DataFrame"""
 
-    results["source"] = doc_info.get("source")
-    results["ord_year"] = extract_ord_year_from_doc_attrs(doc_info)
-
-    jurisdiction = doc_info["jurisdiction"]
     results["FIPS"] = jurisdiction.code
     results["county"] = jurisdiction.county
     results["state"] = jurisdiction.state
