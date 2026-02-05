@@ -1,19 +1,13 @@
 """Common ordinance extraction components"""
 
-import asyncio
 import logging
 from datetime import datetime
 
 import networkx as nx
-from elm import ApiBase
 
 from compass.common.tree import AsyncDecisionTree
 from compass.utilities import llm_response_as_json
-from compass.utilities.enums import LLMUsageCategory
-from compass.utilities.parsing import (
-    merge_overlapping_texts,
-    clean_backticks_from_llm_response,
-)
+
 from compass.exceptions import COMPASSRuntimeError
 
 
@@ -970,64 +964,3 @@ def setup_graph_permitted_use_districts(**kwargs):
         ),
     )
     return G
-
-
-class BaseTextExtractor:
-    """Base implementation for a text extractor"""
-
-    SYSTEM_MESSAGE = (
-        "You are a text extraction assistant. Your job is to extract only "
-        "verbatim, **unmodified** excerpts from provided legal or policy "
-        "documents. Do not interpret or paraphrase. Do not summarize. Only "
-        "return exactly copied segments that match the specified scope. If "
-        "the relevant content appears within a table, return the entire "
-        "table, including headers and footers, exactly as formatted."
-    )
-    """System message for text extraction LLM calls"""
-    _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
-
-    def __init__(self, llm_caller):
-        """
-
-        Parameters
-        ----------
-        llm_caller : LLMCaller
-            LLM Caller instance used to extract ordinance info with.
-        """
-        self.llm_caller = llm_caller
-
-    async def _process(self, text_chunks, instructions, is_valid_chunk):
-        """Perform extraction processing"""
-        logger.info(
-            "Extracting summary text from %d text chunks asynchronously...",
-            len(text_chunks),
-        )
-        logger.debug("Model instructions are:\n%s", instructions)
-        outer_task_name = asyncio.current_task().get_name()
-        summaries = [
-            asyncio.create_task(
-                self.llm_caller.call(
-                    sys_msg=self.SYSTEM_MESSAGE,
-                    content=f"{instructions}\n\n# TEXT #\n\n{chunk}",
-                    usage_sub_label=self._USAGE_LABEL,
-                ),
-                name=outer_task_name,
-            )
-            for chunk in text_chunks
-        ]
-        summary_chunks = await asyncio.gather(*summaries)
-        summary_chunks = [
-            clean_backticks_from_llm_response(chunk)
-            for chunk in summary_chunks
-            if is_valid_chunk(chunk)
-        ]
-
-        text_summary = merge_overlapping_texts(summary_chunks)
-        logger.debug(
-            "Final summary contains %d tokens",
-            ApiBase.count_tokens(
-                text_summary,
-                model=self.llm_caller.kwargs.get("model", "gpt-4"),
-            ),
-        )
-        return text_summary

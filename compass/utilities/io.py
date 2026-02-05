@@ -23,7 +23,7 @@ async def load_local_docs(fps, **kwargs):
 
     Returns
     -------
-    list of elm.web.document.BaseDocument
+    list of BaseDocument
         Non-empty loaded documents corresponding to the supplied
         filepaths. Empty results (e.g., unreadable files) are filtered
         out of the returned list.

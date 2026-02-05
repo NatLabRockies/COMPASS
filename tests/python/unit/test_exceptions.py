@@ -10,9 +10,11 @@ import pytest
 
 from compass.exceptions import (
     COMPASSError,
+    COMPASSTypeError,
     COMPASSValueError,
     COMPASSNotInitializedError,
     COMPASSRuntimeError,
+    COMPASSPluginConfigurationError,
 )
 
 
@@ -56,12 +58,25 @@ def test_exceptions_log_uncaught_error(assert_message_was_logged):
             [COMPASSError, COMPASSNotInitializedError],
         ),
         (
+            COMPASSTypeError,
+            [COMPASSError, TypeError, COMPASSTypeError],
+        ),
+        (
             COMPASSValueError,
             [COMPASSError, ValueError, COMPASSValueError],
         ),
         (
             COMPASSRuntimeError,
             [COMPASSError, RuntimeError, COMPASSRuntimeError],
+        ),
+        (
+            COMPASSPluginConfigurationError,
+            [
+                COMPASSError,
+                RuntimeError,
+                COMPASSRuntimeError,
+                COMPASSPluginConfigurationError,
+            ],
         ),
     ],
 )

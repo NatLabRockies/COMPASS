@@ -8,7 +8,7 @@ from rich.theme import Theme
 from rich.console import Console
 
 from compass.utilities import Directories
-from compass.utilities.location import Jurisdiction
+from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.parsing import load_config
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
 from compass.scripts.process import _initialize_model_params
@@ -116,16 +116,7 @@ def _compile_db(jurisdictions, dirs):
 
         doc_info = doc_info[0]
         all_doc_infos.append(
-            {
-                "ord_db_fp": ord_db_fp,
-                "source": doc_info.get("source"),
-                "date": (
-                    doc_info.get("effective_year"),
-                    doc_info.get("effective_month"),
-                    doc_info.get("effective_day"),
-                ),
-                "jurisdiction": jurisdiction,
-            }
+            {"ord_db_fp": ord_db_fp, "jurisdiction": jurisdiction}
         )
 
     db, __ = doc_infos_to_db(all_doc_infos)
