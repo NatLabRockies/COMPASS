@@ -563,17 +563,12 @@ class ExtractionPlugin(BaseExtractionPlugin):
                 await extraction_context.mark_doc_as_data_source(
                     doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
                 )
-                extraction_context.data_to_be_attrs["structured_data"] = (
-                    data_df
-                )
-                # await self._write_ord_db(extraction_context)
+                extraction_context.attrs["structured_data"] = data_df
                 logger.info(
                     "%d ordinance value(s) found in doc from %s for %s. ",
-                    # "Outputs are here: '%s'",
                     row_count,
                     doc_for_extraction.attrs.get("source", "unknown source"),
                     self.jurisdiction.full_name,
-                    # extraction_context.data_to_be_attrs["ord_db_fp"],
                 )
                 return extraction_context
 

@@ -156,7 +156,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
             )
             return None
 
-        extraction_context.data_to_be_attrs["corpus"] = pd.concat(corpus)
+        extraction_context.attrs["corpus"] = pd.concat(corpus)
         return extraction_context
 
     async def parse_docs_for_structured_data(self, extraction_context):
@@ -179,7 +179,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
 
         logger.debug("Building energy wizard")
         wizard = EnergyWizard(
-            extraction_context.data_to_be_attrs["corpus"],
+            extraction_context.attrs["corpus"],
             model=model_config.name,
         )
 
@@ -195,8 +195,8 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         data_df = await parser.parse()
         data_df = _set_data_year(data_df, extraction_context)
         data_df = _set_data_sources(data_df, extraction_context)
-        extraction_context.data_to_be_attrs["structured_data"] = data_df
-        extraction_context.data_to_be_attrs["out_data_fn"] = (
+        extraction_context.attrs["structured_data"] = data_df
+        extraction_context.attrs["out_data_fn"] = (
             f"{self.jurisdiction.full_name} Water Rights.csv"
         )
         return extraction_context

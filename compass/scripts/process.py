@@ -720,7 +720,7 @@ class _COMPASSRunner:
 
         doc_info = {
             "jurisdiction": jurisdiction,
-            "ord_db_fp": extraction_context.data_to_be_attrs.get("ord_db_fp"),
+            "ord_db_fp": extraction_context.attrs.get("ord_db_fp"),
         }
         logger.debug("Saving the following doc info:\n%s", doc_info)
         return doc_info
@@ -949,8 +949,8 @@ class _SingleJurisdictionRunner:
         if not extraction_context:
             return None
 
-        extraction_context.data_to_be_attrs["jurisdiction_website"] = None
-        extraction_context.data_to_be_attrs["compass_crawl"] = False
+        extraction_context.attrs["jurisdiction_website"] = None
+        extraction_context.attrs["compass_crawl"] = False
 
         await self.extractor.record_usage()
         return extraction_context
@@ -977,8 +977,8 @@ class _SingleJurisdictionRunner:
         if not extraction_context:
             return None
 
-        extraction_context.data_to_be_attrs["jurisdiction_website"] = None
-        extraction_context.data_to_be_attrs["compass_crawl"] = False
+        extraction_context.attrs["jurisdiction_website"] = None
+        extraction_context.attrs["compass_crawl"] = False
 
         await self.extractor.record_usage()
         return extraction_context
@@ -1001,8 +1001,8 @@ class _SingleJurisdictionRunner:
         if not extraction_context:
             return None
 
-        extraction_context.data_to_be_attrs["jurisdiction_website"] = None
-        extraction_context.data_to_be_attrs["compass_crawl"] = False
+        extraction_context.attrs["jurisdiction_website"] = None
+        extraction_context.attrs["compass_crawl"] = False
 
         await self.extractor.record_usage()
         return extraction_context
@@ -1028,12 +1028,10 @@ class _SingleJurisdictionRunner:
         if not extraction_context:
             return None
 
-        extraction_context.data_to_be_attrs["jurisdiction_website"] = (
+        extraction_context.attrs["jurisdiction_website"] = (
             self.jurisdiction_website
         )
-        extraction_context.data_to_be_attrs["compass_crawl"] = (
-            found_with_compass_crawl
-        )
+        extraction_context.attrs["compass_crawl"] = found_with_compass_crawl
 
         await self.extractor.record_usage()
         return extraction_context
@@ -1140,10 +1138,10 @@ class _SingleJurisdictionRunner:
 
     async def _write_out_structured_data(self, extraction_context):
         """Write cleaned text to `jurisdiction_dbs` dir"""
-        if extraction_context.data_to_be_attrs.get("structured_data") is None:
+        if extraction_context.attrs.get("structured_data") is None:
             return
 
-        out_fn = extraction_context.data_to_be_attrs.get("out_data_fn")
+        out_fn = extraction_context.attrs.get("out_data_fn")
         if out_fn is None:
             out_fn = f"{self.jurisdiction.full_name} Ordinances.csv"
 
@@ -1153,7 +1151,7 @@ class _SingleJurisdictionRunner:
             self.jurisdiction.full_name,
             out_fp,
         )
-        extraction_context.data_to_be_attrs["ord_db_fp"] = out_fp
+        extraction_context.attrs["ord_db_fp"] = out_fp
 
 
 def _setup_main_logging(log_dir, level, listener, keep_async_logs):

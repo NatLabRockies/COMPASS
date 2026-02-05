@@ -124,7 +124,7 @@ def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
 
 def _write_ord_db(extraction_context, out_dir, out_fn=None):
     """Write parsed ordinance database to directory"""
-    ord_db = extraction_context.data_to_be_attrs.get("structured_data")
+    ord_db = extraction_context.attrs.get("structured_data")
 
     if ord_db is None or out_fn is None:
         return None
@@ -559,10 +559,10 @@ def _dump_jurisdiction_info(
         new_info["documents"] = [
             _compile_doc_info(doc) for doc in extraction_context.data_docs
         ]
-        new_info["jurisdiction_website"] = (
-            extraction_context.data_to_be_attrs.get("jurisdiction_website")
+        new_info["jurisdiction_website"] = extraction_context.attrs.get(
+            "jurisdiction_website"
         )
-        new_info["compass_crawl"] = extraction_context.data_to_be_attrs.get(
+        new_info["compass_crawl"] = extraction_context.attrs.get(
             "compass_crawl", False
         )
 

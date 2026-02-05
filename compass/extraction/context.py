@@ -33,7 +33,7 @@ class ExtractionContext:
             Context-level attributes for extraction metadata
             (jurisdiction, tech type, etc.). By default, ``None``
         """
-        self.data_to_be_attrs = attrs or {}
+        self.attrs = attrs or {}
         self._documents = _as_list(documents)
         self._data_docs = []
 
@@ -91,7 +91,7 @@ class ExtractionContext:
             header = f"{header}:\n\t- {docs}"
 
         data_docs = _data_docs_repr(self.data_docs)
-        attrs = _attrs_repr(self.data_to_be_attrs)
+        attrs = _attrs_repr(self.attrs)
         return f"{header}\n{data_docs}\n{attrs}"
 
     def __len__(self):
