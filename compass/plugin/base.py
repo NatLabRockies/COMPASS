@@ -15,6 +15,21 @@ class BaseExtractionPlugin(ABC):
     """
 
     def __init__(self, jurisdiction, model_configs, usage_tracker=None):
+        """
+
+        Parameters
+        ----------
+        jurisdiction : Jurisdiction
+            Jurisdiction for which extraction is being performed.
+        model_configs : dict
+            Dictionary where keys are
+            :class:`~compass.utilities.enums.LLMTasks` and values are
+            :class:`~compass.llm.config.LLMConfig` instances to be used
+            for those tasks.
+        usage_tracker : UsageTracker, optional
+            Usage tracker instance that can be used to record the LLM
+            call cost. By default, ``None``.
+        """
         self.jurisdiction = jurisdiction
         self.model_configs = model_configs
         self.usage_tracker = usage_tracker
@@ -65,7 +80,7 @@ class BaseExtractionPlugin(ABC):
 
         Parameters
         ----------
-        extraction_context : compass.plugin.context.ExtractionContext
+        extraction_context : ExtractionContext
             Context containing candidate documents to be filtered.
             Set the ``.documents`` attribute of this object to be the
             iterable of documents that should be kept for parsing.
@@ -75,7 +90,7 @@ class BaseExtractionPlugin(ABC):
 
         Returns
         -------
-        compass.plugin.context.ExtractionContext
+        ExtractionContext
             Context with filtered down documents.
         """
         raise NotImplementedError
@@ -86,12 +101,12 @@ class BaseExtractionPlugin(ABC):
 
         Parameters
         ----------
-        extraction_context : compass.plugin.context.ExtractionContext
+        extraction_context : ExtractionContext
             Context containing candidate documents to parse.
 
         Returns
         -------
-        compass.plugin.context.ExtractionContext or None
+        ExtractionContext or None
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
