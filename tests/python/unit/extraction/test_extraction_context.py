@@ -289,7 +289,7 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
     doc = PDFDocument(["test content"])
     doc.attrs["source"] = "test.pdf"
 
-    await ctx.mark_doc_as_data_source(doc, out_fn="output.pdf")
+    await ctx.mark_doc_as_data_source(doc, out_fn_stem="output.pdf")
 
     assert doc in ctx.data_docs
     assert len(ctx.data_docs) == 1
