@@ -35,7 +35,7 @@ async def check_for_relevant_text(
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document instance (PDF, HTML, etc) potentially containing
         ordinance information. Note that if the document's ``attrs``
         has the relevant text output, the corresponding text collector
@@ -139,7 +139,7 @@ async def extract_date(doc, model_config, usage_tracker=None):
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document potentially containing date information.
     model_config : compass.llm.config.LLMConfig
         Configuration describing which LLM service, splitter, and call
@@ -150,7 +150,7 @@ async def extract_date(doc, model_config, usage_tracker=None):
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for dates. The results of
         the parsing are stored in the documents attrs. In particular,
         the attrs will contain a ``"date"`` key that will contain the
@@ -189,7 +189,7 @@ async def extract_relevant_text_with_llm(
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document known to contain ordinance information. This means it
         must contain the `original_text_key` key in the attrs. You can
         run :func:`check_for_relevant_text` to have this attribute
@@ -209,7 +209,7 @@ async def extract_relevant_text_with_llm(
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for ordinance text. The results of
         the extraction are stored in the document's attrs.
     str
@@ -253,7 +253,7 @@ async def extract_relevant_text_with_ngram_validation(
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document known to contain ordinance information. This means it
         must contain an ``"relevant_text"`` key in the attrs. You can
         run :func:`~compass.extraction.apply.check_for_relevant_text`
@@ -293,7 +293,7 @@ async def extract_relevant_text_with_ngram_validation(
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for ordinance text. The results of
         the extraction are stored in the document's attrs.
     """
@@ -415,7 +415,7 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document known to contain ordinance text. This means it must
         contain an `text_key` key in the attrs. You can run
         :func:`~compass.extraction.apply.extract_relevant_text_with_llm`
@@ -435,7 +435,7 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for ordinance values. The results
         of the extraction are stored in the document's attrs.
 
