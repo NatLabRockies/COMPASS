@@ -13,10 +13,10 @@ from elm.web.document import PDFDocument
 from elm.utilities import validate_azure_api_params
 
 from compass.llm import LLMCaller, OpenAIConfig
-from compass.extraction.solar import (
-    SolarOrdinanceTextExtractor,
+from compass.extraction.solar.plugin import (
     SolarHeuristic,
     SolarOrdinanceTextCollector,
+    SolarOrdinanceTextExtractor,
     StructuredSolarOrdinanceParser,
 )
 from compass.services.provider import RunningAsyncServices
@@ -98,7 +98,7 @@ async def _extract_ordinances(doc, model_configs):
                 llm_service=model_config.llm_service
             ),
             text_key=ord_text_key,
-            out_key="ordinance_values",
+            out_key=StructuredSolarOrdinanceParser.OUT_LABEL,
         )
 
 
@@ -162,10 +162,10 @@ if __name__ == "__main__":
 
     # save outputs
     (
-        doc.attrs["ordinance_values"]
+        doc.attrs[StructuredSolarOrdinanceParser.OUT_LABEL]
         .drop(columns=["quantitative"], errors="ignore")
         .to_csv(fp_ord, index=False)
     )
     Path(fp_txt_ord_text).write_text(
-        doc.attrs["cleaned_text_for_extraction"], encoding="utf-8"
+        doc.attrs[SolarOrdinanceTextExtractor.OUT_LABEL], encoding="utf-8"
     )
