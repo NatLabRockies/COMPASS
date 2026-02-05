@@ -16,7 +16,7 @@ from compass.extraction import (
     extract_relevant_text_with_ngram_validation,
 )
 from compass.scripts.download import filter_ordinance_docs
-from compass.services.threaded import CleanedFileWriter, OrdDBFileWriter
+from compass.services.threaded import CleanedFileWriter
 from compass.utilities.enums import LLMTasks
 from compass.utilities import (
     num_ordinances_dataframe,
@@ -561,19 +561,19 @@ class ExtractionPlugin(BaseExtractionPlugin):
             row_count = self.get_structured_data_row_count(data_df)
             if row_count > 0:
                 await extraction_context.mark_doc_as_data_source(
-                    doc_for_extraction, out_fn=self.jurisdiction.full_name
+                    doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
                 )
                 extraction_context.data_to_be_attrs["structured_data"] = (
                     data_df
                 )
-                await self._write_ord_db(extraction_context)
+                # await self._write_ord_db(extraction_context)
                 logger.info(
-                    "%d ordinance value(s) found in doc from %s for %s. "
-                    "Outputs are here: '%s'",
+                    "%d ordinance value(s) found in doc from %s for %s. ",
+                    # "Outputs are here: '%s'",
                     row_count,
                     doc_for_extraction.attrs.get("source", "unknown source"),
                     self.jurisdiction.full_name,
-                    extraction_context.data_to_be_attrs["ord_db_fp"],
+                    # extraction_context.data_to_be_attrs["ord_db_fp"],
                 )
                 return extraction_context
 
@@ -699,13 +699,6 @@ class ExtractionPlugin(BaseExtractionPlugin):
         out_fp = await CleanedFileWriter.call(doc, self.jurisdiction.full_name)
         doc.attrs["cleaned_fps"] = out_fp
         return doc
-
-    async def _write_ord_db(self, extraction_context):
-        """Write cleaned text to `jurisdiction_dbs` dir"""
-        out_fn = f"{self.jurisdiction.full_name} Ordinances.csv"
-        out_fp = await OrdDBFileWriter.call(extraction_context, out_fn)
-        extraction_context.data_to_be_attrs["ord_db_fp"] = out_fp
-        return extraction_context
 
 
 def _validate_in_out_keys(consumers, producers):
