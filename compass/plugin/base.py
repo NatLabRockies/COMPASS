@@ -112,6 +112,32 @@ class BaseExtractionPlugin(ABC):
         """
         raise NotImplementedError
 
+    @classmethod
+    @abstractmethod
+    def save_structured_data(cls, doc_infos, out_dir):
+        """Write combined extracted structured data to disk
+
+        Parameters
+        ----------
+        doc_infos : list of dict
+            List of dictionaries containing the following keys:
+
+                - "jurisdiction": An initialized Jurisdiction object
+                  representing thw jurisdiction that was extracted.
+                - "ord_db_fp": A path to the extracted structured data
+                  stored on disk, or ``None`` if no data was extracted.
+
+        out_dir : path-like
+            Path to the output directory for the data.
+
+        Returns
+        -------
+        int
+            Number of jurisdictions for which data was successfully
+            extracted.
+        """
+        raise NotImplementedError
+
     async def record_usage(self):
         """Persist usage tracking data when a tracker is available"""
         if self.usage_tracker is None:
