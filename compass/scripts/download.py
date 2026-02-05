@@ -612,10 +612,10 @@ async def filter_ordinance_docs(
     text_collectors : iterable
         Iterable of text collector classes to run during document
         parsing. Each class must implement the
-        :class:`BaseTextCollector` interface. If the document already
-        contains text collected by a given collector (i.e. the
-        collector's ``OUT_LABEL`` is found in ``doc.attrs``), that
-        collector will be skipped.
+        :class:`compass.plugin.interface.BaseTextCollector` interface.
+        If the document already contains text collected by a given
+        collector (i.e. the collector's ``OUT_LABEL`` is found in
+        ``doc.attrs``), that collector will be skipped.
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.

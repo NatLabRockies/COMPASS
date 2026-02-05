@@ -122,7 +122,7 @@ class BaseTextCollector(ABC):
 
         See Also
         --------
-        ParseChunksWithMemory.parse_from_ind
+        :func:`~compass.validation.content.ParseChunksWithMemory.parse_from_ind`
             Method used to parse text from a chunk with memory of prior
             chunk validations.
         """
@@ -248,30 +248,30 @@ class ExtractionPlugin(BaseExtractionPlugin):
     @property
     @abstractmethod
     def TEXT_COLLECTORS(self):  # noqa: N802
-        """iterable of BaseTextCollector: Classes to collect text
+        """list of BaseTextCollector: Classes to collect text
 
-        Should one or more classes to collect text for the extraction
-        task.
-        """
-        raise NotImplementedError
-
-    @property
-    @abstractmethod
-    def TEXT_EXTRACTORS(self):  # noqa: N802
-        """iterable of BaseTextExtractor: Classes to condense text
-
-        Should be one or more classes to condense text in preparation
+        Should be an iterable of one or more classes to collect text
         for the extraction task.
         """
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def PARSERS(self):  # noqa: N802
-        """iterable of BaseParsers: Classes to extract structured data
+    def TEXT_EXTRACTORS(self):  # noqa: N802
+        """list of BaseTextExtractor: Classes to condense text
 
-        Should be one or more classes to extract structured data from
-        text.
+        Should be an iterable of one or more classes to condense text in
+        preparation for the extraction task.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def PARSERS(self):  # noqa: N802
+        """list of BaseParser: Classes to extract structured data
+
+        Should be an iterable of one or more classes to extract
+        structured data from text.
         """
         raise NotImplementedError
 
@@ -287,7 +287,27 @@ class ExtractionPlugin(BaseExtractionPlugin):
 
     @classmethod
     def save_structured_data(cls, doc_infos, out_dir):
-        """Write extracted data to disk"""
+        """Write extracted water rights data to disk
+
+        Parameters
+        ----------
+        doc_infos : list of dict
+            List of dictionaries containing the following keys:
+
+                - "jurisdiction": An initialized Jurisdiction object
+                  representing the jurisdiction that was extracted.
+                - "ord_db_fp": A path to the extracted structured data
+                  stored on disk, or ``None`` if no data was extracted.
+
+        out_dir : path-like
+            Path to the output directory for the data.
+
+        Returns
+        -------
+        int
+            Number of unique jurisdictions that information was
+            found/written for.
+        """
         db, num_docs_found = doc_infos_to_db(doc_infos)
         save_db(db, out_dir)
         return num_docs_found
@@ -317,7 +337,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
 
     @cached_property
     def producers(self):
-        """iterable: All classes that produce attributes on the doc"""
+        """list: All classes that produce attributes on the doc"""
         return chain(self.PARSERS, self.TEXT_EXTRACTORS, self.TEXT_COLLECTORS)
 
     @cached_property
@@ -398,7 +418,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
             Document containing text chunks to condense.
         extractor_class : BaseTextExtractor
             Class to use for text extraction.
-        model_config : ModelConfig
+        model_config : LLMConfig
             Configuration for the LLM model to use for text extraction.
         """
         llm_caller = LLMCaller(
@@ -430,7 +450,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
             Document containing text to extract structured data from.
         parser_class : BaseParser
             Class to use for structured data extraction.
-        model_config : ModelConfig
+        model_config : LLMConfig
             Configuration for the LLM model to use for structured data
             extraction.
         """

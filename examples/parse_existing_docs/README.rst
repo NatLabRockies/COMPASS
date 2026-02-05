@@ -23,8 +23,8 @@ The ordinance extraction pipeline is composed of several components, which are v
 .. mermaid::
 
     flowchart LR
-        A -->|Ordinance Content Checker<br>&#40<span style='color: #c792ea'><code>check_for_ordinance_info</code></span>&#41| B
-        B -->|Ordinance Text Extractor<br>&#40<span style='color: #c792ea'><code>extract_ordinance_text_with_llm</code></span>&#41| C
+        A -->|Ordinance Content Checker<br>&#40<span style='color: #c792ea'><code>check_for_relevant_text</code></span>&#41| B
+        B -->|Ordinance Text Extractor<br>&#40<span style='color: #c792ea'><code>extract_relevant_text_with_llm</code></span>&#41| C
         C -->|Ordinance Extractor<br>&#40<span style='color: #c792ea'><code>extract_ordinance_values</code></span>&#41| D
         A@{ shape: lined-document, label: "Ordinance Document<br>&#40<span style='color: #a9c77d'><code>PDFDocument</code></span>&#41" }
         B@{ shape: docs, label: "Ordinance Text Chunks<br>&#40<span style='color: #a9c77d'><code>str</code></span>&#41"}
@@ -121,16 +121,16 @@ The first functional step in extraction is to determine whether the document con
 Even if you're fairly sure that it does, this step is essential because it saves the text chunks from the document that
 contain ordinance information, enabling the next step — ordinance text extraction.
 
-To do this, we'll use the :func:`~compass.extraction.apply.check_for_ordinance_info` function. This function uses a
+To do this, we'll use the :func:`~compass.extraction.apply.check_for_relevant_text` function. This function uses a
 combination of keyword heuristics and LLM evaluation to identify ordinance content and collect it into a new field
 in the document. Here's how that might look:
 
 .. code-block:: python
 
-    from compass.extraction.apply import check_for_ordinance_info
+    from compass.extraction.apply import check_for_relevant_text
     from compass.extraction.solar import SolarHeuristic, SolarOrdinanceTextCollector
 
-    doc = await check_for_ordinance_info(
+    doc = await check_for_relevant_text(
         doc,
         model_config=llm_config,
         heuristic=SolarHeuristic(),
@@ -161,15 +161,15 @@ Once we've located the general sections where the ordinances are mentioned, we'l
 The identified chunks are often too broad to use directly in downstream processing, so we'll pass them through another
 LLM-powered step that filters the content to only the most relevant ordinance language.
 
-We'll do that using the :func:`~compass.extraction.apply.extract_ordinance_text_with_llm` function:
+We'll do that using the :func:`~compass.extraction.apply.extract_relevant_text_with_llm` function:
 
 .. code-block:: python
 
     from compass.llm import LLMCaller
-    from compass.extraction.apply import extract_ordinance_text_with_llm
+    from compass.extraction.apply import extract_relevant_text_with_llm
     from compass.extraction.solar import SolarOrdinanceTextExtractor
 
-    doc, ord_text_key = await extract_ordinance_text_with_llm(
+    doc, ord_text_key = await extract_relevant_text_with_llm(
         doc,
         llm_config.text_splitter,
         extractor=SolarOrdinanceTextExtractor(
@@ -182,7 +182,7 @@ This step reads the raw text chunks stored in ``doc.attrs["ordinance_text"]`` an
 the ordinance language itself. The first argument to this function is the ordinance document, which must contain an
 ``"ordinance_text"`` key in its ``doc.attrs`` dictionary. This key holds the concatenated text chunks identified as
 likely containing ordinance information. It's automatically added for us by the
-:func:`~compass.extraction.apply.check_for_ordinance_info` function — assuming ordinance text is present.
+:func:`~compass.extraction.apply.check_for_relevant_text` function — assuming ordinance text is present.
 
 Next, we pass in the text splitter instance, which will be used to divide the concatenated text into smaller chunks.
 We also provide a :class:`~compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor` instance, which performs the

@@ -221,8 +221,8 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         Returns
         -------
         int
-        Number of unique water rights districts that information was
-        found/written for.
+            Number of unique water rights districts that information was
+            found/written for.
         """
         db = []
         for doc_info in doc_infos:
