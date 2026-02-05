@@ -12,6 +12,7 @@ import pandas as pd
 import pytest
 from elm.web.document import HTMLDocument
 
+from compass.extraction.context import ExtractionContext
 from compass.services import threaded
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
@@ -161,12 +162,10 @@ def test_move_file_uses_jurisdiction_name(tmp_path):
     cached_fp.write_text("content", encoding="utf-8")
 
     doc = HTMLDocument(["payload"])
-    doc.attrs.update(
-        {"cache_fn": cached_fp, "jurisdiction_name": "Test County, ST"}
-    )
+    doc.attrs.update({"cache_fn": cached_fp})
 
     date = datetime.now().strftime("%Y_%m_%d")
-    moved_fp = threaded._move_file(doc, out_dir)
+    moved_fp = threaded._move_file(doc, out_dir, out_fn="Test County, ST")
 
     expected_name = f"Test_County_ST_downloaded_{date}.pdf"
     assert moved_fp.name == expected_name
@@ -211,10 +210,12 @@ def test_write_cleaned_file_with_debug(tmp_path, monkeypatch):
     )
 
     monkeypatch.setattr(threaded, "COMPASS_DEBUG_LEVEL", 1, raising=False)
-    outputs = threaded._write_cleaned_file(doc, tmp_path)
+    outputs = threaded._write_cleaned_file(
+        doc, tmp_path, jurisdiction_name="Sample Jurisdiction"
+    )
 
     expected_files = {
-        "Sample Jurisdiction Ordinance Summary.txt",
+        "Sample Jurisdiction Cleaned Text.txt",
         "Sample Jurisdiction Districts.txt",
     }
     assert {fp.name for fp in outputs} == expected_files
@@ -237,15 +238,12 @@ def test_write_cleaned_file_skips_missing_section(tmp_path):
     """Missing sections should be skipped instead of erroring"""
 
     doc = HTMLDocument(["payload"])
-    doc.attrs.update(
-        {
-            "jurisdiction_name": "Partial",
-            "cleaned_text_for_extraction": "clean",
-        }
-    )
+    doc.attrs.update({"cleaned_text_for_extraction": "clean"})
 
-    outputs = threaded._write_cleaned_file(doc, tmp_path)
-    assert [fp.name for fp in outputs] == ["Partial Ordinance Summary.txt"]
+    outputs = threaded._write_cleaned_file(
+        doc, tmp_path, jurisdiction_name="Partial"
+    )
+    assert [fp.name for fp in outputs] == ["Partial Cleaned Text.txt"]
 
 
 def test_write_ord_db_creates_csv(tmp_path):
@@ -259,15 +257,9 @@ def test_write_ord_db_creates_csv(tmp_path):
             "other": [1],
         }
     )
-    doc = HTMLDocument(["payload"])
-    doc.attrs.update(
-        {
-            "structured_data": df,
-        }
-    )
-
+    context = ExtractionContext(attrs={"structured_data": df})
     out_fp = threaded._write_ord_db(
-        doc, tmp_path, out_fn="Sample Ordinances.csv"
+        context, tmp_path, out_fn="Sample Ordinances.csv"
     )
     assert out_fp.exists()
     assert (
@@ -279,8 +271,8 @@ def test_write_ord_db_creates_csv(tmp_path):
 def test_write_ord_db_requires_data(tmp_path):
     """Ord database writer returns None when data missing"""
 
-    doc = HTMLDocument(["payload"])
-    assert threaded._write_ord_db(doc, tmp_path, "") is None
+    context = ExtractionContext()
+    assert threaded._write_ord_db(context, tmp_path, "") is None
 
 
 @pytest.mark.asyncio
@@ -349,12 +341,12 @@ async def test_cleaned_file_writer_process(tmp_path, monkeypatch):
     writer = CleanedFileWriter(tmp_path)
     assert writer.can_process is True
     writer.acquire_resources()
-    outputs = await writer.process(doc, jurisdiction_name="Writer")
+    outputs = await writer.process(doc, "Writer")
     writer.release_resources()
 
     assert sorted(fp.name for fp in outputs) == [
+        "Writer Cleaned Text.txt",
         "Writer Districts.txt",
-        "Writer Ordinance Summary.txt",
     ]
 
 
@@ -369,17 +361,12 @@ async def test_ord_db_file_writer_process(tmp_path):
             "summary": ["s"],
         }
     )
-    doc = HTMLDocument(["payload"])
-    doc.attrs.update(
-        {
-            "jurisdiction_name": "Ord",
-            "structured_data": df,
-        }
-    )
+    context = ExtractionContext(attrs={"structured_data": df})
 
     writer = OrdDBFileWriter(tmp_path)
     writer.acquire_resources()
-    out_fp = await writer.process(doc)
+
+    out_fp = await writer.process(context, "Ord")
     writer.release_resources()
 
     assert out_fp.exists()
@@ -466,8 +453,6 @@ async def test_jurisdiction_updater_process(tmp_path):
             "from_ocr": True,
             "relevant_text_ngram_score": 0.9,
             "permitted_use_text_ngram_score": 0.8,
-            "jurisdiction_website": "http://jurisdiction.gov",
-            "compass_crawl": True,
             "ordinance_values": pd.DataFrame(
                 {
                     "feature": ["setback"],
@@ -477,6 +462,14 @@ async def test_jurisdiction_updater_process(tmp_path):
             ),
         }
     )
+    context = ExtractionContext(
+        doc,
+        attrs={
+            "jurisdiction_website": "http://jurisdiction.gov",
+            "compass_crawl": True,
+        },
+    )
+    context.data_docs = [doc]
 
     tracker = SimpleNamespace(
         totals={
@@ -495,7 +488,7 @@ async def test_jurisdiction_updater_process(tmp_path):
         code="00002",
     )
 
-    await updater.process(jur2, doc, 12.5, tracker)
+    await updater.process(jur2, context, 12.5, tracker)
 
     with jurisdiction_fp.open(encoding="utf-8") as fh:
         data = json.load(fh)
@@ -511,25 +504,6 @@ async def test_jurisdiction_updater_process(tmp_path):
     assert second["documents"][0]["num_pages"] == len(doc.pages)
 
     updater.release_resources()
-
-
-def test_compute_jurisdiction_cost_uses_registry():
-    """Ensure model costs are computed using registry values"""
-
-    tracker = SimpleNamespace(
-        totals={
-            "gpt-4o": {
-                "prompt_tokens": 1_000_000,
-                "response_tokens": 1_000_000,
-            }
-        }
-    )
-    assert threaded._compute_jurisdiction_cost(tracker) == pytest.approx(12.5)
-
-    tracker_unknown = SimpleNamespace(
-        totals={"unknown": {"prompt_tokens": 1_000_000}}
-    )
-    assert threaded._compute_jurisdiction_cost(tracker_unknown) == 0
 
 
 def test_dump_usage_without_tracker_returns_existing_data(tmp_path):
