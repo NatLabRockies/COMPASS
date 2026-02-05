@@ -173,6 +173,8 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
                 "value": 100,
                 "units": "ft",
                 "adder": 300,
+                "source": "http://example.com/valid",
+                "ord_year": 2022,
             }
         ]
     ).to_csv(valid_csv, index=False)
@@ -196,8 +198,6 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
         },
         {
             "ord_db_fp": valid_csv,
-            "source": "http://example.com/valid",
-            "date": (2022, 3, 4),
             "jurisdiction": jurisdiction,
         },
     ]
