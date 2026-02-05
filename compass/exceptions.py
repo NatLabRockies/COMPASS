@@ -21,6 +21,10 @@ class COMPASSNotInitializedError(COMPASSError):
     """COMPASS not initialized error"""
 
 
+class COMPASSTypeError(COMPASSError, TypeError):
+    """COMPASS TypeError"""
+
+
 class COMPASSValueError(COMPASSError, ValueError):
     """COMPASS ValueError"""
 
