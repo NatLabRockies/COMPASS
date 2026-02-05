@@ -17,6 +17,14 @@ KNOWN_JURISDICTIONS_REGISTRY = {
     importlib.resources.files("compass") / "data" / "conus_jurisdictions.csv",
     importlib.resources.files("compass") / "data" / "tx_water_districts.csv",
 }
+_JUR_COLS = [
+    "Jurisdiction Type",
+    "State",
+    "County",
+    "Subdivision",
+    "FIPS",
+    "Website",
+]
 _JURISDICTION_TYPES_AS_PREFIXES = {
     "town",
     "township",
@@ -282,6 +290,34 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
 
     jurisdictions = _filter_not_found_jurisdictions(jurisdictions, merge_cols)
     return _format_jurisdiction_df_for_output(jurisdictions)
+
+
+def jurisdictions_from_df(jurisdictions_df):
+    """Convert rows DataFrame into Jurisdiction instances
+
+    Parameters
+    ----------
+    jurisdictions_df : pandas.DataFrame
+        DataFrame containing jurisdiction info with columns:
+        ``["Jurisdiction Type", "State", "County", "Subdivision",
+        "FIPS", "Website"]``.
+
+    Yields
+    ------
+    Jurisdiction
+        Jurisdiction instance built from each row of the input
+        DataFrame.
+    """
+    for __, row in jurisdictions_df.iterrows():
+        jur_type, state, county, sub, fips, website = row[_JUR_COLS]
+        yield Jurisdiction(
+            subdivision_type=jur_type,
+            state=state,
+            county=county,
+            subdivision_name=sub,
+            code=fips,
+            website_url=website,
+        )
 
 
 def _validate_jurisdiction_input(jurisdictions):
