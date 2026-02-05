@@ -58,7 +58,7 @@ class DateExtractor:
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document with a `raw_pages` attribute.
 
         Returns

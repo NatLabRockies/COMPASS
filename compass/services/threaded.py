@@ -207,7 +207,7 @@ class TempFileCache(ThreadedService):
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
@@ -247,7 +247,7 @@ class TempFileCachePB(TempFileCache):
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
@@ -307,7 +307,7 @@ class StoreFileOnDisk(ThreadedService):
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document containing meta information about the file. Must
             have relevant processing keys in the ``attrs`` dict,
             otherwise the file may not be stored in the output
@@ -435,7 +435,7 @@ class JurisdictionUpdater(ThreadedService):
     async def process(
         self,
         jurisdiction,
-        context,
+        extraction_context,
         seconds_elapsed,
         usage_tracker=None,
     ):
@@ -447,7 +447,7 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         jurisdiction : Jurisdiction
             The jurisdiction instance to record.
-        context : compass.extraction.context.ExtractionContext
+        extraction_context : ExtractionContextExtractionContext
             Context containing meta information about the jurisdiction
             under extraction. Must have relevant processing keys in the
             ``attrs`` dict, otherwise the jurisdiction may not be
@@ -468,7 +468,7 @@ class JurisdictionUpdater(ThreadedService):
                 _dump_jurisdiction_info,
                 self.jurisdiction_fp,
                 jurisdiction,
-                context,
+                extraction_context,
                 seconds_elapsed,
                 usage_tracker,
             )

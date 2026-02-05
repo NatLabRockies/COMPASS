@@ -226,7 +226,7 @@ class JurisdictionValidator:
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document to evaluate. The validator expects
             ``doc.raw_pages`` and, when available, a
             ``doc.attrs['source']`` URL for supplemental URL validation.

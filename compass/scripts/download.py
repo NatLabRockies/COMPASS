@@ -57,9 +57,9 @@ async def download_known_urls(
     Returns
     -------
     out_docs : list
-        List of :obj:`~elm.web.document.BaseDocument` instances
-        containing documents from the URL's, or an empty list if
-        something went wrong during the retrieval process.
+        List of BaseDocument instances containing documents from the
+        URL's, or an empty list if something went wrong during the
+        retrieval process.
 
     Notes
     -----
@@ -112,9 +112,9 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
     Returns
     -------
     out_docs : list
-        List of :obj:`~elm.web.document.BaseDocument` instances
-        containing documents from the paths, or an empty list if
-        something went wrong during the retrieval process.
+        List of BaseDocument instances containing documents from the
+        paths, or an empty list if something went wrong during the
+        retrieval process.
 
     Notes
     -----
@@ -263,8 +263,8 @@ async def download_jurisdiction_ordinances_from_website(
     website : str
         URL of the jurisdiction website to search.
     heuristic : callable
-        Callable taking an :class:`elm.web.document.BaseDocument` and
-        returning ``True`` when the document should be kept.
+        Callable taking an BaseDocument and returning ``True`` when the
+        document should be kept.
     keyword_points : dict
         Dictionary of keyword points to use for scoring links.
         Keys are keywords, values are points to assign to links
@@ -303,9 +303,9 @@ async def download_jurisdiction_ordinances_from_website(
     Returns
     -------
     out_docs : list
-        List of :obj:`~elm.web.document.BaseDocument` instances
-        containing potential ordinance information, or an empty list if
-        no ordinance document was found.
+        List of BaseDocument instances containing potential ordinance
+        information, or an empty list if no ordinance document was
+        found.
     results : list, optional
         List of crawl4ai results containing metadata about the crawled
         pages. Only returned when ``return_c4ai_results`` evaluates to
@@ -391,8 +391,8 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     website : str
         URL of the jurisdiction website to search.
     heuristic : callable
-        Callable taking an :class:`elm.web.document.BaseDocument` and
-        returning ``True`` when the document should be kept.
+        Callable taking an BaseDocument and returning ``True`` when the
+        document should be kept.
     keyword_points : dict
         Dictionary of keyword points to use for scoring links.
         Keys are keywords, values are points to assign to links
@@ -424,9 +424,9 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     Returns
     -------
     out_docs : list
-        List of :obj:`~elm.web.document.BaseDocument` instances
-        containing potential ordinance information, or an empty list if
-        no ordinance document was found.
+        List of BaseDocument instances containing potential ordinance
+        information, or an empty list if no ordinance document was
+        found.
 
     Notes
     -----
@@ -533,9 +533,8 @@ async def download_jurisdiction_ordinance_using_search_engine(
     Returns
     -------
     list or None
-        List of :obj:`~elm.web.document.BaseDocument` instances possibly
-        containing ordinance information, or ``None`` if no ordinance
-        document was found.
+        List of BaseDocument instances possibly containing ordinance
+        information, or ``None`` if no ordinance document was found.
 
     Notes
     -----
@@ -597,7 +596,7 @@ async def filter_ordinance_docs(
 
     Parameters
     ----------
-    docs : sequence of elm.web.document.BaseDocument
+    docs : sequence of BaseDocument
         Documents to screen for ordinance content.
     jurisdiction : Jurisdiction
         Location objects representing the jurisdiction.
@@ -627,9 +626,8 @@ async def filter_ordinance_docs(
     Returns
     -------
     list or None
-        List of :obj:`~elm.web.document.BaseDocument` instances possibly
-        containing ordinance information, or ``None`` if no ordinance
-        document was found.
+        List of BaseDocument instances possibly containing ordinance
+        information, or ``None`` if no ordinance document was found.
 
     Notes
     -----
