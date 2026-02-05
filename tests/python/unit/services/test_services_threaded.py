@@ -262,12 +262,13 @@ def test_write_ord_db_creates_csv(tmp_path):
     doc = HTMLDocument(["payload"])
     doc.attrs.update(
         {
-            "jurisdiction_name": "Sample",
             "structured_data": df,
         }
     )
 
-    out_fp = threaded._write_ord_db(doc, tmp_path)
+    out_fp = threaded._write_ord_db(
+        doc, tmp_path, out_fn="Sample Ordinances.csv"
+    )
     assert out_fp.exists()
     assert (
         out_fp.read_text(encoding="utf-8")
@@ -279,7 +280,7 @@ def test_write_ord_db_requires_data(tmp_path):
     """Ord database writer returns None when data missing"""
 
     doc = HTMLDocument(["payload"])
-    assert threaded._write_ord_db(doc, tmp_path) is None
+    assert threaded._write_ord_db(doc, tmp_path, "") is None
 
 
 @pytest.mark.asyncio
@@ -340,7 +341,6 @@ async def test_cleaned_file_writer_process(tmp_path, monkeypatch):
     doc = HTMLDocument(["payload"])
     doc.attrs.update(
         {
-            "jurisdiction_name": "Writer",
             "cleaned_text_for_extraction": "clean",
             "districts_text": "district",
         }
@@ -349,7 +349,7 @@ async def test_cleaned_file_writer_process(tmp_path, monkeypatch):
     writer = CleanedFileWriter(tmp_path)
     assert writer.can_process is True
     writer.acquire_resources()
-    outputs = await writer.process(doc)
+    outputs = await writer.process(doc, jurisdiction_name="Writer")
     writer.release_resources()
 
     assert sorted(fp.name for fp in outputs) == [
