@@ -122,15 +122,14 @@ def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
         (out_dir / fn).write_text(text, encoding="utf-8")
 
 
-def _write_ord_db(extraction_context, out_dir):
+def _write_ord_db(extraction_context, out_dir, out_fn=None):
     """Write parsed ordinance database to directory"""
     ord_db = extraction_context.data_to_be_attrs.get("structured_data")
-    jurisdiction_name = extraction_context.jurisdiction.full_name
 
-    if ord_db is None or jurisdiction_name is None:
+    if ord_db is None or out_fn is None:
         return None
 
-    out_fp = Path(out_dir) / f"{jurisdiction_name} Ordinances.csv"
+    out_fp = Path(out_dir) / out_fn
     ord_db.to_csv(out_fp, index=False)
     return out_fp
 
