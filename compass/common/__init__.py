@@ -2,7 +2,6 @@
 
 from .base import (
     EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT,
-    BaseTextExtractor,
     empty_output,
     llm_response_starts_with_no,
     llm_response_starts_with_yes,

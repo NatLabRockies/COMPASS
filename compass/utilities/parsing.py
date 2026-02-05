@@ -141,31 +141,6 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
     return year if year is not None and year > 0 else None
 
 
-def num_ordinances_in_doc(doc, exclude_features=None):
-    """Count the number of ordinance entries on a document
-
-    Parameters
-    ----------
-    doc : elm.web.document.BaseDocument
-        Document potentially containing ordinances for a jurisdiction.
-        If no ordinance values are found, this function returns ``0``.
-    exclude_features : iterable of str, optional
-        Optional features to exclude from ordinance count.
-        By default, ``None``.
-
-    Returns
-    -------
-    int
-        Number of ordinance rows represented in ``doc``.
-    """
-    if doc is None or doc.attrs.get("ordinance_values") is None:
-        return 0
-
-    return num_ordinances_dataframe(
-        doc.attrs["ordinance_values"], exclude_features=exclude_features
-    )
-
-
 def num_ordinances_dataframe(data, exclude_features=None):
     """Count ordinance rows contained in a DataFrame
 

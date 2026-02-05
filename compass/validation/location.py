@@ -36,7 +36,7 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
 
         Parameters
         ----------
-        jurisdiction : compass.utilities.location.Jurisdiction
+        jurisdiction : Jurisdiction
             Jurisdiction descriptor with the target location attributes.
         **kwargs
             Additional keyword arguments forwarded to
@@ -125,7 +125,7 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
 
         Parameters
         ----------
-        jurisdiction : compass.utilities.location.Jurisdiction
+        jurisdiction : Jurisdiction
             Jurisdiction descriptor identifying expected applicability.
         **kwargs
             Additional keyword arguments forwarded to
@@ -226,11 +226,11 @@ class JurisdictionValidator:
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document to evaluate. The validator expects
             ``doc.raw_pages`` and, when available, a
             ``doc.attrs['source']`` URL for supplemental URL validation.
-        jurisdiction : compass.utilities.location.Jurisdiction
+        jurisdiction : Jurisdiction
             Target jurisdiction descriptor capturing the required
             location attributes.
 
@@ -345,7 +345,7 @@ class JurisdictionWebsiteValidator:
         ----------
         url : str
             URL to inspect. Empty values return ``False`` immediately.
-        jurisdiction : compass.utilities.location.Jurisdiction
+        jurisdiction : Jurisdiction
             Target jurisdiction descriptor used to frame the validation
             prompts.
 

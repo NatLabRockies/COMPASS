@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from compass.utilities.location import Jurisdiction
+from compass.utilities.jurisdictions import Jurisdiction
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,

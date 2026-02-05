@@ -278,7 +278,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
 
     Parameters
     ----------
-    jurisdiction : compass.utilities.location.Jurisdiction
+    jurisdiction : Jurisdiction
         Target jurisdiction descriptor that guides prompt wording.
     **kwargs
         Additional keyword arguments forwarded to
@@ -509,7 +509,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
 
     Parameters
     ----------
-    jurisdiction : compass.utilities.location.Jurisdiction
+    jurisdiction : Jurisdiction
         Jurisdiction descriptor supplying state, county, and subdivision
         phrases used in prompts.
     **kwargs

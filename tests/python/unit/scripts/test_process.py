@@ -274,7 +274,7 @@ async def test_process_steps_logged(
     assert result == f"processed {jurisdiction_fp}"
 
     assert_message_was_logged(
-        "Using the following processing step(s):", log_level="INFO"
+        "Using the following document acquisition step(s):", log_level="INFO"
     )
     assert_message_was_logged(" -> ".join(expected_steps), log_level="INFO")
 

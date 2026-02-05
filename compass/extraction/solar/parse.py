@@ -8,7 +8,7 @@ from warnings import warn
 
 import pandas as pd
 
-from compass.llm.calling import BaseLLMCaller, ChatLLMCaller
+from compass.plugin.ordinance import OrdinanceParser
 from compass.extraction.features import SetbackFeatures
 from compass.common import (
     EXTRACT_ORIGINAL_SETBACK_TEXT_PROMPT,
@@ -150,17 +150,8 @@ _FEATURE_TO_OWNED_TYPE = {
 }
 
 
-class StructuredSolarParser(BaseLLMCaller):
+class StructuredSolarParser(OrdinanceParser):
     """Base class for parsing structured data"""
-
-    def _init_chat_llm_caller(self, system_message):
-        """Initialize a ChatLLMCaller instance for the DecisionTree"""
-        return ChatLLMCaller(
-            self.llm_service,
-            system_message=system_message,
-            usage_tracker=self.usage_tracker,
-            **self.kwargs,
-        )
 
     async def _check_solar_farm_type(self, text):
         """Get the largest solar farm size mentioned in the text"""
@@ -202,6 +193,12 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         AsyncDecisionTree instances to guide the extraction of
         individual values.
     """
+
+    IN_LABEL = "cleaned_text_for_extraction"
+    """Identifier for text ingested by this class"""
+
+    OUT_LABEL = "ordinance_values"
+    """Identifier for structured ordinance data output by this class"""
 
     async def parse(self, text):
         """Parse text and extract structure ordinance data
@@ -501,6 +498,12 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         AsyncDecisionTree instances to guide the extraction of
         individual values.
     """
+
+    IN_LABEL = "districts_text"
+    """Identifier for text ingested by this class"""
+
+    OUT_LABEL = "permitted_district_values"
+    """Identifier for structured ordinance data output by this class"""
 
     _LARGE_SEF_CLARIFICATION = (
         "Large solar energy systems (SES) may also be referred to as solar "

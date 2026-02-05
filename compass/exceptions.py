@@ -21,9 +21,17 @@ class COMPASSNotInitializedError(COMPASSError):
     """COMPASS not initialized error"""
 
 
+class COMPASSTypeError(COMPASSError, TypeError):
+    """COMPASS TypeError"""
+
+
 class COMPASSValueError(COMPASSError, ValueError):
     """COMPASS ValueError"""
 
 
 class COMPASSRuntimeError(COMPASSError, RuntimeError):
     """COMPASS RuntimeError"""
+
+
+class COMPASSPluginConfigurationError(COMPASSRuntimeError):
+    """COMPASS Plugin Configuration Error"""

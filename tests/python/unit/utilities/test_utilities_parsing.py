@@ -16,7 +16,6 @@ from compass.utilities.parsing import (
     load_config,
     merge_overlapping_texts,
     num_ordinances_dataframe,
-    num_ordinances_in_doc,
     ordinances_bool_index,
 )
 from compass.exceptions import COMPASSValueError
@@ -98,52 +97,6 @@ def test_extract_ord_year_from_doc_attrs(doc_attrs, expected):
     """Test the `extract_ord_year_from_doc_attrs` function"""
 
     assert extract_ord_year_from_doc_attrs(doc_attrs) == expected
-
-
-def test_num_ordinances_in_doc_none():
-    """Test `num_ordinances_in_doc` with None document"""
-
-    assert num_ordinances_in_doc(None) == 0
-
-
-def test_num_ordinances_in_doc_no_ordinance_values():
-    """Test `num_ordinances_in_doc` with document missing ordinance_values"""
-
-    doc = MagicMock()
-    doc.attrs = {}
-    assert num_ordinances_in_doc(doc) == 0
-
-
-def test_num_ordinances_in_doc_with_ordinances():
-    """Test `num_ordinances_in_doc` with valid ordinances"""
-
-    doc = MagicMock()
-    doc.attrs = {
-        "ordinance_values": pd.DataFrame(
-            {
-                "feature": ["setback", "height", "noise"],
-                "value": [100, 200, None],
-                "summary": ["test", None, "test"],
-            }
-        )
-    }
-    assert num_ordinances_in_doc(doc) == 3
-
-
-def test_num_ordinances_in_doc_with_exclude_features():
-    """Test `num_ordinances_in_doc` with excluded features"""
-
-    doc = MagicMock()
-    doc.attrs = {
-        "ordinance_values": pd.DataFrame(
-            {
-                "feature": ["setback", "height", "noise"],
-                "value": [100, 200, 300],
-                "summary": ["test", "test", "test"],
-            }
-        )
-    }
-    assert num_ordinances_in_doc(doc, exclude_features=["noise"]) == 2
 
 
 def test_num_ordinances_dataframe_empty():

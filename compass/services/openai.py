@@ -8,7 +8,7 @@ from elm.utilities.retry import async_retry_with_exponential_backoff
 
 from compass.services.base import LLMService
 from compass.services.usage import TimeBoundedUsageTracker
-from compass.utilities import LLM_COST_REGISTRY
+from compass.utilities import cost_for_model
 from compass.utilities.enums import LLMUsageCategory
 from compass.pb import COMPASS_PB
 
@@ -202,16 +202,12 @@ class OpenAIService(LLMService):
         if response is None:
             return
 
-        model_costs = LLM_COST_REGISTRY.get(self.model_name, {})
-        prompt_cost = (
-            response.usage.prompt_tokens / 1e6 * model_costs.get("prompt", 0)
+        response_cost = cost_for_model(
+            self.model_name,
+            response.usage.prompt_tokens,
+            response.usage.completion_tokens,
         )
-        response_cost = (
-            response.usage.completion_tokens
-            / 1e6
-            * model_costs.get("response", 0)
-        )
-        COMPASS_PB.update_total_cost(prompt_cost + response_cost)
+        COMPASS_PB.update_total_cost(response_cost)
 
     @async_retry_with_exponential_backoff(
         base_delay=1,
