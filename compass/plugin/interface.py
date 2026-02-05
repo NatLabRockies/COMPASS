@@ -9,24 +9,21 @@ from functools import cached_property
 
 import pandas as pd
 
-from .base import BaseExtractionPlugin
+from compass.plugin.base import BaseExtractionPlugin
 from compass.llm.calling import LLMCaller
 from compass.extraction import (
     extract_ordinance_values,
     extract_relevant_text_with_ngram_validation,
 )
 from compass.scripts.download import filter_ordinance_docs
-from compass.services.threaded import (
-    FileMover,
-    CleanedFileWriter,
-    OrdDBFileWriter,
-)
+from compass.services.threaded import CleanedFileWriter, OrdDBFileWriter
 from compass.utilities.enums import LLMTasks
 from compass.utilities import (
     num_ordinances_dataframe,
     doc_infos_to_db,
     save_db,
 )
+from compass.utilities.parsing import extract_ord_year_from_doc_attrs
 from compass.exceptions import COMPASSPluginConfigurationError
 from compass.pb import COMPASS_PB
 
@@ -296,9 +293,24 @@ class ExtractionPlugin(BaseExtractionPlugin):
         return num_docs_found
 
     def __init__(self, jurisdiction, model_configs, usage_tracker=None):
-        self.jurisdiction = jurisdiction
-        self.model_configs = model_configs
-        self.usage_tracker = usage_tracker
+        """
+
+        Parameters
+        ----------
+        jurisdiction : Jurisdiction
+            Jurisdiction for which extraction is being performed.
+        model_configs : dict
+            Dictionary where keys are LLMTasks and values are LLMConfig
+            instances to be used for those tasks.
+        usage_tracker : UsageTracker, optional
+            Usage tracker instance that can be used to record the LLM
+            call cost. By default, ``None``.
+        """
+        super().__init__(
+            jurisdiction=jurisdiction,
+            model_configs=model_configs,
+            usage_tracker=usage_tracker,
+        )
 
         # TODO: This should happen during plugin registration
         self._validate_in_out_keys()
@@ -339,35 +351,35 @@ class ExtractionPlugin(BaseExtractionPlugin):
         for consumers, producers in self.consumer_producer_pairs:
             _validate_in_out_keys(consumers, producers)
 
-    async def pre_filter_docs_hook(self, docs):  # noqa: PLR6301
+    async def pre_filter_docs_hook(self, extraction_context):  # noqa: PLR6301
         """Pre-process documents before running them through the filter
 
         Parameters
         ----------
-        docs : iterable of elm.web.document.BaseDocument
-            Downloaded documents to process.
+        extraction_context : ExtractionContext
+            Context with downloaded documents to process.
 
         Returns
         -------
-        iterable of elm.web.document.BaseDocument
-            Documents to be passed onto the filtering step.
+        ExtractionContext
+            Context with documents to be passed onto the filtering step.
         """
-        return docs
+        return extraction_context
 
-    async def post_filter_docs_hook(self, docs):  # noqa: PLR6301
+    async def post_filter_docs_hook(self, extraction_context):  # noqa: PLR6301
         """Post-process documents after running them through the filter
 
         Parameters
         ----------
-        docs : iterable of elm.web.document.BaseDocument
-            Documents that passed the filtering step.
+        extraction_context : ExtractionContext
+            Context with documents that passed the filtering step.
 
         Returns
         -------
-        iterable of elm.web.document.BaseDocument
-            Documents to be passed onto the parsing step.
+        ExtractionContext
+            Context with documents to be passed onto the parsing step.
         """
-        return docs
+        return extraction_context
 
     async def extract_relevant_text(self, doc, extractor_class, model_config):
         """Condense text for extraction task
@@ -382,7 +394,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document containing text chunks to condense.
         extractor_class : BaseTextExtractor
             Class to use for text extraction.
@@ -401,7 +413,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
             extractor,
             original_text_key=extractor_class.IN_LABEL,
         )
-        await _write_cleaned_text(doc)
+        await self._write_cleaned_text(doc)
 
     async def extract_ordinances_from_text(
         self, doc, parser_class, model_config
@@ -414,7 +426,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document containing text to extract structured data from.
         parser_class : BaseParser
             Class to use for structured data extraction.
@@ -438,52 +450,53 @@ class ExtractionPlugin(BaseExtractionPlugin):
         )
 
     @classmethod
-    def get_structured_data_row_count(cls, doc):
+    def get_structured_data_row_count(cls, data_df):
         """Get the number of data rows extracted from a document
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument or None
-            Document to check for extracted structured_data.
+        data_df : pandas.DataFrame or None
+            DataFrame to check for extracted structured data.
 
         Returns
         -------
         int
             Number of data rows extracted from the document.
         """
-        if doc is None or doc.attrs.get("ordinance_values") is None:
+        if data_df is None:
             return 0
 
-        ord_df = doc.attrs["ordinance_values"]
-
         return num_ordinances_dataframe(
-            ord_df, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
+            data_df, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
         )
 
-    async def filter_docs(self, docs, need_jurisdiction_verification=True):
+    async def filter_docs(
+        self, extraction_context, need_jurisdiction_verification=True
+    ):
         """Filter down candidate documents before parsing
 
         Parameters
         ----------
-        docs : iterable of elm.web.document.BaseDocument
-            Documents to filter.
+        extraction_context : ExtractionContext
+            Context containing candidate documents to be filtered.
         need_jurisdiction_verification : bool, optional
             Whether to verify that documents pertain to the correct
             jurisdiction. By default, ``True``.
 
         Returns
         -------
-        iterable of elm.web.document.BaseDocument
+        iterable of BaseDocument
             Filtered documents or ``None`` if no documents remain.
         """
-        if not docs:
+        if not extraction_context:
             return None
 
         logger.debug(
-            "Passing %d document(s) in to `pre_filter_docs_hook` ", len(docs)
+            "Passing %d document(s) in to `pre_filter_docs_hook` ",
+            extraction_context.num_documents,
         )
 
-        docs = await self.pre_filter_docs_hook(docs)
+        docs = await self.pre_filter_docs_hook(extraction_context.documents)
         logger.debug(
             "%d document(s) remaining after `pre_filter_docs_hook` for "
             "%s\n\t- %s",
@@ -521,42 +534,53 @@ class ExtractionPlugin(BaseExtractionPlugin):
                 [doc.attrs.get("source", "Unknown source") for doc in docs]
             ),
         )
+        if not docs:
+            return None
 
-        return docs or None
+        extraction_context.documents = docs
+        return extraction_context
 
-    async def parse_docs_for_structured_data(self, docs):
+    async def parse_docs_for_structured_data(self, extraction_context):
         """Parse documents to extract structured data/information
 
         Parameters
         ----------
-        docs : iterable of elm.web.document.BaseDocument
-            Documents to parse.
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse.
 
         Returns
         -------
-        elm.web.document.BaseDocument or None
-            Document with extracted data/information stored in the
+        ExtractionContext or None
+            Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-
-        for doc_for_extraction in docs:
-            doc = await self.parse_single_doc_for_structured_data(
+        for doc_for_extraction in extraction_context:
+            data_df = await self.parse_single_doc_for_structured_data(
                 doc_for_extraction
             )
-            row_count = self.get_structured_data_row_count(doc)
+            row_count = self.get_structured_data_row_count(data_df)
             if row_count > 0:
-                doc = await _move_files(doc)
+                await extraction_context.mark_doc_as_data_source(
+                    doc_for_extraction, out_fn=self.jurisdiction.full_name
+                )
+                extraction_context.data_to_be_attrs["structured_data"] = (
+                    data_df
+                )
+                await self._write_ord_db(extraction_context)
                 logger.info(
                     "%d ordinance value(s) found in doc from %s for %s. "
                     "Outputs are here: '%s'",
                     row_count,
                     doc_for_extraction.attrs.get("source", "unknown source"),
                     self.jurisdiction.full_name,
-                    doc.attrs["ord_db_fp"],
+                    extraction_context.data_to_be_attrs["ord_db_fp"],
                 )
-                return doc
+                return extraction_context
 
-        logger.debug("No ordinances found; searched %d docs", len(docs))
+        logger.debug(
+            "No ordinances found; searched %d docs",
+            extraction_context.num_documents,
+        )
         return None
 
     async def parse_single_doc_for_structured_data(self, doc_for_extraction):
@@ -569,12 +593,12 @@ class ExtractionPlugin(BaseExtractionPlugin):
 
         Parameters
         ----------
-        doc_for_extraction : elm.web.document.BaseDocument
+        doc_for_extraction : BaseDocument
             Document to extract structured data from.
 
         Returns
         -------
-        elm.web.document.BaseDocument
+        BaseDocument
             Document with extracted structured data stored in the
             ``.attrs`` dictionary.
         """
@@ -586,8 +610,7 @@ class ExtractionPlugin(BaseExtractionPlugin):
                     ),
                     name=self.jurisdiction.full_name,
                 )
-                for parser_class in self.PARSERS
-                if parser_class is not None
+                for parser_class in filter(None, self.PARSERS)
             ]
             await asyncio.gather(*tasks)
 
@@ -597,47 +620,12 @@ class ExtractionPlugin(BaseExtractionPlugin):
         """Apply a single extractor and parser to legal text"""
 
         if parser_class.IN_LABEL not in doc_for_extraction.attrs:
-            te = [
-                te
-                for te in self.TEXT_EXTRACTORS
-                if te.OUT_LABEL == parser_class.IN_LABEL
-            ]
-            if len(te) != 1:
-                msg = (
-                    f"Could not find unique text extractor for parser "
-                    f"{parser_class.__name__} with IN_LABEL "
-                    f"{parser_class.IN_LABEL!r}. Got matches: {te}"
-                )
-                raise COMPASSPluginConfigurationError(msg)
+            await self._run_text_extractors(doc_for_extraction, parser_class)
 
-            te = te[0]
-            if te.TASK_ID in self.model_configs:
-                model_config = self.model_configs[te.TASK_ID]
-            else:
-                model_config = self.model_configs.get(
-                    LLMTasks.TEXT_EXTRACTION,
-                    self.model_configs[LLMTasks.DEFAULT],
-                )
-            logger.debug(
-                "Condensing text for extraction using %r for doc from %s",
-                te.__name__,
-                doc_for_extraction.attrs.get("source", "unknown source"),
-            )
-            assert self._jsp is not None, "No progress bar set!"
-            task_id = self._jsp.add_task(te.TASK_DESCRIPTION)
-            await self.extract_relevant_text(
-                doc_for_extraction, te, model_config
-            )
-            await self.record_usage()
-            self._jsp.remove_task(task_id)
-
-        if parser_class.TASK_ID in self.model_configs:
-            model_config = self.model_configs[parser_class.TASK_ID]
-        else:
-            model_config = self.model_configs.get(
-                LLMTasks.DATA_EXTRACTION,
-                self.model_configs[LLMTasks.DEFAULT],
-            )
+        model_config = self._get_model_config(
+            primary_key=parser_class.TASK_ID,
+            secondary_key=LLMTasks.DATA_EXTRACTION,
+        )
         await self.extract_ordinances_from_text(
             doc_for_extraction,
             parser_class=parser_class,
@@ -645,6 +633,37 @@ class ExtractionPlugin(BaseExtractionPlugin):
         )
 
         await self.record_usage()
+
+    async def _run_text_extractors(self, doc_for_extraction, parser_class):
+        """Run text extractor(s) on document to get text for a parser"""
+        te = [
+            te
+            for te in self.TEXT_EXTRACTORS
+            if te.OUT_LABEL == parser_class.IN_LABEL
+        ]
+        if len(te) != 1:
+            msg = (
+                f"Could not find unique text extractor for parser "
+                f"{parser_class.__name__} with IN_LABEL "
+                f"{parser_class.IN_LABEL!r}. Got matches: {te}"
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        te = te[0]
+        model_config = self._get_model_config(
+            primary_key=te.TASK_ID,
+            secondary_key=LLMTasks.TEXT_EXTRACTION,
+        )
+        logger.debug(
+            "Condensing text for extraction using %r for doc from %s",
+            te.__name__,
+            doc_for_extraction.attrs.get("source", "unknown source"),
+        )
+        assert self._jsp is not None, "No progress bar set!"
+        task_id = self._jsp.add_task(te.TASK_DESCRIPTION)
+        await self.extract_relevant_text(doc_for_extraction, te, model_config)
+        await self.record_usage()
+        self._jsp.remove_task(task_id)
 
     @contextmanager
     def _tracked_progress(self):
@@ -660,14 +679,33 @@ class ExtractionPlugin(BaseExtractionPlugin):
         data = [doc.attrs.get(p.OUT_LABEL, None) for p in self.PARSERS]
         data = [df for df in data if df is not None and not df.empty]
         if len(data) == 0:
-            return doc
+            return None
 
-        if len(data) == 1:
-            doc.attrs["structured_data"] = data[0]
-            return doc
+        data = data[0] if len(data) == 1 else pd.concat(data)
+        data["source"] = doc.attrs.get("source")
+        data["ord_year"] = extract_ord_year_from_doc_attrs(doc.attrs)
+        return data
 
-        doc.attrs["structured_data"] = pd.concat(data)
+    def _get_model_config(self, primary_key, secondary_key):
+        """Get model config: primary_key -> secondary_key -> default"""
+        if primary_key in self.model_configs:
+            return self.model_configs[primary_key]
+        return self.model_configs.get(
+            secondary_key, self.model_configs[LLMTasks.DEFAULT]
+        )
+
+    async def _write_cleaned_text(self, doc):
+        """Write cleaned text to `clean_files` dir"""
+        out_fp = await CleanedFileWriter.call(doc, self.jurisdiction.full_name)
+        doc.attrs["cleaned_fps"] = out_fp
         return doc
+
+    async def _write_ord_db(self, extraction_context):
+        """Write cleaned text to `jurisdiction_dbs` dir"""
+        out_fn = f"{self.jurisdiction.full_name} Ordinances.csv"
+        out_fp = await OrdDBFileWriter.call(extraction_context, out_fn)
+        extraction_context.data_to_be_attrs["ord_db_fp"] = out_fp
+        return extraction_context
 
 
 def _validate_in_out_keys(consumers, producers):
@@ -692,30 +730,3 @@ def _validate_in_out_keys(consumers, producers):
                 f"processing class: {formatted}"
             )
             raise COMPASSPluginConfigurationError(msg)
-
-
-async def _move_files(doc):
-    """Move files to output folders, if applicable"""
-    doc = await _move_file_to_out_dir(doc)
-    return await _write_ord_db(doc)
-
-
-async def _move_file_to_out_dir(doc):
-    """Move PDF or HTML text file to output directory"""
-    out_fp = await FileMover.call(doc)
-    doc.attrs["out_fp"] = out_fp
-    return doc
-
-
-async def _write_cleaned_text(doc):
-    """Write cleaned text to `clean_files` dir"""
-    out_fp = await CleanedFileWriter.call(doc)
-    doc.attrs["cleaned_fps"] = out_fp
-    return doc
-
-
-async def _write_ord_db(doc):
-    """Write cleaned text to `jurisdiction_dbs` dir"""
-    out_fp = await OrdDBFileWriter.call(doc)
-    doc.attrs["ord_db_fp"] = out_fp
-    return doc
