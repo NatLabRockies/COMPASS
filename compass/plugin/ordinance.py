@@ -19,7 +19,7 @@ from compass.utilities.parsing import (
     merge_overlapping_texts,
     clean_backticks_from_llm_response,
 )
-from .interface import (
+from compass.plugin.interface import (
     BaseHeuristic,
     BaseTextCollector,
     BaseTextExtractor,
