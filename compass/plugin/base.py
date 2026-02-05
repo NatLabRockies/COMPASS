@@ -58,37 +58,41 @@ class BaseExtractionPlugin(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def filter_docs(self, docs, need_jurisdiction_verification=True):
+    async def filter_docs(
+        self, extraction_context, need_jurisdiction_verification=True
+    ):
         """Filter down candidate documents before parsing
 
         Parameters
         ----------
-        docs : iterable of elm.web.document.BaseDocument
-            Documents to filter.
+        extraction_context : compass.plugin.context.ExtractionContext
+            Context containing candidate documents to be filtered.
+            Set the ``.documents`` attribute of this object to be the
+            iterable of documents that should be kept for parsing.
         need_jurisdiction_verification : bool, optional
             Whether to verify that documents pertain to the correct
             jurisdiction. By default, ``True``.
 
         Returns
         -------
-        iterable of elm.web.document.BaseDocument
-            Filtered documents or ``None`` if no documents remain.
+        compass.plugin.context.ExtractionContext
+            Context with filtered down documents.
         """
         raise NotImplementedError
 
     @abstractmethod
-    async def parse_docs_for_structured_data(self, docs):
+    async def parse_docs_for_structured_data(self, extraction_context):
         """Parse documents to extract structured data/information
 
         Parameters
         ----------
-        docs : iterable of elm.web.document.BaseDocument
-            Documents to parse.
+        extraction_context : compass.plugin.context.ExtractionContext
+            Context containing candidate documents to parse.
 
         Returns
         -------
-        elm.web.document.BaseDocument or None
-            Document with extracted data/information stored in the
+        compass.plugin.context.ExtractionContext or None
+            Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
         raise NotImplementedError
