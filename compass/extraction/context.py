@@ -106,22 +106,23 @@ class ExtractionContext:
     def __bool__(self):
         return bool(self.documents)
 
-    async def mark_doc_as_data_source(self, doc, out_fn=None):
+    async def mark_doc_as_data_source(self, doc, out_fn_stem=None):
         """Mark a document as a data source for extraction
 
         Parameters
         ----------
         doc : BaseDocument
             Document to add as a data source
-        move_to_out_dir : str, optional
-            Optional output filename for this document. If provided, the
-            document file will be moved from the temporary directory to
-            the output directory with this filename.
+        out_fn_stem : str, optional
+            Optional output filename stem for this document. If
+            provided, the document file will be moved from the
+            temporary directory to the output directory with this
+            filename stem and appropriate file suffix.
             By default, ``None``.
         """
         self._data_docs.append(doc)
-        if out_fn is not None:
-            doc = await _move_file_to_out_dir(doc, out_fn)
+        if out_fn_stem is not None:
+            doc = await _move_file_to_out_dir(doc, out_fn_stem)
 
 
 async def _move_file_to_out_dir(doc, out_fn):
