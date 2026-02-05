@@ -276,7 +276,7 @@ class WindOrdinanceTextExtractor(OrdinanceTextExtractor):
     OUT_LABEL = "cleaned_text_for_extraction"
     """Identifier for ordinance text extracted by this class"""
 
-    TASK_DESCRIPTION = "Extracting solar ordinance text"
+    TASK_DESCRIPTION = "Extracting wind ordinance text"
     """Task description to show in progress bar"""
 
     TASK_ID = "ordinance_text_extraction"
@@ -448,7 +448,7 @@ class WindPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
     OUT_LABEL = "districts_text"
     """Identifier for permitted use text extracted by this class"""
 
-    TASK_DESCRIPTION = "Extracting solar permitted use text"
+    TASK_DESCRIPTION = "Extracting wind permitted use text"
     """Task description to show in progress bar"""
 
     TASK_ID = "permitted_use_text_extraction"

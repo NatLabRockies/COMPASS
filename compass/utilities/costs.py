@@ -48,7 +48,7 @@ def cost_for_model(model_name, prompt_tokens, completion_tokens):
     ----------
     model_name : str
         Name of the model. Needs to be registered as a key in
-        obj:``LLM_COST_REGISTRY`` for this method to return a non-zero
+        :obj:`LLM_COST_REGISTRY` for this method to return a non-zero
         value.
     prompt_tokens, completion_tokens : int
         Number of prompt and completion tokens used, respectively.
@@ -69,7 +69,7 @@ def compute_cost_from_totals(totals):
 
     Parameters
     ----------
-    tracked_usage : dict
+    totals : dict
         Dictionary where keys are model names and their corresponding
         usage statistics are values. Each usage statistics dictionary
         should contain "prompt_tokens" and "response_tokens" keys
@@ -81,7 +81,7 @@ def compute_cost_from_totals(totals):
     Returns
     -------
     float
-        Total cost based on the tacked usage.
+        Total cost based on the tracked usage.
     """
     return sum(
         cost_for_model(
@@ -112,7 +112,7 @@ def compute_total_cost_from_usage(tracked_usage):
     Returns
     -------
     float
-        Total LLM cost based on the tacked usage.
+        Total LLM cost based on the tracked usage.
     """
     return sum(
         compute_cost_from_totals(usage.get("tracker_totals", {}))

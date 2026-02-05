@@ -29,7 +29,7 @@ class ExtractionContext:
             For single-document workflows (solar, wind), pass a list
             with one document. For multi-document workflows (water
             rights), pass all contributing documents
-        data : dict, optional
+        attrs : dict, optional
             Context-level attributes for extraction metadata
             (jurisdiction, tech type, etc.). By default, ``None``
         """
@@ -122,7 +122,7 @@ class ExtractionContext:
         """
         self._data_docs.append(doc)
         if out_fn_stem is not None:
-            doc = await _move_file_to_out_dir(doc, out_fn_stem)
+            await _move_file_to_out_dir(doc, out_fn_stem)
 
 
 async def _move_file_to_out_dir(doc, out_fn):

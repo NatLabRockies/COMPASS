@@ -94,7 +94,7 @@ class SolarOrdinanceTextCollector(OrdinanceTextCollector):
         "energy systems (or solar panels). "
         "All restrictions should be enforceable - ignore any text that only "
         "provides a legal definition of the regulation. If the text does not "
-        f"specify any concrete {_SEARCH_TERMS_OR} for a wind energy system, "
+        f"specify any concrete {_SEARCH_TERMS_OR} for a solar energy system, "
         "set this key to `null`. The last key is '{key}', which is a boolean "
         "that is set to True if the text excerpt explicitly details "
         f"{_SEARCH_TERMS_OR} for a solar energy system and False otherwise."
@@ -258,7 +258,7 @@ class SolarOrdinanceTextExtractor(OrdinanceTextExtractor):
     OUT_LABEL = "cleaned_text_for_extraction"
     """Identifier for ordinance text extracted by this class"""
 
-    TASK_DESCRIPTION = "Extracting wind ordinance text"
+    TASK_DESCRIPTION = "Extracting solar ordinance text"
     """Task description to show in progress bar"""
 
     TASK_ID = "ordinance_text_extraction"
@@ -352,7 +352,7 @@ class SolarPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
     OUT_LABEL = "districts_text"
     """Identifier for permitted use text extracted by this class"""
 
-    TASK_DESCRIPTION = "Extracting wind permitted use text"
+    TASK_DESCRIPTION = "Extracting solar permitted use text"
     """Task description to show in progress bar"""
 
     TASK_ID = "permitted_use_text_extraction"

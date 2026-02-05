@@ -351,7 +351,6 @@ async def _extract_with_ngram_check(
     )
 
     best_score = 0
-    out_text_key = "extracted_text"
     for attempt in range(1, num_tries + 1):
         doc, out_text_key = await extract_relevant_text_with_llm(
             doc, text_splitter, extractor, original_text_key

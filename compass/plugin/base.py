@@ -123,7 +123,7 @@ class BaseExtractionPlugin(ABC):
             List of dictionaries containing the following keys:
 
                 - "jurisdiction": An initialized Jurisdiction object
-                  representing thw jurisdiction that was extracted.
+                  representing the jurisdiction that was extracted.
                 - "ord_db_fp": A path to the extracted structured data
                   stored on disk, or ``None`` if no data was extracted.
 

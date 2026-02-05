@@ -446,7 +446,7 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         jurisdiction : Jurisdiction
             The jurisdiction instance to record.
-        extraction_context : ExtractionContextExtractionContext
+        extraction_context : ExtractionContext
             Context containing meta information about the jurisdiction
             under extraction. Must have relevant processing keys in the
             ``attrs`` dict, otherwise the jurisdiction may not be

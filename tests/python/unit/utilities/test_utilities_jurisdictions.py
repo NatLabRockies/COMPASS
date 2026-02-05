@@ -556,9 +556,6 @@ def test_jurisdiction_equality_with_non_string_non_jurisdiction():
     assert jur != 42
     assert jur != ["Jefferson County", "Colorado"]
     assert jur != {"county": "Jefferson", "state": "Colorado"}
-    assert jur is not None
-    assert jur != 42
-    assert jur != ["Jefferson County", "Colorado"]
 
 
 def test_jurisdiction_hash_consistency():
