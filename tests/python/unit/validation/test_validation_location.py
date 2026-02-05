@@ -8,7 +8,7 @@ from flaky import flaky
 from elm.web.document import PDFDocument
 from elm.utilities.parse import read_pdf_ocr
 
-from compass.utilities.location import Jurisdiction
+from compass.utilities.jurisdictions import Jurisdiction
 from compass.validation.location import (
     JurisdictionValidator,
     DTreeJurisdictionValidator,

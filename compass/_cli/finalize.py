@@ -8,7 +8,7 @@ from rich.theme import Theme
 from rich.console import Console
 
 from compass.utilities import Directories
-from compass.utilities.location import Jurisdiction
+from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.parsing import load_config
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
 from compass.scripts.process import _initialize_model_params

@@ -351,7 +351,7 @@ napoleon_type_aliases = {
     "BaseDocument": ":class:`elm.web.document.BaseDocument`",
     "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
     "ExtractionContext": ":class:`~compass.extraction.context.ExtractionContext`",
-    "Jurisdiction": ":class:`~compass.utilities.location.Jurisdiction`",
+    "Jurisdiction": ":class:`~compass.utilities.jurisdictions.Jurisdiction`",
     "LLMCaller": ":class:`~compass.llm.calling.LLMCaller`",
     "LLMConfig": ":class:`~compass.llm.config.LLMConfig`",
     "LLMService": ":class:`~compass.services.base.LLMService`",

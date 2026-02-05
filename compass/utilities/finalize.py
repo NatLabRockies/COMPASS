@@ -143,7 +143,8 @@ def doc_infos_to_db(doc_infos):
         results. Each dictionary must contain ``"ord_db_fp"`` (path to a
         parsed CSV), ``"source"`` (document URL), ``"date"`` (tuple of
         year, month, day, with ``None`` allowed), and ``"jurisdiction"``
-        (a :class:`~compass.utilities.location.Jurisdiction` instance).
+        (a :class:`~compass.utilities.jurisdictions.Jurisdiction`
+        instance).
 
     Returns
     -------
