@@ -435,7 +435,7 @@ class JurisdictionUpdater(ThreadedService):
     async def process(
         self,
         jurisdiction,
-        extraction_context,
+        context,
         seconds_elapsed,
         usage_tracker=None,
     ):
@@ -447,7 +447,7 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         jurisdiction : Jurisdiction
             The jurisdiction instance to record.
-        extraction_context : compass.plugin.context.ExtractionContext
+        context : compass.extraction.context.ExtractionContext
             Context containing meta information about the jurisdiction
             under extraction. Must have relevant processing keys in the
             ``attrs`` dict, otherwise the jurisdiction may not be
@@ -468,7 +468,7 @@ class JurisdictionUpdater(ThreadedService):
                 _dump_jurisdiction_info,
                 self.jurisdiction_fp,
                 jurisdiction,
-                extraction_context,
+                context,
                 seconds_elapsed,
                 usage_tracker,
             )
