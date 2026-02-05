@@ -18,10 +18,7 @@ from elm.web.utilities import write_url_doc_to_file
 
 from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
-from compass.utilities import (
-    num_ordinances_in_doc,
-    compute_cost_from_totals,
-)
+from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
 
 
@@ -53,7 +50,7 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir):
+def _move_file(doc, out_dir, out_fn=None):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -61,7 +58,7 @@ def _move_file(doc, out_dir):
 
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_fn = doc.attrs.get("jurisdiction_name", cached_fp.stem)
+    out_fn = out_fn or cached_fp.stem
     out_fn = out_fn.replace(",", "").replace(" ", "_")
     out_fn = f"{out_fn}_downloaded_{date}"
     if not out_fn.endswith(cached_fp.suffix):
@@ -72,9 +69,8 @@ def _move_file(doc, out_dir):
     return out_fp
 
 
-def _write_cleaned_file(doc, out_dir):
+def _write_cleaned_file(doc, out_dir, jurisdiction_name=None):
     """Write cleaned ordinance text to directory"""
-    jurisdiction_name = doc.attrs.get("jurisdiction_name")
     if jurisdiction_name is None:
         return None
 
@@ -126,10 +122,10 @@ def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
         (out_dir / fn).write_text(text, encoding="utf-8")
 
 
-def _write_ord_db(doc, out_dir):
+def _write_ord_db(extraction_context, out_dir):
     """Write parsed ordinance database to directory"""
-    ord_db = doc.attrs.get("structured_data")
-    jurisdiction_name = doc.attrs.get("jurisdiction_name")
+    ord_db = extraction_context.data_to_be_attrs.get("structured_data")
+    jurisdiction_name = extraction_context.jurisdiction.full_name
 
     if ord_db is None or jurisdiction_name is None:
         return None
@@ -306,7 +302,7 @@ class StoreFileOnDisk(ThreadedService):
         """bool: Always ``True`` (limiting is handled by asyncio)"""
         return True
 
-    async def process(self, doc):
+    async def process(self, doc, *args):
         """Store file in out directory
 
         Parameters
@@ -316,6 +312,9 @@ class StoreFileOnDisk(ThreadedService):
             have relevant processing keys in the ``attrs`` dict,
             otherwise the file may not be stored in the output
             directory.
+        args
+            Additional positional argument pairs to pass to the
+            processing function.
 
         Returns
         -------
@@ -324,7 +323,11 @@ class StoreFileOnDisk(ThreadedService):
         """
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
-            self.pool, _PROCESSING_FUNCTIONS[self._PROCESS], doc, self.out_dir
+            self.pool,
+            _PROCESSING_FUNCTIONS[self._PROCESS],
+            doc,
+            self.out_dir,
+            *args,
         )
 
     @property
@@ -430,7 +433,11 @@ class JurisdictionUpdater(ThreadedService):
         return not self._is_processing
 
     async def process(
-        self, jurisdiction, doc, seconds_elapsed, usage_tracker=None
+        self,
+        jurisdiction,
+        extraction_context,
+        seconds_elapsed,
+        usage_tracker=None,
     ):
         """Record jurisdiction metadata in the tracking file
 
@@ -440,12 +447,12 @@ class JurisdictionUpdater(ThreadedService):
         ----------
         jurisdiction : Jurisdiction
             The jurisdiction instance to record.
-        doc : elm.web.document.BaseDocument or None
-            Document containing meta information about the jurisdiction.
-            Must have relevant processing keys in the ``attrs`` dict,
-            otherwise the jurisdiction may not be recorded properly.
-            If ``None``, the jurisdiction is assumed not to have been
-            found.
+        extraction_context : compass.plugin.context.ExtractionContext
+            Context containing meta information about the jurisdiction
+            under extraction. Must have relevant processing keys in the
+            ``attrs`` dict, otherwise the jurisdiction may not be
+            recorded properly. If ``None``, the jurisdiction is assumed
+            not to have been found.
         seconds_elapsed : int or float
             Total number of seconds it took to look for (and possibly
             parse) this document.
@@ -461,7 +468,7 @@ class JurisdictionUpdater(ThreadedService):
                 _dump_jurisdiction_info,
                 self.jurisdiction_fp,
                 jurisdiction,
-                doc,
+                extraction_context,
                 seconds_elapsed,
                 usage_tracker,
             )
@@ -519,7 +526,7 @@ def _dump_usage(fp, tracker):
 
 
 def _dump_jurisdiction_info(
-    fp, jurisdiction, doc, seconds_elapsed, usage_tracker
+    fp, jurisdiction, extraction_context, seconds_elapsed, usage_tracker
 ):
     """Dump jurisdiction info to an existing file"""
     if not Path(fp).exists():
@@ -548,13 +555,17 @@ def _dump_jurisdiction_info(
         cost = compute_cost_from_totals(usage_tracker.totals)
         new_info["cost"] = cost or None
 
-    if doc is not None and num_ordinances_in_doc(doc) > 0:
+    if extraction_context is not None and extraction_context.data_docs:
         new_info["found"] = True
-        new_info["documents"] = [_compile_doc_info(doc)]
-        new_info["jurisdiction_website"] = doc.attrs.get(
-            "jurisdiction_website"
+        new_info["documents"] = [
+            _compile_doc_info(doc) for doc in extraction_context.data_docs
+        ]
+        new_info["jurisdiction_website"] = (
+            extraction_context.data_to_be_attrs.get("jurisdiction_website")
         )
-        new_info["compass_crawl"] = doc.attrs.get("compass_crawl", False)
+        new_info["compass_crawl"] = extraction_context.data_to_be_attrs.get(
+            "compass_crawl", False
+        )
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
