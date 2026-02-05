@@ -292,15 +292,16 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     return _format_jurisdiction_df_for_output(jurisdictions)
 
 
-def jurisdictions_from_df(jurisdictions_df):
+def jurisdictions_from_df(jurisdiction_info=None):
     """Convert rows DataFrame into Jurisdiction instances
 
     Parameters
     ----------
-    jurisdictions_df : pandas.DataFrame
+    jurisdiction_info : pandas.DataFrame, optional
         DataFrame containing jurisdiction info with columns:
         ``["Jurisdiction Type", "State", "County", "Subdivision",
-        "FIPS", "Website"]``.
+        "FIPS", "Website"]``. If ``None``, this info is loaded using
+        :func:`load_all_jurisdiction_info`. By default, ``None``.
 
     Yields
     ------
@@ -308,7 +309,10 @@ def jurisdictions_from_df(jurisdictions_df):
         Jurisdiction instance built from each row of the input
         DataFrame.
     """
-    for __, row in jurisdictions_df.iterrows():
+    if jurisdiction_info is None:
+        jurisdiction_info = load_all_jurisdiction_info()
+
+    for __, row in jurisdiction_info.iterrows():
         jur_type, state, county, sub, fips, website = row[_JUR_COLS]
         yield Jurisdiction(
             subdivision_type=jur_type,
