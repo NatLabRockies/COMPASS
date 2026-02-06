@@ -874,6 +874,11 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing had no known local docs configured",
+                self.jurisdiction.full_name,
+            )
 
         if self.known_doc_urls:
             logger.debug(
@@ -885,6 +890,11 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing had no known URLs configured",
+                self.jurisdiction.full_name,
+            )
 
         if self.perform_se_search:
             logger.debug(
@@ -897,6 +907,11 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing didn't have SE search enabled",
+                self.jurisdiction.full_name,
+            )
 
         if self.perform_website_search:
             logger.debug(
@@ -908,6 +923,12 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing didn't have jurisdiction website search "
+                "enabled",
+                self.jurisdiction.full_name,
+            )
 
         return None
 
