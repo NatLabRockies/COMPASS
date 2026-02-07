@@ -15,3 +15,4 @@ from .ordinance import (
     OrdinanceParser,
     OrdinanceExtractionPlugin,
 )
+from .registry import PLUGIN_REGISTRY, register_plugin
