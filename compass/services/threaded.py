@@ -16,13 +16,13 @@ from concurrent.futures import ThreadPoolExecutor
 from elm.web.document import PDFDocument, HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
-from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
 from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
+CLEANED_FP_REGISTRY = {}
 
 
 def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
@@ -69,57 +69,25 @@ def _move_file(doc, out_dir, out_fn=None):
     return out_fp
 
 
-def _write_cleaned_file(doc, out_dir, jurisdiction_name=None):
+def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
     """Write cleaned ordinance text to directory"""
     if jurisdiction_name is None:
         return None
 
     out_dir = Path(out_dir)
-    if COMPASS_DEBUG_LEVEL > 0:
-        _write_interim_cleaned_files(doc, out_dir, jurisdiction_name)
+    doc_key_to_clean_fp = CLEANED_FP_REGISTRY.get(tech.casefold(), {})
 
-    key_to_fp = {
-        "cleaned_text_for_extraction": (
-            f"{jurisdiction_name} Cleaned Text.txt"
-        ),
-        "districts_text": f"{jurisdiction_name} Districts.txt",
-    }
     out_paths = []
-    for key, fn in key_to_fp.items():
+    for key, fn in doc_key_to_clean_fp.items():
         cleaned_text = doc.attrs.get(key)
         if cleaned_text is None:
             continue
 
-        out_fp = out_dir / fn
+        out_fp = out_dir / fn.format(jurisdiction=jurisdiction_name)
         out_fp.write_text(cleaned_text, encoding="utf-8")
         out_paths.append(out_fp)
 
     return out_paths
-
-
-def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
-    """Write intermediate output texts to file; helpful for debugging"""
-    key_to_fp = {
-        "relevant_text": f"{jurisdiction_name} Ordinance Original text.txt",
-        "wind_energy_systems_text": (
-            f"{jurisdiction_name} Wind Ordinance text.txt"
-        ),
-        "solar_energy_systems_text": (
-            f"{jurisdiction_name} Solar Ordinance text.txt"
-        ),
-        "permitted_use_text": (
-            f"{jurisdiction_name} Permitted Use Original text.txt"
-        ),
-        "permitted_use_only_text": (
-            f"{jurisdiction_name} Permitted Use Only text.txt"
-        ),
-    }
-    for key, fn in key_to_fp.items():
-        text = doc.attrs.get(key)
-        if text is None:
-            continue
-
-        (out_dir / fn).write_text(text, encoding="utf-8")
 
 
 def _write_ord_db(extraction_context, out_dir, out_fn=None):

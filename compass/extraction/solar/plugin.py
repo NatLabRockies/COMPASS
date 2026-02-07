@@ -1,6 +1,6 @@
 """COMPASS solar extraction plugin"""
 
-from compass.plugin.interface import ExtractionPlugin
+from compass.plugin import OrdinanceExtractionPlugin, register_plugin
 from compass.extraction.solar.ordinance import (
     SolarHeuristic,
     SolarOrdinanceTextCollector,
@@ -61,7 +61,7 @@ BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS = {
 }
 
 
-class COMPASSSolarExtractor(ExtractionPlugin):
+class COMPASSSolarExtractor(OrdinanceExtractionPlugin):
     """COMPASS solar extraction plugin"""
 
     IDENTIFIER = "solar"
@@ -97,3 +97,6 @@ class COMPASSSolarExtractor(ExtractionPlugin):
         StructuredSolarPermittedUseDistrictsParser,
     ]
     """Class for parsing structured ordinance data from text"""
+
+
+register_plugin(COMPASSSolarExtractor)
