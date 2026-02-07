@@ -1,6 +1,6 @@
 """COMPASS wind extraction plugin"""
 
-from compass.plugin import OrdinanceExtractionPlugin
+from compass.plugin import OrdinanceExtractionPlugin, register_plugin
 from compass.extraction.small_wind.ordinance import (
     SmallWindHeuristic,
     SmallWindOrdinanceTextCollector,
@@ -96,3 +96,6 @@ class COMPASSSmallWindExtractor(OrdinanceExtractionPlugin):
         StructuredSmallWindPermittedUseDistrictsParser,
     ]
     """Class for parsing structured ordinance data from text"""
+
+
+register_plugin(COMPASSSmallWindExtractor)
