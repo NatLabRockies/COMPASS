@@ -349,8 +349,8 @@ napoleon_type_aliases = {
     # objects from COMPASS
     "AsyncDecisionTree": ":class:`~compass.common.tree.AsyncDecisionTree`",
     "BaseDocument": ":class:`elm.web.document.BaseDocument`",
-    "BaseParser": ":class:`~compass.plugin.interface.BaseParser`",
-    "BaseTextExtractor": ":class:`~compass.plugin.interface.BaseTextExtractor`",
+    "BaseParser": ":class:`~compass.plugin.ordinance.BaseParser`",
+    "BaseTextExtractor": ":class:`~compass.plugin.ordinance.BaseTextExtractor`",
     "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
     "ExtractionContext": ":class:`~compass.extraction.context.ExtractionContext`",
     "Jurisdiction": ":class:`~compass.utilities.jurisdictions.Jurisdiction`",

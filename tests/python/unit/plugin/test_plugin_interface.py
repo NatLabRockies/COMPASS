@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from compass.plugin.interface import ExtractionPlugin
+from compass.plugin.interface import FilteredExtractionPlugin
 from compass.exceptions import COMPASSPluginConfigurationError
 
 
@@ -30,7 +30,7 @@ def test_plugin_validation_parse_key_same():
         IN_LABEL = "collected"
         OUT_LABEL = "parsed_1"
 
-    class MYPlugin(ExtractionPlugin):
+    class MYPlugin(FilteredExtractionPlugin):
         TEXT_COLLECTORS = [COLL1]
         TEXT_EXTRACTORS = [EXT1, EXT2]
         PARSERS = [PARS1, PARS2]
@@ -39,6 +39,9 @@ def test_plugin_validation_parse_key_same():
         WEBSITE_KEYWORDS = []
         QUESTION_TEMPLATES = []
         heuristic = None
+
+        async def parse_docs_for_structured_data(self, extraction_context):
+            return extraction_context
 
     with pytest.raises(
         COMPASSPluginConfigurationError,
@@ -69,7 +72,7 @@ def test_plugin_validation_extract_key_same():
         IN_LABEL = "collected"
         OUT_LABEL = "parsed_2"
 
-    class MYPlugin(ExtractionPlugin):
+    class MYPlugin(FilteredExtractionPlugin):
         TEXT_COLLECTORS = [COLL1]
         TEXT_EXTRACTORS = [EXT1, EXT2]
         PARSERS = [PARS1, PARS2]
@@ -78,6 +81,9 @@ def test_plugin_validation_extract_key_same():
         WEBSITE_KEYWORDS = []
         QUESTION_TEMPLATES = []
         heuristic = None
+
+        async def parse_docs_for_structured_data(self, extraction_context):
+            return extraction_context
 
     with pytest.raises(
         COMPASSPluginConfigurationError,
@@ -108,7 +114,7 @@ def test_plugin_validation_no_in_key_for_extract():
         IN_LABEL = "collected"
         OUT_LABEL = "parsed_2"
 
-    class MYPlugin(ExtractionPlugin):
+    class MYPlugin(FilteredExtractionPlugin):
         TEXT_COLLECTORS = [COLL1]
         TEXT_EXTRACTORS = [EXT1, EXT2]
         PARSERS = [PARS1, PARS2]
@@ -117,6 +123,9 @@ def test_plugin_validation_no_in_key_for_extract():
         WEBSITE_KEYWORDS = []
         QUESTION_TEMPLATES = []
         heuristic = None
+
+        async def parse_docs_for_structured_data(self, extraction_context):
+            return extraction_context
 
     with pytest.raises(
         COMPASSPluginConfigurationError,
@@ -151,7 +160,7 @@ def test_plugin_validation_no_in_key_for_parse():
         IN_LABEL = "collected_2"
         OUT_LABEL = "parsed_2"
 
-    class MYPlugin(ExtractionPlugin):
+    class MYPlugin(FilteredExtractionPlugin):
         TEXT_COLLECTORS = [COLL1]
         TEXT_EXTRACTORS = [EXT1, EXT2]
         PARSERS = [PARS1, PARS2]
@@ -160,6 +169,9 @@ def test_plugin_validation_no_in_key_for_parse():
         WEBSITE_KEYWORDS = []
         QUESTION_TEMPLATES = []
         heuristic = None
+
+        async def parse_docs_for_structured_data(self, extraction_context):
+            return extraction_context
 
     with pytest.raises(
         COMPASSPluginConfigurationError,

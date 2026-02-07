@@ -1,6 +1,6 @@
 """COMPASS wind extraction plugin"""
 
-from compass.plugin.interface import ExtractionPlugin
+from compass.plugin import OrdinanceExtractionPlugin
 from compass.extraction.wind.ordinance import (
     WindHeuristic,
     WindOrdinanceTextCollector,
@@ -59,7 +59,7 @@ BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
 }
 
 
-class COMPASSWindExtractor(ExtractionPlugin):
+class COMPASSWindExtractor(OrdinanceExtractionPlugin):
     """COMPASS wind extraction plugin"""
 
     IDENTIFIER = "wind"
