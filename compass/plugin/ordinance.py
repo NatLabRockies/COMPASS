@@ -22,6 +22,7 @@ from compass.plugin.interface import (
     BaseTextCollector,
     FilteredExtractionPlugin,
 )
+from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.extraction import extract_ordinance_values
 from compass.utilities.enums import LLMTasks, LLMUsageCategory
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
@@ -529,7 +530,6 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
                 FORMATTING_PROMPT=self.FORMATTING_PROMPT,
                 OUTPUT_PROMPT=self.OUTPUT_PROMPT,
             )
-            # out_fn = prompt_dict.get("out_fn", None)
             yield key, partial(self._process, instructions=instructions)
 
     async def _process(self, text_chunks, instructions, is_valid_chunk=None):
@@ -845,6 +845,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         self._validate_in_out_keys()
         self._validate_collector_prompts()
         self._validate_collector_prompts()
+        self._register_clean_file_names()
 
     def _validate_text_extractors(self):
         """Validate user provided at least one text extractor class"""
@@ -974,6 +975,20 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                     "dictionary."
                 )
                 raise COMPASSPluginConfigurationError(msg)
+
+    def _register_clean_file_names(self):
+        """Register file names for writing cleaned text outputs"""
+        CLEANED_FP_REGISTRY.setdefault(self.IDENTIFIER.casefold(), {})
+        for extractor_class in self.TEXT_EXTRACTORS:
+            if not issubclass(extractor_class, PromptBasedTextExtractor):
+                continue
+            for ind, prompt_dict in enumerate(extractor_class.PROMPTS):
+                out_fn = prompt_dict.get("out_fn", None)
+                if not out_fn:
+                    continue
+
+                key = prompt_dict.get("key", f"extracted_text_{ind}")
+                CLEANED_FP_REGISTRY[self.IDENTIFIER.casefold()][key] = out_fn
 
 
 def _valid_chunk(chunk):
