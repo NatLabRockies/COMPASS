@@ -146,3 +146,6 @@ class BaseExtractionPlugin(ABC):
         total_usage = await UsageUpdater.call(self.usage_tracker)
         total_cost = compute_total_cost_from_usage(total_usage)
         COMPASS_PB.update_total_cost(total_cost, replace=True)
+
+    def validate_plugin_configuration(self):  # noqa: B027
+        """[NOT PUBLIC API] Validate plugin is properly configured"""

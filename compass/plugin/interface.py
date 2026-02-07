@@ -328,3 +328,77 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         out_fp = await CleanedFileWriter.call(doc, self.jurisdiction.full_name)
         doc.attrs["cleaned_fps"] = out_fp
         return doc
+
+    def validate_plugin_configuration(self):
+        """[NOT PUBLIC API] Validate plugin is properly configured"""
+
+        try:
+            __ = self.IDENTIFIER
+        except NotImplementedError:
+            msg = (
+                f"Plugin class {self.__class__.__name__} is missing required "
+                "property 'IDENTIFIER'"
+            )
+            raise COMPASSPluginConfigurationError(msg) from None
+
+        try:
+            num_q_templates = len(self.QUESTION_TEMPLATES)
+        except NotImplementedError:
+            msg = (
+                f"Plugin class {self.__class__.__name__} is missing required "
+                "property 'QUESTION_TEMPLATES'"
+            )
+            raise COMPASSPluginConfigurationError(msg) from None
+
+        if num_q_templates == 0:
+            msg = (
+                f"Plugin class {self.__class__.__name__} has an empty "
+                "'QUESTION_TEMPLATES' property! Please provide at least "
+                "one question template."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        try:
+            num_website_keywords = len(self.WEBSITE_KEYWORDS)
+        except NotImplementedError:
+            msg = (
+                f"Plugin class {self.__class__.__name__} is missing required "
+                "property 'WEBSITE_KEYWORDS'"
+            )
+            raise COMPASSPluginConfigurationError(msg) from None
+
+        if num_website_keywords == 0:
+            msg = (
+                f"Plugin class {self.__class__.__name__} has an empty "
+                "'WEBSITE_KEYWORDS' property! Please provide at least "
+                "one website keyword."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        try:
+            collectors = self.TEXT_COLLECTORS
+        except NotImplementedError:
+            msg = (
+                f"Plugin class {self.__class__.__name__} is missing required "
+                "property 'TEXT_COLLECTORS'"
+            )
+            raise COMPASSPluginConfigurationError(msg) from None
+
+        if len(collectors) == 0:
+            msg = (
+                f"Plugin class {self.__class__.__name__} has an empty "
+                "'TEXT_COLLECTORS' property! Please provide at least "
+                "one text collector class."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        for collector_class in collectors:
+            if not issubclass(collector_class, BaseTextCollector):
+                msg = (
+                    f"Plugin class {self.__class__.__name__} has invalid "
+                    "entry in 'TEXT_COLLECTORS' property: All entries must "
+                    "be subclasses of "
+                    "compass.plugin.interface.BaseTextCollector, but "
+                    f"{collector_class.__name__} is not!"
+                )
+                raise COMPASSPluginConfigurationError(msg)
