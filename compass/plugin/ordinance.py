@@ -300,18 +300,6 @@ class PromptBasedTextCollector(StructuredLLMCaller, BaseTextCollector, ABC):
         """
         raise NotImplementedError
 
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        if getattr(cls, "__abstractmethods__", None):
-            return
-
-        if not cls.PROMPTS:  # TODO: This should happen at registration
-            msg = (
-                f"{cls.__name__} must have at least one "
-                "prompt defined in the PROMPTS property"
-            )
-            raise COMPASSPluginConfigurationError(msg)
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._chunks = {}
@@ -509,13 +497,6 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
         if getattr(cls, "__abstractmethods__", None):
             return
 
-        if not cls.PROMPTS:  # TODO: This should happen at registration
-            msg = (
-                f"{cls.__name__} must have at least one "
-                "prompt defined in the PROMPTS property"
-            )
-            raise COMPASSPluginConfigurationError(msg)
-
         last_prompt = cls.PROMPTS[-1]
         last_index = len(cls.PROMPTS) - 1
         cls.OUT_LABEL = last_prompt.get("key", f"extracted_text_{last_index}")
@@ -651,52 +632,6 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             (self.PARSERS, chain(self.TEXT_EXTRACTORS, self.TEXT_COLLECTORS)),
             (self.TEXT_EXTRACTORS, self.TEXT_COLLECTORS),
         ]
-
-    def __init__(self, jurisdiction, model_configs, usage_tracker=None):
-        """
-
-        Parameters
-        ----------
-        jurisdiction : Jurisdiction
-            Jurisdiction for which extraction is being performed.
-        model_configs : dict
-            Dictionary where keys are LLMTasks and values are LLMConfig
-            instances to be used for those tasks.
-        usage_tracker : UsageTracker, optional
-            Usage tracker instance that can be used to record the LLM
-            call cost. By default, ``None``.
-        """
-        super().__init__(
-            jurisdiction=jurisdiction,
-            model_configs=model_configs,
-            usage_tracker=usage_tracker,
-        )
-
-        # TODO: This should happen during plugin registration
-        self._validate_in_out_keys()
-
-    def _validate_in_out_keys(self):
-        """Validate that all IN_LABELs have matching OUT_LABELs"""
-        out_keys = {}
-        for producer in self.producers:
-            out_keys.setdefault(producer.OUT_LABEL, []).append(producer)
-
-        dupes = {k: v for k, v in out_keys.items() if len(v) > 1}
-        if dupes:
-            formatted = "\n".join(
-                [
-                    f"{key}: {[cls.__name__ for cls in classes]}"
-                    for key, classes in dupes.items()
-                ]
-            )
-            msg = (
-                "Multiple processing classes produce the same OUT_LABEL key:\n"
-                f"{formatted}"
-            )
-            raise COMPASSPluginConfigurationError(msg)
-
-        for consumers, producers in self.consumer_producer_pairs:
-            _validate_in_out_keys(consumers, producers)
 
     async def extract_ordinances_from_text(
         self, doc, parser_class, model_config
@@ -901,6 +836,144 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         return self.model_configs.get(
             secondary_key, self.model_configs[LLMTasks.DEFAULT]
         )
+
+    def validate_plugin_configuration(self):
+        """[NOT PUBLIC API] Validate plugin is properly configured"""
+        super().validate_plugin_configuration()
+        self._validate_text_extractors()
+        self._validate_parsers()
+        self._validate_in_out_keys()
+        self._validate_collector_prompts()
+        self._validate_collector_prompts()
+
+    def _validate_text_extractors(self):
+        """Validate user provided at least one text extractor class"""
+        try:
+            extractors = self.TEXT_EXTRACTORS
+        except NotImplementedError:
+            msg = (
+                f"Plugin class {self.__class__.__name__} is missing required "
+                "property 'TEXT_EXTRACTORS'"
+            )
+            raise COMPASSPluginConfigurationError(msg) from None
+
+        if len(extractors) == 0:
+            msg = (
+                f"Plugin class {self.__class__.__name__} has an empty "
+                "'TEXT_EXTRACTORS' property! Please provide at least "
+                "one text extractor class."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        for extractor_class in extractors:
+            if not issubclass(extractor_class, BaseTextExtractor):
+                msg = (
+                    f"Plugin class {self.__class__.__name__} has invalid "
+                    "entry in 'TEXT_EXTRACTORS' property: All entries must "
+                    "be subclasses of "
+                    "compass.plugin.ordinance.BaseTextExtractor, but "
+                    f"{extractor_class.__name__} is not!"
+                )
+                raise COMPASSPluginConfigurationError(msg)
+
+    def _validate_parsers(self):
+        """Validate user provided at least one parser class"""
+        try:
+            parsers = self.PARSERS
+        except NotImplementedError:
+            msg = (
+                f"Plugin class {self.__class__.__name__} is missing required "
+                "property 'PARSERS'"
+            )
+            raise COMPASSPluginConfigurationError(msg) from None
+
+        if len(parsers) == 0:
+            msg = (
+                f"Plugin class {self.__class__.__name__} has an empty "
+                "'PARSERS' property! Please provide at least "
+                "one text extractor class."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        for parsers_class in parsers:
+            if not issubclass(parsers_class, BaseParser):
+                msg = (
+                    f"Plugin class {self.__class__.__name__} has invalid "
+                    "entry in 'PARSERS' property: All entries must "
+                    "be subclasses of "
+                    "compass.plugin.ordinance.BaseParser, but "
+                    f"{parsers_class.__name__} is not!"
+                )
+                raise COMPASSPluginConfigurationError(msg)
+
+    def _validate_in_out_keys(self):
+        """Validate that all IN_LABELs have matching OUT_LABELs"""
+        out_keys = {}
+        for producer in self.producers:
+            out_keys.setdefault(producer.OUT_LABEL, []).append(producer)
+
+        dupes = {k: v for k, v in out_keys.items() if len(v) > 1}
+        if dupes:
+            formatted = "\n".join(
+                [
+                    f"{key}: {[cls.__name__ for cls in classes]}"
+                    for key, classes in dupes.items()
+                ]
+            )
+            msg = (
+                "Multiple processing classes produce the same OUT_LABEL key:\n"
+                f"{formatted}"
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        for consumers, producers in self.consumer_producer_pairs:
+            _validate_in_out_keys(consumers, producers)
+
+    def _validate_collector_prompts(self):
+        """Validate that all text collectors have prompts defined"""
+
+        for collector in self.TEXT_COLLECTORS:
+            if not issubclass(collector, PromptBasedTextCollector):
+                continue
+            try:
+                num_prompts = len(collector.PROMPTS)
+            except NotImplementedError:
+                msg = (
+                    f"Text collector {self.__class__.__name__} is missing "
+                    "required property 'PROMPTS'"
+                )
+                raise COMPASSPluginConfigurationError(msg) from None
+
+            if num_prompts == 0:
+                msg = (
+                    f"Text collector {self.__class__.__name__} has an empty "
+                    "'PROMPTS' property! Please provide at least one prompt "
+                    "dictionary."
+                )
+                raise COMPASSPluginConfigurationError(msg)
+
+    def _validate_collector_prompts(self):
+        """Validate that all text extractors have prompts defined"""
+
+        for collector in self.TEXT_EXTRACTORS:
+            if not issubclass(collector, PromptBasedTextExtractor):
+                continue
+            try:
+                num_prompts = len(collector.PROMPTS)
+            except NotImplementedError:
+                msg = (
+                    f"Text extractor {self.__class__.__name__} is missing "
+                    "required property 'PROMPTS'"
+                )
+                raise COMPASSPluginConfigurationError(msg) from None
+
+            if num_prompts == 0:
+                msg = (
+                    f"Text extractor {self.__class__.__name__} has an empty "
+                    "'PROMPTS' property! Please provide at least one prompt "
+                    "dictionary."
+                )
+                raise COMPASSPluginConfigurationError(msg)
 
 
 def _valid_chunk(chunk):
