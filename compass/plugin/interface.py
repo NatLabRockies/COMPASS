@@ -9,12 +9,12 @@ from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
 from compass.services.threaded import CleanedFileWriter
 from compass.utilities import doc_infos_to_db, save_db
+from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
 
 # TODO: Allow other to register own clean file outputs
-# TODO: Allow other to register their own jurisdictions csv
 
 
 class BaseHeuristic(ABC):
