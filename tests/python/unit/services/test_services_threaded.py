@@ -16,6 +16,7 @@ from compass.extraction.context import ExtractionContext
 from compass.services import threaded
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
+    CLEANED_FP_REGISTRY,
     CleanedFileWriter,
     FileMover,
     HTMLFileLoader,
@@ -194,13 +195,12 @@ def test_move_file_handles_extensionless_cached_file(tmp_path):
     assert moved_fp.read_text(encoding="utf-8") == "content"
 
 
-def test_write_cleaned_file_with_debug(tmp_path, monkeypatch):
+def test_write_cleaned_file_with_debug(tmp_path):
     """Cleaned file writer should emit cleaned and debug outputs"""
 
     doc = HTMLDocument(["payload"])
     doc.attrs.update(
         {
-            "jurisdiction_name": "Sample Jurisdiction",
             "cleaned_text_for_extraction": "clean",
             "districts_text": "districts",
             "relevant_text": "orig",
@@ -209,17 +209,35 @@ def test_write_cleaned_file_with_debug(tmp_path, monkeypatch):
         }
     )
 
-    monkeypatch.setattr(threaded, "COMPASS_DEBUG_LEVEL", 1, raising=False)
+    fp_names = {
+        "relevant_text": "{jurisdiction} Ordinance Original text.txt",
+        "cleaned_text_for_extraction": "{jurisdiction} Cleaned Text.txt",
+        "districts_text": "{jurisdiction} Districts.txt",
+    }
+
+    CLEANED_FP_REGISTRY["cleaned_file_test"] = fp_names
     outputs = threaded._write_cleaned_file(
-        doc, tmp_path, jurisdiction_name="Sample Jurisdiction"
+        doc,
+        tmp_path,
+        tech="cleaned_file_test",
+        jurisdiction_name="Sample Jurisdiction",
     )
 
     expected_files = {
         "Sample Jurisdiction Cleaned Text.txt",
         "Sample Jurisdiction Districts.txt",
+        "Sample Jurisdiction Ordinance Original text.txt",
     }
     assert {fp.name for fp in outputs} == expected_files
     assert all(fp.exists() for fp in outputs)
+
+    debug_fp = tmp_path / "Sample Jurisdiction Cleaned Text.txt"
+    assert debug_fp.exists()
+    assert debug_fp.read_text(encoding="utf-8") == "clean"
+
+    debug_fp = tmp_path / "Sample Jurisdiction Districts.txt"
+    assert debug_fp.exists()
+    assert debug_fp.read_text(encoding="utf-8") == "districts"
 
     debug_fp = tmp_path / "Sample Jurisdiction Ordinance Original text.txt"
     assert debug_fp.exists()
@@ -231,7 +249,7 @@ def test_write_cleaned_file_without_jurisdiction_returns_none(tmp_path):
 
     doc = HTMLDocument(["payload"])
     doc.attrs["cleaned_text_for_extraction"] = "clean"
-    assert threaded._write_cleaned_file(doc, tmp_path) is None
+    assert threaded._write_cleaned_file(doc, tmp_path, tech="wind") is None
 
 
 def test_write_cleaned_file_skips_missing_section(tmp_path):
@@ -241,7 +259,7 @@ def test_write_cleaned_file_skips_missing_section(tmp_path):
     doc.attrs.update({"cleaned_text_for_extraction": "clean"})
 
     outputs = threaded._write_cleaned_file(
-        doc, tmp_path, jurisdiction_name="Partial"
+        doc, tmp_path, tech="wind", jurisdiction_name="Partial"
     )
     assert [fp.name for fp in outputs] == ["Partial Cleaned Text.txt"]
 
@@ -341,7 +359,7 @@ async def test_cleaned_file_writer_process(tmp_path, monkeypatch):
     writer = CleanedFileWriter(tmp_path)
     assert writer.can_process is True
     writer.acquire_resources()
-    outputs = await writer.process(doc, "Writer")
+    outputs = await writer.process(doc, "wind", "Writer")
     writer.release_resources()
 
     assert sorted(fp.name for fp in outputs) == [
