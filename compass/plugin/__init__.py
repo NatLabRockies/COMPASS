@@ -10,7 +10,7 @@ from .ordinance import (
     BaseTextExtractor,
     BaseParser,
     OrdinanceHeuristic,
-    OrdinanceTextCollector,
+    PromptBasedTextCollector,
     PromptBasedTextExtractor,
     OrdinanceParser,
     OrdinanceExtractionPlugin,

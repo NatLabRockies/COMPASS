@@ -8,7 +8,7 @@ import logging
 
 from compass.plugin.ordinance import (
     OrdinanceHeuristic,
-    OrdinanceTextCollector,
+    PromptBasedTextCollector,
     PromptBasedTextExtractor,
 )
 from compass.utilities.enums import LLMUsageCategory
@@ -31,6 +31,58 @@ _SEARCH_TERMS_AND = (
 )
 _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = "private, residential, micro, small, or medium sized"
+
+_CONTAINS_ORD_COLLECTION_PROMPT = f"""\
+You extract structured data from text. Return your answer in JSON format \
+(not markdown). Your JSON file must include exactly two keys. The first \
+key is 'wind_reqs', which is a string that summarizes all {_SEARCH_TERMS_AND} \
+that are explicitly enacted in the text for a wind energy system (or wind \
+turbine/tower) for a given jurisdiction. Note that wind energy bans are \
+an important restriction to track. Include any **closely related provisions** \
+if they clearly pertain to the **development, operation, modification, or \
+removal** of wind energy systems (or wind turbines/towers). All restrictions \
+should be enforceable - ignore any text that only provides a legal definition \
+of the regulation. If the text does not specify any concrete \
+{_SEARCH_TERMS_OR} for a wind energy system, set this key to `null`. The last \
+key is '{{key}}', which is a boolean that is set to True if the text excerpt \
+explicitly details {_SEARCH_TERMS_OR} for a wind energy system (or wind \
+turbine/tower) and False otherwise.\
+"""
+
+_IS_UTILITY_SCALE_COLLECTION_PROMPT = f"""\
+You are a legal scholar that reads ordinance text and determines whether \
+any of it applies to {_SEARCH_TERMS_OR} for **large wind energy systems**. \
+Large wind energy systems (WES) may also be referred to as \
+{_LARGE_WES_SYNONYMS}. Your client is a commercial wind developer that \
+does not care about ordinances related to {_IGNORE_TYPES} wind energy \
+systems. Ignore any text related to such systems. Return your answer as a \
+dictionary in JSON format (not markdown). Your JSON file must include \
+exactly two keys. The first key is 'summary' which contains a string that \
+lists all of the types of wind energy systems the text applies to (if any). \
+The second key is '{{key}}', which is a boolean that is set to True if any \
+part of the text excerpt details {_SEARCH_TERMS_OR} for the **large wind \
+energy conversion systems** (or similar) that the client is interested in \
+and False otherwise.\
+"""
+
+_DISTRICTS_COLLECTION_PROMPT = f"""\
+You are a legal scholar that reads ordinance text and determines whether \
+the text explicitly contains relevant information to determine the districts \
+(and especially the district names) where large wind energy systems are a \
+permitted use (primary, special, accessory, or otherwise), as well as the \
+districts where large wind energy systems are prohibited entirely. Large \
+wind energy systems (WES) may also be referred to as {_LARGE_WES_SYNONYMS}. \
+Do not make any inferences; only answer based on information that is \
+explicitly stated in the text. Note that relevant information may sometimes \
+be found in tables. Return your answer as a dictionary in JSON format (not \
+markdown). Your JSON file must include exactly two keys. The first key is \
+'districts' which contains a string that lists all of the district names for \
+which the text explicitly permits **large wind energy systems** (if any). \
+The last key is '{{key}}', which is a boolean that is set to True if any \
+part of the text excerpt provides information on districts where **large \
+wind energy systems** (or similar) are a permitted use in and False  \
+otherwise.\
+"""
 
 _WECS_TEXT_EXTRACTION_PROMPT = """\
 # CONTEXT #
@@ -236,180 +288,44 @@ class WindHeuristic(OrdinanceHeuristic):
     """Phrases that indicate text is about WECS"""
 
 
-class WindOrdinanceTextCollector(OrdinanceTextCollector):
+class WindOrdinanceTextCollector(PromptBasedTextCollector):
     """Check text chunks for ordinances and collect them if they do"""
 
     OUT_LABEL = "relevant_text"
     """Identifier for text collected by this class"""
 
-    CONTAINS_ORD_PROMPT = (
-        "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly two "
-        "keys. The first key is 'wind_reqs', which is a string that "
-        f"summarizes all {_SEARCH_TERMS_AND} that are explicitly enacted "
-        "in the text for a wind energy system (or wind turbine/tower) for "
-        "a given jurisdiction. "
-        "Note that wind energy bans are an important restriction to track. "
-        "Include any **closely related provisions** if they clearly pertain "
-        "to the **development, operation, modification, or removal** of wind "
-        "energy systems (or wind turbines/towers). "
-        "All restrictions should be enforceable - ignore any text that only "
-        "provides a legal definition of the regulation. If the text does not "
-        f"specify any concrete {_SEARCH_TERMS_OR} for a wind energy system, "
-        "set this key to `null`. The last key is '{key}', which is a boolean "
-        "that is set to True if the text excerpt explicitly details "
-        f"{_SEARCH_TERMS_OR} for a wind energy system (or wind turbine/tower) "
-        "and False otherwise. "
-    )
-    """Prompt to check if chunk contains WES ordinance info"""
-
-    IS_UTILITY_SCALE_PROMPT = (
-        "You are a legal scholar that reads ordinance text and determines "
-        f"whether any of it applies to {_SEARCH_TERMS_OR} for "
-        "**large wind energy systems**. Large wind energy systems (WES) may "
-        f"also be referred to as {_LARGE_WES_SYNONYMS}. "
-        "Your client is a commercial wind developer that does not "
-        f"care about ordinances related to {_IGNORE_TYPES} wind energy "
-        "systems. Ignore any text related to such systems. "
-        "Return your answer as a dictionary in JSON format (not markdown). "
-        "Your JSON file must include exactly two keys. The first key is "
-        "'summary' which contains a string that lists all of the types of "
-        "wind energy systems the text applies to (if any). The second key is "
-        "'{key}', which is a boolean that is set to True if any part of the "
-        f"text excerpt details {_SEARCH_TERMS_OR} for the **large wind energy "
-        "conversion systems** (or similar) that the client is interested in "
-        "and False otherwise."
-    )
-    """Prompt to check if chunk is for utility-scale WES"""
-
-    async def check_chunk(self, chunk_parser, ind):
-        """Check a chunk at a given ind to see if it contains ordinance
-
-        Parameters
-        ----------
-        chunk_parser : ParseChunksWithMemory
-            Instance that contains a ``parse_from_ind`` method.
-        ind : int
-            Index of the chunk to check.
-
-        Returns
-        -------
-        bool
-            Boolean flag indicating whether or not the text in the chunk
-            contains large wind energy conversion system ordinance text.
-        """
-        contains_ord_info = await chunk_parser.parse_from_ind(
-            ind,
-            key="contains_ord_info",
-            llm_call_callback=self._check_chunk_contains_ord,
-        )
-        if not contains_ord_info:
-            logger.debug("Text at ind %d does not contain ordinance info", ind)
-            return False
-
-        logger.debug("Text at ind %d does contain ordinance info", ind)
-
-        is_utility_scale = await chunk_parser.parse_from_ind(
-            ind,
-            key="x",
-            llm_call_callback=self._check_chunk_is_for_utility_scale,
-        )
-        if not is_utility_scale:
-            logger.debug("Text at ind %d is not for utility-scale WECS", ind)
-            return False
-
-        logger.debug("Text at ind %d is for utility-scale WECS", ind)
-
-        self._store_chunk(chunk_parser, ind)
-        logger.debug("Added text at ind %d to ordinances", ind)
-
-        return True
-
-    async def _check_chunk_contains_ord(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for ordinance"""
-        content = await self.call(
-            sys_msg=self.CONTAINS_ORD_PROMPT.format(key=key),
-            content=text_chunk,
-            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
-        )
-        logger.debug("LLM response: %s", content)
-        return content.get(key, False)
-
-    async def _check_chunk_is_for_utility_scale(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for utility scale"""
-        content = await self.call(
-            sys_msg=self.IS_UTILITY_SCALE_PROMPT.format(key=key),
-            content=text_chunk,
-            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
-        )
-        logger.debug("LLM response: %s", content)
-        return content.get(key, False)
+    PROMPTS = [
+        {
+            "key": "contains_ord_info",
+            "label": "contains ordinance info",
+            "prompt": _CONTAINS_ORD_COLLECTION_PROMPT,
+        },
+        {
+            # Generic key like "x" makes the llm focus on the
+            # instruction rather than using the key name to infer the
+            # content, which can improve performance,
+            "key": "x",
+            "label": "for utility-scale WECS",
+            "prompt": _IS_UTILITY_SCALE_COLLECTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for ordinance text collection"""
 
 
-class WindPermittedUseDistrictsTextCollector(OrdinanceTextCollector):
+class WindPermittedUseDistrictsTextCollector(PromptBasedTextCollector):
     """Check text chunks for permitted wind districts; collect them"""
 
     OUT_LABEL = "permitted_use_text"
     """Identifier for text collected by this class"""
 
-    DISTRICT_PROMPT = (
-        "You are a legal scholar that reads ordinance text and determines "
-        "whether the text explicitly contains relevant information to "
-        "determine the districts (and especially the district names) where "
-        "large wind energy systems are a permitted use (primary, special, "
-        "accessory, or otherwise), as well as the districts where large wind "
-        "energy systems are prohibited entirely. Large wind energy systems "
-        f"(WES) may also be referred to as {_LARGE_WES_SYNONYMS}. "
-        "Do not make any inferences; only answer based on information that "
-        "is explicitly stated in the text. "
-        "Note that relevant information may sometimes be found in tables. "
-        "Return your answer as a dictionary in JSON format (not markdown). "
-        "Your JSON file must include exactly two keys. The first key is "
-        "'districts' which contains a string that lists all of the district "
-        "names for which the text explicitly permits **large wind energy "
-        "systems** (if any). The last key is '{key}', which is a boolean that "
-        "is set to True if any part of the text excerpt provides information "
-        "on districts where **large wind energy systems** (or similar) are a "
-        "permitted use in and False otherwise."
-    )
-    """Prompt to check if chunk contains info on permitted districts"""
-
-    async def check_chunk(self, chunk_parser, ind):
-        """Check a chunk to see if it contains permitted uses
-
-        Parameters
-        ----------
-        chunk_parser : ParseChunksWithMemory
-            Instance that contains a ``parse_from_ind`` method.
-        ind : int
-            Index of the chunk to check.
-
-        Returns
-        -------
-        bool
-            Boolean flag indicating whether or not the text in the chunk
-            contains large wind energy conversion system permitted use
-            text.
-        """
-
-        key = "contains_district_info"
-        content = await self.call(
-            sys_msg=self.DISTRICT_PROMPT.format(key=key),
-            content=chunk_parser.text_chunks[ind],
-            usage_sub_label=(
-                LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION
-            ),
-        )
-        logger.debug("LLM response: %s", content)
-        contains_district_info = content.get(key, False)
-
-        if contains_district_info:
-            self._store_chunk(chunk_parser, ind)
-            logger.debug("Text at ind %d contains district info", ind)
-            return True
-
-        logger.debug("Text at ind %d does not contain district info", ind)
-        return False
+    PROMPTS = [
+        {
+            "key": "contains_district_info",
+            "label": "contains district info",
+            "prompt": _DISTRICTS_COLLECTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for permitted use text collection"""
 
 
 class WindOrdinanceTextExtractor(PromptBasedTextExtractor):

@@ -259,8 +259,58 @@ class OrdinanceHeuristic(BaseHeuristic, ABC):
         raise NotImplementedError
 
 
-class OrdinanceTextCollector(StructuredLLMCaller, BaseTextCollector):
-    """Base class for ordinance text collectors"""
+class PromptBasedTextCollector(StructuredLLMCaller, BaseTextCollector, ABC):
+    """Text extractor based on a chain of prompts"""
+
+    @property
+    @abstractmethod
+    def PROMPTS(self):  # noqa: N802
+        """list: List of dicts defining the prompts for text extraction
+
+        Each dict in the list should have the following keys:
+
+            - **prompt**: [REQUIRED] The text filter prompt to use
+              to determine if a chunk of text is relevant for the
+              current extraction task. The prompt must instruct the LLM
+              to return a dictionary (as JSON) with at least one key
+              that outputs the filter decision. The prompt may use the
+              following placeholders, which will be filled in with the
+              corresponding class attributes when the prompt is applied:
+
+                - ``"{key}"``: The key corresponding to this prompt.
+
+            - **key**: [REQUIRED] A string identifier for the key that
+              in the output JSON dictionary that represents the LLM
+              filter decision (``True`` if the tech chunk should be
+              kept, and ``False`` otherwise).
+            - **label**: [OPTIONAL] A string label describing the type
+              of relevant text this prompt is looking for (e.g. "wind
+              energy conversion system ordinance text"). This is only
+              used for logging purposes and does not affect the
+              extraction process itself. If not provided, this will
+              default to "collector step {i}".
+
+        The prompts will be applied in the order they appear in the
+        list, with the output text from each prompt being fed as input
+        to the next prompt in the chain. If any of the filter decisions
+        return ``False``, the text will be discarded and not passed to
+        subsequent prompts. The final output of the last prompt will
+        determine wether or not the chunk of text being evaluated is
+        kept as relevant text for extraction.
+        """
+        raise NotImplementedError
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if getattr(cls, "__abstractmethods__", None):
+            return
+
+        if not cls.PROMPTS:  # TODO: This should happen at registration
+            msg = (
+                f"{cls.__name__} must have at least one "
+                "prompt defined in the PROMPTS property"
+            )
+            raise COMPASSPluginConfigurationError(msg)
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -284,6 +334,59 @@ class OrdinanceTextCollector(StructuredLLMCaller, BaseTextCollector):
 
         text = [self._chunks[ind] for ind in sorted(self._chunks)]
         return merge_overlapping_texts(text)
+
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk at a given ind to see if it contains ordinance
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance that contains a ``parse_from_ind`` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            contains large wind energy conversion system ordinance text.
+        """
+        for collection_step, prompt_dict in enumerate(self.PROMPTS):
+            key = prompt_dict["key"]
+            prompt = prompt_dict["prompt"].format(key=key)
+            label = prompt_dict.get("label", collection_step)
+            passed_filter = await chunk_parser.parse_from_ind(
+                ind,
+                key=key,
+                llm_call_callback=self._check_chunk_with_prompt,
+                prompt=prompt,
+            )
+
+            if not passed_filter:
+                logger.debug(
+                    "Text at ind %d did not pass collection step: %s",
+                    ind,
+                    label,
+                )
+                return False
+
+            logger.debug(
+                "Text at ind %d passed collection step: %s ", ind, label
+            )
+
+        self._store_chunk(chunk_parser, ind)
+        logger.debug("Added text chunk at ind %d to extraction text", ind)
+        return True
+
+    async def _check_chunk_with_prompt(self, key, text_chunk, prompt):
+        """Call LLM on a chunk of text to check for ordinance"""
+        content = await self.call(
+            sys_msg=prompt.format(key=key),
+            content=text_chunk,
+            usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
+        )
+        logger.debug("LLM response: %s", content)
+        return content.get(key, False)
 
     def _store_chunk(self, parser, chunk_ind):
         """Store chunk and its neighbors if it is not already stored"""
@@ -676,7 +779,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                 extraction_context.attrs["structured_data"] = data_df
                 logger.info(
                     "%d ordinance value(s) found in doc from %s for %s. ",
-                    row_count,
+                    num_ordinances_dataframe(data_df),
                     doc_for_extraction.attrs.get("source", "unknown source"),
                     self.jurisdiction.full_name,
                 )
