@@ -7,3 +7,10 @@ from .apply import (
     extract_relevant_text_with_ngram_validation,
     extract_ordinance_values,
 )
+
+# Temporarily import to register plugins
+# Can drop once plugins register themselves
+from .wind import COMPASSWindExtractor
+from .solar import COMPASSSolarExtractor
+from .small_wind import COMPASSSmallWindExtractor
+from .water import TexasWaterRightsExtractor
