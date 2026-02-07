@@ -9,7 +9,7 @@ import logging
 from compass.plugin.ordinance import (
     OrdinanceHeuristic,
     OrdinanceTextCollector,
-    OrdinanceTextExtractor,
+    PromptBasedTextExtractor,
 )
 from compass.utilities.enums import LLMUsageCategory
 
@@ -33,6 +33,109 @@ _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES = (
     "CSP, private, residential, roof-mounted, micro, small, or medium sized"
 )
+
+_SEF_TEXT_EXTRACTION_PROMPT = f"""\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information about \
+**solar energy systems**. The extracted text will be used for structured data \
+extraction, so it must be both **comprehensive** (retaining all relevant \
+details) and **focused** (excluding unrelated content), with **zero rewriting \
+or paraphrasing**. Ensure that all retained information is **directly \
+applicable to solar energy systems** while preserving full context and \
+accuracy.
+
+# OBJECTIVE #
+Extract all text **pertaining to solar energy systems** from the provided \
+excerpt.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Include **all** text that pertains to** solar energy systems**, even if \
+they are referred to by different names such as: \
+{_LARGE_SEF_SYNONYMS.capitalize()}
+- Explicitly include any text related to **bans or prohibitions** on solar \
+energy systems.
+- Explicitly include any text related to the adoption or enactment date of \
+the ordinance (if any).
+
+2. ## Exclusions ##:
+- Do **not** include text that does not pertain to solar energy systems.
+
+3. {{FORMATTING_PROMPT}}
+
+4. {{OUTPUT_PROMPT}}\
+"""
+
+_PERMITTED_USES_TEXT_EXTRACTION_PROMPT = """\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information detailing \
+permitted use(s) for a district. The extracted text will be used for \
+structured data extraction, so it must be both **comprehensive** (retaining \
+all relevant details) and **focused** (excluding unrelated content), with \
+**zero rewriting or paraphrasing**. Ensure that all retained information is \
+**directly applicable** to permitted use(s) for one or more districts while \
+preserving full context and accuracy.
+
+# OBJECTIVE #
+Remove all text **not directly pertinent** to permitted use(s) for a district.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Retain all text defining permitted use(s) for a district, including:
+    - **Primary, Special, Conditional, Accessory, Prohibited, and any other \
+use types.**
+    - **District names and zoning classifications.**
+- Pay extra attention to any references to **solar energy facilities** or \
+related terms.
+- Ensure that **tables, lists, and structured elements** are preserved as \
+they may contain relevant details.
+
+2. ## Exclusions ##:
+- Do **not** include unrelated regulations, procedural details, or \
+non-use-based restrictions.
+
+3. {FORMATTING_PROMPT}
+
+4. {OUTPUT_PROMPT}\
+"""
+
+_SEF_PERMITTED_USES_TEXT_EXTRACTION_PROMPT = """\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information detailing \
+**solar energy system** permitted use(s) for a district. The extracted text \
+will be used for structured data extraction, so it must be both \
+**comprehensive** (retaining all relevant details) and **focused** (excluding \
+unrelated content), with **zero rewriting or paraphrasing**. Ensure that all \
+retained information is **directly applicable** to permitted use(s) for solar \
+energy systems in one or more districts while preserving full context and \
+accuracy.
+
+# OBJECTIVE #
+Remove all text **not directly pertinent** to solar energy conversion system \
+permitted use(s) for a district.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Retain all text defining permitted use(s) for a district, including:
+    - **Primary, Special, Conditional, Accessory, Prohibited, and any other \
+use types.**
+    - **District names and zoning classifications.**
+- Ensure that **tables, lists, and structured elements** are preserved as \
+they may contain relevant details.
+
+2. ## Exclusions ##:
+- Do not include text that does not pertain at all to solar energy systems.
+
+3. {FORMATTING_PROMPT}
+
+4. {OUTPUT_PROMPT}\
+"""
 
 
 class SolarHeuristic(OrdinanceHeuristic):
@@ -249,14 +352,11 @@ class SolarPermittedUseDistrictsTextCollector(OrdinanceTextCollector):
         return False
 
 
-class SolarOrdinanceTextExtractor(OrdinanceTextExtractor):
+class SolarOrdinanceTextExtractor(PromptBasedTextExtractor):
     """Extract succinct ordinance text from input"""
 
     IN_LABEL = SolarOrdinanceTextCollector.OUT_LABEL
     """Identifier for collected text ingested by this class"""
-
-    OUT_LABEL = "cleaned_text_for_extraction"
-    """Identifier for ordinance text extracted by this class"""
 
     TASK_DESCRIPTION = "Extracting solar ordinance text"
     """Task description to show in progress bar"""
@@ -264,93 +364,21 @@ class SolarOrdinanceTextExtractor(OrdinanceTextExtractor):
     TASK_ID = "ordinance_text_extraction"
     """ID to use for this extraction for linking with LLM configs"""
 
-    SOLAR_ENERGY_SYSTEM_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "about **solar energy systems**. The extracted text will be used for "
-        "structured data extraction, so it must be both **comprehensive** "
-        "(retaining all relevant details) and **focused** (excluding "
-        "unrelated content), with **zero rewriting or paraphrasing**. "
-        "Ensure that all retained information is "
-        "**directly applicable to solar energy systems** while preserving "
-        "full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Extract all text **pertaining to solar energy systems** from the "
-        "provided excerpt.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Include **all** text that pertains to** solar energy systems**, "
-        "even if they are referred to by different names such as:\n"
-        f"\t{_LARGE_SEF_SYNONYMS.capitalize()}.\n"
-        "- Explicitly include any text related to **bans or prohibitions** "
-        "on solar energy systems.\n"
-        "- Explicitly include any text related to the adoption or enactment "
-        "date of the ordinance (if any).\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do **not** include text that does not pertain to solar energy "
-        "systems.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for SEF"""
-
-    async def extract_solar_energy_system_section(self, text_chunks):
-        """Extract ordinance text from input text chunks for SEF
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.SOLAR_ENERGY_SYSTEM_FILTER_PROMPT,
-        )
-
-    @property
-    def parsers(self):
-        """Iterable of parsers provided by this extractor
-
-        Yields
-        ------
-        name : str
-            Name describing the type of text output by the parser.
-        parser : callable
-            Async function that takes a ``text_chunks`` input and
-            outputs parsed text.
-        """
-        yield self.OUT_LABEL, self.extract_solar_energy_system_section
+    PROMPTS = [
+        {
+            "key": "cleaned_text_for_extraction",
+            "out_fn": "{jurisdiction} Cleaned Text.txt",
+            "prompt": _SEF_TEXT_EXTRACTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for ordinance text extraction"""
 
 
-class SolarPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
+class SolarPermittedUseDistrictsTextExtractor(PromptBasedTextExtractor):
     """Extract succinct permitted use districts text from input"""
 
     IN_LABEL = SolarPermittedUseDistrictsTextCollector.OUT_LABEL
     """Identifier for collected text ingested by this class"""
-
-    OUT_LABEL = "districts_text"
-    """Identifier for permitted use text extracted by this class"""
 
     TASK_DESCRIPTION = "Extracting solar permitted use text"
     """Task description to show in progress bar"""
@@ -360,148 +388,16 @@ class SolarPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
 
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
 
-    PERMITTED_USES_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "detailing permitted use(s) for a district. The extracted text will "
-        "be used for structured data extraction, so it must be both "
-        "**comprehensive** (retaining all relevant details) and **focused** "
-        "(excluding unrelated content), with **zero rewriting or "
-        "paraphrasing**. Ensure that all retained information "
-        "is **directly applicable** to permitted use(s) for one or more "
-        "districts while preserving full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Remove all text **not directly pertinent** to permitted use(s) for "
-        "a district.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Retain all text defining permitted use(s) for a district, "
-        "including:\n"
-        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
-        "any other use types.**\n"
-        "\t- **District names and zoning classifications.**\n"
-        "- Pay extra attention to any references to **solar energy "
-        "facilities** or related terms.\n"
-        "- Ensure that **tables, lists, and structured elements** are "
-        "preserved as they may contain relevant details.\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do **not** include unrelated regulations, procedural details, "
-        "or non-use-based restrictions.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference, **especially if they contain the district name**.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for permitted uses"""
-
-    SEF_PERMITTED_USES_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "detailing **solar energy system** permitted use(s) for a district. "
-        "The extracted text will be used for structured data extraction, so "
-        "it must be both **comprehensive** (retaining all relevant details) "
-        "and **focused** (excluding unrelated content), with **zero rewriting "
-        "or paraphrasing**. Ensure that all "
-        "retained information is **directly applicable** to permitted use(s) "
-        "for solar energy systems in one or more districts while "
-        "preserving full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Remove all text **not directly pertinent** to solar energy "
-        "conversion system permitted use(s) for a district.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Retain all text defining permitted use(s) for a district, "
-        "including:\n"
-        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
-        "any other use types.**\n"
-        "\t- **District names and zoning classifications.**\n"
-        "- Ensure that **tables, lists, and structured elements** are "
-        "preserved as they may contain relevant details.\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do not include text that does not pertain at all to solar "
-        "energy systems.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference, **especially if they contain the district name**.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for permitted uses for SEF"""
-
-    async def extract_permitted_uses(self, text_chunks):
-        """Extract permitted uses text from input text chunks
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.PERMITTED_USES_FILTER_PROMPT,
-        )
-
-    async def extract_sef_permitted_uses(self, text_chunks):
-        """Extract permitted uses text for large SEF from input text
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.SEF_PERMITTED_USES_FILTER_PROMPT,
-        )
-
-    @property
-    def parsers(self):
-        """Iterable of parsers provided by this extractor
-
-        Yields
-        ------
-        name : str
-            Name describing the type of text output by the parser.
-        parser : callable
-            Async function that takes a ``text_chunks`` input and
-            outputs parsed text.
-        """
-        yield "permitted_use_only_text", self.extract_permitted_uses
-        yield self.OUT_LABEL, self.extract_sef_permitted_uses
+    PROMPTS = [
+        {
+            "key": "permitted_use_only_text",
+            "out_fn": "{jurisdiction} Permitted Use Only.txt",
+            "prompt": _PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
+        },
+        {
+            "key": "districts_text",
+            "out_fn": "{jurisdiction} Districts.txt",
+            "prompt": _SEF_PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for permitted use text extraction"""

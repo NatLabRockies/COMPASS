@@ -197,19 +197,125 @@ class OrdinanceTextCollector(StructuredLLMCaller, BaseTextCollector):
             )
 
 
-class OrdinanceTextExtractor(BaseTextExtractor, ABC):
-    """Base implementation for a text extractor"""
+class PromptBasedTextExtractor(BaseTextExtractor, ABC):
+    """Text extractor based on a chain of prompts"""
 
     SYSTEM_MESSAGE = (
-        "You are a text extraction assistant. Your job is to extract only "
-        "verbatim, **unmodified** excerpts from provided legal or policy "
-        "documents. Do not interpret or paraphrase. Do not summarize. Only "
-        "return exactly copied segments that match the specified scope. If "
-        "the relevant content appears within a table, return the entire "
-        "table, including headers and footers, exactly as formatted."
+        dedent(
+            """\
+        You are a text extraction assistant. Your job is to extract only
+        verbatim, **unmodified** excerpts from the provided text. Do not
+        interpret or paraphrase. Do not summarize. Only return exactly copied
+        segments that match the specified scope. If the relevant content
+        appears within a table, return the entire table, including headers
+        and footers, exactly as formatted.
+        """
+        )
+        .replace("\n", " ")
+        .strip()
     )
     """System message for text extraction LLM calls"""
+
+    FORMATTING_PROMPT = (
+        dedent(
+            """\
+        ## Formatting & Structure ##:
+        - **Preserve _all_ section titles, headers, and numberings** for
+          reference.
+        - **Maintain the original wording, formatting, and structure** to
+          ensure accuracy.
+        """
+        )
+        .replace("\n  ", " ")
+        .strip()
+    )
+    """Prompt component instructing model to preserve text structure"""
+
+    OUTPUT_PROMPT = (
+        dedent(
+            """\
+        ## Output Handling ##:
+        - This is a strict extraction task — act like a text filter, **not**
+          a summarizer or writer.
+        - Do not add, explain, reword, or summarize anything.
+        - The output must be a **copy-paste** of the original excerpt.
+          **Absolutely no paraphrasing or rewriting.**
+        - The output must consist **only** of contiguous or discontiguous
+          verbatim blocks copied from the input.
+        - If **no relevant text** is found, return the response:
+          'No relevant text.'
+        """
+        )
+        .replace("\n  ", " ")
+        .strip()
+    )
+    """Prompt component instructing model output guidelines"""
+
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
+
+    @property
+    @abstractmethod
+    def PROMPTS(self):  # noqa: N802
+        """list: List of dicts defining the prompts for text extraction
+
+        Each dict in the list should have the following keys:
+
+            - **prompt**: [REQUIRED] The text extraction prompt to use
+              for the extraction. The prompt may use the following
+              placeholders, which will be filled in with the
+              corresponding class attributes when the prompt is applied:
+
+                - ``"{FORMATTING_PROMPT}"``: The
+                      :obj:`PromptBasedTextExtractor.FORMATTING_PROMPT`
+                      class attribute, which provides instructions for
+                      preserving the formatting and structure of the
+                      extracted text.
+                - ``"{OUTPUT_PROMPT}"``: The
+                      :obj:`PromptBasedTextExtractor.OUTPUT_PROMPT`
+                      class attribute, which provides instructions for
+                      how the model should format the output and what
+                      content to include or exclude.
+
+            - **key**: [OPTIONAL] A string identifier for the text
+              extracted by this prompt. If not provided, a default key
+              ``"extracted_text_{i}"`` will be used, where ``{i}`` is
+              the index of the prompt in the list. The value of this key
+              from the last dictionary in the input list will be used as
+              this extractor's `OUT_LABEL`, which is typically used to
+              link the extracted text to the appropriate parser via the
+              parser's `IN_LABEL`. All `key` values should be unique
+              across all prompts in the chain.
+            - **out_fn**: [OPTIONAL] A file name template that will be
+              used to write the extracted text to a file. The template
+              can include the placeholder ``{jurisdiction}``, which
+              will be replaced with the full jurisdiction name. If not
+              provided, the extracted text will not be written to a
+              file. This is primarily intended for debugging and
+              analysis purposes, and is not required for the extraction
+              process itself.
+
+        The prompts will be applied in the order they appear in the
+        list, with the output text from each prompt being fed as input
+        to the next prompt in the chain. The final output of the last
+        prompt will be the output of the extractor.
+        """
+        raise NotImplementedError
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if getattr(cls, "__abstractmethods__", None):
+            return
+
+        if not cls.PROMPTS:  # TODO: This should happen at registration
+            msg = (
+                f"{cls.__name__} must have at least one "
+                "prompt defined in the PROMPTS property"
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        last_prompt = cls.PROMPTS[-1]
+        last_index = len(cls.PROMPTS) - 1
+        cls.OUT_LABEL = last_prompt.get("key", f"extracted_text_{last_index}")
 
     def __init__(self, llm_caller):
         """
@@ -220,6 +326,27 @@ class OrdinanceTextExtractor(BaseTextExtractor, ABC):
             LLM Caller instance used to extract ordinance info with.
         """
         self.llm_caller = llm_caller
+
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
+        """
+        for ind, prompt_dict in enumerate(self.PROMPTS):
+            key = prompt_dict.get("key", f"extracted_text_{ind}")
+            instructions = prompt_dict["prompt"].format(
+                FORMATTING_PROMPT=self.FORMATTING_PROMPT,
+                OUTPUT_PROMPT=self.OUTPUT_PROMPT,
+            )
+            # out_fn = prompt_dict.get("out_fn", None)
+            yield key, partial(self._process, instructions=instructions)
 
     async def _process(self, text_chunks, instructions, is_valid_chunk=None):
         """Perform extraction processing"""
