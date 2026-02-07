@@ -35,7 +35,7 @@ class BaseExtractionPlugin(ABC):
         self.usage_tracker = usage_tracker
 
     JURISDICTION_DATA_FP = None
-    """path-like: Optional path to jurisdiction CSV
+    """:term:`path-like <path-like object>`: Path to jurisdiction CSV
 
     If provided, this CSV will extend the known jurisdictions (by
     default, US states, counties, and townships). This CSV must have the

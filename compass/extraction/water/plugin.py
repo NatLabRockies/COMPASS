@@ -84,7 +84,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         / "data"
         / "tx_water_districts.csv"
     )
-    """path-like: Path to Texas GCW names"""
+    """:term:`path-like <path-like object>`: Path to Texas GCW names"""
 
     async def filter_docs(
         self,
