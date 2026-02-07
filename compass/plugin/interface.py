@@ -14,8 +14,6 @@ from compass.exceptions import COMPASSPluginConfigurationError
 
 logger = logging.getLogger(__name__)
 
-# TODO: Allow other to register own clean file outputs
-
 
 class BaseHeuristic(ABC):
     """Base class for a heuristic check"""
@@ -325,7 +323,9 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     async def _write_cleaned_text(self, doc):
         """Write cleaned text to `clean_files` dir"""
-        out_fp = await CleanedFileWriter.call(doc, self.jurisdiction.full_name)
+        out_fp = await CleanedFileWriter.call(
+            doc, self.IDENTIFIER, self.jurisdiction.full_name
+        )
         doc.attrs["cleaned_fps"] = out_fp
         return doc
 
