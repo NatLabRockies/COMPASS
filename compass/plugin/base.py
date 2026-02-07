@@ -34,6 +34,38 @@ class BaseExtractionPlugin(ABC):
         self.model_configs = model_configs
         self.usage_tracker = usage_tracker
 
+    JURISDICTION_DATA_FP = None
+    """path-like: Optional path to jurisdiction CSV
+
+    If provided, this CSV will extend the known jurisdictions (by
+    default, US states, counties, and townships). This CSV must have the
+    following columns:
+
+        - State: The state in which the jurisdiction is located
+          (e.g. "Texas")
+        - County: The county in which the jurisdiction is located
+          (e.g. "Travis"). This can be left blank if the jurisdiction is
+          not associated with a county.
+        - Subdivision: The name of the subdivision of the county in
+          which the jurisdiction is located. Use this input for
+          jurisdictions that do not map to counties/townships (e.g.
+          water conservation districts, resource management plan areas,
+          etc.). This can be left blank if the jurisdiction does not
+          have the notion of a "subdivision".
+        - Jurisdiction Type: The type of jurisdiction (e.g. "county",
+          "township", "city", "special district", "RMP", etc.).
+        - FIPS: The code to be used for the jurisdiction, if applicable
+          (e.g. "48453" for Travis County, Texas, "22" for the
+          Culberson County Groundwater Conservation District, etc.).
+          This can be left blank if the jurisdiction does not have an
+          applicable code.
+        - Website: The official website for the jurisdiction, if
+          applicable (e.g. "https://www.traviscountytx.gov/"). This can
+          be left blank if the jurisdiction does not have an official
+          website or if the website is not known.
+
+    """
+
     @property
     @abstractmethod
     def IDENTIFIER(self):  # noqa: N802
