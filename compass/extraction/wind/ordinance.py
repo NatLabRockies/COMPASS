@@ -7,7 +7,7 @@ relevant to utility-scale wind ordinances.
 import logging
 
 from compass.plugin.ordinance import (
-    OrdinanceHeuristic,
+    KeywordBasedHeuristic,
     PromptBasedTextCollector,
     PromptBasedTextExtractor,
 )
@@ -230,7 +230,7 @@ they may contain relevant details.
 """
 
 
-class WindHeuristic(OrdinanceHeuristic):
+class WindHeuristic(KeywordBasedHeuristic):
     """Perform a heuristic check for mention of wind turbines in text"""
 
     NOT_TECH_WORDS = [

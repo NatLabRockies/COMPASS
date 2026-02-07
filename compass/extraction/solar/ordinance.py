@@ -7,7 +7,7 @@ relevant to utility-scale solar ordinances.
 import logging
 
 from compass.plugin.ordinance import (
-    OrdinanceHeuristic,
+    KeywordBasedHeuristic,
     PromptBasedTextCollector,
     PromptBasedTextExtractor,
 )
@@ -189,7 +189,7 @@ they may contain relevant details.
 """
 
 
-class SolarHeuristic(OrdinanceHeuristic):
+class SolarHeuristic(KeywordBasedHeuristic):
     """Perform a heuristic check for mention of solar farms in text"""
 
     NOT_TECH_WORDS = [

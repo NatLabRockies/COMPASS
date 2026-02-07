@@ -130,7 +130,7 @@ class BaseParser(ABC):
         raise NotImplementedError
 
 
-class OrdinanceHeuristic(BaseHeuristic, ABC):
+class KeywordBasedHeuristic(BaseHeuristic, ABC):
     """Perform a heuristic check for mention of a technology in text"""
 
     _GOOD_ACRONYM_CONTEXTS = [
