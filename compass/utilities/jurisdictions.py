@@ -15,7 +15,6 @@ from compass.warn import COMPASSWarning
 logger = logging.getLogger(__name__)
 KNOWN_JURISDICTIONS_REGISTRY = {
     importlib.resources.files("compass") / "data" / "conus_jurisdictions.csv",
-    importlib.resources.files("compass") / "data" / "tx_water_districts.csv",
 }
 _JUR_COLS = [
     "Jurisdiction Type",
