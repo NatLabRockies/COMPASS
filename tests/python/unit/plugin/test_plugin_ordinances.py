@@ -1,4 +1,4 @@
-"""COMPASS web crawling tests"""
+"""COMPASS ordinance plugin tests"""
 
 from pathlib import Path
 
