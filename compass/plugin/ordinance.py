@@ -844,7 +844,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         self._validate_parsers()
         self._validate_in_out_keys()
         self._validate_collector_prompts()
-        self._validate_collector_prompts()
+        self._validate_extractor_prompts()
         self._register_clean_file_names()
 
     def _validate_text_extractors(self):
@@ -953,7 +953,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                 )
                 raise COMPASSPluginConfigurationError(msg)
 
-    def _validate_collector_prompts(self):
+    def _validate_extractor_prompts(self):
         """Validate that all text extractors have prompts defined"""
 
         for collector in self.TEXT_EXTRACTORS:

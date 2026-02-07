@@ -216,32 +216,35 @@ def test_write_cleaned_file_with_debug(tmp_path):
     }
 
     CLEANED_FP_REGISTRY["cleaned_file_test"] = fp_names
-    outputs = threaded._write_cleaned_file(
-        doc,
-        tmp_path,
-        tech="cleaned_file_test",
-        jurisdiction_name="Sample Jurisdiction",
-    )
+    try:
+        outputs = threaded._write_cleaned_file(
+            doc,
+            tmp_path,
+            tech="cleaned_file_test",
+            jurisdiction_name="Sample Jurisdiction",
+        )
 
-    expected_files = {
-        "Sample Jurisdiction Cleaned Text.txt",
-        "Sample Jurisdiction Districts.txt",
-        "Sample Jurisdiction Ordinance Original text.txt",
-    }
-    assert {fp.name for fp in outputs} == expected_files
-    assert all(fp.exists() for fp in outputs)
+        expected_files = {
+            "Sample Jurisdiction Cleaned Text.txt",
+            "Sample Jurisdiction Districts.txt",
+            "Sample Jurisdiction Ordinance Original text.txt",
+        }
+        assert {fp.name for fp in outputs} == expected_files
+        assert all(fp.exists() for fp in outputs)
 
-    debug_fp = tmp_path / "Sample Jurisdiction Cleaned Text.txt"
-    assert debug_fp.exists()
-    assert debug_fp.read_text(encoding="utf-8") == "clean"
+        debug_fp = tmp_path / "Sample Jurisdiction Cleaned Text.txt"
+        assert debug_fp.exists()
+        assert debug_fp.read_text(encoding="utf-8") == "clean"
 
-    debug_fp = tmp_path / "Sample Jurisdiction Districts.txt"
-    assert debug_fp.exists()
-    assert debug_fp.read_text(encoding="utf-8") == "districts"
+        debug_fp = tmp_path / "Sample Jurisdiction Districts.txt"
+        assert debug_fp.exists()
+        assert debug_fp.read_text(encoding="utf-8") == "districts"
 
-    debug_fp = tmp_path / "Sample Jurisdiction Ordinance Original text.txt"
-    assert debug_fp.exists()
-    assert debug_fp.read_text(encoding="utf-8") == "orig"
+        debug_fp = tmp_path / "Sample Jurisdiction Ordinance Original text.txt"
+        assert debug_fp.exists()
+        assert debug_fp.read_text(encoding="utf-8") == "orig"
+    finally:
+        del CLEANED_FP_REGISTRY["cleaned_file_test"]
 
 
 def test_write_cleaned_file_without_jurisdiction_returns_none(tmp_path):

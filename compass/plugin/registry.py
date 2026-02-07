@@ -33,10 +33,16 @@ def register_plugin(plugin_class):
         )
         raise COMPASSPluginConfigurationError(msg)
 
+    if (plugin_id := plugin_class.IDENTIFIER.casefold()) in PLUGIN_REGISTRY:
+        msg = (
+            f"Plugin identifier '{plugin_class.IDENTIFIER}' is already in "
+            "use by another plugin! Please choose a unique identifier for "
+            f"{plugin_class.__name__}."
+        )
+        raise COMPASSPluginConfigurationError(msg)
+
+    plugin_class(None, None).validate_plugin_configuration()
+
     if plugin_class.JURISDICTION_DATA_FP is not None:
         KNOWN_JURISDICTIONS_REGISTRY.add(plugin_class.JURISDICTION_DATA_FP)
-
-    plugin_instance = plugin_class(None, None)
-    plugin_instance.validate_plugin_configuration()
-
-    PLUGIN_REGISTRY[plugin_class.IDENTIFIER.casefold()] = plugin_class
+    PLUGIN_REGISTRY[plugin_id] = plugin_class
