@@ -50,19 +50,19 @@ class ParseChunksWithMemory:
         self.num_to_recall = num_to_recall
         self.memory = [{} for _ in text_chunks]
 
-    # fmt: off
     def _inverted_mem(self, starting_ind):
         """Inverted memory"""
-        inverted_mem = self.memory[:starting_ind + 1:][::-1]
-        yield from inverted_mem[:self.num_to_recall]
+        inverted_mem = self.memory[:starting_ind + 1:][::-1]  # fmt: off
+        yield from inverted_mem[:self.num_to_recall]  # fmt: off
 
-    # fmt: off
     def _inverted_text(self, starting_ind):
         """Inverted text chunks"""
-        inverted_text = self.text_chunks[:starting_ind + 1:][::-1]
-        yield from inverted_text[:self.num_to_recall]
+        inverted_text = self.text_chunks[:starting_ind + 1:][::-1]  # fmt: off
+        yield from inverted_text[:self.num_to_recall]  # fmt: off
 
-    async def parse_from_ind(self, ind, key, llm_call_callback):
+    async def parse_from_ind(
+        self, ind, key, llm_call_callback, *args, **kwargs
+    ):
         """Validate a chunk by consulting current and prior context
 
         Cached verdicts are reused to avoid redundant LLM calls when
@@ -97,7 +97,9 @@ class ParseChunksWithMemory:
             logger.debug("Mem at ind %d is %s", step, mem)
             check = mem.get(key)
             if check is None:
-                check = mem[key] = await llm_call_callback(key, text)
+                check = mem[key] = await llm_call_callback(
+                    key, text, *args, **kwargs
+                )
             if check:
                 return check
         return False

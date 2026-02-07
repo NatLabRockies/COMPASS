@@ -4,13 +4,15 @@ from .base import BaseExtractionPlugin
 from .interface import (
     BaseHeuristic,
     BaseTextCollector,
-    BaseTextExtractor,
-    BaseParser,
-    ExtractionPlugin,
+    FilteredExtractionPlugin,
 )
 from .ordinance import (
-    OrdinanceHeuristic,
-    OrdinanceTextCollector,
-    OrdinanceTextExtractor,
+    BaseTextExtractor,
+    BaseParser,
+    KeywordBasedHeuristic,
+    PromptBasedTextCollector,
+    PromptBasedTextExtractor,
     OrdinanceParser,
+    OrdinanceExtractionPlugin,
 )
+from .registry import PLUGIN_REGISTRY, register_plugin

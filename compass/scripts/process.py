@@ -11,6 +11,7 @@ from datetime import datetime, UTC
 
 from elm.web.utilities import get_redirected_url
 
+from compass.plugin import PLUGIN_REGISTRY
 from compass.extraction.context import ExtractionContext
 from compass.scripts.download import (
     find_jurisdiction_website,
@@ -21,10 +22,6 @@ from compass.scripts.download import (
     download_jurisdiction_ordinances_from_website_compass_crawl,
 )
 from compass.exceptions import COMPASSValueError, COMPASSError
-from compass.extraction.wind import COMPASSWindExtractor
-from compass.extraction.solar import COMPASSSolarExtractor
-from compass.extraction.small_wind import COMPASSSmallWindExtractor
-from compass.extraction.water.plugin import TexasWaterRightsExtractor
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import OpenAIConfig
 from compass.services.cpu import (
@@ -72,12 +69,6 @@ from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
-EXTRACTION_REGISTRY = {
-    COMPASSWindExtractor.IDENTIFIER.casefold(): COMPASSWindExtractor,
-    COMPASSSolarExtractor.IDENTIFIER.casefold(): COMPASSSolarExtractor,
-    COMPASSSmallWindExtractor.IDENTIFIER.casefold(): COMPASSSmallWindExtractor,
-    TexasWaterRightsExtractor.IDENTIFIER.casefold(): TexasWaterRightsExtractor,
-}
 MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 10
 
 
@@ -136,8 +127,10 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         CSV file, all downloaded ordinance documents (PDFs and HTML),
         usage metadata, and default subdirectories for logs and
         intermediate outputs (unless otherwise specified).
-    tech : {"wind", "solar", "small wind", "tx water rights"}
-        Label indicating which technology type is being processed.
+    tech : str
+        Label indicating which technology type is being processed. Must
+        be one of the keys of
+        :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.
     jurisdiction_fp : path-like
         Path to a CSV file specifying the jurisdictions to process.
         The CSV must contain at least two columns: "County" and "State",
@@ -564,10 +557,10 @@ class _COMPASSRunner:
     @cached_property
     def extractor_class(self):
         """obj: Extractor class for the specified technology"""
-        if self.tech.casefold() not in EXTRACTION_REGISTRY:
+        if self.tech.casefold() not in PLUGIN_REGISTRY:
             msg = f"Unknown tech input: {self.tech}"
             raise COMPASSValueError(msg)
-        return EXTRACTION_REGISTRY[self.tech.casefold()]
+        return PLUGIN_REGISTRY[self.tech.casefold()]
 
     @cached_property
     def _base_services(self):
@@ -874,6 +867,11 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing had no known local docs configured",
+                self.jurisdiction.full_name,
+            )
 
         if self.known_doc_urls:
             logger.debug(
@@ -885,6 +883,11 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing had no known URLs configured",
+                self.jurisdiction.full_name,
+            )
 
         if self.perform_se_search:
             logger.debug(
@@ -897,6 +900,11 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing didn't have SE search enabled",
+                self.jurisdiction.full_name,
+            )
 
         if self.perform_website_search:
             logger.debug(
@@ -908,6 +916,12 @@ class _SingleJurisdictionRunner:
             )
             if extraction_context is not None:
                 return extraction_context
+        else:
+            logger.debug(
+                "%r processing didn't have jurisdiction website search "
+                "enabled",
+                self.jurisdiction.full_name,
+            )
 
         return None
 

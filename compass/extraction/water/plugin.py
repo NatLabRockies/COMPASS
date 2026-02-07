@@ -1,6 +1,7 @@
 """COMPASS water rights extraction plugin"""
 
 import logging
+import importlib.resources
 from pathlib import Path
 
 import pandas as pd
@@ -8,7 +9,7 @@ from elm import EnergyWizard
 from elm.embed import ChunkAndEmbed
 
 from compass.extraction import extract_date
-from compass.plugin.base import BaseExtractionPlugin
+from compass.plugin import BaseExtractionPlugin, register_plugin
 from compass.utilities.enums import LLMTasks
 from compass.utilities.parsing import extract_ord_year_from_doc_attrs
 from compass.exceptions import COMPASSRuntimeError
@@ -77,6 +78,13 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
 
     heuristic = WaterRightsHeuristic()
     """BaseHeuristic: Object with a ``check()`` method"""
+
+    JURISDICTION_DATA_FP = (
+        importlib.resources.files("compass")
+        / "data"
+        / "tx_water_districts.csv"
+    )
+    """:term:`path-like <path-like object>`: Path to Texas GCW names"""
 
     async def filter_docs(
         self,
@@ -290,3 +298,6 @@ def _setup_endpoints(embedding_model_config):
     EnergyWizard.EMBEDDING_URL = endpoint
 
     EnergyWizard.URL = "openai.azure.com"  # need to trigger Azure setup
+
+
+register_plugin(TexasWaterRightsExtractor)

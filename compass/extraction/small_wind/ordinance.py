@@ -7,9 +7,9 @@ relevant to small wind ordinances.
 import logging
 
 from compass.plugin.ordinance import (
-    OrdinanceHeuristic,
-    OrdinanceTextCollector,
-    OrdinanceTextExtractor,
+    KeywordBasedHeuristic,
+    PromptBasedTextCollector,
+    PromptBasedTextExtractor,
 )
 from compass.utilities.enums import LLMUsageCategory
 
@@ -32,8 +32,206 @@ _SEARCH_TERMS_OR = _SEARCH_TERMS_AND.replace("and", "or")
 _IGNORE_TYPES_MICRO = "private, micro, personal, building-mounted"
 _IGNORE_TYPES_LARGE = "large, utility-scale, for-sale, commercial"
 
+_CONTAINS_ORD_COLLECTION_PROMPT = f"""\
+You extract structured data from text. Return your answer in JSON format \
+(not markdown). Your JSON file must include exactly two keys. The first \
+key is 'wind_reqs', which is a string that summarizes all {_SEARCH_TERMS_AND} \
+that are explicitly enacted in the text for a wind energy system (or wind \
+turbine/tower) for a given jurisdiction. Note that wind energy bans are \
+an important restriction to track. Include any **closely related provisions** \
+if they clearly pertain to the **development, operation, modification, or \
+removal** of wind energy systems (or wind turbines/towers). All restrictions \
+should be enforceable - ignore any text that only provides a legal definition \
+of the regulation. If the text does not specify any concrete \
+{_SEARCH_TERMS_OR} for a wind energy system, set this key to `null`. The last \
+key is '{{key}}', which is a boolean that is set to True if the text excerpt \
+explicitly details {_SEARCH_TERMS_OR} for a wind energy system (or wind \
+turbine/tower) and False otherwise.\
+"""
 
-class SmallWindHeuristic(OrdinanceHeuristic):
+_IS_SMALL_COLLECTION_PROMPT = f"""\
+You are a legal scholar that reads ordinance text and determines whether any \
+of it applies to {_SEARCH_TERMS_OR} for **small, medium, or non-commercial \
+wind energy systems**. Small, medium, or non-commercial energy systems may \
+also be referred to as {_SMALL_WES_SYNONYMS}. Your client is a private \
+resident that does not care about ordinances related to {_IGNORE_TYPES_MICRO} \
+or {_IGNORE_TYPES_LARGE} wind energy systems. Ignore any text related to such \
+systems. Return your answer as a dictionary in JSON format (not markdown). \
+Your JSON file must include exactly two keys. The first key is 'summary' \
+which contains a string that lists all of the types of wind energy systems \
+the text applies to (if any). The second key is '{{key}}', which is a boolean \
+that is set to True if any part of the text excerpt details \
+{_SEARCH_TERMS_OR} for the **small, medium, or non-commercial wind energy \
+conversion systems** (or similar) that the client is interested in and False \
+otherwise.\
+"""
+
+_DISTRICTS_COLLECTION_PROMPT = f"""\
+You are a legal scholar that reads ordinance text and determines whether the \
+text explicitly contains relevant information to determine the districts (and \
+especially the district names) where small, medium, or non-commercial wind \
+energy systems are a permitted use (i.e. accessory use), as well as the \
+districts where wind energy systems are prohibited entirely. Small wind \
+energy systems (SWES) may also be referred to as {_SMALL_WES_SYNONYMS}. Do \
+not make any inferences; only answer based on information that is explicitly \
+stated in the text. Note that relevant information may sometimes be found in \
+tables. Return your answer as a dictionary in JSON format (not markdown). \
+Your JSON file must include exactly two keys. The first key is 'districts' \
+which contains a string that lists all of the district names for which the \
+text explicitly permits **small, medium, or non-commercial wind energy \
+systems** (if any). The last key is '{{key}}', which is a boolean that is set \
+to True if any part of the text excerpt provides information on districts \
+where **small, medium, or non-commercial wind energy systems** (or similar) \
+are a permitted use (i.e. accessory use) in and False otherwise.\
+"""
+
+_WECS_TEXT_EXTRACTION_PROMPT = """\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information about \
+**wind energy systems**. The extracted text will be used for structured \
+data extraction, so it must be both **comprehensive** (retaining all relevant \
+details) and **focused** (excluding unrelated content), with **zero rewriting \
+or paraphrasing**. Ensure that all retained information is **directly \
+applicable to wind energy systems** while preserving full context and accuracy.
+
+# OBJECTIVE #
+Extract all text **pertaining to wind energy systems** from the provided \
+excerpt.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Include all text that pertains to **wind energy systems**.
+- Explicitly include any text related to **bans or prohibitions** on wind \
+energy systems.
+- Explicitly include any text related to the adoption or enactment date of \
+the ordinance (if any).
+
+2. ## Exclusions ##:
+- Do **not** include text that does not pertain to wind energy systems.
+
+3. {FORMATTING_PROMPT}
+
+4. {OUTPUT_PROMPT}\
+"""
+
+_SMALL_WECS_TEXT_EXTRACTION_PROMPT = f"""\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information about \
+**small, medium, or non-commercial wind energy systems**. The extracted text \
+will be used for structured data extraction, so it must be both \
+**comprehensive** (retaining all relevant details) and **focused** (excluding \
+unrelated content), with **zero rewriting or paraphrasing**. Ensure that all \
+retained information is **directly applicable** to small, medium, or \
+non-commercial wind energy systems while preserving full context and accuracy.
+
+# OBJECTIVE #
+Extract all text **pertaining to small, medium or non-commercial wind energy \
+systems** from the provided excerpt.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Include all text that pertains to **small, medium, or non-commercial wind \
+energy systems**, even if they are referred to by different names such as: \
+{_SMALL_WES_SYNONYMS.capitalize()}
+- Explicitly include any text related to **bans or prohibitions** on small, \
+medium, or non-commercial wind energy systems.
+- Explicitly include any text related to the adoption or enactment date of \
+the ordinance (if any).
+- **Retain all relevant technical, design, operational, safety, \
+environmental, and infrastructure-related provisions** that apply to the \
+topic, such as (but not limited to):
+    - Compliance with legal or regulatory standards.
+    - Site, structural, or design specifications.
+    - Environmental impact considerations.
+    - Safety and risk mitigation measures.
+    - Infrastructure, implementation, operation, and maintenance details.
+    - All other **closely related provisions**.
+
+2. ## Exclusions ##:
+- Do **not** include text that explicitly applies **only** to \
+{_IGNORE_TYPES_MICRO} or {_IGNORE_TYPES_LARGE} wind energy systems.
+- Do **not** include text that does not pertain at all to wind energy systems.
+
+3.{{FORMATTING_PROMPT}}
+
+4. {{OUTPUT_PROMPT}}\
+"""
+
+_PERMITTED_USES_TEXT_EXTRACTION_PROMPT = """\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information detailing \
+permitted use(s) for a district. The extracted text will be used for \
+structured data extraction, so it must be both **comprehensive** (retaining \
+all relevant details) and **focused** (excluding unrelated content), with \
+**zero rewriting or paraphrasing**. Ensure that all retained information is \
+**directly applicable** to permitted use(s) for one or more districts while \
+preserving full context and accuracy.
+
+# OBJECTIVE #
+Remove all text **not directly pertinent** to permitted use(s) for a district.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Retain all text defining permitted use(s) for a district, including:
+    - **Primary, Special, Conditional, Accessory, Prohibited, and any other \
+use types.**
+    - **District names and zoning classifications.**
+- Pay extra attention to any references to **wind energy facilities** or \
+related terms.
+- Ensure that **tables, lists, and structured elements** are preserved as \
+they may contain relevant details.
+
+2. ## Exclusions ##:
+- Do **not** include unrelated regulations, procedural details, or \
+non-use-based restrictions.
+
+3. {FORMATTING_PROMPT}
+
+4. {OUTPUT_PROMPT}\
+"""
+
+_WECS_PERMITTED_USES_TEXT_EXTRACTION_PROMPT = """\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information detailing \
+**wind energy system** permitted use(s) for a district. The extracted text \
+will be used for structured data extraction, so it must be both \
+**comprehensive** (retaining all relevant details) and **focused** (excluding \
+unrelated content), with **zero rewriting or paraphrasing**. Ensure that all \
+retained information is **directly applicable** to permitted use(s) for wind \
+energy systems in one or more districts while preserving full context and \
+accuracy.
+
+# OBJECTIVE #
+Remove all text **not directly pertinent** to wind energy conversion system \
+permitted use(s) for a district.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Scope of Extraction ##:
+- Retain all text defining permitted use(s) for a district, including:
+    - **Primary, Special, Conditional, Accessory, Prohibited, and any other \
+use types.**
+     - **District names and zoning classifications.**
+- Ensure that **tables, lists, and structured elements** are preserved as \
+they may contain relevant details.
+
+2. ## Exclusions ##:
+- Do not include text that does not pertain at all to wind energy systems.
+
+3. {FORMATTING_PROMPT}
+
+4. {OUTPUT_PROMPT}\
+"""
+
+
+class SmallWindHeuristic(KeywordBasedHeuristic):
     """Perform a heuristic check for mention of wind turbines in text"""
 
     NOT_TECH_WORDS = [
@@ -116,193 +314,51 @@ class SmallWindHeuristic(OrdinanceHeuristic):
     """Phrases that indicate text is about WECS"""
 
 
-class SmallWindOrdinanceTextCollector(OrdinanceTextCollector):
+class SmallWindOrdinanceTextCollector(PromptBasedTextCollector):
     """Check text chunks for ordinances and collect them if they do"""
 
     OUT_LABEL = "relevant_text"
     """Identifier for text collected by this class"""
 
-    CONTAINS_ORD_PROMPT = (
-        "You extract structured data from text. Return your answer in JSON "
-        "format (not markdown). Your JSON file must include exactly two "
-        "keys. The first key is 'wind_reqs', which is a string that "
-        f"summarizes all {_SEARCH_TERMS_AND} that are explicitly enacted "
-        "in the text for a wind energy system (or wind turbine/tower) for "
-        "a given jurisdiction. "
-        "Note that wind energy bans are an important restriction to track. "
-        "Include any **closely related provisions** if they clearly pertain "
-        "to the **development, operation, modification, or removal** of wind "
-        "energy systems (or wind turbines/towers). "
-        "All restrictions should be enforceable - ignore any text that only "
-        "provides a legal definition of the regulation. If the text does not "
-        f"specify any concrete {_SEARCH_TERMS_OR} for a wind energy system, "
-        "set this key to `null`. The last key is '{key}', which is a boolean "
-        "that is set to True if the text excerpt explicitly details "
-        f"{_SEARCH_TERMS_OR} for a wind energy system (or wind turbine/tower) "
-        "and False otherwise. "
-    )
-    """Prompt to check if chunk contains WES ordinance info"""
-
-    IS_SMALL_PROMPT = (
-        "You are a legal scholar that reads ordinance text and determines "
-        f"whether any of it applies to {_SEARCH_TERMS_OR} for **small, "
-        "medium, or non-commercial wind energy systems**. Small, medium, or "
-        "non-commercial energy systems may also be referred to as "
-        f"{_SMALL_WES_SYNONYMS}. "
-        "Your client is a private resident that does not care about "
-        f"ordinances related to {_IGNORE_TYPES_MICRO} or "
-        f"{_IGNORE_TYPES_LARGE} wind energy systems. Ignore any text "
-        "related to such systems. "
-        "Return your answer as a dictionary in JSON format (not markdown). "
-        "Your JSON file must include exactly two keys. The first key is "
-        "'summary' which contains a string that lists all of the types of "
-        "wind energy systems the text applies to (if any). The second key is "
-        "'{key}', which is a boolean that is set to True if any part of the "
-        f"text excerpt details {_SEARCH_TERMS_OR} for the **small, medium, or "
-        "non-commercial wind energy conversion systems** (or similar) that "
-        "the client is interested in and False otherwise."
-    )
-    """Prompt to check if chunk is for small WES"""
-
-    async def check_chunk(self, chunk_parser, ind):
-        """Check a chunk at a given ind to see if it contains ordinance
-
-        Parameters
-        ----------
-        chunk_parser : ParseChunksWithMemory
-            Instance that contains a ``parse_from_ind`` method.
-        ind : int
-            Index of the chunk to check.
-
-        Returns
-        -------
-        bool
-            Boolean flag indicating whether or not the text in the chunk
-            contains small wind energy conversion system ordinance text.
-        """
-        contains_ord_info = await chunk_parser.parse_from_ind(
-            ind,
-            key="contains_ord_info",
-            llm_call_callback=self._check_chunk_contains_ord,
-        )
-        if not contains_ord_info:
-            logger.debug("Text at ind %d does not contain ordinance info", ind)
-            return False
-
-        logger.debug("Text at ind %d does contain ordinance info", ind)
-
-        is_small_scale = await chunk_parser.parse_from_ind(
-            ind,
-            key="x",
-            llm_call_callback=self._check_chunk_is_for_small_scale,
-        )
-        if not is_small_scale:
-            logger.debug("Text at ind %d is not for small WECS", ind)
-            return False
-
-        logger.debug("Text at ind %d is for small WECS", ind)
-
-        self._store_chunk(chunk_parser, ind)
-        logger.debug("Added text at ind %d to ordinances", ind)
-
-        return True
-
-    async def _check_chunk_contains_ord(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for ordinance"""
-        content = await self.call(
-            sys_msg=self.CONTAINS_ORD_PROMPT.format(key=key),
-            content=text_chunk,
-            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
-        )
-        logger.debug("LLM response: %s", content)
-        return content.get(key, False)
-
-    async def _check_chunk_is_for_small_scale(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for small scale"""
-        content = await self.call(
-            sys_msg=self.IS_SMALL_PROMPT.format(key=key),
-            content=text_chunk,
-            usage_sub_label=(LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION),
-        )
-        logger.debug("LLM response: %s", content)
-        return content.get(key, False)
+    PROMPTS = [
+        {
+            "key": "contains_ord_info",
+            "label": "contains ordinance info",
+            "prompt": _CONTAINS_ORD_COLLECTION_PROMPT,
+        },
+        {
+            # Generic key like "x" makes the llm focus on the
+            # instruction rather than using the key name to infer the
+            # content, which can improve performance,
+            "key": "x",
+            "label": "for small WECS",
+            "prompt": _IS_SMALL_COLLECTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for ordinance text collection"""
 
 
-class SmallWindPermittedUseDistrictsTextCollector(OrdinanceTextCollector):
+class SmallWindPermittedUseDistrictsTextCollector(PromptBasedTextCollector):
     """Check text chunks for permitted wind districts; collect them"""
 
     OUT_LABEL = "permitted_use_text"
     """Identifier for text collected by this class"""
 
-    DISTRICT_PROMPT = (
-        "You are a legal scholar that reads ordinance text and determines "
-        "whether the text explicitly contains relevant information to "
-        "determine the districts (and especially the district names) where "
-        "small, medium, or non-commercial wind energy systems are a permitted "
-        "use (i.e. accessory use), as well as the districts where wind energy"
-        "systems are prohibited entirely. Small wind energy systems "
-        f"(SWES) may also be referred to as {_SMALL_WES_SYNONYMS}. "
-        "Do not make any inferences; only answer based on information that "
-        "is explicitly stated in the text. "
-        "Note that relevant information may sometimes be found in tables. "
-        "Return your answer as a dictionary in JSON format (not markdown). "
-        "Your JSON file must include exactly two keys. The first key is "
-        "'districts' which contains a string that lists all of the district "
-        "names for which the text explicitly permits **small, medium, or "
-        "non-commercial wind energy systems** (if any). The last key is "
-        "'{key}', which is a boolean that is set to True if any part of the "
-        "text excerpt provides information on districts where **small, "
-        "medium, or non-commercial wind energy systems** (or similar) are a "
-        "permitted use (i.e. accessory use) in and False otherwise."
-    )
-    """Prompt to check if chunk contains info on permitted districts"""
-
-    async def check_chunk(self, chunk_parser, ind):
-        """Check a chunk to see if it contains permitted uses
-
-        Parameters
-        ----------
-        chunk_parser : ParseChunksWithMemory
-            Instance that contains a ``parse_from_ind`` method.
-        ind : int
-            Index of the chunk to check.
-
-        Returns
-        -------
-        bool
-            Boolean flag indicating whether or not the text in the chunk
-            contains small wind energy conversion system permitted use
-            text.
-        """
-
-        key = "contains_district_info"
-        content = await self.call(
-            sys_msg=self.DISTRICT_PROMPT.format(key=key),
-            content=chunk_parser.text_chunks[ind],
-            usage_sub_label=(
-                LLMUsageCategory.DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION
-            ),
-        )
-        logger.debug("LLM response: %s", content)
-        contains_district_info = content.get(key, False)
-
-        if contains_district_info:
-            self._store_chunk(chunk_parser, ind)
-            logger.debug("Text at ind %d contains district info", ind)
-            return True
-
-        logger.debug("Text at ind %d does not contain district info", ind)
-        return False
+    PROMPTS = [
+        {
+            "key": "contains_district_info",
+            "label": "contains district info",
+            "prompt": _DISTRICTS_COLLECTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for permitted use text collection"""
 
 
-class SmallWindOrdinanceTextExtractor(OrdinanceTextExtractor):
+class SmallWindOrdinanceTextExtractor(PromptBasedTextExtractor):
     """Extract succinct ordinance text from input"""
 
     IN_LABEL = SmallWindOrdinanceTextCollector.OUT_LABEL
     """Identifier for collected text ingested by this class"""
-
-    OUT_LABEL = "cleaned_text_for_extraction"
-    """Identifier for ordinance text extracted by this class"""
 
     TASK_DESCRIPTION = "Extracting small wind ordinance text"
     """Task description to show in progress bar"""
@@ -310,173 +366,26 @@ class SmallWindOrdinanceTextExtractor(OrdinanceTextExtractor):
     TASK_ID = "ordinance_text_extraction"
     """ID to use for this extraction for linking with LLM configs"""
 
-    WIND_ENERGY_SYSTEM_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "about **wind energy systems**. The extracted text will be used for "
-        "structured data extraction, so it must be both **comprehensive** "
-        "(retaining all relevant details) and **focused** (excluding "
-        "unrelated content), with **zero rewriting or paraphrasing**. "
-        "Ensure that all retained information is "
-        "**directly applicable to wind energy systems** while preserving "
-        "full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Extract all text **pertaining to wind energy systems** from the "
-        "provided excerpt.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Include all text that pertains to **wind energy systems**.\n"
-        "- Explicitly include any text related to **bans or prohibitions** "
-        "on wind energy systems.\n"
-        "- Explicitly include any text related to the adoption or enactment "
-        "date of the ordinance (if any).\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do **not** include text that does not pertain to wind energy "
-        "systems.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for WECS"""
-
-    SMALL_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "about **small, medium, or non-commercial wind energy systems**. The "
-        "extracted text will be used for structured data extraction, so it "
-        "must be both **comprehensive** (retaining all relevant details) and "
-        "**focused** (excluding unrelated content), with **zero rewriting or "
-        "paraphrasing**. Ensure that all retained information "
-        "is **directly applicable** to small, medium, or non-commercial wind "
-        "energy systems while preserving full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Extract all text **pertaining to small, medium or non-commercial "
-        "wind energy systems** from the provided excerpt.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Include all text that pertains to **small, medium, or "
-        "non-commercial wind energy systems**, even if they are referred to "
-        "by different names such as:\n"
-        f"\t{_SMALL_WES_SYNONYMS.capitalize()}.\n"
-        "- Explicitly include any text related to **bans or prohibitions** "
-        "on small, medium, or non-commercial wind energy systems.\n"
-        "- Explicitly include any text related to the adoption or enactment "
-        "date of the ordinance (if any).\n"
-        "- **Retain all relevant technical, design, operational, safety, "
-        "environmental, and infrastructure-related provisions** that apply "
-        "to the topic, such as (but not limited to):\n"
-        "\t- Compliance with legal or regulatory standards.\n"
-        "\t- Site, structural, or design specifications.\n"
-        "\t- Environmental impact considerations.\n"
-        "\t- Safety and risk mitigation measures.\n"
-        "\t- Infrastructure, implementation, operation, and maintenance "
-        "details.\n"
-        "\t- All other **closely related provisions**.\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do **not** include text that explicitly applies **only** to "
-        f"{_IGNORE_TYPES_MICRO} or {_IGNORE_TYPES_LARGE} "
-        "wind energy systems.\n"
-        f"- Do **not** include text that does not pertain at all to wind "
-        "energy systems.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for small WECS"""
-
-    async def extract_wind_energy_system_section(self, text_chunks):
-        """Extract ordinance text from input text chunks for WES
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.WIND_ENERGY_SYSTEM_FILTER_PROMPT,
-        )
-
-    async def extract_small_wind_energy_system_section(self, text_chunks):
-        """Extract small WES ordinance text from input text chunks
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.SMALL_WIND_ENERGY_SYSTEM_SECTION_FILTER_PROMPT,
-        )
-
-    @property
-    def parsers(self):
-        """Iterable of parsers provided by this extractor
-
-        Yields
-        ------
-        name : str
-            Name describing the type of text output by the parser.
-        parser : callable
-            Async function that takes a ``text_chunks`` input and
-            outputs parsed text.
-        """
-        yield (
-            "wind_energy_systems_text",
-            self.extract_wind_energy_system_section,
-        )
-        yield self.OUT_LABEL, self.extract_small_wind_energy_system_section
+    PROMPTS = [
+        {
+            "key": "wind_energy_systems_text",
+            "out_fn": "{jurisdiction} Wind Ordinance Text.txt",
+            "prompt": _WECS_TEXT_EXTRACTION_PROMPT,
+        },
+        {
+            "key": "cleaned_text_for_extraction",
+            "out_fn": "{jurisdiction} Cleaned Text.txt",
+            "prompt": _SMALL_WECS_TEXT_EXTRACTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for ordinance text extraction"""
 
 
-class SmallWindPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
+class SmallWindPermittedUseDistrictsTextExtractor(PromptBasedTextExtractor):
     """Extract succinct permitted use districts text from input"""
 
     IN_LABEL = SmallWindPermittedUseDistrictsTextCollector.OUT_LABEL
     """Identifier for collected text ingested by this class"""
-
-    OUT_LABEL = "districts_text"
-    """Identifier for permitted use text extracted by this class"""
 
     TASK_DESCRIPTION = "Extracting small wind permitted use text"
     """Task description to show in progress bar"""
@@ -486,148 +395,16 @@ class SmallWindPermittedUseDistrictsTextExtractor(OrdinanceTextExtractor):
 
     _USAGE_LABEL = LLMUsageCategory.DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY
 
-    PERMITTED_USES_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "detailing permitted use(s) for a district. The extracted text will "
-        "be used for structured data extraction, so it must be both "
-        "**comprehensive** (retaining all relevant details) and **focused** "
-        "(excluding unrelated content), with **zero rewriting or "
-        "paraphrasing**. Ensure that all retained information "
-        "is **directly applicable** to permitted use(s) for one or more "
-        "districts while preserving full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Remove all text **not directly pertinent** to permitted use(s) for "
-        "a district.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Retain all text defining permitted use(s) for a district, "
-        "including:\n"
-        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
-        "any other use types.**\n"
-        "\t- **District names and zoning classifications.**\n"
-        "- Pay extra attention to any references to **wind energy "
-        "facilities** or related terms.\n"
-        "- Ensure that **tables, lists, and structured elements** are "
-        "preserved as they may contain relevant details.\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do **not** include unrelated regulations, procedural details, "
-        "or non-use-based restrictions.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference, **especially if they contain the district name**.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for permitted uses"""
-
-    WES_PERMITTED_USES_FILTER_PROMPT = (
-        "# CONTEXT #\n"
-        "We want to reduce the provided excerpt to only contain information "
-        "detailing **wind energy system** permitted use(s) for a district. "
-        "The extracted text will be used for structured data extraction, so "
-        "it must be both **comprehensive** (retaining all relevant details) "
-        "and **focused** (excluding unrelated content), with **zero rewriting "
-        "or paraphrasing**. Ensure that all "
-        "retained information is **directly applicable** to permitted use(s) "
-        "for wind energy systems in one or more districts while "
-        "preserving full context and accuracy.\n"
-        "\n# OBJECTIVE #\n"
-        "Remove all text **not directly pertinent** to wind energy conversion "
-        "system permitted use(s) for a district.\n"
-        "\n# RESPONSE #\n"
-        "Follow these guidelines carefully:\n"
-        "\n1. ## Scope of Extraction ##:\n"
-        "- Retain all text defining permitted use(s) for a district, "
-        "including:\n"
-        "\t- **Primary, Special, Conditional, Accessory, Prohibited, and "
-        "any other use types.**\n"
-        "\t- **District names and zoning classifications.**\n"
-        "- Ensure that **tables, lists, and structured elements** are "
-        "preserved as they may contain relevant details.\n"
-        "\n2. ## Exclusions ##:\n"
-        "- Do not include text that does not pertain at all to wind "
-        "energy systems.\n"
-        "\n3. ## Formatting & Structure ##:\n"
-        "- **Preserve _all_ section titles, headers, and numberings** for "
-        "reference, **especially if they contain the district name**.\n"
-        "- **Maintain the original wording, formatting, and structure** to "
-        "ensure accuracy.\n"
-        "\n4. ## Output Handling ##:\n"
-        "- This is a strict extraction task — act like a text filter, **not** "
-        "a summarizer or writer.\n"
-        "- Do not add, explain, reword, or summarize anything.\n"
-        "- The output must be a **copy-paste** of the original excerpt.\n"
-        "**Absolutely no paraphrasing or rewriting.**\n"
-        "- The output must consist **only** of contiguous or discontiguous "
-        "verbatim blocks copied from the input.\n"
-        "- If **no relevant text** is found, return the response: "
-        "'No relevant text.'"
-    )
-    """Prompt to extract ordinance text for permitted uses for WECS"""
-
-    async def extract_permitted_uses(self, text_chunks):
-        """Extract permitted uses text from input text chunks
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.PERMITTED_USES_FILTER_PROMPT,
-        )
-
-    async def extract_wes_permitted_uses(self, text_chunks):
-        """Extract permitted uses text for small WES from input text
-
-        Parameters
-        ----------
-        text_chunks : list of str
-            List of strings, each of which represent a chunk of text.
-            The order of the strings should be the order of the text
-            chunks.
-
-        Returns
-        -------
-        str
-            Ordinance text extracted from text chunks.
-        """
-        return await self._process(
-            text_chunks=text_chunks,
-            instructions=self.WES_PERMITTED_USES_FILTER_PROMPT,
-        )
-
-    @property
-    def parsers(self):
-        """Iterable of parsers provided by this extractor
-
-        Yields
-        ------
-        name : str
-            Name describing the type of text output by the parser.
-        parser : callable
-            Async function that takes a ``text_chunks`` input and
-            outputs parsed text.
-        """
-        yield "permitted_use_only_text", self.extract_permitted_uses
-        yield self.OUT_LABEL, self.extract_wes_permitted_uses
+    PROMPTS = [
+        {
+            "key": "permitted_use_only_text",
+            "out_fn": "{jurisdiction} Permitted Use Only.txt",
+            "prompt": _PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
+        },
+        {
+            "key": "districts_text",
+            "out_fn": "{jurisdiction} Districts.txt",
+            "prompt": _WECS_PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
+        },
+    ]
+    """Dicts defining the prompts for permitted use text extraction"""
