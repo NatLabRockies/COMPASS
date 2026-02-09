@@ -179,7 +179,7 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a StructuredLLMCaller for LLM queries and multiple
+        Uses a JSONFromTextLLMCaller for LLM queries and multiple
         AsyncDecisionTree instances to guide the extraction of
         individual values.
     """
@@ -497,7 +497,7 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
            a decision-tree-based chain-of-thought prompt on the text for
            each value to be extracted.
     Key Relationships:
-        Uses a StructuredLLMCaller for LLM queries and multiple
+        Uses a JSONFromTextLLMCaller for LLM queries and multiple
         AsyncDecisionTree instances to guide the extraction of
         individual values.
     """

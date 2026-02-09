@@ -3,7 +3,7 @@
 import logging
 from warnings import warn
 
-from compass.llm import StructuredLLMCaller
+from compass.llm import JSONFromTextLLMCaller
 from compass.extraction.date import DateExtractor
 from compass.validation import (
     ParseChunksWithMemory,
@@ -170,7 +170,7 @@ async def extract_date(doc, model_config, usage_tracker=None):
         )
         return doc
 
-    date_llm_caller = StructuredLLMCaller(
+    date_llm_caller = JSONFromTextLLMCaller(
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,

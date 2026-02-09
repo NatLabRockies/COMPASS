@@ -388,7 +388,7 @@ napoleon_type_aliases = {
     "OpenAIService": ":class:`~compass.services.openai.OpenAIService`",
     "ParseChunksWithMemory": ":class:`~compass.validation.content.ParseChunksWithMemory`",
     "Service": ":class:`~compass.services.base.Service`",
-    "StructuredLLMCaller": ":class:`~compass.llm.calling.StructuredLLMCaller`",
+    "JSONFromTextLLMCaller": ":class:`~compass.llm.calling.JSONFromTextLLMCaller`",
     "TimeBoundedUsageTracker": ":class:`~compass.services.usage.TimeBoundedUsageTracker`",
     "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
     "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",

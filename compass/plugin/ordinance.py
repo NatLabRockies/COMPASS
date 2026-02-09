@@ -15,7 +15,7 @@ from elm import ApiBase
 from compass.llm.calling import (
     BaseLLMCaller,
     ChatLLMCaller,
-    StructuredLLMCaller,
+    JSONFromTextLLMCaller,
 )
 from compass.plugin.interface import (
     BaseHeuristic,
@@ -260,7 +260,7 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
         raise NotImplementedError
 
 
-class PromptBasedTextCollector(StructuredLLMCaller, BaseTextCollector, ABC):
+class PromptBasedTextCollector(JSONFromTextLLMCaller, BaseTextCollector, ABC):
     """Text extractor based on a chain of prompts"""
 
     @property

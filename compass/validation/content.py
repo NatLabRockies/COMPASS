@@ -9,7 +9,7 @@ import logging
 from abc import ABC, abstractmethod
 from warnings import warn
 
-from compass.llm.calling import ChatLLMCaller, StructuredLLMCaller
+from compass.llm.calling import ChatLLMCaller, JSONFromTextLLMCaller
 from compass.validation.graphs import setup_graph_correct_document_type
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.utilities.enums import LLMUsageCategory
@@ -291,7 +291,7 @@ class TextKindValidator(ABC):
         raise NotImplementedError
 
 
-class LegalTextValidator(TextKindValidator, StructuredLLMCaller):
+class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
     """Parse chunks to determine if they contain legal text"""
 
     SYSTEM_MESSAGE = (
@@ -318,7 +318,7 @@ class LegalTextValidator(TextKindValidator, StructuredLLMCaller):
             check for the whole document to be considered legal text.
             By default, ``0.8``.
         *args, **kwargs
-            Parameters to pass to the StructuredLLMCaller initializer.
+            Parameters to pass to the JSONFromTextLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
         self.tech = tech

@@ -27,7 +27,7 @@ class BaseLLMCaller:
               invocation, allowing user to focus on only the message.
 
         3. Track message history (ChatLLMCaller) or convert output into
-           JSON (StructuredLLMCaller).
+           JSON (JSONFromTextLLMCaller).
 
     Key Relationships:
         Delegates most of work to underlying ``Service`` class.
@@ -65,7 +65,7 @@ class LLMCaller(BaseLLMCaller):
     --------
     ChatLLMCaller
         Chat-like LLM calling functionality.
-    StructuredLLMCaller
+    JSONFromTextLLMCaller
         Structured (JSON) LLM calling functionality.
     """
 
@@ -107,7 +107,7 @@ class ChatLLMCaller(BaseLLMCaller):
     --------
     LLMCaller
         Simple LLM caller, with no memory and no parsing utilities.
-    StructuredLLMCaller
+    JSONFromTextLLMCaller
         Structured (JSON) LLM calling functionality.
     """
 
@@ -170,7 +170,7 @@ class ChatLLMCaller(BaseLLMCaller):
         return response
 
 
-class StructuredLLMCaller(BaseLLMCaller):
+class JSONFromTextLLMCaller(BaseLLMCaller):
     """Class to support structured (JSON) LLM calling functionality
 
     See Also
