@@ -285,7 +285,7 @@ class SolarOrdinanceTextExtractor(PromptBasedTextExtractor):
     PROMPTS = [
         {
             "key": "cleaned_text_for_extraction",
-            "out_fn": "{jurisdiction} Cleaned Text.txt",
+            "out_fn": "{jurisdiction} Utility Scale Solar Ordinance.txt",
             "prompt": _SEF_TEXT_EXTRACTION_PROMPT,
         },
     ]
@@ -309,12 +309,12 @@ class SolarPermittedUseDistrictsTextExtractor(PromptBasedTextExtractor):
     PROMPTS = [
         {
             "key": "permitted_use_only_text",
-            "out_fn": "{jurisdiction} Permitted Use Only.txt",
+            "out_fn": "{jurisdiction} Permitted Use.txt",
             "prompt": _PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
         },
         {
             "key": "districts_text",
-            "out_fn": "{jurisdiction} Districts.txt",
+            "out_fn": "{jurisdiction} Permitted Use Districts.txt",
             "prompt": _SEF_PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
         },
     ]

@@ -75,8 +75,8 @@ class COMPASSWindExtractor(OrdinanceExtractionPlugin):
     a website scrape for a wind ordinance document.
     """
 
-    heuristic = WindHeuristic()
-    """BaseHeuristic: Object with a ``check()`` method"""
+    HEURISTIC = WindHeuristic
+    """BaseHeuristic: Class with a ``check()`` method"""
 
     TEXT_COLLECTORS = [
         WindOrdinanceTextCollector,

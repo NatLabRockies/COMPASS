@@ -77,8 +77,8 @@ class COMPASSSolarExtractor(OrdinanceExtractionPlugin):
     a website scrape for a wind ordinance document.
     """
 
-    heuristic = SolarHeuristic()
-    """BaseHeuristic: Object with a ``check()`` method"""
+    HEURISTIC = SolarHeuristic
+    """BaseHeuristic: Class with a ``check()`` method"""
 
     TEXT_COLLECTORS = [
         SolarOrdinanceTextCollector,

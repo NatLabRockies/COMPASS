@@ -369,12 +369,12 @@ class SmallWindOrdinanceTextExtractor(PromptBasedTextExtractor):
     PROMPTS = [
         {
             "key": "wind_energy_systems_text",
-            "out_fn": "{jurisdiction} Wind Ordinance Text.txt",
+            "out_fn": "{jurisdiction} Wind Ordinance.txt",
             "prompt": _WECS_TEXT_EXTRACTION_PROMPT,
         },
         {
             "key": "cleaned_text_for_extraction",
-            "out_fn": "{jurisdiction} Cleaned Text.txt",
+            "out_fn": "{jurisdiction} Small Wind Ordinance.txt",
             "prompt": _SMALL_WECS_TEXT_EXTRACTION_PROMPT,
         },
     ]
@@ -398,12 +398,12 @@ class SmallWindPermittedUseDistrictsTextExtractor(PromptBasedTextExtractor):
     PROMPTS = [
         {
             "key": "permitted_use_only_text",
-            "out_fn": "{jurisdiction} Permitted Use Only.txt",
+            "out_fn": "{jurisdiction} Permitted Use.txt",
             "prompt": _PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
         },
         {
             "key": "districts_text",
-            "out_fn": "{jurisdiction} Districts.txt",
+            "out_fn": "{jurisdiction} Permitted Use Districts.txt",
             "prompt": _WECS_PERMITTED_USES_TEXT_EXTRACTION_PROMPT,
         },
     ]
