@@ -47,6 +47,8 @@ class LLMUsageCategory(StrEnum):
     """Usage related to ordinance value extraction tasks"""
     PERMITTED_USE_VALUE_EXTRACTION = auto()
     """Usage related to permitted use value extraction tasks"""
+    PLUGIN_GENERATION = auto()
+    """Usage related to generating plugin prompts and templates"""
 
 
 class LLMTasks(StrEnum):
@@ -137,3 +139,6 @@ class LLMTasks(StrEnum):
     This task represents the extraction of structured permitted use
     values.
     """
+
+    PLUGIN_GENERATION = LLMUsageCategory.PLUGIN_GENERATION
+    """Task related to generating plugin prompts and templates"""
