@@ -73,12 +73,12 @@ class BaseExtractionPlugin(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def get_question_templates(self):
-        """Get a list of search engine question templates for extraction
+    async def get_query_templates(self):
+        """Get a list of search engine query templates for extraction
 
-        Question templates can contain the placeholder
-        ``{jurisdiction}`` which will be replaced with the full
-        jurisdiction name during the search engine query.
+        Query templates can contain the placeholder ``{jurisdiction}``
+        which will be replaced with the full jurisdiction name during
+        the search engine query.
         """
         raise NotImplementedError
 

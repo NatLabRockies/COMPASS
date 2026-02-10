@@ -1001,7 +1001,7 @@ class _SingleJurisdictionRunner:
     async def _find_documents_using_search_engine(self):
         """Search the web for ordinance docs using search engines"""
         docs = await download_jurisdiction_ordinance_using_search_engine(
-            await self.extractor.get_question_templates(),
+            await self.extractor.get_query_templates(),
             self.jurisdiction,
             num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,

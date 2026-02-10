@@ -121,12 +121,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def QUESTION_TEMPLATES(self):  # noqa: N802
-        """list: List of search engine question templates for extraction
+    def QUERY_TEMPLATES(self):  # noqa: N802
+        """list: List of search engine query templates for extraction
 
-        Question templates can contain the placeholder
-        ``{jurisdiction}`` which will be replaced with the full
-        jurisdiction name during the search engine query.
+        Query templates can contain the placeholder ``{jurisdiction}``
+        which will be replaced with the full jurisdiction name during
+        the search engine query.
         """
         raise NotImplementedError
 
@@ -252,14 +252,14 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         )
         await self._write_cleaned_text(doc)
 
-    async def get_question_templates(self):
-        """Get a list of search engine question templates for extraction
+    async def get_query_templates(self):
+        """Get a list of search engine query templates for extraction
 
-        Question templates can contain the placeholder
-        ``{jurisdiction}`` which will be replaced with the full
-        jurisdiction name during the search engine query.
+        Query templates can contain the placeholder ``{jurisdiction}``
+        which will be replaced with the full jurisdiction name during
+        the search engine query.
         """
-        return self.QUESTION_TEMPLATES
+        return self.QUERY_TEMPLATES
 
     async def get_website_keywords(self):
         """Get a dict of website search keyword scores
@@ -360,7 +360,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
     def validate_plugin_configuration(self):
         """[NOT PUBLIC API] Validate plugin is properly configured"""
         self._validate_plugin_identifier()
-        self._validate_question_templates()
+        self._validate_query_templates()
         self._validate_website_keywords()
         self._validate_text_collectors()
         self._register_collected_text_file_names()
@@ -376,22 +376,22 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             )
             raise COMPASSPluginConfigurationError(msg) from None
 
-    def _validate_question_templates(self):
-        """Validate that the plugin has valid QUESTION_TEMPLATES"""
+    def _validate_query_templates(self):
+        """Validate that the plugin has valid QUERY_TEMPLATES"""
         try:
-            num_q_templates = len(self.QUESTION_TEMPLATES)
+            num_q_templates = len(self.QUERY_TEMPLATES)
         except NotImplementedError:
             msg = (
                 f"Plugin class {self.__class__.__name__} is missing required "
-                "property 'QUESTION_TEMPLATES'"
+                "property 'QUERY_TEMPLATES'"
             )
             raise COMPASSPluginConfigurationError(msg) from None
 
         if num_q_templates == 0:
             msg = (
                 f"Plugin class {self.__class__.__name__} has an empty "
-                "'QUESTION_TEMPLATES' property! Please provide at least "
-                "one question template."
+                "'QUERY_TEMPLATES' property! Please provide at least "
+                "one query template."
             )
             raise COMPASSPluginConfigurationError(msg)
 

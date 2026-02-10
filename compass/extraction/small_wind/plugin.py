@@ -20,7 +20,7 @@ StructuredSmallWindPermittedUseDistrictsParser.IN_LABEL = (
     SmallWindPermittedUseDistrictsTextExtractor.OUT_LABEL
 )
 
-SMALL_WIND_QUESTION_TEMPLATES = [
+SMALL_WIND_QUERY_TEMPLATES = [
     "filetype:pdf {jurisdiction} wind energy conversion system ordinances",
     "wind energy conversion system ordinances {jurisdiction}",
     "{jurisdiction} wind WECS ordinance",
@@ -66,8 +66,8 @@ class COMPASSSmallWindExtractor(OrdinanceExtractionPlugin):
     IDENTIFIER = "small wind"
     """str: Identifier for extraction task """
 
-    QUESTION_TEMPLATES = SMALL_WIND_QUESTION_TEMPLATES
-    """list: List of search engine question templates for extraction"""
+    QUERY_TEMPLATES = SMALL_WIND_QUERY_TEMPLATES
+    """list: List of search engine query templates for extraction"""
 
     WEBSITE_KEYWORDS = BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS
     """list: List of keywords

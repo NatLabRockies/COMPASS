@@ -18,7 +18,7 @@ StructuredWindPermittedUseDistrictsParser.IN_LABEL = (
     WindPermittedUseDistrictsTextExtractor.OUT_LABEL
 )
 
-WIND_QUESTION_TEMPLATES = [
+WIND_QUERY_TEMPLATES = [
     "filetype:pdf {jurisdiction} wind energy conversion system ordinances",
     "wind energy conversion system ordinances {jurisdiction}",
     "{jurisdiction} wind WECS ordinance",
@@ -65,8 +65,8 @@ class COMPASSWindExtractor(OrdinanceExtractionPlugin):
     IDENTIFIER = "wind"
     """str: Identifier for extraction task """
 
-    QUESTION_TEMPLATES = WIND_QUESTION_TEMPLATES
-    """list: List of search engine question templates for extraction"""
+    QUERY_TEMPLATES = WIND_QUERY_TEMPLATES
+    """list: List of search engine query templates for extraction"""
 
     WEBSITE_KEYWORDS = BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS
     """list: List of keywords

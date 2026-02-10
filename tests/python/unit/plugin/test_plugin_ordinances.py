@@ -42,7 +42,7 @@ def test_plugin_validation_parse_key_same():
 
         IDENTIFIER = "test"
         WEBSITE_KEYWORDS = ["test"]
-        QUESTION_TEMPLATES = ["test"]
+        QUERY_TEMPLATES = ["test"]
         heuristic = None
 
         async def parse_docs_for_structured_data(self, extraction_context):
@@ -84,7 +84,7 @@ def test_plugin_validation_extract_key_same():
 
         IDENTIFIER = "test"
         WEBSITE_KEYWORDS = ["test"]
-        QUESTION_TEMPLATES = ["test"]
+        QUERY_TEMPLATES = ["test"]
         heuristic = None
 
         async def parse_docs_for_structured_data(self, extraction_context):
@@ -126,7 +126,7 @@ def test_plugin_validation_no_in_key_for_extract():
 
         IDENTIFIER = "test"
         WEBSITE_KEYWORDS = ["test"]
-        QUESTION_TEMPLATES = ["test"]
+        QUERY_TEMPLATES = ["test"]
         heuristic = None
 
         async def parse_docs_for_structured_data(self, extraction_context):
@@ -172,7 +172,7 @@ def test_plugin_validation_no_in_key_for_parse():
 
         IDENTIFIER = "test"
         WEBSITE_KEYWORDS = ["test"]
-        QUESTION_TEMPLATES = ["test"]
+        QUERY_TEMPLATES = ["test"]
         heuristic = None
 
         async def parse_docs_for_structured_data(self, extraction_context):

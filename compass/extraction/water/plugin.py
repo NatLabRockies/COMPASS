@@ -19,7 +19,7 @@ from compass.extraction.water.parse import StructuredWaterParser
 logger = logging.getLogger(__name__)
 
 
-WATER_RIGHTS_QUESTION_TEMPLATES = [
+WATER_RIGHTS_QUERY_TEMPLATES = [
     "{jurisdiction} rules",
     "{jurisdiction} management plan",
     "{jurisdiction} well permits",
@@ -73,14 +73,14 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
     )
     """:term:`path-like <path-like object>`: Path to Texas GCW names"""
 
-    async def get_question_templates(self):  # noqa: PLR6301
-        """Get a list of search engine question templates for extraction
+    async def get_query_templates(self):  # noqa: PLR6301
+        """Get a list of search engine query templates for extraction
 
-        Question templates can contain the placeholder
-        ``{jurisdiction}`` which will be replaced with the full
-        jurisdiction name during the search engine query.
+        Query templates can contain the placeholder ``{jurisdiction}``
+        which will be replaced with the full jurisdiction name during
+        the search engine query.
         """
-        return WATER_RIGHTS_QUESTION_TEMPLATES
+        return WATER_RIGHTS_QUERY_TEMPLATES
 
     async def get_website_keywords(self):  # noqa: PLR6301
         """Get a dict of website search keyword scores
