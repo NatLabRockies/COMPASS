@@ -12,6 +12,7 @@ from rich.logging import RichHandler
 from rich.console import Console
 
 from compass.pb import COMPASS_PB
+from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.process import process_jurisdictions_with_openai
 from compass.utilities.logs import AddLocationFilter
 from compass.utilities.io import load_config
@@ -41,9 +42,20 @@ from compass.utilities.io import load_config
     is_flag=True,
     help="Flag to hide progress bars during processing.",
 )
-def process(config, verbose, no_progress):
+@click.option(
+    "--plugin",
+    "-p",
+    multiple=True,
+    help="One-shot plugin configuration to add to COMPASS before processing",
+)
+def process(config, verbose, no_progress, plugin):
     """Download and extract ordinances for a list of jurisdictions"""
     config = load_config(config)
+
+    for one_shot_plugin_config in plugin:
+        create_schema_based_one_shot_extraction_plugin(
+            config=one_shot_plugin_config, tech=config["tech"]
+        )
 
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
