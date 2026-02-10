@@ -1000,7 +1000,7 @@ class _SingleJurisdictionRunner:
     async def _find_documents_using_search_engine(self):
         """Search the web for ordinance docs using search engines"""
         docs = await download_jurisdiction_ordinance_using_search_engine(
-            self.extractor.QUESTION_TEMPLATES,
+            await self.extractor.get_question_templates(),
             self.jurisdiction,
             num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
@@ -1107,8 +1107,8 @@ class _SingleJurisdictionRunner:
         )
         out = await download_jurisdiction_ordinances_from_website(
             self.jurisdiction_website,
-            heuristic=self.extractor.heuristic,
-            keyword_points=self.extractor.WEBSITE_KEYWORDS,
+            heuristic=await self.extractor.get_heuristic(),
+            keyword_points=await self.extractor.get_website_keywords(),
             file_loader_kwargs=self.file_loader_kwargs_no_ocr,
             crawl_semaphore=self.crawl_semaphore,
             pb_jurisdiction_name=self.jurisdiction.full_name,
@@ -1128,8 +1128,8 @@ class _SingleJurisdictionRunner:
         docs = (
             await download_jurisdiction_ordinances_from_website_compass_crawl(
                 self.jurisdiction_website,
-                heuristic=self.extractor.heuristic,
-                keyword_points=self.extractor.WEBSITE_KEYWORDS,
+                heuristic=await self.extractor.get_heuristic(),
+                keyword_points=await self.extractor.get_website_keywords(),
                 file_loader_kwargs=self.file_loader_kwargs_no_ocr,
                 already_visited=checked_urls,
                 crawl_semaphore=self.crawl_semaphore,
