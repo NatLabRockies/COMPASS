@@ -235,7 +235,10 @@ def test_load_config_invalid_extension(tmp_path):
 
     with pytest.raises(
         COMPASSValueError,
-        match=r"Got unknown config file extension: \.txt",
+        match=(
+            r"Got unknown config file extension: '.txt'. Supported "
+            r"extensions are:"
+        ),
     ):
         load_config(config_file)
 

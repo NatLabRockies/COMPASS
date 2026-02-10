@@ -18,7 +18,7 @@ import pprint
 from elm.web.file_loader import AsyncLocalFileLoader
 
 from compass.utilities.enums import CaseInsensitiveEnum
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSValueError, COMPASSFileNotFoundError
 
 
 logger = logging.getLogger(__name__)
@@ -255,7 +255,20 @@ def load_config(config_filepath, resolve_paths=True):
         )
         raise COMPASSValueError(msg)
 
-    config_type = ConfigType(config_filepath.name.split(".")[-1])
+    if not config_filepath.exists():
+        msg = f"Config file does not exist: {config_filepath}"
+        raise COMPASSFileNotFoundError(msg)
+
+    try:
+        config_type = ConfigType(config_filepath.suffix[1:])
+    except ValueError as err:
+        msg = (
+            f"Got unknown config file extension: "
+            f"{config_filepath.suffix!r}. Supported extensions are: "
+            f"{', '.join({ct.value for ct in ConfigType})}"
+        )
+        raise COMPASSValueError(msg) from err
+
     config = config_type.load(config_filepath)
     if resolve_paths:
         return resolve_all_paths(config, config_filepath.parent)
