@@ -1,6 +1,5 @@
 """COMPASS CLI finalize subcommand"""
 
-import json
 from datetime import datetime
 
 import click
@@ -8,8 +7,8 @@ from rich.theme import Theme
 from rich.console import Console
 
 from compass.utilities import Directories
+from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
-from compass.utilities.parsing import load_config
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
 from compass.scripts.process import _initialize_model_params
 
@@ -62,8 +61,7 @@ def finalize(config):
     start_datetime = datetime.fromtimestamp(dirs.out.stat().st_ctime)
     end_datetime = datetime.fromtimestamp(jurisdictions_fp.stat().st_mtime)
 
-    with jurisdictions_fp.open("r", encoding="utf-8") as fh:
-        jurisdictions = json.load(fh)
+    jurisdictions = load_config(jurisdictions_fp)
 
     console.print("Compiling databases...")
     jurisdictions = jurisdictions.get("jurisdictions", [])

@@ -64,7 +64,8 @@ from compass.utilities.logs import (
     log_versions,
 )
 from compass.utilities.base import WebSearchParams
-from compass.utilities.parsing import load_config, convert_paths_to_strings
+from compass.utilities.io import load_config
+from compass.utilities.parsing import convert_paths_to_strings
 from compass.pb import COMPASS_PB
 
 
