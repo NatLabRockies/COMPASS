@@ -2,7 +2,8 @@
 
 import logging
 
-from .interface import BaseHeuristic, BaseTextCollector, BaseTextExtractor
+from compass.plugin.interface import BaseHeuristic, BaseTextCollector
+from compass.plugin.ordinance import BaseTextExtractor
 from compass.utilities.parsing import merge_overlapping_texts
 
 
