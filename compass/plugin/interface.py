@@ -151,8 +151,9 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         raise NotImplementedError
 
     @property
-    def heuristic(self):
-        """BaseHeuristic: Object with a ``check()`` method
+    @abstractmethod
+    def HEURISTIC(self):  # noqa: N802
+        """BaseHeuristic: Class with a ``check()`` method
 
         The ``check()`` method should accept a string of text and
         return ``True`` if the text passes the heuristic check and
@@ -251,6 +252,33 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         )
         await self._write_cleaned_text(doc)
 
+    async def get_question_templates(self):
+        """Get a list of search engine question templates for extraction
+
+        Question templates can contain the placeholder
+        ``{jurisdiction}`` which will be replaced with the full
+        jurisdiction name during the search engine query.
+        """
+        return self.QUESTION_TEMPLATES
+
+    async def get_website_keywords(self):
+        """Get a dict of website search keyword scores
+
+        Dictionary mapping keywords to scores that indicate links which
+        should be prioritized when performing a website scrape for a
+        document.
+        """
+        return self.WEBSITE_KEYWORDS
+
+    async def get_heuristic(self):
+        """Get a `BaseHeuristic` instance with a `check()` method
+
+        The ``check()`` method should accept a string of text and return
+        ``True`` if the text passes the heuristic check and ``False``
+        otherwise.
+        """
+        return self.HEURISTIC()
+
     async def filter_docs(
         self, extraction_context, need_jurisdiction_verification=True
     ):
@@ -292,7 +320,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             docs,
             self.jurisdiction,
             self.model_configs,
-            heuristic=self.heuristic,
+            heuristic=self.HEURISTIC(),
             tech=self.IDENTIFIER,
             text_collectors=self.TEXT_COLLECTORS,
             usage_tracker=self.usage_tracker,
