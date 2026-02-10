@@ -15,4 +15,5 @@ from .ordinance import (
     OrdinanceParser,
     OrdinanceExtractionPlugin,
 )
+from .noop import NoOpHeuristic, NoOpTextCollector, NoOpTextExtractor
 from .registry import PLUGIN_REGISTRY, register_plugin
