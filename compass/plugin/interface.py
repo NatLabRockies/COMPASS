@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from compass.plugin.base import BaseExtractionPlugin
-from compass.llm.calling import LLMCaller
+from compass.llm.calling import BaseLLMCaller, LLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
 from compass.services.threaded import CleanedFileWriter
