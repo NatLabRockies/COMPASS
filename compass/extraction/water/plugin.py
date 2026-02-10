@@ -66,25 +66,39 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
     IDENTIFIER = "tx water rights"
     """str: Identifier for extraction task """
 
-    QUESTION_TEMPLATES = WATER_RIGHTS_QUESTION_TEMPLATES
-    """list: List of search engine question templates for extraction"""
-
-    WEBSITE_KEYWORDS = BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS
-    """list: List of keywords
-
-    Keywords indicate links which should be prioritized when performing
-    a website scrape for a wind ordinance document.
-    """
-
-    heuristic = WaterRightsHeuristic()
-    """BaseHeuristic: Object with a ``check()`` method"""
-
     JURISDICTION_DATA_FP = (
         importlib.resources.files("compass")
         / "data"
         / "tx_water_districts.csv"
     )
     """:term:`path-like <path-like object>`: Path to Texas GCW names"""
+
+    async def get_question_templates(self):  # noqa: PLR6301
+        """Get a list of search engine question templates for extraction
+
+        Question templates can contain the placeholder
+        ``{jurisdiction}`` which will be replaced with the full
+        jurisdiction name during the search engine query.
+        """
+        return WATER_RIGHTS_QUESTION_TEMPLATES
+
+    async def get_website_keywords(self):  # noqa: PLR6301
+        """Get a dict of website search keyword scores
+
+        Dictionary mapping keywords to scores that indicate links which
+        should be prioritized when performing a website scrape for a
+        document.
+        """
+        return BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS
+
+    async def get_heuristic(self):  # noqa: PLR6301
+        """Get a `BaseHeuristic` instance with a `check()` method
+
+        The ``check()`` method should accept a string of text and return
+        ``True`` if the text passes the heuristic check and ``False``
+        otherwise.
+        """
+        return WaterRightsHeuristic()
 
     async def filter_docs(
         self,
