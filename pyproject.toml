@@ -43,6 +43,7 @@ dependencies = [
   "openai>=1.1.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
+  "platformdirs>=4.5.1,<5",
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
   "pyjson5>=2.0.0,<3",
   "rich>=13.9.4,<14",
@@ -174,6 +175,7 @@ pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
 pillow = ">=10.4,<11.dev0"  # version range required for c4ai
 playwright = ">=1.49.0,<1.52"  # version range required for c4ai
+platformdirs = ">=4.5.1,<5"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
 python = ">=3.12"
