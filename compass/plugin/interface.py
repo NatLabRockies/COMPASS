@@ -37,7 +37,7 @@ class BaseHeuristic(ABC):
         raise NotImplementedError
 
 
-class BaseTextCollector(ABC):
+class BaseTextCollector(BaseLLMCaller, ABC):
     """Base class for text collectors that gather relevant text"""
 
     @property
