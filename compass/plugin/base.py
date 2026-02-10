@@ -72,10 +72,9 @@ class BaseExtractionPlugin(ABC):
         """str: Identifier for extraction task (e.g. "water rights")"""
         raise NotImplementedError
 
-    @property
     @abstractmethod
-    def QUESTION_TEMPLATES(self):  # noqa: N802
-        """list: List of search engine question templates for extraction
+    async def get_question_templates(self):
+        """Get a list of search engine question templates for extraction
 
         Question templates can contain the placeholder
         ``{jurisdiction}`` which will be replaced with the full
@@ -83,24 +82,23 @@ class BaseExtractionPlugin(ABC):
         """
         raise NotImplementedError
 
-    @property
     @abstractmethod
-    def WEBSITE_KEYWORDS(self):  # noqa: N802
-        """list: List of keywords
+    async def get_website_keywords(self):
+        """Get a dict of website search keyword scores
 
-        List of keywords that indicate links which should be prioritized
-        when performing a website scrape for a document.
+        Dictionary mapping keywords to scores that indicate links which
+        should be prioritized when performing a website scrape for a
+        document.
         """
         raise NotImplementedError
 
-    @property
     @abstractmethod
-    def heuristic(self):
-        """BaseHeuristic: Object with a ``check()`` method
+    async def get_heuristic(self):
+        """Get a `BaseHeuristic` instance with a `check()` method
 
-        The ``check()`` method should accept a string of text and
-        return ``True`` if the text passes the heuristic check and
-        ``False`` otherwise.
+        The ``check()`` method should accept a string of text and return
+        ``True`` if the text passes the heuristic check and ``False``
+        otherwise.
         """
         raise NotImplementedError
 
