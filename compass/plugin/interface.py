@@ -7,7 +7,7 @@ from compass.plugin.base import BaseExtractionPlugin
 from compass.llm.calling import BaseLLMCaller, LLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
-from compass.services.threaded import CleanedFileWriter
+from compass.services.threaded import CLEANED_FP_REGISTRY, CleanedFileWriter
 from compass.utilities import doc_infos_to_db, save_db
 from compass.exceptions import COMPASSPluginConfigurationError
 
@@ -363,6 +363,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         self._validate_question_templates()
         self._validate_website_keywords()
         self._validate_text_collectors()
+        self._register_collected_text_file_names()
 
     def _validate_plugin_identifier(self):
         """Validate that the plugin has a valid IDENTIFIER property"""
@@ -442,3 +443,13 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
                     f"{collector_class.__name__} is not!"
                 )
                 raise COMPASSPluginConfigurationError(msg)
+
+    def _register_collected_text_file_names(self):
+        """Register file names for writing cleaned text outputs"""
+
+        CLEANED_FP_REGISTRY.setdefault(self.IDENTIFIER.casefold(), {})
+        collected_text_key = list(self.TEXT_COLLECTORS)[-1].OUT_LABEL
+
+        CLEANED_FP_REGISTRY[self.IDENTIFIER.casefold()][collected_text_key] = (
+            "{jurisdiction} Collected Text.txt"
+        )
