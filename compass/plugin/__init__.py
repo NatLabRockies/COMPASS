@@ -17,3 +17,4 @@ from .ordinance import (
 )
 from .noop import NoOpHeuristic, NoOpTextCollector, NoOpTextExtractor
 from .registry import PLUGIN_REGISTRY, register_plugin
+from .one_shot import create_schema_based_one_shot_extraction_plugin
