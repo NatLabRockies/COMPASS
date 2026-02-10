@@ -14,7 +14,7 @@ from rich.console import Console
 from compass.pb import COMPASS_PB
 from compass.scripts.process import process_jurisdictions_with_openai
 from compass.utilities.logs import AddLocationFilter
-from compass.utilities.parsing import load_config
+from compass.utilities.io import load_config
 
 
 @click.command
