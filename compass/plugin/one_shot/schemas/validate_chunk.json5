@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "description": "Response indicating whether or not the text chunk contains relevant text for the extraction task. If the chunk contains relevant text, the LLM should return 'true' for 'contains_relevant_text', and if not, it should return 'false'.",
+    "additionalProperties": false,
+    "required": ["contains_relevant_text", "explanation"],
+    "properties": {
+        "contains_relevant_text": {
+            "type": "boolean",
+            "description": "Flag indicating whether the text chunk contains relevant information for the extraction task. 'true' if relevant text is present, 'false' if not.",
+        },
+        "explanation": {
+            "type": "string",
+            "description": "Explanation for the LLM's determination of whether the chunk contains relevant text for extraction based on the input extraction schema. If 'contains_relevant_text' is 'true', the explanation should briefly summarize the relevant content found in the chunk. If 'contains_relevant_text' is 'false', the explanation should briefly describe why the chunk was deemed irrelevant (e.g., off-topic content, no mention of any of the extraction schema content, text does not apply to system under consideration for extraction, etc.).",
+        }
+    },
+}
