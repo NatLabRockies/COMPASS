@@ -359,7 +359,13 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     def validate_plugin_configuration(self):
         """[NOT PUBLIC API] Validate plugin is properly configured"""
+        self._validate_plugin_identifier()
+        self._validate_question_templates()
+        self._validate_website_keywords()
+        self._validate_text_collectors()
 
+    def _validate_plugin_identifier(self):
+        """Validate that the plugin has a valid IDENTIFIER property"""
         try:
             __ = self.IDENTIFIER
         except NotImplementedError:
@@ -369,6 +375,8 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             )
             raise COMPASSPluginConfigurationError(msg) from None
 
+    def _validate_question_templates(self):
+        """Validate that the plugin has valid QUESTION_TEMPLATES"""
         try:
             num_q_templates = len(self.QUESTION_TEMPLATES)
         except NotImplementedError:
@@ -386,6 +394,8 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             )
             raise COMPASSPluginConfigurationError(msg)
 
+    def _validate_website_keywords(self):
+        """Validate that the plugin has valid WEBSITE_KEYWORDS"""
         try:
             num_website_keywords = len(self.WEBSITE_KEYWORDS)
         except NotImplementedError:
@@ -403,6 +413,8 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             )
             raise COMPASSPluginConfigurationError(msg)
 
+    def _validate_text_collectors(self):
+        """Validate that the plugin has valid TEXT_COLLECTORS"""
         try:
             collectors = self.TEXT_COLLECTORS
         except NotImplementedError:
