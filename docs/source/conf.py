@@ -389,6 +389,7 @@ napoleon_type_aliases = {
     "ParseChunksWithMemory": ":class:`~compass.validation.content.ParseChunksWithMemory`",
     "Service": ":class:`~compass.services.base.Service`",
     "JSONFromTextLLMCaller": ":class:`~compass.llm.calling.JSONFromTextLLMCaller`",
+    "SchemaOutputLLMCaller": ":class:`~compass.llm.calling.SchemaOutputLLMCaller`",
     "TimeBoundedUsageTracker": ":class:`~compass.services.usage.TimeBoundedUsageTracker`",
     "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
     "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",
