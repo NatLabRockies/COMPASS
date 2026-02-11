@@ -1,8 +1,6 @@
 """Test COMPASS Ordinance parsing utilities"""
 
-import json
 from pathlib import Path
-from unittest.mock import MagicMock
 
 import numpy as np
 import pandas as pd
@@ -13,12 +11,10 @@ from compass.utilities.parsing import (
     convert_paths_to_strings,
     extract_ord_year_from_doc_attrs,
     llm_response_as_json,
-    load_config,
     merge_overlapping_texts,
     num_ordinances_dataframe,
     ordinances_bool_index,
 )
-from compass.exceptions import COMPASSValueError
 
 
 @pytest.mark.parametrize(
@@ -60,15 +56,19 @@ def test_llm_response_as_json(in_str, expected):
     [
         (
             [
-                "Some text. Some overlap. More text. More text that "
-                "shouldn't be touched. Some overlap.",
+                (
+                    "Some text. Some overlap. More text. More text that "
+                    "shouldn't be touched. Some overlap."
+                ),
                 "Some overlap. More text.",
                 "Some non-overlapping text.",
             ],
             12,
-            "Some text. Some overlap. More text. More text that "
-            "shouldn't be touched. Some overlap. More text.\nSome "
-            "non-overlapping text.",
+            (
+                "Some text. Some overlap. More text. More text that "
+                "shouldn't be touched. Some overlap. More text.\nSome "
+                "non-overlapping text."
+            ),
         ),
         ([], 300, ""),
         (["single chunk"], 300, "single chunk"),
@@ -183,47 +183,6 @@ def test_ordinances_bool_index_value_only():
     result = ordinances_bool_index(data)
     expected = np.array([True, False, True])
     np.testing.assert_array_equal(result, expected)
-
-
-def test_load_config_json(tmp_path):
-    """Test `load_config` with JSON file"""
-
-    config_data = {"key": "value", "number": 42}
-    config_file = tmp_path / "test_config.json"
-    with config_file.open("w", encoding="utf-8") as f:
-        json.dump(config_data, f)
-
-    result = load_config(config_file)
-    assert result == config_data
-
-
-def test_load_config_json5(tmp_path):
-    """Test `load_config` with JSON5 file"""
-
-    config_content = """{
-        // This is a comment
-        "key": "value",
-        "number": 42,
-    }"""
-    config_file = tmp_path / "test_config.json5"
-    with config_file.open("w", encoding="utf-8") as f:
-        f.write(config_content)
-
-    result = load_config(config_file)
-    assert result == {"key": "value", "number": 42}
-
-
-def test_load_config_invalid_extension(tmp_path):
-    """Test `load_config` with invalid file extension"""
-
-    config_file = tmp_path / "test_config.txt"
-    config_file.touch()
-
-    with pytest.raises(
-        COMPASSValueError,
-        match=r"Got unknown config file extension: \.txt",
-    ):
-        load_config(config_file)
 
 
 def test_convert_paths_to_strings_all_structures():

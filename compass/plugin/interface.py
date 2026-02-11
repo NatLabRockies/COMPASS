@@ -4,10 +4,10 @@ import logging
 from abc import ABC, abstractmethod
 
 from compass.plugin.base import BaseExtractionPlugin
-from compass.llm.calling import LLMCaller
+from compass.llm.calling import BaseLLMCaller, LLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
-from compass.services.threaded import CleanedFileWriter
+from compass.services.threaded import CLEANED_FP_REGISTRY, CleanedFileWriter
 from compass.utilities import doc_infos_to_db, save_db
 from compass.exceptions import COMPASSPluginConfigurationError
 
@@ -37,7 +37,7 @@ class BaseHeuristic(ABC):
         raise NotImplementedError
 
 
-class BaseTextCollector(ABC):
+class BaseTextCollector(BaseLLMCaller, ABC):
     """Base class for text collectors that gather relevant text"""
 
     @property
@@ -121,12 +121,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def QUESTION_TEMPLATES(self):  # noqa: N802
-        """list: List of search engine question templates for extraction
+    def QUERY_TEMPLATES(self):  # noqa: N802
+        """list: List of search engine query templates for extraction
 
-        Question templates can contain the placeholder
-        ``{jurisdiction}`` which will be replaced with the full
-        jurisdiction name during the search engine query.
+        Query templates can contain the placeholder ``{jurisdiction}``
+        which will be replaced with the full jurisdiction name during
+        the search engine query.
         """
         raise NotImplementedError
 
@@ -151,8 +151,9 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         raise NotImplementedError
 
     @property
-    def heuristic(self):
-        """BaseHeuristic: Object with a ``check()`` method
+    @abstractmethod
+    def HEURISTIC(self):  # noqa: N802
+        """BaseHeuristic: Class with a ``check()`` method
 
         The ``check()`` method should accept a string of text and
         return ``True`` if the text passes the heuristic check and
@@ -251,6 +252,33 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         )
         await self._write_cleaned_text(doc)
 
+    async def get_query_templates(self):
+        """Get a list of search engine query templates for extraction
+
+        Query templates can contain the placeholder ``{jurisdiction}``
+        which will be replaced with the full jurisdiction name during
+        the search engine query.
+        """
+        return self.QUERY_TEMPLATES
+
+    async def get_website_keywords(self):
+        """Get a dict of website search keyword scores
+
+        Dictionary mapping keywords to scores that indicate links which
+        should be prioritized when performing a website scrape for a
+        document.
+        """
+        return self.WEBSITE_KEYWORDS
+
+    async def get_heuristic(self):
+        """Get a `BaseHeuristic` instance with a `check()` method
+
+        The ``check()`` method should accept a string of text and return
+        ``True`` if the text passes the heuristic check and ``False``
+        otherwise.
+        """
+        return self.HEURISTIC()
+
     async def filter_docs(
         self, extraction_context, need_jurisdiction_verification=True
     ):
@@ -292,7 +320,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             docs,
             self.jurisdiction,
             self.model_configs,
-            heuristic=self.heuristic,
+            heuristic=self.HEURISTIC(),
             tech=self.IDENTIFIER,
             text_collectors=self.TEXT_COLLECTORS,
             usage_tracker=self.usage_tracker,
@@ -331,7 +359,14 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     def validate_plugin_configuration(self):
         """[NOT PUBLIC API] Validate plugin is properly configured"""
+        self._validate_plugin_identifier()
+        self._validate_query_templates()
+        self._validate_website_keywords()
+        self._validate_text_collectors()
+        self._register_collected_text_file_names()
 
+    def _validate_plugin_identifier(self):
+        """Validate that the plugin has a valid IDENTIFIER property"""
         try:
             __ = self.IDENTIFIER
         except NotImplementedError:
@@ -341,23 +376,27 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             )
             raise COMPASSPluginConfigurationError(msg) from None
 
+    def _validate_query_templates(self):
+        """Validate that the plugin has valid QUERY_TEMPLATES"""
         try:
-            num_q_templates = len(self.QUESTION_TEMPLATES)
+            num_q_templates = len(self.QUERY_TEMPLATES)
         except NotImplementedError:
             msg = (
                 f"Plugin class {self.__class__.__name__} is missing required "
-                "property 'QUESTION_TEMPLATES'"
+                "property 'QUERY_TEMPLATES'"
             )
             raise COMPASSPluginConfigurationError(msg) from None
 
         if num_q_templates == 0:
             msg = (
                 f"Plugin class {self.__class__.__name__} has an empty "
-                "'QUESTION_TEMPLATES' property! Please provide at least "
-                "one question template."
+                "'QUERY_TEMPLATES' property! Please provide at least "
+                "one query template."
             )
             raise COMPASSPluginConfigurationError(msg)
 
+    def _validate_website_keywords(self):
+        """Validate that the plugin has valid WEBSITE_KEYWORDS"""
         try:
             num_website_keywords = len(self.WEBSITE_KEYWORDS)
         except NotImplementedError:
@@ -375,6 +414,8 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             )
             raise COMPASSPluginConfigurationError(msg)
 
+    def _validate_text_collectors(self):
+        """Validate that the plugin has valid TEXT_COLLECTORS"""
         try:
             collectors = self.TEXT_COLLECTORS
         except NotImplementedError:
@@ -402,3 +443,13 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
                     f"{collector_class.__name__} is not!"
                 )
                 raise COMPASSPluginConfigurationError(msg)
+
+    def _register_collected_text_file_names(self):
+        """Register file names for writing cleaned text outputs"""
+
+        CLEANED_FP_REGISTRY.setdefault(self.IDENTIFIER.casefold(), {})
+        collected_text_key = list(self.TEXT_COLLECTORS)[-1].OUT_LABEL
+
+        CLEANED_FP_REGISTRY[self.IDENTIFIER.casefold()][collected_text_key] = (
+            "{jurisdiction} Collected Text.txt"
+        )

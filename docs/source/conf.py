@@ -137,6 +137,7 @@ nitpick_ignore = [
         "py:obj",
         "compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.OUT_LABEL",
     ),
+    ("py:class", "compass.utilities.io._ConfigType"),
 ]
 
 # -- Options for HTML output -------------------------------------------------
@@ -388,7 +389,8 @@ napoleon_type_aliases = {
     "OpenAIService": ":class:`~compass.services.openai.OpenAIService`",
     "ParseChunksWithMemory": ":class:`~compass.validation.content.ParseChunksWithMemory`",
     "Service": ":class:`~compass.services.base.Service`",
-    "StructuredLLMCaller": ":class:`~compass.llm.calling.StructuredLLMCaller`",
+    "JSONFromTextLLMCaller": ":class:`~compass.llm.calling.JSONFromTextLLMCaller`",
+    "SchemaOutputLLMCaller": ":class:`~compass.llm.calling.SchemaOutputLLMCaller`",
     "TimeBoundedUsageTracker": ":class:`~compass.services.usage.TimeBoundedUsageTracker`",
     "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
     "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",

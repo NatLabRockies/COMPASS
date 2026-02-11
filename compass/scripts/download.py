@@ -481,7 +481,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
 
 
 async def download_jurisdiction_ordinance_using_search_engine(
-    question_templates,
+    query_templates,
     jurisdiction,
     num_urls=5,
     file_loader_kwargs=None,
@@ -494,7 +494,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
 
     Parameters
     ----------
-    question_templates : sequence of str
+    query_templates : sequence of str
         Query templates that will be formatted with the jurisdiction
         name before submission to the search engine.
     jurisdiction : Jurisdiction
@@ -563,7 +563,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     kwargs.update(file_loader_kwargs or {})
     try:
         out_docs = await _docs_from_web_search(
-            question_templates=question_templates,
+            query_templates=query_templates,
             jurisdiction=jurisdiction,
             num_urls=num_urls,
             search_semaphore=search_semaphore,
@@ -700,7 +700,7 @@ async def filter_ordinance_docs(
 
 
 async def _docs_from_web_search(
-    question_templates,
+    query_templates,
     jurisdiction,
     num_urls,
     search_semaphore,
@@ -711,8 +711,8 @@ async def _docs_from_web_search(
 ):
     """Download documents from the web using jurisdiction queries"""
     queries = [
-        question.format(jurisdiction=jurisdiction.full_name)
-        for question in question_templates
+        query.format(jurisdiction=jurisdiction.full_name)
+        for query in query_templates
     ]
     kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
 

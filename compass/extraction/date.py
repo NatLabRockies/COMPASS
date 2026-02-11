@@ -37,12 +37,12 @@ class DateExtractor:
     )
     """System message for date extraction LLM calls"""
 
-    def __init__(self, structured_llm_caller, text_splitter=None):
+    def __init__(self, json_llm_caller, text_splitter=None):
         """
 
         Parameters
         ----------
-        structured_llm_caller : StructuredLLMCaller
+        json_llm_caller : JSONFromTextLLMCaller
             Instance used for structured validation queries.
         text_splitter : LCTextSplitter, optional
             Optional text splitter (or subclass instance, or any object
@@ -50,7 +50,7 @@ class DateExtractor:
             (used for splitting out pages in an HTML document).
             By default, ``None``.
         """
-        self.slc = structured_llm_caller
+        self.jlc = json_llm_caller
         self.text_splitter = text_splitter
 
     async def parse(self, doc):
@@ -84,7 +84,7 @@ class DateExtractor:
         )
         if can_check_url_for_date:
             logger.debug("Checking URL for date: %s", url)
-            response = await self.slc.call(
+            response = await self.jlc.call(
                 sys_msg=self.SYSTEM_MESSAGE,
                 content=(
                     "Please extract the date from the URL for this "
@@ -105,7 +105,7 @@ class DateExtractor:
             if not text:
                 continue
 
-            response = await self.slc.call(
+            response = await self.jlc.call(
                 sys_msg=self.SYSTEM_MESSAGE,
                 content=f"Please extract the date for this ordinance:\n{text}",
                 usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
