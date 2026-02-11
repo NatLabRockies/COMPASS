@@ -1,5 +1,6 @@
 """COMPASS one-shot extraction plugin generators"""
 
+import operator
 import importlib.resources
 
 from elm.utilities.retry import async_retry_with_exponential_backoff
@@ -58,7 +59,7 @@ Input:
 - schema_json: a JSON schema describing features/requirements to extract.
 
 Output:
-- Produce a keyword-to-weight mapping with integer weights.
+- Produce an array of keyword/weight objects with integer weights.
 - Do not include extra keys or any markdown.
 
 Guidelines:
@@ -220,7 +221,7 @@ async def generate_website_keywords(
         },
         usage_sub_label=LLMUsageCategory.PLUGIN_GENERATION,
     )
-    out = response.get("keywords")
+    out = _normalize_website_keywords(response.get("keywords"))
     if not out:
         msg = (
             "LLM did not return any valid website keywords. "
@@ -231,6 +232,18 @@ async def generate_website_keywords(
     return out
 
 
+def _normalize_website_keywords(raw):
+    """Normalize keyword weights into a deduplicated dict"""
+    if not raw:
+        return {}
+
+    items = _parse_llm_kw_to_list(raw)
+    if not items:
+        return {}
+
+    return _de_duplicate_keywords(items)
+
+
 def _is_formattable(q):
     """True if the query template is formattable with a jurisdiction"""
     try:
@@ -239,3 +252,38 @@ def _is_formattable(q):
         return False
 
     return True
+
+
+def _parse_llm_kw_to_list(llm_kw):
+    """Parse LLM output into a list of (keyword, weight) tuples"""
+    items = []
+    for item in llm_kw:
+        if isinstance(item, str):
+            items.append((item, 1))
+        elif isinstance(item, dict):
+            items.append((item.get("keyword"), item.get("weight", 1)))
+    return items
+
+
+def _de_duplicate_keywords(items):
+    """Process keywords by normalizing and keeping the highest weight"""
+    deduped = {}
+    sorted_items = sorted(items, key=operator.itemgetter(1), reverse=True)
+    for keyword, weight in sorted_items:
+        if not isinstance(keyword, str):
+            continue
+
+        normalized = keyword.strip().casefold()
+        if not normalized or normalized.isdigit():
+            continue
+        try:
+            int_weight = int(weight)
+        except (TypeError, ValueError):
+            continue
+
+        if int_weight < 1:
+            continue
+
+        deduped.setdefault(normalized, weight)
+
+    return deduped

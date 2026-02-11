@@ -6,18 +6,28 @@
   "required": ["keywords"],
   "properties": {
     "keywords": {
-      "type": "object",
-      "minProperties": 5,
-      "additionalProperties": {
-        "type": "integer",
-        "minimum": 1
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["keyword", "weight"],
+        "properties": {
+          "keyword": {
+            "type": "string"
+          },
+          "weight": {
+            "type": "integer",
+            "minimum": 1
+          }
+        }
       }
     }
   },
   "$descriptions": {
     "general": [
       "Return ONLY the fields allowed by this schema.",
-      "Provide a keyword-to-weight mapping with integer weights.",
+      "Provide a single array of keyword/weight objects.",
+      "Each item must include \"keyword\" and \"weight\".",
       "Weights are relative: higher means more relevant to crawl scoring.",
       "Derive keywords from the extraction schema (title, descriptions, features).",
       "Focus on legal document types and domain terminology, not news."
@@ -26,49 +36,56 @@
       "Include ordinance/code/zoning terminology if relevant.",
       "Include domain-specific abbreviations or acronyms from the schema.",
       "Prefer terms likely to appear in URLs or link text.",
+      "Do not include empty strings or whitespace-only keywords.",
+      "Avoid repeating the same keyword with different casing.",
+      "Avoid numbers-only keywords.",
+      "Avoid using specific extraction fields as keywords.",
       "Avoid jurisdiction-specific names; keep keywords general."
     ],
     "quality_checks": [
-      "Include at least 5 distinct keywords.",
+      "Include at least 10 distinct keywords.",
       "Avoid near-duplicate keywords or trivial variants.",
+      "Each keyword must be unique.",
       "Use integer weights only."
     ]
   },
   "$examples": [
     {
-        "pdf": 92160,
-        "secs": 46080,
-        "solar": 23040,
-        "zoning": 11520,
-        "ordinance": 5760,
-        "renewable energy": 1440,
-        "planning": 720,
-        "plan": 360,
-        "government": 180,
-        "code": 60,
-        "area": 60,
-        "land development": 15,
-        "land": 3,
-        "environment": 3,
-        "energy": 3,
-        "renewable": 3,
-        "municipal": 1,
-        "department": 1,
+      "keywords": [
+        {"keyword": "pdf", "weight": 92160},
+        {"keyword": "secs", "weight": 46080},
+        {"keyword": "solar", "weight": 23040},
+        {"keyword": "zoning", "weight": 11520},
+        {"keyword": "ordinance", "weight": 5760},
+        {"keyword": "renewable energy", "weight": 1440},
+        {"keyword": "planning", "weight": 720},
+        {"keyword": "plan", "weight": 360},
+        {"keyword": "government", "weight": 180},
+        {"keyword": "code", "weight": 60},
+        {"keyword": "area", "weight": 60},
+        {"keyword": "land development", "weight": 15},
+        {"keyword": "land", "weight": 3},
+        {"keyword": "environment", "weight": 3},
+        {"keyword": "energy", "weight": 3},
+        {"keyword": "renewable", "weight": 3},
+        {"keyword": "municipal", "weight": 1},
+        {"keyword": "department", "weight": 1}
+      ]
     },
     {
-      "keywords": {
-        "pdf": 15000,
-        "wind energy": 12000,
-        "wecs": 11000,
-        "wind turbine": 10000,
-        "ordinance": 9000,
-        "regulation": 7500,
-        "zoning": 6000,
-        "code": 3000,
-        "permit": 1500,
-        "land use": 1200,
-        "planning": 800
-      }
+      "keywords": [
+        {"keyword": "pdf", "weight": 15000},
+        {"keyword": "wind energy", "weight": 12000},
+        {"keyword": "wecs", "weight": 11000},
+        {"keyword": "wind turbine", "weight": 10000},
+        {"keyword": "ordinance", "weight": 9000},
+        {"keyword": "regulation", "weight": 7500},
+        {"keyword": "zoning", "weight": 6000},
+        {"keyword": "code", "weight": 3000},
+        {"keyword": "permit", "weight": 1500},
+        {"keyword": "land use", "weight": 1200},
+        {"keyword": "planning", "weight": 800}
+      ]
     }
   ]
 }
