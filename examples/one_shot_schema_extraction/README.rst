@@ -145,7 +145,7 @@ The key options are listed below:
 - ``website_keywords``: Keyword weights for document search prioritization.
 - ``collection_prompts``: Prompt list for chunk filtering, or ``true`` to auto-generate.
 - ``text_extraction_prompts``: Prompt list for text consolidation, or ``true`` to auto-generate.
-- ``cache_query_templates``: Cache generated query templates and keywords. By default, ``true``.
+- ``cache_llm_generated_content``: Cache LLM-generated query templates and keywords. By default, ``true``.
 - ``extraction_system_prompt``: Optional system prompt override for extraction.
 
 
