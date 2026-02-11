@@ -26,7 +26,7 @@ specific matching content; if not, state why it does not meet the schema's \
 requirements. Keep the response concise and consistent.\
 """
 _TEXT_COLLECTION_MAIN_PROMPT = """\
-Determine wether this text excerpt contains any information relevant to \
+Determine whether this text excerpt contains any information relevant to \
 the following extraction schema:
 
 {schema}

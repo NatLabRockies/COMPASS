@@ -340,7 +340,7 @@ def _qt_to_cache(identifier, schema, qt):
 
     logger.debug("Loading query templates from cache at %s", cache_fp)
     cache = json.loads(cache_fp.read_text(encoding="utf-8"))
-    if identifier.casefold() not in qt:
+    if identifier.casefold() not in cache:
         logger.debug(
             "Adding query templates for %r to cache at %s",
             identifier,
@@ -353,7 +353,7 @@ def _qt_to_cache(identifier, schema, qt):
         cache_fp.write_text(json.dumps(cache, indent=4), encoding="utf-8")
         return
 
-    potential_qt = qt[identifier.casefold()]
+    potential_qt = cache[identifier.casefold()]
     m = hashlib.sha256()
     m.update(str(schema).encode())
     if potential_qt.get("sha256") == m.hexdigest():

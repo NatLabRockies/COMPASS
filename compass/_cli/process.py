@@ -45,16 +45,17 @@ from compass.utilities.io import load_config
 @click.option(
     "--plugin",
     "-p",
-    multiple=True,
+    required=False,
+    default=None,
     help="One-shot plugin configuration to add to COMPASS before processing",
 )
 def process(config, verbose, no_progress, plugin):
     """Download and extract ordinances for a list of jurisdictions"""
     config = load_config(config)
 
-    for one_shot_plugin_config in plugin:
+    if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(
-            config=one_shot_plugin_config, tech=config["tech"]
+            config=plugin, tech=config["tech"]
         )
 
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
