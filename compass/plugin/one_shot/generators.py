@@ -49,6 +49,29 @@ placeholder.
 news, or reports).\
 """
 
+_KEYWORD_GENERATOR_SYSTEM_PROMPT = """\
+You are an expert search strategist for regulatory documents. \
+Goal: Given an extraction schema (JSON) for an ordinance domain, generate \
+high-quality website keywords and weights for prioritizing crawl links.
+
+Input:
+- schema_json: a JSON schema describing features/requirements to extract.
+
+Output:
+- Produce a keyword-to-weight mapping with integer weights.
+- Do not include extra keys or any markdown.
+
+Guidelines:
+- Derive terms from the schema title/description, feature names, and \
+definitions. Prefer official/legal terminology in the schema.
+- Focus on keywords likely to appear in legal document URLs or link text.
+- Include terms that indicate governing document types \
+(e.g., "ordinance", "zoning", "code", "regulations", "chapter", "section").
+- Include domain-specific synonyms and abbreviations present in the schema.
+- Weights are relative: higher means more relevant for link prioritization.
+- Avoid jurisdiction-specific entities.
+"""
+
 
 @async_retry_with_exponential_backoff(
     base_delay=1,
@@ -122,6 +145,85 @@ async def generate_query_templates(
     if not out:
         msg = (
             "LLM did not return any valid query templates. "
+            f"Received response: {response}"
+        )
+        raise COMPASSRuntimeError(msg)
+
+    return out
+
+
+@async_retry_with_exponential_backoff(
+    base_delay=1,
+    exponential_base=4,
+    jitter=True,
+    max_retries=3,
+    errors=(COMPASSRuntimeError,),
+)
+async def generate_website_keywords(
+    schema_llm, extraction_schema, add_think_prompt=True
+):
+    """Generate website keyword weights for document retrieval
+
+    Parameters
+    ----------
+    schema_llm : SchemaOutputLLMCaller
+        A LLM caller configured to output structured data according to a
+        provided schema. This function relies on the LLM to generate the
+        keyword weights, so the quality of the generated keywords will
+        depend on the capabilities of the LLM being used and how well it
+        can interpret the provided extraction schema. Highly recommended
+        to use the most powerful/capable instruction-tuned model for
+        this function.
+    extraction_schema : dict
+        A dictionary representing the schema of the desired extraction
+        task. The keywords will be generated based on the content of
+        this schema, so it should be as detailed and specific as
+        possible, and should include domain-specific terminology if
+        applicable. See the wind ordinance schema for an example.
+    add_think_prompt : bool, optional
+        Option to add a "Think before you answer" instruction to the end
+        of the prompt (useful for thinking models).
+        By default, ``True``.
+
+    Returns
+    -------
+    dict
+        Dictionary mapping keywords to integer weights for website link
+        prioritization.
+
+    Raises
+    ------
+    COMPASSRuntimeError
+        If the LLM fails to return any valid keyword weights after 3
+        attempts.
+    """
+
+    keyword_schema_fp = _SCHEMA_DIR / "website_keywords.json5"
+    keyword_schema = load_config(keyword_schema_fp)
+    main_prompt = (
+        "Generate website keyword weights for the following extraction "
+        f"schema:\n\n{extraction_schema}"
+    )
+    if add_think_prompt:
+        main_prompt = f"{main_prompt}\n\nThink before you answer"
+
+    response = await schema_llm.call(
+        sys_msg=_KEYWORD_GENERATOR_SYSTEM_PROMPT,
+        content=main_prompt,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "website_keyword_generation",
+                "strict": True,
+                "schema": keyword_schema,
+            },
+        },
+        usage_sub_label=LLMUsageCategory.PLUGIN_GENERATION,
+    )
+    out = response.get("keywords")
+    if not out:
+        msg = (
+            "LLM did not return any valid website keywords. "
             f"Received response: {response}"
         )
         raise COMPASSRuntimeError(msg)
