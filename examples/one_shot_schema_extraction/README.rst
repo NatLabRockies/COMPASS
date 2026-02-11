@@ -60,7 +60,7 @@ keys starting with a ``$`` to encode instructions, examples, and edge case
 handling logic that the model can refer to when parsing the text. These extra
 keys are not required, and they are ignored for the purposes of creating the
 structure of the outputs themselves, but they often provide crucial context
-that improves extraction accuracy.
+that improves accuracy.
 
 For example, the
 `wind extraction schema <https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json>`_
@@ -83,7 +83,7 @@ for the model to follow when parsing the text. This is a good place to reinforce
 importance of following the schema and to provide any additional context that might be
 helpful for the model to know when performing the extraction.
 
-You can add/remove as many of these extra keys as you want, and you can experiment with
+You can add or remove as many of these extra keys as you want, and you can experiment with
 different ways of encoding the instructions and examples to see what works best for your
 particular use case. The main thing to keep in mind is that the core structure of the
 output must be defined by the ``outputs`` array in the schema, and any additional context
@@ -152,10 +152,9 @@ The key options are listed below:
 See `this documentation <https://natlabrockies.github.io/COMPASS/_autosummary//compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin>`_
 for further details.
 
-If you want full control over all of the above options, you can specify them directly in the config
-as shown below. Note that you can also specify custom prompts for the collection and text extraction steps,
-which will give you even more control over the extraction pipeline and allow you to further tune the
-performance of the model.
+If you want full control over all of the options above, you can specify them directly in the config
+as shown below. You can also specify custom prompts for the collection and text extraction steps,
+which gives you even more control over the pipeline and allows you to further tune the model.
 
 
 .. literalinclude:: plugin_config.yaml
