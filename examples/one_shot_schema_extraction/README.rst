@@ -89,6 +89,10 @@ particular use case. The main thing to keep in mind is that the core structure o
 output must be defined by the ``outputs`` array in the schema, and any additional context
 or instructions should be provided through these extra keys.
 
+.. NOTE:: You can compare the `one-shot wind schema <https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json>`_
+   to the existing decision trees in the `wind energy plugin <https://github.com/NatLabRockies/COMPASS/tree/main/compass/extraction/wind>`_
+   to get a feel for the translation of decision tree logic to schema descriptions.
+
 
 .. Important Schema Components
 .. ---------------------------
