@@ -58,11 +58,11 @@ def key_from_cache(identifier, schema, key):
         logger.debug(
             "Cache for %r exists and schema hash matches but no %r found",
             identifier,
-            key,
+            str(key),
         )
         return None
 
-    logger.debug("Found %r for %r in cache:\n%r", key, identifier, out)
+    logger.debug("Found %r for %r in cache:\n%r", str(key), identifier, out)
     return out
 
 
@@ -101,14 +101,14 @@ def key_to_cache(identifier, schema, key, value):
     data_dir.mkdir(parents=True, exist_ok=True)
     cache_fp = data_dir / _CACHE_FP
 
-    logger.debug("Loading query templates from cache at %s", cache_fp)
+    logger.debug("Loading %r from cache at %s", str(key), cache_fp)
     cache = _load_cache(cache_fp)
     schema_hash = _schema_hash(schema)
 
     if identifier.casefold() not in cache:
         logger.debug(
             "Adding %r for %r to cache at %s",
-            key,
+            str(key),
             identifier,
             cache_fp,
         )
@@ -118,12 +118,24 @@ def key_to_cache(identifier, schema, key, value):
 
     potential_qt = cache[identifier.casefold()]
     if potential_qt.get(_SHA256_KEY) == schema_hash:
+        if key in potential_qt:
+            logger.debug(
+                "%r for %r already in cache and schema hash "
+                "matches, so not updating cache",
+                str(key),
+                identifier,
+            )
+            return
+
         logger.debug(
-            "%r for %r already in cache and schema hash "
-            "matches, so not updating cache",
-            key,
+            "Schema hash matches but %r is missing. Updating cache for %r "
+            "at %s",
+            str(key),
             identifier,
+            cache_fp,
         )
+        potential_qt[key] = value
+        _write_cache(cache_fp, cache)
         return
 
     cache[identifier.casefold()] = {key: value, _SHA256_KEY: schema_hash}
