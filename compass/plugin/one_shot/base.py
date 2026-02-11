@@ -2,6 +2,7 @@
 
 import logging
 import importlib.resources
+from asyncio import Semaphore
 from enum import StrEnum, auto
 
 from compass.llm.calling import SchemaOutputLLMCaller
@@ -29,6 +30,8 @@ from compass.utilities.enums import LLMTasks
 
 logger = logging.getLogger(__name__)
 _SCHEMA_DIR = importlib.resources.files("compass.plugin.one_shot.schemas")
+_QT_SEMAPHORE = Semaphore(1)
+_WK_SEMAPHORE = Semaphore(1)
 
 
 class _CacheKey(StrEnum):
@@ -86,7 +89,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               the text extraction prompts. If ``False``, ``None``, or
               not provided, the entire document text will be used for
               extraction (no text consolidation).
-            - `cache_query_templates`: Boolean flag indicating
+            - `cache_llm_generated_content`: Boolean flag indicating
               whether or not to cache generated query templates and
               website keywords for future use. By default, ``True``.
               Caching is recommended since the generation of query
@@ -165,7 +168,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
                 return self.QUERY_TEMPLATES
 
             if qt := config.get("query_templates"):
-                self.QUERY_TEMPLATES = qt
+                self.__class__.QUERY_TEMPLATES = qt
                 return qt
 
             qt = key_from_cache(
@@ -174,32 +177,38 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
                 key=_CacheKey.QUERY_TEMPLATES,
             )
             if qt:
-                self.QUERY_TEMPLATES = qt
+                self.__class__.QUERY_TEMPLATES = qt
                 return qt
 
-            model_config = self.model_configs.get(
-                LLMTasks.PLUGIN_GENERATION,
-                self.model_configs[LLMTasks.DEFAULT],
-            )
-            schema_llm = SchemaOutputLLMCaller(
-                llm_service=model_config.llm_service,
-                usage_tracker=self.usage_tracker,
-                **model_config.llm_call_kwargs,
-            )
-            logger.debug("Generating query templates...")
-            qt = await generate_query_templates(
-                schema_llm, config["schema"], add_think_prompt=True
-            )
-            logger.debug("Generated the following query templates:\n%r", qt)
-            self.QUERY_TEMPLATES = qt
+            async with _QT_SEMAPHORE:
+                if self.QUERY_TEMPLATES:
+                    return self.QUERY_TEMPLATES
 
-            if config.get("cache_query_templates", True):
-                key_to_cache(
-                    self.IDENTIFIER,
-                    config["schema"],
-                    key=_CacheKey.QUERY_TEMPLATES,
-                    value=qt,
+                model_config = self.model_configs.get(
+                    LLMTasks.PLUGIN_GENERATION,
+                    self.model_configs[LLMTasks.DEFAULT],
                 )
+                schema_llm = SchemaOutputLLMCaller(
+                    llm_service=model_config.llm_service,
+                    usage_tracker=self.usage_tracker,
+                    **model_config.llm_call_kwargs,
+                )
+                logger.debug("Generating query templates...")
+                qt = await generate_query_templates(
+                    schema_llm, config["schema"], add_think_prompt=True
+                )
+                logger.debug(
+                    "Generated the following query templates:\n%r", qt
+                )
+                self.__class__.QUERY_TEMPLATES = qt
+
+                if config.get("cache_llm_generated_content", True):
+                    key_to_cache(
+                        self.IDENTIFIER,
+                        config["schema"],
+                        key=_CacheKey.QUERY_TEMPLATES,
+                        value=qt,
+                    )
 
             return qt
 
@@ -217,10 +226,8 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
                 return self.WEBSITE_KEYWORDS
 
             if wk := config.get("website_keywords"):
-                if isinstance(wk, list):
-                    wk = dict.fromkeys(wk, 1)
                 wk = _augment_website_keywords(wk)
-                self.WEBSITE_KEYWORDS = wk
+                self.__class__.WEBSITE_KEYWORDS = wk
                 return wk
 
             wk = key_from_cache(
@@ -230,35 +237,41 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
             )
             if wk:
                 wk = _augment_website_keywords(wk)
-                self.WEBSITE_KEYWORDS = wk
+                self.__class__.WEBSITE_KEYWORDS = wk
                 return wk
 
-            model_config = self.model_configs.get(
-                LLMTasks.PLUGIN_GENERATION,
-                self.model_configs[LLMTasks.DEFAULT],
-            )
-            schema_llm = SchemaOutputLLMCaller(
-                llm_service=model_config.llm_service,
-                usage_tracker=self.usage_tracker,
-                **model_config.llm_call_kwargs,
-            )
-            logger.debug("Generating website keywords...")
-            wk = await generate_website_keywords(
-                schema_llm,
-                config["schema"],
-                add_think_prompt=True,
-            )
-            wk = _augment_website_keywords(wk)
-            logger.debug("Generated the following website keywords:\n%r", wk)
-            self.WEBSITE_KEYWORDS = wk
+            async with _WK_SEMAPHORE:
+                if self.WEBSITE_KEYWORDS:
+                    return self.WEBSITE_KEYWORDS
 
-            if config.get("cache_query_templates", True):
-                key_to_cache(
-                    self.IDENTIFIER,
-                    config["schema"],
-                    key=_CacheKey.WEBSITE_KEYWORDS,
-                    value=wk,
+                model_config = self.model_configs.get(
+                    LLMTasks.PLUGIN_GENERATION,
+                    self.model_configs[LLMTasks.DEFAULT],
                 )
+                schema_llm = SchemaOutputLLMCaller(
+                    llm_service=model_config.llm_service,
+                    usage_tracker=self.usage_tracker,
+                    **model_config.llm_call_kwargs,
+                )
+                logger.debug("Generating website keywords...")
+                wk = await generate_website_keywords(
+                    schema_llm,
+                    config["schema"],
+                    add_think_prompt=True,
+                )
+                logger.debug(
+                    "Generated the following website keywords:\n%r", wk
+                )
+                if config.get("cache_llm_generated_content", True):
+                    key_to_cache(
+                        self.IDENTIFIER,
+                        config["schema"],
+                        key=_CacheKey.WEBSITE_KEYWORDS,
+                        value=wk,
+                    )
+
+                wk = _augment_website_keywords(wk)
+                self.__class__.WEBSITE_KEYWORDS = wk
 
             return wk
 
