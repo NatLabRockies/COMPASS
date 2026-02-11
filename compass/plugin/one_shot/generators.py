@@ -73,6 +73,34 @@ definitions. Prefer official/legal terminology in the schema.
 - Avoid jurisdiction-specific entities.
 """
 
+_HEURISTIC_GENERATOR_SYSTEM_PROMPT = """\
+You are an expert in ordinance discovery and regulatory text filtering. \
+Goal: Given an extraction schema (JSON) for an ordinance domain, generate \
+keyword lists for a heuristic text check that detects domain-relevant \
+content and excludes look-alike words.
+
+Input:
+- schema_json: a JSON schema describing features/requirements to extract.
+
+Output:
+- Provide four keyword lists in the response schema.
+- Do not include extra keys or any markdown.
+
+Guidelines:
+- Derive terms from schema title/description, feature names, and \
+definitions. Prefer official/legal terminology and abbreviations.
+- not_tech_words should include common look-alikes or near matches that \
+appear in non-domain contexts and could cause false positives. These will \
+be removed from the text before performing a keyword-based relevance check. \
+- good_tech_keywords should include single-word indicators likely to \
+appear in ordinance text.
+- good_tech_acronyms should include short acronyms and abbreviations used \
+in legal documents for the domain.
+- good_tech_phrases should include multi-word phrases (at least 2 words) \
+that indicate domain relevance.
+- Avoid jurisdiction-specific names; keep keywords general.
+"""
+
 
 @async_retry_with_exponential_backoff(
     base_delay=1,
@@ -230,6 +258,84 @@ async def generate_website_keywords(
         raise COMPASSRuntimeError(msg)
 
     return out
+
+
+@async_retry_with_exponential_backoff(
+    base_delay=1,
+    exponential_base=4,
+    jitter=True,
+    max_retries=3,
+    errors=(COMPASSRuntimeError,),
+)
+async def generate_heuristic_keywords(
+    schema_llm, extraction_schema, add_think_prompt=True
+):
+    """Generate keyword lists for a heuristic text check
+
+    Parameters
+    ----------
+    schema_llm : SchemaOutputLLMCaller
+        A LLM caller configured to output structured data according to a
+        provided schema. This function relies on the LLM to generate the
+        heuristic keyword lists, so the quality of the generated output
+        will depend on the capabilities of the LLM being used and how
+        well it can interpret the provided extraction schema.
+    extraction_schema : dict
+        A dictionary representing the schema of the desired extraction
+        task. The keyword lists will be generated based on the content
+        of this schema, so it should be as detailed and specific as
+        possible, and should include domain-specific terminology if
+        applicable. See the wind ordinance schema for an example.
+    add_think_prompt : bool, optional
+        Option to add a "Think before you answer" instruction to the end
+        of the prompt (useful for thinking models).
+        By default, ``True``.
+
+    Returns
+    -------
+    dict
+        Dictionary containing the keyword lists for a heuristic text
+        check: ``not_tech_words``, ``good_tech_keywords``,
+        ``good_tech_acronyms``, and ``good_tech_phrases``.
+
+    Raises
+    ------
+    COMPASSRuntimeError
+        If the LLM fails to return any valid heuristic keywords after 3
+        attempts.
+    """
+
+    heuristic_schema_fp = _SCHEMA_DIR / "heuristic_keywords.json5"
+    heuristic_schema = load_config(heuristic_schema_fp)
+    main_prompt = (
+        "Generate heuristic keyword lists for the following extraction "
+        f"schema:\n\n{extraction_schema}"
+    )
+    if add_think_prompt:
+        main_prompt = f"{main_prompt}\n\nThink before you answer"
+
+    response = await schema_llm.call(
+        sys_msg=_HEURISTIC_GENERATOR_SYSTEM_PROMPT,
+        content=main_prompt,
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": "heuristic_keyword_generation",
+                "strict": True,
+                "schema": heuristic_schema,
+            },
+        },
+        usage_sub_label=LLMUsageCategory.PLUGIN_GENERATION,
+    )
+
+    if not response:
+        msg = (
+            "LLM did not return any heuristic keywords. "
+            f"Received response: {response}"
+        )
+        raise COMPASSRuntimeError(msg)
+
+    return response
 
 
 def _normalize_website_keywords(raw):
