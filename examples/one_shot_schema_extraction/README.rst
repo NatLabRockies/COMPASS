@@ -149,7 +149,7 @@ The key options are listed below:
 - ``extraction_system_prompt``: Optional system prompt override for extraction.
 
 
-See `this documentation <https://natlabrockies.github.io/COMPASS/_autosummary//compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin>`_
+See `this documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin>`_
 for further details.
 
 If you want full control over all of the options above, you can specify them directly in the config
