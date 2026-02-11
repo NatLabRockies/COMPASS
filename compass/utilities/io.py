@@ -193,7 +193,7 @@ ConfigType = _ConfigType(
         for config_type in _CONFIG_HANDLER_REGISTRY
     },
 )
-"""An enumeration of the available gaps config types. """
+"""An enumeration of the parseable config types"""
 
 
 def config_as_str_for_docstring(
