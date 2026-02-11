@@ -11,7 +11,7 @@ Prerequisites
 =============
 Be sure to go over the
 `COMPASS Execution Basics <https://natlabrockies.github.io/COMPASS/examples/execution_basics/README.html>`_
-to understand how to set up an run environment and model run configuration.
+to understand how to set up a run environment and model run configuration.
 Once your one-shot schema is established, you will be executing the data
 extraction pipeline in the same manner as described in that example.
 
@@ -20,7 +20,7 @@ Create Your Schema
 ==================
 To start off, you will need to create a one-shot JSON schema that describes the
 extraction output shape and embeds the extraction logic in schema field
-descriptions. The easiest way to do is is by copying
+descriptions. The easiest way to do this is by copying
 `wind_schema.json <https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json>`_
 and adjusting it for your domain.
 
@@ -57,10 +57,10 @@ to keep track of the scraped data.
 
 Once the schema for the ``outputs`` array is finalized, you can add additional
 keys starting with a ``$`` to encode instructions, examples, and edge case
-handling logic that the model can refer to when parsing the text. These extrac
+handling logic that the model can refer to when parsing the text. These extra
 keys are not required, and they are ignored for the purposes of creating the
-*structre* of the outputs themselves, but they often provide crucial context
-for the LLM to increase the accuracy of the extraction.
+structure of the outputs themselves, but they often provide crucial context
+that improves extraction accuracy.
 
 For example, the
 `wind extraction schema <https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json>`_
@@ -121,7 +121,7 @@ Build a Plugin Config
 Once you have defined your schema, the hard work is done! The next step is to
 build a one-shot plugin config that tells COMPASS how to use the schema and
 how to retrieve and filter documents. As with all configs in COMPASS, you may
-define your polugin configuration via JSON, JSON5, YAML, or TOML.
+define your plugin configuration via JSON, JSON5, YAML, or TOML.
 
 At a minimum, you must supply a ``schema`` key (either a dictionary containing the
 full schema or a path to a schema file):
@@ -130,7 +130,7 @@ full schema or a path to a schema file):
     :language: json
 
 
-If you want a little bit more control over the extraction pipline, you may
+If you want a little bit more control over the extraction pipeline, you may
 specify several additional keys that let you customize query templates, website
 filters, and text extraction prompts:
 
@@ -164,7 +164,7 @@ performance of the model.
 
 Execution
 =========
-Once both the schema and plugin configration are set up, you can run your newly-created
+Once both the schema and plugin configuration are set up, you can run your newly created
 one-shot plugin alongside the standard COMPASS pipeline using the ``--plugin`` flag.
 The main run config still controls core pipeline settings and must include a ``tech``
 value that matches your target technology.
