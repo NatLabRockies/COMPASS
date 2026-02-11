@@ -1,0 +1,74 @@
+{
+  "title": "Website Keyword Weights",
+  "description": "Schema for LLM-generated website keyword weights used to score crawl links.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["keywords"],
+  "properties": {
+    "keywords": {
+      "type": "object",
+      "minProperties": 5,
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 1
+      }
+    }
+  },
+  "$descriptions": {
+    "general": [
+      "Return ONLY the fields allowed by this schema.",
+      "Provide a keyword-to-weight mapping with integer weights.",
+      "Weights are relative: higher means more relevant to crawl scoring.",
+      "Derive keywords from the extraction schema (title, descriptions, features).",
+      "Focus on legal document types and domain terminology, not news."
+    ],
+    "keyword_content": [
+      "Include ordinance/code/zoning terminology if relevant.",
+      "Include domain-specific abbreviations or acronyms from the schema.",
+      "Prefer terms likely to appear in URLs or link text.",
+      "Avoid jurisdiction-specific names; keep keywords general."
+    ],
+    "quality_checks": [
+      "Include at least 5 distinct keywords.",
+      "Avoid near-duplicate keywords or trivial variants.",
+      "Use integer weights only."
+    ]
+  },
+  "$examples": [
+    {
+        "pdf": 92160,
+        "secs": 46080,
+        "solar": 23040,
+        "zoning": 11520,
+        "ordinance": 5760,
+        "renewable energy": 1440,
+        "planning": 720,
+        "plan": 360,
+        "government": 180,
+        "code": 60,
+        "area": 60,
+        "land development": 15,
+        "land": 3,
+        "environment": 3,
+        "energy": 3,
+        "renewable": 3,
+        "municipal": 1,
+        "department": 1,
+    },
+    {
+      "keywords": {
+        "pdf": 15000,
+        "wind energy": 12000,
+        "wecs": 11000,
+        "wind turbine": 10000,
+        "ordinance": 9000,
+        "regulation": 7500,
+        "zoning": 6000,
+        "code": 3000,
+        "permit": 1500,
+        "land use": 1200,
+        "planning": 800
+      }
+    }
+  ]
+}
