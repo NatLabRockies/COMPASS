@@ -137,6 +137,7 @@ nitpick_ignore = [
         "py:obj",
         "compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.OUT_LABEL",
     ),
+    ("py:class", "compass.utilities.io._ConfigType"),
 ]
 
 # -- Options for HTML output -------------------------------------------------

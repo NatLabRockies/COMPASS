@@ -22,6 +22,7 @@ class NoOpTextCollector(BaseTextCollector):
     """NoOp text collector that returns the full text"""
 
     OUT_LABEL = "relevant_text"
+    """Identifier for text collected by this class"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

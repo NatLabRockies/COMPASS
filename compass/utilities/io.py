@@ -187,6 +187,7 @@ class _ConfigType(CaseInsensitiveEnum):
         obj.load = _CONFIG_HANDLER_REGISTRY[value].load
         obj.loads = _CONFIG_HANDLER_REGISTRY[value].loads
         obj.write = _CONFIG_HANDLER_REGISTRY[value].write
+        obj.__doc__ = f"{value.upper()} config file handler"
         return obj
 
 
