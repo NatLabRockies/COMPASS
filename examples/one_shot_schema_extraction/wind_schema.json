@@ -1,0 +1,278 @@
+{
+  "title": "Wind Ordinance Extraction Schema",
+  "description": "Single-shot structured extraction schema for wind energy ordinances. This schema encodes the complete multi-step decision tree logic from COMPASS into comprehensive field descriptions that guide LLMs to extract all ordinance features in one call. The output is structured as a flat array of extraction objects, where each object represents one row in the final CSV/DataFrame output.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "value", "units", "section", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
+            "enum": [
+              "structures (participating)",
+              "structures (non-participating)",
+              "property line (participating)",
+              "property line (non-participating)",
+              "roads",
+              "railroads",
+              "transmission",
+              "water",
+              "public conservation lands",
+              "other wecs",
+              "noise",
+              "maximum turbine height",
+              "maximum project size",
+              "minimum lot size",
+              "maximum lot size",
+              "shadow flicker",
+              "tower density",
+              "blade clearance",
+              "color",
+              "decommissioning",
+              "lighting",
+              "prohibitions",
+              "visual impact",
+              "repowering",
+              "climbing prevention",
+              "signage",
+              "soil",
+              "primary use districts",
+              "special use districts",
+              "accessory use districts",
+              "prohibited use districts"
+            ]
+          },
+          "value": {
+            "description": "The extracted ordinance value. Type and format depend on the feature type. For setbacks and numerical restrictions: either a numerical distance value OR a multiplier value. For qualitative restrictions: typically null (summary contains the text). For districts: an array of district names. For prohibitions: may be 'ENR' (Explicitly Not Regulated) if the jurisdiction explicitly does not regulate wind energy systems. Can be null if no value found.",
+            "anyOf": [
+              {"type": "number"},
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}, "additionalProperties": false},
+              {"type": "null"}
+            ]
+          },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units for the extracted value. For distance setbacks: 'feet' or 'meters'. For multiplier-based setbacks: one of 'tip-height-multiplier', 'hub-height-multiplier', or 'rotor-diameter-multiplier'. For noise: typically 'dBA'. For shadow flicker: typically 'hr/year'. For lot sizes: area units like 'acres' or 'square feet'. Can be null if no value or if value is qualitative text."
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "The section title or number from the ordinance where this requirement is found (e.g., 'SECTION 1308 – Performance / Construction Standards'). Include numerical labels if provided. Null if no section identifier is available."
+          },
+          "summary": {
+            "type": ["string", "null"],
+            "description": "A short summary of the relevant ordinance requirement using direct text excerpts and quotes as much as possible. If multiple options exist and a selection was made, list all other options and their conditions in the summary. For qualitative restrictions, this is the primary output field containing the full extracted text. Can be null if no requirement found."
+          }
+        }
+      }
+    }
+  },
+  "$definitions": {
+    "system_size_context": {
+      "description": "CRITICAL CONTEXT: Only extract ordinances for systems that would typically be defined as large, commercial, or utility-scale wind energy systems based on the text itself — for example, systems intended for offsite electricity generation or sale, or those above thresholds such as height, rotor diameter, or rated capacity (often 1MW+). Do NOT consider any text that applies **only** to smaller or clearly non-commercial systems (e.g., 'small', 'micro', 'private', 'personal', 'onsite', residential systems) or to meteorological towers."
+    },
+    "setback_features": {
+      "description": "Setback features with their aliases and extraction guidance",
+      "properties": {
+        "structures (participating)": {
+          "description": "Setback requirements from occupied dwellings, buildings, structures, or residences where the property owner is a **participating** owner. Participating owners may be able to sign a waiver or enter an agreement to reduce or completely eliminate the setback requirement. ONLY extract if the ordinance explicitly distinguishes between participating and non-participating owners AND specifies a numerical value for participating owners. If participating owners can completely waive or reduce by an unspecified amount the setback requirements, leave value as null. If the ordinance specifies that participating owners must abide by the same setbacks as non-participating owners, use the same value for both. VALUE: For distance-based setbacks, provide numerical distance. For multiplier-based setbacks (e.g., '1.5 times the total height'), treat fall zone as 1x height multiplier. If multiple multiplier values exist, select the largest. UNITS: Use 'feet' or 'meters' for distance, or 'tip-height-multiplier', 'hub-height-multiplier', or 'rotor-diameter-multiplier' for multiplier-based. Default to 'tip-height-multiplier' unless text explicitly states hub height or rotor diameter. If text includes an adder value (e.g., 'multiplier * height + 100 feet'), convert adder to feet and note in summary. If text includes 'the greater of' or minimum threshold clauses, note the minimum distance in summary. If text includes 'the lesser of' or maximum limit clauses, note the maximum distance in summary. IGNORE: Do not respond based on setbacks from property lines, lot lines, facility perimeters, parcels, subdivisions, roads, railroads, transmission lines, wetlands, or public conservation lands. CLARIFICATION: Dwelling units and occupied buildings **are not equivalent** to property lines unless the text **explicitly** makes that connection. Only focus on large-scale systems as defined in system_size_context."
+        },
+        "structures (non-participating)": {
+          "description": "Setback requirements from occupied dwellings, buildings, structures, or residences where the property owner is a **non-participating** owner (i.e., has not signed a waiver or agreement). ONLY extract if the ordinance explicitly distinguishes between participating and non-participating owners AND specifies a numerical value for non-participating owners. If no distinction is made, use this feature for the general structure setback. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE & CLARIFICATIONS: Same as 'structures (participating)'."
+        },
+        "property line (participating)": {
+          "description": "Setback requirements from property lines, lot lines, facility perimeters, parcels, or subdivisions where the property owner is a **participating** owner. Participating owners may be able to sign a waiver or enter an agreement to reduce or completely eliminate the setback requirement. ONLY extract if the ordinance explicitly distinguishes between participating and non-participating owners AND specifies a numerical value for participating property owners. If participating property owners can completely waive the setback, leave value as null. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, roads, railroads, transmission lines, wetlands, or public conservation lands. CLARIFICATION: Dwelling units, structures, occupied buildings, and residences **are not equivalent** to property lines or parcel boundaries unless the text **explicitly** makes that connection. Only focus on large-scale systems."
+        },
+        "property line (non-participating)": {
+          "description": "Setback requirements from property lines, lot lines, facility perimeters, parcels, or subdivisions where the property owner is a **non-participating** owner. ONLY extract if the ordinance explicitly distinguishes between participating and non-participating owners. If no distinction is made, use this feature for the general property line setback. VALUE & UNITS: Same rules as 'property line (participating)'. IGNORE & CLARIFICATIONS: Same as 'property line (participating)'."
+        },
+        "roads": {
+          "description": "Setback requirements from roads. Roads may also be labeled as rights-of-way. Before extracting, verify this is truly a road setback and not better classified as a property line setback. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, railroads, transmission lines, wetlands, or public conservation lands. Only focus on large-scale systems."
+        },
+        "railroads": {
+          "description": "Setback requirements from railroads. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, transmission lines, wetlands, or public conservation lands. Only focus on large-scale systems."
+        },
+        "transmission": {
+          "description": "Setback requirements from overhead electrical transmission lines, overhead utility lines, utility easements, utility lines, power lines, electrical lines, or transmission lines. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, railroads, wetlands, or public conservation lands. Only focus on large-scale systems."
+        },
+        "water": {
+          "description": "Setback requirements from lakes, reservoirs, streams, rivers, or wetlands. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, railroads, transmission lines, or public conservation lands. CLARIFICATION: Public conservation lands (or similar) **are not equivalent** to wetlands (or similar) unless the text **explicitly** makes that connection. Only focus on large-scale systems."
+        },
+        "public conservation lands": {
+          "description": "Setback requirements from public conservation lands, natural resource protection areas, or preservation areas. VALUE & UNITS: Same rules as 'structures (participating)'. IGNORE: Do not respond based on setbacks from structures, property lines, roads, railroads, transmission lines, or wetlands. CLARIFICATION: Wetlands **are not equivalent** to public conservation lands unless the text **explicitly** makes that connection. Only focus on large-scale systems."
+        }
+      }
+    },
+    "numerical_restrictions": {
+      "description": "Non-setback numerical restriction features",
+      "properties": {
+        "other wecs": {
+          "description": "Extract the **minimum** required separation distance between the wind energy conversion system being installed and other existing or planned wind energy conversion systems (i.e., spacing between turbines in different projects or installations). VALUE: Numerical value representing the minimum separation distance. If multiple values are mentioned, select the most restrictive (largest minimum) value. UNITS: Typically 'feet' or 'meters', but may also be a multiplier ('tip-height-multiplier', 'hub-height-multiplier', 'rotor-diameter-multiplier'). VERIFICATION: Ensure this is a requirement that has been explicitly enacted in the ordinance, not just a definition. Only extract if the text contains explicit numerical restrictions. If the jurisdiction explicitly does not regulate this aspect, you may indicate 'ENR' (Explicitly Not Regulated) as a special value. Only focus on large-scale systems."
+        },
+        "noise": {
+          "description": "Extract the maximum noise level allowed for wind energy conversion systems. VALUE: Numerical value representing the maximum allowable noise level. If multiple values are mentioned, select the most restrictive (lowest maximum) value. UNITS: Assume standard units for noise are 'dBA' unless explicitly stated otherwise. VERIFICATION: Ensure this is an enacted requirement, not just a definition. Only extract if explicit numerical restrictions exist. Only focus on large-scale systems."
+        },
+        "maximum turbine height": {
+          "description": "Extract the maximum turbine height allowed. CRITICAL: Maximum turbine height should be given in total feet or meters from the ground and **should NOT be relative to some other feature like structure height, airspace level, etc.** VALUE: Numerical value representing the maximum allowable turbine height measured from ground level. If multiple values exist, select the most restrictive (lowest maximum). UNITS: Typically 'feet' or 'meters'. VERIFICATION: Ensure this is an absolute height limit from the ground, not a relative measurement. Only extract enacted requirements with explicit numerical restrictions. Only focus on large-scale systems."
+        },
+        "maximum project size": {
+          "description": "Extract the maximum project size or total installation allowed. Maximum project size is typically specified as a maximum system size value (e.g., in MW or nameplate capacity) OR as a maximum number of turbines. It should NOT be specified as a maximum area. VALUE: Numerical value representing either maximum capacity (MW) or maximum number of turbines. If multiple limits exist, select the most restrictive. Clearly indicate in the summary whether this is a capacity limit or turbine count limit. UNITS: Typically 'MW', 'megawatts', 'kilowatts', or 'number of turbines'. VERIFICATION: Only extract enacted requirements with explicit numerical restrictions. Only focus on large-scale systems."
+        },
+        "minimum lot size": {
+          "description": "Extract the **minimum** lot, parcel, or tract size allowed for wind energy system installation. Minimum lot size should **always** be specified as an area value. VALUE: Numerical value representing the minimum required lot/parcel/tract area. If multiple values exist, select the most restrictive (largest minimum). UNITS: Area units such as 'acres', 'square feet', 'square meters', 'hectares'. Ensure the units represent area, not linear distance. VERIFICATION: Only extract enacted requirements with explicit numerical restrictions. Only focus on large-scale systems."
+        },
+        "maximum lot size": {
+          "description": "Extract the **maximum** lot, parcel, or tract size allowed for wind energy system installation. Maximum lot size should **always** be specified as an area value. VALUE: Numerical value representing the maximum allowed lot/parcel/tract area. If multiple values exist, select the most restrictive (smallest maximum). UNITS: Area units such as 'acres', 'square feet', 'square meters', 'hectares'. Ensure the units represent area, not linear distance. VERIFICATION: Only extract enacted requirements with explicit numerical restrictions. Only focus on large-scale systems."
+        },
+        "shadow flicker": {
+          "description": "Extract the maximum shadow flicker allowed. If the text prohibits shadow flicker entirely (e.g., 'shadow flicker is prohibited'), treat this as a maximum value of 0 hours per year. VALUE: Numerical value representing the maximum allowable shadow flicker. If prohibition exists, use 0. If multiple values exist, select the most restrictive (lowest maximum). UNITS: Assume standard units for shadow flicker are 'hr/year' (hours per year) unless explicitly stated otherwise. May also be 'hours per year' or 'hr/yr'. VERIFICATION: Only extract enacted requirements. Note prohibition explicitly in summary if applicable. Only focus on large-scale systems."
+        },
+        "tower density": {
+          "description": "Extract the **minimum** allowed spacing between individual turbines within the same project or facility. CRITICAL: Do **NOT** try to infer the spacing requirement based on other restrictions such as setbacks from facility perimeters, property lines, etc. Only extract if there is an explicit spacing requirement between turbines. VALUE: Numerical value representing the minimum spacing between turbines. UNITS: May be distance units ('feet', 'meters') OR multiplier units ('tip-height-multiplier', 'hub-height-multiplier', 'rotor-diameter-multiplier'). Assume standard units for spacing are one of these. VERIFICATION: Only extract if explicitly stated. Do not infer from other setback requirements. Only focus on large-scale systems."
+        },
+        "blade clearance": {
+          "description": "Extract the minimum blade clearance allowed (i.e., minimum distance between blade tip at lowest point and ground level or final grade). VALUE: Numerical value representing the minimum clearance between blade tip and ground. If multiple values exist, select the most restrictive (largest minimum) value. UNITS: Typically 'feet' or 'meters'. VERIFICATION: Only extract enacted requirements with explicit numerical restrictions. Only focus on large-scale systems."
+        }
+      }
+    },
+    "qualitative_restrictions": {
+      "description": "Non-numerical restriction features that require text extraction",
+      "properties": {
+        "color": {
+          "description": "Extract color or finish requirements for wind energy conversion systems, including turbines, support structures, accessory buildings, poles, antennas, and other external facilities. VALUE: Typically null (the summary contains all relevant information). SUMMARY: Extract the full text describing color requirements, using direct excerpts and quotes. Include requirements about paint color, finish, neutral colors, galvanization, visibility minimization, blending with surroundings, and repainting obligations. VERIFICATION: Only extract if explicitly enacted. Only focus on large-scale systems."
+        },
+        "decommissioning": {
+          "description": "Extract decommissioning requirements for wind energy conversion systems. This includes requirements for removal of the facility upon abandonment, cessation of operation, or end of useful life. VALUE: Typically null. SUMMARY: Extract all text describing decommissioning requirements, using direct excerpts. Include: timeline for removal (e.g., 'within 90 days of ceasing operation for 12 months'), scope of removal (e.g., 'remove all machinery, equipment, shelters to 5 feet below grade'), site restoration requirements (e.g., 'restore to natural condition'), financial assurance requirements (e.g., 'post bond for 150% of removal cost'), and any requirements for decommissioning plans or cost estimates. VERIFICATION: Only extract if explicitly enacted. Only focus on large-scale systems."
+        },
+        "lighting": {
+          "description": "Extract lighting requirements for wind energy conversion systems. This includes requirements about when lighting is required, prohibited, or restricted, as well as specifications about the type, color, or intensity of lighting. VALUE: Typically null. SUMMARY: Extract all text describing lighting requirements, prohibitions, or restrictions, using direct excerpts. Include FAA lighting requirements, security lighting restrictions, prohibition of unnecessary lighting, and any specific technical specifications. VERIFICATION: Only extract if explicitly enacted. Only focus on large-scale systems."
+        },
+        "prohibitions": {
+          "description": "Extract any prohibitions, moratoria, or bans on wind energy conversion systems. VALUE: Typically null, but may be the special value 'ENR' (Explicitly Not Regulated) if the jurisdiction explicitly states it does not regulate wind energy systems. SUMMARY: Extract all text describing prohibitions, moratoria, or bans. CRITICAL: Only extract prohibitions that are **unconditional** and **currently in effect** (not proposed or temporary). If the jurisdiction allows wind energy systems in any capacity (with permits, conditions, etc.), this is NOT a prohibition. If text describes areas where wind is not allowed, this should be extracted under 'prohibited use districts' instead. Only focus on large-scale systems."
+        },
+        "visual impact": {
+          "description": "Extract visual impact **assessment** requirements for wind energy conversion systems. This refers to requirements to conduct, submit, or provide visual impact studies, analyses, or assessments as part of the permitting process. VALUE: Typically null. SUMMARY: Extract all text describing visual impact assessment requirements, using direct excerpts. Include requirements for: submission of photographs or renderings showing before/after views, superimposed images of proposed systems on current site conditions, viewshed analyses, photographic simulations, or other visual impact documentation. VERIFICATION: Focus on assessment/study requirements, not general aesthetic requirements. Only extract if explicitly enacted. Only focus on large-scale systems."
+        },
+        "repowering": {
+          "description": "Extract requirements or regulations specific to **repowering** of wind energy systems (i.e., replacing or upgrading existing turbines with new equipment). This is distinct from initial installation or decommissioning. VALUE: Typically null. SUMMARY: Extract all text describing repowering-specific requirements, using direct excerpts. Include requirements about: conditions under which repowering is allowed, whether repowered systems must meet new/updated standards, permitting requirements specific to repowering, and any distinctions between repowering and new installation. VERIFICATION: Only extract requirements that are explicitly about repowering, replacement, or upgrade of existing systems. Only focus on large-scale systems."
+        },
+        "climbing prevention": {
+          "description": "Extract climbing prevention requirements for wind turbine towers. This includes requirements for anti-climbing devices, access ladder positioning, tower access doors, and physical security measures to prevent unauthorized climbing. VALUE: Typically null. SUMMARY: Extract all text describing climbing prevention requirements, using direct excerpts. Include: minimum height requirements for access ladders or climbing apparatus (e.g., 'ladders must be 15 feet above ground level'), door requirements (e.g., 'solid steel doors with locking devices'), locking requirements (e.g., 'kept locked at all times'), fencing requirements related to tower access, and any other physical security measures. VERIFICATION: Only extract if explicitly enacted. Only focus on large-scale systems."
+        },
+        "signage": {
+          "description": "Extract signage requirements for wind energy conversion systems. This includes requirements for identification signs, prohibition of advertising, emergency contact information, and warning signs. VALUE: Typically null. SUMMARY: Extract all text describing signage requirements, using direct excerpts. Include: prohibition of off-premise or advertising signage, requirements for identification signs with facility owner name, requirements for 24-hour emergency telephone numbers, requirements for warning signs, and any specifications about sign size, placement, or content. VERIFICATION: Only extract if explicitly enacted. Only focus on large-scale systems."
+        },
+        "soil": {
+          "description": "Extract soil, erosion, and/or sediment control requirements for wind energy system installation and operation. VALUE: Typically null. SUMMARY: Extract all text describing soil, erosion control, or sediment control requirements, using direct excerpts. Include: requirements for erosion and sediment control plans, best management practices, soil conservation measures, restoration of disturbed areas, and prevention of soil degradation during construction or operation. VERIFICATION: Only extract if explicitly enacted. Only focus on large-scale systems."
+        }
+      }
+    },
+    "permitted_use_districts": {
+      "description": "Zoning districts where wind energy systems are permitted under various conditions",
+      "properties": {
+        "primary use districts": {
+          "description": "Extract all zoning districts where large wind energy systems are permitted as primary use or similar (e.g., permitted by right, without special conditions or approval beyond standard permitting). Consider any wind energy overlay districts as primary use districts. VALUE: An array of district names/codes as strings (e.g., ['Agricultural A-1', 'Agricultural A-2', 'Industrial I-1']). If no districts allow primary use, use null. SUMMARY: Provide a brief summary with direct text excerpts describing which districts allow wind as primary use and under what general conditions. SECTION: Include the section title/number where this information is found. CLARIFICATION: Large wind energy systems (WES) may also be referred to as: wind turbines, wind energy conversion systems (WECS), wind energy facilities (WEF), wind energy turbines (WET), large wind energy systems (LWES), utility-scale wind energy turbines (UWET), commercial wind energy conversion systems (CWECS), alternate energy systems (AES), commercial energy production systems (CEPCS), or similar terminology. Only focus on large-scale systems as defined in system_size_context."
+        },
+        "special use districts": {
+          "description": "Extract all zoning districts where large wind energy systems are permitted as special use or similar (e.g., requires approval by zoning appeals board, planning commission, special use permit, conditional use permit, or meeting certain conditions like completing a specific permitting process). Do NOT include solar overlay districts (those should be classified as primary use). VALUE: An array of district names/codes as strings. If no districts require special use approval, use null. SUMMARY: Provide summary with direct text excerpts. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on large-scale systems."
+        },
+        "accessory use districts": {
+          "description": "Extract all zoning districts where large wind energy systems are permitted as accessory use or similar (e.g., when integrated with an existing structure, secondary to another primary use, or as an accessory to a principal use). Do NOT include solar overlay districts (classify as primary use). Do NOT include districts where wind is only allowed as accessory but also separately as primary or special use. VALUE: An array of district names/codes as strings. If no districts specify accessory use, use null. SUMMARY: Provide summary with direct text excerpts explaining the accessory use conditions. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on large-scale systems."
+        },
+        "prohibited use districts": {
+          "description": "Extract all zoning districts where large wind energy systems are prohibited or similar (e.g., where wind energy systems are not allowed, banned, or explicitly excluded). CRITICAL: Only output specific districts where wind energy systems are prohibited **unconditionally**. Do not include districts where wind might be allowed with special approval or under certain conditions. If wind is allowed in any capacity in a district, it should not be listed here. VALUE: An array of district names/codes as strings. If no districts prohibit wind unconditionally, use null. SUMMARY: Provide summary with direct text excerpts clearly stating the prohibition. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on large-scale systems."
+        }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "feature": "property line (non-participating)",
+      "value": 1.5,
+      "units": "tip-height-multiplier",
+      "section": "SECTION 1308 – Performance / Construction Standards",
+      "summary": "Setback requirements for WECS: Property Lines ... shall be 1.5 times the total height. The text specifies '1.5 times the total height' as the setback from property lines for Wind Energy Conversion Systems (WECS). No other multipliers or static distance adders are given for setbacks from property lines, lot lines, facility perimeters, parcels, or subdivisions. The multiplier applies to the total height (tip height) of the turbine. Other options such as hub-height-multiplier or rotor-diameter-multiplier are not mentioned or specified in the text."
+    },
+    {
+      "feature": "roads",
+      "value": 1.5,
+      "units": "tip-height-multiplier",
+      "section": "SECTION 1308 – Performance / Construction Standards",
+      "summary": "Setback requirements for WECS: Property Lines, roads, overhead utility or transmission lines, electrical substations, communication or meteorological towers shall be 1.5 times the total height, and shall be Six Hundred Forty (640) feet from the nearest residence. The multiplier applies to the total height (tip height) of the WECS. No additional static distance value is added to the setback from roads."
+    },
+    {
+      "feature": "noise",
+      "value": 50,
+      "units": "dBA",
+      "section": "SECTION 1308 – Performance / Construction Standards",
+      "summary": "The WECS and or Facility shall not generate noise in excess of Fifty (50) decibel levels at ground level to the property lines or at the nearest residence. Such measurements shall be signed by a qualified engineer, stating that noise levels are being met, per ordinance."
+    },
+    {
+      "feature": "blade clearance",
+      "value": 30,
+      "units": "feet",
+      "section": "SECTION 1308 – Performance / Construction Standards",
+      "summary": "Section 1308, subsection H states: 'Minimum clearance between blade tip and ground level or final grade is to be Thirty (30) feet.' This applies to all WECS erected or placed within Decatur County after the ordinance's effective date."
+    },
+    {
+      "feature": "decommissioning",
+      "value": null,
+      "units": null,
+      "section": "SECTION 1306 – General Requirements and SECTION 1308 – Performance / Construction Standards",
+      "summary": "Section 1306(B)(5) requires \"a copy of the Facility Maintenance and Removal Agreement signed by all applicants that binds the applicants and all successors in interest to the property to properly maintain and or remove the facility upon abandonment in compliance with the terms of this Ordinance.\" Section 1308(O) states \"At such time that a WECS ceases operation for a period of Twelve (12) months, the company shall physically remove the WECS and facility within Ninety (90) days from the Twelve (12) month period from when the operation ceased.\""
+    },
+    {
+      "feature": "special use districts",
+      "value": ["Agricultural A-1", "Agricultural A-2", "Business B-1", "Business B-2", "Business B-3", "Industrial I-1", "Industrial I-2"],
+      "units": null,
+      "section": "SECTION 1304 – Permanent Special Exceptions",
+      "summary": "The following are permitted as permanent special exceptions in the Agricultural A-1 & A-2 zoning districts; in the Business B-1, B-2 and B-3 zoning districts; and in the Industrial I-1 and I-2 zoning districts when approved by the Decatur County Board of Zoning Appeals: (C) Placement of a WECS as permitted under the zoning districts A-1, A-2, B-1, B-2, B-3, I-1 and I-2."
+    }
+  ],
+  "$instructions": {
+    "general": [
+      "Extract ordinance requirements ONLY for large, commercial, or utility-scale wind energy systems (typically intended for offsite electricity generation or sale, often 1MW+ or above specified thresholds). Do NOT extract requirements that apply only to small, micro, private, personal, onsite, or residential systems, or to meteorological towers.",
+      "Use direct text excerpts and quotes in the summary field as much as possible. If multiple options exist and you make a selection, list all other options and their conditions in the summary.",
+      "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
+      "For features where no requirement exists, set value, units, and summary to null (omit the feature from the array entirely, or include it with null values).",
+      "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
+      "When multiple values are mentioned for the same feature, select the most restrictive value (largest minimum, lowest maximum, etc.) and note the other options in the summary.",
+      "Ensure units are expressed using standard, conventional names (e.g., 'feet', 'meters', 'dBA', 'hr/year', 'tip-height-multiplier')."
+    ],
+    "setback_specific": [
+      "For distance-based setbacks, extract the numerical value and units (feet/meters).",
+      "For multiplier-based setbacks, extract the multiplier value and type (tip-height-multiplier, hub-height-multiplier, rotor-diameter-multiplier). Default to tip-height-multiplier unless text explicitly specifies hub or rotor diameter.",
+      "Treat any mention of 'fall zone' as a tip-height-multiplier of 1.",
+      "If text includes an adder (e.g., 'multiplier × height + X feet'), note this in the summary. Adder values should be converted to feet.",
+      "If text includes conditional minimums ('the greater of', 'no less than'), note minimum threshold in summary.",
+      "If text includes conditional maximums ('the lesser of', 'no more than'), note maximum limit in summary.",
+      "For structures and property lines: Check if ordinance distinguishes between participating and non-participating owners. If yes, extract separate values for each. If no distinction, use the non-participating feature for the general setback.",
+      "For roads: Verify the requirement is truly for roads and not better classified as a property line setback."
+    ],
+    "restriction_specific": [
+      "For numerical restrictions: Extract numerical value and standard units. If multiple values exist, select the most restrictive.",
+      "For shadow flicker: If prohibited, use value of 0 with units 'hr/year'.",
+      "For maximum turbine height: Must be absolute height from ground, not relative to other features.",
+      "For maximum project size: Specify in summary whether limit is capacity-based (MW) or count-based (number of turbines).",
+      "For minimum/maximum lot size: Must be area values, not linear distances.",
+      "For tower density: Do not infer from other setback requirements; only extract if explicitly stated as spacing between turbines.",
+      "For qualitative restrictions: Extract full relevant text in summary field using direct excerpts and quotes. Value is typically null.",
+      "For prohibitions: Only extract if unconditional and currently in effect. If jurisdiction allows wind with any conditions, this is not a prohibition."
+    ],
+    "district_specific": [
+      "For permitted use districts: Extract array of district names/codes. Consider overlay districts as primary use.",
+      "For special use districts: Include districts requiring board approval, special permits, or conditional use permits.",
+      "For accessory use districts: Include districts where wind is only allowed as accessory/secondary to another use.",
+      "For prohibited use districts: Only include districts with unconditional prohibitions currently in effect.",
+      "Use the exact district names/codes as they appear in the ordinance text."
+    ]
+  }
+}

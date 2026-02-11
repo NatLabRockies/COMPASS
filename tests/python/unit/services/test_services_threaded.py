@@ -264,7 +264,9 @@ def test_write_cleaned_file_skips_missing_section(tmp_path):
     outputs = threaded._write_cleaned_file(
         doc, tmp_path, tech="wind", jurisdiction_name="Partial"
     )
-    assert [fp.name for fp in outputs] == ["Partial Cleaned Text.txt"]
+    assert [fp.name for fp in outputs] == [
+        "Partial Utility Scale Wind Ordinance.txt"
+    ]
 
 
 def test_write_ord_db_creates_csv(tmp_path):
@@ -366,8 +368,8 @@ async def test_cleaned_file_writer_process(tmp_path, monkeypatch):
     writer.release_resources()
 
     assert sorted(fp.name for fp in outputs) == [
-        "Writer Cleaned Text.txt",
-        "Writer Districts.txt",
+        "Writer Permitted Use Districts.txt",
+        "Writer Utility Scale Wind Ordinance.txt",
     ]
 
 

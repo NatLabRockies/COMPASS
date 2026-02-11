@@ -10,6 +10,7 @@ import pytest
 
 from compass.exceptions import (
     COMPASSError,
+    COMPASSFileNotFoundError,
     COMPASSTypeError,
     COMPASSValueError,
     COMPASSNotInitializedError,
@@ -56,6 +57,10 @@ def test_exceptions_log_uncaught_error(assert_message_was_logged):
         (
             COMPASSNotInitializedError,
             [COMPASSError, COMPASSNotInitializedError],
+        ),
+        (
+            COMPASSFileNotFoundError,
+            [COMPASSError, FileNotFoundError, COMPASSFileNotFoundError],
         ),
         (
             COMPASSTypeError,

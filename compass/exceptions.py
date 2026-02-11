@@ -17,6 +17,10 @@ class COMPASSError(Exception):
             )
 
 
+class COMPASSFileNotFoundError(COMPASSError, FileNotFoundError):
+    """COMPASS FileNotFoundError"""
+
+
 class COMPASSNotInitializedError(COMPASSError):
     """COMPASS not initialized error"""
 

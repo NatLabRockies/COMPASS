@@ -9,4 +9,5 @@ get started with ``COMPASS``:
    :maxdepth: 1
 
    execution_basics/README
-   parse_existing_docs/README
+   one_shot_schema_extraction/README
+   parse_existing_docs/code/README

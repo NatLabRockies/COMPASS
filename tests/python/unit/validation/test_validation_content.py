@@ -26,8 +26,8 @@ async def test_validation_with_mem():
 
     keys = []
 
-    class MockStructuredLLMCaller:
-        """Mock LLM caller for tests."""
+    class MockJSONFromTextLLMCaller:
+        """Mock LLM caller for tests"""
 
         async def call(self, key, text_chunk):
             """Mock LLM call and record system message"""
@@ -36,7 +36,7 @@ async def test_validation_with_mem():
 
     text_chunks = list(range(7))
     validator = ParseChunksWithMemory(text_chunks, 3)
-    caller = MockStructuredLLMCaller()
+    caller = MockJSONFromTextLLMCaller()
 
     out = await validator.parse_from_ind(
         0, key="test", llm_call_callback=caller.call

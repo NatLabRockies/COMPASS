@@ -1,0 +1,73 @@
+{
+  "title": "Search Query Templates",
+  "description": "Schema for LLM-generated search query templates used to locate ordinance/legal text sources.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["queries"],
+  "properties": {
+    "queries": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 10,
+      "additionalProperties": false,
+      "items": {"type": "string"},
+    }
+  },
+  "$descriptions": {
+    "general": [
+      "Return ONLY the fields allowed by this schema.",
+      "Each query MUST include the literal placeholder \"{jurisdiction}\".",
+      "Queries must target primary legal text (ordinances, codes, regulations, chapters, sections), not news or summaries.",
+      "Use official terminology from the extraction schema (title, description, feature names).",
+      "Include a mix of keyword-style queries and natural-language questions.",
+      "Include at least one query with filetype:pdf.",
+      "Avoid jurisdiction-specific entities other than \"{jurisdiction}\"."
+    ],
+    "query_content": [
+      "Prefer ordinance and zoning terms: ordinance, zoning, code, regulation, chapter, section, unified development code, land use code.",
+      "Include domain synonyms and abbreviations if present in the schema (e.g., WECS, WES, WEF, WET).",
+      "Target code-hosting domains, but **only when relevant** (e.g., municode, amlegal, ecode360, codepublishing).",
+      "Keep queries short and search-friendly; avoid punctuation unless needed.",
+      "Do not include URLs unless using a site: filter."
+    ],
+    "quality_checks": [
+      "Queries should be distinct (avoid near-duplicates).",
+      "5 to 10 queries total.",
+      "All queries must be valid search strings with the placeholder intact."
+    ]
+  },
+  "$examples": [
+    {
+      "queries": [
+        "{jurisdiction} code of ordinances wind energy conversion system WECS WES wind turbine regulations",
+        "{jurisdiction} zoning ordinance wind energy overlay district special use conditional use chapter section",
+        "{jurisdiction} unified development code UDC wind energy conversion systems WECS zoning",
+        "{jurisdiction} unified development ordinance UDO wind energy turbines WET large wind energy systems LWES commercial wind CWECS",
+        "{jurisdiction} land use code alternate energy systems AES commercial energy production systems CEPCS wind",
+        "site:library.municode.com {jurisdiction} wind energy conversion system OR WECS OR WES ordinance",
+        "site:codelibrary.amlegal.com {jurisdiction} wind energy ordinance zoning code",
+        "site:ecode360.com {jurisdiction} wind energy wind turbine zoning regulations",
+        "site:codepublishing.com {jurisdiction} wind energy WECS zoning ordinance",
+        "filetype:pdf {jurisdiction} wind energy ordinance zoning code WECS WEF"
+      ]
+    },
+    {
+      "queries": [
+        "filetype:pdf {jurisdiction} solar energy conversion system ordinances",
+        "solar energy conversion system ordinances {jurisdiction}",
+        "{jurisdiction} solar energy farm ordinance",
+        "Where can I find the legal text for commercial solar energy conversion system zoning ordinances in {jurisdiction}?",
+        "What is the specific legal information regarding zoning ordinances for commercial solar energy conversion systems in {jurisdiction}?",
+      ]
+    },
+    {
+      "queries": [
+        "{jurisdiction} water conservation rules",
+        "{jurisdiction} management plan",
+        "{jurisdiction} well permits",
+        "{jurisdiction} well permit requirements",
+        "requirements to drill a water well in {jurisdiction}",
+      ]
+    }
+  ]
+}

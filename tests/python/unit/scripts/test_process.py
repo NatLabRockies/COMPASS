@@ -6,7 +6,7 @@ from itertools import product
 
 import pytest
 
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSValueError, COMPASSFileNotFoundError
 import compass.scripts.process as process_module
 from compass.scripts.process import (
     _COMPASSRunner,
@@ -63,7 +63,9 @@ def test_known_local_docs_missing_file(tmp_path):
         process_kwargs=ProcessKwargs(str(missing_fp), None),
     )
 
-    with pytest.raises(COMPASSValueError, match="Config file does not exist"):
+    with pytest.raises(
+        COMPASSFileNotFoundError, match="Config file does not exist"
+    ):
         _ = runner.known_local_docs
 
 
@@ -79,7 +81,9 @@ def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
         process_kwargs=ProcessKwargs(str(missing_fp), None),
     )
 
-    with pytest.raises(COMPASSValueError, match="Config file does not exist"):
+    with pytest.raises(
+        COMPASSFileNotFoundError, match="Config file does not exist"
+    ):
         _ = runner.known_local_docs
 
     assert testing_log_file.exists()
