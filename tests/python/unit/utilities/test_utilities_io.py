@@ -9,7 +9,6 @@ import pytest
 from compass.utilities.io import (
     load_config,
     ConfigType,
-    config_as_str_for_docstring,
     resolve_all_paths,
     load_local_docs,
 )
@@ -179,24 +178,6 @@ def test_config_dumps_loads(config_type):
         config_type.loads(config_type.dumps(test_dictionary))
         == test_dictionary
     )
-
-
-@pytest.mark.parametrize("config_type", list(ConfigType))
-def test_config_as_str_for_docstring(config_type):
-    """Test the test_config_as_str_for_docstring function"""
-
-    test_dictionary = {
-        "a": 1,
-        "b": "A string",
-        "path_a": "./config.json",
-        "path_b": "./../another.json",
-        "path_c": "./something/.././../another.json",
-    }
-    as_str = config_as_str_for_docstring(test_dictionary, config_type)
-    split_str = as_str.split("\n")
-    assert len(split_str) >= 6
-    for str_part in as_str.split("\n")[1:]:
-        assert str_part.startswith("        ")
 
 
 def test_load_config_json(tmp_path):

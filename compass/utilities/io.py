@@ -84,6 +84,7 @@ class JSONHandler(Handler):
     """JSON config file handler"""
 
     FILE_EXTENSION = "json"
+    """JSON file extension"""
 
     @classmethod
     def dump(cls, config, stream):
@@ -105,6 +106,7 @@ class JSON5Handler(Handler):
     """JSON5 config file handler"""
 
     FILE_EXTENSION = "json5"
+    """JSON5 file extension"""
 
     @classmethod
     def dump(cls, config, stream):
@@ -134,6 +136,7 @@ class YAMLHandler(Handler):
     """YAML config file handler"""
 
     FILE_EXTENSION = "yaml", "yml"
+    """YAML file extensions"""
 
     @classmethod
     def dump(cls, config, stream):
@@ -155,6 +158,7 @@ class TOMLHandler(Handler):
     """TOML config file handler"""
 
     FILE_EXTENSION = "toml"
+    """TOML file extension"""
 
     @classmethod
     def dump(cls, config, stream):
@@ -194,35 +198,6 @@ ConfigType = _ConfigType(
     },
 )
 """An enumeration of the parseable config types"""
-
-
-def config_as_str_for_docstring(
-    config, config_type=ConfigType.JSON, num_spaces=12
-):
-    """Convert a config into a string to be used within a docstring.
-
-    In particular, the config is serialized and extra whitespace is
-    added after each newline.
-
-    Parameters
-    ----------
-    config : dict
-        Dictionary containing the configuration to be converted into
-        docstring format.
-    config_type : :class:`ConfigType`, optional
-        A :class:`ConfigType` enumeration value specifying what type
-        of config file to generate. By default, :attr:`ConfigType.JSON`.
-    num_spaces : int, optional
-        Number of spaces to add after a newline. By default, `12`.
-
-    Returns
-    -------
-    str
-        A string version of the input config, conforming to the
-        specified config type.
-    """
-    newline_str = "".join(["\n"] + [" "] * num_spaces)
-    return config_type.dumps(config).replace("\n", newline_str)
 
 
 def load_config(config_filepath, resolve_paths=True):
@@ -281,7 +256,7 @@ def resolve_all_paths(container, base_dir):
 
     Parameters
     ----------
-    container : dict | list
+    container : dict or list
         Container like a dictionary or list that may (or may not)
         contain relative paths to resolve.
     base_dir : path-like
@@ -290,7 +265,7 @@ def resolve_all_paths(container, base_dir):
 
     Returns
     -------
-    container
+    dict or list
         Input container with updated strings.
     """
 
