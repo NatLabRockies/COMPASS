@@ -316,11 +316,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             ),
         )
 
+        heuristic = await self.get_heuristic()
         docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
             self.model_configs,
-            heuristic=self.HEURISTIC(),
+            heuristic=heuristic,
             tech=self.IDENTIFIER,
             text_collectors=self.TEXT_COLLECTORS,
             usage_tracker=self.usage_tracker,
