@@ -14,10 +14,12 @@ from compass.plugin import (
     PromptBasedTextCollector,
     PromptBasedTextExtractor,
     OrdinanceExtractionPlugin,
+    KeywordBasedHeuristic,
 )
 from compass.plugin.one_shot.generators import (
     generate_query_templates,
     generate_website_keywords,
+    generate_heuristic_keywords,
 )
 from compass.plugin.one_shot.components import (
     SchemaBasedTextCollector,
@@ -26,12 +28,14 @@ from compass.plugin.one_shot.components import (
 from compass.plugin.one_shot.cache import key_from_cache, key_to_cache
 from compass.utilities.io import load_config
 from compass.utilities.enums import LLMTasks
+from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
 _SCHEMA_DIR = importlib.resources.files("compass.plugin.one_shot.schemas")
 _QT_SEMAPHORE = Semaphore(1)
 _WK_SEMAPHORE = Semaphore(1)
+_HK_SEMAPHORE = Semaphore(1)
 
 
 class _CacheKey(StrEnum):
@@ -39,6 +43,7 @@ class _CacheKey(StrEnum):
 
     QUERY_TEMPLATES = auto()
     WEBSITE_KEYWORDS = auto()
+    HEURISTIC_KEYWORDS = auto()
 
 
 def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
@@ -76,6 +81,16 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               scores for filtering websites during document retrieval.
               If not provided, the LLM will be used to generate
               website keywords based on the schema input.
+            - `heuristic_keywords`: A dictionary containing the keyword
+              lists used by the heuristic document filter. The
+              dictionary must include ``not_tech_words``,
+              ``good_tech_keywords``, ``good_tech_acronyms``, and
+              ``good_tech_phrases`` keys. Alternatively, this input can
+              simply be ``True``, in which case the LLM will be used to
+              generate heuristic keyword lists based on the schema
+              input. If ``False``, ``None``, or not provided, a `NoOp`
+              heuristic that always returns ``True`` will be used (not
+              recommended if doing website crawling).
             - `collection_prompts`: A list of prompts to use for
               collecting relevant text from documents. Alternatively,
               this input can simply be ``True``, in which case the LLM
@@ -133,10 +148,11 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         IDENTIFIER = tech
         """str: Identifier for extraction task """
 
-        # TODO: implement dynamic generation of the heuristic based on
-        # the extraction schema
         HEURISTIC = NoOpHeuristic
         """BaseHeuristic: Class with a ``check()`` method"""
+
+        HEURISTIC_KEYWORDS = None
+        """dict: Keyword lists for heuristic content filtering"""
 
         TEXT_COLLECTORS = text_collectors
         """Classes for collecting text chunks from docs"""
@@ -152,6 +168,31 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
 
         WEBSITE_KEYWORDS = {}  # set by user or LLM-generated
         """dict: Keyword weight mapping for link crawl prioritization"""
+
+        async def get_heuristic(self):
+            """Get a `BaseHeuristic` instance with a `check()` method
+
+            The ``check()`` method should accept a string of text and
+            return ``True`` if the text passes the heuristic check and
+            ``False`` otherwise.
+            """
+            if self.HEURISTIC_KEYWORDS and self.HEURISTIC is not NoOpHeuristic:
+                return self.HEURISTIC()
+
+            if not config.get("heuristic_keywords"):
+                return NoOpHeuristic()
+
+            hk = await self._get_heuristic_keywords()
+
+            class SchemaBasedHeuristic(KeywordBasedHeuristic):
+                NOT_TECH_WORDS = hk["NOT_TECH_WORDS"]
+                GOOD_TECH_KEYWORDS = hk["GOOD_TECH_KEYWORDS"]
+                GOOD_TECH_ACRONYMS = hk["GOOD_TECH_ACRONYMS"]
+                GOOD_TECH_PHRASES = hk["GOOD_TECH_PHRASES"]
+
+            self.__class__.HEURISTIC_KEYWORDS = hk
+            self.__class__.HEURISTIC = SchemaBasedHeuristic
+            return self.HEURISTIC()
 
         async def get_query_templates(self):
             """Get a list of query templates for document retrieval
@@ -275,6 +316,61 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
 
             return wk
 
+        async def _get_heuristic_keywords(self):
+            """Get keyword lists for the heuristic document filter"""
+            if self.HEURISTIC_KEYWORDS:
+                return self.HEURISTIC_KEYWORDS
+
+            if isinstance(hk := config.get("heuristic_keywords"), dict):
+                hk = _normalize_heuristic_keywords(hk)
+                self.__class__.HEURISTIC_KEYWORDS = hk
+                return hk
+
+            hk = key_from_cache(
+                self.IDENTIFIER,
+                config["schema"],
+                key=_CacheKey.HEURISTIC_KEYWORDS,
+            )
+            if hk:
+                hk = _normalize_heuristic_keywords(hk)
+                self.__class__.HEURISTIC_KEYWORDS = hk
+                return hk
+
+            async with _HK_SEMAPHORE:
+                if self.HEURISTIC_KEYWORDS:
+                    return self.HEURISTIC_KEYWORDS
+
+                model_config = self.model_configs.get(
+                    LLMTasks.PLUGIN_GENERATION,
+                    self.model_configs[LLMTasks.DEFAULT],
+                )
+                schema_llm = SchemaOutputLLMCaller(
+                    llm_service=model_config.llm_service,
+                    usage_tracker=self.usage_tracker,
+                    **model_config.llm_call_kwargs,
+                )
+                logger.debug("Generating heuristic keywords...")
+                hk = await generate_heuristic_keywords(
+                    schema_llm,
+                    config["schema"],
+                    add_think_prompt=True,
+                )
+                hk = _normalize_heuristic_keywords(hk)
+                logger.debug(
+                    "Generated the following heuristic keywords:\n%r", hk
+                )
+                if config.get("cache_llm_generated_content", True):
+                    key_to_cache(
+                        self.IDENTIFIER,
+                        config["schema"],
+                        key=_CacheKey.HEURISTIC_KEYWORDS,
+                        value=hk,
+                    )
+
+                self.__class__.HEURISTIC_KEYWORDS = hk
+
+            return hk
+
         def _validate_query_templates(self):
             """NoOp validation for query templates
 
@@ -383,3 +479,66 @@ def _augment_website_keywords(keywords):
             augmented[plus_encoded] = score
 
     return augmented
+
+
+def _normalize_heuristic_keywords(raw):
+    """Normalize heuristic keyword lists into required structure"""
+    if not isinstance(raw, dict):
+        msg = "Heuristic keywords must be a dictionary of keyword lists."
+        raise COMPASSPluginConfigurationError(msg)
+
+    expected_keys = {
+        "NOT_TECH_WORDS",
+        "GOOD_TECH_KEYWORDS",
+        "GOOD_TECH_ACRONYMS",
+        "GOOD_TECH_PHRASES",
+    }
+
+    normalized = {}
+    for raw_key, value in raw.items():
+        if not isinstance(raw_key, str):
+            msg = "Heuristic keyword keys must be strings."
+            raise COMPASSPluginConfigurationError(msg)
+
+        target_key = (
+            raw_key.strip().replace(" ", "_").replace("-", "_").upper()
+        )
+        if target_key not in expected_keys:
+            msg = f"Unexpected heuristic keyword list: {raw_key!r}."
+            raise COMPASSPluginConfigurationError(msg)
+
+        normalized[target_key] = _normalize_keyword_list(value)
+
+    missing = expected_keys - set(normalized)
+    if missing:
+        msg = (
+            f"Heuristic keywords are missing required lists: {sorted(missing)}"
+        )
+        raise COMPASSPluginConfigurationError(msg)
+
+    empty = [key for key, value in normalized.items() if not value]
+    if empty:
+        msg = f"Heuristic keyword lists must not be empty: {sorted(empty)}"
+        raise COMPASSPluginConfigurationError(msg)
+
+    return normalized
+
+
+def _normalize_keyword_list(items):
+    """Normalize keyword list entries"""
+    normalized = set()
+    for item in items:
+        if not isinstance(item, str):
+            continue
+
+        keyword = item.strip()
+        if not keyword:
+            continue
+
+        keyword = keyword.casefold()
+        if keyword in normalized:
+            continue
+
+        normalized.add(keyword)
+
+    return list(normalized)
