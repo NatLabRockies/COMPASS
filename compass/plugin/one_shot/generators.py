@@ -390,6 +390,6 @@ def _de_duplicate_keywords(items):
         if int_weight < 1:
             continue
 
-        deduped.setdefault(normalized, weight)
+        deduped.setdefault(normalized, int_weight)
 
     return deduped

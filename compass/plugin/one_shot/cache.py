@@ -34,8 +34,8 @@ def key_from_cache(identifier, schema, key):
     Returns
     -------
     list or dict or None
-        The cached value for the specified key/schema combination, or `
-        `None`` if no valid cached value is found.
+        The cached value for the specified key/schema combination, or
+        ``None`` if no valid cached value is found.
     """
     # cspell: disable-next-line
     data_dir = Path(user_data_dir(appname="INFRA-COMPASS", appauthor="NLR"))
@@ -159,5 +159,9 @@ def _write_cache(cache_fp, cache):
 def _schema_hash(schema):
     """Get SHA256 hash of the schema for cache validation"""
     m = hashlib.sha256()
-    m.update(str(schema).encode())
+    m.update(
+        json.dumps(schema, sort_keys=True, separators=(",", ":")).encode(
+            "utf-8"
+        )
+    )
     return m.hexdigest()

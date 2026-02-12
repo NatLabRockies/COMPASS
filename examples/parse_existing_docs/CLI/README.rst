@@ -51,14 +51,14 @@ Once the local document mapping is compiled, you can point COMPASS to it via
 the main run config. You will also need to disable search so that COMPASS
 doesn't attempt to retrieve documents from the web in addition to processing
 your local files. The rest of the config can be set up as a typical COMPASS
-run config, without_dir, tech, and any other relevant settings. Below is a
+run config with out_dir, tech, and any other relevant settings. Below is a
 simple example:
 
 .. literalinclude:: config.json5
     :language: json5
 
 .. NOTE::
-    If you are not sure wether your local docs contain the relevant information
+    If you are not sure whether your local docs contain the relevant information
     to be extracted, you can leave the web search enabled and COMPASS will
     default back to a web search if no structured data is extracted from the
     local documents.

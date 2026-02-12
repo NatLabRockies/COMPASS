@@ -43,7 +43,7 @@ _TEXT_EXTRACTOR_SYSTEM_PROMPT = """\
 You are a text extraction assistant. Your job is to extract only verbatim, \
 **unmodified** excerpts from the provided text. Do not interpret or \
 paraphrase. Do not summarize. Only return exactly copied segments that match \
-the specified extraction scop/domain. If the relevant content appears within \
+the specified extraction scope/domain. If the relevant content appears within \
 a table, return the entire table, including headers and footers, exactly as \
 formatted.\
 """
