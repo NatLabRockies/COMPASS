@@ -88,18 +88,61 @@ heuristic_keywords:
 collection_prompts:
   - key: contains_ord_info
     label: contains ordinance info
-    prompt: "You extract structured data from text. Return your answer in JSON format (not markdown). Your JSON file must include exactly two keys. The first key is 'wind_reqs', which is a string that summarizes all zoning, siting, setback, system design, and operational requirements/restrictions that are explicitly enacted in the text for a wind energy system (or wind turbine/tower) for a given jurisdiction. Note that wind energy bans are an important restriction to track. Include any **closely related provisions** if they clearly pertain to the **development, operation, modification, or removal** of wind energy systems (or wind turbines/towers). All restrictions should be enforceable - ignore any text that only provides a legal definition of the regulation. If the text does not specify any concrete zoning, siting, setback, system design, or operational requirements/restrictions for a wind energy system, set this key to `null`. The last key is '{key}', which is a boolean that is set to True if the text excerpt explicitly details zoning, siting, setback, system design, or operational requirements/restrictions for a wind energy system (or wind turbine/tower) and False otherwise."
+    prompt: |-
+      You extract structured data from text. Return your answer in JSON
+      format (not markdown). Your JSON file must include exactly two keys.
+      The first key is 'wind_reqs', which is a string that summarizes all
+      zoning, siting, setback, system design, and operational
+      requirements/restrictions that are explicitly enacted in the text
+      for a wind energy system (or wind turbine/tower) for a given
+      jurisdiction. Note that wind energy bans are an important restriction
+      to track. Include any **closely related provisions** if they clearly
+      pertain to the **development, operation, modification, or removal** of
+      wind energy systems (or wind turbines/towers). All restrictions should
+      be enforceable - ignore any text that only provides a legal definition
+      of the regulation. If the text does not specify any concrete zoning,
+      siting, setback, system design, or operational requirements/restrictions
+      for a wind energy system, set this key to `null`. The last key is '{key}',
+      which is a boolean that is set to True if the text excerpt explicitly
+      details zoning, siting, setback, system design, or operational
+      requirements/restrictions for a wind energy system (or wind turbine/tower)
+      and False otherwise.
 
   - key: x
     label: for utility-scale WECS
-    prompt: "You are a legal scholar that reads ordinance text and determines whether any of it applies to zoning, siting, setback, system design, or operational requirements/restrictions for **large wind energy systems**. Large wind energy systems (WES) may also be referred to as wind turbines, wind energy conversion systems (WECS), wind energy facilities (WEF), wind energy turbines (WET), large wind energy turbines (LWET), utility-scale wind energy turbines (UWET), commercial wind energy conversion systems (CWECS), alternate energy systems (AES), commercial energy production systems (CEPCS), or similar. Your client is a commercial wind developer that does not care about ordinances related to private, residential, micro, small, or medium sized wind energy systems. Ignore any text related to such systems. Return your answer as a dictionary in JSON format (not markdown). Your JSON file must include exactly two keys. The first key is 'summary' which contains a string that lists all of the types of wind energy systems the text applies to (if any). The second key is '{key}', which is a boolean that is set to True if any part of the text excerpt details zoning, siting, setback, system design, or operational requirements/restrictions for the **large wind energy conversion systems** (or similar) that the client is interested in and False otherwise."
+    prompt: |-
+      You are a legal scholar that reads ordinance text and determines whether
+      any of it applies to zoning, siting, setback, system design, or operational
+      requirements/restrictions for **large wind energy systems**.
+      Large wind energy systems (WES) may also be referred to as wind turbines,
+      wind energy conversion systems (WECS), wind energy facilities (WEF),
+      wind energy turbines (WET), large wind energy turbines (LWET),
+      utility-scale wind energy turbines (UWET),
+      commercial wind energy conversion systems (CWECS),
+      alternate energy systems (AES), commercial energy production systems (CEPCS),
+      or similar. Your client is a commercial wind developer that does not care
+      about ordinances related to private, residential, micro, small,
+      or medium sized wind energy systems. Ignore any text related to such systems.
+      Return your answer as a dictionary in JSON format (not markdown).
+      Your JSON file must include exactly two keys. The first key is 'summary'
+      which contains a string that lists all of the types of wind energy systems
+      the text applies to (if any). The second key is '{key}', which is a boolean
+      that is set to True if any part of the text excerpt details zoning, siting,
+      setback, system design, or operational requirements/restrictions for the
+      **large wind energy conversion systems** (or similar) that the client is
+      interested in and False otherwise."
 
 text_extraction_prompts:
   - key: wind_energy_systems_text
     out_fn: "{jurisdiction} Wind Ordinance.txt"
     prompt: |-
       # CONTEXT #
-      We want to reduce the provided excerpt to only contain information about **wind energy systems**. The extracted text will be used for structured data extraction, so it must be both **comprehensive** (retaining all relevant details) and **focused** (excluding unrelated content), with **zero rewriting or paraphrasing**. Ensure that all retained information is **directly applicable to wind energy systems** while preserving full context and accuracy.
+      We want to reduce the provided excerpt to only contain information about
+      **wind energy systems**. The extracted text will be used for structured
+      data extraction, so it must be both **comprehensive** (retaining all relevant
+      details) and **focused** (excluding unrelated content), with **zero rewriting
+      or paraphrasing**. Ensure that all retained information is **directly applicable
+      to wind energy systems** while preserving full context and accuracy.
 
       # OBJECTIVE #
       Extract all text **pertaining to wind energy systems** from the provided excerpt.
@@ -130,7 +173,13 @@ text_extraction_prompts:
     out_fn: "{jurisdiction} Utility Scale Wind Ordinance.txt"
     prompt: |-
       # CONTEXT #
-      We want to reduce the provided excerpt to only contain information about **large wind energy systems**. The extracted text will be used for structured data extraction, so it must be both **comprehensive** (retaining all relevant details) and **focused** (excluding unrelated content), with **zero rewriting or paraphrasing**. Ensure that all retained information is **directly applicable** to large wind energy systems while preserving full context and accuracy.
+      We want to reduce the provided excerpt to only contain information about
+      **large wind energy systems**. The extracted text will be used for
+      structured data extraction, so it must be both **comprehensive**
+      (retaining all relevant details) and **focused** (excluding unrelated
+      content), with **zero rewriting or paraphrasing**. Ensure that all
+      retained information is **directly applicable** to large wind energy
+      systems while preserving full context and accuracy.
 
       # OBJECTIVE #
       Extract all text **pertaining to large wind energy systems** from the provided excerpt.
@@ -165,4 +214,7 @@ text_extraction_prompts:
       - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
       - If **no relevant text** is found, return the response: 'No relevant text.'
 
-extraction_system_prompt: "You are a legal scholar extracting structured data from wind energy ordinances. Follow all instructions in the schema descriptions carefully. Only extract requirements for large, commercial, utility-scale wind energy systems."
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from wind energy ordinances.
+  Follow all instructions in the schema descriptions carefully.
+  Only extract requirements for large, commercial, utility-scale wind energy systems.

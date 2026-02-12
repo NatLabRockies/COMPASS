@@ -38,12 +38,12 @@ each item is an extraction record with the required fields shown below:
                 "items": {
                     "type": "object",
                     "required": [
-                        "feature",
-                        "value",
-                        "units",
-                        "section",
-                        "summary"
-                    ]
+                        "feature", "value", "units", "section", "summary"
+                    ],
+                    "additionalProperties": false,
+                    "properties": {
+                        ... // define each of the required fields from above
+                    }
                 }
             }
         }
@@ -54,6 +54,13 @@ The main field here is ``feature``, which is the ID of the extracted feature
 (``value``, ``units``, ``section``, and ``summary``) are important for keeping
 the output consistent across various extractions and allowing a central database
 to keep track of the scraped data.
+
+You will need to customize the schema for your particular use case by defining
+the allowed feature IDs (typically in an enum), as well as the rest of the required
+fields, and by encoding the extraction logic in the field descriptions. The schema
+is the core of the one-shot plugin, and the quality of the schema will directly
+impact the quality of the extracted data, so it's worth spending some time to get
+it right!
 
 Once the schema for the ``outputs`` array is finalized, you can add additional
 keys starting with a ``$`` to encode instructions, examples, and edge case
@@ -72,6 +79,13 @@ but here the logic is embedded in the schema itself and interpreted by the model
 at extraction time. This approach allows you to encode complex edge case handling
 logic without having to write any code, and it also allows you to easily update
 the logic by simply editing the schema.
+
+If your schema contains a ``qualitative_restrictions`` key within the ``$definitions``,
+the ``properties`` of the ``qualitative_restrictions`` will be marked as qualitative
+outputs and the outputs will be separated correspondingly in the final output. Note
+that qualitative outputs are expected to only contain extracted data in the ``summary``
+field. The ``value`` and ``units`` fields for qualitative outputs will be dropped
+from the output.
 
 The schema also includes a ``$examples`` key with example extractions that the model
 can refer to when deciding how to parse the text. You can be as detailed as you want
@@ -92,28 +106,6 @@ or instructions should be provided through these extra keys.
 .. NOTE:: You can compare the `one-shot wind schema <https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json>`_
    to the existing decision trees in the `wind energy plugin <https://github.com/NatLabRockies/COMPASS/tree/main/compass/extraction/wind>`_
    to get a feel for the translation of decision tree logic to schema descriptions.
-
-
-.. Important Schema Components
-.. ---------------------------
-.. **Feature Catalog**
-.. Define the allowed feature IDs (often as an enum) under
-.. ``outputs.items.properties.feature``. These IDs are what the parser uses to
-.. create the final output rows.
-
-.. **Field Requirements**
-.. Enforce ``required`` fields and ``additionalProperties: false`` to keep the
-.. output consistent. The core fields are ``feature``, ``value``, ``units``,
-.. ``section``, and ``summary``.
-
-.. **Decision Logic in Descriptions**
-.. Use field descriptions and ``$definitions`` to encode extraction rules and
-.. edge cases (e.g., how to choose the most restrictive value or how to interpret
-.. setback multipliers).
-
-.. **Instructions and Examples**
-.. Use ``$instructions`` and ``$examples`` to reinforce the desired output and to
-.. anchor the model on your conventions.
 
 
 Build a Plugin Config
@@ -143,23 +135,22 @@ The key options are listed below:
 - ``data_type_short_desc``: Short label used in prompts (e.g., ``wind energy ordinance``).
 - ``query_templates``: Search queries with a ``{jurisdiction}`` placeholder.
 - ``website_keywords``: Keyword weights for document search prioritization.
+- ``heuristic_keywords``: mapping of good and bad keywords for heuristic text checks.
 - ``collection_prompts``: Prompt list for chunk filtering, or ``true`` to auto-generate.
 - ``text_extraction_prompts``: Prompt list for text consolidation, or ``true`` to auto-generate.
 - ``cache_llm_generated_content``: Cache LLM-generated query templates and keywords. By default, ``true``.
 - ``extraction_system_prompt``: Optional system prompt override for extraction.
 
-
 See `this documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin>`_
 for further details.
 
-If you want full control over all of the options above, you can specify them directly in the config
-as shown below. You can also specify custom prompts for the collection and text extraction steps,
+If you want full control over all of the options above, you can specify them directly in the config.
+You can also specify custom prompts for the collection and text extraction steps,
 which gives you even more control over the pipeline and allows you to further tune the model.
-
+Here is an example of a fully-specified config (in YAML for easier readability):
 
 .. literalinclude:: plugin_config.yaml
     :language: yaml
-
 
 Execution
 =========
