@@ -29,6 +29,62 @@ website_keywords:
   municipal: 1
   department: 1
 
+heuristic_keywords:
+  good_tech_keywords:
+    - "wind"
+    - "setback"
+  good_tech_acronyms:
+    - "wecs"
+    - "wes"
+    - "lwet"
+    - "uwet"
+    - "wef"
+  good_tech_phrases:
+    - "wind energy conversion"
+    - "wind turbine"
+    - "wind tower"
+    - "wind farm"
+    - "wind energy system"
+    - "wind energy farm"
+    - "utility wind energy system"
+  not_tech_words:
+    - "micro wecs"
+    - "small wecs"
+    - "mini wecs"
+    - "private wecs"
+    - "personal wecs"
+    - "pwecs"
+    - "rewind"
+    - "small wind"
+    - "micro wind"
+    - "mini wind"
+    - "private wind"
+    - "personal wind"
+    - "swecs"
+    - "windbreak"
+    - "windiest"
+    - "winds"
+    - "windshield"
+    - "window"
+    - "windy"
+    - "wind attribute"
+    - "wind blow"
+    - "wind break"
+    - "wind current"
+    - "wind damage"
+    - "wind data"
+    - "wind direction"
+    - "wind draft"
+    - "wind erosion"
+    - "wind energy resource atlas"
+    - "wind load"
+    - "wind movement"
+    - "wind orient"
+    - "wind resource"
+    - "wind runway"
+    - "prevailing wind"
+    - "downwind"
+
 collection_prompts:
   - key: contains_ord_info
     label: contains ordinance info
@@ -60,15 +116,15 @@ text_extraction_prompts:
       - Do **not** include text that does not pertain to wind energy systems.
 
       3. ## Formatting & Structure ##:
-      - **Preserve _all_ section titles, headers, and numberings** for   reference.
-      - **Maintain the original wording, formatting, and structure** to   ensure accuracy.
+      - **Preserve _all_ section titles, headers, and numberings** for reference.
+      - **Maintain the original wording, formatting, and structure** to ensure accuracy.
 
       4. ## Output Handling ##:
-      - This is a strict extraction task — act like a text filter, **not**   a summarizer or writer.
+      - This is a strict extraction task — act like a text filter, **not** a summarizer or writer.
       - Do not add, explain, reword, or summarize anything.
-      - The output must be a **copy-paste** of the original excerpt.   **Absolutely no paraphrasing or rewriting.**
-      - The output must consist **only** of contiguous or discontiguous   verbatim blocks copied from the input.
-      - If **no relevant text** is found, return the response:   'No relevant text.'
+      - The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**
+      - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
+      - If **no relevant text** is found, return the response: 'No relevant text.'
 
   - key: cleaned_text_for_extraction
     out_fn: "{jurisdiction} Utility Scale Wind Ordinance.txt"
@@ -99,14 +155,14 @@ text_extraction_prompts:
       - Do **not** include text that does not pertain at all to wind energy systems.
 
       3. ## Formatting & Structure ##:
-      - **Preserve _all_ section titles, headers, and numberings** for   reference.
-      - **Maintain the original wording, formatting, and structure** to   ensure accuracy.
+      - **Preserve _all_ section titles, headers, and numberings** for reference.
+      - **Maintain the original wording, formatting, and structure** to ensure accuracy.
 
       4. ## Output Handling ##:
-      - This is a strict extraction task — act like a text filter, **not**   a summarizer or writer.
+      - This is a strict extraction task — act like a text filter, **not** a summarizer or writer.
       - Do not add, explain, reword, or summarize anything.
-      - The output must be a **copy-paste** of the original excerpt.   **Absolutely no paraphrasing or rewriting.**
-      - The output must consist **only** of contiguous or discontiguous   verbatim blocks copied from the input.
-      - If **no relevant text** is found, return the response:   'No relevant text.'
+      - The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**
+      - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
+      - If **no relevant text** is found, return the response: 'No relevant text.'
 
 extraction_system_prompt: "You are a legal scholar extracting structured data from wind energy ordinances. Follow all instructions in the schema descriptions carefully. Only extract requirements for large, commercial, utility-scale wind energy systems."
