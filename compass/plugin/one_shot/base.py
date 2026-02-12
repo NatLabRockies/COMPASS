@@ -23,9 +23,11 @@ from compass.plugin.one_shot.generators import (
 )
 from compass.plugin.one_shot.components import (
     SchemaBasedTextCollector,
+    SchemaBasedTextExtractor,
     SchemaOrdinanceParser,
 )
 from compass.plugin.one_shot.cache import key_from_cache, key_to_cache
+from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.utilities.io import load_config
 from compass.utilities.enums import LLMTasks
 from compass.exceptions import COMPASSPluginConfigurationError
@@ -135,7 +137,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
 
     text_collectors = _collectors_from_config(config)
     text_extractors = _extractors_from_config(
-        config, in_label=text_collectors[-1].OUT_LABEL
+        config, in_label=text_collectors[-1].OUT_LABEL, tech=tech
     )
     parsers = _parser_from_config(
         config, in_label=text_extractors[-1].OUT_LABEL
@@ -395,38 +397,41 @@ def _collectors_from_config(config):
     if cp is True:
         schema_fp = _SCHEMA_DIR / "validate_chunk.json5"
 
-        class PluginCollector(SchemaBasedTextCollector):
+        class PluginTextCollector(SchemaBasedTextCollector):
             OUT_LABEL = NoOpTextCollector.OUT_LABEL  # reuse label
             SCHEMA = config["schema"]
             OUTPUT_SCHEMA = load_config(schema_fp)
 
-        return [PluginCollector]
+        return [PluginTextCollector]
 
     if cp:
 
-        class PluginCollector(PromptBasedTextCollector):
+        class PluginTextCollector(PromptBasedTextCollector):
             OUT_LABEL = NoOpTextCollector.OUT_LABEL  # reuse label
             PROMPTS = cp
 
-        return [PluginCollector]
+        return [PluginTextCollector]
 
     return [NoOpTextCollector]
 
 
-def _extractors_from_config(config, in_label):
+def _extractors_from_config(config, in_label, tech):
     """Create a TextExtractor subclass based on a config dict"""
     tep = config.get("text_extraction_prompts")
 
     if tep is True:
-        # TODO: When implementing this, don't forget to register the
-        # text output file name so it gets store in the
-        # cleaned outputs directory
-        msg = (
-            "LLM-based text extraction not implemented yet. If you would like "
-            "to see this feature implemented, please submit an issue or, "
-            "better yet, a pull request!"
-        )
-        raise NotImplementedError(msg)
+        schema_fp = _SCHEMA_DIR / "extract_text.json5"
+
+        class PluginTextExtractor(SchemaBasedTextExtractor):
+            IN_LABEL = in_label
+            OUT_LABEL = "copied_relevant_text"
+            SCHEMA = config["schema"]
+            OUTPUT_SCHEMA = load_config(schema_fp)
+
+        CLEANED_FP_REGISTRY.setdefault(tech.casefold(), {})[
+            "copied_relevant_text"
+        ] = "Text for Extraction.txt"
+        return [PluginTextExtractor]
 
     if tep:
 
