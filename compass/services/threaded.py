@@ -542,12 +542,13 @@ def _dump_jurisdiction_info(
 def _compile_doc_info(doc):
     """Put together meta information about a single document"""
     year, month, day = doc.attrs.get("date") or (None, None, None)
+    out_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
     return {
         "source": doc.attrs.get("source"),
         "effective_year": year if year is not None and year > 0 else None,
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
-        "ord_filename": Path(doc.attrs.get("out_fp") or "unknown").name,
+        "ord_filename": Path(out_fp or "unknown").name,
         "num_pages": len(doc.pages),
         "checksum": doc.attrs.get("checksum"),
         "is_pdf": isinstance(doc, PDFDocument),

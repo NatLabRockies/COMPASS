@@ -1,12 +1,14 @@
 """COMPASS extraction schema-based plugin component implementations"""
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 
 import pandas as pd
+from elm import ApiBase
 
 from compass.llm.calling import SchemaOutputLLMCaller
-from compass.plugin import BaseParser, BaseTextCollector
+from compass.plugin import BaseParser, BaseTextCollector, BaseTextExtractor
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import merge_overlapping_texts
 
@@ -37,12 +39,64 @@ TEXT:
 
 Think before you answer.\
 """
+_TEXT_EXTRACTOR_SYSTEM_PROMPT = """\
+You are a text extraction assistant. Your job is to extract only verbatim, \
+**unmodified** excerpts from the provided text. Do not interpret or \
+paraphrase. Do not summarize. Only return exactly copied segments that match \
+the specified extraction scope/domain. If the relevant content appears within \
+a table, return the entire table, including headers and footers, exactly as \
+formatted.\
+"""
+_TEXT_EXTRACTOR_MAIN_PROMPT = """\
+# CONTEXT #
+We want to reduce the provided excerpt to only contain information for the \
+domain relevant to the following extraction schema:
+
+{schema}
+
+The extracted text will be used for structured data extraction following this \
+schema, so it must be both **comprehensive** (retaining all relevant details) \
+and **focused** (excluding unrelated content), with **zero rewriting or \
+paraphrasing**. Ensure that all retained information is **directly
+applicable** to the extraction task while preserving full context and accuracy.
+
+# OBJECTIVE #
+Extract all text **pertaining to the extraction schema domain** from the \
+provided excerpt.
+
+# RESPONSE #
+Follow these guidelines carefully:
+
+1. ## Formatting & Structure ##:
+- **Preserve _all_ section titles, headers, and numberings** for reference.
+- **Maintain the original wording, formatting, and structure** to ensure \
+accuracy.
+
+2. ## Output Handling ##:
+- This is a strict extraction task — act like a text filter, **not** a \
+summarizer or writer.
+- Do not add, explain, reword, or summarize anything.
+- The output must be a **copy-paste** of the original excerpt. **Absolutely \
+no paraphrasing or rewriting.**
+- The output must consist **only** of contiguous or discontiguous verbatim \
+blocks copied from the input.
+- The only allowed change is to remove irrelevant sections of text. You can \
+remove irrelevant text from within sections, but you cannot add any new text \
+or modify the text you keep in any way.
+- If **no relevant text** is found, return null.
+
+# TEXT #
+
+{text}
+
+"""
 _DATA_PARSER_MAIN_PROMPT = """\
 Extract all {desc}features from the following text:
 
 {text}
 
-Think before you answer"""
+Think before you answer\
+"""
 _DATA_PARSER_SYSTEM_PROMPT = """\
 You are a legal scholar extracting structured data from {desc}documents. \
 Follow all instructions in the schema descriptions carefully.\
@@ -150,6 +204,80 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             self._chunks.setdefault(
                 ind_to_grab, parser.text_chunks[ind_to_grab]
             )
+
+
+class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
+    """Schema-based text extractor"""
+
+    @property
+    @abstractmethod
+    def SCHEMA(self):  # noqa: N802
+        """dict: Extraction schema"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def OUTPUT_SCHEMA(self):  # noqa: N802
+        """dict: Validation output schema"""
+        raise NotImplementedError
+
+    @property
+    def parsers(self):
+        """Iterable of parsers provided by this extractor
+
+        Yields
+        ------
+        name : str
+            Name describing the type of text output by the parser.
+        parser : callable
+            Async function that takes a ``text_chunks`` input and
+            outputs parsed text.
+        """
+        yield self.OUT_LABEL, self._process
+
+    async def _process(self, text_chunks):
+        """Perform extraction processing"""
+
+        logger.info(
+            "Extracting summary text from %d text chunks asynchronously...",
+            len(text_chunks),
+        )
+        outer_task_name = asyncio.current_task().get_name()
+        summaries = [
+            asyncio.create_task(
+                self.call(
+                    sys_msg=_TEXT_EXTRACTOR_SYSTEM_PROMPT,
+                    content=_TEXT_EXTRACTOR_MAIN_PROMPT.format(
+                        schema=self.SCHEMA, text=chunk
+                    ),
+                    response_format={
+                        "type": "json_schema",
+                        "json_schema": {
+                            "name": "text_extraction",
+                            "strict": True,
+                            "schema": self.OUTPUT_SCHEMA,
+                        },
+                    },
+                    usage_sub_label=self._USAGE_LABEL,
+                ),
+                name=outer_task_name,
+            )
+            for chunk in text_chunks
+        ]
+        summary_chunks = await asyncio.gather(*summaries)
+        summary_chunks = [
+            chunk.get("domain_relevant_text") for chunk in summary_chunks
+        ]
+
+        text_summary = merge_overlapping_texts(summary_chunks)
+        logger.debug(
+            "Final summary contains %d tokens",
+            ApiBase.count_tokens(
+                text_summary,
+                model=self.kwargs.get("model", "gpt-4"),
+            ),
+        )
+        return text_summary
 
 
 class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
