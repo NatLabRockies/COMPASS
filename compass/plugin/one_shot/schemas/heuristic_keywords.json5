@@ -1,0 +1,181 @@
+{
+  "title": "Heuristic Keyword Lists",
+  "description": "Schema for LLM-generated heuristic keyword lists used to filter ordinance text.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "not_tech_words",
+    "good_tech_keywords",
+    "good_tech_acronyms",
+    "good_tech_phrases"
+  ],
+  "properties": {
+    "not_tech_words": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "good_tech_keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "good_tech_acronyms": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "good_tech_phrases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$descriptions": {
+    "general": [
+      "Return ONLY the fields allowed by this schema.",
+      "Provide four arrays of strings.",
+      "Derive terms from the extraction schema (title, descriptions, features).",
+      "Avoid jurisdiction-specific names; keep keywords general.",
+    ],
+    "not_tech_words": [
+      "Include common look-alike words or near matches that are not the target domain.",
+      "Prefer words/phrases likely to cause false positives for a keyword-based lookup.",
+      "Do not include empty strings or whitespace-only entries.",
+      "Include as many distinct entries as possible (at least 3, ideally 10-20).",
+    ],
+    "good_tech_keywords": [
+      "Include single-word indicators likely to appear in ordinance text.",
+      "Prefer official/legal terminology and abbreviations.",
+      "Avoid numbers-only keywords.",
+      "Limit this to 3-5 of the most relevant keywords.",
+      "Do not include extraction fields as keywords unless they are highly specific to the domain.",
+    ],
+    "good_tech_acronyms": [
+      "Include short acronyms or abbreviations used in legal documents.",
+      "Avoid adding acronyms that are ambiguous outside the domain.",
+      "Limit this to 5-10 of the most relevant acronyms.",
+      "Do not include extraction fields or units as acronyms unless they are highly specific to the domain.",
+    ],
+    "good_tech_phrases": [
+      "Include multi-word phrases (at least 2 words) that indicate domain relevance.",
+      "Avoid near-duplicate phrases or trivial variants.",
+      "Limit this to 5-10 of the most relevant phrases.",
+      "Do not include extraction fields as phrases unless they are highly specific to the domain.",
+    ],
+    "quality_checks": [
+      "Avoid duplicate strings across lists.",
+      "Use lower-case strings when possible.",
+    ]
+  },
+  "$examples": [
+    {
+      "not_tech_words": [
+        "micro wecs",
+        "small wecs",
+        "mini wecs",
+        "private wecs",
+        "personal wecs",
+        "pwecs",
+        "rewind",
+        "small wind",
+        "micro wind",
+        "mini wind",
+        "private wind",
+        "personal wind",
+        "swecs",
+        "windbreak",
+        "windiest",
+        "winds",
+        "windshield",
+        "window",
+        "windy",
+        "wind attribute",
+        "wind blow",
+        "wind break",
+        "wind current",
+        "wind damage",
+        "wind data",
+        "wind direction",
+        "wind draft",
+        "wind erosion",
+        "wind energy resource atlas",
+        "wind load",
+        "wind movement",
+        "wind orient",
+        "wind resource",
+        "wind runway",
+        "prevailing wind",
+        "downwind",
+      ],
+      "good_tech_keywords": [
+        "wind",
+        "setback",
+        "turbine",
+      ],
+      "good_tech_acronyms": [
+        "wecs",
+        "wes",
+        "lwet",
+        "uwet",
+        "wef"
+      ],
+      "good_tech_phrases": [
+        "wind energy conversion",
+        "wind turbine",
+        "wind tower",
+        "wind farm",
+        "wind energy system",
+        "wind energy farm",
+        "utility wind energy system",
+      ]
+    },
+    {
+      "not_tech_words": [
+        "concentrated solar",
+        "csp",
+        "micro secs",
+        "small secs",
+        "mini secs",
+        "private secs",
+        "personal secs",
+        "psecs",
+        "solaris",
+        "small solar",
+        "micro solar",
+        "mini solar",
+        "private solar",
+        "personal solar",
+        "swecs",
+        "solar break",
+        "solar damage",
+        "solar data",
+        "solar resource",
+      ],
+      "good_tech_keywords": [
+        "solar",
+        "setback",
+        "photovoltaic",
+      ],
+      "good_tech_acronyms": [
+        "secs",
+        "sef",
+        "ses",
+        "cses"
+      ],
+      "good_tech_phrases": [
+        "commercial solar energy system",
+        "solar energy conversion",
+        "solar energy system",
+        "solar panel",
+        "solar farm",
+        "solar energy farm",
+        "utility solar energy system",
+      ]
+    }
+  ]
+}

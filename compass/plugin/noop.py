@@ -76,16 +76,6 @@ class NoOpTextCollector(BaseTextCollector):
 class NoOpTextExtractor(BaseTextExtractor):
     """NoOp text extractor that returns the full text"""
 
-    def __init__(self, llm_caller):
-        """
-
-        Parameters
-        ----------
-        llm_caller : LLMCaller
-            LLM Caller instance used to extract ordinance info with.
-        """
-        self.llm_caller = llm_caller
-
     async def return_original(self, text_chunks):  # noqa: PLR6301
         """No processing, just return original text
 

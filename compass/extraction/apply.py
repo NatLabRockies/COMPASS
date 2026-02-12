@@ -359,8 +359,9 @@ async def _extract_with_ngram_check(
         if not cleaned_text:
             logger.debug(
                 "No cleaned text found after extraction on attempt %d "
-                "for document with source %s. Retrying...",
+                "of %d for document with source %s. Retrying...",
                 attempt,
+                num_tries,
                 source,
             )
             continue
@@ -371,9 +372,10 @@ async def _extract_with_ngram_check(
         if ngram_frac >= ngram_thresh:
             logger.debug(
                 "Document extraction for %r passed ngram check on attempt %d "
-                "with score %.2f (OCR: %r; Document source: %s)",
+                "of %d with score %.2f (OCR: %r; Document source: %s)",
                 out_text_key,
-                attempt + 1,
+                attempt,
+                num_tries,
                 ngram_frac,
                 doc_is_from_ocr,
                 source,
@@ -384,10 +386,11 @@ async def _extract_with_ngram_check(
         best_score = max(best_score, ngram_frac)
 
         logger.debug(
-            "Document extraction for %r failed ngram check on attempt %d "
-            "with score %.2f (OCR: %r; Document source: %s). Retrying...",
+            "Document extraction for %r failed ngram check on attempt %d of "
+            "%d, with score %.2f (OCR: %r; Document source: %s). Retrying...",
             out_text_key,
-            attempt + 1,
+            attempt,
+            num_tries,
             ngram_frac,
             doc_is_from_ocr,
             source,

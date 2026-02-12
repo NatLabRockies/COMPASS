@@ -10,4 +10,5 @@ get started with ``COMPASS``:
 
    execution_basics/README
    one_shot_schema_extraction/README
+   parse_existing_docs/CLI/README
    parse_existing_docs/code/README

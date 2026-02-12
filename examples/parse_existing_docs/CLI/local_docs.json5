@@ -1,0 +1,25 @@
+{
+    "18031": [
+        {
+            "source_fp": "../Decatur County, Indiana.pdf",
+            "source": "https://decaturcounty.in.gov/download/zoning-ordinance-article-13-wind-energy-conversion-system-wecs?refresh=68ffda0d84a6e1761597965&wpdmdl=6638",
+            "date": [null, null, null],  // [year, month, day] - Skips date extraction if given
+            "check_if_legal_doc": false, // Skip legal doc check
+
+            // Optional metadata fields - not required but can be helpful for metadata in the run output
+            "checksum": "sha256:1f68616ac8c4f26ca6cacf85023f210f7a453c002ca9159eb42252470b503386",
+            "from_ocr": false,
+        },
+    ],
+    "18047": [
+        {
+            "source_fp": "../Franklin County, Indiana.pdf",
+            "source": "https://www.franklincounty.in.gov/wp-content/uploads/2023/05/80.06.06-Commercial-and-Intermediate-Energy-Systems.pdf",
+            "date": [2023, 5, null],  // Same as above...
+            "check_if_legal_doc": false,
+
+            "checksum": "sha256:6ff5f90301ffba6ac4a8dd4d629201fe7f5cbffa7c5ae6fc8951e978d11be1fa",
+            "from_ocr": false,
+        }
+    ],
+}

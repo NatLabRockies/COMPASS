@@ -1,12 +1,9 @@
 """COMPASS one-shot extraction plugin"""
 
-import json
 import logging
-import hashlib
 import importlib.resources
-from pathlib import Path
-
-from platformdirs import user_data_dir
+from asyncio import Semaphore
+from enum import StrEnum, auto
 
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.plugin import (
@@ -17,21 +14,41 @@ from compass.plugin import (
     PromptBasedTextCollector,
     PromptBasedTextExtractor,
     OrdinanceExtractionPlugin,
+    KeywordBasedHeuristic,
 )
-from compass.plugin.one_shot.generators import generate_query_templates
+from compass.plugin.one_shot.generators import (
+    generate_query_templates,
+    generate_website_keywords,
+    generate_heuristic_keywords,
+)
 from compass.plugin.one_shot.components import (
     SchemaBasedTextCollector,
+    SchemaBasedTextExtractor,
     SchemaOrdinanceParser,
 )
+from compass.plugin.one_shot.cache import key_from_cache, key_to_cache
+from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.utilities.io import load_config
 from compass.utilities.enums import LLMTasks
+from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
 _SCHEMA_DIR = importlib.resources.files("compass.plugin.one_shot.schemas")
+_QT_SEMAPHORE = Semaphore(1)
+_WK_SEMAPHORE = Semaphore(1)
+_HK_SEMAPHORE = Semaphore(1)
 
 
-def create_schema_based_one_shot_extraction_plugin(config, tech):
+class _CacheKey(StrEnum):
+    """LLM generated content cache keys"""
+
+    QUERY_TEMPLATES = auto()
+    WEBSITE_KEYWORDS = auto()
+    HEURISTIC_KEYWORDS = auto()
+
+
+def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
     """Create a one-shot extraction plugin based on a configuration
 
     Parameters
@@ -39,14 +56,15 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
     config : dict or path-like
         One-shot configuration dictionary. If not a dictionary, should
         be a path to a file containing the configuration (supported
-        formats: JSON, JSON5, YAML, TOML). See the wind ordinance schema
+        formats: JSON, JSON5, YAML, TOML). See the
+        `wind ordinance schema <https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json>`_
         for an example. The configuration must include the following
         keys:
 
             - `schema`: A dictionary representing the schema of the
-               output. Can also be a path to a file that contains the
-               schema (supported formats: JSON, JSON5, YAML, TOML). See
-               the wind ordinance schema for an example.
+              output. Can also be a path to a file that contains the
+              schema (supported formats: JSON, JSON5, YAML, TOML). See
+              the wind ordinance schema for an example.
 
         The configuration can also include the following optional keys:
 
@@ -61,10 +79,20 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
               that is being processed. If not provided, the LLM will be
               used to generate search engine queries based on the
               schema input.
-            - `website_keywords`: A list of keywords to use for
-              filtering websites during document retrieval. If not
-              provided, the LLM will be used to generate website
-              keywords based on the schema input.
+            - `website_keywords`: A dictionary mapping keywords to
+              scores for filtering websites during document retrieval.
+              If not provided, the LLM will be used to generate
+              website keywords based on the schema input.
+            - `heuristic_keywords`: A dictionary containing the keyword
+              lists used by the heuristic document filter. The
+              dictionary must include ``not_tech_words``,
+              ``good_tech_keywords``, ``good_tech_acronyms``, and
+              ``good_tech_phrases`` keys. Alternatively, this input can
+              simply be ``True``, in which case the LLM will be used to
+              generate heuristic keyword lists based on the schema
+              input. If ``False``, ``None``, or not provided, a `NoOp`
+              heuristic that always returns ``True`` will be used (not
+              recommended if doing website crawling).
             - `collection_prompts`: A list of prompts to use for
               collecting relevant text from documents. Alternatively,
               this input can simply be ``True``, in which case the LLM
@@ -78,7 +106,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
               the text extraction prompts. If ``False``, ``None``, or
               not provided, the entire document text will be used for
               extraction (no text consolidation).
-            - `cache_query_templates`: Boolean flag indicating
+            - `cache_llm_generated_content`: Boolean flag indicating
               whether or not to cache generated query templates and
               website keywords for future use. By default, ``True``.
               Caching is recommended since the generation of query
@@ -109,7 +137,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
 
     text_collectors = _collectors_from_config(config)
     text_extractors = _extractors_from_config(
-        config, in_label=text_collectors[-1].OUT_LABEL
+        config, in_label=text_collectors[-1].OUT_LABEL, tech=tech
     )
     parsers = _parser_from_config(
         config, in_label=text_extractors[-1].OUT_LABEL
@@ -122,35 +150,11 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
         IDENTIFIER = tech
         """str: Identifier for extraction task """
 
-        # TODO: implement dynamic generation of the heuristic based on
-        # the extraction schema
         HEURISTIC = NoOpHeuristic
         """BaseHeuristic: Class with a ``check()`` method"""
 
-        # TODO: implement dynamic generation of the website keywords
-        # based on the extraction schema
-        WEBSITE_KEYWORDS = {
-            "pdf": 23040,
-            "zoning": 11520,
-            "ordinance": 5760,
-            r"renewable%20energy": 1440,
-            r"renewable+energy": 1440,
-            "renewable energy": 1440,
-            "planning": 720,
-            "plan": 360,
-            "government": 180,
-            "code": 60,
-            "area": 60,
-            r"land%20development": 15,
-            r"land+development": 15,
-            "land development": 15,
-            "land": 3,
-            "environment": 3,
-            "energy": 3,
-            "renewable": 3,
-            "municipal": 1,
-            "department": 1,
-        }
+        HEURISTIC_KEYWORDS = None
+        """dict: Keyword lists for heuristic content filtering"""
 
         TEXT_COLLECTORS = text_collectors
         """Classes for collecting text chunks from docs"""
@@ -163,6 +167,34 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
 
         QUERY_TEMPLATES = []  # set by user or LLM-generated
         """List: List of search engine query templates"""
+
+        WEBSITE_KEYWORDS = {}  # set by user or LLM-generated
+        """dict: Keyword weight mapping for link crawl prioritization"""
+
+        async def get_heuristic(self):
+            """Get a `BaseHeuristic` instance with a `check()` method
+
+            The ``check()`` method should accept a string of text and
+            return ``True`` if the text passes the heuristic check and
+            ``False`` otherwise.
+            """
+            if self.HEURISTIC_KEYWORDS and self.HEURISTIC is not NoOpHeuristic:
+                return self.HEURISTIC()
+
+            if not config.get("heuristic_keywords"):
+                return NoOpHeuristic()
+
+            hk = await self._get_heuristic_keywords()
+
+            class SchemaBasedHeuristic(KeywordBasedHeuristic):
+                NOT_TECH_WORDS = hk["NOT_TECH_WORDS"]
+                GOOD_TECH_KEYWORDS = hk["GOOD_TECH_KEYWORDS"]
+                GOOD_TECH_ACRONYMS = hk["GOOD_TECH_ACRONYMS"]
+                GOOD_TECH_PHRASES = hk["GOOD_TECH_PHRASES"]
+
+            self.__class__.HEURISTIC_KEYWORDS = hk
+            self.__class__.HEURISTIC = SchemaBasedHeuristic
+            return self.HEURISTIC()
 
         async def get_query_templates(self):
             """Get a list of query templates for document retrieval
@@ -179,39 +211,179 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 return self.QUERY_TEMPLATES
 
             if qt := config.get("query_templates"):
-                self.QUERY_TEMPLATES = qt
+                self.__class__.QUERY_TEMPLATES = qt
                 return qt
 
-            qt = _qt_from_cache(self.IDENTIFIER, config["schema"])
+            qt = key_from_cache(
+                self.IDENTIFIER,
+                config["schema"],
+                key=_CacheKey.QUERY_TEMPLATES,
+            )
             if qt:
-                self.QUERY_TEMPLATES = qt
+                self.__class__.QUERY_TEMPLATES = qt
                 return qt
 
-            model_config = self.model_configs.get(
-                LLMTasks.PLUGIN_GENERATION,
-                self.model_configs[LLMTasks.DEFAULT],
-            )
-            schema_llm = SchemaOutputLLMCaller(
-                llm_service=model_config.llm_service,
-                usage_tracker=self.usage_tracker,
-                **model_config.llm_call_kwargs,
-            )
-            logger.debug("Generating query templates...")
-            qt = await generate_query_templates(
-                schema_llm, config["schema"], add_think_prompt=True
-            )
-            logger.debug("Generated the following query templates:\n%r", qt)
-            self.QUERY_TEMPLATES = qt
+            async with _QT_SEMAPHORE:
+                if self.QUERY_TEMPLATES:
+                    return self.QUERY_TEMPLATES
 
-            if config.get("cache_query_templates", True):
-                _qt_to_cache(self.IDENTIFIER, config["schema"], qt)
+                model_config = self.model_configs.get(
+                    LLMTasks.PLUGIN_GENERATION,
+                    self.model_configs[LLMTasks.DEFAULT],
+                )
+                schema_llm = SchemaOutputLLMCaller(
+                    llm_service=model_config.llm_service,
+                    usage_tracker=self.usage_tracker,
+                    **model_config.llm_call_kwargs,
+                )
+                logger.debug("Generating query templates...")
+                qt = await generate_query_templates(
+                    schema_llm, config["schema"], add_think_prompt=True
+                )
+                logger.debug(
+                    "Generated the following query templates:\n%r", qt
+                )
+                self.__class__.QUERY_TEMPLATES = qt
+
+                if config.get("cache_llm_generated_content", True):
+                    key_to_cache(
+                        self.IDENTIFIER,
+                        config["schema"],
+                        key=_CacheKey.QUERY_TEMPLATES,
+                        value=qt,
+                    )
 
             return qt
+
+        async def get_website_keywords(self):
+            """Get a dict of website search keyword scores
+
+            Returns
+            -------
+            dict
+                Dictionary mapping keywords to scores that indicate
+                links which should be prioritized when performing a
+                website scrape for a document.
+            """
+            if self.WEBSITE_KEYWORDS:
+                return self.WEBSITE_KEYWORDS
+
+            if wk := config.get("website_keywords"):
+                wk = _augment_website_keywords(wk)
+                self.__class__.WEBSITE_KEYWORDS = wk
+                return wk
+
+            wk = key_from_cache(
+                self.IDENTIFIER,
+                config["schema"],
+                key=_CacheKey.WEBSITE_KEYWORDS,
+            )
+            if wk:
+                wk = _augment_website_keywords(wk)
+                self.__class__.WEBSITE_KEYWORDS = wk
+                return wk
+
+            async with _WK_SEMAPHORE:
+                if self.WEBSITE_KEYWORDS:
+                    return self.WEBSITE_KEYWORDS
+
+                model_config = self.model_configs.get(
+                    LLMTasks.PLUGIN_GENERATION,
+                    self.model_configs[LLMTasks.DEFAULT],
+                )
+                schema_llm = SchemaOutputLLMCaller(
+                    llm_service=model_config.llm_service,
+                    usage_tracker=self.usage_tracker,
+                    **model_config.llm_call_kwargs,
+                )
+                logger.debug("Generating website keywords...")
+                wk = await generate_website_keywords(
+                    schema_llm,
+                    config["schema"],
+                    add_think_prompt=True,
+                )
+                logger.debug(
+                    "Generated the following website keywords:\n%r", wk
+                )
+                if config.get("cache_llm_generated_content", True):
+                    key_to_cache(
+                        self.IDENTIFIER,
+                        config["schema"],
+                        key=_CacheKey.WEBSITE_KEYWORDS,
+                        value=wk,
+                    )
+
+                wk = _augment_website_keywords(wk)
+                self.__class__.WEBSITE_KEYWORDS = wk
+
+            return wk
+
+        async def _get_heuristic_keywords(self):
+            """Get keyword lists for the heuristic document filter"""
+            if self.HEURISTIC_KEYWORDS:
+                return self.HEURISTIC_KEYWORDS
+
+            if isinstance(hk := config.get("heuristic_keywords"), dict):
+                hk = _normalize_heuristic_keywords(hk)
+                self.__class__.HEURISTIC_KEYWORDS = hk
+                return hk
+
+            hk = key_from_cache(
+                self.IDENTIFIER,
+                config["schema"],
+                key=_CacheKey.HEURISTIC_KEYWORDS,
+            )
+            if hk:
+                hk = _normalize_heuristic_keywords(hk)
+                self.__class__.HEURISTIC_KEYWORDS = hk
+                return hk
+
+            async with _HK_SEMAPHORE:
+                if self.HEURISTIC_KEYWORDS:
+                    return self.HEURISTIC_KEYWORDS
+
+                model_config = self.model_configs.get(
+                    LLMTasks.PLUGIN_GENERATION,
+                    self.model_configs[LLMTasks.DEFAULT],
+                )
+                schema_llm = SchemaOutputLLMCaller(
+                    llm_service=model_config.llm_service,
+                    usage_tracker=self.usage_tracker,
+                    **model_config.llm_call_kwargs,
+                )
+                logger.debug("Generating heuristic keywords...")
+                hk = await generate_heuristic_keywords(
+                    schema_llm,
+                    config["schema"],
+                    add_think_prompt=True,
+                )
+                hk = _normalize_heuristic_keywords(hk)
+                logger.debug(
+                    "Generated the following heuristic keywords:\n%r", hk
+                )
+                if config.get("cache_llm_generated_content", True):
+                    key_to_cache(
+                        self.IDENTIFIER,
+                        config["schema"],
+                        key=_CacheKey.HEURISTIC_KEYWORDS,
+                        value=hk,
+                    )
+
+                self.__class__.HEURISTIC_KEYWORDS = hk
+
+            return hk
 
         def _validate_query_templates(self):
             """NoOp validation for query templates
 
             Since templates can be generated by LLM, we don't know until
+            runtime whether or not they will be valid.
+            """
+
+        def _validate_website_keywords(self):
+            """NoOp validation for website keywords
+
+            Since keywords can be generated by LLM, we don't know until
             runtime whether or not they will be valid.
             """
 
@@ -225,38 +397,41 @@ def _collectors_from_config(config):
     if cp is True:
         schema_fp = _SCHEMA_DIR / "validate_chunk.json5"
 
-        class PluginCollector(SchemaBasedTextCollector):
+        class PluginTextCollector(SchemaBasedTextCollector):
             OUT_LABEL = NoOpTextCollector.OUT_LABEL  # reuse label
             SCHEMA = config["schema"]
             OUTPUT_SCHEMA = load_config(schema_fp)
 
-        return [PluginCollector]
+        return [PluginTextCollector]
 
     if cp:
 
-        class PluginCollector(PromptBasedTextCollector):
+        class PluginTextCollector(PromptBasedTextCollector):
             OUT_LABEL = NoOpTextCollector.OUT_LABEL  # reuse label
             PROMPTS = cp
 
-        return [PluginCollector]
+        return [PluginTextCollector]
 
     return [NoOpTextCollector]
 
 
-def _extractors_from_config(config, in_label):
+def _extractors_from_config(config, in_label, tech):
     """Create a TextExtractor subclass based on a config dict"""
     tep = config.get("text_extraction_prompts")
 
     if tep is True:
-        # TODO: When implementing this, don't forget to register the
-        # text output file name so it gets store in the
-        # cleaned outputs directory
-        msg = (
-            "LLM-based text extraction not implemented yet. If you would like "
-            "to see this feature implemented, please submit an issue or, "
-            "better yet, a pull request!"
-        )
-        raise NotImplementedError(msg)
+        schema_fp = _SCHEMA_DIR / "extract_text.json5"
+
+        class PluginTextExtractor(SchemaBasedTextExtractor):
+            IN_LABEL = in_label
+            OUT_LABEL = "copied_relevant_text"
+            SCHEMA = config["schema"]
+            OUTPUT_SCHEMA = load_config(schema_fp)
+
+        CLEANED_FP_REGISTRY.setdefault(tech.casefold(), {})[
+            "copied_relevant_text"
+        ] = "Text for Extraction.txt"
+        return [PluginTextExtractor]
 
     if tep:
 
@@ -290,83 +465,85 @@ def _parser_from_config(config, in_label):
     return [PluginParser]
 
 
-def _qt_from_cache(identifier, schema):
-    """Get cached query templates for a given schema if they exist"""
-    # cspell: disable-next-line
-    data_dir = Path(user_data_dir(appname="INFRA-COMPASS", appauthor="NLR"))
-    cache_fp = data_dir / "qt_cache.json"
-    if not cache_fp.exists():
-        return None
+def _augment_website_keywords(keywords):
+    """Add URL-encoded variants for multi-word keywords"""
+    augmented = dict(keywords)
+    for keyword, score in list(augmented.items()):
+        if not isinstance(keyword, str):
+            continue
 
-    logger.debug("Loading query templates from cache at %s", cache_fp)
-    qt = json.loads(cache_fp.read_text(encoding="utf-8"))
-    if identifier.casefold() not in qt:
-        return None
+        if " " not in keyword:
+            continue
 
-    potential_qt = qt[identifier.casefold()]
-    m = hashlib.sha256()
-    m.update(str(schema).encode())
-    if potential_qt.get("sha256") != m.hexdigest():
-        return None
+        encoded = keyword.replace(" ", "%20")
+        if encoded not in augmented:
+            augmented[encoded] = score
 
-    templates = potential_qt["templates"]
-    logger.debug(
-        "Found query templates for %r in cache:\n%r", identifier, templates
-    )
-    return templates
+        plus_encoded = keyword.replace(" ", "+")
+        if plus_encoded not in augmented:
+            augmented[plus_encoded] = score
+
+    return augmented
 
 
-def _qt_to_cache(identifier, schema, qt):
-    """Cache generated query templates for future use"""
-    # cspell: disable-next-line
-    data_dir = Path(user_data_dir(appname="INFRA-COMPASS", appauthor="NLR"))
-    data_dir.mkdir(parents=True, exist_ok=True)
-    cache_fp = data_dir / "qt_cache.json"
-    if not cache_fp.exists():
-        logger.debug(
-            "Cache file for query templates not found at %s. Creating new "
-            "cache with current query templates for %r",
-            cache_fp,
-            identifier,
-        )
-        cache = {
-            identifier.casefold(): {
-                "templates": qt,
-                "sha256": hashlib.sha256(str(schema).encode()).hexdigest(),
-            }
-        }
-        cache_fp.write_text(json.dumps(cache, indent=4), encoding="utf-8")
-        return
+def _normalize_heuristic_keywords(raw):
+    """Normalize heuristic keyword lists into required structure"""
+    if not isinstance(raw, dict):
+        msg = "Heuristic keywords must be a dictionary of keyword lists."
+        raise COMPASSPluginConfigurationError(msg)
 
-    logger.debug("Loading query templates from cache at %s", cache_fp)
-    cache = json.loads(cache_fp.read_text(encoding="utf-8"))
-    if identifier.casefold() not in cache:
-        logger.debug(
-            "Adding query templates for %r to cache at %s",
-            identifier,
-            cache_fp,
-        )
-        cache[identifier.casefold()] = {
-            "templates": qt,
-            "sha256": hashlib.sha256(str(schema).encode()).hexdigest(),
-        }
-        cache_fp.write_text(json.dumps(cache, indent=4), encoding="utf-8")
-        return
-
-    potential_qt = cache[identifier.casefold()]
-    m = hashlib.sha256()
-    m.update(str(schema).encode())
-    if potential_qt.get("sha256") == m.hexdigest():
-        logger.debug(
-            "Query templates for %r already in cache and schema hash "
-            "matches, so not updating cache",
-            identifier,
-        )
-        return
-
-    cache[identifier.casefold()] = {
-        "templates": qt,
-        "sha256": hashlib.sha256(str(schema).encode()).hexdigest(),
+    expected_keys = {
+        "NOT_TECH_WORDS",
+        "GOOD_TECH_KEYWORDS",
+        "GOOD_TECH_ACRONYMS",
+        "GOOD_TECH_PHRASES",
     }
-    cache_fp.write_text(json.dumps(cache, indent=4), encoding="utf-8")
-    return
+
+    normalized = {}
+    for raw_key, value in raw.items():
+        if not isinstance(raw_key, str):
+            msg = "Heuristic keyword keys must be strings."
+            raise COMPASSPluginConfigurationError(msg)
+
+        target_key = (
+            raw_key.strip().replace(" ", "_").replace("-", "_").upper()
+        )
+        if target_key not in expected_keys:
+            msg = f"Unexpected heuristic keyword list: {raw_key!r}."
+            raise COMPASSPluginConfigurationError(msg)
+
+        normalized[target_key] = _normalize_keyword_list(value)
+
+    missing = expected_keys - set(normalized)
+    if missing:
+        msg = (
+            f"Heuristic keywords are missing required lists: {sorted(missing)}"
+        )
+        raise COMPASSPluginConfigurationError(msg)
+
+    empty = [key for key, value in normalized.items() if not value]
+    if empty:
+        msg = f"Heuristic keyword lists must not be empty: {sorted(empty)}"
+        raise COMPASSPluginConfigurationError(msg)
+
+    return normalized
+
+
+def _normalize_keyword_list(items):
+    """Normalize keyword list entries"""
+    normalized = set()
+    for item in items:
+        if not isinstance(item, str):
+            continue
+
+        keyword = item.strip()
+        if not keyword:
+            continue
+
+        keyword = keyword.casefold()
+        if keyword in normalized:
+            continue
+
+        normalized.add(keyword)
+
+    return list(normalized)

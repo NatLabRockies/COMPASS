@@ -4,7 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 
 from compass.plugin.base import BaseExtractionPlugin
-from compass.llm.calling import BaseLLMCaller, LLMCaller
+from compass.llm.calling import BaseLLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
 from compass.services.threaded import CLEANED_FP_REGISTRY, CleanedFileWriter
@@ -238,12 +238,11 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         model_config : LLMConfig
             Configuration for the LLM model to use for text extraction.
         """
-        llm_caller = LLMCaller(
+        extractor = extractor_class(
             llm_service=model_config.llm_service,
             usage_tracker=self.usage_tracker,
             **model_config.llm_call_kwargs,
         )
-        extractor = extractor_class(llm_caller)
         doc = await extract_relevant_text_with_ngram_validation(
             doc,
             model_config.text_splitter,
@@ -316,11 +315,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             ),
         )
 
+        heuristic = await self.get_heuristic()
         docs = await filter_ordinance_docs(
             docs,
             self.jurisdiction,
             self.model_configs,
-            heuristic=self.HEURISTIC(),
+            heuristic=heuristic,
             tech=self.IDENTIFIER,
             text_collectors=self.TEXT_COLLECTORS,
             usage_tracker=self.usage_tracker,

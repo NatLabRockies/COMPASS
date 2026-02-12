@@ -145,11 +145,11 @@ The key options are listed below:
 - ``website_keywords``: Keyword weights for document search prioritization.
 - ``collection_prompts``: Prompt list for chunk filtering, or ``true`` to auto-generate.
 - ``text_extraction_prompts``: Prompt list for text consolidation, or ``true`` to auto-generate.
-- ``cache_query_templates``: Cache generated query templates and keywords. By default, ``true``.
+- ``cache_llm_generated_content``: Cache LLM-generated query templates and keywords. By default, ``true``.
 - ``extraction_system_prompt``: Optional system prompt override for extraction.
 
 
-See `this documentation <https://natlabrockies.github.io/COMPASS/_autosummary//compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin>`_
+See `this documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin>`_
 for further details.
 
 If you want full control over all of the options above, you can specify them directly in the config
