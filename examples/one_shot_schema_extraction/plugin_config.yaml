@@ -130,7 +130,7 @@ collection_prompts:
       that is set to True if any part of the text excerpt details zoning, siting,
       setback, system design, or operational requirements/restrictions for the
       **large wind energy conversion systems** (or similar) that the client is
-      interested in and False otherwise."
+      interested in and False otherwise.
 
 text_extraction_prompts:
   - key: wind_energy_systems_text

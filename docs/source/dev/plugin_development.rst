@@ -13,9 +13,9 @@ What you will build
 -------------------
 
 A complete ``battery_storage`` plugin that can be discovered by the CLI,
-filter documents quickly, and turn ordinance text into structured outputs.
-Along the way you will see how COMPASS uses a label chain to pass data from
-one stage to the next.
+can filter documents quickly, and can turn ordinance text into structured
+outputs. Along the way you will see how COMPASS uses a label chain to pass
+data from one stage to the next.
 
 You will build:
 

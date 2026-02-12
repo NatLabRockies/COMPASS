@@ -217,86 +217,86 @@ for data centers:
     from compass.plugin import BaseExtractionPlugin, register_plugin
     from compass.plugin.heuristic import NoOpHeuristic
 
-   class DataCenterExtractorCustom(BaseExtractionPlugin):
+    class DataCenterExtractorCustom(BaseExtractionPlugin):
 
-       IDENTIFIER = "data_center_custom"
+        IDENTIFIER = "data_center_custom"
 
-       QUESTION_TEMPLATES = [
-           "data center ordinance {jurisdiction}",
-           "{jurisdiction} data center zoning regulations",
-           "{jurisdiction} server farm power requirements",
-           "{jurisdiction} cooling system noise limits",
-       ]
+        QUESTION_TEMPLATES = [
+            "data center ordinance {jurisdiction}",
+            "{jurisdiction} data center zoning regulations",
+            "{jurisdiction} server farm power requirements",
+            "{jurisdiction} cooling system noise limits",
+        ]
 
-       WEBSITE_KEYWORDS = {
-           "ordinance": 1000,
-           "data center": 950,
-           "server": 900,
-           "colocation": 900,
-           "facility": 800,
-           "power": 850,
-           "cooling": 850,
-           "generator": 800,
-       }
+        WEBSITE_KEYWORDS = {
+            "ordinance": 1000,
+            "data center": 950,
+            "server": 900,
+            "colocation": 900,
+            "facility": 800,
+            "power": 850,
+            "cooling": 850,
+            "generator": 800,
+        }
 
-       @classmethod
-       def get_query_templates(cls):
-           return cls.QUESTION_TEMPLATES
+        @classmethod
+        def get_query_templates(cls):
+            return cls.QUESTION_TEMPLATES
 
-       @classmethod
-       def get_website_keywords(cls):
-           return cls.WEBSITE_KEYWORDS
+        @classmethod
+        def get_website_keywords(cls):
+            return cls.WEBSITE_KEYWORDS
 
-       @classmethod
-       def get_heuristic(cls):
-           return NoOpHeuristic()
+        @classmethod
+        def get_heuristic(cls):
+            return NoOpHeuristic()
 
-       async def filter_docs(self, extraction_context):
-           docs = extraction_context.docs
+        async def filter_docs(self, extraction_context):
+            docs = extraction_context.docs
 
-           page_texts = [
-               page.text
-               for doc in docs
-               for page in doc.pages
-               if page.text.strip()
-           ]
+            page_texts = [
+                page.text
+                for doc in docs
+                for page in doc.pages
+                if page.text.strip()
+            ]
 
-           if not page_texts:
-               extraction_context.attrs["corpus"] = pd.DataFrame(
-                   columns=["text", "embedding"]
-               )
-               return
+            if not page_texts:
+                extraction_context.attrs["corpus"] = pd.DataFrame(
+                    columns=["text", "embedding"]
+                )
+                return
 
-           client = AzureOpenAI(
-               api_key=os.environ["AZURE_OPENAI_API_KEY"],
-               api_version="2024-10-21",
-               azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
-           )
+            client = AzureOpenAI(
+                api_key=os.environ["AZURE_OPENAI_API_KEY"],
+                api_version="2024-10-21",
+                azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+            )
 
-           rate_limit = asyncio.Semaphore(5)
+            rate_limit = asyncio.Semaphore(5)
 
-           async def embed_with_limit(text):
-               async with rate_limit:
-                   return await asyncio.to_thread(
-                       client.embeddings.create,
-                       model="text-embedding-3-large-standard",
-                       input=text,
-                   )
+            async def embed_with_limit(text):
+                async with rate_limit:
+                    return await asyncio.to_thread(
+                        client.embeddings.create,
+                        model="text-embedding-3-large-standard",
+                        input=text,
+                    )
 
-           embedding_tasks = [
-               embed_with_limit(text) for text in page_texts
-           ]
-           embeddings = await asyncio.gather(*embedding_tasks)
+            embedding_tasks = [
+                embed_with_limit(text) for text in page_texts
+            ]
+            embeddings = await asyncio.gather(*embedding_tasks)
 
-           corpus = pd.DataFrame({
-               "text": page_texts,
-               "embedding": [
-                   np.array(resp.data[0].embedding, dtype=np.float32)
-                   for resp in embeddings
-               ],
-           })
+            corpus = pd.DataFrame({
+                "text": page_texts,
+                "embedding": [
+                    np.array(resp.data[0].embedding, dtype=np.float32)
+                    for resp in embeddings
+                ],
+            })
 
-           extraction_context.attrs["corpus"] = corpus
+            extraction_context.attrs["corpus"] = corpus
 
 The filter method now runs an embedding pipeline that converts every page
 into a vector. The resulting corpus lives in
