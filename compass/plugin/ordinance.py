@@ -13,6 +13,7 @@ import pandas as pd
 from elm import ApiBase
 
 from compass.llm.calling import (
+    LLMCaller,
     BaseLLMCaller,
     ChatLLMCaller,
     JSONFromTextLLMCaller,
@@ -57,7 +58,7 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
 }
 
 
-class BaseTextExtractor(ABC):
+class BaseTextExtractor(BaseLLMCaller, ABC):
     """Extract succinct extraction text from input"""
 
     TASK_DESCRIPTION = "Condensing text for extraction"
@@ -65,6 +66,8 @@ class BaseTextExtractor(ABC):
 
     TASK_ID = "text_extraction"
     """ID to use for this extraction for linking with LLM configs"""
+
+    _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
     @property
     @abstractmethod
@@ -389,7 +392,7 @@ class PromptBasedTextCollector(JSONFromTextLLMCaller, BaseTextCollector, ABC):
             )
 
 
-class PromptBasedTextExtractor(BaseTextExtractor, ABC):
+class PromptBasedTextExtractor(LLMCaller, BaseTextExtractor, ABC):
     """Text extractor based on a chain of prompts"""
 
     SYSTEM_MESSAGE = (
@@ -434,6 +437,9 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
           **Absolutely no paraphrasing or rewriting.**
         - The output must consist **only** of contiguous or discontiguous
           verbatim blocks copied from the input.
+        - The only allowed change is to remove irrelevant sections of text.
+          You can remove irrelevant text from within sections, but you cannot
+          add any new text or modify the text you keep in any way.
         - If **no relevant text** is found, return the response:
           'No relevant text.'
         """
@@ -442,8 +448,6 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
         .strip()
     )
     """Prompt component instructing model output guidelines"""
-
-    _USAGE_LABEL = LLMUsageCategory.DOCUMENT_ORDINANCE_SUMMARY
 
     @property
     @abstractmethod
@@ -502,16 +506,6 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
         last_index = len(cls.PROMPTS) - 1
         cls.OUT_LABEL = last_prompt.get("key", f"extracted_text_{last_index}")
 
-    def __init__(self, llm_caller):
-        """
-
-        Parameters
-        ----------
-        llm_caller : LLMCaller
-            LLM Caller instance used to extract ordinance info with.
-        """
-        self.llm_caller = llm_caller
-
     @property
     def parsers(self):
         """Iterable of parsers provided by this extractor
@@ -545,7 +539,7 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
         outer_task_name = asyncio.current_task().get_name()
         summaries = [
             asyncio.create_task(
-                self.llm_caller.call(
+                self.call(
                     sys_msg=self.SYSTEM_MESSAGE,
                     content=f"{instructions}\n\n# TEXT #\n\n{chunk}",
                     usage_sub_label=self._USAGE_LABEL,
@@ -565,8 +559,7 @@ class PromptBasedTextExtractor(BaseTextExtractor, ABC):
         logger.debug(
             "Final summary contains %d tokens",
             ApiBase.count_tokens(
-                text_summary,
-                model=self.llm_caller.kwargs.get("model", "gpt-4"),
+                text_summary, model=self.kwargs.get("model", "gpt-4")
             ),
         )
         return text_summary
