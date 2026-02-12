@@ -18,9 +18,9 @@ Compile Document Info
 =====================
 The key to running COMPASS against local files is compiling information
 about the local documents that we can point COMPASS to. To do this, we
-need to generate a mapping of jurisdiction codes to lists of document
-metadata dicts, where each dict contains (at minimum) a required
-``source_fp`` key that points to the local file path.
+need to generate a mapping of jurisdiction codes (e.g. FIPS codes) to
+lists of document metadata dicts, where each dict contains (at minimum)
+a required ``source_fp`` key that points to the local file path.
 
 For example, a minimal local document specification would look like this:
 
@@ -29,6 +29,11 @@ For example, a minimal local document specification would look like this:
 
 This mapping can be saved as a config file using any of the formats
 supported by COMPASS (JSON, JSON5, YAML, or TOML).
+
+If you need to look up the jurisdiction codes to use in the mapping,
+you can take a look at the
+`list of known jurisdictions <https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/conus_jurisdictions.csv>`_
+in the COMPASS repository.
 
 Since we didn't include any additional metadata beyond the required
 ``source_fp``, COMPASS will perform all of the same document processing
