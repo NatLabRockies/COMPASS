@@ -97,6 +97,11 @@ Use `pixi add --feature python-dev <package>` to add a dependency that is only u
 - "Protected" functions and methods (i.e. starting with an underscore) should always be documented using **only** one-line summary docstrings.
 - To exclude functions or classes from the public API documentation, start the docstring with the token ``[NOT PUBLIC API]``.
 
+## 6a. Documentation Voice & Tutorials
+- When drafting any tutorial, guide, or README-style content, write in a clear, professional instructional voice on the first pass. Avoid terse, fragmentary, tweet-like, or blog-like phrasing.
+- Use complete sentences and smooth transitions that would fit a published tutorial. Prefer concise paragraphs over bullet lists unless the content is naturally a list of steps or signals.
+- Highlight rationale and sequencing: describe what the reader should do, why it matters, and what to expect next. Keep tone consistent across the document to minimize later rewrites.
+
 ## 7. Coding Guidelines (Rust)
 - Workspace-managed deps; update root `Cargo.toml` if adding shared dependency.
 - Enforce `pixi run -e rdev cargo fmt --all --check` and `pixi run -e rdev cargo clippy -- -D warnings` locally before PR.

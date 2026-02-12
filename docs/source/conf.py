@@ -110,7 +110,7 @@ pygments_style = "sphinx"
 tls_verify = False
 
 # Avoid warning about api.rst not in TOC
-suppress_warnings = ["toc.not_included"]
+suppress_warnings = ["toc.not_included", "misc.highlighting_failure"]
 
 nitpick_ignore = [
     (
