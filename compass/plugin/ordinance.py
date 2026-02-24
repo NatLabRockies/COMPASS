@@ -577,6 +577,41 @@ class OrdinanceParser(BaseLLMCaller, BaseParser):
             **self.kwargs,
         )
 
+    async def reextract_focused_features(
+        self,
+        text_by_feature,
+        feature_list,
+        schema_info,
+        original_extraction,
+    ):
+        """
+        Re-extract specific features with filtered text and explicit focus
+
+        Parameters
+        ----------
+        text_by_feature : dict
+            Mapping {feature_id: filtered_text} from text filter
+        feature_list : list of str
+            Feature IDs to re-extract
+        schema_info : dict
+            Schema information including feature descriptions
+        original_extraction : dict or pandas.DataFrame
+            Original extraction for context
+
+        Returns
+        -------
+        dict
+            Partial extraction containing only re-extracted features
+
+        Notes
+        -----
+        This method is called during iterative refinement to extract
+        specific features that were missing or incorrect. Implementations
+        should focus the LLM's attention on the requested features and
+        use the filtered text to reduce noise
+        """
+        raise NotImplementedError
+
 
 class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
     """Base class for COMPASS extraction plugins

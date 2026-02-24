@@ -1,0 +1,33 @@
+{
+  // Enable iterative extraction refinement
+  "enabled": true,
+
+  // Maximum number of refinement iterations
+  // Default: 5
+  "max_iterations": 5,
+
+  // How strict to be when validating extractions
+  // Options: "lenient", "moderate", "strict"
+  // Default: "moderate"
+  "validation_strictness": "moderate",
+
+  // Strategy for filtering text to relevant sections
+  // Options: "semantic", "keyword", "hybrid"
+  // Default: "hybrid"
+  "text_filter_strategy": "hybrid",
+
+  // How to merge re-extracted values with originals
+  // Options: "replace", "append", "prefer_reextraction"
+  // Default: "replace"
+  "merge_strategy": "replace",
+
+  // Number of surrounding chunks to include when filtering
+  // Default: 2
+  "context_window": 2,
+
+  // Optional LLM configuration overrides for validation/re-extraction
+  "llm_overrides": {
+    "model": "gpt-4o",
+    "temperature": 0.0
+  }
+}

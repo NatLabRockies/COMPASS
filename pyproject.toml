@@ -36,6 +36,7 @@ dependencies = [
   "click>=8.1.7,<9",
   "html5lib>=1.1,<2",
   "langchain-text-splitters>=1.0.0,<2",
+  "langgraph>=0.2.0,<1",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
   "nlr-elm>=0.0.36,<1",

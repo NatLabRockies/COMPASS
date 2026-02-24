@@ -487,3 +487,91 @@ async def _parse_if_input_text_not_empty(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text
     )
     return extracted_text
+
+
+async def extract_ordinance_values_with_refinement(
+    doc,
+    parser,
+    text_key,
+    out_key,
+    schema,
+    model_config,
+    iterative_config=None,
+):
+    """
+    Extract ordinance values with optional iterative refinement
+
+    Parameters
+    ----------
+    doc : BaseDocument
+        Document containing ordinance text in attrs
+    parser : object
+        Parser instance with async parse method
+    text_key : str
+        Key for cleaned text in doc.attrs
+    out_key : str
+        Key for storing extracted ordinances
+    schema : dict
+        Extraction schema with feature descriptions
+    model_config : LLMConfig
+        LLM configuration
+    iterative_config : dict, optional
+        Configuration for iterative refinement. If None or disabled,
+        falls back to standard extraction. By default, ``None``
+
+    Returns
+    -------
+    tuple
+        (doc, metadata) where metadata is None if iterative disabled
+    """
+    doc = await extract_ordinance_values(doc, parser, text_key, out_key)
+
+    if not iterative_config or not iterative_config.get("enabled", False):
+        return doc, None
+
+    initial_extraction = doc.attrs.get(out_key)
+    if not initial_extraction or (
+        hasattr(initial_extraction, "empty") and initial_extraction.empty
+    ):
+        logger.info("Initial extraction empty, skipping iterative refinement")
+        return doc, None
+
+    try:
+        from compass.extraction.iterative import IterativeExtractionGraph
+
+        graph = IterativeExtractionGraph(
+            config=iterative_config,
+            llm_service=model_config.llm_service,
+            usage_tracker=getattr(parser, "usage_tracker", None),
+        )
+
+        ord_text = doc.attrs.get(text_key, doc.text)
+
+        result = await graph.run(
+            text=ord_text,
+            schema=schema,
+            initial_extraction=initial_extraction,
+            parser=parser,
+        )
+
+        doc.attrs[out_key] = result["extraction"]
+        metadata = result["metadata"]
+
+        logger.info(
+            "Iterative refinement complete: %d iterations, %d features refined",
+            metadata.get("iterations", 0),
+            metadata.get("issues_resolved", 0),
+        )
+
+        return doc, metadata
+
+    except ImportError as e:
+        logger.warning(
+            "LangGraph not installed, skipping iterative refinement: %s", e
+        )
+        return doc, None
+    except Exception:
+        logger.exception(
+            "Error during iterative refinement, using initial extraction"
+        )
+        return doc, None
