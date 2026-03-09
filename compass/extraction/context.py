@@ -49,13 +49,14 @@ class ExtractionContext:
             }
             for ind, doc in enumerate(self.documents)
         ]
-        return "\n\n".join(
+        serialized = "\n\n".join(
             (
                 f"Source: {json.dumps(metadata, indent=None)}\n"
-                f"Content: {doc.text}"
+                f"Content:\n{doc.text}"
             )
             for metadata, doc in zip(source_dicts, self.documents, strict=True)
         )
+        return f"## MULTI-DOCUMENT CONTEXT ##\n\n{serialized}"
 
     @property
     def pages(self):

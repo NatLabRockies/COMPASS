@@ -78,10 +78,11 @@ def test_extraction_context_text_multiple_docs():
     doc2.attrs["source"] = "doc2.html"
     ctx = ExtractionContext([doc1, doc2])
     text = ctx.text
+    assert "## MULTI-DOCUMENT CONTEXT ##" in text
     assert 'Source: {"index": 0, "year": 2020, "url": "doc1.pdf"}' in text
-    assert "Content: doc1 page1\ndoc1 page2" in text
+    assert "Content:\ndoc1 page1\ndoc1 page2" in text
     assert 'Source: {"index": 1, "year": 2021, "url": "doc2.html"}' in text
-    assert f"Content: {doc2.text}" in text
+    assert f"Content:\n{doc2.text}" in text
 
 
 def test_extraction_context_pages_empty():
