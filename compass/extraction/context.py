@@ -1,6 +1,5 @@
 """Extraction context for multi-document ordinance extraction"""
 
-import json
 from textwrap import shorten
 from collections.abc import Iterable
 
@@ -147,20 +146,12 @@ class ExtractionContext:
         if not self.documents:
             return ""
 
-        source_dicts = [
-            {
-                "index": ind,
-                "year": doc.attrs.get("year"),
-                "url": doc.attrs.get("source"),
-            }
-            for ind, doc in enumerate(self.documents)
-        ]
         serialized = "\n\n".join(
             (
-                f"Source: {json.dumps(metadata, indent=None)}\n"
-                f"Content:\n{_text_from_doc(doc, attr_text_key)}"
+                f"# SOURCE INDEX #: {ind}\n"
+                f"# CONTENT #:\n{_text_from_doc(doc, attr_text_key)}"
             )
-            for metadata, doc in zip(source_dicts, self.documents, strict=True)
+            for ind, doc in enumerate(self.documents)
         )
         return f"## MULTI-DOCUMENT CONTEXT ##\n\n{serialized}"
 

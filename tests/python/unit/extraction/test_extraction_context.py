@@ -63,9 +63,9 @@ def test_extraction_context_text_single_doc():
     expected = (
         "## MULTI-DOCUMENT CONTEXT ##"
         "\n\n"
-        'Source: {"index": 0, "year": 2024, "url": "single_doc.pdf"}'
+        "# SOURCE INDEX #: 0"
         "\n"
-        "Content:\npage one\npage two"
+        "# CONTENT #:\npage one\npage two"
     )
     assert ctx.text == expected
 
@@ -81,10 +81,10 @@ def test_extraction_context_text_multiple_docs():
     ctx = ExtractionContext([doc1, doc2])
     text = ctx.text
     assert "## MULTI-DOCUMENT CONTEXT ##" in text
-    assert 'Source: {"index": 0, "year": 2020, "url": "doc1.pdf"}' in text
-    assert "Content:\ndoc1 page1\ndoc1 page2" in text
-    assert 'Source: {"index": 1, "year": 2021, "url": "doc2.html"}' in text
-    assert f"Content:\n{doc2.text}" in text
+    assert "# SOURCE INDEX #: 0" in text
+    assert "# CONTENT #:\ndoc1 page1\ndoc1 page2" in text
+    assert "# SOURCE INDEX #: 1" in text
+    assert f"# CONTENT #:\n{doc2.text}" in text
 
 
 def test_extraction_context_pages_empty():
@@ -362,8 +362,10 @@ def test_multi_doc_context_with_attr_text_key():
 
     combined_text = ctx.multi_doc_context(attr_text_key="summary")
 
-    assert "Content:\ndoc 1 summary" in combined_text
-    assert "Content:\ndoc 2 summary" in combined_text
+    assert "# SOURCE INDEX #: 0" in combined_text
+    assert "# SOURCE INDEX #: 1" in combined_text
+    assert "# CONTENT #:\ndoc 1 summary" in combined_text
+    assert "# CONTENT #:\ndoc 2 summary" in combined_text
     assert "doc 1 full text" not in combined_text
     assert "doc 2 full text" not in combined_text
 
