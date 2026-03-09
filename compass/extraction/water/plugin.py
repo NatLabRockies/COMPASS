@@ -278,11 +278,8 @@ def _set_data_year(data_df, extraction_context):
             for doc in extraction_context
         ],
     )
-    if not years:
-        data_df["ord_year"] = None
-    else:
-        # TODO: is `max` the right one to use here?
-        data_df["ord_year"] = max(years)
+    # TODO: is `max` the right one to use here?
+    data_df["ord_year"] = max(years) if years else None
     return data_df
 
 
@@ -291,10 +288,7 @@ def _set_data_sources(data_df, extraction_context):
     sources = filter(
         None, [doc.attrs.get("source") for doc in extraction_context]
     )
-    if not sources:
-        data_df["source"] = None
-    else:
-        data_df["source"] = " ;\n".join(sources)
+    data_df["source"] = " ;\n".join(sources) if sources else None
     return data_df
 
 
