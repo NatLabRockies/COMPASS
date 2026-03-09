@@ -594,6 +594,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
     methods as needed.
     """
 
+    ALLOW_MULTI_DOC_EXTRACTION = False
+    """bool: Whether to allow extraction over multiple documents"""
+
     @property
     @abstractmethod
     def TEXT_EXTRACTORS(self):  # noqa: N802
@@ -682,6 +685,28 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             data_df, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
         )
 
+    async def parse_docs_for_structured_data(self, extraction_context):
+        """Parse documents to extract structured data/information
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+        if self.ALLOW_MULTI_DOC_EXTRACTION:
+            return await self.parse_multi_doc_context_for_structured_data(
+                extraction_context
+            )
+        return await self.parse_single_doc_for_structured_data(
+            extraction_context
+        )
+
     async def parse_multi_doc_context_for_structured_data(
         self, extraction_context
     ):
@@ -728,8 +753,11 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         )
         return extraction_context
 
-    async def parse_docs_for_structured_data(self, extraction_context):
-        """Parse documents to extract structured data/information
+    async def parse_single_doc_for_structured_data(self, extraction_context):
+        """Parse documents ones at a time to extract structured data
+
+        The first document to return some extracted data will be marked
+        as the source and will be returned from this method.
 
         Parameters
         ----------
@@ -772,9 +800,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         """Extract all possible structured data from a document
 
         This method is called from the default implementation of
-        `parse_docs_for_structured_data()` for each document that passed
-        filtering. If you overwrite`parse_docs_for_structured_data()``,
-        you can ignore this method.
+        `parse_single_doc_for_structured_data()` for each document that
+        passed filtering. If you overwrite
+        ``parse_single_doc_for_structured_data()``, you can ignore this
+        method.
 
         Parameters
         ----------
