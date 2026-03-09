@@ -57,17 +57,31 @@ def test_extraction_context_text_empty():
 def test_extraction_context_text_single_doc():
     """Test text property with single document"""
     doc = PDFDocument(["page one", "page two"])
+    doc.attrs["year"] = 2024
+    doc.attrs["source"] = "single_doc.pdf"
     ctx = ExtractionContext(doc)
-    assert ctx.text == "page one\npage two"
+    expected = (
+        'Source: {"index": 0, "year": 2024, "url": "single_doc.pdf"}'
+        "\n"
+        "Content: page one\npage two"
+    )
+    assert ctx.text == expected
 
 
 def test_extraction_context_text_multiple_docs():
     """Test text property concatenates multiple documents"""
     doc1 = PDFDocument(["doc1 page1", "doc1 page2"])
+    doc1.attrs["year"] = 2020
+    doc1.attrs["source"] = "doc1.pdf"
     doc2 = HTMLDocument(["<p>doc2 content</p>"])
+    doc2.attrs["year"] = 2021
+    doc2.attrs["source"] = "doc2.html"
     ctx = ExtractionContext([doc1, doc2])
-    expected = "doc1 page1\ndoc1 page2\n\ndoc2 content\n\n"
-    assert ctx.text == expected
+    text = ctx.text
+    assert 'Source: {"index": 0, "year": 2020, "url": "doc1.pdf"}' in text
+    assert "Content: doc1 page1\ndoc1 page2" in text
+    assert 'Source: {"index": 1, "year": 2021, "url": "doc2.html"}' in text
+    assert f"Content: {doc2.text}" in text
 
 
 def test_extraction_context_pages_empty():
@@ -314,6 +328,54 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
 
     assert result is doc
     assert doc.attrs["out_fp"] == output_path
+
+
+@pytest.mark.asyncio
+async def test_convert_to_multi_doc_context_no_file_move():
+    """Test converting to multi-doc context without moving files"""
+    doc1 = PDFDocument(["doc 1"])
+    doc1.attrs["source"] = "doc1.pdf"
+    doc2 = PDFDocument(["doc 2"])
+    doc2.attrs["source"] = "doc2.pdf"
+    ctx = ExtractionContext([doc1, doc2], attrs={"existing": "keep"})
+
+    await ctx.convert_to_multi_doc_context("combined_text")
+
+    assert ctx.attrs["existing"] == "keep"
+    assert ctx.attrs["combined_text"] == ctx.text
+    assert ctx.data_docs == [doc1, doc2]
+    assert "out_fp" not in doc1.attrs
+    assert "out_fp" not in doc2.attrs
+
+
+@pytest.mark.asyncio
+async def test_convert_to_multi_doc_context_with_file_move(
+    monkeypatch, tmp_path
+):
+    """Test converting to multi-doc context while moving files"""
+    doc1 = PDFDocument(["doc 1"])
+    doc1.attrs["source"] = "doc1.pdf"
+    doc2 = PDFDocument(["doc 2"])
+    doc2.attrs["source"] = "doc2.pdf"
+    ctx = ExtractionContext([doc1, doc2])
+
+    expected_out = tmp_path / "combined.pdf"
+
+    async def fake_file_mover(doc_arg, out_fn):  # noqa
+        assert doc_arg in {doc1, doc2}
+        assert out_fn == "combined.pdf"
+        return expected_out
+
+    monkeypatch.setattr(FileMover, "call", fake_file_mover)
+
+    await ctx.convert_to_multi_doc_context(
+        "combined_text", out_fn_stem="combined.pdf"
+    )
+
+    assert ctx.attrs["combined_text"] == ctx.text
+    assert ctx.data_docs == [doc1, doc2]
+    assert doc1.attrs["out_fp"] == expected_out
+    assert doc2.attrs["out_fp"] == expected_out
 
 
 @pytest.mark.parametrize(

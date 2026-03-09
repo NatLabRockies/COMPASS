@@ -1,5 +1,6 @@
 """Extraction context for multi-document ordinance extraction"""
 
+import json
 from textwrap import shorten
 from collections.abc import Iterable
 
@@ -40,7 +41,21 @@ class ExtractionContext:
     @property
     def text(self):
         """str: Concatenated text from all documents"""
-        return "\n\n".join(doc.text for doc in self.documents)
+        source_dicts = [
+            {
+                "index": ind,
+                "year": doc.attrs.get("year"),
+                "url": doc.attrs.get("source"),
+            }
+            for ind, doc in enumerate(self.documents)
+        ]
+        return "\n\n".join(
+            (
+                f"Source: {json.dumps(metadata, indent=None)}\n"
+                f"Content: {doc.text}"
+            )
+            for metadata, doc in zip(source_dicts, self.documents, strict=True)
+        )
 
     @property
     def pages(self):
@@ -123,6 +138,33 @@ class ExtractionContext:
         self._data_docs.append(doc)
         if out_fn_stem is not None:
             await _move_file_to_out_dir(doc, out_fn_stem)
+
+    async def convert_to_multi_doc_context(
+        self, attr_text_key, out_fn_stem=None
+    ):
+        """Convert this context to a multi-document context
+
+        This method creates a concatenated text representation of the
+        documents in this context, and updates the context attributes to
+        contain the concatenated text under the `attr_text_key`. It also
+        moves the document files to the output directory.
+
+        Parameters
+        ----------
+        attr_text_key : str
+            The key under which the concatenated text will be stored in
+            the context attributes.
+        out_fn_stem : str, optional
+            Optional output filename stem for the concatenated document.
+            If provided, the document file will be moved from the
+            temporary directory to the output directory with this
+            filename stem and appropriate file suffix.
+            By default, ``None``.
+        """
+        self.attrs[attr_text_key] = self.text
+
+        for doc in self.documents:
+            await self.mark_doc_as_data_source(doc, out_fn_stem=out_fn_stem)
 
 
 async def _move_file_to_out_dir(doc, out_fn):
