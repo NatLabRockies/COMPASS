@@ -818,8 +818,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             return None
 
         data = data[0] if len(data) == 1 else pd.concat(data)
-        data["source"] = doc.attrs.get("source")
-        data["ord_year"] = extract_ord_year_from_doc_attrs(doc.attrs)
+        if "source" not in data.columns:
+            data["source"] = doc.attrs.get("source")
+        if "ord_year" not in data.columns:
+            data["ord_year"] = extract_ord_year_from_doc_attrs(doc.attrs)
         return data
 
     def _get_model_config(self, primary_key, secondary_key):
