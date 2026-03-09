@@ -9,7 +9,7 @@ import pytest
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
     convert_paths_to_strings,
-    extract_ord_year_from_doc_attrs,
+    extract_year_from_doc_attrs,
     llm_response_as_json,
     merge_overlapping_texts,
     num_ordinances_dataframe,
@@ -93,10 +93,10 @@ def test_merge_overlapping_texts(text_chunks, n, expected):
         ({"other_key": "value"}, None),
     ],
 )
-def test_extract_ord_year_from_doc_attrs(doc_attrs, expected):
-    """Test the `extract_ord_year_from_doc_attrs` function"""
+def test_extract_year_from_doc_attrs(doc_attrs, expected):
+    """Test the `extract_year_from_doc_attrs` function"""
 
-    assert extract_ord_year_from_doc_attrs(doc_attrs) == expected
+    assert extract_year_from_doc_attrs(doc_attrs) == expected
 
 
 def test_num_ordinances_dataframe_empty():

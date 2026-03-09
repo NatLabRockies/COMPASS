@@ -29,7 +29,7 @@ from compass.utilities.enums import LLMTasks, LLMUsageCategory
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
-    extract_ord_year_from_doc_attrs,
+    extract_year_from_doc_attrs,
     merge_overlapping_texts,
 )
 from compass.utilities import num_ordinances_dataframe
@@ -820,8 +820,8 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         data = data[0] if len(data) == 1 else pd.concat(data)
         if "source" not in data.columns:
             data["source"] = doc.attrs.get("source")
-        if "ord_year" not in data.columns:
-            data["ord_year"] = extract_ord_year_from_doc_attrs(doc.attrs)
+        if "year" not in data.columns:
+            data["year"] = extract_year_from_doc_attrs(doc.attrs)
         return data
 
     def _get_model_config(self, primary_key, secondary_key):

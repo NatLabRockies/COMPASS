@@ -11,7 +11,7 @@ from elm.embed import ChunkAndEmbed
 from compass.extraction import extract_date
 from compass.plugin import BaseExtractionPlugin, register_plugin
 from compass.utilities.enums import LLMTasks
-from compass.utilities.parsing import extract_ord_year_from_doc_attrs
+from compass.utilities.parsing import extract_year_from_doc_attrs
 from compass.exceptions import COMPASSRuntimeError
 from compass.extraction.water.parse import StructuredWaterParser
 
@@ -273,13 +273,10 @@ def _set_data_year(data_df, extraction_context):
     """Set the ordinance year column in the data DataFrame"""
     years = filter(
         None,
-        [
-            extract_ord_year_from_doc_attrs(doc.attrs)
-            for doc in extraction_context
-        ],
+        [extract_year_from_doc_attrs(doc.attrs) for doc in extraction_context],
     )
     # TODO: is `max` the right one to use here?
-    data_df["ord_year"] = max(years) if years else None
+    data_df["year"] = max(years) if years else None
     return data_df
 
 

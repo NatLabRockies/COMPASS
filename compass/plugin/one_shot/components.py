@@ -369,7 +369,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             "value",
             "units",
             "summary",
-            "ord_year",
+            "year",
             "section",
             "source",
         ]

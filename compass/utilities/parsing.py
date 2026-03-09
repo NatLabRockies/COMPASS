@@ -111,7 +111,7 @@ def merge_overlapping_texts(text_chunks, n=300):
     return out_text
 
 
-def extract_ord_year_from_doc_attrs(doc_attrs):
+def extract_year_from_doc_attrs(doc_attrs):
     """Extract the ordinance year stored in document attributes
 
     Parameters
@@ -130,9 +130,9 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
 
     Examples
     --------
-    >>> extract_ord_year_from_doc_attrs({"date": (2024, 5, 17)})
+    >>> extract_year_from_doc_attrs({"date": (2024, 5, 17)})
     2024
-    >>> extract_ord_year_from_doc_attrs({"date": (None, None, None)})
+    >>> extract_year_from_doc_attrs({"date": (None, None, None)})
     None
     """
     year, *__ = doc_attrs.get("date") or (None, None, None)

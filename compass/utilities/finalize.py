@@ -30,7 +30,7 @@ _PARSED_COLS = [
     "min_dist",
     "max_dist",
     "summary",
-    "ord_year",
+    "year",
     "section",
     "source",
     "quantitative",

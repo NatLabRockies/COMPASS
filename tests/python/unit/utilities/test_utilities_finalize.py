@@ -174,7 +174,7 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
                 "units": "ft",
                 "adder": 300,
                 "source": "http://example.com/valid",
-                "ord_year": 2022,
+                "year": 2022,
             }
         ]
     ).to_csv(valid_csv, index=False)
@@ -208,7 +208,7 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
 
     row = db.iloc[0]
     assert row["source"] == "http://example.com/valid"
-    assert row["ord_year"] == 2022
+    assert row["year"] == 2022
     assert row["FIPS"] == "12345"
     assert bool(row["quantitative"]) is True
     assert pd.isna(row["adder"])
@@ -229,7 +229,7 @@ def test_save_db_writes_csvs(tmp_path):
             "value": 100,
             "units": "ft",
             "summary": "Maximum height",
-            "ord_year": 2020,
+            "year": 2020,
             "source": "http://source",
             "quantitative": True,
         }
