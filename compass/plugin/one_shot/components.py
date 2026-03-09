@@ -365,6 +365,13 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         full_df = full_df.merge(df, on="feature", how="left")
 
-        return full_df[
-            ["feature", "value", "units", "section", "summary", "quantitative"]
+        possible_out_cols = [
+            "value",
+            "units",
+            "section",
+            "summary",
+            "source",
+            "year",
         ]
+        out_cols = [col for col in possible_out_cols if col in full_df.columns]
+        return full_df[["feature", *out_cols, "quantitative"]]
