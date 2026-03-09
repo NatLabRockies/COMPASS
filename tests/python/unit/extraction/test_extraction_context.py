@@ -333,52 +333,21 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
     assert doc.attrs["out_fp"] == output_path
 
 
-@pytest.mark.asyncio
-async def test_convert_to_multi_doc_context_no_file_move():
-    """Test converting to multi-doc context without moving files"""
+def test_multi_doc_context():
+    """Test multi_doc_context"""
     doc1 = PDFDocument(["doc 1"])
     doc1.attrs["source"] = "doc1.pdf"
     doc2 = PDFDocument(["doc 2"])
     doc2.attrs["source"] = "doc2.pdf"
     ctx = ExtractionContext([doc1, doc2], attrs={"existing": "keep"})
 
-    combined_text = await ctx.convert_to_multi_doc_context()
+    combined_text = ctx.multi_doc_context()
 
     assert ctx.attrs["existing"] == "keep"
     assert combined_text == ctx.text
-    assert ctx.data_docs == [doc1, doc2]
+    assert ctx.data_docs == []
     assert "out_fp" not in doc1.attrs
     assert "out_fp" not in doc2.attrs
-
-
-@pytest.mark.asyncio
-async def test_convert_to_multi_doc_context_with_file_move(
-    monkeypatch, tmp_path
-):
-    """Test converting to multi-doc context while moving files"""
-    doc1 = PDFDocument(["doc 1"])
-    doc1.attrs["source"] = "doc1.pdf"
-    doc2 = PDFDocument(["doc 2"])
-    doc2.attrs["source"] = "doc2.pdf"
-    ctx = ExtractionContext([doc1, doc2])
-
-    expected_out = tmp_path / "combined.pdf"
-
-    async def fake_file_mover(doc_arg, out_fn):  # noqa
-        assert doc_arg in {doc1, doc2}
-        assert out_fn == "combined.pdf"
-        return expected_out
-
-    monkeypatch.setattr(FileMover, "call", fake_file_mover)
-
-    combined_text = await ctx.convert_to_multi_doc_context(
-        out_fn_stem="combined.pdf"
-    )
-
-    assert combined_text == ctx.text
-    assert ctx.data_docs == [doc1, doc2]
-    assert doc1.attrs["out_fp"] == expected_out
-    assert doc2.attrs["out_fp"] == expected_out
 
 
 @pytest.mark.parametrize(

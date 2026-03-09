@@ -41,7 +41,7 @@ class ExtractionContext:
     @property
     def text(self):
         """str: Concatenated text from all documents"""
-        return self._text()
+        return self.multi_doc_context()
 
     @property
     def pages(self):
@@ -120,26 +120,15 @@ class ExtractionContext:
             temporary directory to the output directory with this
             filename stem and appropriate file suffix.
             By default, ``None``.
-
-        See Also
-        --------
-        convert_to_multi_doc_context
-            Convert this context to a multi-document context, marking
-            all documents as data sources and optionally concatenating
-            text representations of the documents in the context.
         """
         self._data_docs.append(doc)
         if out_fn_stem is not None:
             await _move_file_to_out_dir(doc, out_fn_stem)
 
-    async def convert_to_multi_doc_context(
-        self, attr_text_key=None, out_fn_stem=None
-    ):
-        """Convert this context to a multi-document context
+    def multi_doc_context(self, attr_text_key=None):
+        """Get concatenated text representation of documents
 
-        This method marks all of the documents in the current context as
-        data sources, moving the document files to the output directory.
-        It also creates a concatenated text representation of the
+        This method creates a concatenated text representation of the
         documents in this context, optionally pulling the text from the
         documents' `attr_text_key`.
 
@@ -148,31 +137,13 @@ class ExtractionContext:
         attr_text_key : str, optional
             The key under which the concatenated text will be stored in
             the context attributes.
-        out_fn_stem : str, optional
-            Optional output filename stem for the concatenated document.
-            If provided, the document file will be moved from the
-            temporary directory to the output directory with this
-            filename stem and appropriate file suffix.
-            By default, ``None``.
 
         Returns
         -------
         str
             Concatenated text representation of the documents in this
             context.
-
-        See Also
-        --------
-        mark_doc_as_data_source
-            Mark a single document as a data source for extraction.
         """
-        for doc in self.documents:
-            await self.mark_doc_as_data_source(doc, out_fn_stem=out_fn_stem)
-
-        return self._text(attr_text_key)
-
-    def _text(self, ak=None):
-        """Get text representation of documents, optionally from attr"""
         if not self.documents:
             return ""
 
@@ -187,7 +158,7 @@ class ExtractionContext:
         serialized = "\n\n".join(
             (
                 f"Source: {json.dumps(metadata, indent=None)}\n"
-                f"Content:\n{doc.text if ak is None else doc.attrs[ak]}"
+                f"Content:\n{_text_from_doc(doc, attr_text_key)}"
             )
             for metadata, doc in zip(source_dicts, self.documents, strict=True)
         )
@@ -247,3 +218,8 @@ def _attrs_repr(attrs):
 
     attrs = "\n".join(to_join)
     return f"Attrs:\n{attrs}"
+
+
+def _text_from_doc(doc, key):
+    """Get text from key or full doc"""
+    return doc.text if key is None else doc.attrs[key]
