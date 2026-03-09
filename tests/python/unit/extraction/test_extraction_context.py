@@ -350,6 +350,24 @@ def test_multi_doc_context():
     assert "out_fp" not in doc2.attrs
 
 
+def test_multi_doc_context_with_attr_text_key():
+    """Test multi_doc_context with attr_text_key"""
+    doc1 = PDFDocument(["doc 1 full text"])
+    doc1.attrs["source"] = "doc1.pdf"
+    doc1.attrs["summary"] = "doc 1 summary"
+    doc2 = PDFDocument(["doc 2 full text"])
+    doc2.attrs["source"] = "doc2.pdf"
+    doc2.attrs["summary"] = "doc 2 summary"
+    ctx = ExtractionContext([doc1, doc2])
+
+    combined_text = ctx.multi_doc_context(attr_text_key="summary")
+
+    assert "Content:\ndoc 1 summary" in combined_text
+    assert "Content:\ndoc 2 summary" in combined_text
+    assert "doc 1 full text" not in combined_text
+    assert "doc 2 full text" not in combined_text
+
+
 @pytest.mark.parametrize(
     "input_val",
     [
