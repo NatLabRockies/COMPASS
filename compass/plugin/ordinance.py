@@ -704,9 +704,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         extraction_context.attrs[key] = extraction_context.multi_doc_context(
             attr_text_key=key
         )
-        data_df = await self.parse_single_doc_for_structured_data(
-            extraction_context
-        )
+        data_df = await self.parse_for_structured_data(extraction_context)
         row_count = self.get_structured_data_row_count(data_df)
         if row_count == 0:
             logger.debug(
@@ -745,9 +743,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
         for doc_for_extraction in extraction_context:
-            data_df = await self.parse_single_doc_for_structured_data(
-                doc_for_extraction
-            )
+            data_df = await self.parse_for_structured_data(doc_for_extraction)
             row_count = self.get_structured_data_row_count(data_df)
             if row_count > 0:
                 data_df["source"] = doc_for_extraction.attrs.get("source")
@@ -772,7 +768,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         )
         return None
 
-    async def parse_single_doc_for_structured_data(self, doc_for_extraction):
+    async def parse_for_structured_data(self, source):
         """Extract all possible structured data from a document
 
         This method is called from the default implementation of
@@ -782,28 +778,28 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         Parameters
         ----------
-        doc_for_extraction : BaseDocument
-            Document to extract structured data from.
+        source : BaseDocument or ExtractionContext
+            Source to extract structured data from. Must have an
+            `.attrs` attribute that contains text from which data should
+            be extracted.
 
         Returns
         -------
-        BaseDocument
-            Document with extracted structured data stored in the
+        BaseDocument or ExtractionContext
+            input source with extracted structured data stored in the
             ``.attrs`` dictionary.
         """
         with self._tracked_progress():
             tasks = [
                 asyncio.create_task(
-                    self._try_extract_ordinances(
-                        doc_for_extraction, parser_class
-                    ),
+                    self._try_extract_ordinances(source, parser_class),
                     name=self.jurisdiction.full_name,
                 )
                 for parser_class in filter(None, self.PARSERS)
             ]
             await asyncio.gather(*tasks)
 
-        return self._concat_scrape_results(doc_for_extraction)
+        return self._concat_scrape_results(source)
 
     async def _try_extract_ordinances(self, doc_for_extraction, parser_class):
         """Apply a single extractor and parser to legal text"""
@@ -863,9 +859,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         self._jsp = None
 
-    def _concat_scrape_results(self, doc):
+    def _concat_scrape_results(self, source):
         """Concatenate structured data from all parsers"""
-        data = [doc.attrs.get(p.OUT_LABEL, None) for p in self.PARSERS]
+        data = [source.attrs.get(p.OUT_LABEL, None) for p in self.PARSERS]
         data = [df for df in data if df is not None and not df.empty]
         if len(data) == 0:
             return None
