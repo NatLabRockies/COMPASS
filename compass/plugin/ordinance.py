@@ -4,6 +4,7 @@ import asyncio
 import logging
 from warnings import warn
 from textwrap import dedent
+from numbers import Integral
 from itertools import chain
 from functools import cached_property, partial
 from abc import ABC, abstractmethod
@@ -681,6 +682,54 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             data_df, exclude_features=EXCLUDE_FROM_ORD_DOC_CHECK
         )
 
+    async def parse_multi_doc_context_for_structured_data(
+        self, extraction_context
+    ):
+        """Parse all documents to extract structured data/information
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse. The text
+            from all documents will be concatenated to create the
+            context for the extraction.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+        key = self.TEXT_COLLECTORS[-1].OUT_LABEL
+        extraction_context.attrs[key] = extraction_context.multi_doc_context(
+            attr_text_key=key
+        )
+        data_df = await self.parse_single_doc_for_structured_data(
+            extraction_context
+        )
+        row_count = self.get_structured_data_row_count(data_df)
+        if row_count == 0:
+            logger.debug(
+                "No extracted data; searched %d docs",
+                extraction_context.num_documents,
+            )
+            return None
+
+        data_df = await _fill_out_multi_file_sources(
+            data_df,
+            extraction_context,
+            out_fn_stem=self.jurisdiction.full_name,
+        )
+
+        extraction_context.attrs["structured_data"] = data_df
+        logger.info(
+            "%d ordinance value(s) found in %d docs for %s. ",
+            num_ordinances_dataframe(data_df),
+            extraction_context.num_documents,
+            self.jurisdiction.full_name,
+        )
+        return extraction_context
+
     async def parse_docs_for_structured_data(self, extraction_context):
         """Parse documents to extract structured data/information
 
@@ -1012,3 +1061,85 @@ def _validate_in_out_keys(consumers, producers):
                 f"processing class: {formatted}"
             )
             raise COMPASSPluginConfigurationError(msg)
+
+
+async def _fill_out_multi_file_sources(
+    data_df, extraction_context, out_fn_stem
+):
+    """Fill out source column for multi-doc extraction
+
+    This method implements a "report all document" fallback for the
+    following scenarios:
+
+        - source inds not given in output
+        - source inds not integers
+        - source inds are invalid indices for the actual documents
+
+    If the source inds are all valid, each row in the dataframe gets its
+    own unique source and year combo.
+    """
+    if "source" not in data_df.columns:
+        return _fill_in_all_sources(data_df, extraction_context, out_fn_stem)
+
+    source_inds = data_df["source"].dropna().unique()
+    if _any_inds_invalid(source_inds, extraction_context.num_documents):
+        return _fill_in_all_sources(data_df, extraction_context, out_fn_stem)
+
+    year_map = {}
+    source_map = {}
+    for source_ind in map(int, source_inds):
+        doc = source_ind[source_ind]
+        year_map[source_ind] = extract_year_from_doc_attrs(doc.attrs)
+        source_map[source_ind] = doc.attrs.get("source")
+        await extraction_context.mark_doc_as_data_source(
+            doc, out_fn_stem=out_fn_stem
+        )
+
+    data_df["year"] = data_df["source"].map(
+        lambda source_ind: (
+            year_map.get(int(source_ind)) if pd.notna(source_ind) else None
+        )
+    )
+
+    data_df["source"] = data_df["source"].map(
+        lambda source_ind: (
+            source_map.get(int(source_ind)) if pd.notna(source_ind) else None
+        )
+    )
+    return data_df
+
+
+def _any_inds_invalid(source_inds, num_docs):
+    has_invalid_inds = any(
+        not isinstance(source_ind, Integral) for source_ind in source_inds
+    )
+
+    if not has_invalid_inds:
+        # Check for invalid indices
+        has_invalid_inds = any(
+            source_ind < 0 or source_ind >= num_docs
+            for source_ind in source_inds
+        )
+
+    return has_invalid_inds
+
+
+async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
+    all_sources = [doc.attrs.get("source") for doc in extraction_context]
+    all_sources = [source for source in all_sources if source is not None]
+    concat_sources = " ;".join(all_sources) if all_sources else None
+
+    data_df["source"] = concat_sources
+
+    years = filter(
+        None,
+        [extract_year_from_doc_attrs(doc.attrs) for doc in extraction_context],
+    )
+    data_df["year"] = max(years) if years else None
+
+    for doc in extraction_context:
+        await extraction_context.mark_doc_as_data_source(
+            doc, out_fn_stem=out_fn_stem
+        )
+
+    return data_df
