@@ -4,6 +4,7 @@
 
 # VSCode
 .vscode
+*.code-workspace
 
 # Environments
 .env
