@@ -701,6 +701,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             )
             row_count = self.get_structured_data_row_count(data_df)
             if row_count > 0:
+                data_df["source"] = doc_for_extraction.attrs.get("source")
+                data_df["year"] = extract_year_from_doc_attrs(
+                    doc_for_extraction.attrs
+                )
                 await extraction_context.mark_doc_as_data_source(
                     doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
                 )
@@ -817,12 +821,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         if len(data) == 0:
             return None
 
-        data = data[0] if len(data) == 1 else pd.concat(data)
-        if "source" not in data.columns:
-            data["source"] = doc.attrs.get("source")
-        if "year" not in data.columns:
-            data["year"] = extract_year_from_doc_attrs(doc.attrs)
-        return data
+        return data[0] if len(data) == 1 else pd.concat(data)
 
     def _get_model_config(self, primary_key, secondary_key):
         """Get model config: primary_key -> secondary_key -> default"""
