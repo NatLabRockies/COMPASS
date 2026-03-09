@@ -61,9 +61,11 @@ def test_extraction_context_text_single_doc():
     doc.attrs["source"] = "single_doc.pdf"
     ctx = ExtractionContext(doc)
     expected = (
+        "## MULTI-DOCUMENT CONTEXT ##"
+        "\n\n"
         'Source: {"index": 0, "year": 2024, "url": "single_doc.pdf"}'
         "\n"
-        "Content: page one\npage two"
+        "Content:\npage one\npage two"
     )
     assert ctx.text == expected
 
@@ -340,10 +342,10 @@ async def test_convert_to_multi_doc_context_no_file_move():
     doc2.attrs["source"] = "doc2.pdf"
     ctx = ExtractionContext([doc1, doc2], attrs={"existing": "keep"})
 
-    await ctx.convert_to_multi_doc_context("combined_text")
+    combined_text = await ctx.convert_to_multi_doc_context()
 
     assert ctx.attrs["existing"] == "keep"
-    assert ctx.attrs["combined_text"] == ctx.text
+    assert combined_text == ctx.text
     assert ctx.data_docs == [doc1, doc2]
     assert "out_fp" not in doc1.attrs
     assert "out_fp" not in doc2.attrs
@@ -369,11 +371,11 @@ async def test_convert_to_multi_doc_context_with_file_move(
 
     monkeypatch.setattr(FileMover, "call", fake_file_mover)
 
-    await ctx.convert_to_multi_doc_context(
-        "combined_text", out_fn_stem="combined.pdf"
+    combined_text = await ctx.convert_to_multi_doc_context(
+        out_fn_stem="combined.pdf"
     )
 
-    assert ctx.attrs["combined_text"] == ctx.text
+    assert combined_text == ctx.text
     assert ctx.data_docs == [doc1, doc2]
     assert doc1.attrs["out_fp"] == expected_out
     assert doc2.attrs["out_fp"] == expected_out
