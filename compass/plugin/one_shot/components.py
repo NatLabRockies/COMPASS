@@ -371,7 +371,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             "section",
             "summary",
             "source",
-            "year",
+            "ord_year",
         ]
         out_cols = [col for col in possible_out_cols if col in full_df.columns]
         return full_df[["feature", *out_cols, "quantitative"]]
