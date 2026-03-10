@@ -18,7 +18,7 @@ from .jurisdictions import (
     load_jurisdictions_from_fp,
 )
 from .parsing import (
-    extract_ord_year_from_doc_attrs,
+    extract_year_from_doc_attrs,
     llm_response_as_json,
     merge_overlapping_texts,
     num_ordinances_dataframe,

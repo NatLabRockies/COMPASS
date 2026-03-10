@@ -29,12 +29,15 @@ from compass.utilities.enums import LLMTasks, LLMUsageCategory
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
-    extract_ord_year_from_doc_attrs,
+    extract_year_from_doc_attrs,
     merge_overlapping_texts,
 )
 from compass.utilities import num_ordinances_dataframe
 from compass.warn import COMPASSWarning
-from compass.exceptions import COMPASSPluginConfigurationError
+from compass.exceptions import (
+    COMPASSPluginConfigurationError,
+    COMPASSRuntimeError,
+)
 from compass.pb import COMPASS_PB
 
 
@@ -593,6 +596,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
     methods as needed.
     """
 
+    ALLOW_MULTI_DOC_EXTRACTION = False
+    """bool: Whether to allow extraction over multiple documents"""
+
     @property
     @abstractmethod
     def TEXT_EXTRACTORS(self):  # noqa: N802
@@ -695,12 +701,85 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        for doc_for_extraction in extraction_context:
-            data_df = await self.parse_single_doc_for_structured_data(
-                doc_for_extraction
+        if self.ALLOW_MULTI_DOC_EXTRACTION:
+            return await self.parse_multi_doc_context_for_structured_data(
+                extraction_context
             )
+        return await self.parse_single_doc_for_structured_data(
+            extraction_context
+        )
+
+    async def parse_multi_doc_context_for_structured_data(
+        self, extraction_context
+    ):
+        """Parse all documents to extract structured data/information
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse. The text
+            from all documents will be concatenated to create the
+            context for the extraction.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+        key = self.TEXT_COLLECTORS[-1].OUT_LABEL
+        extraction_context.attrs[key] = extraction_context.multi_doc_context(
+            attr_text_key=key
+        )
+        data_df = await self.parse_for_structured_data(extraction_context)
+        row_count = self.get_structured_data_row_count(data_df)
+        if row_count == 0:
+            logger.debug(
+                "No extracted data; searched %d docs",
+                extraction_context.num_documents,
+            )
+            return None
+
+        data_df = await _fill_out_multi_file_sources(
+            data_df,
+            extraction_context,
+            out_fn_stem=self.jurisdiction.full_name,
+        )
+
+        extraction_context.attrs["structured_data"] = data_df
+        logger.info(
+            "%d ordinance value(s) found in %d docs for %s. ",
+            num_ordinances_dataframe(data_df),
+            extraction_context.num_documents,
+            self.jurisdiction.full_name,
+        )
+        return extraction_context
+
+    async def parse_single_doc_for_structured_data(self, extraction_context):
+        """Parse documents one at a time to extract structured data
+
+        The first document to return some extracted data will be marked
+        as the source and will be returned from this method.
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+        for doc_for_extraction in extraction_context:
+            data_df = await self.parse_for_structured_data(doc_for_extraction)
             row_count = self.get_structured_data_row_count(data_df)
             if row_count > 0:
+                data_df["source"] = doc_for_extraction.attrs.get("source")
+                data_df["year"] = extract_year_from_doc_attrs(
+                    doc_for_extraction.attrs
+                )
                 await extraction_context.mark_doc_as_data_source(
                     doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
                 )
@@ -719,38 +798,39 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         )
         return None
 
-    async def parse_single_doc_for_structured_data(self, doc_for_extraction):
+    async def parse_for_structured_data(self, source):
         """Extract all possible structured data from a document
 
         This method is called from the default implementation of
-        `parse_docs_for_structured_data()` for each document that passed
-        filtering. If you overwrite`parse_docs_for_structured_data()``,
-        you can ignore this method.
+        `parse_single_doc_for_structured_data()` for each document that
+        passed filtering. If you overwrite
+        ``parse_single_doc_for_structured_data()``, you can ignore this
+        method.
 
         Parameters
         ----------
-        doc_for_extraction : BaseDocument
-            Document to extract structured data from.
+        source : BaseDocument or ExtractionContext
+            Source to extract structured data from. Must have an
+            `.attrs` attribute that contains text from which data should
+            be extracted.
 
         Returns
         -------
-        BaseDocument
-            Document with extracted structured data stored in the
-            ``.attrs`` dictionary.
+        pandas.DataFrame or None
+            DataFrame containing extracted structured data, or None if
+            no structured data were extracted.
         """
         with self._tracked_progress():
             tasks = [
                 asyncio.create_task(
-                    self._try_extract_ordinances(
-                        doc_for_extraction, parser_class
-                    ),
+                    self._try_extract_ordinances(source, parser_class),
                     name=self.jurisdiction.full_name,
                 )
                 for parser_class in filter(None, self.PARSERS)
             ]
             await asyncio.gather(*tasks)
 
-        return self._concat_scrape_results(doc_for_extraction)
+        return self._concat_scrape_results(source)
 
     async def _try_extract_ordinances(self, doc_for_extraction, parser_class):
         """Apply a single extractor and parser to legal text"""
@@ -810,17 +890,14 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         self._jsp = None
 
-    def _concat_scrape_results(self, doc):
+    def _concat_scrape_results(self, source):
         """Concatenate structured data from all parsers"""
-        data = [doc.attrs.get(p.OUT_LABEL, None) for p in self.PARSERS]
+        data = [source.attrs.get(p.OUT_LABEL, None) for p in self.PARSERS]
         data = [df for df in data if df is not None and not df.empty]
         if len(data) == 0:
             return None
 
-        data = data[0] if len(data) == 1 else pd.concat(data)
-        data["source"] = doc.attrs.get("source")
-        data["ord_year"] = extract_ord_year_from_doc_attrs(doc.attrs)
-        return data
+        return data[0] if len(data) == 1 else pd.concat(data)
 
     def _get_model_config(self, primary_key, secondary_key):
         """Get model config: primary_key -> secondary_key -> default"""
@@ -1011,3 +1088,104 @@ def _validate_in_out_keys(consumers, producers):
                 f"processing class: {formatted}"
             )
             raise COMPASSPluginConfigurationError(msg)
+
+
+async def _fill_out_multi_file_sources(
+    data_df, extraction_context, out_fn_stem
+):
+    """Fill out source column for multi-doc extraction
+
+    This method implements a "report all document" fallback for the
+    following scenarios:
+
+        - source inds not given in output
+        - source inds not integers
+        - source inds are invalid indices for the actual documents
+
+    If the source inds are all valid, each row in the dataframe gets its
+    own unique source and year combo.
+    """
+    try:
+        source_inds = _get_source_inds(
+            data_df, extraction_context.num_documents
+        )
+    except COMPASSRuntimeError:
+        return await _fill_in_all_sources(
+            data_df, extraction_context, out_fn_stem
+        )
+
+    year_map = {}
+    source_map = {}
+    for source_ind in source_inds:
+        doc = extraction_context[source_ind]
+        year_map[source_ind] = extract_year_from_doc_attrs(doc.attrs)
+        source_map[source_ind] = doc.attrs.get("source")
+        await extraction_context.mark_doc_as_data_source(
+            doc, out_fn_stem=f"{out_fn_stem}_{source_ind + 1}"
+        )
+
+    data_df["year"] = data_df["source"].map(
+        lambda source_ind: (
+            year_map.get(int(source_ind)) if pd.notna(source_ind) else None
+        )
+    )
+
+    data_df["source"] = data_df["source"].map(
+        lambda source_ind: (
+            source_map.get(int(source_ind)) if pd.notna(source_ind) else None
+        )
+    )
+    return data_df
+
+
+def _get_source_inds(data_df, num_docs):
+    """Try to extract source document indices"""
+    if "source" not in data_df.columns:
+        msg = "'source' column not found in extracted outputs"
+        raise COMPASSRuntimeError(msg)
+
+    try:
+        source_inds = data_df["source"].dropna().unique().astype(int)
+    except (TypeError, ValueError):
+        msg = "'source' column contains non-integer values"
+        raise COMPASSRuntimeError(msg) from None
+
+    if any(
+        source_ind < 0 or source_ind >= num_docs for source_ind in source_inds
+    ):
+        msg = "'source' column contains out-of-bounds indices"
+        raise COMPASSRuntimeError(msg)
+
+    return source_inds
+
+
+async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
+    """Fill in source and year columns using all sources"""
+    logger.debug(
+        "Filling in sources using all %d documents in context due to "
+        "invalid or missing source indices",
+        extraction_context.num_documents,
+    )
+    all_sources = filter(
+        None, [doc.attrs.get("source") for doc in extraction_context]
+    )
+    concat_sources = " ;\n".join(all_sources) or None
+    data_df["source"] = concat_sources
+
+    years = list(
+        filter(
+            None,
+            [
+                extract_year_from_doc_attrs(doc.attrs)
+                for doc in extraction_context
+            ],
+        )
+    )
+    data_df["year"] = max(years) if years else None
+
+    for ind, doc in enumerate(extraction_context, start=1):
+        await extraction_context.mark_doc_as_data_source(
+            doc, out_fn_stem=f"{out_fn_stem}_{ind}"
+        )
+
+    return data_df

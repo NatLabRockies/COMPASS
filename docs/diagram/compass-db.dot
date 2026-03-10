@@ -480,7 +480,7 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol10" ></TD>
-      <TD align="left" > ord_year </TD>
+      <TD align="left" > year </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol10"> </TD>
@@ -606,7 +606,7 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol15" ></TD>
-      <TD align="left" > ord_year </TD>
+      <TD align="left" > year </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol15"> </TD>

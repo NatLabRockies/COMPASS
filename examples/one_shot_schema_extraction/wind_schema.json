@@ -274,5 +274,16 @@
       "For prohibited use districts: Only include districts with unconditional prohibitions currently in effect.",
       "Use the exact district names/codes as they appear in the ordinance text."
     ]
-  }
+  },
+  "$qualitative_features": [
+      "color",
+      "decommissioning",
+      "lighting",
+      "prohibitions",
+      "visual impact",
+      "repowering",
+      "climbing prevention",
+      "signage",
+      "soil"
+  ]
 }
