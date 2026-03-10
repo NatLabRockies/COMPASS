@@ -2,6 +2,7 @@
     out_dir: "./outputs",
     tech: "water rights",
     jurisdiction_fp: "../jurisdictions.csv",
+    "known_local_docs": "./local_docs.json5",  // We have Panola County docs locally
     model: [
         {
             name: "egswaterord-gpt4.1-mini",
