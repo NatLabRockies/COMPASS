@@ -756,7 +756,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         return extraction_context
 
     async def parse_single_doc_for_structured_data(self, extraction_context):
-        """Parse documents ones at a time to extract structured data
+        """Parse documents one at a time to extract structured data
 
         The first document to return some extracted data will be marked
         as the source and will be returned from this method.
@@ -816,9 +816,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         Returns
         -------
-        BaseDocument or ExtractionContext
-            input source with extracted structured data stored in the
-            ``.attrs`` dictionary.
+        pandas.DataFrame or None
+            DataFrame containing extracted structured data, or None if
+            no structured data were extracted.
         """
         with self._tracked_progress():
             tasks = [
@@ -1146,7 +1146,7 @@ def _get_source_inds(data_df, num_docs):
 
     try:
         source_inds = data_df["source"].dropna().unique().astype(int)
-    except TypeError:
+    except (TypeError, ValueError):
         msg = "'source' column contains non-integer values"
         raise COMPASSRuntimeError(msg) from None
 
@@ -1169,12 +1169,17 @@ async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
     all_sources = filter(
         None, [doc.attrs.get("source") for doc in extraction_context]
     )
-    concat_sources = " ;\n".join(all_sources) if all_sources else None
+    concat_sources = " ;\n".join(all_sources) or None
     data_df["source"] = concat_sources
 
-    years = filter(
-        None,
-        [extract_year_from_doc_attrs(doc.attrs) for doc in extraction_context],
+    years = list(
+        filter(
+            None,
+            [
+                extract_year_from_doc_attrs(doc.attrs)
+                for doc in extraction_context
+            ],
+        )
     )
     data_df["year"] = max(years) if years else None
 

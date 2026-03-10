@@ -124,7 +124,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               more specific instructions to the LLM for the structured
               data extraction step.
             - `allow_multi_doc_extraction`: Boolean flag indicating
-              whether to allow multiple documentats to be used for the
+              whether to allow multiple documents to be used for the
               extraction context simultaneously. By default, ``False``,
               which means the first document that returns some extracted
               data will be marked as the source.
@@ -155,7 +155,9 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         SCHEMA = config["schema"]
         """dict: Schema for the output of the text extraction step"""
 
-        ALLOW_MULTI_DOC_EXTRACTION = config["allow_multi_doc_extraction"]
+        ALLOW_MULTI_DOC_EXTRACTION = config.get(
+            "allow_multi_doc_extraction", False
+        )
         """bool: Whether to allow extraction over multiple documents"""
 
         IDENTIFIER = tech

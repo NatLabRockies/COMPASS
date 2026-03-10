@@ -134,8 +134,9 @@ class ExtractionContext:
         Parameters
         ----------
         attr_text_key : str, optional
-            The key under which the concatenated text will be stored in
-            the context attributes.
+            The key used to look up the document's `.attrs` dictionary
+            for the text to concatenate. If ``None``, the full document
+            text is used for concatenation.
 
         Returns
         -------

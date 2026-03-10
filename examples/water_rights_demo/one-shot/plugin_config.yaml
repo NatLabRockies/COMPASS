@@ -34,5 +34,5 @@ website_keywords:
 collection_prompts: True  # Can disable this to pass entire document to context
 
 extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from wind energy ordinances.
+  You are a legal scholar extracting structured data from water rights and groundwater conservation district regulations.
   Follow all instructions in the schema descriptions carefully.

@@ -271,9 +271,14 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
 
 def _set_data_year(data_df, extraction_context):
     """Set the ordinance year column in the data DataFrame"""
-    years = filter(
-        None,
-        [extract_year_from_doc_attrs(doc.attrs) for doc in extraction_context],
+    years = list(
+        filter(
+            None,
+            [
+                extract_year_from_doc_attrs(doc.attrs)
+                for doc in extraction_context
+            ],
+        )
     )
     # TODO: is `max` the right one to use here?
     data_df["year"] = max(years) if years else None
@@ -285,7 +290,7 @@ def _set_data_sources(data_df, extraction_context):
     sources = filter(
         None, [doc.attrs.get("source") for doc in extraction_context]
     )
-    data_df["source"] = " ;\n".join(sources) if sources else None
+    data_df["source"] = " ;\n".join(sources) or None
     return data_df
 
 

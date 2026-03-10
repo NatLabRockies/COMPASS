@@ -90,8 +90,8 @@ for the model to follow when parsing the text. This is a good place to reinforce
 importance of following the schema and to provide any additional context that might be
 helpful for the model to know when performing the extraction.
 
-Finally, the schema contains an (optional) ``$qualitative_features`` key, which is
-that contains a subset of the features defined in the schema. This list tells COMPASS
+Finally, the schema contains an (optional) ``$qualitative_features`` key, which
+contains a subset of the features defined in the schema. This list tells COMPASS
 to categorize these features as "qualitative", which means that they are expected to
 only contain textual summaries in the ``summary`` field of the output, and that the
 ``value`` and ``units`` fields for these features can be ignored and should (will) be
