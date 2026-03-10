@@ -1,7 +1,7 @@
 {
     out_dir: "./outputs",
     tech: "water rights",
-    jurisdiction_fp: "jurisdictions.csv",
+    jurisdiction_fp: "../jurisdictions.csv",
     model: [
         {
             name: "text-embedding-ada-002",
