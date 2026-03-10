@@ -1,6 +1,6 @@
 {
     out_dir: "./outputs",
-    tech: "water rights",
+    tech: "tx water rights one shot",
     jurisdiction_fp: "../jurisdictions.csv",
     "known_local_docs": "./local_docs.json5",  // We have Panola County docs locally
     model: [
