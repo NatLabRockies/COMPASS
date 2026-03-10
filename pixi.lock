@@ -3365,7 +3365,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/roman-numerals-4.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rpds-py-0.30.0-py313h843e2db_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rsa-4.9.1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.14.11-h4196e79_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.15.5-h40fa522_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.16.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/scikit-learn-1.8.0-np2py313h16d504d_1.conda
@@ -3854,7 +3854,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/roman-numerals-4.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/rpds-py-0.30.0-py313h8f1d341_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rsa-4.9.1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ruff-0.14.11-hc0dabaa_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ruff-0.15.5-he9a2e21_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-aarch64/rust-1.89.0-h6cf38e9_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-aarch64-unknown-linux-gnu-1.89.0-hbe8e118_0.conda
@@ -4307,7 +4307,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/roman-numerals-4.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/rpds-py-0.30.0-py313hcc225dc_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rsa-4.9.1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.14.11-hb17bafe_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.15.5-h8ee721d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.16.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/scikit-learn-1.8.0-np2py313he2891f2_1.conda
@@ -4753,7 +4753,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/roman-numerals-4.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rpds-py-0.30.0-py313h2c089d5_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rsa-4.9.1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.14.11-hb0cad00_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.15.5-h279115b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.16.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/scikit-learn-1.8.0-np2py313h3b23316_1.conda
@@ -5184,7 +5184,7 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/noarch/roman-numerals-4.1.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/rpds-py-0.30.0-py313hfbe8231_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rsa-4.9.1-pyhd8ed1ab_0.conda
-      - conda: https://conda.anaconda.org/conda-forge/win-64/ruff-0.14.11-h37e10c4_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/ruff-0.15.5-h5739096_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/s3transfer-0.16.0-pyhd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/scikit-learn-1.8.0-np2py313h4ce4a18_1.conda
@@ -16692,8 +16692,8 @@ packages:
   timestamp: 1736252433366
 - pypi: ./
   name: infra-compass
-  version: 0.13.2.dev5+g2a2cf74.d20260210
-  sha256: 14c80efebd7b5a7937d34c6e5de47a023a4ffc6e29953d0d7267c4c258816d68
+  version: 0.14.3.dev20+gbb9a53e6.d20260309
+  sha256: cef76fd52eb2f0853ed265397d062b290dfc3c508bfccc8d19c5e0bd95574e34
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
   - click>=8.1.7,<9
@@ -16713,7 +16713,7 @@ packages:
   - pytesseract>=0.3.13,<0.4 ; extra == 'ocr'
   - jupyter>=1.0.0,<1.1 ; extra == 'dev'
   - pipreqs>=0.4.13,<0.5 ; extra == 'dev'
-  - ruff>=0.14.11,<0.15 ; extra == 'dev'
+  - ruff>=0.15.5,<0.16 ; extra == 'dev'
   - ruff-lsp>=0.0.62,<0.0.63 ; extra == 'dev'
   - flaky>=3.8.1,<4 ; extra == 'test'
   - pytest>=8.3.3,<9 ; extra == 'test'
@@ -29218,26 +29218,26 @@ packages:
   version: 1.4.1
   sha256: a7e48d805e12011c2cf739a29d6a60ae852fb1de9fc84220bbcef67e6e595d7d
   requires_python: '>=3.9'
-- conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.14.11-h4196e79_0.conda
+- conda: https://conda.anaconda.org/conda-forge/linux-64/ruff-0.15.5-h40fa522_0.conda
   noarch: python
-  sha256: a11a028fa1e5e273111330298b98005307eee32af69b0b5b09d8b7b23f6062ce
-  md5: da06de874b1e1e2029772f9c319d164e
+  sha256: da5d47b231a590257b4ee0f3459e6ec30012ae549e3c29601cd15de178dafe9c
+  md5: 2ad709f7abc95e934d96e7a20b837b6e
   depends:
   - python
-  - libgcc >=14
   - __glibc >=2.17,<3.0.a0
+  - libgcc >=14
   constrains:
   - __glibc >=2.17
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
-  size: 11460448
-  timestamp: 1767948559731
-- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ruff-0.14.11-hc0dabaa_0.conda
+  - pkg:pypi/ruff?source=hash-mapping
+  size: 9273260
+  timestamp: 1772780208047
+- conda: https://conda.anaconda.org/conda-forge/linux-aarch64/ruff-0.15.5-he9a2e21_0.conda
   noarch: python
-  sha256: 251d1dd73e424d48b293eb9aaff9b0f5e63c34affa3b34da1693310450e0e550
-  md5: 3a912737778789d94695529739c888e5
+  sha256: 7f3de3fe5a104ddc41da7e1f15d10a83b13d712d622ca10a3e6eacfcaa9af2f5
+  md5: 5423b0d4e00191340f2aa5b517110682
   depends:
   - python
   - libgcc >=14
@@ -29247,27 +29247,27 @@ packages:
   license_family: MIT
   purls:
   - pkg:pypi/ruff?source=hash-mapping
-  size: 10946211
-  timestamp: 1767948572467
-- conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.14.11-hb17bafe_0.conda
+  size: 8917323
+  timestamp: 1772780223372
+- conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.15.5-h8ee721d_0.conda
   noarch: python
-  sha256: 932ba833151abad4f910e4301c7f69600ba6025effd4d2f56d9dca23b31fe4ad
-  md5: ce558e6855bb2ff55477d6c1ffd845e2
+  sha256: 4968ba59a12f211106b2b9026bb867a0e6a6abc0f6b3be67259d616e5c79357b
+  md5: 81083c6d1627d9394b6f669d2931a407
   depends:
   - python
-  - __osx >=10.13
+  - __osx >=11.0
   constrains:
   - __osx >=10.13
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
-  size: 11356233
-  timestamp: 1767948666150
-- conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.14.11-hb0cad00_0.conda
+  - pkg:pypi/ruff?source=hash-mapping
+  size: 9288390
+  timestamp: 1772780432283
+- conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.15.5-h279115b_0.conda
   noarch: python
-  sha256: b76ff21a7a466ed1f80a640d437ef0f6345240ce2150972584e4f97b0c7db955
-  md5: aabef64b30defea8e9166b0b2248fa85
+  sha256: 89cb3edc0239200b83cece7e27dce096facf2db0d3370dc46f047db65b1f1126
+  md5: 02f7f9ffb450e26b44120c1cc8e543a4
   depends:
   - python
   - __osx >=11.0
@@ -29276,13 +29276,13 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
-  size: 10375602
-  timestamp: 1767948656938
-- conda: https://conda.anaconda.org/conda-forge/win-64/ruff-0.14.11-h37e10c4_0.conda
+  - pkg:pypi/ruff?source=hash-mapping
+  size: 8476952
+  timestamp: 1772780440888
+- conda: https://conda.anaconda.org/conda-forge/win-64/ruff-0.15.5-h5739096_0.conda
   noarch: python
-  sha256: 86181b96eb46ca085c721c66a9e961e8646917fff6469f0836e90371a793ea27
-  md5: 36a7142884f26724a3d33b2f80d13c2d
+  sha256: d0bba8615cc662c684bb79a30145b8d4940a80d6906d12ef5ed074f1f1879bc8
+  md5: 4b5fef0aa16f91d1286205ff19f2123c
   depends:
   - python
   - vc >=14.3,<15
@@ -29291,9 +29291,9 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
-  size: 11870088
-  timestamp: 1767948584867
+  - pkg:pypi/ruff?source=hash-mapping
+  size: 9732695
+  timestamp: 1772780220897
 - conda: https://conda.anaconda.org/conda-forge/noarch/ruff-lsp-0.0.62-pyhd8ed1ab_0.conda
   sha256: 2640f3ae1cd31209c26c70b0413730fb4e903aefc4649dc21f9dd28b08e97a61
   md5: 5962a27993ab1b25dd2c8e87a3365753

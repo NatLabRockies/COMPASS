@@ -1,0 +1,242 @@
+{
+  "title": "Texas Water Rights Extraction Schema",
+  "description": "Single-shot structured extraction schema for Texas groundwater conservation district water-rights ordinances and management plans. This schema encodes the decision-tree logic from COMPASS water-rights extraction into comprehensive field descriptions that guide LLMs to extract all supported features in one call. Output is a flat array of extraction objects, where each object represents one row in the final CSV/DataFrame output.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "value", "units", "section", "summary", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The water-rights feature being extracted. Must be one of the enumerated feature IDs.",
+            "enum": [
+              "permit requirements",
+              "extraction permit requirements",
+              "daily extraction limits",
+              "monthly extraction limits",
+              "annual extraction limits",
+              "well spacing",
+              "drilling window",
+              "metering device",
+              "district drought management plan",
+              "well drought management plan",
+              "plugging requirements",
+              "external transfer restrictions",
+              "production reporting",
+              "production cost",
+              "setback restrictions",
+              "redrilling restrictions",
+              "geothermal requirements",
+              "oil and gas requirements"
+            ]
+          },
+          "value": {
+            "description": "The extracted value for this feature. Use booleans for yes/no requirements, numbers for explicit numerical limits, and strings for permit-specific/rate-structure values. Use null when no enacted requirement is found.",
+            "anyOf": [
+              {"type": "boolean"},
+              {"type": "number"},
+              {"type": "string"},
+              {
+                "type": "array",
+                "items": {
+                  "anyOf": [
+                    {"type": "number"},
+                    {"type": "string"}
+                  ]
+                }
+              },
+              {"type": "null"}
+            ]
+          },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units associated with value. Examples: 'feet', 'yards', 'days', 'months', 'gallons/day', 'acre-feet/year', 'dollars/acre-foot', or null when units are not applicable.",
+            "default": null
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "Section title/number where the requirement is found (for example, 'Rule 8.4 - Well Spacing'). Include exact numbering/labels when available. Null when section is unavailable.",
+            "default": null
+          },
+          "summary": {
+            "type": ["string", "null"],
+            "description": "Short requirement summary using direct excerpts/quotes whenever possible. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
+            "default": null
+          },
+          "source": {
+            "type": ["number", "null"],
+            "description": "Integer indicating the source index from which this information was pulled. If not applicable or unavailable, use null.",
+            "default": null
+          }
+        }
+      }
+    }
+  },
+  "$definitions": {
+    "scope": {
+      "description": "Extract enacted Texas groundwater district water-rights rules for groundwater wells, permitting, extraction, production, transfer, and related compliance controls. Ignore unrelated municipal utility policy unless it directly governs groundwater well permitting/operation in the district text."
+    },
+    "permit_and_authorization": {
+      "description": "Permit and authorization features mapped from permit decision trees.",
+      "properties": {
+        "permit requirements": {
+          "description": "Whether a permit/application is required to drill a groundwater well. VALUE: boolean. SUMMARY: include core permit requirements, filing conditions, and any explicit well exemptions from permitting. UNITS: null."
+        },
+        "extraction permit requirements": {
+          "description": "Whether a permit is required to extract/produce groundwater from a well. VALUE: boolean. SUMMARY: include extraction-specific permit language (if drilling and extraction are treated differently, preserve that distinction). UNITS: null."
+        }
+      }
+    },
+    "interval_limits": {
+      "description": "Interval-specific production/extraction/withdrawal limits for groundwater wells.",
+      "properties": {
+        "daily extraction limits": {
+          "description": "Daily production/withdrawal limit. VALUE: explicit numeric limit when stated, otherwise string such as 'permit specific'. If multiple explicit limits exist by permit/well/aquifer, value may be an array of numbers/strings. UNITS: include interval-aware units such as 'gallons/day' or 'acre-feet/day'. SUMMARY: include application scope and whether limit is explicit or permit specific."
+        },
+        "monthly extraction limits": {
+          "description": "Monthly production/withdrawal limit. Same extraction logic as daily limits, but restricted to monthly interval references only."
+        },
+        "annual extraction limits": {
+          "description": "Annual production/withdrawal limit. Same extraction logic as daily limits, but restricted to annual interval references only."
+        }
+      }
+    },
+    "well_and_operations": {
+      "description": "Operational controls and well-construction or operation constraints.",
+      "properties": {
+        "well spacing": {
+          "description": "Minimum required distance between wells. VALUE: numeric distance when explicitly stated. UNITS: 'feet', 'yards', or similar distance unit. SUMMARY: include any qualifier tied to depth, production capacity, permit class, or well type. Ignore spacing that is only for property lines, septic systems, or non-well infrastructure."
+        },
+        "drilling window": {
+          "description": "Time period after permit issuance/approval by which drilling must commence. VALUE: numeric time period. UNITS: 'days', 'months', etc. SUMMARY: include trigger event (for example, permit issuance), restart/extension clauses, and expiration implications."
+        },
+        "metering device": {
+          "description": "Requirement for metering/measurement devices to monitor usage/production. VALUE: boolean. UNITS: null. SUMMARY: include device type, well thresholds (for example, >35 gpm), and reporting or calibration obligations if provided."
+        },
+        "plugging requirements": {
+          "description": "Whether district imposes water-well plugging requirements. VALUE: boolean. UNITS: null. SUMMARY: include abandonment triggers, methods/standards, notification/reporting, and responsible party language."
+        },
+        "setback restrictions": {
+          "description": "Whether district imposes well setback/location restrictions (property lines, buildings, septic systems, contamination sources). VALUE: boolean. UNITS: null unless an explicit single distance is extracted as value. SUMMARY: include restricted reference features and any listed minimum distances."
+        },
+        "redrilling restrictions": {
+          "description": "Whether district imposes restrictions on redrilling/deepening/widening existing wells. VALUE: boolean. UNITS: null. SUMMARY: include approval triggers, technical conditions, and distinctions between maintenance and substantive redrilling."
+        }
+      }
+    },
+    "drought_and_planning": {
+      "description": "District-level and well-owner-level drought planning obligations.",
+      "properties": {
+        "district drought management plan": {
+          "description": "Whether district has a drought management/contingency plan at policy level. VALUE: boolean. UNITS: null. SUMMARY: include district drought stages, triggers, and response actions.",
+          "x-tree-key": "drought_plan"
+        },
+        "well drought management plan": {
+          "description": "Whether well owners/users/applicants must develop contingency or drought plans. VALUE: boolean. UNITS: null. SUMMARY: include who must prepare plans and required components."
+        }
+      }
+    },
+    "transfer_reporting_and_cost": {
+      "description": "Transfer restrictions, production reporting, and monetary charges.",
+      "properties": {
+        "external transfer restrictions": {
+          "description": "Restrictions or costs for transporting/exporting water outside district boundaries. VALUE: boolean indicating whether transfer restrictions/cost framework exists. UNITS: null unless encoding explicit transfer-rate value. SUMMARY: include restrictions, permit conditions, whether transfer costs exist, and any explicit cost amount/rate structure."
+        },
+        "production reporting": {
+          "description": "Requirement for reporting production/extraction volumes. VALUE: boolean. UNITS: null. SUMMARY: include reporting cadence, threshold triggers, forms, and deadlines."
+        },
+        "production cost": {
+          "description": "Production/extraction fee charged per unit water extracted (not one-time permit fee). VALUE: numeric cost when explicit, or string such as 'permit specific' / rate structure. UNITS: cost-rate units such as 'dollars/gallon' or 'dollars/acre-foot'. SUMMARY: include applicability (all users vs permit-specific) and any tiers."
+        }
+      }
+    },
+    "resource_specific": {
+      "description": "Optional resource-specific policy features present in the water-rights decision-tree set.",
+      "properties": {
+        "geothermal requirements": {
+          "description": "Whether district has requirements specific to geothermal systems. VALUE: boolean. UNITS: null. SUMMARY: include geothermal-specific requirements when present."
+        },
+        "oil and gas requirements": {
+          "description": "Whether district has requirements specific to oil and gas operations. VALUE: boolean. UNITS: null. SUMMARY: include oil-and-gas-specific provisions when present."
+        }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "feature": "permit requirements",
+      "value": true,
+      "units": null,
+      "section": "Rule 3.2 - Permit Required",
+      "summary": "'No person may drill a non-exempt well without first obtaining a permit from the District.' Exempt domestic wells are listed separately under Rule 3.5."
+    },
+    {
+      "feature": "annual extraction limits",
+      "value": 2,
+      "units": "acre-feet/year",
+      "section": "Rule 8.1 - Production Limits",
+      "summary": "The district sets an explicit annual production cap of '2 acre-feet per acre per year' for this permit class; text also notes permit-specific adjustments by aquifer conditions."
+    },
+    {
+      "feature": "well spacing",
+      "value": 500,
+      "units": "feet",
+      "section": "Rule 8.4 - Well Spacing",
+      "summary": "'A new non-exempt well must be at least 500 feet from any existing non-exempt well.' Reduced spacing may be allowed for low-capacity wells below stated gpm threshold."
+    },
+    {
+      "feature": "production cost",
+      "value": "permit specific",
+      "units": "dollars/acre-foot",
+      "section": "Fee Schedule - Production Fees",
+      "summary": "Production fees are assessed by permit class and use category rather than one universal rate; schedule provides tiered dollar-per-acre-foot charges."
+    }
+  ],
+  "$instructions": {
+    "general": [
+      "Extract only enacted district requirements, not proposed language or general background text.",
+      "Use direct excerpts/quotes in summary whenever possible.",
+      "If a feature has no requirement, set value, units, section, and summary to null or omit the feature row.",
+      "When multiple values exist for one feature, choose the value applicable to the primary general rule and describe alternatives/conditions in summary.",
+      "Preserve distinctions between drilling permits, extraction permits, transfer permits, and reporting obligations.",
+      "Do not convert one-time application fees into production or transfer rate values."
+    ],
+    "boolean_features": [
+      "Use value=true only when text clearly establishes that the requirement/policy exists.",
+      "Use value=false only when text clearly states it is not required or not implemented.",
+      "If the text is ambiguous, use null and explain ambiguity in summary."
+    ],
+    "numeric_and_units": [
+      "For extraction limits, ensure units include interval context (daily/monthly/annual).",
+      "For spacing and drilling window values, extract explicit numbers and corresponding units from text.",
+      "For cost features, preserve explicit rate units (for example, dollars per gallon, dollars per acre-foot).",
+      "For permit-specific or tiered values where a single number is not valid, use a descriptive string value and capture details in summary."
+    ],
+    "scope_filters": [
+      "For well spacing, ignore distances that only reference septic systems, structures, or property lines unless the text explicitly frames them as well-to-well spacing rules.",
+      "For production cost, ignore one-time filing/application fees unless the tree logic explicitly treats them as production cost.",
+      "For external transfer restrictions, focus on export/transport outside district boundaries and related permit/cost terms."
+    ]
+  },
+  "$qualitative_features": [
+      "permit requirements",
+      "extraction permit requirements",
+      "metering device",
+      "district drought management plan",
+      "well drought management plan",
+      "plugging requirements",
+      "external transfer restrictions",
+      "production reporting",
+      "setback restrictions",
+      "redrilling restrictions",
+      "geothermal requirements",
+      "oil and gas requirements"
+  ]
+}
