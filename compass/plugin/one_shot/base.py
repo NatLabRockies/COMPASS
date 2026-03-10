@@ -140,6 +140,9 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
     if isinstance(config["schema"], str):
         config["schema"] = load_config(config["schema"])
 
+    config["qual_feats"] = {
+        f.casefold() for f in config["schema"].pop("$qualitative_features", [])
+    }
     text_collectors = _collectors_from_config(config)
     text_extractors = _extractors_from_config(
         config, in_label=text_collectors[-1].OUT_LABEL, tech=tech
@@ -467,6 +470,7 @@ def _parser_from_config(config, in_label):
         IN_LABEL = in_label
         OUT_LABEL = "structured_data"
         SCHEMA = config["schema"]
+        QUALITATIVE_FEATURES = config["qual_feats"]
         DATA_TYPE_SHORT_DESC = config.get("data_type_short_desc")
         SYSTEM_PROMPT = new_sys_prompt
 
