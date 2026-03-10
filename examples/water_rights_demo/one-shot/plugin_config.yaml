@@ -1,0 +1,36 @@
+schema: ./water_rights_schema.json5
+
+data_type_short_desc: water rights and regulations
+
+allow_multi_doc_extraction: True  # Important for water rights!
+
+query_templates:
+  - "{jurisdiction} rules"
+  - "{jurisdiction} management plan"
+  - "{jurisdiction} well permits"
+  - "{jurisdiction} well permit requirements"
+  - "requirements to drill a water well in {jurisdiction}"
+
+website_keywords:
+  pdf: 92160
+  water: 46080
+  rights: 23040
+  zoning: 11520
+  ordinance: 5760
+  renewable energy: 1440
+  planning: 720
+  plan: 360
+  government: 180
+  code: 60
+  area: 60
+  land development: 15
+  land: 3
+  environment: 3
+  energy: 3
+  renewable: 3
+  municipal: 1
+  department: 1
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from wind energy ordinances.
+  Follow all instructions in the schema descriptions carefully.
