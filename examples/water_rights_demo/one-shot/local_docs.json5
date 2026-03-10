@@ -1,0 +1,22 @@
+{
+    "64": [
+        {
+            "source_fp": "./existing_docs/Panola County District Management Plan.pdf",
+            "source": "https://www.twdb.texas.gov/groundwater/docs/GCD/pcgcd/pcgcd_mgmt_plan2023.pdf",
+            "date": [2023, 4, 27],  // [year, month, day] - Skips date extraction if given
+            "check_if_legal_doc": false, // Skip legal doc check
+
+            // Optional metadata fields - not required but can be helpful for metadata in the run output
+            "from_ocr": true,
+        },
+        {
+            "source_fp": "./existing_docs/Panola County District Rules.pdf",
+            "source": "https://www.beg.utexas.edu/files/content/beg/research/swr/mgmtplans/PANOLA_CNTY_GCD_RULES.pdf",
+            "date": [2009, 1, 20],  // [year, month, day] - Skips date extraction if given
+            "check_if_legal_doc": false, // Skip legal doc check
+
+            // Optional metadata fields - not required but can be helpful for metadata in the run output
+            "from_ocr": false,
+        },
+    ],
+}
