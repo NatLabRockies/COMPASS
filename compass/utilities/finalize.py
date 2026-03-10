@@ -319,7 +319,7 @@ def compile_run_summary_message(
     return (
         f"✅ Scraping complete!\nOutput Directory: {out_dir}\n"
         f"Total runtime: {runtime} {total_cost}\n"
-        f"Number of documents found: {document_count}"
+        f"Number of jurisdictions with extracted data: {document_count}"
     )
 
 

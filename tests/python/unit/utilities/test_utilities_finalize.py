@@ -373,7 +373,7 @@ def test_compile_run_summary_message_includes_cost(tmp_path):
     assert "Total runtime: 1:01:01" in message
     assert "Total cost" in message
     assert "$42.50" in message
-    assert "Number of documents found: 3" in message
+    assert "Number of jurisdictions with extracted data: 3" in message
 
 
 def test_compile_run_summary_message_without_cost(tmp_path):
