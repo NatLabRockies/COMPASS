@@ -1,9 +1,9 @@
-*****************************************
-INFRA-COMPASS Texas Water Rights Demo Run
-*****************************************
+**************************************************
+INFRA-COMPASS Texas Water Rights RAG-Based Example
+**************************************************
 
 This directory contains an example configuration for extracting groundwater rights
-for several districtis in Texas. To execute this run, fill out the confg file with
+for several districts in Texas. To execute this run, fill out the config file with
 the appropriate paths and API keys, then run the following command:
 
 .. code-block:: shell
