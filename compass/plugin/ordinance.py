@@ -4,7 +4,6 @@ import asyncio
 import logging
 from warnings import warn
 from textwrap import dedent
-from numbers import Integral
 from itertools import chain
 from functools import cached_property, partial
 from abc import ABC, abstractmethod
@@ -35,7 +34,10 @@ from compass.utilities.parsing import (
 )
 from compass.utilities import num_ordinances_dataframe
 from compass.warn import COMPASSWarning
-from compass.exceptions import COMPASSPluginConfigurationError
+from compass.exceptions import (
+    COMPASSPluginConfigurationError,
+    COMPASSRuntimeError,
+)
 from compass.pb import COMPASS_PB
 
 
@@ -1103,25 +1105,23 @@ async def _fill_out_multi_file_sources(
     If the source inds are all valid, each row in the dataframe gets its
     own unique source and year combo.
     """
-    if "source" not in data_df.columns:
-        return await _fill_in_all_sources(
-            data_df, extraction_context, out_fn_stem
+    try:
+        source_inds = _get_source_inds(
+            data_df, extraction_context.num_documents
         )
-
-    source_inds = data_df["source"].dropna().unique()
-    if _any_inds_invalid(source_inds, extraction_context.num_documents):
+    except COMPASSRuntimeError:
         return await _fill_in_all_sources(
             data_df, extraction_context, out_fn_stem
         )
 
     year_map = {}
     source_map = {}
-    for source_ind in map(int, source_inds):
-        doc = source_ind[source_ind]
+    for source_ind in source_inds:
+        doc = extraction_context[source_ind]
         year_map[source_ind] = extract_year_from_doc_attrs(doc.attrs)
         source_map[source_ind] = doc.attrs.get("source")
         await extraction_context.mark_doc_as_data_source(
-            doc, out_fn_stem=out_fn_stem
+            doc, out_fn_stem=f"{out_fn_stem}_{source_ind + 1}"
         )
 
     data_df["year"] = data_df["source"].map(
@@ -1138,23 +1138,34 @@ async def _fill_out_multi_file_sources(
     return data_df
 
 
-def _any_inds_invalid(source_inds, num_docs):
-    """Check if any of the document indices are invalid"""
-    has_invalid_inds = any(
-        not isinstance(source_ind, Integral) for source_ind in source_inds
-    )
+def _get_source_inds(data_df, num_docs):
+    """Try to extract source document indices"""
+    if "source" not in data_df.columns:
+        msg = "'source' column not found in extracted outputs"
+        raise COMPASSRuntimeError(msg)
 
-    if not has_invalid_inds:
-        # Check for invalid indices
-        has_invalid_inds = any(
-            source_ind < 0 or source_ind >= num_docs
-            for source_ind in source_inds
-        )
+    try:
+        source_inds = data_df["source"].dropna().unique().astype(int)
+    except TypeError:
+        msg = "'source' column contains non-integer values"
+        raise COMPASSRuntimeError(msg) from None
 
-    return has_invalid_inds
+    if any(
+        source_ind < 0 or source_ind >= num_docs for source_ind in source_inds
+    ):
+        msg = "'source' column contains out-of-bounds indices"
+        raise COMPASSRuntimeError(msg)
+
+    return source_inds
 
 
 async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
+    """Fill in source and year columns using all sources"""
+    logger.debug(
+        "Filling in sources using all %d documents in context due to "
+        "invalid or missing source indices",
+        extraction_context.num_documents,
+    )
     all_sources = filter(
         None, [doc.attrs.get("source") for doc in extraction_context]
     )
@@ -1167,9 +1178,9 @@ async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
     )
     data_df["year"] = max(years) if years else None
 
-    for doc in extraction_context:
+    for ind, doc in enumerate(extraction_context, start=1):
         await extraction_context.mark_doc_as_data_source(
-            doc, out_fn_stem=out_fn_stem
+            doc, out_fn_stem=f"{out_fn_stem}_{ind}"
         )
 
     return data_df
