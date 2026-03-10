@@ -80,22 +80,23 @@ at extraction time. This approach allows you to encode complex edge case handlin
 logic without having to write any code, and it also allows you to easily update
 the logic by simply editing the schema.
 
-If your schema contains a ``qualitative_restrictions`` key within the ``$definitions``,
-the ``properties`` of the ``qualitative_restrictions`` will be marked as qualitative
-outputs and the outputs will be separated correspondingly in the final output. Note
-that qualitative outputs are expected to only contain extracted data in the ``summary``
-field. The ``value`` and ``units`` fields for qualitative outputs will be dropped
-from the output.
-
 The schema also includes a ``$examples`` key with example extractions that the model
 can refer to when deciding how to parse the text. You can be as detailed as you want
 in these instructions, and you can experiment with different outputs to tune the
 model's understanding of the task and the desired output format.
 
-Finally, the same schema includes a ``$instructions`` key with general instructions
+The same schema includes a ``$instructions`` key with general instructions
 for the model to follow when parsing the text. This is a good place to reinforce the
 importance of following the schema and to provide any additional context that might be
 helpful for the model to know when performing the extraction.
+
+Finally, the schema contains an (optional) ``$qualitative_features`` key, which is
+that contains a subset of the features defined in the schema. This list tells COMPASS
+to categorize these features as "qualitative", which means that they are expected to
+only contain textual summaries in the ``summary`` field of the output, and that the
+``value`` and ``units`` fields for these features can be ignored and should (will) be
+dropped from the final output. This input is not shown to the LLM, so the LLM response
+will not be influenced by this key.
 
 You can add or remove as many of these extra keys as you want, and you can experiment with
 different ways of encoding the instructions and examples to see what works best for your
