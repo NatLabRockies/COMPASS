@@ -1104,11 +1104,15 @@ async def _fill_out_multi_file_sources(
     own unique source and year combo.
     """
     if "source" not in data_df.columns:
-        return _fill_in_all_sources(data_df, extraction_context, out_fn_stem)
+        return await _fill_in_all_sources(
+            data_df, extraction_context, out_fn_stem
+        )
 
     source_inds = data_df["source"].dropna().unique()
     if _any_inds_invalid(source_inds, extraction_context.num_documents):
-        return _fill_in_all_sources(data_df, extraction_context, out_fn_stem)
+        return await _fill_in_all_sources(
+            data_df, extraction_context, out_fn_stem
+        )
 
     year_map = {}
     source_map = {}
@@ -1135,6 +1139,7 @@ async def _fill_out_multi_file_sources(
 
 
 def _any_inds_invalid(source_inds, num_docs):
+    """Check if any of the document indices are invalid"""
     has_invalid_inds = any(
         not isinstance(source_ind, Integral) for source_ind in source_inds
     )
@@ -1150,10 +1155,10 @@ def _any_inds_invalid(source_inds, num_docs):
 
 
 async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
-    all_sources = [doc.attrs.get("source") for doc in extraction_context]
-    all_sources = [source for source in all_sources if source is not None]
-    concat_sources = " ;".join(all_sources) if all_sources else None
-
+    all_sources = filter(
+        None, [doc.attrs.get("source") for doc in extraction_context]
+    )
+    concat_sources = " ;\n".join(all_sources) if all_sources else None
     data_df["source"] = concat_sources
 
     years = filter(
