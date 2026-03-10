@@ -17,7 +17,7 @@ pub(super) struct QualitativeRecord {
     FIPS: u64,
     feature: String,
     summary: String,
-    ord_year: Option<u32>,
+    year: Option<u32>,
     section: Option<String>,
     source: Option<String>,
 }
@@ -40,7 +40,7 @@ impl Qualitative {
               FIPS UBIGINT,
               feature TEXT,
               summary TEXT,
-              ord_year INTEGER,
+              year INTEGER,
               section TEXT,
               source TEXT
             );",
@@ -103,7 +103,7 @@ impl Qualitative {
             .prepare(
                 r"INSERT INTO qualitative
             (bookkeeper_lnk, county, state, subdivison,
-            jurisdiction_type, FIPS, feature, summary, ord_year,
+            jurisdiction_type, FIPS, feature, summary, year,
             section, source)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )
             ",
@@ -121,7 +121,7 @@ impl Qualitative {
                 record.FIPS,
                 record.feature,
                 record.summary,
-                record.ord_year,
+                record.year,
                 record.section,
                 record.source,
             ])?;
@@ -140,7 +140,7 @@ pub(crate) mod sample {
 
     pub(crate) fn basic() -> String {
         let mut output = String::new();
-        output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,summary,ord_year,section,source\n");
+        output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,summary,year,section,source\n");
         output.push_str(
             "county-1,state-1,,jurisdiction_type-1,11111,feature-1,summary-1,2001,section-1,source-1\n",
         );

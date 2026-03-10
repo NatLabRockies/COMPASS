@@ -57,17 +57,34 @@ def test_extraction_context_text_empty():
 def test_extraction_context_text_single_doc():
     """Test text property with single document"""
     doc = PDFDocument(["page one", "page two"])
+    doc.attrs["year"] = 2024
+    doc.attrs["source"] = "single_doc.pdf"
     ctx = ExtractionContext(doc)
-    assert ctx.text == "page one\npage two"
+    expected = (
+        "## MULTI-DOCUMENT CONTEXT ##"
+        "\n\n"
+        "# SOURCE INDEX #: 0"
+        "\n"
+        "# CONTENT #:\npage one\npage two"
+    )
+    assert ctx.text == expected
 
 
 def test_extraction_context_text_multiple_docs():
     """Test text property concatenates multiple documents"""
     doc1 = PDFDocument(["doc1 page1", "doc1 page2"])
+    doc1.attrs["year"] = 2020
+    doc1.attrs["source"] = "doc1.pdf"
     doc2 = HTMLDocument(["<p>doc2 content</p>"])
+    doc2.attrs["year"] = 2021
+    doc2.attrs["source"] = "doc2.html"
     ctx = ExtractionContext([doc1, doc2])
-    expected = "doc1 page1\ndoc1 page2\n\ndoc2 content\n\n"
-    assert ctx.text == expected
+    text = ctx.text
+    assert "## MULTI-DOCUMENT CONTEXT ##" in text
+    assert "# SOURCE INDEX #: 0" in text
+    assert "# CONTENT #:\ndoc1 page1\ndoc1 page2" in text
+    assert "# SOURCE INDEX #: 1" in text
+    assert f"# CONTENT #:\n{doc2.text}" in text
 
 
 def test_extraction_context_pages_empty():
@@ -314,6 +331,43 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
 
     assert result is doc
     assert doc.attrs["out_fp"] == output_path
+
+
+def test_multi_doc_context():
+    """Test multi_doc_context"""
+    doc1 = PDFDocument(["doc 1"])
+    doc1.attrs["source"] = "doc1.pdf"
+    doc2 = PDFDocument(["doc 2"])
+    doc2.attrs["source"] = "doc2.pdf"
+    ctx = ExtractionContext([doc1, doc2], attrs={"existing": "keep"})
+
+    combined_text = ctx.multi_doc_context()
+
+    assert ctx.attrs["existing"] == "keep"
+    assert combined_text == ctx.text
+    assert ctx.data_docs == []
+    assert "out_fp" not in doc1.attrs
+    assert "out_fp" not in doc2.attrs
+
+
+def test_multi_doc_context_with_attr_text_key():
+    """Test multi_doc_context with attr_text_key"""
+    doc1 = PDFDocument(["doc 1 full text"])
+    doc1.attrs["source"] = "doc1.pdf"
+    doc1.attrs["summary"] = "doc 1 summary"
+    doc2 = PDFDocument(["doc 2 full text"])
+    doc2.attrs["source"] = "doc2.pdf"
+    doc2.attrs["summary"] = "doc 2 summary"
+    ctx = ExtractionContext([doc1, doc2])
+
+    combined_text = ctx.multi_doc_context(attr_text_key="summary")
+
+    assert "# SOURCE INDEX #: 0" in combined_text
+    assert "# SOURCE INDEX #: 1" in combined_text
+    assert "# CONTENT #:\ndoc 1 summary" in combined_text
+    assert "# CONTENT #:\ndoc 2 summary" in combined_text
+    assert "doc 1 full text" not in combined_text
+    assert "doc 2 full text" not in combined_text
 
 
 @pytest.mark.parametrize(

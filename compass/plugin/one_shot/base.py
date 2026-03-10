@@ -123,6 +123,11 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               may provide a custom system prompt if you want to provide
               more specific instructions to the LLM for the structured
               data extraction step.
+            - `allow_multi_doc_extraction`: Boolean flag indicating
+              whether to allow multiple documents to be used for the
+              extraction context simultaneously. By default, ``False``,
+              which means the first document that returns some extracted
+              data will be marked as the source.
 
     tech : str
         Technology identifier to use for the plugin (e.g., "wind",
@@ -135,6 +140,9 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
     if isinstance(config["schema"], str):
         config["schema"] = load_config(config["schema"])
 
+    config["qual_feats"] = {
+        f.casefold() for f in config["schema"].pop("$qualitative_features", [])
+    }
     text_collectors = _collectors_from_config(config)
     text_extractors = _extractors_from_config(
         config, in_label=text_collectors[-1].OUT_LABEL, tech=tech
@@ -146,6 +154,11 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
     class SchemaBasedExtractionPlugin(OrdinanceExtractionPlugin):
         SCHEMA = config["schema"]
         """dict: Schema for the output of the text extraction step"""
+
+        ALLOW_MULTI_DOC_EXTRACTION = config.get(
+            "allow_multi_doc_extraction", False
+        )
+        """bool: Whether to allow extraction over multiple documents"""
 
         IDENTIFIER = tech
         """str: Identifier for extraction task """
@@ -166,7 +179,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         """Classes for parsing structured ordinance data from text"""
 
         QUERY_TEMPLATES = []  # set by user or LLM-generated
-        """List: List of search engine query templates"""
+        """list: List of search engine query templates"""
 
         WEBSITE_KEYWORDS = {}  # set by user or LLM-generated
         """dict: Keyword weight mapping for link crawl prioritization"""
@@ -459,6 +472,7 @@ def _parser_from_config(config, in_label):
         IN_LABEL = in_label
         OUT_LABEL = "structured_data"
         SCHEMA = config["schema"]
+        QUALITATIVE_FEATURES = config["qual_feats"]
         DATA_TYPE_SHORT_DESC = config.get("data_type_short_desc")
         SYSTEM_PROMPT = new_sys_prompt
 

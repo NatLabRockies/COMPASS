@@ -302,6 +302,12 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         """dict: Extraction schema"""
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def QUALITATIVE_FEATURES(self):  # noqa: N802
+        """set: **Lowercase** feature names of qualitative features"""
+        raise NotImplementedError
+
     async def parse(self, text):
         """Parse text and extract structured data
 
@@ -352,12 +358,10 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         output_items = self.SCHEMA["properties"]["outputs"]["items"]
         all_features = output_items["properties"]["feature"]["enum"]
 
-        known_qual_features = set(
-            self.SCHEMA.get("$definitions", {})
-            .get("qualitative_restrictions", {})
-            .get("properties", {})
-        )
-        quant = [feat not in known_qual_features for feat in all_features]
+        quant = [
+            feat.casefold() not in self.QUALITATIVE_FEATURES
+            for feat in all_features
+        ]
 
         df = pd.DataFrame(data)
         full_df = pd.DataFrame(
@@ -365,6 +369,13 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         full_df = full_df.merge(df, on="feature", how="left")
 
-        return full_df[
-            ["feature", "value", "units", "section", "summary", "quantitative"]
+        possible_out_cols = [
+            "value",
+            "units",
+            "summary",
+            "year",
+            "section",
+            "source",
         ]
+        out_cols = [col for col in possible_out_cols if col in full_df.columns]
+        return full_df[["feature", *out_cols, "quantitative"]]

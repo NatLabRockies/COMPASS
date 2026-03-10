@@ -40,7 +40,7 @@ class ExtractionContext:
     @property
     def text(self):
         """str: Concatenated text from all documents"""
-        return "\n\n".join(doc.text for doc in self.documents)
+        return self.multi_doc_context()
 
     @property
     def pages(self):
@@ -124,6 +124,38 @@ class ExtractionContext:
         if out_fn_stem is not None:
             await _move_file_to_out_dir(doc, out_fn_stem)
 
+    def multi_doc_context(self, attr_text_key=None):
+        """Get concatenated text representation of documents
+
+        This method creates a concatenated text representation of the
+        documents in this context, optionally pulling the text from the
+        documents' `attr_text_key`.
+
+        Parameters
+        ----------
+        attr_text_key : str, optional
+            The key used to look up the document's `.attrs` dictionary
+            for the text to concatenate. If ``None``, the full document
+            text is used for concatenation.
+
+        Returns
+        -------
+        str
+            Concatenated text representation of the documents in this
+            context.
+        """
+        if not self.documents:
+            return ""
+
+        serialized = "\n\n".join(
+            (
+                f"# SOURCE INDEX #: {ind}\n"
+                f"# CONTENT #:\n{_text_from_doc(doc, attr_text_key)}"
+            )
+            for ind, doc in enumerate(self.documents)
+        )
+        return f"## MULTI-DOCUMENT CONTEXT ##\n\n{serialized}"
+
 
 async def _move_file_to_out_dir(doc, out_fn):
     """Move PDF or HTML text file to output directory"""
@@ -178,3 +210,8 @@ def _attrs_repr(attrs):
 
     attrs = "\n".join(to_join)
     return f"Attrs:\n{attrs}"
+
+
+def _text_from_doc(doc, key):
+    """Get text from key or full doc"""
+    return doc.text if key is None else doc.attrs[key]

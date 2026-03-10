@@ -61,7 +61,6 @@ extensions = [
 
 intersphinx_mapping = {
     "elm": ("https://natlabrockies.github.io/elm", None),
-    "lc": ("https://reference.langchain.com/python/", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
@@ -369,8 +368,8 @@ napoleon_type_aliases = {
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
     # Langchain
-    "LCTextSplitter": ":class:`~langchain_text_splitters.base.TextSplitter`",
-    "RCTextSplitter": ":class:`~langchain_text_splitters.character.RecursiveCharacterTextSplitter`",
+    "LCTextSplitter": "`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_",
+    "RCTextSplitter": "`RecursiveCharacterTextSplitter <https://reference.langchain.com/python/langchain-text-splitters/character/RecursiveCharacterTextSplitter>`_",
     # fixing ELM docstrings
     "nx.DiGraph": ":class:`networkx.DiGraph`",
     "ApiBase": ":class:`~elm.base.ApiBase`",
