@@ -122,7 +122,9 @@ def save_run_meta(
     }
     for name, file_path in manifest.items():
         if file_path.exists():
-            meta_data["manifest"][name] = str(file_path.relative_to(dirs.out))
+            meta_data["manifest"][name] = str(
+                file_path.relative_to(dirs.out, walk_up=True)
+            )
         else:
             meta_data["manifest"][name] = None
 
