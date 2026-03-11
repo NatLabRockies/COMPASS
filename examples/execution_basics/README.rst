@@ -64,6 +64,13 @@ To override this default, add a ``model`` key to your config:
     "model": "gpt-4o-mini"
 
 
+.. IMPORTANT::
+    You will need to update the model name to match your deployment if you are using Azure OpenAI.
+    For example, if you deployed the GPT-4o-mini model under the name ``"gpt-4o-mini-2025-04-11"``,
+    you would set ``"model": "gpt-4o-mini-2025-04-11"`` in the COMPASS config (along with the
+    deployment endpoint, version, and API key).
+
+
 Typical Config
 --------------
 In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.

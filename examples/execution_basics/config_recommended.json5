@@ -5,7 +5,8 @@
     "jurisdiction_fp": "jurisdictions.csv",
     "model": [
         {
-            "name": "gpt-4o-mini",
+            // make sure the model name matches your Azure deployment model name!
+            "name": "deployment-gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,
                 "timeout": 300
@@ -15,8 +16,8 @@
             "text_splitter_chunk_overlap": 500,
             "client_kwargs": {
                 // default client is Azure OpenAI
-                "azure_api_key": "<ADD AZURE OPENAI API KEY HERE>",
-                "azure_version": "<ADD AZURE OPENAI VERSION HERE>",
+                "api_key": "<ADD AZURE OPENAI API KEY HERE>",
+                "api_version": "<ADD AZURE OPENAI VERSION HERE>",
                 "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
             },
         },
