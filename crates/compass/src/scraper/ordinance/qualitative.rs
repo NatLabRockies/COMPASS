@@ -140,7 +140,9 @@ pub(crate) mod sample {
 
     pub(crate) fn basic() -> String {
         let mut output = String::new();
-        output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,summary,year,section,source\n");
+        output.push_str(
+            "county,state,subdivison,jurisdiction_type,FIPS,feature,summary,year,section,source\n"
+        );
         output.push_str(
             "county-1,state-1,,jurisdiction_type-1,11111,feature-1,summary-1,2001,section-1,source-1\n",
         );
