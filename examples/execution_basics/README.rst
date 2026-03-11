@@ -56,12 +56,12 @@ Your LLM credentials and endpoints should be configured as environment variables
 
 **LLM Model Defaults**
 
-This minimal setup uses the default LLM model for INFRA-COMPASS — ``gpt-4o`` as of April 11, 2025.
+This minimal setup uses the default LLM model for INFRA-COMPASS — ``gpt-4o-mini`` as of March 11, 2026.
 To override this default, add a ``model`` key to your config:
 
 .. code-block:: json
 
-    "model": "gpt-4o-mini"
+    "model": "gpt-4o"
 
 
 .. IMPORTANT::
