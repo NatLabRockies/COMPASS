@@ -5,6 +5,7 @@
     "jurisdiction_fp": "jurisdictions.csv",
     "model": [
         {
+            // make sure the model name matches your Azure deployment model name!
             "name": "deployment-gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,
@@ -25,6 +26,7 @@
             "tasks": "default",
         },
         {
+            // make sure the model name matches your Azure deployment model name!
             "name": "deployment-gpt-4o",
             "llm_call_kwargs":{
                 "temperature": 0,
@@ -48,6 +50,8 @@
             ]
         },
         {
+            // client type is "openai" below (not "azure"),
+            // so we use standard model names (not deployment-specific)
             "name": "gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,

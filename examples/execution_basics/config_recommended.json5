@@ -5,7 +5,8 @@
     "jurisdiction_fp": "jurisdictions.csv",
     "model": [
         {
-            "name": "gpt-4o-mini",
+            // make sure the model name matches your Azure deployment model name!
+            "name": "deployment-gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,
                 "timeout": 300
