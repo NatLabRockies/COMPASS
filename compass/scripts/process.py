@@ -520,6 +520,7 @@ class _COMPASSRunner:
         """dict: Keyword arguments for ``AsyncLocalFileLoader``"""
         file_loader_kwargs = {
             "pdf_read_coroutine": read_pdf_file,
+            "html_read_coroutine": read_html_file,
             "pdf_read_kwargs": (
                 self.file_loader_kwargs.get("pdf_read_kwargs")
             ),
