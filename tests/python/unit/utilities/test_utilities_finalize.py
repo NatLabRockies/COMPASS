@@ -203,10 +203,14 @@ def test_save_run_meta_manifest_walks_up_for_sibling_dirs(
     )
 
     manifest = _manifest_for_dirs(dirs, monkeypatch)
-    assert manifest["LOG_DIR"] == "../logs"
-    assert manifest["CLEAN_FILE_DIR"] == "../clean"
-    assert manifest["JURISDICTION_DBS_DIR"] == "../jurisdiction_dbs"
-    assert manifest["ORDINANCE_FILES_DIR"] == "../ordinance_files"
+    assert manifest["LOG_DIR"] == os.path.relpath(logs, out_dir)
+    assert manifest["CLEAN_FILE_DIR"] == os.path.relpath(clean_files, out_dir)
+    assert manifest["JURISDICTION_DBS_DIR"] == os.path.relpath(
+        jurisdiction_dbs, out_dir
+    )
+    assert manifest["ORDINANCE_FILES_DIR"] == os.path.relpath(
+        ordinance_files, out_dir
+    )
 
 
 def test_save_run_meta_manifest_walks_up_two_levels(tmp_path, monkeypatch):
