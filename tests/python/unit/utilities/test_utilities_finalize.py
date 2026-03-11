@@ -1,6 +1,8 @@
 """Test COMPASS finalize utilities"""
 
+import os
 import json
+import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 from types import SimpleNamespace
@@ -9,6 +11,28 @@ import pandas as pd
 import pytest
 
 from compass.utilities import finalize
+
+
+def _manifest_for_dirs(dirs, monkeypatch):
+    """Run save_run_meta and return serialized manifest"""
+
+    monkeypatch.setattr(finalize.getpass, "getuser", lambda: "testuser")
+    start = datetime(2025, 1, 1, 12, 0, 0)
+    end = start + timedelta(seconds=1)
+
+    finalize.save_run_meta(
+        dirs,
+        "wind",
+        start,
+        end,
+        num_jurisdictions_searched=1,
+        num_jurisdictions_found=1,
+        total_cost=None,
+        models={},
+    )
+
+    meta = json.loads((dirs.out / "meta.json").read_text(encoding="utf-8"))
+    return meta["manifest"]
 
 
 class DummyModelConfig:
@@ -92,7 +116,7 @@ def test_save_run_meta_writes_meta_file(tmp_path, monkeypatch):
     assert meta["technology"] == "wind"
     assert meta["total_time"] == 3723
     assert meta["total_time_string"] == str(end - start)
-    assert meta["cost"] == 12.34
+    assert meta["cost"] == 12.34  # noqa
 
     manifest = meta["manifest"]
     assert manifest["LOG_DIR"] == "logs"
@@ -147,6 +171,208 @@ def test_save_run_meta_handles_getuser_error(tmp_path, monkeypatch):
     assert meta["cost"] is None
     assert meta["manifest"]["LOG_DIR"] is None
     assert meta["models"] == []
+
+
+def test_save_run_meta_manifest_walks_up_for_sibling_dirs(
+    tmp_path, monkeypatch
+):
+    """Manifest paths include walk-up segments for sibling directories"""
+
+    run_root = tmp_path / "run"
+    out_dir = run_root / "outputs"
+    logs = run_root / "logs"
+    clean_files = run_root / "clean"
+    jurisdiction_dbs = run_root / "jurisdiction_dbs"
+    ordinance_files = run_root / "ordinance_files"
+
+    for path in (
+        out_dir,
+        logs,
+        clean_files,
+        jurisdiction_dbs,
+        ordinance_files,
+    ):
+        path.mkdir(parents=True, exist_ok=True)
+
+    dirs = SimpleNamespace(
+        logs=logs,
+        clean_files=clean_files,
+        jurisdiction_dbs=jurisdiction_dbs,
+        ordinance_files=ordinance_files,
+        out=out_dir,
+    )
+
+    manifest = _manifest_for_dirs(dirs, monkeypatch)
+    assert manifest["LOG_DIR"] == "../logs"
+    assert manifest["CLEAN_FILE_DIR"] == "../clean"
+    assert manifest["JURISDICTION_DBS_DIR"] == "../jurisdiction_dbs"
+    assert manifest["ORDINANCE_FILES_DIR"] == "../ordinance_files"
+
+
+def test_save_run_meta_manifest_walks_up_two_levels(tmp_path, monkeypatch):
+    """Manifest handles directories two levels above output directory"""
+
+    run_root = tmp_path / "run"
+    out_dir = run_root / "outputs" / "current"
+    logs = run_root / "logs"
+    clean_files = out_dir / "clean"
+    jurisdiction_dbs = out_dir / "dbs"
+    ordinance_files = out_dir / "ordinances"
+
+    for path in (
+        out_dir,
+        logs,
+        clean_files,
+        jurisdiction_dbs,
+        ordinance_files,
+    ):
+        path.mkdir(parents=True, exist_ok=True)
+
+    dirs = SimpleNamespace(
+        logs=logs,
+        clean_files=clean_files,
+        jurisdiction_dbs=jurisdiction_dbs,
+        ordinance_files=ordinance_files,
+        out=out_dir,
+    )
+
+    manifest = _manifest_for_dirs(dirs, monkeypatch)
+    assert manifest["LOG_DIR"] == os.path.relpath(logs, out_dir)
+
+
+def test_save_run_meta_manifest_handles_nested_output_paths(
+    tmp_path, monkeypatch
+):
+    """Manifest uses in-tree relative paths for nested directories"""
+
+    out_dir = tmp_path / "run" / "outputs"
+    logs = out_dir / "level_one" / "level_two"
+    clean_files = out_dir / "clean"
+    jurisdiction_dbs = out_dir / "dbs"
+    ordinance_files = out_dir / "ordinances"
+
+    for path in (
+        out_dir,
+        logs,
+        clean_files,
+        jurisdiction_dbs,
+        ordinance_files,
+    ):
+        path.mkdir(parents=True, exist_ok=True)
+
+    dirs = SimpleNamespace(
+        logs=logs,
+        clean_files=clean_files,
+        jurisdiction_dbs=jurisdiction_dbs,
+        ordinance_files=ordinance_files,
+        out=out_dir,
+    )
+
+    manifest = _manifest_for_dirs(dirs, monkeypatch)
+    assert manifest["LOG_DIR"] == os.path.relpath(logs, out_dir)
+
+
+def test_save_run_meta_manifest_handles_external_directory(
+    tmp_path, monkeypatch
+):
+    """Manifest can serialize paths outside output tree"""
+
+    out_dir = tmp_path / "run" / "outputs"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    with tempfile.TemporaryDirectory(prefix="compass-external-") as ext_root:
+        external_logs = Path(ext_root) / "logs"
+        external_logs.mkdir()
+        clean_files = out_dir / "clean"
+        jurisdiction_dbs = out_dir / "dbs"
+        ordinance_files = out_dir / "ordinances"
+        for path in (clean_files, jurisdiction_dbs, ordinance_files):
+            path.mkdir(parents=True, exist_ok=True)
+
+        dirs = SimpleNamespace(
+            logs=external_logs,
+            clean_files=clean_files,
+            jurisdiction_dbs=jurisdiction_dbs,
+            ordinance_files=ordinance_files,
+            out=out_dir,
+        )
+
+        manifest = _manifest_for_dirs(dirs, monkeypatch)
+        assert manifest["LOG_DIR"] == os.path.relpath(external_logs, out_dir)
+
+
+def test_save_run_meta_manifest_handles_root_only_shared_component(
+    monkeypatch,
+):
+    """Manifest handles paths that share only the filesystem root"""
+
+    roots = [Path("/tmp"), Path("/var/tmp")]  # noqa
+    if any(not root.exists() for root in roots):
+        pytest.skip("Required temp roots are not available on this system")
+
+    if any(not os.access(root, os.W_OK | os.X_OK) for root in roots):
+        pytest.skip("Required temp roots are not writable/executable")
+
+    with (
+        tempfile.TemporaryDirectory(prefix="compass-out-", dir="/tmp") as o,
+        tempfile.TemporaryDirectory(
+            prefix="compass-ext-", dir="/var/tmp"
+        ) as e,
+    ):
+        out_dir = Path(o) / "outputs"
+        external_logs = Path(e) / "logs"
+        clean_files = out_dir / "clean"
+        jurisdiction_dbs = out_dir / "dbs"
+        ordinance_files = out_dir / "ordinances"
+
+        for path in (
+            out_dir,
+            external_logs,
+            clean_files,
+            jurisdiction_dbs,
+            ordinance_files,
+        ):
+            path.mkdir(parents=True, exist_ok=True)
+
+        out_dir_resolved = out_dir.resolve()
+        external_logs_resolved = external_logs.resolve()
+        common = os.path.commonpath(
+            [str(out_dir_resolved), str(external_logs_resolved)]
+        )
+        if common != os.path.sep:
+            pytest.skip("Could not create root-only shared path topology")
+
+        dirs = SimpleNamespace(
+            logs=external_logs,
+            clean_files=clean_files,
+            jurisdiction_dbs=jurisdiction_dbs,
+            ordinance_files=ordinance_files,
+            out=out_dir,
+        )
+
+        manifest = _manifest_for_dirs(dirs, monkeypatch)
+        assert manifest["LOG_DIR"] == os.path.relpath(external_logs, out_dir)
+
+
+def test_save_run_meta_manifest_handles_out_and_parent(tmp_path, monkeypatch):
+    """Manifest supports output directory and its parent as targets"""
+
+    out_dir = tmp_path / "run" / "outputs"
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    dirs = SimpleNamespace(
+        logs=out_dir,
+        clean_files=out_dir.parent,
+        jurisdiction_dbs=out_dir / "dbs",
+        ordinance_files=out_dir / "ordinances",
+        out=out_dir,
+    )
+    dirs.jurisdiction_dbs.mkdir(parents=True, exist_ok=True)
+    dirs.ordinance_files.mkdir(parents=True, exist_ok=True)
+
+    manifest = _manifest_for_dirs(dirs, monkeypatch)
+    assert manifest["LOG_DIR"] == "."
+    assert manifest["CLEAN_FILE_DIR"] == ".."
 
 
 def test_doc_infos_to_db_empty_input():
