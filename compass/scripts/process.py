@@ -44,6 +44,7 @@ from compass.services.threaded import (
     UsageUpdater,
     JurisdictionUpdater,
     HTMLFileLoader,
+    read_html_file,
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
@@ -520,10 +521,10 @@ class _COMPASSRunner:
         file_loader_kwargs = {
             "pdf_read_coroutine": read_pdf_file,
             "pdf_read_kwargs": (
-                self.process_kwargs.file_loader_kwargs.get("pdf_read_kwargs")
+                self.file_loader_kwargs.get("pdf_read_kwargs")
             ),
             "html_read_kwargs": (
-                self.process_kwargs.file_loader_kwargs.get("html_read_kwargs")
+                self.file_loader_kwargs.get("html_read_kwargs")
             ),
         }
 
