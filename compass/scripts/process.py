@@ -181,6 +181,13 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
                 }
             ]
 
+        .. IMPORTANT::
+            You will need to ensure that the model name used here
+            matches your deployment if you are using Azure OpenAI. For
+            example, if you deployed the GPT-4o-mini model under the
+            name ``"gpt-4o-mini-2025-04-11"``, you would want to set
+            ``"model": "gpt-4o-mini-2025-04-11"``.
+
         By default, ``"gpt-4o"``.
     num_urls_to_check_per_jurisdiction : int, optional
         Number of unique Google search result URLs to check for each

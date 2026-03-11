@@ -5,6 +5,7 @@
     "jurisdiction_fp": "jurisdictions.csv",
     "model": [
         {
+            // make sure the model name matches your Azure deployment model name!
             "name": "deployment-gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,
@@ -16,8 +17,8 @@
             "text_splitter_chunk_overlap": 500,
             "client_type": "azure",  // this is the default
             "client_kwargs": {
-                "azure_api_key": "<ADD AZURE OPENAI API KEY HERE>",
-                "azure_version": "<ADD AZURE OPENAI VERSION HERE>",
+                "api_key": "<ADD AZURE OPENAI API KEY HERE>",
+                "api_version": "<ADD AZURE OPENAI VERSION HERE>",
                 "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
             },
             // "default" has to appear as a task exactly once across
@@ -25,6 +26,7 @@
             "tasks": "default",
         },
         {
+            // make sure the model name matches your Azure deployment model name!
             "name": "deployment-gpt-4o",
             "llm_call_kwargs":{
                 "temperature": 0,
@@ -36,8 +38,8 @@
             "text_splitter_chunk_overlap": 1000,
             "client_type": "azure",  // this is the default
             "client_kwargs": {
-                "azure_api_key": "<ADD AZURE OPENAI API KEY HERE>",
-                "azure_version": "<ADD AZURE OPENAI VERSION HERE>",
+                "api_key": "<ADD AZURE OPENAI API KEY HERE>",
+                "api_version": "<ADD AZURE OPENAI VERSION HERE>",
                 "azure_endpoint": "<ADD AZURE OPENAI ENDPOINT HERE>",
             },
             "tasks": [
@@ -48,6 +50,8 @@
             ]
         },
         {
+            // client type is "openai" below (not "azure"),
+            // so we use standard model names (not deployment-specific)
             "name": "gpt-4o-mini",
             "llm_call_kwargs":{
                 "temperature": 0,
