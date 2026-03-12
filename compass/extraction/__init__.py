@@ -10,7 +10,8 @@ from .apply import (
 
 # Temporarily import to register plugins
 # Can drop once plugins register themselves
-from .wind import COMPASSWindExtractor
-from .solar import COMPASSSolarExtractor
+from .ghp import COMPASSGeoHeatPumpExtractor
 from .small_wind import COMPASSSmallWindExtractor
+from .solar import COMPASSSolarExtractor
 from .water import TexasWaterRightsExtractor
+from .wind import COMPASSWindExtractor
