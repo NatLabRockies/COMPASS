@@ -227,6 +227,7 @@
       "Use direct text excerpts and quotes in summary whenever possible.",
       "For each numerical feature, capture the most restrictive applicable value when multiple values are provided and explain alternatives in summary.",
       "If no requirement is found for a feature, omit that feature from outputs.",
+      "Never emit 'not found', 'no explicit requirement', 'none', or similar absence text in any field. Omit these features instead.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
       "Do not infer regulatory restrictions for non-definition features from definitions alone unless the text clearly creates an enforceable rule."
     ],
