@@ -1,7 +1,9 @@
 """COMPASS extraction schema-based plugin component implementations"""
 
+import json
 import asyncio
 import logging
+from datetime import datetime
 from abc import ABC, abstractmethod
 
 import pandas as pd
@@ -193,9 +195,7 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
                 "json_schema": {
                     "name": "chunk_validation",
                     "strict": True,
-                    "schema": self.OUTPUT_SCHEMA,
-                },
-            },
+            content=main_prompt,
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
         )
         logger.debug("LLM response:\n%s", json.dumps(content, indent=4))
@@ -337,9 +337,19 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             else ""
         )
 
+        todays_date = datetime.now().strftime("%B %d, %Y")
+        sys_prompt = self.SYSTEM_PROMPT.format(
+            desc=desc, schema=self.SCHEMA, todays_date=todays_date
+        )
+
+        main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)
+        logger.debug("Extracting ordinances with LLM")
+        logger.debug_to_file("\t- System Message:\n%s", sys_prompt)
+        logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
+
         extraction = await self.call(
-            sys_msg=self.SYSTEM_PROMPT.format(desc=desc),
-            content=_DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text),
+            sys_msg=sys_prompt,
+            content=main_prompt,
             response_format={
                 "type": "json_schema",
                 "json_schema": {
