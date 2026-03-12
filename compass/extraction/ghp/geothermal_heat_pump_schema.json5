@@ -8,10 +8,17 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**.",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**. Never infer, imply, or guess a requirement from related context.",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "section", "summary"],
+        "required": [
+          "feature",
+          "value",
+          "units",
+          "section",
+          "summary",
+          "explanation"
+        ],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -41,6 +48,7 @@
               "geothermal definition",
               "ghp definition",
               "licensed driller",
+              "certification",
               "screening",
               "permit",
               "inspection",
@@ -51,7 +59,7 @@
             ]
           },
           "value": {
-            "description": "The extracted ordinance value. For numerical setbacks/limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for features listed in $qualitative_features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
+            "description": "The extracted ordinance value. For numerical setbacks/limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
             "anyOf": [
               {"type": "number"},
               {"type": "string"},
@@ -68,8 +76,12 @@
             "description": "The section title or number where the requirement appears (e.g., 'SECTION 1308 – Performance / Construction Standards'). Include labels/numbers if available. Null if no section identifier is available."
           },
           "summary": {
-            "type": ["string", "null"],
-            "description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt. Do not output absence placeholders (for example, 'No explicit ... found'); omit the feature instead when no requirement is present."
+            "type": "string",
+            "description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders (for example, 'No explicit ... found'); omit the feature instead when no requirement is present."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units (or, for qualitative features, the inclusion criteria) while avoiding excluded cases. Must be a non-null, non-empty string and must not use absence placeholders."
           }
         }
       }
@@ -95,7 +107,7 @@
           "description": "Minimum required separation from building or structure foundations."
         },
         "wastewater": {
-          "description": "Minimum required separation from onsite wastewater systems, septic tanks, leach fields, cesspools, or related sanitary wastewater infrastructure. Do not treat stormwater-only facilities as wastewater unless ordinance text explicitly does so."
+          "description": "Minimum required separation from **any** wastewater-related infrastructure, including: (a) traditional onsite systems such as septic tanks, aerobic/holding tanks, leach fields, subsurface sewage disposal systems, elevated sand mounds, sewage seepage pits, and cesspools; and (b) land-application wastewater such as spray irrigation sites, sewage sludge disposal sites, and septage disposal sites. All such setbacks belong to this single 'wastewater' feature — consolidate every wastewater-related clause into one row with the most restrictive (largest) value and list all variants in summary. Do not treat stormwater-only facilities as wastewater unless ordinance text explicitly does so."
         },
         "water line": {
           "description": "Minimum required separation from water service lines and related service piping."
@@ -110,7 +122,7 @@
           "description": "Minimum required separation from public road rights-of-way. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as utility easements, etc."
         },
         "row": {
-          "description": "Minimum required separation from any right-of-way or utility/drainage/access easements not already captured under road right-of-way. IGNORE: Do not respond based on setbacks from roads or driveways."
+          "description": "Minimum required separation from any right-of-way or utility/drainage/access easements **not already captured under road right-of-way**. Non-negotiable: emit 'row' only when an explicit numeric separation distance is stated for the same ROW/easement requirement, with value as a number and units as a non-null distance unit. If text is qualitative only (for example, 'shall not encroach' or 'must remain outside easement') with no numeric threshold, omit this feature entirely. IGNORE: Do not respond based on setbacks from roads or driveways."
         },
         "above ground fuel": {
           "description": "Minimum required separation from above-ground fuel tanks or storage areas. IGNORE: Do not respond based on setbacks from **underground** fuel tanks or storage areas."
@@ -136,7 +148,7 @@
       "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the text.",
       "properties": {
         "noise": {
-          "description": "Extract maximum allowable operational noise for GHP systems only when an explicit numeric limit is stated. Keep units exactly as written in text ('dBA' only when text says 'dBA' or 'dB(A)'; keep 'dB' if unweighted). If the ordinance only references compliance with other standards or provides no numeric noise limit, omit this feature. When multiple limits are present (for example day/night or zoning classes), extract the most restrictive numeric value and list all variants in summary."
+          "description": "Extract maximum allowable operational noise for GHP systems only when an explicit numeric limit is stated. Keep units exactly as written in text ('dBA' only when text says 'dBA' or 'dB(A)'; keep 'dB' if unweighted). If the ordinance only references compliance with other standards or provides no numeric noise limit, omit this feature entirely - Never emit summary-only, null-valued, or blank-valued noise rows. When multiple limits are present (for example day/night or zoning classes), extract the most restrictive numeric value and list all variants in summary."
         },
         "minimum well depth": {
           "description": "Extract **minimum** depth requirements for boreholes/wells, including conditional limits by geology or aquifer protection zones. Most restrictive means the highest minimum depth value. If multiple conditional minimums exist, keep one row, store the controlling highest minimum in value, and list all condition-specific alternatives in summary."
@@ -147,33 +159,36 @@
       }
     },
     "definition_features": {
-      "description": "Definitions of certain terms, preferably as direct excerpts from ordinance definitions sections (non-numerical)",
+      "description": "Definitions of certain terms as direct excerpts whose primary purpose is to state term meaning. Do not treat clauses as definitions when their primary purpose is to impose standards, applicability, permitting, or compliance requirements.",
       "properties": {
         "well definition": {
-          "description": "Extract the ordinance definition text for 'Geothermal Well' (or equivalent term)."
+          "description": "Extract the ordinance definition text for 'Geothermal Well' (or equivalent term) only when the excerpt's primary purpose is to define the term's meaning."
         },
         "geothermal definition": {
-          "description": "Extract the ordinance definition text for 'Geothermal'."
+          "description": "Extract the ordinance definition text for 'Geothermal' only when the excerpt's primary purpose is to define the term's meaning."
         },
         "ghp definition": {
-          "description": "Extract the ordinance definition text for 'ground source heat pump system', 'geothermal heat pump system', or equivalent term."
+          "description": "Extract the ordinance definition text for 'ground source heat pump system', 'geothermal heat pump system', or equivalent term only when the excerpt's primary purpose is to define the term's meaning."
         }
       }
     },
     "operational_features": {
-      "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These are non-numerical restriction features that require text extraction",
+      "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
       "properties": {
         "licensed driller": {
-          "description": "Extract requirements that drilling be performed by a licensed/certified driller, contractor, or installer. Capture credential type and material qualification details when explicitly stated."
+          "description": "Extract requirements that the GHP **drilling** activity specifically must be performed by a licensed well driller. The credential must attach directly to the act of drilling or boring the well or borehole. Require explicit licensing language tied to drilling (for example: 'shall be drilled by a licensed well driller', 'licensed driller is required'). Do NOT infer from setback, construction, permitting, or generic contractor language. Do NOT use this feature for installer/contractor certifications, equipment certifications, or professional credentials that apply beyond the drilling activity itself — those belong to 'certification'."
+        },
+        "certification": {
+          "description": "Extract any certification, accreditation, or professional credential requirement that is **not** a drilling license captured under 'licensed driller'. This includes trade or industry certification programs for GHP installers or contractors, professional engineer or licensed design professional requirements, and equipment or system certification standards. Capture the credential type, issuing body, and qualifying conditions when explicitly stated."
         },
         "screening": {
-          "description": "Extract requirements for visual or physical screening (fencing, landscaping, enclosures) of above-ground geothermal equipment."
+          "description": "Extract only explicit requirements for visual or physical concealment of above-ground geothermal equipment. Valid concealment mechanisms include barriers or treatments such as screening, fences, walls, landscaping, berms, opaque enclosures, parapets, louvers, or screening panels. A screening row is valid only when the ordinance excerpt itself explicitly states at least one concealment mechanism. Exclude pure siting/location/setback/front-yard/side-yard/rear-yard placement rules, visibility assumptions, or indirect inference from location constraints unless the same requirement explicitly adds a concealment mechanism."
         },
         "permit": {
           "description": "Extract permit requirements that explicitly govern GHP installation, drilling, or operation (for example mechanical, geothermal well, environmental, zoning, or health approvals), including triggering conditions. Do not extract generic non-GHP permits unless the ordinance explicitly ties them to geothermal systems."
         },
         "inspection": {
-          "description": "Extract required inspections (pre-drilling, during installation, final inspection, pressure/flow testing, health/environmental inspections). Put inspection type(s) in value (string or array), and place responsible authority details in summary when stated."
+          "description": "Extract required inspections (pre-drilling, during installation, final inspection, pressure/flow testing, health/environmental inspections). Include inspection type(s) and responsible authority details in summary when stated."
         },
         "decommissioning": {
           "description": "Extract requirements for abandonment, plugging, sealing, removal, and site restoration when systems are retired, fail, or wells are abandoned, including responsible party and timeline details when explicitly stated."
@@ -181,7 +196,7 @@
       }
     },
     "prohibition_features": {
-      "description": "Prohibitions, bans, or moratoria",
+      "description": "Prohibitions, bans, or moratoria.",
       "properties": {
         "prohibitions cl": {
           "description": "Extract whether **closed-loop** geothermal systems are explicitly prohibited or under moratorium. CRITICAL: Extract only when the text states an unconditional prohibition/moratorium that applies as written (not proposed). If there are carve-outs, exceptions, or conditional permitting in any capacity, this is NOT a prohibition feature. For moratoria, include start/end timing details in summary; if the ordinance states an end date that has already passed, omit this feature."
@@ -203,21 +218,24 @@
           "value": 100,
           "units": "feet",
           "section": "Section 8.3 - Well Siting Standards",
-          "summary": "'No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.'"
+          "summary": "'No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.'",
+          "explanation": "The excerpt states an explicit numeric minimum separation from private drinking water wells, so it maps directly to 'private water' with value 100 feet."
         },
         {
           "feature": "licensed driller",
           "value": null,
           "units": null,
           "section": "Section 6.1 - Contractor Qualifications",
-          "summary": "'All geothermal wells shall be drilled by a state-licensed well driller in good standing.'"
+          "summary": "'All geothermal wells shall be drilled by a state-licensed well driller in good standing.'",
+          "explanation": "The clause explicitly ties a licensing credential to the drilling activity itself, which matches 'licensed driller'."
         },
         {
           "feature": "prohibitions ol",
           "value": null,
           "units": null,
           "section": "Section 12.4 - GEOTHERMAL ENERGY SYSTEM STANDARDS",
-          "summary": "'Only closed loop ground source heat pump systems utilizing heat transfer fluids as defined in this Zoning Code are permitted. Open loop ground source heat pump systems are not permitted.'"
+          "summary": "'Only closed loop ground source heat pump systems utilizing heat transfer fluids as defined in this Zoning Code are permitted. Open loop ground source heat pump systems are not permitted.'",
+          "explanation": "The text states an explicit current ban on open-loop systems, so it matches 'prohibitions ol'."
         }
       ]
     }
@@ -226,31 +244,52 @@
     "general": [
       "Extract **only enacted ordinance requirements** for **geothermal heat pump / ground source heat pump systems**.",
       "Use direct text excerpts and quotes in summary whenever possible.",
-      "Each feature may appear **at most once** in outputs; do not emit multiple rows for the same feature. If multiple ordinance lines map to one feature, consolidate into one row and keep the controlling most restrictive value in value while listing alternatives in summary.",
-      "Null is permitted only for features listed in $qualitative_features when an enacted, explicit requirement is present. Never use null to indicate that a feature was not found.",
+      "For every feature, apply a strict evidence gate: only extract when ordinance text explicitly states the requirement for that same feature.",
+      "Never infer, assume, extrapolate, or guess requirements from context, implications, related standards, or nearby provisions.",
+      "Each feature may appear **at most once** in outputs; do not emit multiple rows for the same feature. If multiple ordinance lines map to one feature, build a temporary map keyed by feature, aggregate all evidence clauses under that feature key, consolidate into one row, and keep the controlling most restrictive value in value while listing alternatives in summary.",
+      "For any numeric feature, the summary must support the same requirement that produced value and units for that row. If both an explicit numeric threshold and related qualitative language are present, emit one consolidated row using the numeric threshold for value/units and include the qualitative language only as supplemental context in summary. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
+      "Numeric features in this schema are all setback features (driveways, private water, public water, building foundation, wastewater, water line, sewer line, animal enclosures, roads, row, above ground fuel, below ground fuel, subsurface drains, wetlands, pools, hmat) plus noise, minimum well depth, and maximum well depth.",
+      "Never use null to indicate that a feature was not found.",
       "For each numerical feature, capture the most restrictive applicable value when multiple values are provided and explain alternatives in summary. Restrictiveness direction: larger distance is more restrictive for setbacks; higher value is more restrictive for minimum depth; lower value is more restrictive for maximum depth.",
-      "For any numerical feature (including setback features such as roads and non-setback features such as noise), if no explicit numeric threshold is stated, omit that feature instead of returning null, empty, or qualitative-only values.",
+      "For any numerical feature (including all setback features and noise, minimum well depth, maximum well depth), if no explicit numeric threshold is stated, omit that feature instead of returning null, empty, or qualitative-only values.",
+      "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
+      "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
+      "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
       "If no requirement is found for a feature, omit that feature from outputs.",
       "Never emit 'not found', 'no explicit requirement', 'none', or similar absence text in any field. Omit these features instead.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
-      "Do not infer regulatory restrictions for non-definition features from definitions alone unless the text clearly creates an enforceable rule.",
-      "Treat 'explicit requirement' as directly stated ordinance language (for example: shall/must/required, numeric threshold, or clear trigger condition). Do not infer enforceable limits from broad policy statements or undefined external references."
+      "Do not infer regulatory restrictions from definitions alone unless the text clearly creates an enforceable rule.",
+      "If text is suggestive but not explicit for the target feature, omit the feature.",
+      "For 'screening', require at least one explicit concealment term in the ordinance excerpt (for example: screen, screening, fence, wall, enclosure, landscape buffer, berm, opaque). If no concealment mechanism is explicitly stated, omit 'screening'.",
+      "Do not treat placement, orientation, setback, or frontage restrictions as screening on their own, even if they could reduce visibility in practice.",
+      "Treat 'explicit requirement' as directly stated ordinance language (for example: shall/must/required, numeric threshold, or clear trigger condition). Do not infer enforceable limits from broad policy statements or undefined external references.",
+      "Standalone definitions should be extracted when present, even if not followed by an enforceable rule in the same sentence.",
+      "Mandatory final QA pass before returning outputs: (1) enforce uniqueness by feature with len(outputs) == len(unique(feature values)); if duplicates exist, merge or drop invalid rows until equality is true; (2) every row must have non-null, non-empty strings for summary and explanation; (3) explanation must explicitly tie summary evidence to the selected feature and not contradict feature inclusion/exclusion criteria; (4) for every numeric feature row, require numeric value and non-null units; (5) remove any numeric-feature row derived only from qualitative language (for example 'shall not encroach' or 'comply with standards') when no numeric threshold is quoted; (6) for qualitative features, set value and units to null; (7) if summary or explanation indicates the feature is not applicable, omit the row; (8) if a feature fails any check, omit it rather than returning a partial row."
     ],
     "setbacks": [
       "Setbacks should be extracted as minimum separation distances.",
       "Prefer numeric values with units ('feet', 'meters').",
+      "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "If both general and condition-specific setbacks are provided, select the controlling value for the scenario and describe conditions in summary.",
       "Do not conflate road right-of-way with general right-of-way/easement unless ordinance text makes them equivalent.",
       "Mapping defaults: generic 'right-of-way' with no qualifier maps to 'row'; generic 'water well(s)' with no public/private qualifier maps to 'public water'."
     ],
     "definitions": [
-      "Definitions are qualitative text extractions; the value field should be null with definition text placed directly in the summary.",
+      "Definitions are qualitative text extractions; set value and units to null and place definition text directly in summary.",
       "If a requested definition is not present, omit that feature entirely; do not emit placeholder text.",
+      "Apply a primary-purpose test for definition features: include a row only when the excerpt's main function is to state what the term means. If the excerpt's main function is to impose or qualify a requirement (for example standards, applicability, permitting, or compliance), do not classify it as a definition even if it references or renames the term.",
+      "When a clause both references a term label and imposes a requirement, classify it under the relevant operational/prohibition feature if applicable; do not classify it as a definition.",
+      "Counterexample for definition features: a sentence like 'X, referred to as Y, shall be subject to development standards' is not a definition because its primary purpose is obligation, not term meaning.",
       "Preserve legal phrasing and term boundaries from ordinance language.",
       "Standalone definitions should be extracted when present, even if not followed by an enforceable rule in the same sentence."
     ],
     "operational": [
       "For qualitative features: output only when an explicit enforceable requirement is present.",
+      "Do not map generalized construction or design standards to operational features unless the ordinance explicitly names that operational requirement.",
+      "Do not classify setback, yard placement, lot location, dimensional, or zoning placement constraints as 'screening' unless ordinance text explicitly requires concealment (for example: fence, landscape buffer, enclosure, screen wall/panel).",
+      "If a provision combines placement and concealment, 'screening' may be extracted only from the concealment language and should quote that concealment requirement directly in summary.",
+      "For screening, explanation must cite explicit concealment language present in summary; explanations based on implied reduced visibility from siting/location restrictions are invalid.",
+      "For screening, if summary is only placement/setback/frontage language and does not include explicit concealment language, omit the screening row entirely.",
       "If no explicit requirement exists for one of these features, omit it from outputs instead of writing an absence statement."
     ],
     "prohibitions": [
@@ -265,6 +304,7 @@
     "geothermal definition",
     "ghp definition",
     "licensed driller",
+    "certification",
     "screening",
     "permit",
     "inspection",
