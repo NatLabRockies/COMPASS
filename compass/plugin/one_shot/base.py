@@ -133,6 +133,12 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         Technology identifier to use for the plugin (e.g., "wind",
         "solar"). Must be unique from the identifiers of any existing
         plugins.
+
+    Returns
+    -------
+    callable
+        A `SchemaBasedExtractionPlugin` subclass configured according to
+        the input configuration.
     """
     if not isinstance(config, dict):
         config = load_config(config)
@@ -401,6 +407,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
             """
 
     register_plugin(SchemaBasedExtractionPlugin)
+    return SchemaBasedExtractionPlugin
 
 
 def _collectors_from_config(config):
