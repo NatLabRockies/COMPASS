@@ -67,8 +67,8 @@
             "description": "The section title or number where the requirement appears (e.g., 'SECTION 1308 – Performance / Construction Standards'). Include labels/numbers if available. Null if no section identifier is available."
           },
           "summary": {
-            "type": "string",
-            "description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt."
+            "type": ["string", "null"],
+            "description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt. Do not output absence placeholders (for example, 'No explicit ... found'); omit the feature instead when no requirement is present."
           }
         }
       }
