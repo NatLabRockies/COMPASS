@@ -225,6 +225,7 @@
     "general": [
       "Extract **only enacted ordinance requirements** for **geothermal heat pump / ground source heat pump systems**.",
       "Use direct text excerpts and quotes in summary whenever possible.",
+      "Each feature may appear **at most once** in outputs; do not emit multiple rows for the same feature. If multiple ordinance lines map to one feature, consolidate into one row and keep the controlling most restrictive value in value while listing alternatives in summary.",
       "For each numerical feature, capture the most restrictive applicable value when multiple values are provided and explain alternatives in summary.",
       "For any numerical feature (including setback features such as roads and non-setback features such as noise), if no explicit numeric threshold is stated, omit that feature instead of returning null, empty, or qualitative-only values.",
       "If no requirement is found for a feature, omit that feature from outputs.",
