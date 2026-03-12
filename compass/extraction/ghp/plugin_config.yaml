@@ -1,0 +1,97 @@
+schema: ./geothermal_heat_pump_schema.json5
+
+data_type_short_desc: geothermal ground source heat pump ordinance
+
+query_templates:
+    - "{jurisdiction} geothermal ground source heat pump code"
+    - "filetype:pdf {jurisdiction} geothermal heat pump ordinance"
+    - "{jurisdiction} geothermal energy system ordinance"
+    - "Where can I find the legal text for geothermal heat pump zoning ordinances in {jurisdiction}?"
+    - "What is the specific legal information regarding zoning ordinances for geothermal heat pumps in {jurisdiction}?"
+
+website_keywords:
+    # These still need massaging
+    #   - e.g. include something about open loop or closed loop?
+    pdf: 92160
+    pump: 46080
+    geothermal: 23040
+    ordinance: 11520
+    zoning: 5760
+    regulation: 2880
+    code: 1440
+    heating: 1440
+    planning: 720
+    government: 180
+
+heuristic_keywords:
+  good_tech_acronyms:
+    - "ghp"
+    - "gshp"
+  good_tech_keywords:
+    - "geoexchange"
+    - "geo-exchange"
+    - "wellfield"
+    - "direct-use"
+    - "closed-loop"
+  good_tech_phrases:
+    - "well field"
+    - "geothermal resource"
+    - "geothermal drilling"
+    - "geothermal well"
+    - "geothermal reservoir"
+    - "geothermal permit"
+    - "geothermal ordinance"
+    - "geothermal zoning"
+    - "closed loop"
+    - "open loop"
+    - "vertical loop"
+    - "horizontal loop"
+    - "heating and cooling"
+    - "space heating"
+    - "direct use"
+    - "district heating"
+    - "greenhouse heating"
+    - "residential geothermal"
+    - "heat pump"
+    - "geothermal heat pump"
+    - "ground source heat pump"
+    - "ground-source heat pump"
+    - "ground heat pump"
+    - "ground-coupled heat pump"
+    - "ground coupled heat pump"
+    - "earth-coupled heat pump"
+    - "earth-source heat pump"
+    - "closed loop ground source"
+    - "open loop ground source"
+  not_tech_words:
+    - "production well"
+    - "geothermal exploration"
+    - "geothermal generating"
+    - "geothermal generation"
+    - "geothermal power"
+    - "geothermal production"
+    - "geothermal project"
+    - "geothermal overlay zone"
+    - "geothermal power plant"
+    - "geothermal facility"
+    - "geothermal electric"
+    - "geothermal energy facility"
+    - "geothermal lease"
+    - "geothermal development"
+    - "steam turbine"
+    - "binary cycle"
+    - "flash steam"
+    - "dry steam"
+    - "enhanced geothermal"
+    - "reservoir temperature"
+    - "reinjection well"
+    - "production zone"
+    - "geothermal production project"
+    - "exploratory well"
+    - "injection well"
+
+collection_prompts: True
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from geothermal ground source heat pump ordinances.
+  Follow all instructions in the schema descriptions carefully.
