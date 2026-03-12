@@ -191,7 +191,7 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             },
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
         )
-        logger.debug("LLM response: %s", content)
+        logger.debug("LLM response:\n%s", json.dumps(content, indent=4))
         return content.get(key, False)
 
     def _store_chunk(self, parser, chunk_ind):
@@ -343,6 +343,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             },
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
         )
+        logger.debug("LLM response:\n%s", json.dumps(extraction, indent=4))
         data = extraction["outputs"]
         if not data:
             logger.debug(
