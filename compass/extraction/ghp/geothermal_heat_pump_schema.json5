@@ -244,6 +244,10 @@
       "If a requested definition is not present, omit that feature entirely; do not emit placeholder text.",
       "Preserve legal phrasing and term boundaries from ordinance language."
     ],
+    "operational": [
+      "For qualitative features: output only when an explicit enforceable requirement is present.",
+      "If no explicit requirement exists for one of these features, omit it from outputs instead of writing an absence statement."
+    ],
     "prohibitions": [
       "Classify prohibitions as currently effective bans/moratoria/restrictions based on the text.",
       "If no active prohibition is found for a prohibition feature, omit that feature from outputs instead of using placeholder values.",
