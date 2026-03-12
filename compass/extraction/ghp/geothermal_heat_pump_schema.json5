@@ -226,6 +226,7 @@
       "Extract **only enacted ordinance requirements** for **geothermal heat pump / ground source heat pump systems**.",
       "Use direct text excerpts and quotes in summary whenever possible.",
       "For each numerical feature, capture the most restrictive applicable value when multiple values are provided and explain alternatives in summary.",
+      "For any numerical feature (including setback features such as roads and non-setback features such as noise), if no explicit numeric threshold is stated, omit that feature instead of returning null, empty, or qualitative-only values.",
       "If no requirement is found for a feature, omit that feature from outputs.",
       "Never emit 'not found', 'no explicit requirement', 'none', or similar absence text in any field. Omit these features instead.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
@@ -234,7 +235,6 @@
     "setbacks": [
       "Setbacks should be extracted as minimum separation distances.",
       "Prefer numeric values with units ('feet', 'meters').",
-      "If a statement does not provide a numeric distance for a setback feature (for example, 'shall not encroach'), omit that setback feature from outputs.",
       "If both general and condition-specific setbacks are provided, select the controlling value for the scenario and describe conditions in summary.",
       "Do not conflate road right-of-way with general right-of-way/easement unless ordinance text makes them equivalent."
     ],
