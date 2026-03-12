@@ -185,17 +185,25 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     async def _check_chunk_with_prompt(self, key, text_chunk):
         """Call LLM on a chunk of text to check for ordinance"""
+        main_prompt = _TEXT_COLLECTION_MAIN_PROMPT.format(
+            schema=self.SCHEMA, text=text_chunk
+        )
+        logger.debug("Checking text chunk with LLM: %s", text_chunk)
+        logger.debug_to_file(
+            "\t- System Message:\n%s", _TEXT_COLLECTION_SYSTEM_PROMPT
+        )
+        logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
         content = await self.call(
             sys_msg=_TEXT_COLLECTION_SYSTEM_PROMPT,
-            content=_TEXT_COLLECTION_MAIN_PROMPT.format(
-                schema=self.SCHEMA, text=text_chunk
-            ),
+            content=main_prompt,
             response_format={
                 "type": "json_schema",
                 "json_schema": {
                     "name": "chunk_validation",
                     "strict": True,
-            content=main_prompt,
+                    "schema": self.OUTPUT_SCHEMA,
+                },
+            },
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
         )
         logger.debug("LLM response:\n%s", json.dumps(content, indent=4))
