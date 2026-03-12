@@ -135,7 +135,7 @@
       "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the text.",
       "properties": {
         "noise": {
-          "description": "Extract maximum allowable operational noise for GHP systems, if explicitly stated. Use most restrictive value when multiple limits are present."
+          "description": "Extract maximum allowable operational noise for GHP systems only when an explicit numeric limit is stated (for example, a dBA threshold). If the ordinance only references compliance with other standards or provides no numeric noise limit, omit this feature. Use most restrictive value when multiple limits are present."
         },
         "minimum well depth": {
           "description": "Extract **minimum** depth requirements for boreholes/wells, including conditional limits by geology or aquifer protection zones."
