@@ -233,6 +233,7 @@
     "setbacks": [
       "Setbacks should be extracted as minimum separation distances.",
       "Prefer numeric values with units ('feet', 'meters').",
+      "If a statement does not provide a numeric distance for a setback feature (for example, 'shall not encroach'), omit that setback feature from outputs.",
       "If both general and condition-specific setbacks are provided, select the controlling value for the scenario and describe conditions in summary.",
       "Do not conflate road right-of-way with general right-of-way/easement unless ordinance text makes them equivalent."
     ],
