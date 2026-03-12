@@ -91,7 +91,7 @@ or modify the text you keep in any way.
 
 """
 _DATA_PARSER_MAIN_PROMPT = """\
-Extract all {desc}features from the following text:
+Extract all applicable {desc}features explicitly supported by following text:
 
 {text}
 
@@ -99,7 +99,14 @@ Think before you answer\
 """
 _DATA_PARSER_SYSTEM_PROMPT = """\
 You are a legal scholar extracting structured data from {desc}documents. \
-Follow all instructions in the schema descriptions carefully.\
+Follow all instructions in the following schema carefully:
+
+{schema}
+
+# ADDITIONAL CONTEXT #
+Today's date is {todays_date}. If a moratorium or temporary restriction \
+includes an explicit end date that has already passed as of today, treat it \
+as expired and omit that prohibition feature.\
 """
 
 
