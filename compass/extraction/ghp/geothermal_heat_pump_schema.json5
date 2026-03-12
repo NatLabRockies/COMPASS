@@ -8,6 +8,7 @@
   "properties": {
     "outputs": {
       "type": "array",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**.",
       "items": {
         "type": "object",
         "required": ["feature", "value", "units", "section", "summary"],
