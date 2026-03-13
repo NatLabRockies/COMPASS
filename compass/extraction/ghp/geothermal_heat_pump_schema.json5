@@ -107,13 +107,13 @@
           "description": "Minimum required separation from building or structure foundations."
         },
         "wastewater": {
-          "description": "Minimum required separation from **any** wastewater-related infrastructure, including: (a) traditional onsite systems such as septic tanks, aerobic/holding tanks, leach fields, subsurface sewage disposal systems, elevated sand mounds, sewage seepage pits, and cesspools; and (b) land-application wastewater such as spray irrigation sites, sewage sludge disposal sites, and septage disposal sites. All such setbacks belong to this single 'wastewater' feature — consolidate every wastewater-related clause into one row with the most restrictive (largest) value and list all variants in summary. Do not treat stormwater-only facilities as wastewater unless ordinance text explicitly does so."
+          "description": "Minimum required separation from **any** wastewater-related infrastructure, including: (a) traditional onsite systems such as septic tanks, aerobic/holding tanks, leach fields, subsurface sewage disposal systems, elevated sand mounds, sewage seepage pits, and cesspools; and (b) land-application wastewater such as spray irrigation sites, sewage sludge disposal sites, and septage disposal sites. All such setbacks belong to this single 'wastewater' feature — consolidate every wastewater-related clause into one row with the most restrictive (largest) value and list all variants in summary. Do not treat stormwater-only facilities as wastewater unless ordinance text explicitly does so. Do not map line infrastructure (for example sanitary sewer lines or water service lines) to this feature; line infrastructure belongs under 'sewer line' or 'water line'."
         },
         "water line": {
-          "description": "Minimum required separation from water service lines and related service piping."
+          "description": "Minimum required separation from water service lines and related service piping. Extract only when water line/service piping is explicitly named. If a single clause explicitly names both water line/service piping and sewer/sewage line wording with one shared numeric distance, emit both 'water line' and 'sewer line' rows using that same distance. Do not map sanitary/sewer/sewage lines or wastewater disposal structures to this feature."
         },
         "sewer line": {
-          "description": "Minimum required separation from sanitary/storm sewer lines."
+          "description": "Minimum required separation from sanitary/storm sewer lines. Map explicit 'sewer line', 'sanitary sewer line', or 'sewage line' wording to this feature. If a single clause explicitly names both sewer/sewage line wording and water line/service piping with one shared numeric distance, emit both 'sewer line' and 'water line' rows using that same distance. Do not map wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits) to this feature; those belong to 'wastewater'."
         },
         "animal enclosures": {
           "description": "Minimum required separation from animal enclosures, barns, pens, corrals, stables, or similar livestock areas explicitly named in ordinance text. Do not infer coverage for facilities not mentioned."
