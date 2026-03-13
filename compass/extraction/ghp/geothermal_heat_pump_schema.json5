@@ -26,6 +26,8 @@
             "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
             "enum": [
               "driveways",
+              "property lines",
+              "yards",
               "private water",
               "public water",
               "building foundation",
@@ -106,10 +108,16 @@
   },
   "$definitions": {
     "setback_features": {
-      "description": "Setback features for GHP-related components. Treat each setback feature independently; do NOT cross-apply a setback unless the ordinance text **explicitly** states that it applies to multiple feature types. When a single clause explicitly lists multiple target types and one shared numeric setback (for example, 'water and sewer lines' or 'sewage and water line'), emit one row per explicitly listed feature using the same numeric value/units and cite the same clause in summary. Never infer a road or right-of-way setback from a property-line setback unless the ordinance text explicitly equates the property line with a road right-of-way or other right-of-way/easement boundary for that same requirement. Mapping defaults: if text says 'right-of-way' without a qualifier, map to 'row'; if text says road/street right-of-way, map to 'roads'; if text says utility/drainage/access easement or utility right-of-way, map to 'row'. For water supplies, map generic 'water well(s)' or 'water supply well(s)' without a public/private qualifier to 'public water'; map to 'private water' only when private supply is explicit. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature for GHP systems.",
+      "description": "Setback features for GHP-related components. Treat each setback feature independently; do NOT cross-apply a setback unless the ordinance text **explicitly** states that it applies to multiple feature types. When a single clause explicitly lists multiple target types and one shared numeric setback (for example, 'water and sewer lines' or 'sewage and water line'), emit one row per explicitly listed feature using the same numeric value/units and cite the same clause in summary. Never infer a road or right-of-way setback from a property-line setback unless the ordinance text explicitly equates the property line with a road right-of-way or other right-of-way/easement boundary for that same requirement. Mapping defaults: if text says 'right-of-way' without a qualifier, map to 'row'; if text says road/street right-of-way, map to 'roads'; if text says utility/drainage/access easement or utility right-of-way, map to 'row'. For water supplies, map generic 'water well(s)' or 'water supply well(s)' without a public/private qualifier to 'public water'; map to 'private water' only when private supply is explicit. For fuel tanks, map generic unqualified 'fuel tank(s)' or 'fuel storage' to 'above ground fuel'; map to 'below ground fuel' only when underground or below-ground storage is explicit. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature for GHP systems.",
       "properties": {
         "driveways": {
           "description": "Minimum required separation from driveways or drive areas. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as roads or utility easements, etc."
+        },
+        "property lines": {
+          "description": "Minimum required separation from property lines, lot lines, or parcel boundaries when the ordinance text explicitly states the setback is measured from that boundary. Do not remap property-line setbacks to 'roads' or 'row' unless the ordinance text explicitly makes the same boundary a road right-of-way or other right-of-way/easement for that requirement. IGNORE: Do not respond based on setbacks from roads, general rights-of-way, easements, or front/side/rear yard boundaries unless the text explicitly states the boundary is the property line."
+        },
+        "yards": {
+          "description": "Minimum required separation from explicit front yard, side yard, rear yard, or similar yard-based setback areas. Extract this feature only when the ordinance states the geothermal system must meet a yard setback or be located within/outside a named yard area. Do not remap yard setbacks to 'property lines' unless the ordinance explicitly measures the requirement from the property line itself rather than from a yard classification. IGNORE: Do not respond based on generic property-line, road, or right-of-way setbacks unless the ordinance explicitly frames the requirement as a yard setback."
         },
         "private water": {
           "description": "Minimum required separation from private water supplies, such as drinking water wells or private water supplies. IGNORE: Do not respond based on setbacks from **public** water supply wells, water lines, sewer lines, pools, wetlands, etc."
@@ -139,10 +147,10 @@
           "description": "Minimum required separation from any right-of-way or utility/drainage/access easements **not already captured under road right-of-way**. Non-negotiable: emit 'row' only when an explicit numeric separation distance is stated for the same ROW/easement requirement, with value as a number and units as a non-null distance unit. Property-line setbacks do NOT count for this feature unless the ordinance text explicitly states that the property line is the relevant right-of-way or easement boundary for that same requirement. If text is qualitative only (for example, 'shall not encroach' or 'must remain outside easement') with no numeric threshold, omit this feature entirely. IGNORE: Do not respond based on setbacks from roads or driveways."
         },
         "above ground fuel": {
-          "description": "Minimum required separation from above-ground fuel tanks or storage areas. IGNORE: Do not respond based on setbacks from **underground** fuel tanks or storage areas."
+          "description": "Minimum required separation from above-ground fuel tanks or storage areas. Treat unqualified generic 'fuel tank(s)' or 'fuel storage' references as this feature unless the ordinance text explicitly says underground or below-ground. IGNORE: Do not respond based on setbacks from **underground** fuel tanks or storage areas."
         },
         "below ground fuel": {
-          "description": "Minimum required separation from underground fuel tanks or storage areas. IGNORE: Do not respond based on setbacks from **above-ground** fuel tanks or storage areas."
+          "description": "Minimum required separation from underground fuel tanks or storage areas. Extract this feature only when underground or below-ground fuel storage is explicit. IGNORE: Do not respond based on generic unqualified fuel tanks or setbacks from **above-ground** fuel tanks or storage areas."
         },
         "subsurface drains": {
           "description": "Minimum required separation from subsurface drains, tile drains, or underdrain systems."
@@ -210,16 +218,16 @@
       }
     },
     "prohibition_features": {
-      "description": "Prohibitions, bans, or moratoria.",
+      "description": "Prohibitions, bans, or moratoria on building, installing, siting, or otherwise deploying geothermal systems or geothermal system types.",
       "properties": {
         "prohibitions cl": {
-          "description": "Extract whether **closed-loop** geothermal systems are explicitly prohibited or under moratorium. CRITICAL: Extract only when the text states an unconditional prohibition/moratorium that applies as written (not proposed). If there are carve-outs, exceptions, or conditional permitting in any capacity, this is NOT a prohibition feature. For moratoria, include start/end timing details in summary; if the ordinance states an end date that has already passed, omit this feature."
+          "description": "Extract whether **closed-loop** geothermal systems are explicitly prohibited or under moratorium for construction, installation, siting, or deployment. CRITICAL: Extract only when the text states an unconditional prohibition/moratorium that applies as written (not proposed). If there are carve-outs, exceptions, or conditional permitting in any capacity, this is NOT a prohibition feature. Do NOT use this feature for operating conditions, material restrictions, fluid restrictions, design standards, or performance limits that still allow closed-loop systems to be built or installed. For moratoria, include start/end timing details in summary; if the ordinance states an end date that has already passed, omit this feature."
         },
         "prohibitions ol": {
-          "description": "Extract whether **open-loop** geothermal systems are explicitly prohibited or under moratorium. CRITICAL: Extract only when the text states an unconditional prohibition/moratorium that applies as written (not proposed). If there are carve-outs, exceptions, or conditional permitting in any capacity, this is NOT a prohibition feature. For moratoria, include start/end timing details in summary; if the ordinance states an end date that has already passed, omit this feature."
+          "description": "Extract whether **open-loop** geothermal systems are explicitly prohibited or under moratorium for construction, installation, siting, or deployment. CRITICAL: Extract only when the text states an unconditional prohibition/moratorium that applies as written (not proposed). If there are carve-outs, exceptions, or conditional permitting in any capacity, this is NOT a prohibition feature. Do NOT use this feature for operating conditions, discharge standards, water-quality limits, design standards, or performance limits that still allow open-loop systems to be built or installed. For moratoria, include start/end timing details in summary; if the ordinance states an end date that has already passed, omit this feature."
         },
         "prohibitions other": {
-          "description": "Extract any other geothermal-related prohibitions or moratoria not captured above (for example: standing-column wells, discharge methods, antifreeze restrictions, district-specific bans)."
+          "description": "Extract any other geothermal-related prohibitions or moratoria on construction, installation, siting, or deployment not captured above (for example: standing-column wells, vertical borefields, district-specific bans, or explicit bans on a geothermal installation method). Do NOT extract operating conditions, allowed-material lists, fluid restrictions, discharge standards, maintenance rules, or performance requirements that regulate how an otherwise permitted system must be designed or operated. If the text allows the system type to be built subject to conditions, omit this feature."
         }
       }
     }
@@ -260,7 +268,7 @@
       "Each feature may appear **at most once** in outputs; do not emit multiple rows for the same feature. If multiple ordinance lines map to one feature, build a temporary map keyed by feature, aggregate all evidence clauses under that feature key, consolidate into one row, and keep the controlling most restrictive value in value while listing alternatives in summary.",
       "For any numeric feature, the summary must support the same requirement that produced value and units for that row. If both an explicit numeric threshold and related qualitative language are present, emit one consolidated row using the numeric threshold for value/units and include the qualitative language only as supplemental context in summary. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
       "Feature disambiguation for wastewater vs line infrastructure: sewage/wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits, sludge/septage sites) map only to 'wastewater'; explicit sewer or sewage line wording maps only to 'sewer line'; explicit water service line wording maps only to 'water line'. If one clause explicitly names both sewer/sewage line and water line/service piping with a shared numeric setback, emit both line features with that same value and units. Phrases such as 'water and sewer lines' or 'sewage and water line' count as explicitly naming both line features when the shared noun 'line' or 'lines' applies to both utilities.",
-      "Numeric features in this schema are all setback features (driveways, private water, public water, building foundation, wastewater, water line, sewer line, animal enclosures, roads, row, above ground fuel, below ground fuel, subsurface drains, wetlands, pools, hmat) plus noise, minimum well depth, and maximum well depth.",
+      "Numeric features in this schema are all setback features (driveways, property lines, yards, private water, public water, building foundation, wastewater, water line, sewer line, animal enclosures, roads, row, above ground fuel, below ground fuel, subsurface drains, wetlands, pools, hmat) plus noise, minimum well depth, and maximum well depth.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
@@ -274,9 +282,12 @@
       "Prefer numeric values with units ('feet', 'meters').",
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "If both general and condition-specific setbacks are provided, select the controlling most restrictive value for the GHP scenario and describe conditions in summary.",
+      "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
+      "Treat explicit front-yard, side-yard, rear-yard, and similar yard-based setbacks as 'yards'.",
       "Do not conflate road right-of-way with general right-of-way/easement unless ordinance text makes them equivalent.",
       "Do not infer road or right-of-way/easement setbacks from property-line setbacks unless the ordinance text explicitly makes the boundaries equivalent for that same requirement.",
-      "Mapping defaults: generic 'right-of-way' with no qualifier maps to 'row'; generic 'water well(s)' with no public/private qualifier maps to 'public water'.",
+      "Do not infer a yard setback from a property-line setback, or a property-line setback from a yard setback, unless the ordinance text explicitly equates them for that same requirement.",
+      "Mapping defaults: generic 'right-of-way' with no qualifier maps to 'row'; generic 'water well(s)' with no public/private qualifier maps to 'public water'; generic unqualified 'fuel tank(s)' or 'fuel storage' maps to 'above ground fuel'.",
       "When one setback clause explicitly names multiple target features and provides one shared numeric threshold, emit one row per explicitly named feature using the same threshold and units."
     ],
     "definitions": [
@@ -298,9 +309,11 @@
       "If no explicit requirement exists for one of these features, omit it from outputs instead of writing an absence statement."
     ],
     "prohibitions": [
-      "Classify prohibitions as currently effective bans/moratoria/restrictions based on the text.",
+      "Classify prohibitions as currently effective bans or moratoria on building, installing, siting, or deploying a geothermal system or geothermal system type.",
       "If no active prohibition is found for a prohibition feature, omit that feature from outputs instead of using placeholder values.",
       "Distinguish between complete prohibition and conditional permitting. Conditional permitting is not a ban.",
+      "Do not treat operational, design, material, fluid, discharge, maintenance, or performance restrictions as prohibitions when the ordinance still allows the system to be built or installed subject to those conditions.",
+      "If the text says a system or component is permitted only with specified materials, fluids, methods, or standards, classify it as a non-prohibition rule or omit it if no other feature fits; do not force it into a prohibition feature.",
       "If a moratorium includes an explicit end date that has passed, omit that prohibition feature."
     ]
   },
