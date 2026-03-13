@@ -254,8 +254,10 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         """Perform extraction processing"""
 
         logger.info(
-            "Extracting summary text from %d text chunks asynchronously...",
+            "Extracting summary text from %d text chunks asynchronously "
+            "using LLM: %r...",
             len(text_chunks),
+            self.llm_service.model_name,
         )
         outer_task_name = asyncio.current_task().get_name()
         summaries = [
