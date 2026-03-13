@@ -87,12 +87,26 @@
       }
     }
   },
-  "$definitions": {
+  "$core_principles": {
     "scope_context": {
-      "description": "CRITICAL: Only extract requirements that apply to geothermal heat pump / ground source heat pump systems, including closed-loop and open-loop systems where relevant. If text uses generic terms like 'geothermal well' or 'geothermal system', treat it as GHP only when section context clearly indicates heating/cooling or heat-pump exchange wells/loops. Do NOT consider unrelated geothermal electricity generation rules unless the text explicitly governs heat pump exchange wells/loops."
+      "description": "Only extract requirements that apply to geothermal heat pump / ground source heat pump systems, including closed-loop and open-loop systems where relevant. If text uses generic terms like 'geothermal well' or 'geothermal system', treat it as GHP only when section context clearly indicates heating/cooling or heat-pump exchange wells/loops. Do NOT consider unrelated geothermal electricity generation rules unless the text explicitly governs heat pump exchange wells/loops. Do not extract proposed, future, draft, or contingent requirements that are not currently effective as written."
     },
+    "strict_evidence_gate": {
+      "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
+    },
+    "data_omission": {
+      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units=null only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+    },
+    "numeric_prioritization": {
+      "description": "When multiple numeric values apply to the same feature, keep one row and select the controlling most restrictive value for that feature. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; minimum well depth -> choose the highest minimum depth; maximum well depth -> choose the lowest maximum depth; noise -> choose the lowest allowed noise limit. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same feature for GHP systems."
+    },
+    "definition_v_rule_test": {
+      "description": "Apply a primary-purpose routing test before classifying a clause as a definition. If the excerpt's main function is to state what a term means and it does not impose an enforceable obligation, extract it as a definition feature with value=null and units=null. If the excerpt imposes standards, applicability limits, permitting conditions, performance requirements, or prohibitions, classify it under the relevant operational or prohibition feature instead, even if the clause also names or restates a term."
+    }
+  },
+  "$definitions": {
     "setback_features": {
-      "description": "Setback features for GHP-related components. Treat each setback feature independently; do NOT cross-apply a setback unless the ordinance text **explicitly** states that it applies to multiple feature types. When a single clause explicitly lists multiple target types and one shared numeric setback (for example, 'water and sewer lines'), emit one row per explicitly listed feature using the same numeric value/units and cite the same clause in summary. Mapping defaults: if text says 'right-of-way' without a qualifier, map to 'row'; if text says road/street right-of-way, map to 'roads'; if text says utility/drainage/access easement or utility right-of-way, map to 'row'. For water supplies, map generic 'water well(s)' or 'water supply well(s)' without a public/private qualifier to 'public water'; map to 'private water' only when private supply is explicit. If a single feature has multiple setback values, choose the most restrictive value, but **only** when the ordinance clearly shows that each value applies to GHP systems **for that same feature**.",
+      "description": "Setback features for GHP-related components. Treat each setback feature independently; do NOT cross-apply a setback unless the ordinance text **explicitly** states that it applies to multiple feature types. When a single clause explicitly lists multiple target types and one shared numeric setback (for example, 'water and sewer lines' or 'sewage and water line'), emit one row per explicitly listed feature using the same numeric value/units and cite the same clause in summary. Never infer a road or right-of-way setback from a property-line setback unless the ordinance text explicitly equates the property line with a road right-of-way or other right-of-way/easement boundary for that same requirement. Mapping defaults: if text says 'right-of-way' without a qualifier, map to 'row'; if text says road/street right-of-way, map to 'roads'; if text says utility/drainage/access easement or utility right-of-way, map to 'row'. For water supplies, map generic 'water well(s)' or 'water supply well(s)' without a public/private qualifier to 'public water'; map to 'private water' only when private supply is explicit. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature for GHP systems.",
       "properties": {
         "driveways": {
           "description": "Minimum required separation from driveways or drive areas. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as roads or utility easements, etc."
@@ -110,19 +124,19 @@
           "description": "Minimum required separation from **any** wastewater-related infrastructure, including: (a) traditional onsite systems such as septic tanks, aerobic/holding tanks, leach fields, subsurface sewage disposal systems, elevated sand mounds, sewage seepage pits, and cesspools; and (b) land-application wastewater such as spray irrigation sites, sewage sludge disposal sites, and septage disposal sites. All such setbacks belong to this single 'wastewater' feature — consolidate every wastewater-related clause into one row with the most restrictive (largest) value and list all variants in summary. Do not treat stormwater-only facilities as wastewater unless ordinance text explicitly does so. Do not map line infrastructure (for example sanitary sewer lines or water service lines) to this feature; line infrastructure belongs under 'sewer line' or 'water line'."
         },
         "water line": {
-          "description": "Minimum required separation from water service lines and related service piping. Extract only when water line/service piping is explicitly named. If a single clause explicitly names both water line/service piping and sewer/sewage line wording with one shared numeric distance, emit both 'water line' and 'sewer line' rows using that same distance. Do not map sanitary/sewer/sewage lines or wastewater disposal structures to this feature."
+          "description": "Minimum required separation from water service lines and related service piping. Extract only when water line/service piping is explicitly named. If a single clause explicitly names both water line/service piping and sewer/sewage line wording with one shared numeric distance, emit both 'water line' and 'sewer line' rows using that same distance. Treat combined phrases such as 'water and sewer lines' or 'sewage and water line' as explicitly naming both line features when the shared noun 'line' or 'lines' applies to both utilities. Do not map sanitary/sewer/sewage lines or wastewater disposal structures to this feature."
         },
         "sewer line": {
-          "description": "Minimum required separation from sanitary/storm sewer lines. Map explicit 'sewer line', 'sanitary sewer line', or 'sewage line' wording to this feature. If a single clause explicitly names both sewer/sewage line wording and water line/service piping with one shared numeric distance, emit both 'sewer line' and 'water line' rows using that same distance. Do not map wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits) to this feature; those belong to 'wastewater'."
+          "description": "Minimum required separation from sanitary/storm sewer lines. Map explicit 'sewer line', 'sanitary sewer line', or 'sewage line' wording to this feature. If a single clause explicitly names both sewer/sewage line wording and water line/service piping with one shared numeric distance, emit both 'sewer line' and 'water line' rows using that same distance. Treat combined phrases such as 'water and sewer lines' or 'sewage and water line' as explicit sewer-line evidence when the shared noun 'line' or 'lines' applies to both utilities. Do not map wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits) to this feature; those belong to 'wastewater'."
         },
         "animal enclosures": {
           "description": "Minimum required separation from animal enclosures, barns, pens, corrals, stables, or similar livestock areas explicitly named in ordinance text. Do not infer coverage for facilities not mentioned."
         },
         "roads": {
-          "description": "Minimum required separation from public road rights-of-way. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as utility easements, etc."
+          "description": "Minimum required separation from public road rights-of-way. Property-line setbacks do NOT count for this feature unless the ordinance text explicitly states that the property line is the road right-of-way or otherwise makes them the same boundary for that requirement. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as utility easements, etc."
         },
         "row": {
-          "description": "Minimum required separation from any right-of-way or utility/drainage/access easements **not already captured under road right-of-way**. Non-negotiable: emit 'row' only when an explicit numeric separation distance is stated for the same ROW/easement requirement, with value as a number and units as a non-null distance unit. If text is qualitative only (for example, 'shall not encroach' or 'must remain outside easement') with no numeric threshold, omit this feature entirely. IGNORE: Do not respond based on setbacks from roads or driveways."
+          "description": "Minimum required separation from any right-of-way or utility/drainage/access easements **not already captured under road right-of-way**. Non-negotiable: emit 'row' only when an explicit numeric separation distance is stated for the same ROW/easement requirement, with value as a number and units as a non-null distance unit. Property-line setbacks do NOT count for this feature unless the ordinance text explicitly states that the property line is the relevant right-of-way or easement boundary for that same requirement. If text is qualitative only (for example, 'shall not encroach' or 'must remain outside easement') with no numeric threshold, omit this feature entirely. IGNORE: Do not respond based on setbacks from roads or driveways."
         },
         "above ground fuel": {
           "description": "Minimum required separation from above-ground fuel tanks or storage areas. IGNORE: Do not respond based on setbacks from **underground** fuel tanks or storage areas."
@@ -148,7 +162,7 @@
       "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the text.",
       "properties": {
         "noise": {
-          "description": "Extract maximum allowable operational noise for GHP systems only when an explicit numeric limit is stated. Keep units exactly as written in text ('dBA' only when text says 'dBA' or 'dB(A)'; keep 'dB' if unweighted). If the ordinance only references compliance with other standards or provides no numeric noise limit, omit this feature entirely - Never emit summary-only, null-valued, or blank-valued noise rows. When multiple limits are present (for example day/night or zoning classes), extract the most restrictive numeric value and list all variants in summary."
+          "description": "Extract maximum allowable operational noise for GHP systems only when an explicit numeric limit is stated. Keep units exactly as written in text ('dBA' only when text says 'dBA' or 'dB(A)'; keep 'dB' if unweighted). If the ordinance only references compliance with other standards or provides no numeric noise limit, omit this feature entirely. When multiple limits are present (for example day/night or zoning classes), keep the lowest allowed numeric limit and list all variants in summary only when the ordinance text explicitly shows they apply to GHP systems."
         },
         "minimum well depth": {
           "description": "Extract **minimum** depth requirements for boreholes/wells, including conditional limits by geology or aquifer protection zones. Most restrictive means the highest minimum depth value. If multiple conditional minimums exist, keep one row, store the controlling highest minimum in value, and list all condition-specific alternatives in summary."
@@ -159,7 +173,7 @@
       }
     },
     "definition_features": {
-      "description": "Definitions of certain terms as direct excerpts whose primary purpose is to state term meaning. Do not treat clauses as definitions when their primary purpose is to impose standards, applicability, permitting, or compliance requirements.",
+      "description": "Definitions of certain terms as direct excerpts whose primary purpose is to state term meaning. Apply the definition-vs-rule routing test in $core_principles before classifying a clause as a definition.",
       "properties": {
         "well definition": {
           "description": "Extract the ordinance definition text for 'Geothermal Well' (or equivalent term) only when the excerpt's primary purpose is to define the term's meaning."
@@ -176,7 +190,7 @@
       "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
       "properties": {
         "licensed driller": {
-          "description": "Extract requirements that the GHP **drilling** activity specifically must be performed by a licensed well driller. The credential must attach directly to the act of drilling or boring the well or borehole. Require explicit licensing language tied to drilling (for example: 'shall be drilled by a licensed well driller', 'licensed driller is required'). Do NOT infer from setback, construction, permitting, or generic contractor language. Do NOT use this feature for installer/contractor certifications, equipment certifications, or professional credentials that apply beyond the drilling activity itself — those belong to 'certification'."
+          "description": "Extract requirements that the GHP **drilling** activity specifically must be performed by a licensed well driller. The credential must attach directly to the act of drilling or boring the well or borehole. Require explicit licensing language tied to drilling (for example: 'shall be drilled by a licensed well driller', 'licensed driller is required'). Do NOT infer this feature from setback, construction, permitting, or generic contractor language. Do NOT use this feature for installer certifications, contractor accreditations, professional engineer requirements, equipment certifications, or other credentials that apply beyond the drilling activity itself — those belong to 'certification'."
         },
         "certification": {
           "description": "Extract any certification, accreditation, or professional credential requirement that is **not** a drilling license captured under 'licensed driller'. This includes trade or industry certification programs for GHP installers or contractors, professional engineer or licensed design professional requirements, and equipment or system certification standards. Capture the credential type, issuing body, and qualifying conditions when explicitly stated."
@@ -242,52 +256,41 @@
   ],
   "$instructions": {
     "general": [
-      "Extract **only enacted ordinance requirements** for **geothermal heat pump / ground source heat pump systems**.",
       "Use direct text excerpts and quotes in summary whenever possible.",
-      "For every feature, apply a strict evidence gate: only extract when ordinance text explicitly states the requirement for that same feature.",
-      "Never infer, assume, extrapolate, or guess requirements from context, implications, related standards, or nearby provisions.",
       "Each feature may appear **at most once** in outputs; do not emit multiple rows for the same feature. If multiple ordinance lines map to one feature, build a temporary map keyed by feature, aggregate all evidence clauses under that feature key, consolidate into one row, and keep the controlling most restrictive value in value while listing alternatives in summary.",
       "For any numeric feature, the summary must support the same requirement that produced value and units for that row. If both an explicit numeric threshold and related qualitative language are present, emit one consolidated row using the numeric threshold for value/units and include the qualitative language only as supplemental context in summary. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
-      "Feature disambiguation for wastewater vs line infrastructure: sewage/wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits, sludge/septage sites) map only to 'wastewater'; explicit sewer or sewage line wording maps only to 'sewer line'; explicit water service line wording maps only to 'water line'. If one clause explicitly names both sewer/sewage line and water line/service piping with a shared numeric setback, emit both line features with that same value and units.",
+      "Feature disambiguation for wastewater vs line infrastructure: sewage/wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits, sludge/septage sites) map only to 'wastewater'; explicit sewer or sewage line wording maps only to 'sewer line'; explicit water service line wording maps only to 'water line'. If one clause explicitly names both sewer/sewage line and water line/service piping with a shared numeric setback, emit both line features with that same value and units. Phrases such as 'water and sewer lines' or 'sewage and water line' count as explicitly naming both line features when the shared noun 'line' or 'lines' applies to both utilities.",
       "Numeric features in this schema are all setback features (driveways, private water, public water, building foundation, wastewater, water line, sewer line, animal enclosures, roads, row, above ground fuel, below ground fuel, subsurface drains, wetlands, pools, hmat) plus noise, minimum well depth, and maximum well depth.",
-      "Never use null to indicate that a feature was not found.",
-      "For each numerical feature, capture the most restrictive applicable value when multiple values are provided and explain alternatives in summary. Restrictiveness direction: larger distance is more restrictive for setbacks; higher value is more restrictive for minimum depth; lower value is more restrictive for maximum depth.",
-      "For any numerical feature (including all setback features and noise, minimum well depth, maximum well depth), if no explicit numeric threshold is stated, omit that feature instead of returning null, empty, or qualitative-only values.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
-      "If no requirement is found for a feature, omit that feature from outputs.",
-      "Never emit 'not found', 'no explicit requirement', 'none', or similar absence text in any field. Omit these features instead.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
-      "Do not infer regulatory restrictions from definitions alone unless the text clearly creates an enforceable rule.",
-      "If text is suggestive but not explicit for the target feature, omit the feature.",
-      "For 'screening', require at least one explicit concealment term in the ordinance excerpt (for example: screen, screening, fence, wall, enclosure, landscape buffer, berm, opaque). If no concealment mechanism is explicitly stated, omit 'screening'.",
-      "Do not treat placement, orientation, setback, or frontage restrictions as screening on their own, even if they could reduce visibility in practice.",
-      "Treat 'explicit requirement' as directly stated ordinance language (for example: shall/must/required, numeric threshold, or clear trigger condition). Do not infer enforceable limits from broad policy statements or undefined external references.",
-      "Standalone definitions should be extracted when present, even if not followed by an enforceable rule in the same sentence.",
-      "Mandatory final QA pass before returning outputs: (1) enforce uniqueness by feature with len(outputs) == len(unique(feature values)); if duplicates exist, merge or drop invalid rows until equality is true; (2) every row must have non-null, non-empty strings for summary and explanation; (3) explanation must explicitly tie summary evidence to the selected feature and not contradict feature inclusion/exclusion criteria; (4) for every numeric feature row, require numeric value and non-null units; (5) remove any numeric-feature row derived only from qualitative language (for example 'shall not encroach' or 'comply with standards') when no numeric threshold is quoted; (6) for qualitative features, set value and units to null; (7) if summary or explanation indicates the feature is not applicable, omit the row; (8) if a feature fails any check, omit it rather than returning a partial row."
+      "Tables, table footnotes, and labeled graphics count as valid ordinance evidence when they state the controlling requirement; preserve the relevant table cell or footnote context in summary.",
+      "If ordinance text shows an amended or superseding requirement, extract the current operative requirement as written rather than a superseded historical value unless the ordinance text clearly keeps both rules active.",
+      "If text is suggestive but not explicit for the target feature, omit the feature."
     ],
     "setbacks": [
       "Setbacks should be extracted as minimum separation distances.",
       "Prefer numeric values with units ('feet', 'meters').",
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
-      "If both general and condition-specific setbacks are provided, select the controlling value for the scenario and describe conditions in summary.",
+      "If both general and condition-specific setbacks are provided, select the controlling most restrictive value for the GHP scenario and describe conditions in summary.",
       "Do not conflate road right-of-way with general right-of-way/easement unless ordinance text makes them equivalent.",
+      "Do not infer road or right-of-way/easement setbacks from property-line setbacks unless the ordinance text explicitly makes the boundaries equivalent for that same requirement.",
       "Mapping defaults: generic 'right-of-way' with no qualifier maps to 'row'; generic 'water well(s)' with no public/private qualifier maps to 'public water'.",
       "When one setback clause explicitly names multiple target features and provides one shared numeric threshold, emit one row per explicitly named feature using the same threshold and units."
     ],
     "definitions": [
       "Definitions are qualitative text extractions; set value and units to null and place definition text directly in summary.",
       "If a requested definition is not present, omit that feature entirely; do not emit placeholder text.",
-      "Apply a primary-purpose test for definition features: include a row only when the excerpt's main function is to state what the term means. If the excerpt's main function is to impose or qualify a requirement (for example standards, applicability, permitting, or compliance), do not classify it as a definition even if it references or renames the term.",
+      "Apply the definition-vs-rule routing test in $core_principles before classifying a row as a definition feature.",
       "When a clause both references a term label and imposes a requirement, classify it under the relevant operational/prohibition feature if applicable; do not classify it as a definition.",
       "Counterexample for definition features: a sentence like 'X, referred to as Y, shall be subject to development standards' is not a definition because its primary purpose is obligation, not term meaning.",
-      "Preserve legal phrasing and term boundaries from ordinance language.",
-      "Standalone definitions should be extracted when present, even if not followed by an enforceable rule in the same sentence."
+      "Preserve legal phrasing and term boundaries from ordinance language."
     ],
     "operational": [
       "For qualitative features: output only when an explicit enforceable requirement is present.",
       "Do not map generalized construction or design standards to operational features unless the ordinance explicitly names that operational requirement.",
+      "For 'licensed driller', require explicit drilling-license language tied to boring or drilling the geothermal well or borehole itself; do not infer this feature from installer credentials, PE requirements, permit prerequisites, or equipment certifications.",
       "Do not classify setback, yard placement, lot location, dimensional, or zoning placement constraints as 'screening' unless ordinance text explicitly requires concealment (for example: fence, landscape buffer, enclosure, screen wall/panel).",
       "If a provision combines placement and concealment, 'screening' may be extracted only from the concealment language and should quote that concealment requirement directly in summary.",
       "For screening, explanation must cite explicit concealment language present in summary; explanations based on implied reduced visibility from siting/location restrictions are invalid.",
@@ -301,6 +304,16 @@
       "If a moratorium includes an explicit end date that has passed, omit that prohibition feature."
     ]
   },
+  "$qa_checklist": [
+    "Enforce uniqueness by feature with len(outputs) == len(unique(feature values)); if duplicates exist, merge or drop invalid rows until equality is true.",
+    "Every row must have non-null, non-empty strings for summary and explanation.",
+    "Explanation must explicitly tie summary evidence to the selected feature and must not contradict feature inclusion/exclusion criteria.",
+    "For every numeric feature row, require numeric value and non-null units.",
+    "Remove any numeric-feature row derived only from qualitative language (for example 'shall not encroach' or 'comply with standards') when no numeric threshold is quoted.",
+    "For qualitative features, set value and units to null.",
+    "If summary or explanation indicates the feature is not applicable, omit the row.",
+    "If a feature fails any check, omit it rather than returning a partial row."
+  ],
   "$qualitative_features": [
     "well definition",
     "geothermal definition",
