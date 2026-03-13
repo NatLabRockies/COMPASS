@@ -351,7 +351,9 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
 
         main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)
-        logger.debug("Extracting ordinances with LLM")
+        logger.debug(
+            "Extracting ordinances with LLM: %r", self.llm_service.model_name
+        )
         logger.debug_to_file("\t- System Message:\n%s", sys_prompt)
         logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
 
