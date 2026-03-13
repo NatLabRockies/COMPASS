@@ -273,7 +273,8 @@
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "If both general and condition-specific setbacks are provided, select the controlling value for the scenario and describe conditions in summary.",
       "Do not conflate road right-of-way with general right-of-way/easement unless ordinance text makes them equivalent.",
-      "Mapping defaults: generic 'right-of-way' with no qualifier maps to 'row'; generic 'water well(s)' with no public/private qualifier maps to 'public water'."
+      "Mapping defaults: generic 'right-of-way' with no qualifier maps to 'row'; generic 'water well(s)' with no public/private qualifier maps to 'public water'.",
+      "When one setback clause explicitly names multiple target features and provides one shared numeric threshold, emit one row per explicitly named feature using the same threshold and units."
     ],
     "definitions": [
       "Definitions are qualitative text extractions; set value and units to null and place definition text directly in summary.",
