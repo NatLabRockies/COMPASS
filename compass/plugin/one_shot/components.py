@@ -372,7 +372,9 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             },
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
         )
-        logger.debug("LLM response:\n%s", json.dumps(extraction, indent=4))
+        logger.debug_to_file(
+            "LLM response:\n%s", json.dumps(extraction, indent=4)
+        )
         data = extraction["outputs"]
         if not data:
             logger.debug(
