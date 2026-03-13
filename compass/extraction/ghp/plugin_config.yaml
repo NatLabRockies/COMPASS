@@ -94,4 +94,10 @@ collection_prompts: True
 
 extraction_system_prompt: |-
   You are a legal scholar extracting structured data from geothermal ground source heat pump ordinances.
-  Follow all instructions in the schema descriptions carefully.
+  Be focused and literal: extract only enacted, explicit, in-scope requirements.
+  Be thorough and complete: review all relevant sections, including tables and
+  lists, so no explicitly stated feature is missed.
+  Before finalizing, perform a feature-coverage check against the schema enum and
+  ensure each explicitly supported feature is captured exactly once.
+  Pay extra attention to any descriptions, instructions, examples, and definitions in the schema,
+  and be sure to follow all schema instructions carefully.
