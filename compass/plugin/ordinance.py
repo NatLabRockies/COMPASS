@@ -868,7 +868,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         te = te[0]
         model_config = self._get_model_config(
-            parser_class.TASK_ID,
+            te.TASK_ID,
             LLMTasks.ORDINANCE_TEXT_EXTRACTION,
             LLMTasks.TEXT_EXTRACTION,
         )
