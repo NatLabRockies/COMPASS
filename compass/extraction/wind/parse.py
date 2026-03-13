@@ -190,6 +190,9 @@ class StructuredWindOrdinanceParser(StructuredWindParser):
     OUT_LABEL = "ordinance_values"
     """Identifier for structured ordinance data output by this class"""
 
+    TASK_ID = LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION
+    """Identifier for this parser's specific LLM task category"""
+
     async def parse(self, text):
         """Parse text and extract structure ordinance data
 
@@ -507,6 +510,9 @@ class StructuredWindPermittedUseDistrictsParser(StructuredWindParser):
 
     OUT_LABEL = "permitted_district_values"
     """Identifier for structured ordinance data output by this class"""
+
+    TASK_ID = LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION
+    """Identifier for this parser's specific LLM task category"""
 
     _LARGE_WES_CLARIFICATION = (
         "Large wind energy systems (WES) may also be referred to as wind "
