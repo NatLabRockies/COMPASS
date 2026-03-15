@@ -64,7 +64,7 @@ intersphinx_mapping = {
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
     "plotly": ("https://plotly.com/python-api-reference", None),
     "psycopg": ("https://www.psycopg.org/psycopg3/docs", None),
     "python": ("https://docs.python.org/3/", None),
