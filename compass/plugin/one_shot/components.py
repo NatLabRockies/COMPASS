@@ -101,14 +101,13 @@ Think before you answer\
 """
 _DATA_PARSER_SYSTEM_PROMPT = """\
 You are a legal scholar extracting structured data from {desc}documents. \
-Follow all instructions in the following schema carefully:
-
-{schema}
-
+Follow all instructions in the schema descriptions carefully.\
+"""
+_DATA_PARSER_ADDITIONAL_CONTEXT = """\
 # ADDITIONAL CONTEXT #
-Today's date is {todays_date}. If a moratorium or temporary restriction \
-includes an explicit end date that has already passed as of today, treat it \
-as expired and omit that prohibition feature.\
+- Today's date is {todays_date}. If you are extracting a moratorium or \
+temporary restriction that includes an explicit end date that has already \
+passed as of today, treat it as expired and omit that prohibition feature.\
 """
 
 
@@ -348,7 +347,10 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
 
         todays_date = datetime.now().strftime("%B %d, %Y")
-        sys_prompt = self.SYSTEM_PROMPT.format(
+        sys_prompt = (
+            f"{self.SYSTEM_PROMPT}\n\n{_DATA_PARSER_ADDITIONAL_CONTEXT}"
+        )
+        sys_prompt = sys_prompt.format(
             desc=desc, schema=self.SCHEMA, todays_date=todays_date
         )
 
