@@ -285,10 +285,7 @@ story you just built.
 
    export OPENAI_API_KEY="your-key"
 
-   compass process \
-       --tech battery_storage \
-       --jurisdiction "Boulder County, CO" \
-       --config my_config.yaml
+   compass process --config my_config.yaml
 
 Where to go next
 ----------------

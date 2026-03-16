@@ -839,8 +839,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             await self._run_text_extractors(doc_for_extraction, parser_class)
 
         model_config = self._get_model_config(
-            primary_key=parser_class.TASK_ID,
-            secondary_key=LLMTasks.DATA_EXTRACTION,
+            parser_class.TASK_ID,
+            LLMTasks.ORDINANCE_VALUE_EXTRACTION,
+            LLMTasks.DATA_EXTRACTION,
         )
         await self.extract_ordinances_from_text(
             doc_for_extraction,
@@ -867,8 +868,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         te = te[0]
         model_config = self._get_model_config(
-            primary_key=te.TASK_ID,
-            secondary_key=LLMTasks.TEXT_EXTRACTION,
+            te.TASK_ID,
+            LLMTasks.ORDINANCE_TEXT_EXTRACTION,
+            LLMTasks.TEXT_EXTRACTION,
         )
         logger.debug(
             "Condensing text for extraction using %r for doc from %s",
@@ -899,13 +901,12 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         return data[0] if len(data) == 1 else pd.concat(data)
 
-    def _get_model_config(self, primary_key, secondary_key):
-        """Get model config: primary_key -> secondary_key -> default"""
-        if primary_key in self.model_configs:
-            return self.model_configs[primary_key]
-        return self.model_configs.get(
-            secondary_key, self.model_configs[LLMTasks.DEFAULT]
-        )
+    def _get_model_config(self, *keys):
+        """Get model config based on key priority"""
+        for key in keys:
+            if key in self.model_configs:
+                return self.model_configs[key]
+        return self.model_configs[LLMTasks.DEFAULT]
 
     def validate_plugin_configuration(self):
         """[NOT PUBLIC API] Validate plugin is properly configured"""

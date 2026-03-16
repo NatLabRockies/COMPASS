@@ -200,6 +200,9 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
     OUT_LABEL = "ordinance_values"
     """Identifier for structured ordinance data output by this class"""
 
+    TASK_ID = LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION
+    """Identifier for this parser's specific LLM task category"""
+
     async def parse(self, text):
         """Parse text and extract structure ordinance data
 
@@ -504,6 +507,9 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
 
     OUT_LABEL = "permitted_district_values"
     """Identifier for structured ordinance data output by this class"""
+
+    TASK_ID = LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION
+    """Identifier for this parser's specific LLM task category"""
 
     _LARGE_SEF_CLARIFICATION = (
         "Large solar energy systems (SES) may also be referred to as solar "

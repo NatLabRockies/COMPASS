@@ -253,6 +253,9 @@ class StructuredSmallWindOrdinanceParser(StructuredSmallWindParser):
     OUT_LABEL = "ordinance_values"
     """Identifier for structured ordinance data output by this class"""
 
+    TASK_ID = LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION
+    """Identifier for this parser's specific LLM task category"""
+
     async def parse(self, text):
         """Parse text and extract structure ordinance data
 
@@ -568,6 +571,9 @@ class StructuredSmallWindPermittedUseDistrictsParser(
 
     OUT_LABEL = "permitted_district_values"
     """Identifier for structured ordinance data output by this class"""
+
+    TASK_ID = LLMUsageCategory.PERMITTED_USE_VALUE_EXTRACTION
+    """Identifier for this parser's specific LLM task category"""
 
     _SMALL_WES_CLARIFICATION = (
         "Small wind energy systems (AWES) may also be referred to as "
