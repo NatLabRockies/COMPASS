@@ -1,7 +1,9 @@
 """COMPASS extraction schema-based plugin component implementations"""
 
+import json
 import asyncio
 import logging
+from datetime import datetime
 from abc import ABC, abstractmethod
 
 import pandas as pd
@@ -91,7 +93,7 @@ or modify the text you keep in any way.
 
 """
 _DATA_PARSER_MAIN_PROMPT = """\
-Extract all {desc}features from the following text:
+Extract all applicable {desc}features explicitly supported by following text:
 
 {text}
 
@@ -100,6 +102,12 @@ Think before you answer\
 _DATA_PARSER_SYSTEM_PROMPT = """\
 You are a legal scholar extracting structured data from {desc}documents. \
 Follow all instructions in the schema descriptions carefully.\
+"""
+_DATA_PARSER_ADDITIONAL_CONTEXT = """\
+# ADDITIONAL CONTEXT #
+- Today's date is {todays_date}. If you are extracting a moratorium or \
+temporary restriction that includes an explicit end date that has already \
+passed as of today, treat it as expired and omit that prohibition feature.\
 """
 
 
@@ -176,11 +184,17 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     async def _check_chunk_with_prompt(self, key, text_chunk):
         """Call LLM on a chunk of text to check for ordinance"""
+        main_prompt = _TEXT_COLLECTION_MAIN_PROMPT.format(
+            schema=self.SCHEMA, text=text_chunk
+        )
+        logger.debug("Checking text chunk with LLM: %s", text_chunk)
+        logger.debug_to_file(
+            "\t- System Message:\n%s", _TEXT_COLLECTION_SYSTEM_PROMPT
+        )
+        logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
         content = await self.call(
             sys_msg=_TEXT_COLLECTION_SYSTEM_PROMPT,
-            content=_TEXT_COLLECTION_MAIN_PROMPT.format(
-                schema=self.SCHEMA, text=text_chunk
-            ),
+            content=main_prompt,
             response_format={
                 "type": "json_schema",
                 "json_schema": {
@@ -191,7 +205,7 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             },
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
         )
-        logger.debug("LLM response: %s", content)
+        logger.debug("LLM response:\n%s", json.dumps(content, indent=4))
         return content.get(key, False)
 
     def _store_chunk(self, parser, chunk_ind):
@@ -239,8 +253,10 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         """Perform extraction processing"""
 
         logger.info(
-            "Extracting summary text from %d text chunks asynchronously...",
+            "Extracting summary text from %d text chunks asynchronously "
+            "using LLM: %r...",
             len(text_chunks),
+            self.llm_service.model_name,
         )
         outer_task_name = asyncio.current_task().get_name()
         summaries = [
@@ -330,9 +346,24 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             else ""
         )
 
+        todays_date = datetime.now().strftime("%B %d, %Y")
+        sys_prompt = (
+            f"{self.SYSTEM_PROMPT}\n\n{_DATA_PARSER_ADDITIONAL_CONTEXT}"
+        )
+        sys_prompt = sys_prompt.format(
+            desc=desc, schema=self.SCHEMA, todays_date=todays_date
+        )
+
+        main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)
+        logger.debug(
+            "Extracting ordinances with LLM: %r", self.llm_service.model_name
+        )
+        logger.debug_to_file("\t- System Message:\n%s", sys_prompt)
+        logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
+
         extraction = await self.call(
-            sys_msg=self.SYSTEM_PROMPT.format(desc=desc),
-            content=_DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text),
+            sys_msg=sys_prompt,
+            content=main_prompt,
             response_format={
                 "type": "json_schema",
                 "json_schema": {
@@ -342,6 +373,9 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
                 },
             },
             usage_sub_label=LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION,
+        )
+        logger.debug_to_file(
+            "LLM response:\n%s", json.dumps(extraction, indent=4)
         )
         data = extraction["outputs"]
         if not data:

@@ -913,13 +913,8 @@ about your internal implementation choices:
 .. code-block:: bash
 
    export OPENAI_API_KEY="your-key"
-   export AZURE_OPENAI_ENDPOINT="your-endpoint"
-   export AZURE_OPENAI_API_KEY="your-azure-key"
 
-   compass process \
-       --tech data_center_custom \
-       --jurisdiction "Loudoun County, VA" \
-       --config my_config.yaml
+   compass process --config my_config.yaml
 
 Users select your plugin through the identifier you specify
 (``data_center_custom`` in this example). The remaining implementation
