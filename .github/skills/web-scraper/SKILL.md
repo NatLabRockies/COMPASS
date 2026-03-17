@@ -1,6 +1,6 @@
 ---
 name: web-scraper
-description: Build and tune one-shot plugin configs that search, rank, and collect ordinance documents with native COMPASS pipeline settings.
+description: Build and tune retrieval configs that search, rank, and collect ordinance documents in COMPASS. Use whenever a user asks to improve retrieval precision/recall, tune search queries/keywords, or debug acquisition quality before extraction tuning.
 ---
 
 # Web Scraper Skill
@@ -15,17 +15,30 @@ pipelines.
 - Ordinance recall is weak across jurisdictions (one-shot extraction).
 - LLM filtering is compensating for poor search quality.
 
-## Scope
+## Do not use
 
-- Query-template strategy.
-- URL ranking and filtering patterns.
-- Heuristic phrase controls before LLM validation.
+- Schema feature definition or value extraction logic design.
+- Post-extraction feature/value debugging when retrieval is already correct.
+
+## Expected assistant output
+
+When using this skill, return:
+
+1. The retrieval axis changed (queries, keyword weights, or heuristics).
+2. Evidence from artifacts/logs showing why the change was needed.
+3. The next run command against the same jurisdiction sample.
 
 ## Canonical reference
 
 Consult example plugin configurations in `examples/` following the tech-first naming pattern:
 - `<tech>_plugin_config.yaml` — standard one-shot config
 - See `examples/water_rights_demo/one-shot/plugin_config.yaml` for multi-document edge cases
+
+## Scope
+
+- Query-template strategy.
+- URL ranking and filtering patterns.
+- Heuristic phrase controls before LLM validation.
 
 ## Two retrieval phases
 
@@ -141,3 +154,4 @@ When reusing this workflow for any technology:
 - Preserve auditable rationale for each retrieval change.
 - Keep one canonical retrieval config per active technology.
 - Ensure each run uses a unique `out_dir` to avoid COMPASS aborting early.
+

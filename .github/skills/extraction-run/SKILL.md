@@ -1,6 +1,6 @@
 ---
 name: extraction-run
-description: Execute one-shot extraction with COMPASS, evaluate outputs, and iterate schema/config changes with minimal cost.
+description: Execute one-shot extraction with COMPASS and iterate quickly with low cost. Use whenever a user asks to run, smoke-test, validate, debug, or scale one-shot schema extraction for any technology.
 ---
 
 # Extraction Run Skill
@@ -18,6 +18,26 @@ then iterate quickly until you have stable structured outputs.
 - You are onboarding a new technology (diesel generator, geothermal, CHP, hydrogen).
 - You need a reliable smoke-test workflow before scaling.
 - You are NOT using legacy decision-tree extraction.
+
+## Do not use
+
+- Legacy decision-tree extraction feature engineering.
+- Python parser implementation in `compass/extraction/<tech>/parse.py`.
+- Non-extraction tasks (for example docs-only updates).
+
+## Expected assistant output
+
+When using this skill, return:
+
+1. The exact `pixi run compass process ...` command used.
+2. A pass/fail decision against extraction-quality gates.
+3. The smallest next config/schema change and why.
+
+## Canonical reference
+
+- `examples/one_shot_schema_extraction/` — complete working examples
+- `examples/one_shot_schema_extraction/README.rst` — general one-shot overview
+- `examples/water_rights_demo/one-shot/` — multi-doc extraction example
 
 ## Two-pipeline modes
 
@@ -106,12 +126,6 @@ unchanged and swap only technology-specific inputs:
 - known document URL set.
 
 Change one axis per run unless debugging infrastructure failures.
-
-## Canonical reference
-
-- `examples/one_shot_schema_extraction/` — complete working examples
-- `examples/one_shot_schema_extraction/README.rst` — general one-shot overview
-- `examples/water_rights_demo/one-shot/` — multi-doc extraction example
 
 ## Environment setup
 

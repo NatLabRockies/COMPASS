@@ -1,6 +1,6 @@
 ---
 name: schema-creation
-description: Author and iterate one-shot extraction schemas that replace legacy decision-tree extraction logic in native COMPASS.
+description: Author and iterate one-shot extraction schemas for native COMPASS. Use whenever a user asks to create, expand, or debug schema feature definitions, value/unit rules, or extraction instructions.
 ---
 
 # Schema Creation Skill
@@ -18,6 +18,19 @@ The schema is the single most important config file for output quality.
 - Starting a new one-shot technology extraction (NOT decision-tree legacy extraction).
 - Fixing inconsistent or incorrect extracted values in one-shot extraction.
 - Adding new features to an existing one-shot extraction.
+
+## Do not use
+
+- Retrieval tuning tasks that belong in plugin YAML.
+- Legacy decision-tree extraction parser implementation.
+
+## Expected assistant output
+
+When using this skill, return:
+
+1. The proposed schema diff (or full schema block) for the targeted features.
+2. The rationale for VALUE, UNITS, and IGNORE wording.
+3. A smoke-test check plan for validating the schema change.
 
 ## Canonical reference
 
@@ -63,7 +76,8 @@ These five fields map directly to the output CSV columns. COMPASS adds
 ## Build sequence
 
 1. **Define the feature enum** — one stable lowercase ID per siting-relevant
-   requirement. Group IDs by family (setbacks, noise, zoning, permitting).
+   requirement. Keep naming consistent across iterations and group IDs by
+   family (setbacks, noise, zoning, permitting).
 2. **Define `value` and `units` rules per feature family** — in each
    feature's `description`, state the expected value type and accepted unit
    vocabulary explicitly.
@@ -147,7 +161,7 @@ When cloning this schema for a new technology:
 
 ## Quality checklist
 
-- [ ] Feature enum uses stable, lowercase, underscore-separated IDs.
+- [ ] Feature enum uses stable, consistent IDs across all runs.
 - [ ] Every feature description contains VALUE, UNITS, and IGNORE clauses.
 - [ ] `$instructions` block is present with all five keys.
 - [ ] `additionalProperties: false` is set on the top-level object and on

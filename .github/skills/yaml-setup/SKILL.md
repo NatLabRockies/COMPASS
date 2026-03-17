@@ -1,6 +1,6 @@
 ---
 name: yaml-setup
-description: Author and tune one-shot plugin YAML configs for COMPASS-native document discovery, filtering, and text collection.
+description: Author and tune one-shot plugin YAML for COMPASS document discovery, filtering, and text collection. Use whenever a user asks to create, clean up, standardize, or troubleshoot one-shot plugin YAML for technology onboarding.
 ---
 
 # YAML Setup Skill
@@ -16,6 +16,20 @@ filtering, and text collection behavior.
 - New technology onboarding in one-shot extraction (NOT decision-tree extraction).
 - Schema exists but source relevance is weak.
 - You need reproducible config handoff across teams.
+
+## Do not use
+
+- Legacy decision-tree parser implementation changes.
+- Schema feature semantics work that belongs in `<tech>_schema.json`.
+- Run-result diagnosis after outputs are generated (use iteration loop skill).
+
+## Expected assistant output
+
+When using this skill, return:
+
+1. The finalized plugin YAML content or exact diff.
+2. Any required paired run-config changes.
+3. A validation command and pass/fail checks for the edited YAML.
 
 ## Canonical reference
 
@@ -244,3 +258,4 @@ If running outside the tech folder, use absolute paths for `-c` and `-p`.
 - Feature logic belongs in schema.
 - Adjust one tuning axis per run for clean attribution.
 - Keep one canonical plugin file per technology in the active example folder.
+
