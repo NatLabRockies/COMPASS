@@ -5,23 +5,25 @@ description: Author and tune one-shot plugin YAML configs for COMPASS-native doc
 
 # YAML Setup Skill
 
+**ONE-SHOT EXTRACTION ONLY.** This skill applies only to schema-driven extraction.
+For legacy decision-tree extraction, consult COMPASS architecture docs.
+
 Use this skill to create or tune one-shot plugin YAML that controls retrieval,
 filtering, and text collection behavior.
 
 ## When to use
 
-- New technology onboarding in one-shot extraction.
+- New technology onboarding in one-shot extraction (NOT decision-tree extraction).
 - Schema exists but source relevance is weak.
 - You need reproducible config handoff across teams.
 
-## Example references (optional)
+## Canonical reference
 
-- `examples/one_shot_schema_extraction_geothermal/geothermal_plugin_config.yaml`
-- `examples/one_shot_schema_extraction_geothermal/README.rst`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_one_shot_guide.md`
-- `docs/source/examples/one_shot_schema_extraction/plugin_config_minimal.json`
-- `docs/source/examples/one_shot_schema_extraction/plugin_config_simple.json5`
-- `docs/source/examples/one_shot_schema_extraction/plugin_config.yaml`
+With tech-first naming, configuration examples follow this pattern:
+- `examples/one_shot_schema_extraction/<tech>_plugin_config.yaml` — standard working example
+- `examples/water_rights_demo/one-shot/plugin_config.yaml` — multi-doc edge case
+
+Refer to any complete example in `examples/` that matches your retrieval goals.
 
 ## Naming convention
 
@@ -42,6 +44,14 @@ Avoid spaces around `=` in `.env` assignments.
 schema: ./my_schema.json
 ```
 
+## Non-negotiable runtime constraints
+
+- Jurisdiction CSV headers are case-sensitive: use `County,State`.
+- If `heuristic_keywords` is present, it must include all four lists and
+  none may be empty.
+- A run is not considered passing if logs show config errors or if
+  extracted jurisdiction count is zero.
+
 ## Key plugin YAML fields
 
 | Field | Type | Behavior |
@@ -55,6 +65,26 @@ schema: ./my_schema.json
 | `text_extraction_prompts` | list or `true` | Text consolidation prompt(s). If **`true`**, LLM auto-generates from schema. |
 | `extraction_system_prompt` | string | Overrides default LLM system prompt for the extraction step. Use this to scope extraction tightly to the target technology. |
 | `cache_llm_generated_content` | bool | Cache LLM-generated `query_templates` and `website_keywords`. Set to `false` when iterating schema to see live changes. |
+
+## Required `heuristic_keywords` shape
+
+Use this exact structure when defining `heuristic_keywords`:
+
+```yaml
+heuristic_keywords:
+  GOOD_TECH_KEYWORDS:
+    - "<required single-word term>"
+  GOOD_TECH_PHRASES:
+    - "<required multi-word phrase>"
+  GOOD_TECH_ACRONYMS:
+    - "<required acronym or short token>"
+  NOT_TECH_WORDS:
+    - "<required exclusion term>"
+```
+
+Notes:
+- Keys are normalized, but using canonical key names reduces mistakes.
+- All four lists are required and must be non-empty.
 
 ### `collection_prompts: true` and `text_extraction_prompts: true`
 
@@ -87,11 +117,11 @@ for a complete example.
    - Confirm schema path and extraction invocation work.
 2. **Simple**
    - Add `query_templates`, `heuristic_keywords`, and `cache_llm_generated_content`.
-   - Set `collection_prompts: true` and `text_extraction_prompts: true` to
-     let the LLM auto-generate prompts from the schema.
 3. **Full**
    - Add `extraction_system_prompt` if scope bleed or off-domain extraction
      is observed.
+   - Set `collection_prompts: true` and `text_extraction_prompts: true` to
+     let the LLM auto-generate prompts from the schema.
    - Replace `heuristic_keywords: true` with an explicit list if precision
      is insufficient.
 
@@ -114,43 +144,60 @@ website_keywords:
   zoning: 2880
   permit: 1440
 heuristic_keywords:
-  good_tech_keywords:
+  GOOD_TECH_KEYWORDS:
     - "<tech keyword 1>"
     - "<tech keyword 2>"
-  good_tech_acronyms:
+  GOOD_TECH_ACRONYMS:
     - "<tech acronym>"
-  good_tech_phrases:
+  GOOD_TECH_PHRASES:
     - "<tech phrase 1>"
     - "<tech phrase 2>"
-  not_tech_words:
+  NOT_TECH_WORDS:
     - "<adjacent technology term 1>"
     - "<adjacent technology term 2>"
-collection_prompts: true
-text_extraction_prompts: true
-extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from
-  utility-scale <tech> ordinances.
-
-  Extract only requirements for utility-scale <tech> facilities.
-  Exclude adjacent technologies and non-target use cases.
 ```
 
 Swap vocabulary for any technology while keeping the same structure.
 
 ## Stable development mode
 
-Plugin YAML controls retrieval behavior, but deterministic acquisition for
-smoke tests belongs in run config:
+Use run-config controls for deterministic smoke tests while iterating schema:
 
-- `known_doc_urls` or `known_local_docs`
-- `perform_se_search: false`
-- `perform_website_search: false` (disables the website crawl second phase)
+- `known_doc_urls` or `known_local_docs` — bypass live search
+- `perform_se_search: false` — disable search-engine phase
+- `perform_website_search: false` — disable website crawl phase
 
-Use this mode first, then re-enable search once schema extraction quality is
-stable.
+Re-enable search only after extraction quality is stable on known documents.
 
 Recommended baseline: use dynamic search first, then use deterministic mode
 if search infrastructure fails.
+
+## Minimal run-config contract (to pair with plugin YAML)
+
+Use this pattern and require users to provide their own model and client
+values:
+
+```json5
+{
+  out_dir: "./outputs_<tech>_<run_id>",
+  tech: "<tech>",
+  jurisdiction_fp: "./<tech>_jurisdictions.csv",
+  perform_se_search: true,
+  perform_website_search: false,
+  model: [
+    {
+      name: "<PROVIDE-YOUR-MODEL-NAME>",
+      llm_call_kwargs: { temperature: 0, timeout: 600 },
+      client_kwargs: {
+        api_version: "<PROVIDE-YOUR-API-VERSION>",
+        azure_endpoint: "<PROVIDE-YOUR-AZURE-ENDPOINT>"
+      }
+    }
+  ]
+}
+```
+
+Do not hardcode model names in skills. Prompt the user to supply `name`.
 
 ## Acquisition phases
 
@@ -179,7 +226,7 @@ When adapting to another technology:
 
 - replace vocabulary in `query_templates` and `website_keywords`,
 - keep legal-code terms (`ordinance`, `zoning`, `code of ordinances`),
-- keep non-target exclusions explicit in `not_tech_words`,
+- keep non-target exclusions explicit in `NOT_TECH_WORDS`,
 - do not carry terms from a previous technology into new tech configs,
 - write a technology-specific `extraction_system_prompt`.
 

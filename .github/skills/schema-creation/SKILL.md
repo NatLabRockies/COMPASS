@@ -5,169 +5,161 @@ description: Author and iterate one-shot extraction schemas that replace legacy 
 
 # Schema Creation Skill
 
-Use this skill to encode extraction logic in schema so behavior is repeatable
-across jurisdictions and technologies.
+**ONE-SHOT EXTRACTION ONLY.** This skill applies only to schema-driven extraction
+(new technology onboarding with JSON schema + plugin YAML). For legacy decision-tree
+extraction (existing solar/wind/small-wind in `compass/extraction/<tech>/`),
+consult COMPASS architecture docs.
+
+Use this skill to define what the LLM extracts and how it formats results.
+The schema is the single most important config file for output quality.
 
 ## When to use
 
-- Creating a new one-shot technology plugin.
-- Migrating from decision-tree logic to schema-driven extraction.
-- Stabilizing inconsistent model outputs.
+- Starting a new one-shot technology extraction (NOT decision-tree legacy extraction).
+- Fixing inconsistent or incorrect extracted values in one-shot extraction.
+- Adding new features to an existing one-shot extraction.
 
-## Example references (optional)
+## Canonical reference
 
-- `examples/one_shot_schema_extraction_geothermal/geothermal_schema.json`
-- `examples/one_shot_schema_extraction_geothermal/README.rst`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_one_shot_guide.md`
-- `docs/source/examples/one_shot_schema_extraction/wind_schema.json`
+For complete examples, see the `examples/` directory:
+- `examples/one_shot_schema_extraction/wind_schema.json`
+- `examples/water_rights_demo/one-shot/water_rights_schema.json5`
+
+Each follows the pattern: `<tech>_schema.json` or `<tech>_schema.json5`.
 
 ## Required output contract
 
-Top-level object must define `outputs` and each item must require:
-
-- `feature`
-- `value`
-- `units`
-- `section`
-- `summary`
+Every schema must define `outputs` as an array. Each item must require
+exactly these five fields and set `additionalProperties: false`:
 
 ```json
 {
   "type": "object",
   "required": ["outputs"],
+  "additionalProperties": false,
   "properties": {
     "outputs": {
       "type": "array",
       "items": {
         "type": "object",
         "required": ["feature", "value", "units", "section", "summary"],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "properties": {
+          "feature": { "type": "string", "enum": ["..."] },
+          "value":   { "anyOf": [{"type": "number"}, {"type": "string"}, {"type": "boolean"}, {"type": "array", "items": {"type": "string"}}, {"type": "null"}] },
+          "units":   { "type": ["string", "null"] },
+          "section": { "type": ["string", "null"] },
+          "summary": { "type": ["string", "null"] }
+        }
       }
     }
   }
 }
 ```
 
+These five fields map directly to the output CSV columns. COMPASS adds
+`county`, `state`, `FIPS`, and other metadata columns automatically.
+
 ## Build sequence
 
-1. Copy baseline schema and rename for target tech.
-2. Replace `feature` enum with target-tech IDs.
-3. Define `value`/`units` rules per feature family.
-4. Add `$definitions` for reusable decision logic.
-5. Add `$examples` for top failure modes.
-6. Add `$instructions` for global extraction policy.
+1. **Define the feature enum** — one stable lowercase ID per siting-relevant
+   requirement. Group IDs by family (setbacks, noise, zoning, permitting).
+2. **Define `value` and `units` rules per feature family** — in each
+   feature's `description`, state the expected value type and accepted unit
+   vocabulary explicitly.
+3. **Add `$definitions`** — group related feature descriptions here to keep
+   the `feature` enum block clean.
+4. **Add `$instructions`** — encode global extraction policy (scope, null
+   handling, one-row-per-feature contract, verbatim quote preference).
+5. **Smoke-test on one jurisdiction** — validate all enum items appear in
+   output and null rows are correctly populated for missing features.
 
-For new technologies (for example CHP or CST), clone a working schema and
-perform a strict vocabulary swap (features, units, exclusions) before adding
-new logic.
+## Feature definition template
 
-## Output column mapping
+Every feature description must answer four questions:
 
-Schema field names map directly to the final output CSV columns:
+1. **What is this?** One sentence identifying the regulatory concept.
+2. **VALUE rule:** What type is the value and what specific values/ranges are
+   valid?
+3. **UNITS rule:** What unit string is accepted, or `null` if not applicable?
+4. **IGNORE / CLARIFICATION:** What near-miss concepts must NOT match this
+   feature?
 
-| Schema field | CSV column |
+Example (abbreviated):
+
+```json
+"structure setback": {
+  "description": "Minimum distance from the generator to an occupied building. VALUE: numerical distance. UNITS: 'feet' or 'meters'. IGNORE: setbacks from property lines or roads — those are separate features."
+}
+```
+
+## Feature family taxonomy
+
+Organize `$definitions` by these families:
+
+| Family | Example features |
 |---|---|
-| `feature` | `feature` |
-| `value` | `value` |
-| `units` | `units` |
-| `section` | `section` |
-| `summary` | `summary` |
+| Setbacks | `structure setback`, `property line setback`, `road setback` |
+| Noise/Emissions | `noise limit`, `emissions standard`, `vibration limit` |
+| Operational | `hours of operation` |
+| Physical design | `screening requirement`, `enclosure requirement`, `exhaust stack height` |
+| Zoning | `primary use districts`, `conditional use districts`, `prohibited use districts` |
+| Permitting | `permit requirement`, `capacity threshold` |
+| Compliance | `decommissioning`, `enactment date` |
 
-Additional columns added by COMPASS finalization: `county`, `state`,
-`subdivision`, `jurisdiction_type`, `FIPS`, `adder`, `min_dist`, `max_dist`,
-`year`, `source`. These do not need to appear in the schema.
+## `$instructions` block
 
-## Scope bleed from generic legal documents
+Always include a `$instructions` object at the top level with these keys:
 
-When COMPASS retrieves a large generic land-use code rather than a
-technology-specific ordinance, the LLM may extract provisions that are
-outside the schema enum. This is most visible when unfamiliar feature names
-appear in the output CSV.
+```json
+"$instructions": {
+  "scope": "Describe exactly what to extract and what to ignore.",
+  "null_handling": "Output every enum feature. Use null value and null summary when a feature is not found in the document. Do not omit features.",
+  "one_row_per_feature": "Output exactly one row per feature. If multiple values apply, use the most restrictive and describe variants in summary.",
+  "verbatim_quotes": "In summary fields, prefer verbatim quotes from the source. Enclose in double quotation marks.",
+  "units_discipline": "Do not convert units. Record them exactly as they appear in the document."
+}
+```
 
-Primary controls:
-- `extraction_system_prompt` in plugin YAML — this is the strongest signal.
-  State explicitly what is in scope and what is out.
-- `$instructions.scope` in schema — reinforce exclusion language here.
-- `heuristic_keywords.not_tech_words` — filter documents upstream.
+## Scope bleed control
 
-Do not widen the feature enum to accommodate scope bleed; narrow the prompt
-and upstream filters instead.
+When COMPASS retrieves a large land-use code instead of a tech-specific
+ordinance, the LLM may extract off-domain provisions.
 
-## Technology adaptation guidance
+Fix order (most powerful first):
+1. `extraction_system_prompt` in plugin YAML — state explicitly what is in
+   scope and what is excluded.
+2. `$instructions.scope` in schema — reinforce with exclusion language.
+3. `heuristic_keywords.NOT_TECH_WORDS` — reject documents upstream.
 
-When adapting a baseline schema to any new technology:
-
-- Separate core utility-scale requirements from adjacent/non-target systems.
-- Keep district/permit features distinct from numerical constraints.
-- Encode jurisdiction/governance handling where relevant in summaries.
-- Require explicit nulls when a feature is not enacted.
+Do not expand the feature enum to absorb scope bleed. Narrow the prompt.
 
 ## Cross-technology adaptation checklist
 
-Apply this for any new domain:
+When cloning this schema for a new technology:
 
-1. Define technology-specific `feature` enum with stable IDs.
-2. Define allowed unit vocabulary for each feature family.
-3. Add explicit exclusion language for adjacent-but-out-of-scope systems.
-4. Ensure summaries preserve legal traceability (section + source-faithful text).
-5. Validate on deterministic docs before tuning retrieval.
-6. Consider including `enactment date` in the enum — COMPASS naturally surfaces it
-   from documents and it provides important temporal context in outputs.
-
-## Example specialization patterns (optional)
-
-Use examples only to shape exclusion strategy:
-
-- separate core utility-scale requirements from adjacent technologies,
-- add explicit exclusion terms in `not_tech_words`,
-- preserve legal traceability via `section` and `summary`.
-
-## Reuse safeguards
-
-- Keep tech-first file names consistent across assets:
-  `<tech>_config*.json5`, `<tech>_plugin_config.yaml`,
-  `<tech>_schema.json`, `<tech>_jurisdictions*.csv`.
-- Keep credentials out of schema content and examples.
-- Validate schema behavior with a small smoke run before scaling.
-
-## High-value authoring patterns
-
-- Put restrictive-value selection rules directly in descriptions.
-- Explicitly define accepted unit vocabulary.
-- Clarify near-miss terms that should not be treated as equivalent.
-- State whether qualitative features should keep `value`/`units` null.
-
-## Anti-patterns
-
-- Retrieval instructions embedded in schema semantics.
-- Feature IDs that change names across iterations.
-- Implicit unit assumptions not declared in text.
-- Examples that contradict field descriptions.
-- Feature enums that include placeholders with no extraction logic.
+- [ ] Replace all feature IDs with technology-specific names.
+- [ ] Replace value/units rules in every feature description.
+- [ ] Replace exclusion terms in `$instructions.scope` and feature IGNORE
+      clauses.
+- [ ] Replace `$definitions` group names to match new feature families.
+- [ ] Smoke-test before widening to 10+ jurisdictions.
 
 ## Quality checklist
 
-- Enum matches target output columns.
-- Every feature has deterministic extraction rules.
-- `section` and `summary` preserve legal traceability.
-- Repeated sample runs produce stable feature typing.
+- [ ] Feature enum uses stable, lowercase, underscore-separated IDs.
+- [ ] Every feature description contains VALUE, UNITS, and IGNORE clauses.
+- [ ] `$instructions` block is present with all five keys.
+- [ ] `additionalProperties: false` is set on the top-level object and on
+      each item in the `outputs` array.
+- [ ] Schema validates cleanly against a JSON Schema validator.
+- [ ] A smoke run using this schema produces extracted rows (not just
+   successful process exit logs).
 
-## Iteration loop
+## Anti-patterns to avoid
 
-1. Run 3-jurisdiction smoke sample.
-2. Catalog failure modes by feature.
-3. Patch only affected descriptions/examples.
-4. Re-run same sample before expanding scope.
-
-Save iterated schema versions as `<tech>_schemav2.json`, `<tech>_schemav3.json`
-etc. to preserve a diff history. The active version is what `schema:` in the
-plugin YAML points to.
-
-## Practical quality signal
-
-Treat a schema as "working" when all are true on the smoke sample:
-
-- final ordinance CSV outputs are non-empty,
-- extracted rows include stable feature IDs,
-- most non-null rows have useful `section` and `summary`,
-- repeated runs do not shift feature semantics materially.
+- Feature IDs that change names between iterations.
+- Implicit unit assumptions not stated in description text.
+- Missing IGNORE clauses for common near-miss features.
+- Examples in descriptions that contradict field rules.
+- Widening the enum to absorb scope bleed instead of tightening the prompt.

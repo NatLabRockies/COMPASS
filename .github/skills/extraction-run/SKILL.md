@@ -5,14 +5,19 @@ description: Execute one-shot extraction with COMPASS, evaluate outputs, and ite
 
 # Extraction Run Skill
 
+**ONE-SHOT EXTRACTION ONLY.** This skill applies only to schema-driven extraction.
+For legacy decision-tree extraction (solar, wind, small wind), consult COMPASS 
+architecture docs.
+
 Use this skill to run one-shot extraction in a repeatable, low-risk way,
 then iterate quickly until you have stable structured outputs.
 
 ## When to use
 
 - Schema exists and plugin config points to it.
-- You are onboarding a new technology (for example geothermal, CHP, hydrogen).
+- You are onboarding a new technology (diesel generator, geothermal, CHP, hydrogen).
 - You need a reliable smoke-test workflow before scaling.
+- You are NOT using legacy decision-tree extraction.
 
 ## Two-pipeline modes
 
@@ -47,6 +52,16 @@ needed for one-shot techs.
 - Plugin config containing `schema`.
 - API keys in environment (never hardcode in configs).
 - A jurisdiction set sized to the current phase.
+
+## Preflight checks (must pass before run)
+
+- Jurisdiction CSV has headers `County,State`.
+- `out_dir` is unique for this run.
+- At least one acquisition step is enabled:
+	`perform_se_search: true`, `perform_website_search: true`,
+	`known_doc_urls`, or `known_local_docs`.
+- If `heuristic_keywords` exists, all four required lists are present and
+	non-empty.
 
 ## Naming convention
 
@@ -92,29 +107,19 @@ unchanged and swap only technology-specific inputs:
 
 Change one axis per run unless debugging infrastructure failures.
 
-## Example references (optional)
+## Canonical reference
 
-- `examples/one_shot_schema_extraction/README.rst`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_config.json5`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_plugin_config.yaml`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_schema.json`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_jurisdictions_one.csv`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_one_shot_guide.md`
-- `examples/one_shot_schema_extraction_cst/cst_config.json5` (CST reference)
-- `examples/one_shot_schema_extraction_cst/cst_plugin_config.yaml` (CST reference)
-- `examples/one_shot_schema_extraction_cst/cst_schema.json` (CST reference)
-- `compass/extraction/geothermal_electricity/` (finalized one-shot tech example)
-- `docs/source/examples/one_shot_schema_extraction/plugin_config_minimal.json`
-- `docs/source/examples/one_shot_schema_extraction/plugin_config.yaml`
-- `examples/compass_tech_pipeline/README.md`
+- `examples/one_shot_schema_extraction/` — complete working examples
+- `examples/one_shot_schema_extraction/README.rst` — general one-shot overview
+- `examples/water_rights_demo/one-shot/` — multi-doc extraction example
 
-## Environment setup reminder
+## Environment setup
 
-Before running, load secrets from `.env` (for example `SERPAPI_KEY`,
-`AZURE_OPENAI_API_KEY`) into the current shell. Do not commit secret values
-inside config files.
+Load secrets from `.env` before running. Never commit key values in config files.
 
-Common `.env` gotcha: avoid spaces around `=` in variable assignments.
+```bash
+set -a && source .env && set +a   # no spaces around = in .env assignments
+```
 
 ## Core command
 
@@ -124,9 +129,9 @@ pixi run compass process -c config.json5 -p path/to/plugin_config.yaml -v
 
 ## Phase-gated workflow
 
-1. **Smoke test (3 jurisdictions)**
+1. **Smoke test (1 jurisdiction)**
 	 - Goal: verify wiring and output contract.
-2. **Robustness (10-25 jurisdictions)**
+2. **Robustness (5 jurisdictions)**
 	 - Goal: verify feature stability and edge-case handling.
 3. **Scale (full set)**
 	 - Goal: only after earlier phases pass acceptance gates.
@@ -176,6 +181,14 @@ Check in order:
 2. `outputs/*/jurisdiction_dbs/*.csv` (per-jurisdiction parsed rows)
 3. `outputs/*/quantitative_ordinances.csv` and
 	 `outputs/*/qualitative_ordinances.csv` (final compiled results)
+
+Treat the run as **failed for extraction quality** when either is true:
+- `Number of jurisdictions with extracted data: 0`
+- any configuration exception appears in logs (even if process exits 0)
+
+Only treat a run as passing when both are true:
+- at least one jurisdiction has extracted data
+- at least one jurisdiction CSV in `jurisdiction_dbs/` has more than header row
 
 ## Root-cause triage
 

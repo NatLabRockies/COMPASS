@@ -6,11 +6,13 @@ description: Build and tune one-shot plugin configs that search, rank, and colle
 # Web Scraper Skill
 
 Use this skill to improve retrieval precision/recall before extraction tuning.
+Applies to both one-shot (schema-driven) and legacy decision-tree extraction
+pipelines.
 
 ## When to use
 
-- Download step returns noisy sources.
-- Ordinance recall is weak across jurisdictions.
+- Download step returns noisy sources (one-shot extraction).
+- Ordinance recall is weak across jurisdictions (one-shot extraction).
 - LLM filtering is compensating for poor search quality.
 
 ## Scope
@@ -19,13 +21,11 @@ Use this skill to improve retrieval precision/recall before extraction tuning.
 - URL ranking and filtering patterns.
 - Heuristic phrase controls before LLM validation.
 
-## Example references (optional)
+## Canonical reference
 
-- `examples/one_shot_schema_extraction_geothermal/geothermal_plugin_config.yaml`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_config.json5`
-- `examples/one_shot_schema_extraction_geothermal/geothermal_jurisdictions_one.csv`
-- `examples/one_shot_schema_extraction_cst/cst_plugin_config.yaml`
-- `examples/compass_tech_pipeline/README.md`
+Consult example plugin configurations in `examples/` following the tech-first naming pattern:
+- `<tech>_plugin_config.yaml` — standard one-shot config
+- See `examples/water_rights_demo/one-shot/plugin_config.yaml` for multi-document edge cases
 
 ## Two retrieval phases
 
@@ -70,6 +70,15 @@ Avoid spaces around `=` in `.env` assignments.
 5. Start with dynamic search, then switch to deterministic known URLs when
   search infrastructure is unstable.
 
+When using `heuristic_keywords`, include all required lists:
+- `GOOD_TECH_KEYWORDS`
+- `GOOD_TECH_PHRASES`
+- `GOOD_TECH_ACRONYMS`
+- `NOT_TECH_WORDS`
+
+If any required list is missing or empty, COMPASS raises a plugin
+configuration error and extraction quality should be treated as failed.
+
 For first-pass reliability, test retrieval with deterministic known URLs
 before using live web search.
 
@@ -104,7 +113,7 @@ Then validate:
 	- query templates (affects SE phase),
 	- URL weights (affects both phases),
 	- include/exclude heuristic patterns (pre-LLM filter),
-	- `not_tech_words` (upstream document rejection).
+  - `NOT_TECH_WORDS` (upstream document rejection).
 6. Re-run same sample and compare.
 
 ## Cross-tech onboarding
@@ -117,7 +126,7 @@ When reusing this workflow for any technology:
 - seed `known_doc_urls` with authoritative regulatory documents for smoke
   testing,
 - avoid copying negatives from previous technologies into the new tech config,
-- verify `not_tech_words` excludes adjacent technologies for your domain.
+- verify `NOT_TECH_WORDS` excludes adjacent technologies for your domain.
 
 ## Phase gates
 
