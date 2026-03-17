@@ -1,0 +1,206 @@
+schema: ./geothermal_schema.json
+
+data_type_short_desc: utility-scale geothermal electricity ordinance
+
+cache_llm_generated_content: true
+
+query_templates:
+    - "filetype:pdf {jurisdiction} geothermal power plant ordinance"
+    - "geothermal electricity generation ordinance {jurisdiction}"
+    - "{jurisdiction} geothermal energy facility zoning ordinance"
+    - "{jurisdiction} geothermal power plant land use code"
+    - "{jurisdiction} geothermal code of ordinances"
+    - "{jurisdiction} geothermal conditional use permit"
+    - "{jurisdiction} geothermal special use permit"
+    - "{jurisdiction} geothermal drilling permit regulations"
+    - "{jurisdiction} geothermal resource development statute"
+    - "Where can I find the legal text for geothermal power plant zoning ordinances in {jurisdiction}?"
+    - "What is the specific legal information regarding zoning ordinances for geothermal electricity generation facilities in {jurisdiction}?"
+
+website_keywords:
+    pdf: 92160
+    geothermal: 46080
+    ordinance: 23040
+    zoning: 11520
+    regulation: 5760
+    code: 2880
+    power: 1440
+    electricity: 1440
+    planning: 720
+    permit: 720
+    land use: 720
+    municipal: 720
+    county: 360
+    ordinance code: 360
+    code of ordinances: 360
+    land use code: 360
+    use table: 360
+    chapter: 180
+    article: 180
+    title: 180
+    statute: 180
+    administrative code: 180
+    conditional use permit: 180
+    special use permit: 180
+    drilling permit: 180
+    resource development: 180
+    government: 180
+
+heuristic_keywords:
+  good_tech_keywords:
+    - "wellfield"
+    - "well field"
+    - "production well"
+    - "geothermal exploration"
+    - "geothermal generating"
+    - "geothermal generation"
+    - "geothermal power"
+    - "geothermal production"
+    - "geothermal project"
+    - "geothermal overlay zone"
+    - "geothermal power plant"
+    - "geothermal facility"
+    - "geothermal electric"
+    - "geothermal energy facility"
+    - "steam turbine"
+    - "binary cycle"
+    - "flash steam"
+    - "dry steam"
+    - "enhanced geothermal"
+    - "reservoir temperature"
+    - "brine"
+    - "reinjection well"
+    - "production zone"
+    - "geothermal resource"
+    - "geothermal production project"
+    - "geothermal drilling"
+    - "exploratory well"
+    - "injection well"
+    - "geothermal lease"
+    - "drilling permit"
+    - "plan of utilization"
+    - "known geothermal resource"
+    - "geothermal development"
+    - "geothermal well"
+    - "geothermal reservoir"
+    - "geothermal permit"
+    - "geothermal ordinance"
+    - "geothermal zoning"
+    - "code of ordinances"
+    - "land use code"
+    - "use table"
+    - "zoning ordinance"
+    - "special use permit"
+    - "conditional use permit"
+  good_tech_acronyms:
+    - "egs"
+    - "kgra"
+  good_tech_phrases:
+    - "geothermal power plant"
+    - "geothermal electricity generation"
+    - "geothermal energy facility"
+    - "geothermal resource development"
+    - "known geothermal resource area"
+    - "binary cycle"
+    - "flash steam"
+    - "dry steam"
+    - "steam turbine"
+    - "plan of utilization"
+    - "land use code"
+    - "code of ordinances"
+    - "zoning ordinance"
+    - "special use permit"
+    - "conditional use permit"
+  not_tech_words:
+    - "geothermal heat pump"
+    - "ground source heat pump"
+    - "ground-source heat pump"
+    - "ghp"
+    - "ground heat pump"
+    - "gshp"
+    - "ground-coupled heat pump"
+    - "ground coupled heat pump"
+    - "earth-coupled heat pump"
+    - "earth-source heat pump"
+    - "geoexchange"
+    - "geo-exchange"
+    - "closed loop"
+    - "closed-loop"
+    - "open loop"
+    - "vertical loop"
+    - "horizontal loop"
+    - "heating and cooling"
+    - "hvac"
+    - "space heating"
+    - "water heating"
+    - "direct use"
+    - "direct-use"
+    - "district heating"
+    - "greenhouse heating"
+    - "residential geothermal"
+    - "accessory use"
+    - "energy star"
+    - "solar panel"
+    - "solar array"
+    - "solar farm"
+    - "solar energy system"
+    - "solar energy facility"
+    - "photovoltaic"
+    - "net metering"
+    - "solar collector"
+    - "solar ordinance"
+    - "wind energy"
+    - "wind farm"
+    - "wind turbine"
+    - "wind energy system"
+    - "wind energy facility"
+    - "wind energy conversion"
+    - "wind ordinance"
+    - "anemometer tower"
+    - "meteorological tower"
+    - "rotor diameter"
+    - "tip height"
+    - "nacelle"
+    - "battery storage"
+    - "energy storage system"
+    - "hydroelectric"
+    - "biomass"
+
+collection_prompts: true
+
+text_extraction_prompts: true
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from geothermal
+  electricity ordinances and regulations.
+
+  Be focused and literal: extract only enacted, explicit, in-scope
+  requirements.
+  Be thorough and complete: review all relevant sections, including tables,
+  use tables, footnotes, and lists, so no explicitly stated feature is
+  missed.
+  Before finalizing, perform a feature-coverage check against the schema enum
+  and ensure each explicitly supported feature is captured at most once.
+
+  Follow all schema instructions exactly.
+  Extract only enacted requirements that apply to utility-scale geothermal
+  electricity generation, geothermal exploration or drilling, geothermal
+  wells, geothermal power plants, or directly associated generation
+  facilities such as substations or gen-tie lines when the ordinance
+  explicitly governs them.
+
+  Do not extract rules that apply only to geothermal heat pumps, HVAC,
+  direct-use geothermal, district heating, residential systems, or other
+  non-generation technologies.
+
+  State-level statutes or regulations are valid when they govern local or
+  project-level siting, permitting, drilling, setbacks, environmental
+  controls, decommissioning, or operating requirements.
+
+  Prefer explicit enacted values over interpretation.
+  Use null values and null units for qualitative obligations when the
+  summary carries the operative legal requirement.
+  Treat fracking or hydraulic-fracturing language as in scope only when the
+  ordinance explicitly uses it to regulate or prohibit geothermal
+  electricity development.
+  Keep summaries source-faithful and include important conditions.

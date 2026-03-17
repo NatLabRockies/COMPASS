@@ -1,0 +1,28 @@
+// geothermal_config_demo.json5
+{
+    "out_dir": "./outputs_geothermal_dev_one",
+    "tech": "geothermal_electricity",
+    "jurisdiction_fp": "./geothermal_jurisdictions_one.csv",
+    "search_engines": [
+        {
+            "se_name": "SerpAPIGoogleSearch",
+            "verify": false
+        }
+    ],
+    "file_loader_kwargs": {
+        "verify_ssl": false
+    },
+    "model": [
+        {
+            "name": "compassop-gpt-4.1-mini",
+            "llm_call_kwargs": {
+                "temperature": 0,
+                "timeout": 600
+            },
+            "client_kwargs": {
+                "api_version": "2025-04-01-preview",
+                "azure_endpoint": "https://aoai-prod-eastus-compassop-001.openai.azure.com/"
+            }
+        }
+    ]
+}
