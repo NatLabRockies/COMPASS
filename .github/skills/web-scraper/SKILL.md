@@ -30,9 +30,12 @@ When using this skill, return:
 
 ## Canonical reference
 
-Consult example plugin configurations in `examples/` following the tech-first naming pattern:
-- `<tech>_plugin_config.yaml` — standard one-shot config
-- See `examples/water_rights_demo/one-shot/plugin_config.yaml` for multi-document edge cases
+Consult example plugin configurations in `examples/`:
+- `examples/one_shot_schema_extraction/plugin_config.yaml` — standard one-shot config
+- `examples/water_rights_demo/one-shot/plugin_config.yaml` — multi-document edge cases
+
+When creating new tech configs, use `<tech>_plugin_config.yaml` as a recommended
+naming convention (e.g. `geothermal_plugin_config.yaml`).
 
 ## Scope
 
@@ -49,7 +52,8 @@ COMPASS runs two sequential acquisition passes per jurisdiction:
    ordinance documents.
 2. **Website crawl phase** — crawls the jurisdiction's official website,
    ranking pages using `website_keywords`. This phase is a secondary pass
-   and runs even if the SE phase found documents.
+   and runs only if the search-engine phase did not yield an ordinance
+   context.
 
 Key behaviors:
 - Playwright browser errors during the website crawl phase are **non-fatal**.
@@ -123,10 +127,10 @@ Then validate:
 3. Run heuristic filter and review false rejects/accepts (`cleaned_text/`).
 4. Check website crawl phase independently if needed (enable, run, inspect logs).
 5. Update one axis only:
-	- query templates (affects SE phase),
-	- URL weights (affects both phases),
-	- include/exclude heuristic patterns (pre-LLM filter),
-  - `NOT_TECH_WORDS` (upstream document rejection).
+   - query templates (affects SE phase),
+   - URL weights (affects both phases),
+   - include/exclude heuristic patterns (pre-LLM filter),
+   - `NOT_TECH_WORDS` (upstream document rejection).
 6. Re-run same sample and compare.
 
 ## Cross-tech onboarding
