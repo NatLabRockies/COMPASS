@@ -56,15 +56,17 @@ only a schema JSON, a plugin YAML, and a run config — no Python source changes
 
 New technology assets start in `examples/` and finish in `compass/extraction/`:
 
-1. **Develop** — place all assets in `examples/one_shot_schema_extraction_<tech>/`
+1. **Develop** — place all assets in `examples/one_shot_schema_extraction/`
 2. **Stabilize** — iterate schema/plugin until smoke and robustness gates pass
 3. **Promote** — copy the three finalized files into `compass/extraction/<tech>/`:
    - `<tech>_schema.json`
    - `<tech>_plugin_config.yaml`
    - `<tech>_config.json5` (optional; useful as a reference run config)
+   - `__init__.py` — registers the plugin via `create_schema_based_one_shot_extraction_plugin`
 
-The promoted extraction folder contains only config files — no Python code is
-needed for one-shot techs.
+   After creating the package, add an import in `compass/extraction/__init__.py`
+   to register the plugin at startup. See `compass/extraction/ghp/__init__.py`
+   for a reference implementation.
 
 ## Required inputs
 
@@ -78,10 +80,10 @@ needed for one-shot techs.
 - Jurisdiction CSV has headers `County,State`.
 - `out_dir` is unique for this run.
 - At least one acquisition step is enabled:
-	`perform_se_search: true`, `perform_website_search: true`,
-	`known_doc_urls`, or `known_local_docs`.
+  `perform_se_search: true`, `perform_website_search: true`,
+  `known_doc_urls`, or `known_local_docs`.
 - If `heuristic_keywords` exists, all four required lists are present and
-	non-empty.
+  non-empty.
 
 ## Naming convention
 
@@ -106,7 +108,7 @@ to deterministic mode only when search infrastructure is unstable:
 2. Use your preferred configured search engine.
 3. Load `.env` into shell (`set -a && source .env && set +a`).
 4. Run with verbose logs:
-	 - `pixi run compass process -c config.json5 -p plugin.yaml -v`
+   - `pixi run compass process -c config.json5 -p plugin.yaml -v`
 5. Confirm output artifacts exist before tuning schema semantics.
 
 Fallback mode when needed:
@@ -144,11 +146,11 @@ pixi run compass process -c config.json5 -p path/to/plugin_config.yaml -v
 ## Phase-gated workflow
 
 1. **Smoke test (1 jurisdiction)**
-	 - Goal: verify wiring and output contract.
+   - Goal: verify wiring and output contract.
 2. **Robustness (5 jurisdictions)**
-	 - Goal: verify feature stability and edge-case handling.
+   - Goal: verify feature stability and edge-case handling.
 3. **Scale (full set)**
-	 - Goal: only after earlier phases pass acceptance gates.
+   - Goal: only after earlier phases pass acceptance gates.
 
 ## Validation checklist
 
@@ -194,7 +196,7 @@ Check in order:
 1. `outputs/*/cleaned_text/*.txt` (text extraction present)
 2. `outputs/*/jurisdiction_dbs/*.csv` (per-jurisdiction parsed rows)
 3. `outputs/*/quantitative_ordinances.csv` and
-	 `outputs/*/qualitative_ordinances.csv` (final compiled results)
+   `outputs/*/qualitative_ordinances.csv` (final compiled results)
 
 Treat the run as **failed for extraction quality** when either is true:
 - `Number of jurisdictions with extracted data: 0`
@@ -207,20 +209,20 @@ Only treat a run as passing when both are true:
 ## Root-cause triage
 
 - **Wrong or noisy documents**
-	- Tune query templates, URL keywords, and exclusions.
-	- Prefer `known_doc_urls` while stabilizing.
+  - Tune query templates, URL keywords, and exclusions.
+  - Prefer `known_doc_urls` while stabilizing.
 - **Right documents, wrong fields**
-	- Tune schema descriptions/examples and ambiguity rules.
-	- Check `extraction_system_prompt` in plugin YAML — it is the primary
-	  guard against scope bleed from generic legal documents.
+  - Tune schema descriptions/examples and ambiguity rules.
+  - Check `extraction_system_prompt` in plugin YAML — it is the primary
+    guard against scope bleed from generic legal documents.
 - **Correct values, unstable formatting**
-	- Tighten enums, unit vocabulary, and null behavior.
+  - Tighten enums, unit vocabulary, and null behavior.
 - **Nothing downloaded / unstable search**
-	- Disable live search and use deterministic known URLs/local docs.
+  - Disable live search and use deterministic known URLs/local docs.
 - **0 documents found for a jurisdiction during website crawl**
-	- Expected for jurisdictions with few online ordinances. The website
-	  crawl is a second acquisition pass after search-engine retrieval;
-	  0 results there is not a pipeline failure.
+  - Expected for jurisdictions with few online ordinances. The website
+    crawl is a second acquisition pass after search-engine retrieval;
+    0 results there is not a pipeline failure.
 
 ## Acceptance gates
 

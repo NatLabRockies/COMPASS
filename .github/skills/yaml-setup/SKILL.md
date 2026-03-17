@@ -33,9 +33,14 @@ When using this skill, return:
 
 ## Canonical reference
 
-With tech-first naming, configuration examples follow this pattern:
-- `examples/one_shot_schema_extraction/<tech>_plugin_config.yaml` — standard working example
+Consult the working examples in `examples/`:
+- `examples/one_shot_schema_extraction/plugin_config.yaml` — standard working example
 - `examples/water_rights_demo/one-shot/plugin_config.yaml` — multi-doc edge case
+
+When creating new tech configs, `<tech>_plugin_config.yaml` is the recommended
+naming convention (e.g. `geothermal_plugin_config.yaml`). The existing
+`plugin_config.yaml` examples use a generic name; new tech-specific assets
+should use the tech-first naming pattern.
 
 Refer to any complete example in `examples/` that matches your retrieval goals.
 
@@ -78,7 +83,7 @@ schema: ./my_schema.json
 | `collection_prompts` | list or `true` | Text collection prompt(s). If **`true`**, LLM auto-generates from schema. |
 | `text_extraction_prompts` | list or `true` | Text consolidation prompt(s). If **`true`**, LLM auto-generates from schema. |
 | `extraction_system_prompt` | string | Overrides default LLM system prompt for the extraction step. Use this to scope extraction tightly to the target technology. |
-| `cache_llm_generated_content` | bool | Cache LLM-generated `query_templates` and `website_keywords`. Set to `false` when iterating schema to see live changes. |
+| `cache_llm_generated_content` | bool | Cache LLM-generated `query_templates`, `website_keywords`, and `heuristic_keywords`. Set to `false` when iterating schema to see live changes. |
 
 ## Required `heuristic_keywords` shape
 
@@ -122,8 +127,7 @@ extraction_system_prompt: |-
   Prefer explicit values. Use null for qualitative obligations.
 ```
 
-See `compass/extraction/geothermal_electricity/geothermal_plugin_config.yaml`
-for a complete example.
+See `compass/extraction/ghp/plugin_config.yaml` for a complete example.
 
 ## Progressive config path
 
