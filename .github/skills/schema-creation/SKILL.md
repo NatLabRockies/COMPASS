@@ -119,7 +119,7 @@ Organize `$definitions` by these families:
 | Physical design | `screening requirement`, `enclosure requirement`, `exhaust stack height` |
 | Zoning | `primary use districts`, `conditional use districts`, `prohibited use districts` |
 | Permitting | `permit requirement`, `capacity threshold` |
-| Compliance | `decommissioning`, `enactment date` |
+| Compliance | `decommissioning` |
 
 ## `$instructions` block
 
@@ -129,7 +129,6 @@ Always include a `$instructions` object at the top level with these keys:
 "$instructions": {
   "scope": "Describe exactly what to extract and what to ignore.",
   "null_handling": "Output every enum feature. Use null value and null summary when a feature is not found in the document. Do not omit features.",
-  "one_row_per_feature": "Output exactly one row per feature. If multiple values apply, use the most restrictive and describe variants in summary.",
   "verbatim_quotes": "In summary fields, prefer verbatim quotes from the source. Enclose in double quotation marks.",
   "units_discipline": "Do not convert units. Record them exactly as they appear in the document."
 }
@@ -150,7 +149,7 @@ Do not expand the feature enum to absorb scope bleed. Narrow the prompt.
 
 ## Cross-technology adaptation checklist
 
-When cloning this schema for a new technology:
+When cloning a schema for a new technology:
 
 - [ ] Replace all feature IDs with technology-specific names.
 - [ ] Replace value/units rules in every feature description.

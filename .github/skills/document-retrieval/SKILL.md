@@ -1,5 +1,5 @@
 ---
-name: web-scraper
+name: document-retrieval
 description: Build and tune retrieval configs that search, rank, and collect ordinance documents in COMPASS. Use whenever a user asks to improve retrieval precision/recall, tune search queries/keywords, or debug acquisition quality before extraction tuning.
 ---
 
@@ -87,11 +87,19 @@ Avoid spaces around `=` in `.env` assignments.
 5. Start with dynamic search, then switch to deterministic known URLs when
   search infrastructure is unstable.
 
-When using `heuristic_keywords`, include all required lists:
-- `GOOD_TECH_KEYWORDS`
-- `GOOD_TECH_PHRASES`
-- `GOOD_TECH_ACRONYMS`
-- `NOT_TECH_WORDS`
+When using `heuristic_keywords`, use these four lists to guide pre-LLM filtering:
+- `GOOD_TECH_KEYWORDS` — strong indicators of the target technology
+  (e.g., facility types, deployment modes). Documents matching even a
+  few keywords are marked as candidates.
+- `GOOD_TECH_PHRASES` — multi-word phrases that signal relevant
+  ordinance content. Keep specific to avoid false positives.
+- `GOOD_TECH_ACRONYMS` — industry-standard abbreviations for the
+  technology. Narrow list; include only widely recognized acronyms.
+- `NOT_TECH_WORDS` — pre-heuristic filter that rejects documents
+  before keyword matching. Use to exclude adjacent technologies and
+  irrelevant domains (e.g., residential HVAC, unrelated industries).
+  Runs first; prevents wasted keyword evaluation on clearly-wrong
+  documents.
 
 If any required list is missing or empty, COMPASS raises a plugin
 configuration error and extraction quality should be treated as failed.
@@ -107,6 +115,10 @@ before using live web search.
   `code of ordinances`, `use table`, and `special use permit`.
 
 ## Deterministic smoke-test mode
+For this smoke test, at least one of the following documentation sources must be provided:
+
+- **`known_doc_urls`**: A list of URLs pointing to external documentation that the scraper can access and parse
+- **`known_local_docs`**: A collection of local documentation files available in the repository or system
 
 Use run-config controls to bypass flaky search while tuning:
 
@@ -148,8 +160,8 @@ When reusing this workflow for any technology:
 ## Phase gates
 
 - **3 jurisdictions**: ensure major source classes are found.
-- **10-25 jurisdictions**: verify stability across regions.
-- **Full scale**: only once false positive/negative rates stabilize.
+- **10 jurisdictions**: verify stability across regions.
+
 
 ## Guardrails
 

@@ -6,7 +6,7 @@ description: Execute one-shot extraction with COMPASS and iterate quickly with l
 # Extraction Run Skill
 
 **ONE-SHOT EXTRACTION ONLY.** This skill applies only to schema-driven extraction.
-For legacy decision-tree extraction (solar, wind, small wind), consult COMPASS 
+For decision-tree extraction (solar, wind, small wind), consult COMPASS
 architecture docs.
 
 Use this skill to run one-shot extraction in a repeatable, low-risk way,
@@ -17,11 +17,11 @@ then iterate quickly until you have stable structured outputs.
 - Schema exists and plugin config points to it.
 - You are onboarding a new technology (diesel generator, geothermal, CHP, hydrogen).
 - You need a reliable smoke-test workflow before scaling.
-- You are NOT using legacy decision-tree extraction.
+- You are NOT using decision-tree extraction.
 
 ## Do not use
 
-- Legacy decision-tree extraction feature engineering.
+- Decision-tree extraction feature engineering.
 - Python parser implementation in `compass/extraction/<tech>/parse.py`.
 - Non-extraction tasks (for example docs-only updates).
 
@@ -47,7 +47,7 @@ them for the same technology:
 | Mode | Where code lives | Good for |
 |---|---|---|
 | **One-shot (schema-based)** | `examples/` → `compass/extraction/<tech>/` | New techs, no Python changes |
-| **Legacy decision-tree** | Python code in `compass/extraction/<tech>/` | Existing solar, wind, small wind |
+| **decision-tree** | Python code in `compass/extraction/<tech>/` | Existing solar, wind, small wind |
 
 One-shot is the correct path for all new technology onboarding. It requires
 only a schema JSON, a plugin YAML, and a run config — no Python source changes.
@@ -61,7 +61,6 @@ New technology assets start in `examples/` and finish in `compass/extraction/`:
 3. **Promote** — copy the three finalized files into `compass/extraction/<tech>/`:
    - `<tech>_schema.json`
    - `<tech>_plugin_config.yaml`
-   - `<tech>_config.json5` (optional; useful as a reference run config)
    - `__init__.py` — registers the plugin via `create_schema_based_one_shot_extraction_plugin`
 
    After creating the package, add an import in `compass/extraction/__init__.py`
@@ -77,7 +76,7 @@ New technology assets start in `examples/` and finish in `compass/extraction/`:
 
 ## Preflight checks (must pass before run)
 
-- Jurisdiction CSV has headers `County,State`.
+- Jurisdiction CSV has headers `County,State` or `County,State,Subdivision,Jurisdiction Type`.
 - `out_dir` is unique for this run.
 - At least one acquisition step is enabled:
   `perform_se_search: true`, `perform_website_search: true`,
@@ -89,7 +88,6 @@ New technology assets start in `examples/` and finish in `compass/extraction/`:
 
 Use tech-first names for all one-shot assets:
 
-- `<tech>_config*.json5`
 - `<tech>_plugin_config.yaml`
 - `<tech>_schema.json`
 - `<tech>_jurisdictions*.csv`
@@ -149,8 +147,6 @@ pixi run compass process -c config.json5 -p path/to/plugin_config.yaml -v
    - Goal: verify wiring and output contract.
 2. **Robustness (5 jurisdictions)**
    - Goal: verify feature stability and edge-case handling.
-3. **Scale (full set)**
-   - Goal: only after earlier phases pass acceptance gates.
 
 ## Validation checklist
 
@@ -161,10 +157,6 @@ Evaluate each run on:
 - section/summary traceability,
 - unit consistency,
 - null discipline,
-- **scope bleed** — check that no features appear in the output CSVs that
-  fall outside the schema enum; generic land-use-code documents can cause
-  unrelated provisions to leak through. Tighten `extraction_system_prompt`
-  in plugin YAML to fix this.
 
 ## Expected output artifacts
 

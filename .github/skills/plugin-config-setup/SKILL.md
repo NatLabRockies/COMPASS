@@ -1,5 +1,5 @@
 ---
-name: yaml-setup
+name: plugin-config-setup
 description: Author and tune one-shot plugin YAML for COMPASS document discovery, filtering, and text collection. Use whenever a user asks to create, clean up, standardize, or troubleshoot one-shot plugin YAML for technology onboarding.
 ---
 
@@ -86,6 +86,20 @@ schema: ./my_schema.json
 | `cache_llm_generated_content` | bool | Cache LLM-generated `query_templates`, `website_keywords`, and `heuristic_keywords`. Set to `false` when iterating schema to see live changes. |
 
 ## Required `heuristic_keywords` shape
+
+When using `heuristic_keywords`, use these four lists to guide pre-LLM filtering:
+- `GOOD_TECH_KEYWORDS` — strong indicators of the target technology
+  (e.g., facility types, deployment modes). Documents matching even a
+  few keywords are marked as candidates.
+- `GOOD_TECH_PHRASES` — multi-word phrases that signal relevant
+  ordinance content. Keep specific to avoid false positives.
+- `GOOD_TECH_ACRONYMS` — industry-standard abbreviations for the
+  technology. Narrow list; include only widely recognized acronyms.
+- `NOT_TECH_WORDS` — pre-heuristic filter that rejects documents
+  before keyword matching. Use to exclude adjacent technologies and
+  irrelevant domains (e.g., residential HVAC, unrelated industries).
+  Runs first; prevents wasted keyword evaluation on clearly-wrong
+  documents.
 
 Use this exact structure when defining `heuristic_keywords`:
 
@@ -214,8 +228,6 @@ values:
   ]
 }
 ```
-
-Do not hardcode model names in skills. Prompt the user to supply `name`.
 
 ## Acquisition phases
 
