@@ -532,6 +532,7 @@ def _extract_links_from_html(text, base_url):
     return {
         _Link(
             title=title,
+            text=title,
             href=_sanitize_url(urljoin(base_url, path)),
             base_domain=base_url,
         )

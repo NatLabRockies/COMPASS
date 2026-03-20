@@ -2,6 +2,14 @@
 
 import logging
 from contextlib import AsyncExitStack
+from urllib.parse import (
+    parse_qsl,
+    quote,
+    unquote,
+    urlencode,
+    urlparse,
+    urlunparse,
+)
 
 from elm.web.document import PDFDocument
 from elm.web.search.run import (
@@ -362,11 +370,19 @@ async def download_jurisdiction_ordinances_from_website(
         ch = None
 
     async with crawl_semaphore, cpb:
-        return await crawler.run(
+        docs_or_pair = await crawler.run(
             website,
             on_result_hook=ch,
             return_c4ai_results=return_c4ai_results,
         )
+
+    if return_c4ai_results:
+        docs, c4ai_results = docs_or_pair
+        _sanitize_doc_sources(docs)
+        return docs, c4ai_results
+
+    _sanitize_doc_sources(docs_or_pair)
+    return docs_or_pair
 
 
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
@@ -786,6 +802,37 @@ async def _contains_relevant_text(
             doc, date_model_config, usage_tracker=usage_tracker
         )
     return found_text
+
+
+def _sanitize_url(url):
+    """Percent-encode spaces and unsafe characters in a URL path"""
+    parsed = urlparse(url)
+    safe_path = quote(unquote(parsed.path), safe="/")
+    query_params = parse_qsl(parsed.query, keep_blank_values=True)
+    safe_query = urlencode(query_params, doseq=True)  # cspell: disable-line
+    return urlunparse((
+        parsed.scheme,
+        parsed.netloc,
+        safe_path,
+        parsed.params,
+        safe_query,
+        parsed.fragment,
+    ))
+
+
+def _sanitize_doc_sources(docs):
+    """Rewrite source attrs on documents returned by ELMWebsiteCrawler
+
+    crawl4ai can surface PDF URLs containing raw spaces (e.g. filenames
+    like "Land Use Code.pdf").  These fail when the file loader issues
+    an HTTP request because spaces are invalid in a URL path.  This
+    function percent-encodes each document's ``source`` attribute
+    in-place so that all downstream consumers receive a valid URL.
+    """
+    for doc in docs:
+        source = doc.attrs.get("source")
+        if source and " " in source:
+            doc.attrs["source"] = _sanitize_url(source)
 
 
 def _sort_final_ord_docs(all_ord_docs):

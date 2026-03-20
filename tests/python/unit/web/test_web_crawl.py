@@ -260,6 +260,36 @@ def test_extract_links_from_html_filters_blacklist():
     assert "https://example.com/ok.pdf" in test_refs
 
 
+def test_extract_links_from_html_sets_text_from_anchor():
+    """Anchor text should populate both link title and text"""
+
+    html = """
+    <a href="/doc.pdf">Permit Standards</a>
+    """
+    links = _extract_links_from_html(html, base_url="https://example.com")
+    link = next(iter(links))
+    assert link.title == "Permit Standards"
+    assert link.text == "Permit Standards"
+
+
+@pytest.mark.asyncio
+async def test_compass_link_scorer_scores_anchor_text():
+    """COMPASSLinkScorer must score anchor text via the 'text' key"""
+
+    scorer = COMPASSLinkScorer(keyword_points={"permit": 10, "pdf": 3})
+    links = [
+        {
+            "text": "Permit Standards",
+            "href": "https://example.com/doc.pdf",
+            "title": "Permit Standards",
+        },
+        {"text": "", "href": "https://example.com/index.html", "title": ""},
+    ]
+    scored = await scorer.score(links)
+    assert scored[0]["score"] == 13
+    assert scored[1]["score"] == 0
+
+
 def test_debug_info_on_links_logs_expected(
     compass_logger, assert_message_was_logged
 ):
