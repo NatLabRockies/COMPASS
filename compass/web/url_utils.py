@@ -9,6 +9,4 @@ def _sanitize_url(url):
     path = quote(parsed.path, safe="/:@-._~!$&'()*+,;=")
     query = quote(parsed.query, safe="=&;%:@-._~!$&'()*+,;/?:")
     fragment = quote(parsed.fragment, safe="")
-    return urlunsplit(
-        (parsed.scheme, parsed.netloc, path, query, fragment)
-    )
+    return urlunsplit((parsed.scheme, parsed.netloc, path, query, fragment))
