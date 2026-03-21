@@ -23,9 +23,9 @@
         "properties": {
           "feature": {
             "type": "string",
-            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs exactly as written. Do not invent aliases, prefixes, or synonym variants; for example, use 'residential zones setback' and never 'structures residential zones setback'.",
             "enum": [
-              "structures residential zones setback",
+              "residential zones setback",
               "property lines setback",
               "roads setback",
               "railroads setback",
@@ -52,8 +52,7 @@
               "permit requirement",
               "bond requirement",
               "decommissioning",
-              "prohibitions",
-              "ordinance date"
+              "prohibitions"
             ]
           },
           "value": {
@@ -78,7 +77,7 @@
           },
           "units": {
             "type": ["string", "null"],
-            "description": "Units for the extracted value. Preserve ordinance wording when possible. For setbacks and height, use linear units such as 'feet' or 'meters' as stated. For minimum lot size, use area units such as 'acres' or 'square feet'. For noise, use 'dBA' only if the ordinance says 'dBA' or 'dB(A)'; if it says 'dB' without A-weighting, keep 'dB'. Use null for district lists, permit lists, dates, and qualitative requirements without measurable units. For drilling-hours strings, use null unless the ordinance states a measurable hour cap rather than an operating window."
+            "description": "Units for the extracted value. Use canonical units for interoperability. For setbacks and height, use 'feet' or 'meters'. For minimum lot size, use 'acres' or 'square feet'. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use null for district lists, permit lists, dates, and qualitative requirements without measurable units. For drilling-hours strings, use null unless the ordinance states a measurable hour cap rather than an operating window."
           },
           "section": {
             "type": ["string", "null"],
@@ -123,7 +122,7 @@
     "setback_features": {
       "description": "Setback features for geothermal electricity facilities and related infrastructure. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in summary. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
       "properties": {
-        "structures residential zones setback": {
+        "residential zones setback": {
           "description": "Minimum required separation from structures, dwellings, occupied buildings, residences, homes, residential receptors, residential uses, or residential zoning districts. Extract this feature only when the ordinance explicitly ties the setback to structures, residences, occupied buildings, or residential zones. If one clause applies a common setback to multiple structure-like receptors such as homes, occupied buildings, and residential districts, keep one row under this feature and preserve the exact receptor list in summary. Do not map generic property line or district boundary setbacks here unless the text explicitly names structures or residential zones."
         },
         "property lines setback": {
@@ -162,7 +161,7 @@
       "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the ordinance text.",
       "properties": {
         "noise": {
-          "description": "Extract maximum allowable operational noise for geothermal electricity facilities only when an explicit numeric limit is stated. Keep units exactly as written in the text. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
+          "description": "Extract maximum allowable operational noise for geothermal electricity facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in summary. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
         },
         "maximum height": {
           "description": "Extract maximum allowed structure, drill rig, stack, tower, cooling equipment, or facility height only when an explicit numeric cap is stated. If multiple height caps apply to the same geothermal electricity feature, keep the lowest maximum and list the alternatives in summary."
@@ -233,14 +232,6 @@
           "description": "Extract currently effective bans, moratoria, or explicit prohibitions on geothermal electricity exploration, drilling, well development, plant construction, or facility siting. Include fracking or hydraulic-fracturing bans only when the ordinance explicitly uses them to ban, limit, or condition geothermal electricity activity. If there are carve-outs, exceptions, or conditional permitting paths that still allow the project, do not classify the rule as a prohibition."
         }
       }
-    },
-    "date_features": {
-      "description": "Effective, enacted, amended, or modified date information for the operative ordinance text.",
-      "properties": {
-        "ordinance date": {
-          "description": "Extract the ordinance enactment, adoption, amendment, or last-modified date when the source text explicitly states it. Use a string value that preserves the ordinance date wording exactly as written, and use units=null. Prefer the current operative enactment or amendment date over superseded historical dates unless the ordinance text clearly indicates multiple active dates are relevant."
-        }
-      }
     }
   },
   "$examples": [
@@ -291,14 +282,6 @@
           "section": "Section 9.3 - Financial Assurance",
           "summary": "'Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil, gas, and geothermal agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.'",
           "explanation": "The clause imposes an enforceable financial assurance requirement but leaves the amount to an agency-determined formula, so it fits 'bond requirement' with value and units set to null."
-        },
-        {
-          "feature": "ordinance date",
-          "value": "Amended April 12, 2024",
-          "units": null,
-          "section": "Ord. No. 2024-11",
-          "summary": "'Ord. No. 2024-11, amended April 12, 2024.'",
-          "explanation": "The excerpt explicitly states the operative amendment date for the ordinance, so it matches 'ordinance date'."
         }
       ]
     }
@@ -307,7 +290,9 @@
     "general": [
       "Use direct text excerpts and quotes in summary whenever possible.",
       "Each feature may appear at most once in outputs; do not emit multiple rows for the same feature. If multiple ordinance lines map to one feature, build a temporary map keyed by feature, aggregate all evidence clauses under that feature key, consolidate into one row, and keep the controlling most restrictive value in value while listing alternatives in summary.",
+      "Feature IDs are strict canonical keys. Do not output aliases, prefixed variants, or paraphrased feature names not present in the enum.",
       "For any numeric feature, the summary must support the same requirement that produced value and units for that row. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
+      "Standardize units in the units field using this schema's canonical vocabulary, while preserving ordinance-specific wording in summary.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
@@ -351,10 +336,6 @@
       "Distinguish between complete prohibition and conditional permitting. Conditional permitting is not a ban.",
       "Do not treat ordinary operational, environmental, design, monitoring, or permit conditions as prohibitions when the ordinance still allows the project to proceed subject to compliance.",
       "A fracking ban belongs here only when the ordinance explicitly uses it to regulate geothermal electricity development."
-    ],
-    "dates": [
-      "For 'ordinance date', preserve the date wording exactly as written in the ordinance text and use units=null.",
-      "Prefer the current operative enacted, amended, or modified date over historical prior dates unless the source text clearly indicates multiple active dates are relevant to the current ordinance provision."
     ]
   },
   "$qa_checklist": [
