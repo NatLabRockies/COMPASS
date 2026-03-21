@@ -9,15 +9,7 @@ import logging
 import operator
 from collections import Counter
 from contextlib import AsyncExitStack
-from urllib.parse import (
-    urlparse,
-    urlunparse,
-    quote,
-    unquote,
-    parse_qsl,
-    urlencode,
-    urljoin,
-)
+from urllib.parse import urljoin
 
 from crawl4ai.models import Link as c4AILink
 from bs4 import BeautifulSoup
@@ -28,6 +20,7 @@ from elm.web.utilities import pw_page
 from elm.web.document import PDFDocument, HTMLDocument
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
+from compass.web.url_utils import _sanitize_url
 
 
 logger = logging.getLogger(__name__)
@@ -493,32 +486,6 @@ def _debug_info_on_links(links):
         )
     if num_links > 3:  # noqa: PLR2004
         logger.debug("    ...")
-
-
-def _sanitize_url(url):
-    """Fix common URL issues
-
-    - Encode spaces and unsafe characters in the path
-    - Encode query parameters safely
-    - Leave existing percent-encoding intact
-    """
-    parsed = urlparse(url)
-
-    safe_path = quote(unquote(parsed.path), safe="/")
-
-    query_params = parse_qsl(parsed.query, keep_blank_values=True)
-    safe_query = urlencode(query_params, doseq=True)  # cspell: disable-line
-
-    return urlunparse(
-        (
-            parsed.scheme,
-            parsed.netloc,
-            safe_path,
-            parsed.params,
-            safe_query,
-            parsed.fragment,
-        )
-    )
 
 
 def _extract_links_from_html(text, base_url):

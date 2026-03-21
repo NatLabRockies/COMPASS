@@ -2,14 +2,6 @@
 
 import logging
 from contextlib import AsyncExitStack
-from urllib.parse import (
-    parse_qsl,
-    quote,
-    unquote,
-    urlencode,
-    urlparse,
-    urlunparse,
-)
 
 from elm.web.document import PDFDocument
 from elm.web.search.run import (
@@ -32,6 +24,7 @@ from compass.validation.location import (
     JurisdictionWebsiteValidator,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
+from compass.web.url_utils import _sanitize_url
 from compass.utilities.enums import LLMTasks
 from compass.utilities.io import load_local_docs
 from compass.pb import COMPASS_PB
@@ -802,22 +795,6 @@ async def _contains_relevant_text(
             doc, date_model_config, usage_tracker=usage_tracker
         )
     return found_text
-
-
-def _sanitize_url(url):
-    """Percent-encode spaces and unsafe characters in a URL path"""
-    parsed = urlparse(url)
-    safe_path = quote(unquote(parsed.path), safe="/")
-    query_params = parse_qsl(parsed.query, keep_blank_values=True)
-    safe_query = urlencode(query_params, doseq=True)  # cspell: disable-line
-    return urlunparse((
-        parsed.scheme,
-        parsed.netloc,
-        safe_path,
-        parsed.params,
-        safe_query,
-        parsed.fragment,
-    ))
 
 
 def _sanitize_doc_sources(docs):

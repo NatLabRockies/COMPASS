@@ -267,6 +267,7 @@ def test_extract_links_from_html_sets_text_from_anchor():
     <a href="/doc.pdf">Permit Standards</a>
     """
     links = _extract_links_from_html(html, base_url="https://example.com")
+    assert len(links) == 1
     link = next(iter(links))
     assert link.title == "Permit Standards"
     assert link.text == "Permit Standards"
