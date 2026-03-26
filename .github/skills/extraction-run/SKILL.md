@@ -15,7 +15,6 @@ then iterate quickly until you have stable structured outputs.
 ## When to use
 
 - Schema exists and plugin config points to it.
-- You are onboarding a new technology (diesel generator, geothermal, CHP, hydrogen).
 - You need a reliable smoke-test workflow before scaling.
 - You are NOT using decision-tree extraction.
 

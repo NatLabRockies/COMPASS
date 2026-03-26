@@ -73,17 +73,19 @@ schema: ./my_schema.json
 
 ## Key plugin YAML fields
 
-| Field | Type | Behavior |
+| Field | Type | Code Reference |
 |---|---|---|
-| `schema` | string (path) | **Required.** Path to JSON schema file, relative to plugin YAML location. |
-| `data_type_short_desc` | string | Short description used in LLM prompts (e.g. `utility-scale <tech> ordinance`). |
-| `query_templates` | list | Search query templates; `{jurisdiction}` is replaced at runtime. |
-| `website_keywords` | dict | Keyword → score map for URL ranking during website crawl. |
-| `heuristic_keywords` | dict or `true` | Pre-LLM text filter. If `true`, LLM generates lists from schema. |
-| `collection_prompts` | list or `true` | Text collection prompt(s). If **`true`**, LLM auto-generates from schema. |
-| `text_extraction_prompts` | list or `true` | Text consolidation prompt(s). If **`true`**, LLM auto-generates from schema. |
-| `extraction_system_prompt` | string | Overrides default LLM system prompt for the extraction step. Use this to scope extraction tightly to the target technology. |
-| `cache_llm_generated_content` | bool | Cache LLM-generated `query_templates`, `website_keywords`, and `heuristic_keywords`. Set to `false` when iterating schema to see live changes. |
+| `schema` | string (path) | [base.py#L124–L131](../../../compass/plugin/one_shot/base.py) |
+| `data_type_short_desc` | string | [base.py#L483](../../../compass/plugin/one_shot/base.py#L483) |
+| `query_templates` | list | [base.py#L217–L240](../../../compass/plugin/one_shot/base.py#L217) |
+| `website_keywords` | dict | [base.py#L281–L338](../../../compass/plugin/one_shot/base.py#L281) |
+| `heuristic_keywords` | dict or `true` | [base.py#L340–L390](../../../compass/plugin/one_shot/base.py#L340); [base.py#L512](../../../compass/plugin/one_shot/base.py#L512) |
+| `collection_prompts` | list or `true` | [base.py#L413–L436](../../../compass/plugin/one_shot/base.py#L413) |
+| `text_extraction_prompts` | list or `true` | [base.py#L438–L468](../../../compass/plugin/one_shot/base.py#L438) |
+| `extraction_system_prompt` | string | [base.py#L476–L488](../../../compass/plugin/one_shot/base.py#L476) |
+| `cache_llm_generated_content` | bool | [base.py#L107–L117](../../../compass/plugin/one_shot/base.py#L107) |
+
+**For the complete list of all configuration options (including `allow_multi_doc_extraction` and any future additions), consult the docstring of [`create_schema_based_one_shot_extraction_plugin()`](../../../compass/plugin/one_shot/base.py#L51).**
 
 ## Required `heuristic_keywords` shape
 
