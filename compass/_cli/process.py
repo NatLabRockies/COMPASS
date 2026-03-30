@@ -2,8 +2,11 @@
 
 import asyncio
 import logging
+import shutil
+import sys
 import warnings
 import multiprocessing
+from pathlib import Path
 
 import click
 from rich.live import Live
@@ -14,8 +17,11 @@ from rich.console import Console
 from compass.pb import COMPASS_PB
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.process import process_jurisdictions_with_openai
-from compass.utilities.logs import AddLocationFilter
 from compass.utilities.io import load_config
+from compass.utilities.logs import AddLocationFilter
+
+
+OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
 
 
 @click.command
@@ -49,9 +55,27 @@ from compass.utilities.io import load_config
     default=None,
     help="One-shot plugin configuration to add to COMPASS before processing",
 )
-def process(config, verbose, no_progress, plugin):
+@click.option(
+    "--out_dir_exists",
+    required=False,
+    default=None,
+    type=click.Choice(OUT_DIR_POLICY_CHOICES, case_sensitive=False),
+    help="How to handle an existing output directory."
+    " Choices: fail, increment, overwrite, prompt."
+    " If omitted, prompts interactively when running in a terminal,"
+    " or fails when running non-interactively (e.g. CI).",
+)
+def process(config, verbose, no_progress, plugin, out_dir_exists):
     """Download and extract ordinances for a list of jurisdictions"""
     config = load_config(config)
+
+    if out_dir_exists is not None:
+        out_dir_policy = out_dir_exists
+    elif sys.stdin.isatty():
+        out_dir_policy = "prompt"
+    else:
+        out_dir_policy = "fail"
+    config["out_dir"] = _resolve_out_dir_conflict(config["out_dir"], out_dir_policy)
 
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(
@@ -128,3 +152,77 @@ def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
         handler.addFilter(AddLocationFilter())
         logger.addHandler(handler)
         logger.setLevel(log_level)
+
+
+def _resolve_out_dir_conflict(out_dir, policy):
+    """Handle existing output directory using the selected policy"""
+    out_dir = Path(out_dir)
+    policy = policy.lower()
+
+    if not out_dir.exists():
+        return out_dir
+
+    if policy == "fail":
+        return out_dir
+
+    if policy == "increment":
+        new_out_dir = _next_versioned_directory(out_dir)
+        click.echo(
+            "Output directory exists. "
+            f"Using incremented directory: {new_out_dir!s}"
+        )
+        return new_out_dir
+
+    if policy == "overwrite":
+        click.echo(f"Overwriting existing output directory: {out_dir!s}")
+        shutil.rmtree(out_dir)
+        return out_dir
+
+    if policy == "prompt":
+        if not sys.stdin.isatty():
+            msg = (
+                "Cannot use out_dir_exists='prompt' in non-interactive mode. "
+                "Use one of: fail, increment, overwrite."
+            )
+            raise click.ClickException(msg)
+
+        create_incremented = click.confirm(
+            f"Output directory '{out_dir!s}' already exists. "
+            "Create a new incremented directory automatically?",
+            default=True,
+        )
+        if create_incremented:
+            new_out_dir = _next_versioned_directory(out_dir)
+            click.echo(f"Using incremented directory: {new_out_dir!s}")
+            return new_out_dir
+
+        overwrite = click.confirm(
+            f"Overwrite '{out_dir!s}' by deleting it and continuing?",
+            default=False,
+        )
+        if overwrite:
+            click.echo(f"Overwriting existing output directory: {out_dir!s}")
+            shutil.rmtree(out_dir)
+            return out_dir
+
+        msg = (
+            "Run cancelled. Please update out_dir in config, or rerun with "
+            "--out_dir_exists increment/overwrite."
+        )
+        raise click.ClickException(msg)
+
+    msg = (
+        f"Unknown out_dir_exists policy '{policy}'. "
+        f"Supported values: {OUT_DIR_POLICY_CHOICES}."
+    )
+    raise click.ClickException(msg)
+
+
+def _next_versioned_directory(out_dir):
+    """Create the next available output directory suffix with versioning"""
+    idx = 2
+    while True:
+        candidate = out_dir.parent / f"{out_dir.name}_v{idx}"
+        if not candidate.exists():
+            return candidate
+        idx += 1
