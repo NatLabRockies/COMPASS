@@ -45,6 +45,7 @@ from compass.services.threaded import (
     JurisdictionUpdater,
     HTMLFileLoader,
     read_html_file,
+    read_html_text,
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
@@ -1307,7 +1308,12 @@ def _configure_thread_pool_kwargs(tpe_kwargs):
 def _configure_file_loader_kwargs(file_loader_kwargs):
     """Add PDF reading coroutine to kwargs"""
     file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update({"pdf_read_coroutine": read_pdf_doc})
+    file_loader_kwargs.update(
+        {
+            "pdf_read_coroutine": read_pdf_doc,
+            "html_read_coroutine": read_html_text,
+        }
+    )
     return file_loader_kwargs
 
 
