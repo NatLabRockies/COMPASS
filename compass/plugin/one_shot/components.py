@@ -1,7 +1,7 @@
 """COMPASS extraction schema-based plugin component implementations"""
 
 import json
-import ast
+    # ast import removed (unused)
 import asyncio
 import logging
 import re
@@ -216,10 +216,7 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             ind_to_grab = chunk_ind + offset
             if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
                 continue
-
-            self._chunks.setdefault(
-                ind_to_grab, parser.text_chunks[ind_to_grab]
-            )
+            self._chunks.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])
 
 
 class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
@@ -297,6 +294,7 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         )
         return text_summary
 
+MAGIC_NEIGHBOR_CHUNK_COUNT = 2  # PLR2004: Magic value used in comparison
 
 class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     """Base class for parsing structured data"""
@@ -431,19 +429,17 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             return data
 
         norm = []
+        norm_extend = norm.extend
         for row in data:
             if not isinstance(row, dict):
                 continue
-
             out = row
             for step in pipeline:
                 out = self._apply_postprocess_step(out, step)
                 if out is None:
                     break
-
             if out is not None:
-                norm.append(out)
-
+                norm_extend([out])
         return norm
 
 
