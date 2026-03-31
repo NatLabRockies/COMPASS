@@ -75,7 +75,9 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
         out_dir_policy = "prompt"
     else:
         out_dir_policy = "fail"
-    config["out_dir"] = _resolve_out_dir_conflict(config["out_dir"], out_dir_policy)
+    config["out_dir"] = _resolve_out_dir_conflict(
+        config["out_dir"], out_dir_policy
+    )
 
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(
@@ -219,7 +221,10 @@ def _resolve_out_dir_conflict(out_dir, policy):
 
 
 def _next_versioned_directory(out_dir):
-    """Create the next available output directory suffix with versioning"""
+    """
+    Create the next available output directory suffix with
+    versioning
+    """
     idx = 2
     while True:
         candidate = out_dir.parent / f"{out_dir.name}_v{idx}"
