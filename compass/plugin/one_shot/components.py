@@ -1,7 +1,6 @@
 """COMPASS extraction schema-based plugin component implementations"""
 
 import json
-    # ast import removed (unused)
 import asyncio
 import logging
 import re
@@ -214,9 +213,14 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
         """Store chunk and its neighbors if it is not already stored"""
         for offset in range(1 - parser.num_to_recall, 2):
             ind_to_grab = chunk_ind + offset
-            if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
+            if (
+                ind_to_grab < 0
+                or ind_to_grab >= len(parser.text_chunks)
+            ):
                 continue
-            self._chunks.setdefault(ind_to_grab, parser.text_chunks[ind_to_grab])
+            self._chunks.setdefault(
+                ind_to_grab, parser.text_chunks[ind_to_grab]
+            )
 
 
 class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
@@ -294,13 +298,19 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         )
         return text_summary
 
-MAGIC_NEIGHBOR_CHUNK_COUNT = 2  # PLR2004: Magic value used in comparison
+
+# Constants for magic values
+_MAGIC_NEIGHBOR_CHUNK_COUNT = 2
+_MAGIC_HOUR_12 = 12
+_MAGIC_MINUTE_59 = 59
+
 
 class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     """Base class for parsing structured data"""
 
     DATA_TYPE_SHORT_DESC = None
-    """Optional short description of the type of data being extracted
+    """
+    Optional short description of the type of data being extracted
 
     Examples
     --------
@@ -417,11 +427,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         return full_df[["feature", *out_cols, "quantitative"]]
 
     def _normalize_outputs(self, data):
-        """Normalize selected feature payloads for stable CSV outputs
-
-        Postprocessing is schema-driven and optional. To enable it,
-        provide ``$postprocess_rules.pipeline`` in the schema.
-        """
+        """Normalize selected feature payloads for stable CSV outputs"""
 
         rules = self.SCHEMA.get("$postprocess_rules") or {}
         pipeline = rules.get("pipeline") or []
@@ -442,7 +448,6 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
                 norm_extend([out])
         return norm
 
-
     def _apply_postprocess_step(self, row, step):
         """Apply one schema-configured postprocessing step to a row"""
         operation = (step.get("operation") or "").casefold()
@@ -453,75 +458,75 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         logger.debug("Unknown postprocess operation: %r", operation)
         return row
 
-
-    # _pp_force_array_value removed: array enforcement is handled by schema and prompt only
-
     def _pp_bounded_time_from_summary(self, row, step):
-        """Prefer bounded time windows from summary over fallback values"""
-
+        """
+        Prefer bounded time windows from summary over fallback
+        values
+        """
         feature = (row.get("feature") or "").casefold()
         source_field = step.get("source_field", "summary")
         source_text = row.get(source_field) or ""
         time_values = self._extract_times_from_text(source_text)
-
         for pair in step.get("feature_pairs") or []:
-            start_feature = (
-                pair.get("start_feature", "").casefold()
-            )
+            start_feature = pair.get("start_feature", "").casefold()
             end_feature = pair.get("end_feature", "").casefold()
             if feature not in {start_feature, end_feature}:
                 continue
-
             if "units" in pair:
                 row["units"] = pair.get("units")
-
             fallback_values = {
                 str(v) for v in pair.get("fallback_values", ["00:00", "24:00"])
             }
-            if len(time_values) < 2 or str(row.get("value")) not in fallback_values:
+            if (
+                len(time_values) < _MAGIC_NEIGHBOR_CHUNK_COUNT
+                or str(row.get("value")) not in fallback_values
+            ):
                 return row
-
             if feature == start_feature:
                 row["value"] = min(time_values)
             elif feature == end_feature:
                 row["value"] = max(time_values)
             return row
-
         return row
-
-
-    # _normalize_string_list_value removed: array enforcement is handled by schema and prompt only
 
     @staticmethod
     def _extract_times_from_text(text):
-        """Extract times from text as normalized 24-hour HH:MM strings"""
-
+        """
+        Extract times from text as normalized 24-hour HH:MM
+        strings
+        """
         if not text:
             return []
-
         ampm_pattern = re.compile(
             r"(?<!\d)(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)",
             re.IGNORECASE,
         )
         hhmm_pattern = re.compile(r"\b([01]\d|2[0-4]):([0-5]\d)\b")
-
         out = []
         for match in ampm_pattern.finditer(text):
             hour = int(match.group(1))
             minute = int(match.group(2) or 0)
             ampm = match.group(3).lower().replace(".", "")
-
-            if hour < 1 or hour > 12 or minute < 0 or minute > 59:
+            if (
+                hour < 1
+                or hour > _MAGIC_HOUR_12
+                or minute < 0
+                or minute > _MAGIC_MINUTE_59
+            ):
                 continue
-
             if ampm == "am":
-                hour = 0 if hour == 12 else hour
+                hour = 0 if hour == _MAGIC_HOUR_12 else hour
             else:
-                hour = 12 if hour == 12 else hour + 12
-
+                hour = (
+                    _MAGIC_HOUR_12
+                    if hour == _MAGIC_HOUR_12
+                    else hour + _MAGIC_HOUR_12
+                )
             out.append(f"{hour:02d}:{minute:02d}")
-
-        for match in hhmm_pattern.finditer(text):
-            out.append(f"{int(match.group(1)):02d}:{int(match.group(2)):02d}")
-
+        out.extend(
+            [
+                f"{int(match.group(1)):02d}:{int(match.group(2)):02d}"
+                for match in hhmm_pattern.finditer(text)
+            ]
+        )
         return sorted(set(out))
