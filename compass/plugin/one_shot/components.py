@@ -213,10 +213,7 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
         """Store chunk and its neighbors if it is not already stored"""
         for offset in range(1 - parser.num_to_recall, 2):
             ind_to_grab = chunk_ind + offset
-            if (
-                ind_to_grab < 0
-                or ind_to_grab >= len(parser.text_chunks)
-            ):
+            if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
                 continue
             self._chunks.setdefault(
                 ind_to_grab, parser.text_chunks[ind_to_grab]

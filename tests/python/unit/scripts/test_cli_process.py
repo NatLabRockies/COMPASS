@@ -146,9 +146,11 @@ def test_process_uses_prompt_policy_in_interactive_terminal(
         lambda *_, **__: confirmed.append(True) or True,
     )
 
-    result = process_module._resolve_out_dir_conflict.__wrapped__ \
-        if hasattr(process_module._resolve_out_dir_conflict, "__wrapped__") \
+    result = (
+        process_module._resolve_out_dir_conflict.__wrapped__
+        if hasattr(process_module._resolve_out_dir_conflict, "__wrapped__")
         else None
+    )
 
     policy = "prompt" if process_module.sys.stdin.isatty() else "fail"
     assert policy == "prompt"
@@ -170,8 +172,10 @@ def test_process_flag_overrides_tty_detection(tmp_path, monkeypatch):
     out_dir.mkdir()
 
     explicit_flag = "increment"
-    policy = explicit_flag if explicit_flag else (
-        "prompt" if process_module.sys.stdin.isatty() else "fail"
+    policy = (
+        explicit_flag
+        if explicit_flag
+        else ("prompt" if process_module.sys.stdin.isatty() else "fail")
     )
     result = _resolve_out_dir_conflict(out_dir, policy)
     assert result == tmp_path / "outputs_v2"
