@@ -16700,8 +16700,8 @@ packages:
   timestamp: 1736252433366
 - pypi: ./
   name: infra-compass
-  version: 0.15.3.dev43+g6b44d198.d20260313
-  sha256: 28bc51640b48a1c841e9366c8c2562c159476f1e39364e28a7c5ab14d95c46fa
+  version: 0.15.3.dev10+gef29098
+  sha256: eb5dc5c0df2360c67414fd36615a23a5a5030398e4650f89474f88f163f3783f
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
   - click>=8.1.7,<9
@@ -16718,6 +16718,7 @@ packages:
   - playwright>=1.49.0,<1.52
   - pyjson5>=2.0.0,<3
   - rich>=13.9.4,<14
+  - crawl4ai>=0.8.0,<0.8.5
   - pytesseract>=0.3.13,<0.4 ; extra == 'ocr'
   - jupyter>=1.0.0,<1.1 ; extra == 'dev'
   - pipreqs>=0.4.13,<0.5 ; extra == 'dev'
