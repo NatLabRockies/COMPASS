@@ -47,7 +47,7 @@ dependencies = [
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
   "pyjson5>=2.0.0,<3",
   "rich>=13.9.4,<14",
-  "Crawl4AI>=0.8.0,<0.8.5", # Remove this once nlr-elm is updated
+  "crawl4ai>=0.8.0,<0.8.5", # Remove this once nlr-elm is updated
 ]
 
 [project.optional-dependencies]
