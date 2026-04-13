@@ -1,0 +1,25 @@
+{
+  "title": "Transmission Ordinance Extraction Schema",
+  "description": "Single-shot structured extraction schema for energy transmission ordinances. This schema guides an LLM to extract all r    elevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**. Never infer, imply, or guess a requirement from related context.",
+      "items": {
+        "type": "object",
+        "required": [
+          "feature",
+          "value",
+          "units",
+          "section",
+          "summary"
+        ],
+        "additionalProperties": false,
+      }
+    }
+  }
+}
