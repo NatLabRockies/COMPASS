@@ -19,10 +19,10 @@ from compass.scripts.process import _initialize_model_params
     "-c",
     required=True,
     type=click.Path(exists=True),
-    help="Path to ordinance configuration JSON or JSON5 file. This file "
+    help="Path to COMPASS run configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
     ":func:`compass.scripts.process.process_jurisdictions_with_openai`."
-    "The directory that this config points to will be finalized.",
+    "The output directory that this config points to will be finalized.",
 )
 def finalize(config):
     """Finalize a partially-completed COMPASS run"""
