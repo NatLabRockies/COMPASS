@@ -19,6 +19,18 @@
           "summary"
         ],
         "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
+            "enum": [
+              "noise",
+              "maximum height",
+              "color",
+              "lighting",
+            ]
+          }
+        }
       }
     }
   }
