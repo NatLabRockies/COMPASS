@@ -29,7 +29,16 @@
               "color",
               "lighting",
             ]
-          }
+          },
+          "value": {
+            "description": "The extracted ordinance value.",
+            "anyOf": [
+              {"type": "number"},
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}, "additionalProperties": false},
+              {"type": "null"}
+            ]
+          },
         }
       }
     }
