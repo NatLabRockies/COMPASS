@@ -47,7 +47,7 @@ dependencies = [
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
   "pyjson5>=2.0.0,<3",
   "rich>=13.9.4,<14",
-  "crawl4ai>=0.8.0,<0.8.5", # Remove this once nlr-elm is updated
+  "crawl4ai>=0.6.3,<0.7", # Remove this once nlr-elm is updated
 ]
 
 [project.optional-dependencies]
@@ -211,7 +211,7 @@ pdftotext = ">=2.2.2,<3"
 # We should remove this once ELM better defines its dependencies
 [tool.pixi.feature.elm.pypi-dependencies]
 camoufox = ">=0.4.11,<0.5"
-crawl4ai = ">=0.6.3"
+crawl4ai = ">=0.6.3,<0.7"
 ddgs = ">=9.2.3,<10"
 fake-useragent = ">=2.0.3,<3"
 google-search-results = ">=2.4.2,<3"
