@@ -29,7 +29,7 @@ learn how to `create a branch <https://docs.github.com/en/pull-requests/collabor
 and `request a review <https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review>`_.
 
 If you are not sure where or how to start contributing to COMPASS, consider reaching out to the
-current developer(s): **Paul Pinchuk** ["ppinchuk@nlr.gov"] or **Guilherme Pimenta Castelao** ["gpimenta@nlr.gov"].
+current developer(s): **Paul Pinchuk** ["ppinchuk@nlr.gov"] or **Guilherme Castelao** ["gpimenta@nlr.gov"].
 
 When you are ready to contribute to COMPASS, clone a copy of the COMPASS repository from GitHub, check out your
 own branch, and make the appropriate changes locally. Ensure that your new code adheres to all of the guidelines
@@ -121,6 +121,7 @@ Use the following import conventions::
    import numpy as np
    import pandas as pd
 
+Note that ``ruff`` will monitor and enforce some style rules such as ordering of imports.
 
 Test coverage
 -------------
@@ -132,13 +133,13 @@ You can run python COMPASS tests locally using ``pixi``:
 
 .. code-block:: shell
 
-    pixi r -e ptest tests-p
+    pixi run -e ptest tests-p
 
 To speed up testing, the tests can be run in parallel using ``-n auto``:
 
 .. code-block:: shell
 
-    pixi r -e ptest tests-p -n auto
+    pixi run -e ptest tests-p -n auto
 
 Tests for a module should ideally cover all code in that module,
 i.e., statement coverage should be at 100%, though this alone does not ensure that
