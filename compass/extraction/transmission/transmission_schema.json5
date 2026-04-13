@@ -43,4 +43,10 @@
       }
     }
   }
+  "$qualitative_features": [
+      "color",
+      "decommissioning",
+      "lighting",
+      "signage",
+  ]
 }
