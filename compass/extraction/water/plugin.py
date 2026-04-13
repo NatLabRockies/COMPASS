@@ -248,7 +248,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         """
         db = []
         for doc_info in doc_infos:
-            ord_db = pd.read_csv(doc_info["ord_db_fp"])
+            ord_db = pd.read_csv(doc_info["ord_db_fp"], encoding="utf-8")
             if len(ord_db) == 0:
                 continue
 
@@ -265,7 +265,11 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
             return 0
 
         db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
-        db.to_csv(Path(out_dir) / "water_rights.csv", index=False)
+        db.to_csv(
+            Path(out_dir) / "water_rights.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
         return len(db["WCD_ID"].unique())
 
 

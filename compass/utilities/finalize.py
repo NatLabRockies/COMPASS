@@ -172,7 +172,7 @@ def doc_infos_to_db(doc_infos):
         if ord_db_fp is None:
             continue
 
-        ord_db = pd.read_csv(ord_db_fp)
+        ord_db = pd.read_csv(ord_db_fp, encoding="utf-8")
 
         if num_ordinances_dataframe(ord_db) == 0:
             continue
@@ -217,8 +217,16 @@ def save_db(db, out_dir):
     out_dir = Path(out_dir)
     qual_db = db[~db["quantitative"]][QUAL_OUT_COLS]
     quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
-    qual_db.to_csv(out_dir / "qualitative_ordinances.csv", index=False)
-    quant_db.to_csv(out_dir / "quantitative_ordinances.csv", index=False)
+    qual_db.to_csv(
+        out_dir / "qualitative_ordinances.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
+    quant_db.to_csv(
+        out_dir / "quantitative_ordinances.csv",
+        index=False,
+        encoding="utf-8-sig",
+    )
 
 
 def _db_results(results, jurisdiction):

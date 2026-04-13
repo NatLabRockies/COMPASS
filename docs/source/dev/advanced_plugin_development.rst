@@ -680,7 +680,7 @@ Override the method to build your schema and write your format:
            output_df = pd.DataFrame(results)
 
            output_path = Path(out_dir) / "data_center_ordinances.csv"
-           output_df.to_csv(output_path, index=False)
+           output_df.to_csv(output_path, index=False, encoding='utf-8-sig')
 
 This method aggregates across jurisdictions, normalizes column names,
 handles missing values, and writes a custom filename. You control the
