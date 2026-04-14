@@ -25,7 +25,8 @@
             "type": "string",
             "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
             "enum": [
-              "noise"
+              "noise",
+              "decommissioning",
             ]
           },
           "value": {
@@ -75,7 +76,15 @@
           "description": "Extract maximum allowable operational noise for electric transmission lines and related facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in summary. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
         }
       }
-    }
+    },
+    "operational_features": {
+      "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
+      "properties": {
+        "decommissioning": {
+          "description": "Extract requirements for abandonment, plugging, sealing, removal, and site restoration when systems are retired, fail, or wells are abandoned, including responsible party and timeline details when explicitly stated."
+        }
+      }
+    },
   },
   "$examples": [
     {
@@ -91,5 +100,8 @@
     "general": [
       "Use direct text excerpts and quotes in summary whenever possible.",
     ]
-  }
+  },
+  "$qualitative_features": [
+    "decommissioning",
+  ]
 }
