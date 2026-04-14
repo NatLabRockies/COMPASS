@@ -87,4 +87,9 @@
       "summary": "The transmission line and or facility shall not generate noise in excess of Fifty (50) decibel levels at ground level to the property lines or at the nearest residence. Such measurements shall be signed by a qualified engineer, stating that noise levels are being met, per ordinance."
     }
   ],
+  "$instructions": {
+    "general": [
+      "Use direct text excerpts and quotes in summary whenever possible.",
+    ]
+  }
 }
