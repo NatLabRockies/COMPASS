@@ -16,29 +16,48 @@
           "value",
           "units",
           "section",
-          "summary"
+          "summary",
+          "explanation"
         ],
         "additionalProperties": false,
         "properties": {
           "feature": {
             "type": "string",
-            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
             "enum": [
-              "noise",
-              "maximum height",
-              "color",
-              "lighting",
+              "noise"
             ]
           },
           "value": {
-            "description": "The extracted ordinance value.",
+            "description": "The extracted ordinance value. For numerical setbacks/limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
             "anyOf": [
               {"type": "number"},
               {"type": "string"},
-              {"type": "array", "items": {"type": "string"}, "additionalProperties": false},
+              {
+                "type": "array",
+                "items": {"type": "string"},
+                "additionalProperties": false
+              },
               {"type": "null"}
             ]
           },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units for the extracted value. Preserve the ordinance unit wording exactly whenever possible. For setbacks/depth, use linear units such as 'feet' or 'meters' as stated in text. For noise, use 'dBA' only if the ordinance says 'dBA' or 'dB(A)'; if it says 'dB' without A-weighting, keep 'dB'. Use null for qualitative fields without measurable units."
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "The section title or number from the ordinance where this requirement appears. Include numerical labels if provided. Null if no section identifier is available."
+          },
+          "summary": {
+            "type": "string",
+            "description": "A short summary of the relevant ordinance requirement using direct text excerpts and quotes as much as possible. If multiple options exist and a selection was made, list all other options and their conditions in the summary. For qualitative restrictions, this is the primary output field containing the full extracted text. Can be null if no requirement found."
+            //"description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders (for example, 'No explicit ... found'); omit the feature instead when no requirement is present."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
+          }
         }
       }
     }
