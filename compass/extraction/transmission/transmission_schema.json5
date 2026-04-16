@@ -1,7 +1,7 @@
 {
   "title": "Transmission Ordinance Extraction Schema",
   "description": "Single-shot structured extraction schema for energy transmission ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "type": "object",
   "required": ["outputs"],
   "additionalProperties": false,
