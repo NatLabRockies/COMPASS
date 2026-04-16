@@ -95,9 +95,27 @@
     "setback_features": {
       "description": "Setback features for electrical transmission lines and related infrastructure. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in summary. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
       "properties": {
-        "property lines distance": {
-          "description": "Minimum required separation from explicit front yard, side yard, rear yard, or similar yard-based setback areas. Extract this feature only when the ordinance states the electric transmission line and related facilities must meet a yard setback or be located within/outside a named yard area. Do not remap yard setbacks to 'property lines' unless the ordinance explicitly measures the requirement from the property line itself rather than from a yard classification. IGNORE: Do not respond based on generic property-line, road, or right-of-way setbacks unless the ordinance explicitly frames the requirement as a yard setback."
+        "structures": {
+          "description": "Minimum required separation from structures and buildings that do not match the definition of 'residential buildings'."
         },
+        "residential buildings": {
+          "description": "Minimum required separation from residential buildings, occupied dwellings, occupied buildings, residences, homes, residential receptors, or residential uses."
+        },
+        "property lines": {
+          "description": "Minimum required separation from property lines, lot lines, parcel boundaries, or lease boundaries when the ordinance explicitly states the distance is measured from that boundary. Do not remap property-line distances to roads or residential zones unless the text explicitly makes them equivalent for that requirement. Distances to official plan lines or specific plan lines for public highways do not belong here unless the ordinance expressly defines those lines as property boundaries for the same requirement."
+        },
+        "roads": {
+          "description": "Minimum required separation from public road rights-of-way. Property-line setbacks do NOT count for this feature unless the ordinance text explicitly states that the property line is the road right-of-way or otherwise makes them the same boundary for that requirement. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as utility easements, etc."
+        },
+        "airport": {
+          "description":"Minimum required separation from airport runways and heliports."
+        },
+        "OHWM": {
+          "description":"Minimum required separation from Ordinary High Water Mark (OHWM)."
+        },
+        "railroads": {
+          "description": "Minimum required separation from railroads, railroad rights-of-way, rail corridors, or active rail lines. Extract only when rail infrastructure is explicitly named."
+        }
       }
     },
     "numerical_features": {
