@@ -71,6 +71,26 @@
       }
     }
   },
+  "$core_principles": {
+    /*
+    "scope_context": {
+    },
+    */
+    "strict_evidence_gate": {
+      "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
+    },
+    "data_omission": {
+      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units=null only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+    },
+    "numeric_prioritization": {
+      // Review numeric features if I specify all conditions here.
+      "description": "When multiple numeric values apply to the same feature, keep one row and select the controlling most restrictive value for that feature. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; tower height -> choose the highest maximum height; noise -> choose the lowest allowed noise limit. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same feature for GHP systems."
+    },
+    /*
+    "definition_v_rule_test": {
+    }
+    */
+  },
   "$definitions": {
     "setback_features": {
       "description": "Setback features for electrical transmission lines and related infrastructure. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in summary. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
