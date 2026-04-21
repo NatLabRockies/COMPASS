@@ -132,8 +132,37 @@
     "operational_features": {
       "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
       "properties": {
+        "bond": {
+          "description": "Extract requirements for bonds, sureties, or financial assurance instruments related to construction, operation, maintenance, or decommissioning of electric transmission lines and related infrastructure. Include any specific conditions, amounts, or criteria for bond release when explicitly stated."
+        },
         "decommissioning": {
-          "description": "Extract requirements for abandonment, plugging, sealing, removal, and site restoration when systems are retired, fail, or wells are abandoned, including responsible party and timeline details when explicitly stated."
+          "description": "Extract requirements for abandonment, removal, and site restoration and when systems are retired, fail, or towers are abandoned, including responsible party and timeline details when explicitly stated."
+        },
+        "permit": {
+          "description": "Extract requirements for conditional use permits, special use permits, or other discretionary land use approvals that apply to electric transmission lines and related infrastructure. Include any specific conditions or criteria for approval when explicitly stated."
+        },
+        "FAA": {
+          "description": "Extract requirements for compliance with Federal Aviation Administration (FAA) regulations and local approvals for transmission lines and related infrastructure near airports. Include any specific FAA standards or local approval processes when explicitly stated."
+        }
+      }
+    },
+    "prohibition_features": {
+      "description": "Prohibitions, bans, or moratoria on building, installing, siting, or otherwise deploying electric transmission lines and related infrastructure in certain areas or under certain conditions. These features require text extraction only.",
+      "properties": {
+        "rural zone": {
+          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in rural zones, agricultural zones, or similar low-density land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        },
+        "residential zone": {
+          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in residential zones, residential districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        },
+        "commercial zone": {
+          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in commercial zones, commercial districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        },
+        "light industrial zone": {
+          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in light industrial zones, light industrial districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        },
+        "agricultural zone": {
+          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in agricultural zones, agricultural districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure. Include prohibitions in irrigated farmland, ranch land, or similar agricultural land when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure in those areas."
         }
       }
     },
