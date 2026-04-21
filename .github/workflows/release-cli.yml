@@ -6,9 +6,14 @@ on:
       - 'c*.*.*'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   publish:
     name: ${{ matrix.target }}
+    permissions:
+      contents: write
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false

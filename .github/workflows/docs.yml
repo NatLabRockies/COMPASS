@@ -1,6 +1,7 @@
 name: Release Documentation
 
-permissions: write-all
+permissions:
+  contents: write
 
 on:
   pull_request:
