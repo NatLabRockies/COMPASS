@@ -172,7 +172,7 @@ def doc_infos_to_db(doc_infos):
         if ord_db_fp is None:
             continue
 
-        ord_db = pd.read_csv(ord_db_fp, encoding="utf-8")
+        ord_db = pd.read_csv(ord_db_fp, encoding="utf-8-sig")
 
         if num_ordinances_dataframe(ord_db) == 0:
             continue

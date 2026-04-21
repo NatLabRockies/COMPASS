@@ -248,7 +248,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         """
         db = []
         for doc_info in doc_infos:
-            ord_db = pd.read_csv(doc_info["ord_db_fp"], encoding="utf-8")
+            ord_db = pd.read_csv(doc_info["ord_db_fp"], encoding="utf-8-sig")
             if len(ord_db) == 0:
                 continue
 
