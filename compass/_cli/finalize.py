@@ -21,7 +21,7 @@ from compass.scripts.process import _initialize_model_params
     type=click.Path(exists=True),
     help="Path to COMPASS run configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`compass.scripts.process.process_jurisdictions_with_openai`."
+    ":func:`compass.scripts.process.process_jurisdictions_with_openai`. "
     "The output directory that this config points to will be finalized.",
 )
 def finalize(config):
