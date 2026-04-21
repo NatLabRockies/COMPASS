@@ -286,7 +286,7 @@ def test_write_ord_db_creates_csv(tmp_path):
     )
     assert out_fp.exists()
     assert (
-        out_fp.read_text(encoding="utf-8")
+        out_fp.read_text(encoding="utf-8-sig")
         == "feature,value,summary,other\nsetback,10,,1\n"
     )
 
