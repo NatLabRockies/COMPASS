@@ -98,7 +98,7 @@ def _write_ord_db(extraction_context, out_dir, out_fn=None):
         return None
 
     out_fp = Path(out_dir) / out_fn
-    ord_db.to_csv(out_fp, index=False)
+    ord_db.to_csv(out_fp, index=False, encoding="utf-8-sig")
     return out_fp
 
 
