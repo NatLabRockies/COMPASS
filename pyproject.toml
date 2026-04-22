@@ -34,7 +34,7 @@ classifiers=[
 dependencies = [
   "beautifulsoup4>=4.12.3,<5",
   "click>=8.1.7,<9",
-  "docling>=2.79.0,<3",
+  "docling>=2.90.0,<3",
   "crawl4ai>=0.6.3,<0.7",
   "html5lib>=1.1,<2",
   "huggingface_hub<1",
@@ -153,8 +153,7 @@ poppler = ">=24.8.0,<25"
 rust = ">=1.89.0,<1.92"
 cxx-compiler = ">=1.11.0,<2"
 graphviz = ">=12.2.1,<13"
-python = ">=3.12,<3.14"
-# python = ">=3.12,<3.13"
+python = ">=3.12,<3.13"
 
 [tool.pixi.feature.rust-dev.target.win-64.dependencies]
 cargo-c = ">=0.10.16,<0.11"
@@ -199,7 +198,7 @@ greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
 pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [tool.pixi.feature.python-default.pypi-dependencies]
-# docling = ">=2.79.0, <3"
+# docling = ">=2.60.0, <3"
 INFRA-COMPASS = { path = ".", editable = true}
 crawl4ai = ">=0.6.3,<0.7"
 
