@@ -1,19 +1,17 @@
 """Ordinance file downloading logic"""
 
+import pprint
 import logging
 from contextlib import AsyncExitStack
 
 from elm.web.document import PDFDocument
-from elm.web.search.run import (
-    load_docs,
-    search_with_fallback,
-    web_search_links_as_docs,
-)
+from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
     _SCORE_KEY,  # noqa: PLC2701
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_relevant_text, extract_date
@@ -31,6 +29,11 @@ from compass.pb import COMPASS_PB
 
 logger = logging.getLogger(__name__)
 _NEG_INF = -1 * float("infinity")
+_DEFAULT_SE = (
+    "PlaywrightGoogleLinkSearch",
+    "PlaywrightDuckDuckGoLinkSearch",
+    "DuxDistributedGlobalSearch",
+)
 
 
 async def download_known_urls(
@@ -74,13 +77,18 @@ async def download_known_urls(
 
     file_loader_kwargs = file_loader_kwargs or {}
     file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
+    logger.trace(
+        "kwargs for AsyncWebFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(file_loader_kwargs),
+    )
+    file_loader = AsyncWebFileLoader(
+        browser_semaphore=browser_semaphore, **file_loader_kwargs
+    )
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(urls)
     ):
         try:
-            out_docs = await load_docs(
-                urls, browser_semaphore=browser_semaphore, **file_loader_kwargs
-            )
+            out_docs = await load_docs(urls, file_loader)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -332,17 +340,19 @@ async def download_jurisdiction_ordinances_from_website(
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_website_crawl_task(pb_jurisdiction_name, advance=1)
 
-    file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
+    flk = {"verify_ssl": False}
+    flk.update(file_loader_kwargs or {})
+    flk.update({"file_cache_coroutine": TempFileCache.call})
 
     browser_config_kwargs = browser_config_kwargs or {}
-    pw_launch_kwargs = file_loader_kwargs.get("pw_launch_kwargs", {})
+    pw_launch_kwargs = flk.get("pw_launch_kwargs", {})
     browser_config_kwargs["headless"] = pw_launch_kwargs.get("headless", True)
 
+    afl = AsyncWebFileLoader(**flk)
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
+        async_file_loader=afl,
         url_scorer=ELMLinkScorer(keyword_points).score,
-        file_loader_kwargs=file_loader_kwargs,
         browser_config_kwargs=browser_config_kwargs,
         crawler_config_kwargs=crawler_config_kwargs,
         include_external=True,
@@ -547,18 +557,18 @@ async def download_jurisdiction_ordinance_using_search_engine(
 
     pb_store = []
 
-    async def _download_hook(urls):  # noqa: RUF029
-        """Update progress bar as file download starts"""
-        if not urls:
-            return
+    # async def _download_hook(urls):  # noqa: RUF029
+    #     """Update progress bar as file download starts"""
+    #     if not urls:
+    #         return
 
-        COMPASS_PB.update_jurisdiction_task(
-            jurisdiction.full_name, description="Downloading files..."
-        )
-        pb, task = COMPASS_PB.start_file_download_prog_bar(
-            jurisdiction.full_name, len(urls)
-        )
-        pb_store.append((pb, task, len(urls)))
+    #     COMPASS_PB.update_jurisdiction_task(
+    #         jurisdiction.full_name, description="Downloading files..."
+    #     )
+    #     pb, task = COMPASS_PB.start_file_download_prog_bar(
+    #         jurisdiction.full_name, len(urls)
+    #     )
+    #     pb_store.append((pb, task, len(urls)))
 
     kwargs.update(file_loader_kwargs or {})
     try:
@@ -569,7 +579,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
             url_ignore_substrings=url_ignore_substrings,
-            on_search_complete_hook=_download_hook,
+            # on_search_complete_hook=_download_hook,
             **kwargs,
         )
     finally:
@@ -706,7 +716,7 @@ async def _docs_from_web_search(
     search_semaphore,
     browser_semaphore,
     url_ignore_substrings,
-    on_search_complete_hook,
+    # on_search_complete_hook,
     **kwargs,
 ):
     """Download documents from the web using jurisdiction queries"""
@@ -717,14 +727,14 @@ async def _docs_from_web_search(
     kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
 
     try:
-        docs = await web_search_links_as_docs(
+        docs = await _web_search_links_as_docs(
             queries,
             num_urls=num_urls,
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
             ignore_url_parts=url_ignore_substrings,
-            task_name=jurisdiction.full_name,
-            on_search_complete_hook=on_search_complete_hook,
+            jurisdiction_full_name=jurisdiction.full_name,
+            # on_search_complete_hook=on_search_complete_hook,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -738,6 +748,53 @@ async def _docs_from_web_search(
         docs = []
 
     return docs
+
+
+async def _web_search_links_as_docs(
+    queries,
+    search_engines=_DEFAULT_SE,
+    num_urls=None,
+    ignore_url_parts=None,
+    search_semaphore=None,
+    browser_semaphore=None,
+    jurisdiction_full_name=None,
+    use_fallback_per_query=True,
+    # on_search_complete_hook=None,
+    **kwargs,
+):
+    """Retrieve top ``N`` search results as document instances"""
+
+    urls = await search_with_fallback(
+        queries,
+        search_engines=search_engines,
+        num_urls=num_urls,
+        ignore_url_parts=ignore_url_parts,
+        browser_semaphore=search_semaphore,
+        task_name=jurisdiction_full_name,
+        use_fallback_per_query=use_fallback_per_query,
+        **kwargs,
+    )
+    if not urls:
+        return []
+
+    # if on_search_complete_hook is not None:
+    #     await on_search_complete_hook(urls)
+
+    logger.debug("Downloading documents for URLS: \n\t-%s", "\n\t-".join(urls))
+    logger.trace(
+        "kwargs for AsyncWebFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(kwargs),
+    )
+    file_loader = AsyncWebFileLoader(
+        browser_semaphore=browser_semaphore, **kwargs
+    )
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction_full_name, description="Downloading files..."
+    )
+    async with COMPASS_PB.file_download_prog_bar(
+        jurisdiction_full_name, len(urls)
+    ):
+        return await load_docs(urls, file_loader)
 
 
 async def _down_select_docs_correct_jurisdiction(
@@ -785,6 +842,10 @@ async def _contains_relevant_text(
         doc = await extract_date(
             doc, date_model_config, usage_tracker=usage_tracker
         )
+    # TODO: elif here; check for HTMl doc. Re-obtain from source URL
+    # using PW, then check for relevant text again. If that still fails,
+    # check for one link where files could be and try fetch that doc.
+    # check for text a final time and give up after that
     return found_text
 
 
