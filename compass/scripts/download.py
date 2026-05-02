@@ -696,7 +696,7 @@ async def _docs_from_web_search(
     kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
 
     try:
-        docs = await _web_search_links_as_docs(
+        docs = await _docs_from_web_search_can_error(
             queries,
             num_urls=num_urls,
             search_semaphore=search_semaphore,
@@ -718,7 +718,7 @@ async def _docs_from_web_search(
     return docs
 
 
-async def _web_search_links_as_docs(
+async def _docs_from_web_search_can_error(
     queries,
     num_urls=None,
     ignore_url_parts=None,
@@ -742,6 +742,15 @@ async def _web_search_links_as_docs(
     if not urls:
         return []
 
+    return await _load_docs(
+        urls, jurisdiction_full_name, browser_semaphore, **kwargs
+    )
+
+
+async def _load_docs(
+    urls, jurisdiction_full_name, browser_semaphore, **kwargs
+):
+    """Load documents from a list of URLs using AsyncWebFileLoader"""
     logger.debug("Downloading documents for URLS: \n\t-%s", "\n\t-".join(urls))
     logger.trace(
         "kwargs for AsyncWebFileLoader:\n%s",
