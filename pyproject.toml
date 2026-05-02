@@ -50,6 +50,7 @@ dependencies = [
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
   "pyjson5>=2.0.0,<3",
   "rich>=13.9.4,<14",
+  "toml>=0.10.2,<0.11",
 ]
 
 [project.optional-dependencies]
@@ -204,6 +205,13 @@ crawl4ai = ">=0.6.3,<0.7"
 
 [tool.pixi.feature.python-default.target.osx-64.dependencies]
 python = ">=3.12,<3.13"
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.linux-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.win-64.dependencies]
+pdftotext = ">=2.2.2,<3"
 
 [tool.pixi.target.linux-aarch64.dependencies]
 compilers = ">=1.11.0,<2"
@@ -211,9 +219,6 @@ clangdev = ">=20.1.8,<21"
 libclang = ">=20.1.8,<21"
 maturin = ">=1.8.6,<2"
 rust = ">=1.89.0,<1.90"
-
-[tool.pixi.target.win-64.dependencies]
-pdftotext = ">=2.2.2,<3"
 
 # ELM dependencies explicitly enumerated
 # We should remove this once ELM better defines its dependencies
