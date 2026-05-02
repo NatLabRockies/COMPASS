@@ -29,11 +29,6 @@ from compass.pb import COMPASS_PB
 
 logger = logging.getLogger(__name__)
 _NEG_INF = -1 * float("infinity")
-_DEFAULT_SE = (
-    "PlaywrightGoogleLinkSearch",
-    "PlaywrightDuckDuckGoLinkSearch",
-    "DuxDistributedGlobalSearch",
-)
 
 
 async def download_known_urls(
@@ -555,41 +550,16 @@ async def download_jurisdiction_ordinance_using_search_engine(
         jurisdiction.full_name, description="Searching web..."
     )
 
-    pb_store = []
-
-    # async def _download_hook(urls):  # noqa: RUF029
-    #     """Update progress bar as file download starts"""
-    #     if not urls:
-    #         return
-
-    #     COMPASS_PB.update_jurisdiction_task(
-    #         jurisdiction.full_name, description="Downloading files..."
-    #     )
-    #     pb, task = COMPASS_PB.start_file_download_prog_bar(
-    #         jurisdiction.full_name, len(urls)
-    #     )
-    #     pb_store.append((pb, task, len(urls)))
-
     kwargs.update(file_loader_kwargs or {})
-    try:
-        out_docs = await _docs_from_web_search(
-            query_templates=query_templates,
-            jurisdiction=jurisdiction,
-            num_urls=num_urls,
-            search_semaphore=search_semaphore,
-            browser_semaphore=browser_semaphore,
-            url_ignore_substrings=url_ignore_substrings,
-            # on_search_complete_hook=_download_hook,
-            **kwargs,
-        )
-    finally:
-        if pb_store:
-            pb, task, num_urls = pb_store[0]
-            await COMPASS_PB.tear_down_file_download_prog_bar(
-                jurisdiction.full_name, num_urls, pb, task
-            )
-
-    return out_docs
+    return await _docs_from_web_search(
+        query_templates=query_templates,
+        jurisdiction=jurisdiction,
+        num_urls=num_urls,
+        search_semaphore=search_semaphore,
+        browser_semaphore=browser_semaphore,
+        url_ignore_substrings=url_ignore_substrings,
+        **kwargs,
+    )
 
 
 async def filter_ordinance_docs(
@@ -716,7 +686,6 @@ async def _docs_from_web_search(
     search_semaphore,
     browser_semaphore,
     url_ignore_substrings,
-    # on_search_complete_hook,
     **kwargs,
 ):
     """Download documents from the web using jurisdiction queries"""
@@ -734,7 +703,6 @@ async def _docs_from_web_search(
             browser_semaphore=browser_semaphore,
             ignore_url_parts=url_ignore_substrings,
             jurisdiction_full_name=jurisdiction.full_name,
-            # on_search_complete_hook=on_search_complete_hook,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -752,21 +720,18 @@ async def _docs_from_web_search(
 
 async def _web_search_links_as_docs(
     queries,
-    search_engines=_DEFAULT_SE,
     num_urls=None,
     ignore_url_parts=None,
     search_semaphore=None,
     browser_semaphore=None,
     jurisdiction_full_name=None,
     use_fallback_per_query=True,
-    # on_search_complete_hook=None,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
 
     urls = await search_with_fallback(
         queries,
-        search_engines=search_engines,
         num_urls=num_urls,
         ignore_url_parts=ignore_url_parts,
         browser_semaphore=search_semaphore,
@@ -776,9 +741,6 @@ async def _web_search_links_as_docs(
     )
     if not urls:
         return []
-
-    # if on_search_complete_hook is not None:
-    #     await on_search_complete_hook(urls)
 
     logger.debug("Downloading documents for URLS: \n\t-%s", "\n\t-".join(urls))
     logger.trace(
