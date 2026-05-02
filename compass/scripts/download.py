@@ -742,12 +742,12 @@ async def _docs_from_web_search_can_error(
     if not urls:
         return []
 
-    return await _load_docs(
+    return await _docs_from_urls(
         urls, jurisdiction_full_name, browser_semaphore, **kwargs
     )
 
 
-async def _load_docs(
+async def _docs_from_urls(
     urls, jurisdiction_full_name, browser_semaphore, **kwargs
 ):
     """Load documents from a list of URLs using AsyncWebFileLoader"""
