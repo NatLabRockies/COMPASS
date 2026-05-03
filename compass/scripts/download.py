@@ -225,7 +225,7 @@ async def find_jurisdiction_website(
         queries=[query_1, query_2],
         num_urls=3,
         ignore_url_parts=url_ignore_substrings,
-        browser_sem=search_semaphore,
+        browser_semaphore=search_semaphore,
         task_name=jurisdiction.full_name,
         **kwargs,
     )
@@ -800,10 +800,6 @@ async def _contains_relevant_text(
         doc = await extract_date(
             doc, date_model_config, usage_tracker=usage_tracker
         )
-    # TODO: elif here; check for HTMl doc. Re-obtain from source URL
-    # using PW, then check for relevant text again. If that still fails,
-    # check for one link where files could be and try fetch that doc.
-    # check for text a final time and give up after that
     return found_text
 
 
