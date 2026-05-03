@@ -151,12 +151,10 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
 
     log_files = list((tmp_path / "outputs" / "logs").glob("*"))
     assert len(log_files) == 1
-    assert "Fatal error during processing" in log_files[0].read_text(
-        encoding="utf-8"
-    )
-    assert "Simulated external error" in log_files[0].read_text(
-        encoding="utf-8"
-    )
+
+    log_text = log_files[0].read_text(encoding="utf-8")
+    assert "Fatal error during processing" in log_text
+    assert "Simulated external error" in log_text
 
 
 @pytest.mark.asyncio
