@@ -7,17 +7,20 @@ from elm.web.file_loader import (
     AsyncFetchWithRetry,
     AsyncHTMLLoader,
     BaseAsyncFileLoader,
+    AsyncWebFileLoader,
 )
 from elm.web.document import MDDocument
 from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
 from compass.services.cpu import read_docling_web_file
+from compass.services.threaded import TempFileCache
 
 
 logger = logging.getLogger(__name__)
+FILE_READING_BACKEND = "docling"  # TODO: This needs to be env var
 
 
-class AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
+class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
     """Class for loading HTML files using only the HTML loader"""
 
     def __init__(
@@ -25,7 +28,6 @@ class AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
         pw_launch_kwargs=None,
         html_read_kwargs=None,
         html_read_coroutine=None,
-        file_cache_coroutine=None,
         browser_semaphore=None,
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
@@ -48,13 +50,6 @@ class AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
             rest. Must return a :obj:`elm.web.document.HTMLDocument`.
             If ``None``, a default function that runs in the main thread
             is used. By default, ``None``.
-        file_cache_coroutine : callable, optional
-            File caching coroutine. Can be used to cache files
-            downloaded by this class. Must accept an
-            :obj:`~elm.web.document.Document` instance as the first
-            argument and the file content to be written as the second
-            argument. If this method is not provided, no document
-            caching is performed. By default, ``None``.
         browser_semaphore : asyncio.Semaphore, optional
             Semaphore instance that can be used to limit the number of
             playwright browsers open concurrently. If ``None``, no
@@ -71,7 +66,7 @@ class AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
             of attempts will always be 2, even if the user provides a
             value smaller than this. By default, ``3``.
         """
-        super().__init__(file_cache_coroutine=file_cache_coroutine)
+        super().__init__(file_cache_coroutine=TempFileCache.call)
         self._html_loader = AsyncHTMLLoader(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
@@ -169,7 +164,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             verify_ssl=verify_ssl,
             aget_kwargs=aget_kwargs,
         )
-        self.html_loader = AsyncHTMLOnlyLoader(
+        self.html_loader = _AsyncHTMLOnlyLoader(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
             html_read_coroutine=html_read_coroutine,
@@ -207,7 +202,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         ]
         if to_re_fetch:
             logger.debug(
-                "Loading HTML with Playwright for %d sources:\n%r",
+                "Loading HTML with Playwright for %d source(s):\n%r",
                 len(to_re_fetch),
                 to_re_fetch,
             )
@@ -232,4 +227,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             **self.to_md_kwargs,
         )
 
-        return doc, raw_content
+        return doc, doc.text
+
+
+if FILE_READING_BACKEND == "docling":
+    COMPASSWebFileLoader = AsyncDoclingWebFileLoader
+else:
+    COMPASSWebFileLoader = AsyncWebFileLoader
