@@ -1,14 +1,29 @@
 """COMPASS Ordinance CPU-bound services"""
 
 import ast
+import time
 import asyncio
 import contextlib
+from io import BytesIO
 from pathlib import Path
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 
-from elm.web.document import PDFDocument
+import numpy as np
+from elm.web.document import PDFDocument, MDDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
+from docling.datamodel.backend_options import HTMLBackendOptions
+from docling.datamodel.base_models import DocumentStream, InputFormat
+from docling.document_converter import (
+    DocumentConverter,
+    HTMLFormatOption,
+    PdfFormatOption,
+)
+from docling.datamodel.pipeline_options import (
+    PdfPipelineOptions,
+    TableStructureOptions,
+    TesseractCliOcrOptions,
+)
 
 from compass.services.base import Service
 
@@ -75,6 +90,10 @@ class OCRPDFLoader(PDFLoader):
     """Loader service for OCR"""
 
 
+class DoclingLoader(PDFLoader):
+    """Class to load documents in a ProcessPoolExecutor using Docling"""
+
+
 def _read_pdf(pdf_bytes, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
     pages = read_pdf(pdf_bytes, verbose=False)
@@ -109,6 +128,63 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True
     return doc, pdf_bytes
+
+
+def _read_docling(doc_bytes, url, headers=None, **kwargs):
+    """Utility func to read documents using Docling"""
+
+    url = str(url)
+    if headers is not None:
+        headers = dict(headers)
+
+    pipeline_options = PdfPipelineOptions()
+    pipeline_options.do_ocr = True
+    pipeline_options.do_table_structure = True
+    pipeline_options.table_structure_options = TableStructureOptions(
+        do_cell_matching=True
+    )
+    pipeline_options.ocr_options = TesseractCliOcrOptions()
+    html_backend_options = HTMLBackendOptions(source_uri=url)
+
+    doc_converter = DocumentConverter(
+        format_options={
+            InputFormat.PDF: PdfFormatOption(
+                pipeline_options=pipeline_options
+            ),
+            InputFormat.HTML: HTMLFormatOption(
+                backend_options=html_backend_options
+            ),
+        }
+    )
+
+    start_time = time.monotonic()
+    stream = DocumentStream(name=url, stream=BytesIO(doc_bytes))
+    conv_result = doc_converter.convert(stream, headers=headers)
+    conversion_time_seconds = time.monotonic() - start_time
+
+    attrs = {
+        "doc_filename": conv_result.input.file.stem,
+        "doc_type": conv_result.input.format.value,
+        "conversion_time_seconds": conversion_time_seconds,
+        "from_ocr": any(
+            ~np.isnan(c.ocr_score)
+            for c in conv_result.confidence.pages.values()
+        ),
+        "mean_confidence": conv_result.confidence.mean_score,
+        "low_score_confidence": conv_result.confidence.low_score,
+    }
+    doc_text = conv_result.document.export_to_markdown(**kwargs)
+
+    return MDDocument([doc_text], attrs=attrs, remove_comments=False)
+
+
+def _read_file_docling(fp, **kwargs):
+    """Read a local file using Docling"""
+
+    fp = Path(fp)
+    doc_bytes = fp.read_bytes()
+    doc = _read_docling(doc_bytes, fp, headers=None, **kwargs)
+    return doc, doc_bytes
 
 
 def _configure_pytesseract(tesseract_cmd):
@@ -228,3 +304,49 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
         tesseract_cmd=pytesseract.pytesseract.tesseract_cmd,
         **kwargs,
     )
+
+
+async def read_docling_web_file(doc_bytes, url, **kwargs):
+    """Read a web file using Docling in a Process Pool
+
+    Parameters
+    ----------
+    doc_bytes : bytes
+        Raw document payload forwarded to the Docling parser.
+    url : str
+        URL of the file to read.
+    **kwargs
+        Additional keyword arguments passed to Docling's
+        :meth:`~docling_core.types.doc.document.DoclingDocument.export_to_markdown`
+        method.
+
+    Returns
+    -------
+    elm.web.document.MDDocument
+        Parsed document.
+    """
+    return await DoclingLoader.call(
+        _read_docling, doc_bytes, url=url, **kwargs
+    )
+
+
+async def read_docling_local_file(fp, **kwargs):
+    """Read a web file using Docling in a Process Pool
+
+    Parameters
+    ----------
+    fp : path-like
+        Path to local file to read.
+    **kwargs
+        Additional keyword arguments passed to Docling's
+        :meth:`~docling_core.types.doc.document.DoclingDocument.export_to_markdown`
+        method.
+
+    Returns
+    -------
+    elm.web.document.MDDocument
+        Parsed document.
+    bytes
+        Raw bytes of the PDF file.
+    """
+    return await DoclingLoader.call(_read_file_docling, fp, **kwargs)
