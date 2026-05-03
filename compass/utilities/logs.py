@@ -45,6 +45,7 @@ class LQ:
     """
 
     QUEUE = _LQ()
+    """Logging queue instance"""
 
 
 class NoLocationFilter(logging.Filter):

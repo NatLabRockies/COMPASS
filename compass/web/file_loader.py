@@ -39,7 +39,7 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
         ----------
         pw_launch_kwargs : dict, optional
             Keyword-value argument pairs to pass to
-            :meth:`async_playwright.chromium.launch` (only used when
+            ``async_playwright.chromium.launch`` (only used when
             reading HTML). By default, ``None``.
         html_read_kwargs : dict, optional
             Keyword-value argument pairs to pass to the
@@ -116,7 +116,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             By default, ``None``.
         pw_launch_kwargs : dict, optional
             Keyword-value argument pairs to pass to
-            :meth:`async_playwright.chromium.launch` (only used when
+            ``async_playwright.chromium.launch`` (only used when
             reading HTML). By default, ``None``.
         html_read_kwargs : dict, optional
             Keyword-value argument pairs to pass to the
@@ -130,7 +130,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         file_cache_coroutine : callable, optional
             File caching coroutine. Can be used to cache files
             downloaded by this class. Must accept an
-            :obj:`~elm.web.document.Document` instance as the first
+            :obj:`~elm.web.document.BaseDocument` instance as the first
             argument and the file content to be written as the second
             argument. If this method is not provided, no document
             caching is performed. By default, ``None``.
@@ -151,7 +151,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             value smaller than this. By default, ``3``.
         to_md_kwargs : dict, optional
             Keyword-value argument pairs to pass to to Docling's
-            :meth:`~docling_core.types.doc.document.DoclingDocument.export_to_markdown`
+            :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
             method for converting the raw content to a markdown
             document. Can be useful to specify image placeholders (i.e.
             ``"image_placeholder"=""``) or page break placeholders (i.e.

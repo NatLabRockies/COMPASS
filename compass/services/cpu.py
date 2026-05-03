@@ -219,7 +219,7 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
         URL of the file to read.
     **kwargs
         Additional keyword arguments passed to Docling's
-        :meth:`~docling_core.types.doc.document.DoclingDocument.export_to_markdown`
+        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
         method.
 
     Returns
@@ -239,7 +239,7 @@ async def read_docling_local_file(fp, **kwargs):
         Path to local file to read.
     **kwargs
         Additional keyword arguments passed to Docling's
-        :meth:`~docling_core.types.doc.document.DoclingDocument.export_to_markdown`
+        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
         method.
 
     Returns
