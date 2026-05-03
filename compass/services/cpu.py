@@ -162,6 +162,8 @@ async def read_pdf_file(pdf_fp, **kwargs):
     -------
     elm.web.document.PDFDocument
         PDFDocument instances with pages loaded as text.
+    bytes
+        Raw bytes of the PDF file.
     """
     return await PDFLoader.call(_read_pdf_file, pdf_fp, **kwargs)
 
@@ -215,6 +217,8 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     -------
     elm.web.document.PDFDocument
         PDFDocument instances with pages loaded as text.
+    bytes
+        Raw bytes of the PDF file.
     """
     import pytesseract  # noqa: PLC0415
 
