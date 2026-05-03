@@ -61,6 +61,7 @@ extensions = [
 ]
 
 intersphinx_mapping = {
+    "docling": ("https://docling-project.github.io/docling", None),
     "elm": ("https://natlabrockies.github.io/elm", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
