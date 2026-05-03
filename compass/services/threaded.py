@@ -587,19 +587,3 @@ async def read_html_file(html_fp, **kwargs):
         and the raw HTML string content.
     """
     return await HTMLFileLoader.call(html_fp, **kwargs)
-
-
-async def read_html_text(text, **kwargs):
-    """Default read HTML function (runs in main thread)"""
-    from docling.document_converter import DocumentConverter
-    from docling.datamodel.base_models import InputFormat
-
-    # print(f"\n\n\n################# In text #################\n\n{text}")
-    converter = DocumentConverter()
-    result = converter.convert_string(text, format=InputFormat.HTML)
-
-    # Print Markdown to stdout.
-    text = result.document.export_to_markdown()
-    # print(f"\n\n\n################# Out text #################\n\n{text}")
-
-    return HTMLDocument([text], **kwargs)
