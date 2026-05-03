@@ -27,6 +27,9 @@ def test_file_loader_sets_default_omp_num_threads(monkeypatch):
     """Test process pool defaults OMP_NUM_THREADS to 1"""
 
     class DummyPool:
+        def __init__(self, *__, **___):
+            pass
+
         def shutdown(self, wait=True, cancel_futures=True):
             return None
 
@@ -45,6 +48,9 @@ def test_file_loader_preserves_existing_omp_num_threads(monkeypatch):
     """Test process pool preserves user OMP_NUM_THREADS override"""
 
     class DummyPool:
+        def __init__(self, *__, **___):
+            pass
+
         def shutdown(self, wait=True, cancel_futures=True):
             return None
 
