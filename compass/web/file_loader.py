@@ -245,7 +245,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         return doc, doc.text
 
 
-if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "docling") == "docling":
+if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
 else:
     COMPASSWebFileLoader = AsyncWebFileLoader
