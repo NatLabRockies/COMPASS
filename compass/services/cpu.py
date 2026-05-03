@@ -1,6 +1,7 @@
 """COMPASS Ordinance CPU-bound services"""
 
 import ast
+import os
 import time
 import asyncio
 import contextlib
@@ -47,6 +48,7 @@ class ProcessPoolService(Service):
 
     def acquire_resources(self):
         """Open thread pool and temp directory"""
+        os.environ.setdefault("OMP_NUM_THREADS", "1")
         self.pool = ProcessPoolExecutor(**self._ppe_kwargs)
 
     def release_resources(self):
@@ -54,8 +56,8 @@ class ProcessPoolService(Service):
         self.pool.shutdown(wait=True, cancel_futures=True)
 
 
-class PDFLoader(ProcessPoolService):
-    """Class to load PDFs in a ProcessPoolExecutor"""
+class FileLoader(ProcessPoolService):
+    """Class to load files in a ProcessPoolExecutor"""
 
     @property
     def can_process(self):
@@ -63,7 +65,7 @@ class PDFLoader(ProcessPoolService):
         return True
 
     async def process(self, fn, source, **kwargs):
-        """Execute a PDF parsing function in the process pool
+        """Execute a file parsing function in the process pool
 
         Parameters
         ----------
@@ -87,12 +89,8 @@ class PDFLoader(ProcessPoolService):
         )
 
 
-class OCRPDFLoader(PDFLoader):
+class OCRPDFLoader(FileLoader):
     """Loader service for OCR"""
-
-
-class DoclingLoader(PDFLoader):
-    """Class to load documents in a ProcessPoolExecutor using Docling"""
 
 
 def _read_pdf(pdf_bytes, **kwargs):
@@ -226,7 +224,7 @@ async def read_pdf_doc(pdf_bytes, **kwargs):
     elm.web.document.PDFDocument
         PDFDocument instances with pages loaded as text.
     """
-    return await PDFLoader.call(_read_pdf, pdf_bytes, **kwargs)
+    return await FileLoader.call(_read_pdf, pdf_bytes, **kwargs)
 
 
 async def read_pdf_file(pdf_fp, **kwargs):
@@ -247,7 +245,7 @@ async def read_pdf_file(pdf_fp, **kwargs):
     bytes
         Raw bytes of the PDF file.
     """
-    return await PDFLoader.call(_read_pdf_file, pdf_fp, **kwargs)
+    return await FileLoader.call(_read_pdf_file, pdf_fp, **kwargs)
 
 
 async def read_pdf_doc_ocr(pdf_bytes, **kwargs):
@@ -331,9 +329,7 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
     elm.web.document.MDDocument
         Parsed document.
     """
-    return await DoclingLoader.call(
-        _read_docling, doc_bytes, url=url, **kwargs
-    )
+    return await FileLoader.call(_read_docling, doc_bytes, url=url, **kwargs)
 
 
 async def read_docling_local_file(fp, **kwargs):
@@ -355,4 +351,4 @@ async def read_docling_local_file(fp, **kwargs):
     bytes
         Raw bytes of the PDF file.
     """
-    return await DoclingLoader.call(_read_file_docling, fp, **kwargs)
+    return await FileLoader.call(_read_file_docling, fp, **kwargs)

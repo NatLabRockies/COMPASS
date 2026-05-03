@@ -25,7 +25,7 @@ from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import OpenAIConfig
 from compass.services.cpu import (
-    PDFLoader,
+    FileLoader,
     OCRPDFLoader,
     read_pdf_doc,
     read_pdf_doc_ocr,
@@ -45,7 +45,6 @@ from compass.services.threaded import (
     JurisdictionUpdater,
     HTMLFileLoader,
     read_html_file,
-    read_html_text,
 )
 from compass.utilities import (
     LLM_COST_REGISTRY,
@@ -599,7 +598,7 @@ class _COMPASSRunner:
                 self.dirs.out / "jurisdictions.json",
                 tpe_kwargs=self.tpe_kwargs,
             ),
-            PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
+            FileLoader(**(self.process_kwargs.ppe_kwargs or {})),
             HTMLFileLoader(**self.tpe_kwargs),
         ]
 
@@ -1308,12 +1307,7 @@ def _configure_thread_pool_kwargs(tpe_kwargs):
 def _configure_file_loader_kwargs(file_loader_kwargs):
     """Add PDF reading coroutine to kwargs"""
     file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update(
-        {
-            "pdf_read_coroutine": read_pdf_doc,
-            "html_read_coroutine": read_html_text,
-        }
-    )
+    file_loader_kwargs.update({"pdf_read_coroutine": read_pdf_doc})
     return file_loader_kwargs
 
 
