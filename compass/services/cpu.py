@@ -4,6 +4,7 @@ import ast
 import time
 import asyncio
 import contextlib
+import warnings
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -162,6 +163,11 @@ def _read_docling(doc_bytes, url, headers=None, **kwargs):
     conv_result = doc_converter.convert(stream, headers=headers)
     conversion_time_seconds = time.monotonic() - start_time
 
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        mean_confidence = conv_result.confidence.mean_score
+        low_score_confidence = conv_result.confidence.low_score
+
     attrs = {
         "doc_filename": conv_result.input.file.stem,
         "doc_type": conv_result.input.format.value,
@@ -170,8 +176,8 @@ def _read_docling(doc_bytes, url, headers=None, **kwargs):
             ~np.isnan(c.ocr_score)
             for c in conv_result.confidence.pages.values()
         ),
-        "mean_confidence": conv_result.confidence.mean_score,
-        "low_score_confidence": conv_result.confidence.low_score,
+        "mean_confidence": mean_confidence,
+        "low_score_confidence": low_score_confidence,
     }
     doc_text = conv_result.document.export_to_markdown(**kwargs)
 
