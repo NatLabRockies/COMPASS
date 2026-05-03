@@ -26,8 +26,9 @@ from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
 from elm.web.document import PDFDocument, HTMLDocument
-from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
+
+from compass.web.file_loader import COMPASSWebFileLoader
 
 
 logger = logging.getLogger(__name__)
@@ -181,7 +182,7 @@ class COMPASSCrawler:
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
         flk.update(file_loader_kwargs or {})
-        self.afl = AsyncWebFileLoader(**flk)
+        self.afl = COMPASSWebFileLoader(**flk)
         self.pw_launch_kwargs = (
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )

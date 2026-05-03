@@ -11,7 +11,7 @@ from elm.web.website_crawl import (
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
-from elm.web.file_loader import AsyncWebFileLoader, AsyncLocalFileLoader
+from elm.web.file_loader import AsyncLocalFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_relevant_text, extract_date
@@ -21,6 +21,7 @@ from compass.validation.location import (
     JurisdictionValidator,
     JurisdictionWebsiteValidator,
 )
+from compass.web.file_loader import COMPASSWebFileLoader
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
@@ -72,12 +73,13 @@ async def download_known_urls(
     file_loader_kwargs = file_loader_kwargs or {}
     file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     logger.trace(
-        "kwargs for AsyncWebFileLoader:\n%s",
+        "kwargs for COMPASSWebFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(file_loader_kwargs),
     )
-    file_loader = AsyncWebFileLoader(
+    file_loader = COMPASSWebFileLoader(
         browser_semaphore=browser_semaphore, **file_loader_kwargs
     )
+
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(urls)
     ):
@@ -348,10 +350,10 @@ async def download_jurisdiction_ordinances_from_website(
     browser_config_kwargs["headless"] = pw_launch_kwargs.get("headless", True)
 
     logger.trace(
-        "kwargs for AsyncWebFileLoader:\n%s",
+        "kwargs for COMPASSWebFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(flk),
     )
-    afl = AsyncWebFileLoader(**flk)
+    afl = COMPASSWebFileLoader(**flk)
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
         async_file_loader=afl,
@@ -737,12 +739,13 @@ async def _docs_from_urls(
     """Load documents from a list of URLs using AsyncWebFileLoader"""
     logger.debug("Downloading documents for URLS: \n\t-%s", "\n\t-".join(urls))
     logger.trace(
-        "kwargs for AsyncWebFileLoader:\n%s",
+        "kwargs for COMPASSWebFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(kwargs),
     )
-    file_loader = AsyncWebFileLoader(
+    file_loader = COMPASSWebFileLoader(
         browser_semaphore=browser_semaphore, **kwargs
     )
+
     COMPASS_PB.update_jurisdiction_task(
         jurisdiction_full_name, description="Downloading files..."
     )
