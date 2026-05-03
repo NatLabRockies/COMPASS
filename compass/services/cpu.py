@@ -46,7 +46,7 @@ class PDFLoader(ProcessPoolService):
         """bool: Always ``True`` (limiting is handled by asyncio)"""
         return True
 
-    async def process(self, fn, pdf_bytes, **kwargs):
+    async def process(self, fn, source, **kwargs):
         """Execute a PDF parsing function in the process pool
 
         Parameters
@@ -54,8 +54,9 @@ class PDFLoader(ProcessPoolService):
         fn : callable
             Callable executed inside the process pool. Receives
             ``pdf_bytes`` as the first argument.
-        pdf_bytes : bytes
-            Raw PDF payload forwarded to ``fn``.
+        source : bytes
+            Raw document payload or path to file on disk. Argument
+            forwarded to ``read_fn``.
         **kwargs
             Additional keyword arguments passed to ``fn``.
 
@@ -66,7 +67,7 @@ class PDFLoader(ProcessPoolService):
         """
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
-            self.pool, partial(fn, pdf_bytes, **kwargs)
+            self.pool, partial(fn, source, **kwargs)
         )
 
 
