@@ -150,6 +150,19 @@ build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
 [tool.pixi.dependencies]
 poppler = ">=24.8.0,<25"
 
+[tool.pixi.target.linux-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.win-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.linux-aarch64.dependencies]
+compilers = ">=1.11.0,<2"
+clangdev = ">=20.1.8,<21"
+libclang = ">=20.1.8,<21"
+maturin = ">=1.8.6,<2"
+rust = ">=1.89.0,<1.90"
+
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.89.0,<1.92"
 cxx-compiler = ">=1.11.0,<2"
@@ -207,18 +220,13 @@ crawl4ai = ">=0.6.3,<0.7"
 python = ">=3.12,<3.13"
 pdftotext = ">=2.2.2,<3"
 
-[tool.pixi.target.linux-64.dependencies]
-pdftotext = ">=2.2.2,<3"
+[tool.pixi.feature.python-default.target.win-64.dependencies]
+pytorch-cpu = "==2.5.1"
+torchvision = "==0.20.1"
+transformers = "==4.46.3"
 
-[tool.pixi.target.win-64.dependencies]
-pdftotext = ">=2.2.2,<3"
-
-[tool.pixi.target.linux-aarch64.dependencies]
-compilers = ">=1.11.0,<2"
-clangdev = ">=20.1.8,<21"
-libclang = ">=20.1.8,<21"
-maturin = ">=1.8.6,<2"
-rust = ">=1.89.0,<1.90"
+[tool.pixi.feature.python-default.target.win-64.pypi-dependencies]
+docling = "==2.90.0"
 
 # ELM dependencies explicitly enumerated
 # We should remove this once ELM better defines its dependencies
