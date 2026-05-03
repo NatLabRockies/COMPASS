@@ -90,7 +90,7 @@ class AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
 class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     """Async web file loader using Docling"""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         header_template=None,
         verify_ssl=True,
@@ -102,6 +102,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         browser_semaphore=None,
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
+        to_md_kwargs=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -153,6 +154,14 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             attempts and retrieval success. Note that the minimum number
             of attempts will always be 2, even if the user provides a
             value smaller than this. By default, ``3``.
+        to_md_kwargs : dict, optional
+            Keyword-value argument pairs to pass to to Docling's
+            :meth:`~docling_core.types.doc.document.DoclingDocument.export_to_markdown`
+            method for converting the raw content to a markdown
+            document. Can be useful to specify image placeholders (i.e.
+            ``"image_placeholder"=""``) or page break placeholders (i.e.
+            ``"page_break_placeholder"="<!-- page break -->").
+            By default, ``None``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.content_fetcher = AsyncFetchWithRetry(
@@ -168,6 +177,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             use_scrapling_stealth=use_scrapling_stealth,
             num_pw_html_retries=num_pw_html_retries,
         )
+        self.to_md_kwargs = to_md_kwargs or {}
 
     async def fetch_all(self, *sources):
         """Fetch documents for all requested sources.
@@ -181,7 +191,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         Returns
         -------
         list
-            List of documents, one per requested sources.
+            List of parsed documents.
         """
         outer_task_name = asyncio.current_task().get_name()
         fetches = [
@@ -219,8 +229,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 http_url=AnyHttpUrl(url), response_headers=dict(headers)
             ),
             headers=dict(headers),
-            #     # image_placeholder=""
-            #     # page_break_placeholder="<!-- page break -->",
+            **self.to_md_kwargs,
         )
 
         return doc, raw_content
