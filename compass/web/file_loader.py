@@ -1,5 +1,6 @@
 """COMPASS file loader for web files using Docling"""
 
+import os
 import asyncio
 import logging
 
@@ -17,7 +18,6 @@ from compass.services.threaded import TempFileCache
 
 
 logger = logging.getLogger(__name__)
-FILE_READING_BACKEND = "docling"  # TODO: This needs to be env var
 
 
 class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
@@ -230,7 +230,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         return doc, doc.text
 
 
-if FILE_READING_BACKEND == "docling":
+if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "docling") == "docling":
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
 else:
     COMPASSWebFileLoader = AsyncWebFileLoader
