@@ -195,15 +195,14 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         ]
         docs = await asyncio.gather(*fetches)
         if docs:
-            doct_types = "\n\t- ".join(
-                [
-                    f"{doc.attrs['source']} -> {doc.attrs['doc_type']!r}"
-                    for doc in docs
-                ]
-            )
             logger.debug(
                 "Got the following doc types from initial fetch:\n\t- %s",
-                doct_types,
+                "\n\t- ".join(
+                    [
+                        f"{doc.attrs['source']} -> {doc.attrs['doc_type']!r}"
+                        for doc in docs
+                    ]
+                ),
             )
 
         to_re_fetch = [
