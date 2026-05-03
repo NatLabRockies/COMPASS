@@ -105,7 +105,7 @@ def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
     if verbosity_level >= 1:
         libs.append("compass")
     if verbosity_level >= 2:  # noqa: PLR2004
-        libs.append("elm")
+        libs.extend(("elm", "docling"))
     if verbosity_level >= 3:  # noqa: PLR2004
         libs.append("openai")
     if verbosity_level >= 4:  # noqa: PLR2004
