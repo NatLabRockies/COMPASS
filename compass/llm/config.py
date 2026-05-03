@@ -7,6 +7,7 @@ from functools import partial, cached_property
 
 import openai
 from elm import ApiBase
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
 from compass.utilities import RTS_SEPARATORS
@@ -68,10 +69,6 @@ class LLMConfig(ABC):
     @cached_property
     def text_splitter(self):
         """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # noqa: W505, E501
-        from langchain_text_splitters.character import (  # noqa: PLC0415
-            RecursiveCharacterTextSplitter,
-        )
-
         return RecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
