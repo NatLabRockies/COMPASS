@@ -132,6 +132,10 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
     local_file_loader_kwargs.update(
         {"file_cache_coroutine": TempFileCachePB.call}
     )
+    logger.trace(
+        "kwargs for AsyncLocalFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(local_file_loader_kwargs),
+    )
     fl = AsyncLocalFileLoader(**local_file_loader_kwargs)
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(fps)
@@ -343,6 +347,10 @@ async def download_jurisdiction_ordinances_from_website(
     pw_launch_kwargs = flk.get("pw_launch_kwargs", {})
     browser_config_kwargs["headless"] = pw_launch_kwargs.get("headless", True)
 
+    logger.trace(
+        "kwargs for AsyncWebFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(flk),
+    )
     afl = AsyncWebFileLoader(**flk)
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
@@ -551,15 +559,28 @@ async def download_jurisdiction_ordinance_using_search_engine(
     )
 
     kwargs.update(file_loader_kwargs or {})
-    return await _docs_from_web_search(
-        query_templates=query_templates,
-        jurisdiction=jurisdiction,
-        num_urls=num_urls,
-        search_semaphore=search_semaphore,
-        browser_semaphore=browser_semaphore,
-        url_ignore_substrings=url_ignore_substrings,
-        **kwargs,
-    )
+    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
+    try:
+        docs = await _docs_from_web_search(
+            query_templates,
+            num_urls=num_urls,
+            search_semaphore=search_semaphore,
+            browser_semaphore=browser_semaphore,
+            ignore_url_parts=url_ignore_substrings,
+            jurisdiction_full_name=jurisdiction.full_name,
+            **kwargs,
+        )
+    except KeyboardInterrupt:
+        raise
+    except Exception as e:
+        msg = (
+            "Encountered error of type %r while searching web for docs for %s:"
+        )
+        err_type = type(e)
+        logger.exception(msg, err_type, jurisdiction.full_name)
+        docs = []
+
+    return docs
 
 
 async def filter_ordinance_docs(
@@ -681,62 +702,25 @@ async def filter_ordinance_docs(
 
 async def _docs_from_web_search(
     query_templates,
-    jurisdiction,
     num_urls,
     search_semaphore,
     browser_semaphore,
-    url_ignore_substrings,
-    **kwargs,
-):
-    """Download documents from the web using jurisdiction queries"""
-    queries = [
-        query.format(jurisdiction=jurisdiction.full_name)
-        for query in query_templates
-    ]
-    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
-
-    try:
-        docs = await _docs_from_web_search_can_error(
-            queries,
-            num_urls=num_urls,
-            search_semaphore=search_semaphore,
-            browser_semaphore=browser_semaphore,
-            ignore_url_parts=url_ignore_substrings,
-            jurisdiction_full_name=jurisdiction.full_name,
-            **kwargs,
-        )
-    except KeyboardInterrupt:
-        raise
-    except Exception as e:
-        msg = (
-            "Encountered error of type %r while searching web for docs for %s:"
-        )
-        err_type = type(e)
-        logger.exception(msg, err_type, jurisdiction.full_name)
-        docs = []
-
-    return docs
-
-
-async def _docs_from_web_search_can_error(
-    queries,
-    num_urls=None,
-    ignore_url_parts=None,
-    search_semaphore=None,
-    browser_semaphore=None,
-    jurisdiction_full_name=None,
-    use_fallback_per_query=True,
+    ignore_url_parts,
+    jurisdiction_full_name,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
 
+    queries = [
+        query.format(jurisdiction=jurisdiction_full_name)
+        for query in query_templates
+    ]
     urls = await search_with_fallback(
         queries,
         num_urls=num_urls,
         ignore_url_parts=ignore_url_parts,
         browser_semaphore=search_semaphore,
         task_name=jurisdiction_full_name,
-        use_fallback_per_query=use_fallback_per_query,
         **kwargs,
     )
     if not urls:
