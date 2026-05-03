@@ -11,7 +11,7 @@ from elm.web.website_crawl import (
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
-from elm.web.file_loader import AsyncWebFileLoader
+from elm.web.file_loader import AsyncWebFileLoader, AsyncLocalFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_relevant_text, extract_date
@@ -23,7 +23,6 @@ from compass.validation.location import (
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.enums import LLMTasks
-from compass.utilities.io import load_local_docs
 from compass.pb import COMPASS_PB
 
 
@@ -133,11 +132,12 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
     local_file_loader_kwargs.update(
         {"file_cache_coroutine": TempFileCachePB.call}
     )
+    fl = AsyncLocalFileLoader(**local_file_loader_kwargs)
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(fps)
     ):
         try:
-            out_docs = await load_local_docs(fps, **local_file_loader_kwargs)
+            out_docs = await load_docs(fps, fl)
         except KeyboardInterrupt:
             raise
         except Exception as e:

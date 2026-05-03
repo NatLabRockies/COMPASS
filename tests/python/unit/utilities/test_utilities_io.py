@@ -5,13 +5,10 @@ import json
 from pathlib import Path
 
 import pytest
+from elm.web.search.run import load_docs
+from elm.web.file_loader import AsyncLocalFileLoader
 
-from compass.utilities.io import (
-    load_config,
-    ConfigType,
-    resolve_all_paths,
-    load_local_docs,
-)
+from compass.utilities.io import load_config, ConfigType, resolve_all_paths
 from compass.services.cpu import (
     PDFLoader,
     OCRPDFLoader,
@@ -229,7 +226,8 @@ async def test_basic_load_pdf(test_data_files_dir):
     """Test basic loading of local PDF document"""
     test_fp = test_data_files_dir / "Caneadea New York.pdf"
 
-    docs = await load_local_docs([test_fp])
+    fl = AsyncLocalFileLoader()
+    docs = await load_docs([test_fp], fl)
     assert len(docs) == 1
     doc = docs[0]
     assert not doc.empty
@@ -242,7 +240,8 @@ async def test_basic_load_html(test_data_files_dir):
     """Test basic loading of local HTML document"""
     test_fp = test_data_files_dir / "Whatcom.txt"
 
-    docs = await load_local_docs([test_fp])
+    fl = AsyncLocalFileLoader()
+    docs = await load_docs([test_fp], fl)
     assert len(docs) == 1
     doc = docs[0]
     assert not doc.empty
@@ -261,11 +260,10 @@ async def test_basic_load_pdf_with_service(test_data_files_dir):
     ):
         await read_pdf_file(test_fp)
 
+    fl = AsyncLocalFileLoader(pdf_read_coroutine=read_pdf_file)
     async with RunningAsyncServices([PDFLoader()]):
         doc, __ = await read_pdf_file(test_fp)
-        doc_2 = await load_local_docs(
-            [test_fp], pdf_read_coroutine=read_pdf_file
-        )
+        doc_2 = await load_docs([test_fp], fl)
 
     assert not doc.empty
     assert not doc_2[0].empty
@@ -290,11 +288,10 @@ async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
     ):
         await read_pdf_file_ocr(test_fp)
 
+    fl = AsyncLocalFileLoader(pdf_ocr_read_coroutine=read_pdf_file_ocr)
     async with RunningAsyncServices([OCRPDFLoader()]):
         doc, __ = await read_pdf_file_ocr(test_fp)
-        doc_2 = await load_local_docs(
-            [test_fp], pdf_ocr_read_coroutine=read_pdf_file_ocr
-        )
+        doc_2 = await load_docs([test_fp], fl)
 
     assert not doc.empty
     assert not doc_2[0].empty
@@ -312,11 +309,10 @@ async def test_basic_load_html_with_service(test_data_files_dir):
     ):
         await read_html_file(test_fp)
 
+    fl = AsyncLocalFileLoader(html_read_coroutine=read_html_file)
     async with RunningAsyncServices([HTMLFileLoader()]):
         doc, __ = await read_html_file(test_fp)
-        doc_2 = await load_local_docs(
-            [test_fp], html_read_coroutine=read_html_file
-        )
+        doc_2 = await load_docs([test_fp], fl)
 
     assert not doc.empty
     assert not doc_2[0].empty
