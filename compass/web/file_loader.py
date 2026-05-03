@@ -238,6 +238,11 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             **self.to_md_kwargs,
         )
 
+        if doc.attrs["doc_type"].casefold() != "html":
+            doc.WRITE_KWARGS = {"mode": "wb"}
+            doc.FILE_EXTENSION = doc.attrs["doc_type"]
+            return doc, raw_content
+
         return doc, doc.text
 
 
