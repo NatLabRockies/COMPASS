@@ -35,6 +35,8 @@ dependencies = [
   "beautifulsoup4>=4.12.3,<5",
   "click>=8.1.7,<9",
   "docling>=2.90.0,<3",
+  "docling-core>=2.73.0,<3.0.0",
+  "docling-parse>=5.3.2,<6.0.0",
   "crawl4ai>=0.6.3,<0.7",
   "html5lib>=1.1,<2",
   "huggingface_hub<1",
@@ -149,15 +151,7 @@ build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
 
 [tool.pixi.dependencies]
 poppler = ">=24.8.0,<25"
-
-[tool.pixi.target.linux-64.dependencies]
-pdftotext = ">=2.2.2,<3"
-
-[tool.pixi.target.win-64.dependencies]
-pdftotext = ">=2.2.2,<3"
-
-[tool.pixi.target.osx-arm64.pypi-dependencies]
-docling-parse = "==5.10.0"
+python = ">=3.12,<3.14"
 
 [tool.pixi.target.linux-aarch64.dependencies]
 compilers = ">=1.11.0,<2"
@@ -170,7 +164,6 @@ rust = ">=1.89.0,<1.90"
 rust = ">=1.89.0,<1.92"
 cxx-compiler = ">=1.11.0,<2"
 graphviz = ">=12.2.1,<13"
-python = ">=3.12,<3.13"
 
 [tool.pixi.feature.rust-dev.target.win-64.dependencies]
 cargo-c = ">=0.10.16,<0.11"
@@ -200,7 +193,6 @@ playwright = ">=1.49.1,<1.50"  # version range required for c4ai is >=1.49.0,<1.
 platformdirs = ">=4.5.1,<5"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
-python = ">=3.12"
 python-dotenv = ">=1.0.1,<2"
 python-slugify = ">=8.0.4,<9"
 rich = ">=13.9.4,<14"
@@ -216,15 +208,22 @@ pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [tool.pixi.feature.python-default.pypi-dependencies]
 docling = ">=2.90.0,<3"
+docling-core = ">=2.73.0,<3.0.0"
+docling-parse = ">=5.3.2,<6.0.0"
 INFRA-COMPASS = { path = ".", editable = true}
 crawl4ai = ">=0.6.3,<0.7"
 
-[tool.pixi.feature.python-default.target.osx-64.dependencies]
-python = ">=3.12,<3.13"
+[tool.pixi.feature.python-default.target.linux-64.dependencies]
 pdftotext = ">=2.2.2,<3"
 
-[tool.pixi.feature.python-default.target.osx-arm64.dependencies]
-python = ">=3.12,<3.13"
+[tool.pixi.feature.python-default.target.osx.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.feature.python-default.target.win.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.feature.python-default.target.linux-aarch64.pypi-dependencies]
+pdftotext = ">=2.2.2,<3"
 
 [tool.pixi.feature.python-default.target.win-64.dependencies]
 pytorch-cpu = "==2.5.1"
