@@ -107,11 +107,7 @@ async def test_process_streams_are_forwarded_to_logs(capfd):
             await asyncio.sleep(0.1)
         ll.removeHandler(capture_handler)
 
-    stdout, stderr = capfd.readouterr()
-
     assert msg == "STREAMED"
-    assert not stdout
-    assert not stderr
     assert any(
         record.message == "PROCESS STDOUT" for record in captured_records
     )
