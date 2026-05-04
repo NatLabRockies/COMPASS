@@ -157,7 +157,7 @@ pdftotext = ">=2.2.2,<3"
 pdftotext = ">=2.2.2,<3"
 
 [tool.pixi.target.osx-arm64.pypi-dependencies]
-docling-parse = "==5.10.0"
+docling-parse = "==5.10.1"
 
 [tool.pixi.target.linux-aarch64.dependencies]
 compilers = ">=1.11.0,<2"
