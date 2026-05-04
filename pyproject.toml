@@ -34,10 +34,10 @@ classifiers=[
 dependencies = [
   "beautifulsoup4>=4.12.3,<5",
   "click>=8.1.7,<9",
+  "crawl4ai>=0.6.3,<0.7",
   "docling>=2.90.0,<3",
   "docling-core>=2.73.0,<3.0.0",
   "docling-parse>=5.3.2,<6.0.0",
-  "crawl4ai>=0.6.3,<0.7",
   "html5lib>=1.1,<2",
   "huggingface_hub<1",
   "langchain-text-splitters>=1.0.0,<2",
@@ -160,6 +160,18 @@ libclang = ">=20.1.8,<21"
 maturin = ">=1.8.6,<2"
 rust = ">=1.89.0,<1.90"
 
+[tool.pixi.target.win.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.linux-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.osx.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[tool.pixi.target.osx-arm64.pypi-dependencies]
+docling-parse = "==5.10.1"
+
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.89.0,<1.92"
 cxx-compiler = ">=1.11.0,<2"
@@ -212,15 +224,6 @@ docling-core = ">=2.73.0,<3.0.0"
 docling-parse = ">=5.3.2,<6.0.0"
 INFRA-COMPASS = { path = ".", editable = true}
 crawl4ai = ">=0.6.3,<0.7"
-
-[tool.pixi.feature.python-default.target.linux-64.dependencies]
-pdftotext = ">=2.2.2,<3"
-
-[tool.pixi.feature.python-default.target.osx.dependencies]
-pdftotext = ">=2.2.2,<3"
-
-[tool.pixi.feature.python-default.target.win.dependencies]
-pdftotext = ">=2.2.2,<3"
 
 [tool.pixi.feature.python-default.target.linux-aarch64.pypi-dependencies]
 pdftotext = ">=2.2.2,<3"

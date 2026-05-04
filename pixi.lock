@@ -1254,7 +1254,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/e3c776dac9639ba7a9fff4c3fe3687258b6eb651d83c4885fad71b3b6aa4/docling-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/c3/5f8c9a9b0cad437cb7e6ffcd48ccc309b2290cea6aac067569bf61b84743/docling_core-2.74.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/fc/584f75ca31aa6694fed5338ecb54dc4c8341704b1e5b7b6a4528651f12fa/docling_ibm_models-3.13.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
+      - pypi: https://files.pythonhosted.org/packages/a7/b8/e68f8ec44692d2f913210dd46cb3e7e6e1959053bb05d5c94c5331010f3c/docling_parse-5.10.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/91/12/bdf2579d85e43e5944a146c1c4eab708103784a043fb12d793b524c1cd02/docling_slim-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/0b/2849c87d9f13766e29c0a2f4d31681aa72e035016b251ab19d99bde7b592/fake_http_header-0.3.5-py3-none-any.whl
@@ -3018,7 +3018,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/e3c776dac9639ba7a9fff4c3fe3687258b6eb651d83c4885fad71b3b6aa4/docling-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/c3/5f8c9a9b0cad437cb7e6ffcd48ccc309b2290cea6aac067569bf61b84743/docling_core-2.74.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/fc/584f75ca31aa6694fed5338ecb54dc4c8341704b1e5b7b6a4528651f12fa/docling_ibm_models-3.13.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
+      - pypi: https://files.pythonhosted.org/packages/a7/b8/e68f8ec44692d2f913210dd46cb3e7e6e1959053bb05d5c94c5331010f3c/docling_parse-5.10.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/91/12/bdf2579d85e43e5944a146c1c4eab708103784a043fb12d793b524c1cd02/docling_slim-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/0b/2849c87d9f13766e29c0a2f4d31681aa72e035016b251ab19d99bde7b592/fake_http_header-0.3.5-py3-none-any.whl
@@ -5387,7 +5387,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/e3c776dac9639ba7a9fff4c3fe3687258b6eb651d83c4885fad71b3b6aa4/docling-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/c3/5f8c9a9b0cad437cb7e6ffcd48ccc309b2290cea6aac067569bf61b84743/docling_core-2.74.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/fc/584f75ca31aa6694fed5338ecb54dc4c8341704b1e5b7b6a4528651f12fa/docling_ibm_models-3.13.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
+      - pypi: https://files.pythonhosted.org/packages/a7/b8/e68f8ec44692d2f913210dd46cb3e7e6e1959053bb05d5c94c5331010f3c/docling_parse-5.10.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/91/12/bdf2579d85e43e5944a146c1c4eab708103784a043fb12d793b524c1cd02/docling_slim-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/0b/2849c87d9f13766e29c0a2f4d31681aa72e035016b251ab19d99bde7b592/fake_http_header-0.3.5-py3-none-any.whl
@@ -7366,7 +7366,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/e3c776dac9639ba7a9fff4c3fe3687258b6eb651d83c4885fad71b3b6aa4/docling-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/c3/5f8c9a9b0cad437cb7e6ffcd48ccc309b2290cea6aac067569bf61b84743/docling_core-2.74.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/fc/584f75ca31aa6694fed5338ecb54dc4c8341704b1e5b7b6a4528651f12fa/docling_ibm_models-3.13.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
+      - pypi: https://files.pythonhosted.org/packages/a7/b8/e68f8ec44692d2f913210dd46cb3e7e6e1959053bb05d5c94c5331010f3c/docling_parse-5.10.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/91/12/bdf2579d85e43e5944a146c1c4eab708103784a043fb12d793b524c1cd02/docling_slim-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/0b/2849c87d9f13766e29c0a2f4d31681aa72e035016b251ab19d99bde7b592/fake_http_header-0.3.5-py3-none-any.whl
@@ -9221,7 +9221,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/e3c776dac9639ba7a9fff4c3fe3687258b6eb651d83c4885fad71b3b6aa4/docling-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/c3/5f8c9a9b0cad437cb7e6ffcd48ccc309b2290cea6aac067569bf61b84743/docling_core-2.74.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/fc/584f75ca31aa6694fed5338ecb54dc4c8341704b1e5b7b6a4528651f12fa/docling_ibm_models-3.13.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
+      - pypi: https://files.pythonhosted.org/packages/a7/b8/e68f8ec44692d2f913210dd46cb3e7e6e1959053bb05d5c94c5331010f3c/docling_parse-5.10.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/91/12/bdf2579d85e43e5944a146c1c4eab708103784a043fb12d793b524c1cd02/docling_slim-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/0b/2849c87d9f13766e29c0a2f4d31681aa72e035016b251ab19d99bde7b592/fake_http_header-0.3.5-py3-none-any.whl
@@ -9783,11 +9783,13 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/linux-64/openssl-3.6.2-h35e630c_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pango-1.56.4-hda50119_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pcre2-10.47-haa7fec5_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/linux-64/pdftotext-2.2.2-py312h89d5d5c_25.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pixman-0.46.4-h54a6638_1.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/poppler-24.12.0-hd7b24de_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/poppler-data-0.4.12-hd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/pthread-stubs-0.4-hb9d3cd8_1002.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/python-3.12.13-hd63d673_0_cpython.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.12-8_cp312.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/readline-8.3-h853b02a_0.conda
       - conda: https://conda.anaconda.org/conda-forge/linux-64/rust-1.91.1-h53717f1_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-unknown-linux-gnu-1.91.1-h2c6d0dc_0.conda
@@ -9937,7 +9939,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/37/87/5ddeb7fc1fbd9004aeccab08426f34c81a5b4c25c7061281862b015fce2b/orjson-3.11.8-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e5/63/cd7d615331b328e287d8233ba9fdf191a9c2d11b6af0c7a59cfcec23de68/pandas-2.3.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/e0/e3/79a2ad7ca71160fb6442772155389881672c98bd44c6022303ce242cbfb9/pdftotext-2.2.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/55/77/40daddf677897a923d5d33329acd52a2144d54a9644f2a5422c028c6bf2d/pillow-10.4.0-cp312-cp312-manylinux_2_28_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/75/a6/a0a304dc33b49145b21f4808d763822111e67d1c3a32b524a1baf947b6e1/platformdirs-4.9.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/7a/fd/bc60798803414ecab66456208eeff4308344d0c055ca0d294d2cdd692b60/playwright-1.51.0-py3-none-manylinux1_x86_64.whl
@@ -10497,10 +10498,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-64/openssl-3.6.2-hc881268_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pango-1.56.4-hf280016_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pcre2-10.47-h13923f0_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-64/pdftotext-2.2.2-py312h46c769c_25.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/pixman-0.46.4-ha059160_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/poppler-24.12.0-hcc361ce_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/poppler-data-0.4.12-hd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/python-3.12.13-ha9537fe_0_cpython.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.12-8_cp312.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/readline-8.3-h68b038d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-64/rust-1.91.1-h34a2095_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-apple-darwin-1.91.1-h38e4360_0.conda
@@ -10616,7 +10619,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/01/f6/8d58b32ab32d9215973a1688aebd098252ee8af1766c0e4e36e7831f0295/orjson-3.11.8-cp312-cp312-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/9c/fb/231d89e8637c808b997d172b18e9d4a4bc7bf31296196c260526055d1ea0/pandas-2.3.3-cp312-cp312-macosx_10_13_x86_64.whl
-      - pypi: https://files.pythonhosted.org/packages/e0/e3/79a2ad7ca71160fb6442772155389881672c98bd44c6022303ce242cbfb9/pdftotext-2.2.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/05/cb/0353013dc30c02a8be34eb91d25e4e4cf594b59e5a55ea1128fde1e5f8ea/pillow-10.4.0-cp312-cp312-macosx_10_10_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/75/a6/a0a304dc33b49145b21f4808d763822111e67d1c3a32b524a1baf947b6e1/platformdirs-4.9.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/ba/b1/061c322319072225beba45e8c6695b7c1429f83bb97bdb5ed51ea3a009fc/playwright-1.51.0-py3-none-macosx_11_0_universal2.whl
@@ -10797,10 +10799,12 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/openssl-3.6.2-hd24854e_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pango-1.56.4-hf80efc4_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pcre2-10.47-h30297fc_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pdftotext-2.2.2-py312h5ee65f9_25.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/pixman-0.46.4-h81086ad_1.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/poppler-24.12.0-ha29e788_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/poppler-data-0.4.12-hd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/python-3.12.13-h8561d8f_0_cpython.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.12-8_cp312.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/readline-8.3-h46df422_0.conda
       - conda: https://conda.anaconda.org/conda-forge/osx-arm64/rust-1.91.1-h4ff7c5d_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-aarch64-apple-darwin-1.91.1-hf6ec828_0.conda
@@ -10846,7 +10850,7 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/b1/ad/e3c776dac9639ba7a9fff4c3fe3687258b6eb651d83c4885fad71b3b6aa4/docling-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/d7/c3/5f8c9a9b0cad437cb7e6ffcd48ccc309b2290cea6aac067569bf61b84743/docling_core-2.74.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/a4/fc/584f75ca31aa6694fed5338ecb54dc4c8341704b1e5b7b6a4528651f12fa/docling_ibm_models-3.13.2-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
+      - pypi: https://files.pythonhosted.org/packages/a7/b8/e68f8ec44692d2f913210dd46cb3e7e6e1959053bb05d5c94c5331010f3c/docling_parse-5.10.1.tar.gz
       - pypi: https://files.pythonhosted.org/packages/91/12/bdf2579d85e43e5944a146c1c4eab708103784a043fb12d793b524c1cd02/docling_slim-2.92.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/c1/8b/5fe2cc11fee489817272089c4203e679c63b570a5aaeb18d852ae3cbba6a/et_xmlfile-2.0.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/e3/0b/2849c87d9f13766e29c0a2f4d31681aa72e035016b251ab19d99bde7b592/fake_http_header-0.3.5-py3-none-any.whl
@@ -10916,7 +10920,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/01/f6/8d58b32ab32d9215973a1688aebd098252ee8af1766c0e4e36e7831f0295/orjson-3.11.8-cp312-cp312-macosx_10_15_x86_64.macosx_11_0_arm64.macosx_10_15_universal2.whl
       - pypi: https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/5c/bd/bf8064d9cfa214294356c2d6702b716d3cf3bb24be59287a6a21e24cae6b/pandas-2.3.3-cp312-cp312-macosx_11_0_arm64.whl
-      - pypi: https://files.pythonhosted.org/packages/e0/e3/79a2ad7ca71160fb6442772155389881672c98bd44c6022303ce242cbfb9/pdftotext-2.2.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/e7/cf/5c558a0f247e0bf9cec92bff9b46ae6474dd736f6d906315e60e4075f737/pillow-10.4.0-cp312-cp312-macosx_11_0_arm64.whl
       - pypi: https://files.pythonhosted.org/packages/75/a6/a0a304dc33b49145b21f4808d763822111e67d1c3a32b524a1baf947b6e1/platformdirs-4.9.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/32/4a/5f2ff6866bdf88e86147930b0be86b227f3691f4eb01daad5198302a8cbe/playwright-1.51.0-py3-none-macosx_11_0_arm64.whl
@@ -11083,11 +11086,13 @@ environments:
       - conda: https://conda.anaconda.org/conda-forge/win-64/openssl-3.6.2-hf411b9b_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/pango-1.56.4-h13911b6_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/pcre2-10.47-hd2b5f0e_0.conda
+      - conda: https://conda.anaconda.org/conda-forge/win-64/pdftotext-2.2.2-py312h70d3d4c_25.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/pixman-0.46.4-h5112557_1.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/poppler-24.12.0-heaa0bce_2.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/poppler-data-0.4.12-hd8ed1ab_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/pthread-stubs-0.4-h0e40799_1002.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/python-3.12.13-h0159041_0_cpython.conda
+      - conda: https://conda.anaconda.org/conda-forge/noarch/python_abi-3.12-8_cp312.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/rust-1.91.1-hf8d6059_0.conda
       - conda: https://conda.anaconda.org/conda-forge/noarch/rust-std-x86_64-pc-windows-msvc-1.91.1-h17fc481_0.conda
       - conda: https://conda.anaconda.org/conda-forge/win-64/tk-8.6.13-h6ed50ae_3.conda
@@ -11211,7 +11216,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/ed/9a/9796f8fbe3cf30ce9cb696748dbb535e5c87be4bf4fe2e9ca498ef1fa8cf/orjson-3.11.8-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/df/b2/87e62e8c3e2f4b32e5fe99e0b86d576da1312593b39f47d8ceef365e95ed/packaging-26.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/86/41/585a168330ff063014880a80d744219dbf1dd7a1c706e75ab3425a987384/pandas-2.3.3-cp312-cp312-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/e0/e3/79a2ad7ca71160fb6442772155389881672c98bd44c6022303ce242cbfb9/pdftotext-2.2.2.tar.gz
       - pypi: https://files.pythonhosted.org/packages/74/0a/d4ce3c44bca8635bd29a2eab5aa181b654a734a29b263ca8efe013beea98/pillow-10.4.0-cp312-cp312-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/75/a6/a0a304dc33b49145b21f4808d763822111e67d1c3a32b524a1baf947b6e1/platformdirs-4.9.6-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
@@ -15562,17 +15566,6 @@ packages:
   - opencv-python-headless>=4.6.0.66,<5.0.0.0 ; extra == 'opencv-python-headless'
   - opencv-python>=4.6.0.66,<5.0.0.0 ; extra == 'opencv-python'
   requires_python: '>=3.10,<4.0'
-- pypi: https://files.pythonhosted.org/packages/5a/0c/48a9bf8f935903e3cb7e69f25026b0c376b1788097cce2c94b5b496ec26c/docling_parse-5.10.0.tar.gz
-  name: docling-parse
-  version: 5.10.0
-  sha256: 5f953f673893f801f742558c0d6329d903fa4bbf4e60415c757dcb36dcba90dc
-  requires_dist:
-  - tabulate>=0.9.0,<1.0.0
-  - pillow>=10.0.0,<13.0.0
-  - pydantic>=2.0.0
-  - docling-core>=2.65.2
-  - pywin32>=305 ; sys_platform == 'win32'
-  requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/17/fa/11dd3328ab708143a291ae53d388a5170095a90b8dc8428e5274e2c09194/docling_parse-5.10.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl
   name: docling-parse
   version: 5.10.1
@@ -18845,15 +18838,15 @@ packages:
   timestamp: 1776068839274
 - pypi: ./
   name: infra-compass
-  version: 0.16.1.dev90+g9f108e7.d20260504
-  sha256: 8968d17633505c3b5367933a16abff3dcba134bf79fb5c2b92557a829b5b344d
+  version: 0.16.1.dev95+gc0feea1.d20260504
+  sha256: 3306fce9443eaa787ccfa705e5f479d52f37f52919dcfa0ce571012678d74136
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
   - click>=8.1.7,<9
+  - crawl4ai>=0.6.3,<0.7
   - docling>=2.90.0,<3
   - docling-core>=2.73.0,<3.0.0
   - docling-parse>=5.3.2,<6.0.0
-  - crawl4ai>=0.6.3,<0.7
   - html5lib>=1.1,<2
   - huggingface-hub<1
   - langchain-text-splitters>=1.0.0,<2
@@ -29001,6 +28994,22 @@ packages:
   - pkg:pypi/pdftotext?source=hash-mapping
   size: 15228
   timestamp: 1733578203563
+- conda: https://conda.anaconda.org/conda-forge/win-64/pdftotext-2.2.2-py312h70d3d4c_25.conda
+  sha256: 9cfdfaf16131dccf8d327a58befcc98e12fd92d46e367b9eb62092edc57dd76d
+  md5: 8e893bf36bd583ccf5d9e2f8a2ba26ff
+  depends:
+  - poppler >=24.12.0,<24.13.0a0
+  - python >=3.12,<3.13.0a0
+  - python_abi 3.12.* *_cp312
+  - ucrt >=10.0.20348.0
+  - vc >=14.2,<15
+  - vc14_runtime >=14.29.30139
+  license: MIT
+  license_family: MIT
+  purls:
+  - pkg:pypi/pdftotext?source=hash-mapping
+  size: 18667
+  timestamp: 1733578385597
 - conda: https://conda.anaconda.org/conda-forge/win-64/pdftotext-2.2.2-py313hd91f455_25.conda
   sha256: 92e2e6ef59f426bc4beee21ac8d97b39d6cf9b307914135fa5017e818b83328a
   md5: 9090b08c06df72c029719ca5cc36af76
