@@ -18838,8 +18838,8 @@ packages:
   timestamp: 1776068839274
 - pypi: ./
   name: infra-compass
-  version: 0.16.1.dev96+g0158075.d20260505
-  sha256: c264199de1f5ac8dec88c763b6442a8c9f36af1f8cdeb680dbaba32c8203ade9
+  version: 0.16.1.dev98+gbc1e628.d20260505
+  sha256: 7b77513eb9c9168d5508fb615fdd7e405b000ca698c25f0755a4f1f17052cdad
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
   - click>=8.1.7,<9

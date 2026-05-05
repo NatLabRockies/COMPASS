@@ -169,6 +169,9 @@ pdftotext = ">=2.2.2,<3"
 [tool.pixi.target.osx.dependencies]
 pdftotext = ">=2.2.2,<3"
 
+[tool.pixi.target.osx-arm64.pypi-dependencies]
+docling-parse = "==5.10.1"
+
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.89.0,<1.92"
 cxx-compiler = ">=1.11.0,<2"
