@@ -45,7 +45,7 @@ dependencies = [
   "nltk>=3.9.1,<4",
   "nlr-elm>=0.0.39,<1",
   "numpy>=2.4.3,<3",
-  "openai>=1.1.0",
+  "openai>=2.34.0",
   "pandas>=2.2.3,<3",
   "pdftotext>=2.2.2,<3",
   "platformdirs>=4.5.1,<5",
@@ -169,9 +169,6 @@ pdftotext = ">=2.2.2,<3"
 [tool.pixi.target.osx.dependencies]
 pdftotext = ">=2.2.2,<3"
 
-[tool.pixi.target.osx-arm64.pypi-dependencies]
-docling-parse = "==5.10.1"
-
 [tool.pixi.feature.rust-dev.dependencies]
 rust = ">=1.89.0,<1.92"
 cxx-compiler = ">=1.11.0,<2"
@@ -197,7 +194,7 @@ lxml = ">=5.3.0,<6"
 networkx = ">=3.4.2,<4"
 nltk = ">=3.9.1,<4"
 numpy = ">=2.4.3,<3"
-openai = ">=1.1.0"
+openai = ">=2.34.0"
 pandas = ">=2.2.3,<3"
 pdf2image = ">=1.17.0,<2"
 pillow = ">=10.4,<11.dev0"  # version range required for c4ai
