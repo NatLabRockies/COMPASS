@@ -227,7 +227,9 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
     elm.web.document.MDDocument
         Parsed document.
     """
-    return await FileLoader.call(_read_docling, doc_bytes, url=url, **kwargs)
+    return await FileLoader.call(
+        _read_docling, doc_bytes, file_source=url, **kwargs
+    )
 
 
 async def read_docling_local_file(fp, **kwargs):
@@ -288,10 +290,10 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     return doc, pdf_bytes
 
 
-def _read_docling(doc_bytes, url, headers=None, **kwargs):
+def _read_docling(doc_bytes, file_source, headers=None, **kwargs):
     """Utility func to read documents using Docling"""
 
-    url = str(url)
+    file_source = str(file_source)
     if headers is not None:
         headers = dict(headers)
 
@@ -302,7 +304,7 @@ def _read_docling(doc_bytes, url, headers=None, **kwargs):
         do_cell_matching=True
     )
     pipeline_options.ocr_options = TesseractCliOcrOptions()
-    html_backend_options = HTMLBackendOptions(source_uri=url)
+    html_backend_options = HTMLBackendOptions(source_uri=file_source)
 
     doc_converter = DocumentConverter(
         format_options={
@@ -316,7 +318,7 @@ def _read_docling(doc_bytes, url, headers=None, **kwargs):
     )
 
     start_time = time.monotonic()
-    stream = DocumentStream(name=url, stream=BytesIO(doc_bytes))
+    stream = DocumentStream(name=file_source, stream=BytesIO(doc_bytes))
     conv_result = doc_converter.convert(stream, headers=headers)
     conversion_time_seconds = time.monotonic() - start_time
 
@@ -329,6 +331,7 @@ def _read_docling(doc_bytes, url, headers=None, **kwargs):
         "doc_filename": conv_result.input.file.stem,
         "doc_type": conv_result.input.format.value,
         "conversion_time_seconds": conversion_time_seconds,
+        "num_pages": len(conv_result.pages),
         "from_ocr": any(
             ~np.isnan(c.ocr_score)
             for c in conv_result.confidence.pages.values()
@@ -346,7 +349,9 @@ def _read_file_docling(fp, **kwargs):
 
     fp = Path(fp)
     doc_bytes = fp.read_bytes()
-    doc = _read_docling(doc_bytes, fp, headers=None, **kwargs)
+    doc = _read_docling(
+        doc_bytes, str(fp).replace(".txt", ".md"), headers=None, **kwargs
+    )
     return doc, doc_bytes
 
 

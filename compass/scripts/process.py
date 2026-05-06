@@ -524,7 +524,7 @@ class _COMPASSRunner:
 
     @cached_property
     def local_file_loader_kwargs(self):
-        """dict: Keyword arguments for ``AsyncLocalFileLoader``"""
+        """dict: Keyword arguments for ``COMPASSLocalFileLoader``"""
         file_loader_kwargs = {
             "pdf_read_coroutine": read_pdf_file,
             "html_read_coroutine": read_html_file,
