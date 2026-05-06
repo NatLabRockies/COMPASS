@@ -518,7 +518,12 @@ class _COMPASSRunner:
         if self.web_search_params.pytesseract_exe_fp is not None:
             _setup_pytesseract(self.web_search_params.pytesseract_exe_fp)
             file_loader_kwargs.update(
-                {"pdf_ocr_read_coroutine": read_pdf_doc_ocr}
+                {
+                    "pdf_ocr_read_coroutine": read_pdf_doc_ocr,
+                    "pytesseract_exe_fp": (
+                        self.web_search_params.pytesseract_exe_fp
+                    ),
+                }
             )
         return file_loader_kwargs
 
@@ -539,7 +544,12 @@ class _COMPASSRunner:
         if self.web_search_params.pytesseract_exe_fp is not None:
             _setup_pytesseract(self.web_search_params.pytesseract_exe_fp)
             file_loader_kwargs.update(
-                {"pdf_ocr_read_coroutine": read_pdf_file_ocr}
+                {
+                    "pdf_ocr_read_coroutine": read_pdf_file_ocr,
+                    "pytesseract_exe_fp": (
+                        self.web_search_params.pytesseract_exe_fp
+                    ),
+                }
             )
         return file_loader_kwargs
 

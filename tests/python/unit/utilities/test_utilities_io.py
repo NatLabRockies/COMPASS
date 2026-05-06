@@ -8,11 +8,7 @@ import pytest
 from elm.web.search.run import load_docs
 
 from compass.utilities.io import load_config, ConfigType, resolve_all_paths
-from compass.services.cpu import (
-    FileLoader,
-    read_pdf_file_ocr,
-    read_docling_local_file,
-)
+from compass.services.cpu import FileLoader, read_docling_local_file
 from compass.web.file_loader import AsyncLocalDoclingFileLoader
 from compass.services.provider import RunningAsyncServices
 from compass.exceptions import COMPASSNotInitializedError, COMPASSValueError
@@ -320,21 +316,19 @@ async def test_basic_load_pdf_with_service(test_data_files_dir):
 @pytest.mark.asyncio
 async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
     """Test basic loading of local PDF document with service"""
-    import pytesseract  # noqa: PLC0415
-
-    pytesseract.pytesseract.tesseract_cmd = PYT_CMD
-
     test_fp = test_data_files_dir / "Sedgwick Kansas.pdf"
 
     with pytest.raises(
         COMPASSNotInitializedError,
-        match=r"Must initialize the queue for 'OCRPDFLoader'.",
+        match=r"Must initialize the queue for 'FileLoader'.",
     ):
         await read_docling_local_file(test_fp)
 
-    fl = AsyncLocalDoclingFileLoader(pdf_ocr_read_coroutine=read_pdf_file_ocr)
+    fl = AsyncLocalDoclingFileLoader(pytesseract_exe_fp=PYT_CMD)
     async with RunningAsyncServices([FileLoader()]):
-        doc, __ = await read_docling_local_file(test_fp)
+        doc, __ = await read_docling_local_file(
+            test_fp, pytesseract_exe_fp=PYT_CMD
+        )
         doc_2 = await load_docs([test_fp], fl)
 
     assert not doc.empty

@@ -290,7 +290,9 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     return doc, pdf_bytes
 
 
-def _read_docling(doc_bytes, file_source, headers=None, **kwargs):
+def _read_docling(
+    doc_bytes, file_source, headers=None, pytesseract_exe_fp=None, **kwargs
+):
     """Utility func to read documents using Docling"""
 
     file_source = str(file_source)
@@ -298,12 +300,18 @@ def _read_docling(doc_bytes, file_source, headers=None, **kwargs):
         headers = dict(headers)
 
     pipeline_options = PdfPipelineOptions()
-    pipeline_options.do_ocr = True
     pipeline_options.do_table_structure = True
     pipeline_options.table_structure_options = TableStructureOptions(
         do_cell_matching=True
     )
-    pipeline_options.ocr_options = TesseractCliOcrOptions()
+    if pytesseract_exe_fp is None:
+        pipeline_options.do_ocr = False
+    else:
+        pipeline_options.do_ocr = True
+        pipeline_options.ocr_options = TesseractCliOcrOptions(
+            tesseract_cmd=pytesseract_exe_fp
+        )
+
     html_backend_options = HTMLBackendOptions(source_uri=file_source)
 
     doc_converter = DocumentConverter(

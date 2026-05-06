@@ -99,6 +99,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
         to_md_kwargs=None,
+        pytesseract_exe_fp=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -158,6 +159,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             ``"image_placeholder"=""``) or page break placeholders (i.e.
             ``"page_break_placeholder"="<!-- page break -->").
             By default, ``None``.
+        pytesseract_exe_fp : path-like, optional
+            Path to the `pytesseract` executable. If specified, OCR will
+            be used to extract text from scanned PDFs using Google's
+            Tesseract.  By default ``None``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.content_fetcher = AsyncFetchWithRetry(
@@ -174,6 +179,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             num_pw_html_retries=num_pw_html_retries,
         )
         self.to_md_kwargs = to_md_kwargs or {}
+        self.pytesseract_exe_fp = pytesseract_exe_fp
 
     async def fetch_all(self, *sources):
         """Fetch documents for all requested sources.
@@ -235,6 +241,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 http_url=AnyHttpUrl(url), response_headers=dict(headers)
             ),
             headers=dict(headers),
+            pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
         )
 
@@ -254,6 +261,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
         file_cache_coroutine=None,
         doc_attrs=None,
         to_md_kwargs=None,
+        pytesseract_exe_fp=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -278,15 +286,22 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             ``"image_placeholder"=""``) or page break placeholders (i.e.
             ``"page_break_placeholder"="<!-- page break -->").
             By default, ``None``.
+        pytesseract_exe_fp : path-like, optional
+            Path to the `pytesseract` executable. If specified, OCR will
+            be used to extract text from scanned PDFs using Google's
+            Tesseract.  By default ``None``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.to_md_kwargs = to_md_kwargs or {}
         self.doc_attrs = doc_attrs or {}
+        self.pytesseract_exe_fp = pytesseract_exe_fp
 
     async def _fetch_doc(self, source):
         """Load a doc by reading file based on extension"""
         doc, raw_content = await read_docling_local_file(
-            source, **self.to_md_kwargs
+            source,
+            pytesseract_exe_fp=self.pytesseract_exe_fp,
+            **self.to_md_kwargs,
         )
 
         if doc.attrs["doc_type"].casefold() != "html":
