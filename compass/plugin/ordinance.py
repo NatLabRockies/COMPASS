@@ -844,6 +844,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             row_count = self.get_structured_data_row_count(data_df)
             if row_count == 0:
                 continue
+
             data_df["source"] = doc.attrs.get("source")
             data_df["year"] = extract_year_from_doc_attrs(doc.attrs)
             await extraction_context.mark_doc_as_data_source(
