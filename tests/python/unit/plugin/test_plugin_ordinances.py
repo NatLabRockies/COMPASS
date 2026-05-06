@@ -13,8 +13,21 @@ from compass.plugin.ordinance import (
     BaseTextExtractor,
     BaseParser,
     OrdinanceExtractionPlugin,
+    _feature_key,
+    _fill_in_all_sources,
+    _fill_out_multi_file_sources,
+    _filter_to_prohibition_cands_if_needed,
+    _get_source_inds,
+    _has_prohibitions,
+    _merge_candidates,
+    _prioritize_candidates,
+    _valid_chunk,
+    _validate_in_out_keys,
 )
-from compass.exceptions import COMPASSPluginConfigurationError
+from compass.exceptions import (
+    COMPASSPluginConfigurationError,
+    COMPASSRuntimeError,
+)
 
 
 class MergePlugin(OrdinanceExtractionPlugin):
@@ -446,6 +459,224 @@ async def test_parse_multi_doc_merge_returns_context(merge_plugin):
         "setback",
         "height",
     }
+
+
+@pytest.mark.parametrize(
+    "chunk,expected",
+    [("Useful text", True), ("No relevant text.", False), ("", "")],
+)
+def test_valid_chunk(chunk, expected):
+    """Helper should reject empty and negative extraction responses"""
+
+    assert _valid_chunk(chunk) == expected
+
+
+def test_validate_in_out_keys_raises_for_missing_key():
+    """Helper should fail when no producer satisfies a required input"""
+
+    class Producer:
+        OUT_LABEL = "produced"
+
+    class Consumer:
+        IN_LABEL = "missing"
+
+    with pytest.raises(
+        COMPASSPluginConfigurationError,
+        match=r"IN_LABEL 'missing'",
+    ):
+        _validate_in_out_keys([Consumer], [Producer])
+
+
+def test_get_source_inds_returns_integer_indices():
+    """Helper should extract integer source indices from rows"""
+
+    data_df = _data_df(
+        {"feature": "setback", "source": 0},
+        {"feature": "height", "source": 1},
+        {"feature": "noise", "source": 1},
+    )
+
+    source_inds = _get_source_inds(data_df, 3)
+
+    assert list(source_inds) == [0, 1]
+
+
+@pytest.mark.parametrize(
+    "data_df,num_docs,match",
+    [
+        (_data_df({"feature": "setback"}), 2, "column not found"),
+        (
+            _data_df({"feature": "setback", "source": "one"}),
+            2,
+            "non-integer values",
+        ),
+        (
+            _data_df({"feature": "setback", "source": 2}),
+            2,
+            "out-of-bounds indices",
+        ),
+    ],
+)
+def test_get_source_inds_raises_for_invalid_source_values(
+    data_df, num_docs, match
+):
+    """Helper should reject missing, invalid, and out-of-range sources"""
+
+    with pytest.raises(COMPASSRuntimeError, match=match):
+        _get_source_inds(data_df, num_docs)
+
+
+@pytest.mark.asyncio
+async def test_fill_out_multi_file_sources_maps_valid_source_indices():
+    """Helper should map per-row source indices back to document metadata"""
+
+    context = FakeExtractionContext(
+        [FakeDoc("doc-one", 2021), FakeDoc("doc-two", 2024)]
+    )
+    data_df = _data_df(
+        {"feature": "setback", "source": 0},
+        {"feature": "height", "source": 1},
+    )
+
+    filled = await _fill_out_multi_file_sources(data_df, context, "County")
+
+    assert list(filled["source"]) == ["doc-one", "doc-two"]
+    assert list(filled["year"]) == [2021, 2024]
+    assert context.marked_sources == [
+        ("doc-one", "County_1"),
+        ("doc-two", "County_2"),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_fill_in_all_sources_reports_full_context_when_needed():
+    """Fallback helper should report all documents when row sources fail"""
+
+    context = FakeExtractionContext(
+        [FakeDoc("doc-one", 2020), FakeDoc("doc-two", 2024)]
+    )
+    data_df = _data_df({"feature": "setback", "value": 100})
+
+    filled = await _fill_in_all_sources(data_df, context, "County")
+
+    assert filled.iloc[0]["source"] == "doc-one ;\ndoc-two"
+    assert filled.iloc[0]["year"] == 2024
+    assert context.marked_sources == [
+        ("doc-one", "County_1"),
+        ("doc-two", "County_2"),
+    ]
+
+
+def test_feature_key_normalizes_values_and_handles_missing():
+    """Feature-key helper should normalize strings and preserve missing"""
+
+    assert _feature_key("  Prohibitions ") == "prohibitions"
+    assert _feature_key(pd.NA) is None
+
+
+def test_has_prohibitions_requires_ordinance_content():
+    """Prohibition helper should only flag rows with actual ordinance data"""
+
+    with_prohibition = _data_df(
+        {"feature": "Prohibitions", "summary": "Wind is prohibited."}
+    )
+    without_prohibition = _data_df(
+        {"feature": "Prohibitions", "summary": None, "value": None}
+    )
+
+    assert _has_prohibitions(with_prohibition)
+    assert not _has_prohibitions(without_prohibition)
+
+
+def test_filter_to_prohibition_candidates_only_when_present():
+    """Candidate helper should narrow to prohibition-bearing documents"""
+
+    candidates = [
+        {
+            "data_df": _data_df(
+                {"feature": "setback", "summary": "Regular standard"}
+            )
+        },
+        {
+            "data_df": _data_df(
+                {
+                    "feature": "prohibitions",
+                    "summary": "Wind systems are prohibited.",
+                }
+            )
+        },
+    ]
+
+    filtered = _filter_to_prohibition_cands_if_needed(candidates)
+
+    assert filtered == [candidates[1]]
+
+
+def test_prioritize_candidates_prefers_latest_year_then_row_count():
+    """Priority helper should sort by year when every candidate has one"""
+
+    candidates = [
+        {"year": 2021, "row_count": 5},
+        {"year": 2024, "row_count": 1},
+        {"year": 2024, "row_count": 3},
+    ]
+
+    prioritized = _prioritize_candidates(candidates)
+
+    assert prioritized == [candidates[2], candidates[1], candidates[0]]
+
+
+def test_prioritize_candidates_falls_back_to_row_count_without_years():
+    """Priority helper should ignore year sorting when any year is unknown"""
+
+    candidates = [
+        {"year": 2024, "row_count": 1},
+        {"year": None, "row_count": 3},
+        {"year": 2021, "row_count": 2},
+    ]
+
+    prioritized = _prioritize_candidates(candidates)
+
+    assert prioritized == [candidates[1], candidates[2], candidates[0]]
+
+
+@pytest.mark.asyncio
+async def test_merge_candidates_keeps_first_feature_and_marks_sources():
+    """Merge helper should keep first-seen features by candidate priority"""
+
+    context = FakeExtractionContext([FakeDoc("older"), FakeDoc("newer")])
+    candidates = [
+        {
+            "data_df": _data_df(
+                {"feature": "setback", "value": 200, "source": "newer"},
+                {"feature": "height", "value": 80, "source": "newer"},
+            ),
+            "doc": context[1],
+            "doc_ind": 2,
+        },
+        {
+            "data_df": _data_df(
+                {"feature": "setback", "value": 100, "source": "older"},
+                {"feature": "noise", "value": 45, "source": "older"},
+            ),
+            "doc": context[0],
+            "doc_ind": 1,
+        },
+    ]
+
+    merged = await _merge_candidates(candidates, context, "County")
+
+    assert set(merged["feature"].str.casefold()) == {
+        "setback",
+        "height",
+        "noise",
+    }
+    setback = merged.loc[merged["feature"].str.casefold() == "setback"]
+    assert setback.iloc[0]["value"] == 200
+    assert context.marked_sources == [
+        ("newer", "County_2"),
+        ("older", "County_1"),
+    ]
 
 
 if __name__ == "__main__":
