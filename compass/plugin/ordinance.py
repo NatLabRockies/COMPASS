@@ -754,10 +754,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                 )
                 extraction_context.attrs["structured_data"] = data_df
                 logger.info(
-                    "%d ordinance value(s) found in doc from %s for %s. ",
+                    "%d ordinance value(s) found for %s from doc:\n%s. ",
                     num_ordinances_dataframe(data_df),
-                    doc_for_extraction.attrs.get("source", "unknown source"),
                     self.jurisdiction.full_name,
+                    doc_for_extraction,
                 )
                 return extraction_context
 
@@ -806,10 +806,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         extraction_context.attrs["structured_data"] = data_df
         logger.info(
-            "%d ordinance value(s) found in %d docs for %s. ",
+            "%d ordinance value(s) found for %s in %d docs. ",
             num_ordinances_dataframe(data_df),
-            extraction_context.num_documents,
             self.jurisdiction.full_name,
+            extraction_context.num_documents,
         )
         return extraction_context
 
