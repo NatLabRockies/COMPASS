@@ -838,24 +838,22 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         data_dfs = await asyncio.gather(*tasks)
 
         all_data = []
-        for data_df, doc_for_extraction in zip(
-            data_dfs, extraction_context, strict=True
+        for doc_ind, (data_df, doc) in enumerate(
+            zip(data_dfs, extraction_context, strict=True), start=1
         ):
             row_count = self.get_structured_data_row_count(data_df)
             if row_count == 0:
                 continue
-            data_df["source"] = doc_for_extraction.attrs.get("source")
-            data_df["year"] = extract_year_from_doc_attrs(
-                doc_for_extraction.attrs
-            )
+            data_df["source"] = doc.attrs.get("source")
+            data_df["year"] = extract_year_from_doc_attrs(doc.attrs)
             await extraction_context.mark_doc_as_data_source(
-                doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
+                doc, out_fn_stem=f"{self.jurisdiction.full_name}_{doc_ind}"
             )
             logger.info(
-                "%d ordinance value(s) found in doc from %s for %s. ",
+                "%d ordinance value(s) found for %s from doc:\n%s. ",
                 num_ordinances_dataframe(data_df),
-                doc_for_extraction.attrs.get("source", "unknown source"),
                 self.jurisdiction.full_name,
+                doc,
             )
             all_data.append(data_df)
 
