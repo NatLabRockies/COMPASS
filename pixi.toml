@@ -102,11 +102,11 @@ greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
 pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [feature.python-default.pypi-dependencies]
+crawl4ai = ">=0.8.6,<0.9"
 docling = ">=2.90.0,<3"
 docling-core = ">=2.73.0,<3.0.0"
 docling-parse = ">=5.3.2,<6.0.0"
 INFRA-COMPASS = { path = ".", editable = true}
-crawl4ai = ">=0.6.3,<0.7"
 
 [feature.python-default.target.linux-aarch64.pypi-dependencies]
 pdftotext = ">=2.2.2,<3"
@@ -126,10 +126,10 @@ camoufox = ">=0.4.11,<0.5"
 ddgs = ">=9.2.3,<10"
 fake-useragent = ">=2.0.3,<3"
 google-search-results = ">=2.4.2,<3"
+playwright-stealth = ">=2.0.3,<3"
 rebrowser-playwright = ">=1.49.1,<1.50"  # match playwright dep
 scrapling = ">=0.2.99,<0.3"
 tavily-python = ">=0.5.0,<0.6"
-tf-playwright-stealth = ">=1.2.0,<2"
 
 [feature.python-dev.dependencies]
 geopandas = ">=1.0.1,<2"
