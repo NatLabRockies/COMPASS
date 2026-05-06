@@ -695,9 +695,7 @@ async def filter_ordinance_docs(
         "Found %d potential ordinance documents for %s\n\t- %s",
         len(docs),
         jurisdiction.full_name,
-        "\n\t- ".join(
-            [doc.attrs.get("source", "Unknown source") for doc in docs]
-        ),
+        "\n\t- ".join([str(doc) for doc in docs]),
     )
     return docs
 
