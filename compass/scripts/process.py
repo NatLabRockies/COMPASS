@@ -25,7 +25,7 @@ from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import OpenAIConfig
 from compass.services.cpu import (
-    PDFLoader,
+    FileLoader,
     OCRPDFLoader,
     read_pdf_doc,
     read_pdf_doc_ocr,
@@ -598,7 +598,7 @@ class _COMPASSRunner:
                 self.dirs.out / "jurisdictions.json",
                 tpe_kwargs=self.tpe_kwargs,
             ),
-            PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
+            FileLoader(**(self.process_kwargs.ppe_kwargs or {})),
             HTMLFileLoader(**self.tpe_kwargs),
         ]
 

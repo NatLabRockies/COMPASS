@@ -130,7 +130,7 @@ def crawler_setup(monkeypatch):
 
     monkeypatch.setattr(website_crawl, "PDFDocument", DummyPDFDocument)
     monkeypatch.setattr(website_crawl, "HTMLDocument", DummyHTMLDocument)
-    monkeypatch.setattr(website_crawl, "AsyncWebFileLoader", DummyLoader)
+    monkeypatch.setattr(website_crawl, "COMPASSWebFileLoader", DummyLoader)
 
     async def validator(doc):
         await asyncio.sleep(0)

@@ -30,6 +30,7 @@ class MockResponse:
         self.read_return = read_return
         self.content_type = "application/pdf"
         self.charset = "utf-8"
+        self.headers = {}
 
     async def read(self):
         return self.read_return
@@ -46,7 +47,7 @@ def mock_get_methods(sample_file):
     """Return patched get methods"""
 
     @asynccontextmanager
-    async def patched_get(session, url, *args, **kwargs):  # noqa: RUF029
+    async def patched_get(session, url, *args, **kwargs):
         if url == "Whatcom":
             with sample_file.open("rb") as fh:
                 content = fh.read()

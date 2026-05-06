@@ -1,19 +1,17 @@
 """Ordinance file downloading logic"""
 
+import pprint
 import logging
 from contextlib import AsyncExitStack
 
 from elm.web.document import PDFDocument
-from elm.web.search.run import (
-    load_docs,
-    search_with_fallback,
-    web_search_links_as_docs,
-)
+from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
     _SCORE_KEY,  # noqa: PLC2701
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
+from elm.web.file_loader import AsyncLocalFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_relevant_text, extract_date
@@ -23,9 +21,9 @@ from compass.validation.location import (
     JurisdictionValidator,
     JurisdictionWebsiteValidator,
 )
+from compass.web.file_loader import COMPASSWebFileLoader
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.enums import LLMTasks
-from compass.utilities.io import load_local_docs
 from compass.pb import COMPASS_PB
 
 
@@ -74,13 +72,19 @@ async def download_known_urls(
 
     file_loader_kwargs = file_loader_kwargs or {}
     file_loader_kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
+    logger.trace(
+        "kwargs for COMPASSWebFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(file_loader_kwargs),
+    )
+    file_loader = COMPASSWebFileLoader(
+        browser_semaphore=browser_semaphore, **file_loader_kwargs
+    )
+
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(urls)
     ):
         try:
-            out_docs = await load_docs(
-                urls, browser_semaphore=browser_semaphore, **file_loader_kwargs
-            )
+            out_docs = await load_docs(urls, file_loader)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -130,11 +134,16 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
     local_file_loader_kwargs.update(
         {"file_cache_coroutine": TempFileCachePB.call}
     )
+    logger.trace(
+        "kwargs for AsyncLocalFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(local_file_loader_kwargs),
+    )
+    fl = AsyncLocalFileLoader(**local_file_loader_kwargs)
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(fps)
     ):
         try:
-            out_docs = await load_local_docs(fps, **local_file_loader_kwargs)
+            out_docs = await load_docs(fps, fl)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -216,7 +225,7 @@ async def find_jurisdiction_website(
         queries=[query_1, query_2],
         num_urls=3,
         ignore_url_parts=url_ignore_substrings,
-        browser_sem=search_semaphore,
+        browser_semaphore=search_semaphore,
         task_name=jurisdiction.full_name,
         **kwargs,
     )
@@ -332,17 +341,23 @@ async def download_jurisdiction_ordinances_from_website(
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_website_crawl_task(pb_jurisdiction_name, advance=1)
 
-    file_loader_kwargs = file_loader_kwargs or {}
-    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
+    flk = {"verify_ssl": False}
+    flk.update(file_loader_kwargs or {})
+    flk.update({"file_cache_coroutine": TempFileCache.call})
 
     browser_config_kwargs = browser_config_kwargs or {}
-    pw_launch_kwargs = file_loader_kwargs.get("pw_launch_kwargs", {})
+    pw_launch_kwargs = flk.get("pw_launch_kwargs", {})
     browser_config_kwargs["headless"] = pw_launch_kwargs.get("headless", True)
 
+    logger.trace(
+        "kwargs for COMPASSWebFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(flk),
+    )
+    afl = COMPASSWebFileLoader(**flk)
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
+        async_file_loader=afl,
         url_scorer=ELMLinkScorer(keyword_points).score,
-        file_loader_kwargs=file_loader_kwargs,
         browser_config_kwargs=browser_config_kwargs,
         crawler_config_kwargs=crawler_config_kwargs,
         include_external=True,
@@ -545,41 +560,29 @@ async def download_jurisdiction_ordinance_using_search_engine(
         jurisdiction.full_name, description="Searching web..."
     )
 
-    pb_store = []
-
-    async def _download_hook(urls):  # noqa: RUF029
-        """Update progress bar as file download starts"""
-        if not urls:
-            return
-
-        COMPASS_PB.update_jurisdiction_task(
-            jurisdiction.full_name, description="Downloading files..."
-        )
-        pb, task = COMPASS_PB.start_file_download_prog_bar(
-            jurisdiction.full_name, len(urls)
-        )
-        pb_store.append((pb, task, len(urls)))
-
     kwargs.update(file_loader_kwargs or {})
+    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     try:
-        out_docs = await _docs_from_web_search(
-            query_templates=query_templates,
-            jurisdiction=jurisdiction,
+        docs = await _docs_from_web_search(
+            query_templates,
             num_urls=num_urls,
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
-            url_ignore_substrings=url_ignore_substrings,
-            on_search_complete_hook=_download_hook,
+            ignore_url_parts=url_ignore_substrings,
+            jurisdiction_full_name=jurisdiction.full_name,
             **kwargs,
         )
-    finally:
-        if pb_store:
-            pb, task, num_urls = pb_store[0]
-            await COMPASS_PB.tear_down_file_download_prog_bar(
-                jurisdiction.full_name, num_urls, pb, task
-            )
+    except KeyboardInterrupt:
+        raise
+    except Exception as e:
+        msg = (
+            "Encountered error of type %r while searching web for docs for %s:"
+        )
+        err_type = type(e)
+        logger.exception(msg, err_type, jurisdiction.full_name)
+        docs = []
 
-    return out_docs
+    return docs
 
 
 async def filter_ordinance_docs(
@@ -701,43 +704,55 @@ async def filter_ordinance_docs(
 
 async def _docs_from_web_search(
     query_templates,
-    jurisdiction,
     num_urls,
     search_semaphore,
     browser_semaphore,
-    url_ignore_substrings,
-    on_search_complete_hook,
+    ignore_url_parts,
+    jurisdiction_full_name,
     **kwargs,
 ):
-    """Download documents from the web using jurisdiction queries"""
+    """Retrieve top ``N`` search results as document instances"""
+
     queries = [
-        query.format(jurisdiction=jurisdiction.full_name)
+        query.format(jurisdiction=jurisdiction_full_name)
         for query in query_templates
     ]
-    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
+    urls = await search_with_fallback(
+        queries,
+        num_urls=num_urls,
+        ignore_url_parts=ignore_url_parts,
+        browser_semaphore=search_semaphore,
+        task_name=jurisdiction_full_name,
+        **kwargs,
+    )
+    if not urls:
+        return []
 
-    try:
-        docs = await web_search_links_as_docs(
-            queries,
-            num_urls=num_urls,
-            search_semaphore=search_semaphore,
-            browser_semaphore=browser_semaphore,
-            ignore_url_parts=url_ignore_substrings,
-            task_name=jurisdiction.full_name,
-            on_search_complete_hook=on_search_complete_hook,
-            **kwargs,
-        )
-    except KeyboardInterrupt:
-        raise
-    except Exception as e:
-        msg = (
-            "Encountered error of type %r while searching web for docs for %s:"
-        )
-        err_type = type(e)
-        logger.exception(msg, err_type, jurisdiction.full_name)
-        docs = []
+    return await _docs_from_urls(
+        urls, jurisdiction_full_name, browser_semaphore, **kwargs
+    )
 
-    return docs
+
+async def _docs_from_urls(
+    urls, jurisdiction_full_name, browser_semaphore, **kwargs
+):
+    """Load documents from a list of URLs using AsyncWebFileLoader"""
+    logger.debug("Downloading documents for URLS: \n\t-%s", "\n\t-".join(urls))
+    logger.trace(
+        "kwargs for COMPASSWebFileLoader:\n%s",
+        pprint.PrettyPrinter().pformat(kwargs),
+    )
+    file_loader = COMPASSWebFileLoader(
+        browser_semaphore=browser_semaphore, **kwargs
+    )
+
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction_full_name, description="Downloading files..."
+    )
+    async with COMPASS_PB.file_download_prog_bar(
+        jurisdiction_full_name, len(urls)
+    ):
+        return await load_docs(urls, file_loader)
 
 
 async def _down_select_docs_correct_jurisdiction(
