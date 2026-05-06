@@ -2,7 +2,7 @@ schema: ./water_rights_schema.json5
 
 data_type_short_desc: water rights and regulations
 
-allow_multi_doc_extraction: True  # Important for water rights!
+doc_selection_method: "multi doc context"  # Important for water rights!
 
 query_templates:
   - "{jurisdiction} rules"

@@ -123,11 +123,26 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               may provide a custom system prompt if you want to provide
               more specific instructions to the LLM for the structured
               data extraction step.
-            - `allow_multi_doc_extraction`: Boolean flag indicating
-              whether to allow multiple documents to be used for the
-              extraction context simultaneously. By default, ``False``,
-              which means the first document that returns some extracted
-              data will be marked as the source.
+            - `doc_selection_method`: String defining the multi-doc
+              selection option. Specifically, if multiple documents pass
+              the filter, this method detemines how the documents are
+              submitted to the extraction context. Allowed options are:
+
+                - "single doc": Use the first document that returns some
+                  extracted data as the source document for the
+                  extraction context.
+                - "multi doc context": Submit text from multiple
+                  documents to the extraction context simultaneously.
+                - "multi doc all": Each document is extracted separately
+                  and the results concatenated. This may give duplicated
+                  feature results if the same feature is mentioned in
+                  multiple documents.
+                - "multi doc mixed": Each document is extracted
+                  separately and the results are merged together at the
+                  end. In this approach, each feature is reported at
+                  most once.
+
+              By default, ``"single doc"``.
 
     tech : str
         Technology identifier to use for the plugin (e.g., "wind",
@@ -161,10 +176,25 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         SCHEMA = config["schema"]
         """dict: Schema for the output of the text extraction step"""
 
-        ALLOW_MULTI_DOC_EXTRACTION = config.get(
-            "allow_multi_doc_extraction", False
-        )
-        """bool: Whether to allow extraction over multiple documents"""
+        DOC_SELECTION_METHOD = _doc_selection_method(config)
+        """str: Method for selecting documents for extraction context
+
+        Allowed options:
+
+            - "single doc": Use the first document that returns some
+              extracted data as the source document for the extraction
+              context.
+            - "multi doc context": Submit text from multiple documents
+              to the extraction context simultaneously.
+            - "multi doc all": Each document is extracted separately
+              and the results concatenated. This may give duplicated
+              feature results if the same feature is mentioned in
+              multiple documents.
+            - "multi doc mixed": Each document is extracted separately
+              and the results are merged together at the end. In this
+              approach, each feature is reported at most once.
+
+        """
 
         IDENTIFIER = tech
         """str: Identifier for extraction task """
@@ -568,3 +598,28 @@ def _normalize_keyword_list(items):
         normalized.add(keyword)
 
     return list(normalized)
+
+
+def _doc_selection_method(config):
+    """Parse and normalize the document selection method"""
+    allowed_methods = {
+        "single_doc",
+        "multi_doc_context",
+        "multi_doc_all",
+        "multi_doc_mixed",
+    }
+    og_doc_selection_method = config.get("doc_selection_method", "single doc")
+    doc_selection_method = (
+        og_doc_selection_method.replace(" ", "_")
+        .replace("-", "_")
+        .strip()
+        .casefold()
+    )
+    if doc_selection_method not in allowed_methods:
+        msg = (
+            f"Invalid doc_selection_method: {og_doc_selection_method!r}. "
+            f"Allowed options are: {sorted(allowed_methods)}."
+        )
+        raise COMPASSPluginConfigurationError(msg)
+
+    return doc_selection_method
