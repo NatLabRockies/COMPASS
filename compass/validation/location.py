@@ -7,7 +7,6 @@ particular location.
 import asyncio
 import logging
 
-from elm.web.file_loader import AsyncWebFileLoader
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
 from compass.common import setup_async_decision_tree, run_async_tree
@@ -15,6 +14,7 @@ from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,
 )
+from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.enums import LLMUsageCategory
 
 
@@ -378,7 +378,7 @@ class JurisdictionWebsiteValidator:
         if url_is_correct_jurisdiction:
             return True
 
-        fl = AsyncWebFileLoader(
+        fl = COMPASSWebFileLoader(
             browser_semaphore=self.browser_semaphore,
             **self.file_loader_kwargs,
         )
