@@ -257,6 +257,9 @@ def test_load_config_invalid_extension(tmp_path):
         load_config(config_file)
 
 
+@pytest.mark.skipif(
+    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+)
 @pytest.mark.asyncio
 async def test_basic_load_pdf(test_data_files_dir):
     """Test basic loading of local PDF document"""
@@ -273,6 +276,9 @@ async def test_basic_load_pdf(test_data_files_dir):
     assert len(doc.pages) == 1
 
 
+@pytest.mark.skipif(
+    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+)
 @pytest.mark.asyncio
 async def test_basic_load_html(test_data_files_dir):
     """Test basic loading of local HTML document"""
@@ -289,6 +295,9 @@ async def test_basic_load_html(test_data_files_dir):
     assert len(doc.pages) == 1
 
 
+@pytest.mark.skipif(
+    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+)
 @pytest.mark.asyncio
 async def test_basic_load_pdf_with_service(test_data_files_dir):
     """Test basic loading of local PDF document with service"""
@@ -311,7 +320,8 @@ async def test_basic_load_pdf_with_service(test_data_files_dir):
 
 
 @pytest.mark.skipif(
-    not PYT_CMD, reason="requires PyTesseract command to be set"
+    os.getenv("GITHUB_ACTIONS") == "true" or not PYT_CMD,
+    reason="requires PyTesseract command to be set; Docling too heavy for GHA",
 )
 @pytest.mark.asyncio
 async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
@@ -336,6 +346,9 @@ async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
     assert doc.text == doc_2[0].text
 
 
+@pytest.mark.skipif(
+    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+)
 @pytest.mark.asyncio
 async def test_basic_load_html_with_service(test_data_files_dir):
     """Test basic loading of local HTML document with service"""
