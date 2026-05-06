@@ -677,7 +677,7 @@ def test_log_versions_logs_expected_packages(
         "NLR-ELM",
         "openai",
         "playwright",
-        "tf-playwright-stealth",
+        "playwright-stealth",
         "rebrowser-playwright",
         "camoufox",
         "pdftotext",

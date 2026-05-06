@@ -514,7 +514,7 @@ def log_versions(logger):
         "NLR-ELM",
         "openai",
         "playwright",
-        "tf-playwright-stealth",
+        "playwright-stealth",
         "rebrowser-playwright",
         "camoufox",
         "pdftotext",
