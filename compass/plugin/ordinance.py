@@ -596,8 +596,8 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
     methods as needed.
     """
 
-    ALLOW_MULTI_DOC_EXTRACTION = False
-    """bool: Whether to allow extraction over multiple documents"""
+    DOC_SELECTION_METHOD = "single doc"
+    """str: Only allow one document to be output"""
 
     @property
     @abstractmethod
@@ -701,13 +701,71 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        if self.ALLOW_MULTI_DOC_EXTRACTION:
+        if self.DOC_SELECTION_METHOD == "single_doc":
+            return await self.parse_single_doc_for_structured_data(
+                extraction_context
+            )
+
+        if self.DOC_SELECTION_METHOD == "multi_doc_context":
             return await self.parse_multi_doc_context_for_structured_data(
                 extraction_context
             )
-        return await self.parse_single_doc_for_structured_data(
-            extraction_context
+
+        if self.DOC_SELECTION_METHOD == "multi_doc_all":
+            return await self.parse_multi_doc_concat(extraction_context)
+
+        if self.DOC_SELECTION_METHOD == "multi_doc_mixed":
+            msg = "TODO"
+            raise NotImplementedError(msg)
+
+        msg = (
+            f"Invalid DOC_SELECTION_METHOD: {self.DOC_SELECTION_METHOD!r}. "
+            "Supported methods are: 'single_doc' and 'multi_doc_context'."
         )
+        raise COMPASSPluginConfigurationError(msg)
+
+    async def parse_single_doc_for_structured_data(self, extraction_context):
+        """Parse documents one at a time to extract structured data
+
+        The first document to return some extracted data will be marked
+        as the source and will be returned from this method.
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+        for doc_for_extraction in extraction_context:
+            data_df = await self.parse_for_structured_data(doc_for_extraction)
+            row_count = self.get_structured_data_row_count(data_df)
+            if row_count > 0:
+                data_df["source"] = doc_for_extraction.attrs.get("source")
+                data_df["year"] = extract_year_from_doc_attrs(
+                    doc_for_extraction.attrs
+                )
+                await extraction_context.mark_doc_as_data_source(
+                    doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
+                )
+                extraction_context.attrs["structured_data"] = data_df
+                logger.info(
+                    "%d ordinance value(s) found in doc from %s for %s. ",
+                    num_ordinances_dataframe(data_df),
+                    doc_for_extraction.attrs.get("source", "unknown source"),
+                    self.jurisdiction.full_name,
+                )
+                return extraction_context
+
+        logger.debug(
+            "No ordinances found; searched %d docs",
+            extraction_context.num_documents,
+        )
+        return None
 
     async def parse_multi_doc_context_for_structured_data(
         self, extraction_context
@@ -755,11 +813,8 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         )
         return extraction_context
 
-    async def parse_single_doc_for_structured_data(self, extraction_context):
-        """Parse documents one at a time to extract structured data
-
-        The first document to return some extracted data will be marked
-        as the source and will be returned from this method.
+    async def parse_multi_doc_concat(self, extraction_context):
+        """Parse all documents and concatenate extracted data
 
         Parameters
         ----------
@@ -772,31 +827,49 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        for doc_for_extraction in extraction_context:
-            data_df = await self.parse_for_structured_data(doc_for_extraction)
-            row_count = self.get_structured_data_row_count(data_df)
-            if row_count > 0:
-                data_df["source"] = doc_for_extraction.attrs.get("source")
-                data_df["year"] = extract_year_from_doc_attrs(
-                    doc_for_extraction.attrs
-                )
-                await extraction_context.mark_doc_as_data_source(
-                    doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
-                )
-                extraction_context.attrs["structured_data"] = data_df
-                logger.info(
-                    "%d ordinance value(s) found in doc from %s for %s. ",
-                    num_ordinances_dataframe(data_df),
-                    doc_for_extraction.attrs.get("source", "unknown source"),
-                    self.jurisdiction.full_name,
-                )
-                return extraction_context
 
-        logger.debug(
-            "No ordinances found; searched %d docs",
-            extraction_context.num_documents,
+        tasks = [
+            asyncio.create_task(
+                self.parse_for_structured_data(doc_for_extraction),
+                name=self.jurisdiction.full_name,
+            )
+            for doc_for_extraction in extraction_context
+        ]
+        data_dfs = await asyncio.gather(*tasks)
+
+        all_data = []
+        for data_df, doc_for_extraction in zip(
+            data_dfs, extraction_context, strict=True
+        ):
+            row_count = self.get_structured_data_row_count(data_df)
+            if row_count == 0:
+                continue
+            data_df["source"] = doc_for_extraction.attrs.get("source")
+            data_df["year"] = extract_year_from_doc_attrs(
+                doc_for_extraction.attrs
+            )
+            await extraction_context.mark_doc_as_data_source(
+                doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
+            )
+            logger.info(
+                "%d ordinance value(s) found in doc from %s for %s. ",
+                num_ordinances_dataframe(data_df),
+                doc_for_extraction.attrs.get("source", "unknown source"),
+                self.jurisdiction.full_name,
+            )
+            all_data.append(data_df)
+
+        if not all_data:
+            logger.debug(
+                "No ordinances found; searched %d docs",
+                extraction_context.num_documents,
+            )
+            return None
+
+        extraction_context.attrs["structured_data"] = pd.concat(
+            all_data, ignore_index=True
         )
-        return None
+        return extraction_context
 
     async def parse_for_structured_data(self, source):
         """Extract all possible structured data from a document
