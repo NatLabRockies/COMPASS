@@ -11,6 +11,7 @@ from compass.plugin import (
     NoOpHeuristic,
     NoOpTextCollector,
     NoOpTextExtractor,
+    DocSelectionMethod,
     PromptBasedTextCollector,
     PromptBasedTextExtractor,
     OrdinanceExtractionPlugin,
@@ -176,7 +177,9 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         SCHEMA = config["schema"]
         """dict: Schema for the output of the text extraction step"""
 
-        DOC_SELECTION_METHOD = _doc_selection_method(config)
+        DOC_SELECTION_METHOD = DocSelectionMethod.normalize(
+            config.get("doc_selection_method", "single doc")
+        )
         """str: Method for selecting documents for extraction context
 
         Allowed options:
@@ -598,28 +601,3 @@ def _normalize_keyword_list(items):
         normalized.add(keyword)
 
     return list(normalized)
-
-
-def _doc_selection_method(config):
-    """Parse and normalize the document selection method"""
-    allowed_methods = {
-        "single_doc",
-        "multi_doc_context",
-        "multi_doc_all",
-        "multi_doc_mixed",
-    }
-    og_doc_selection_method = config.get("doc_selection_method", "single doc")
-    doc_selection_method = (
-        og_doc_selection_method.replace(" ", "_")
-        .replace("-", "_")
-        .strip()
-        .casefold()
-    )
-    if doc_selection_method not in allowed_methods:
-        msg = (
-            f"Invalid doc_selection_method: {og_doc_selection_method!r}. "
-            f"Allowed options are: {sorted(allowed_methods)}."
-        )
-        raise COMPASSPluginConfigurationError(msg)
-
-    return doc_selection_method

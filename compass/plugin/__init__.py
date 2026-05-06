@@ -9,6 +9,7 @@ from .interface import (
 from .ordinance import (
     BaseTextExtractor,
     BaseParser,
+    DocSelectionMethod,
     KeywordBasedHeuristic,
     PromptBasedTextCollector,
     PromptBasedTextExtractor,

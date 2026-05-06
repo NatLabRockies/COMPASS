@@ -12,6 +12,7 @@ from compass.plugin.ordinance import (
     BaseTextCollector,
     BaseTextExtractor,
     BaseParser,
+    DocSelectionMethod,
     OrdinanceExtractionPlugin,
     _feature_key,
     _fill_in_all_sources,
@@ -273,6 +274,42 @@ def test_plugin_validation_no_in_key_for_parse():
         ),
     ):
         MYPlugin(None, None, None).validate_plugin_configuration()
+
+
+@pytest.mark.asyncio
+async def test_parse_docs_for_structured_data_accepts_enum_value():
+    """Enum-valued doc selection should dispatch correctly"""
+
+    class MYPlugin(OrdinanceExtractionPlugin):
+        TEXT_COLLECTORS = []
+        TEXT_EXTRACTORS = []
+        PARSERS = []
+
+        IDENTIFIER = "test"
+        WEBSITE_KEYWORDS = ["test"]
+        QUERY_TEMPLATES = ["test"]
+        HEURISTIC = None
+        DOC_SELECTION_METHOD = DocSelectionMethod.MULTI_DOC_ALL
+
+        async def parse_single_doc_for_structured_data(
+            self, extraction_context
+        ):
+            raise AssertionError("wrong dispatch")
+
+        async def parse_multi_doc_context_for_structured_data(
+            self, extraction_context
+        ):
+            raise AssertionError("wrong dispatch")
+
+        async def parse_multi_doc_concat(self, extraction_context):
+            return "concat"
+
+        async def parse_multi_doc_merge(self, extraction_context):
+            raise AssertionError("wrong dispatch")
+
+    plugin = MYPlugin(None, None, None)
+
+    assert await plugin.parse_docs_for_structured_data(None) == "concat"
 
 
 @pytest.mark.asyncio

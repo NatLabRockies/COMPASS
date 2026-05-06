@@ -3,6 +3,7 @@
 import asyncio
 import logging
 import operator
+from enum import StrEnum
 from warnings import warn
 from textwrap import dedent
 from itertools import chain
@@ -60,6 +61,63 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "special use districts",
     "accessory use districts",
 }
+
+
+class DocSelectionMethod(StrEnum):
+    """Document selection modes for structured extraction"""
+
+    SINGLE_DOC = "single_doc"
+    """Evaluate candidate documents one at a time until data is found"""
+    MULTI_DOC_CONTEXT = "multi_doc_context"
+    """Combine multiple documents into one extraction context"""
+    MULTI_DOC_ALL = "multi_doc_all"
+    """Parse each document separately and keep all extracted rows"""
+    MULTI_DOC_MIXED = "multi_doc_mixed"
+    """Parse separately and merge rows so each feature appears once"""
+
+    @classmethod
+    def normalize(cls, value):
+        """Normalize a config value into a selection mode
+
+        Parameters
+        ----------
+        value : str or DocSelectionMethod
+            Input selection mode from plugin configuration or an
+            existing enum value.
+
+        Returns
+        -------
+        DocSelectionMethod
+            Normalized document selection mode.
+
+        Raises
+        ------
+        COMPASSPluginConfigurationError
+            Raised if ``value`` is not a string or enum member, or if
+            it does not map to a supported selection mode.
+        """
+        if isinstance(value, cls):
+            return value
+
+        if not isinstance(value, str):
+            msg = (
+                "doc_selection_method must be a string or "
+                f"{cls.__name__} value."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        normalized = (
+            value.replace(" ", "_").replace("-", "_").strip().casefold()
+        )
+        try:
+            return cls(normalized)
+        except ValueError as err:
+            msg = (
+                f"Invalid doc_selection_method: {value!r}. "
+                "Allowed options are: "
+                f"{sorted(method.value for method in cls)}."
+            )
+            raise COMPASSPluginConfigurationError(msg) from err
 
 
 class BaseTextExtractor(BaseLLMCaller, ABC):
@@ -597,7 +655,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
     methods as needed.
     """
 
-    DOC_SELECTION_METHOD = "single doc"
+    DOC_SELECTION_METHOD = DocSelectionMethod.SINGLE_DOC
     """str: Only allow one document to be output"""
 
     @property
@@ -702,27 +760,31 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        if self.DOC_SELECTION_METHOD == "single_doc":
-            return await self.parse_single_doc_for_structured_data(
-                extraction_context
-            )
+        match DocSelectionMethod.normalize(self.DOC_SELECTION_METHOD):
+            case DocSelectionMethod.SINGLE_DOC:
+                return await self.parse_single_doc_for_structured_data(
+                    extraction_context
+                )
 
-        if self.DOC_SELECTION_METHOD == "multi_doc_context":
-            return await self.parse_multi_doc_context_for_structured_data(
-                extraction_context
-            )
+            case DocSelectionMethod.MULTI_DOC_CONTEXT:
+                return await self.parse_multi_doc_context_for_structured_data(
+                    extraction_context
+                )
 
-        if self.DOC_SELECTION_METHOD == "multi_doc_all":
-            return await self.parse_multi_doc_concat(extraction_context)
+            case DocSelectionMethod.MULTI_DOC_ALL:
+                return await self.parse_multi_doc_concat(extraction_context)
 
-        if self.DOC_SELECTION_METHOD == "multi_doc_mixed":
-            return await self.parse_multi_doc_merge(extraction_context)
+            case DocSelectionMethod.MULTI_DOC_MIXED:
+                return await self.parse_multi_doc_merge(extraction_context)
 
-        msg = (
-            f"Invalid DOC_SELECTION_METHOD: {self.DOC_SELECTION_METHOD!r}. "
-            "Supported methods are: 'single_doc' and 'multi_doc_context'."
-        )
-        raise COMPASSPluginConfigurationError(msg)
+            case _:
+                msg = (
+                    "Invalid DOC_SELECTION_METHOD: "
+                    f"{self.DOC_SELECTION_METHOD!r}. "
+                    "Supported methods are: "
+                    f"{sorted(method.value for method in DocSelectionMethod)}."
+                )
+                raise COMPASSPluginConfigurationError(msg)
 
     async def parse_single_doc_for_structured_data(self, extraction_context):
         """Parse documents one at a time to extract structured data
