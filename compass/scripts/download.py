@@ -11,7 +11,6 @@ from elm.web.website_crawl import (
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
-from elm.web.file_loader import AsyncLocalFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.extraction import check_for_relevant_text, extract_date
@@ -21,7 +20,10 @@ from compass.validation.location import (
     JurisdictionValidator,
     JurisdictionWebsiteValidator,
 )
-from compass.web.file_loader import COMPASSWebFileLoader
+from compass.web.file_loader import (
+    COMPASSWebFileLoader,
+    COMPASSLocalFileLoader,
+)
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
@@ -110,8 +112,10 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
         Collection of paths to load documents from.
     local_file_loader_kwargs : dict, optional
         Dictionary of keyword arguments pairs to initialize
-        :class:`elm.web.file_loader.AsyncLocalFileLoader`.
-        By default, ``None``.
+        :class:`~elm.web.file_loader.AsyncLocalFileLoader` (for "elm"
+        file loader backend) or
+        :class:`~compass.web.file_loader.AsyncLocalDoclingFileLoader`
+        (for "docling" file loader backend). By default, ``None``.
 
     Returns
     -------
@@ -135,10 +139,10 @@ async def load_known_docs(jurisdiction, fps, local_file_loader_kwargs=None):
         {"file_cache_coroutine": TempFileCachePB.call}
     )
     logger.trace(
-        "kwargs for AsyncLocalFileLoader:\n%s",
+        "kwargs for COMPASSLocalFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(local_file_loader_kwargs),
     )
-    fl = AsyncLocalFileLoader(**local_file_loader_kwargs)
+    fl = COMPASSLocalFileLoader(**local_file_loader_kwargs)
     async with COMPASS_PB.file_download_prog_bar(
         jurisdiction.full_name, len(fps)
     ):
