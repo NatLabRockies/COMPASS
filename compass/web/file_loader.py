@@ -9,11 +9,12 @@ from elm.web.file_loader import (
     AsyncHTMLLoader,
     BaseAsyncFileLoader,
     AsyncWebFileLoader,
+    AsyncLocalFileLoader,
 )
 from elm.web.document import MDDocument
 from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
-from compass.services.cpu import read_docling_web_file
+from compass.services.cpu import read_docling_web_file, read_docling_local_file
 from compass.services.threaded import TempFileCache
 
 
@@ -56,7 +57,7 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
             limits are applied. By default, ``None``.
         use_scrapling_stealth : bool, default=False
             Option to use scrapling stealth scripts instead of
-            tf-playwright-stealth. By default, ``False``.
+            playwright-stealth. By default, ``False``.
         num_pw_html_retries : int, default=3
             Number of attempts to load HTML content. This is useful
             because the playwright parameters are stochastic, and
@@ -98,6 +99,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
         to_md_kwargs=None,
+        pytesseract_exe_fp=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -140,7 +142,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             limits are applied. By default, ``None``.
         use_scrapling_stealth : bool, default=False
             Option to use scrapling stealth scripts instead of
-            tf-playwright-stealth. By default, ``False``.
+            playwright-stealth. By default, ``False``.
         num_pw_html_retries : int, default=3
             Number of attempts to load HTML content. This is useful
             because the playwright parameters are stochastic, and
@@ -157,6 +159,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             ``"image_placeholder"=""``) or page break placeholders (i.e.
             ``"page_break_placeholder"="<!-- page break -->").
             By default, ``None``.
+        pytesseract_exe_fp : path-like, optional
+            Path to the `pytesseract` executable. If specified, OCR will
+            be used to extract text from scanned PDFs using Google's
+            Tesseract.  By default ``None``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.content_fetcher = AsyncFetchWithRetry(
@@ -173,6 +179,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             num_pw_html_retries=num_pw_html_retries,
         )
         self.to_md_kwargs = to_md_kwargs or {}
+        self.pytesseract_exe_fp = pytesseract_exe_fp
 
     async def fetch_all(self, *sources):
         """Fetch documents for all requested sources.
@@ -234,6 +241,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 http_url=AnyHttpUrl(url), response_headers=dict(headers)
             ),
             headers=dict(headers),
+            pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
         )
 
@@ -245,7 +253,76 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         return doc, doc.text
 
 
+class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
+    """Async local file loader using Docling"""
+
+    def __init__(
+        self,
+        file_cache_coroutine=None,
+        doc_attrs=None,
+        to_md_kwargs=None,
+        pytesseract_exe_fp=None,
+        **__,  # consume any extra kwargs
+    ):
+        """
+
+        Parameters
+        ----------
+        file_cache_coroutine : callable, optional
+            File caching coroutine. Can be used to cache files
+            downloaded by this class. Must accept an
+            :obj:`~elm.web.document.BaseDocument` instance as the first
+            argument and the file content to be written as the second
+            argument. If this method is not provided, no document
+            caching is performed. By default, ``None``.
+        doc_attrs : dict, optional
+            Additional document attributes to add to each loaded
+            document. By default, ``None``.
+        to_md_kwargs : dict, optional
+            Keyword-value argument pairs to pass to to Docling's
+            :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+            method for converting the raw content to a markdown
+            document. Can be useful to specify image placeholders (i.e.
+            ``"image_placeholder"=""``) or page break placeholders (i.e.
+            ``"page_break_placeholder"="<!-- page break -->").
+            By default, ``None``.
+        pytesseract_exe_fp : path-like, optional
+            Path to the `pytesseract` executable. If specified, OCR will
+            be used to extract text from scanned PDFs using Google's
+            Tesseract.  By default ``None``.
+        """
+        super().__init__(file_cache_coroutine=file_cache_coroutine)
+        self.to_md_kwargs = to_md_kwargs or {}
+        self.doc_attrs = doc_attrs or {}
+        self.pytesseract_exe_fp = pytesseract_exe_fp
+
+    async def _fetch_doc(self, source):
+        """Load a doc by reading file based on extension"""
+        doc, raw_content = await read_docling_local_file(
+            source,
+            pytesseract_exe_fp=self.pytesseract_exe_fp,
+            **self.to_md_kwargs,
+        )
+
+        if doc.attrs["doc_type"].casefold() != "html":
+            doc.WRITE_KWARGS = {"mode": "wb"}
+            doc.FILE_EXTENSION = doc.attrs["doc_type"]
+            return doc, raw_content
+
+        return doc, doc.text
+
+    async def _fetch_doc_with_url_in_metadata(self, source):
+        """Fetch doc contents and add source to metadata"""
+        doc, raw_content = await self._fetch_doc(source)
+        for key, value in self.doc_attrs.items():
+            doc.attrs[key] = value
+        doc.attrs["source_fp"] = source
+        return doc, raw_content
+
+
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
+    COMPASSLocalFileLoader = AsyncLocalFileLoader
 else:
     COMPASSWebFileLoader = AsyncWebFileLoader
+    COMPASSLocalFileLoader = AsyncLocalFileLoader
