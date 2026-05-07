@@ -500,7 +500,7 @@ async def test_parse_multi_doc_merge_returns_context(merge_plugin):
 
 @pytest.mark.parametrize(
     "chunk,expected",
-    [("Useful text", True), ("No relevant text.", False), ("", "")],
+    [("Useful text", True), ("No relevant text.", False), ("", False)],
 )
 def test_valid_chunk(chunk, expected):
     """Helper should reject empty and negative extraction responses"""

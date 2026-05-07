@@ -1298,7 +1298,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
 def _valid_chunk(chunk):
     """True if chunk has content"""
-    return chunk and "no relevant text" not in chunk.lower()
+    return bool(chunk and "no relevant text" not in chunk.lower())
 
 
 def _validate_in_out_keys(consumers, producers):
