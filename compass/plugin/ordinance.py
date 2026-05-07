@@ -1461,19 +1461,21 @@ async def _merge_candidates(candidates, extraction_context, out_stem):
     merged_features = set()
     contributing_candidates = []
     for candidate in candidates:
-        candidate_rows = []
-        for _, row in candidate["data_df"].iterrows():
-            feature_key = _feature_key(row.get("feature"))
-            if feature_key is None or feature_key in merged_features:
-                continue
-
-            merged_features.add(feature_key)
-            candidate_rows.append(row.to_dict())
-
-        if not candidate_rows:
+        data_df = candidate["data_df"]
+        if data_df is None or data_df.empty or "feature" not in data_df:
             continue
 
-        merged_rows.extend(candidate_rows)
+        feature_keys = data_df["feature"].map(_feature_key)
+        keep_mask = feature_keys.notna()
+        if merged_features:
+            keep_mask &= ~feature_keys.isin(merged_features)
+        keep_mask &= ~feature_keys.duplicated()
+        if not keep_mask.any():
+            continue
+
+        selected_feature_keys = feature_keys.loc[keep_mask]
+        merged_features.update(selected_feature_keys.tolist())
+        merged_rows.extend(data_df.loc[keep_mask].to_dict("records"))
         contributing_candidates.append(candidate)
 
     if not merged_rows:
