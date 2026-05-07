@@ -126,7 +126,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               data extraction step.
             - `doc_selection_method`: String defining the multi-doc
               selection option. Specifically, if multiple documents pass
-              the filter, this method detemines how the documents are
+              the filter, this method determines how the documents are
               submitted to the extraction context. Allowed options are:
 
                 - "single doc": Use the first document that returns some
