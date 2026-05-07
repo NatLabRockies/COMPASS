@@ -102,3 +102,6 @@ __pypackages__/
 
 # Added by cargo
 /target
+
+# Local Claude instructions (gitignored)
+CLAUDE.local.md
