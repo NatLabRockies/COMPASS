@@ -201,6 +201,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             for source in sources
         ]
         docs = await asyncio.gather(*fetches)
+        docs = [doc for doc in docs if doc is not None and not doc.empty]
         if docs:
             logger.debug(
                 "Got the following doc types from initial fetch:\n\t- %s",
