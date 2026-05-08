@@ -2,6 +2,8 @@
 
 import asyncio
 import logging
+import operator
+from enum import StrEnum
 from warnings import warn
 from textwrap import dedent
 from itertools import chain
@@ -59,6 +61,63 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "special use districts",
     "accessory use districts",
 }
+
+
+class DocSelectionMethod(StrEnum):
+    """Document selection modes for structured extraction"""
+
+    SINGLE_DOC = "single_doc"
+    """Evaluate candidate documents one at a time until data is found"""
+    MULTI_DOC_CONTEXT = "multi_doc_context"
+    """Combine multiple documents into one extraction context"""
+    MULTI_DOC_ALL = "multi_doc_all"
+    """Parse each document separately and keep all extracted rows"""
+    MULTI_DOC_MIXED = "multi_doc_mixed"
+    """Parse separately and merge rows so each feature appears once"""
+
+    @classmethod
+    def normalize(cls, value):
+        """Normalize a config value into a selection mode
+
+        Parameters
+        ----------
+        value : str or DocSelectionMethod
+            Input selection mode from plugin configuration or an
+            existing enum value.
+
+        Returns
+        -------
+        DocSelectionMethod
+            Normalized document selection mode.
+
+        Raises
+        ------
+        COMPASSPluginConfigurationError
+            Raised if ``value`` is not a string or enum member, or if
+            it does not map to a supported selection mode.
+        """
+        if isinstance(value, cls):
+            return value
+
+        if not isinstance(value, str):
+            msg = (
+                "doc_selection_method must be a string or "
+                f"{cls.__name__} value."
+            )
+            raise COMPASSPluginConfigurationError(msg)
+
+        normalized = (
+            value.replace(" ", "_").replace("-", "_").strip().casefold()
+        )
+        try:
+            return cls(normalized)
+        except ValueError as err:
+            msg = (
+                f"Invalid doc_selection_method: {value!r}. "
+                "Allowed options are: "
+                f"{sorted(method.value for method in cls)}."
+            )
+            raise COMPASSPluginConfigurationError(msg) from err
 
 
 class BaseTextExtractor(BaseLLMCaller, ABC):
@@ -596,8 +655,8 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
     methods as needed.
     """
 
-    ALLOW_MULTI_DOC_EXTRACTION = False
-    """bool: Whether to allow extraction over multiple documents"""
+    DOC_SELECTION_METHOD = DocSelectionMethod.SINGLE_DOC
+    """str: Only allow one document to be output"""
 
     @property
     @abstractmethod
@@ -701,18 +760,98 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        if self.ALLOW_MULTI_DOC_EXTRACTION:
-            return await self.parse_multi_doc_context_for_structured_data(
-                extraction_context
-            )
-        return await self.parse_single_doc_for_structured_data(
-            extraction_context
+        match DocSelectionMethod.normalize(self.DOC_SELECTION_METHOD):
+            case DocSelectionMethod.SINGLE_DOC:
+                return await self.parse_single_doc_for_structured_data(
+                    extraction_context
+                )
+
+            case DocSelectionMethod.MULTI_DOC_CONTEXT:
+                return await self.parse_multi_doc_context_for_structured_data(
+                    extraction_context
+                )
+
+            case DocSelectionMethod.MULTI_DOC_ALL:
+                return await self.parse_multi_doc_concat(extraction_context)
+
+            case DocSelectionMethod.MULTI_DOC_MIXED:
+                return await self.parse_multi_doc_merge(extraction_context)
+
+            case _:
+                msg = (
+                    "Invalid DOC_SELECTION_METHOD: "
+                    f"{self.DOC_SELECTION_METHOD!r}. "
+                    "Supported methods are: "
+                    f"{sorted(method.value for method in DocSelectionMethod)}."
+                )
+                raise COMPASSPluginConfigurationError(msg)
+
+    async def parse_single_doc_for_structured_data(self, extraction_context):
+        """Parse documents one at a time to extract structured data
+
+        This mode evaluates candidate documents in sequence and stops
+        at the first document that produces ordinance data. Once a
+        usable source is found, later candidate documents are not used
+        to supplement, compare, or override that result. This is the
+        simplest selection strategy and is best suited to workflows
+        where one document is expected to contain the authoritative
+        ordinance language on its own.
+
+        Documents are expected to come sorted by priority, with the most
+        likely source of ordinance language appearing first in the
+        `extraction_context`.
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+        for doc_for_extraction in extraction_context:
+            data_df = await self.parse_for_structured_data(doc_for_extraction)
+            row_count = self.get_structured_data_row_count(data_df)
+            if row_count > 0:
+                data_df["source"] = doc_for_extraction.attrs.get("source")
+                data_df["year"] = extract_year_from_doc_attrs(
+                    doc_for_extraction.attrs
+                )
+                await extraction_context.mark_doc_as_data_source(
+                    doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
+                )
+                extraction_context.attrs["structured_data"] = data_df
+                logger.info(
+                    "%d ordinance value(s) found for %s from doc:\n%s. ",
+                    num_ordinances_dataframe(data_df),
+                    self.jurisdiction.full_name,
+                    doc_for_extraction,
+                )
+                return extraction_context
+
+        logger.debug(
+            "No ordinances found; searched %d docs",
+            extraction_context.num_documents,
         )
+        return None
 
     async def parse_multi_doc_context_for_structured_data(
         self, extraction_context
     ):
         """Parse all documents to extract structured data/information
+
+        This mode combines the relevant text from all candidate
+        documents into one shared extraction context before structured
+        data are parsed. It is useful when the information needed for a
+        single ordinance feature may be split across multiple sources
+        and should be interpreted together rather than compared as
+        separate document-level outputs. When source references can be
+        recovered from the extracted rows, each row is mapped back to
+        its originating document; otherwise the result falls back to
+        reporting the full document set as the source context.
 
         Parameters
         ----------
@@ -748,18 +887,23 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         extraction_context.attrs["structured_data"] = data_df
         logger.info(
-            "%d ordinance value(s) found in %d docs for %s. ",
+            "%d ordinance value(s) found for %s in %d docs. ",
             num_ordinances_dataframe(data_df),
-            extraction_context.num_documents,
             self.jurisdiction.full_name,
+            extraction_context.num_documents,
         )
         return extraction_context
 
-    async def parse_single_doc_for_structured_data(self, extraction_context):
-        """Parse documents one at a time to extract structured data
+    async def parse_multi_doc_concat(self, extraction_context):
+        """Parse all documents and concatenate extracted data
 
-        The first document to return some extracted data will be marked
-        as the source and will be returned from this method.
+        This mode keeps all extracted ordinance rows from every
+        candidate document that produced structured data. Unlike the
+        merge mode, it does not try to choose a single best row for a
+        feature or resolve conflicts between sources. If the same
+        feature is extracted from multiple ordinances, each version is
+        preserved in the output with its own source and year so users
+        can compare the results directly.
 
         Parameters
         ----------
@@ -772,31 +916,121 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             Context with extracted data/information stored in the
             ``.attrs`` dictionary, or ``None`` if no data was extracted.
         """
-        for doc_for_extraction in extraction_context:
-            data_df = await self.parse_for_structured_data(doc_for_extraction)
-            row_count = self.get_structured_data_row_count(data_df)
-            if row_count > 0:
-                data_df["source"] = doc_for_extraction.attrs.get("source")
-                data_df["year"] = extract_year_from_doc_attrs(
-                    doc_for_extraction.attrs
-                )
-                await extraction_context.mark_doc_as_data_source(
-                    doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
-                )
-                extraction_context.attrs["structured_data"] = data_df
-                logger.info(
-                    "%d ordinance value(s) found in doc from %s for %s. ",
-                    num_ordinances_dataframe(data_df),
-                    doc_for_extraction.attrs.get("source", "unknown source"),
-                    self.jurisdiction.full_name,
-                )
-                return extraction_context
 
-        logger.debug(
-            "No ordinances found; searched %d docs",
-            extraction_context.num_documents,
+        tasks = [
+            asyncio.create_task(
+                self.parse_for_structured_data(doc_for_extraction),
+                name=self.jurisdiction.full_name,
+            )
+            for doc_for_extraction in extraction_context
+        ]
+        data_dfs = await asyncio.gather(*tasks)
+
+        all_data = []
+        for doc_ind, (data_df, doc) in enumerate(
+            zip(data_dfs, extraction_context, strict=True), start=1
+        ):
+            row_count = self.get_structured_data_row_count(data_df)
+            if row_count == 0:
+                continue
+
+            data_df["source"] = doc.attrs.get("source")
+            data_df["year"] = extract_year_from_doc_attrs(doc.attrs)
+            await extraction_context.mark_doc_as_data_source(
+                doc, out_fn_stem=f"{self.jurisdiction.full_name}_{doc_ind}"
+            )
+            logger.info(
+                "%d ordinance value(s) found for %s from doc:\n%s. ",
+                num_ordinances_dataframe(data_df),
+                self.jurisdiction.full_name,
+                doc,
+            )
+            all_data.append(data_df)
+
+        if not all_data:
+            logger.debug(
+                "No ordinances found; searched %d docs",
+                extraction_context.num_documents,
+            )
+            return None
+
+        extraction_context.attrs["structured_data"] = pd.concat(
+            all_data, ignore_index=True
         )
-        return None
+        return extraction_context
+
+    async def parse_multi_doc_merge(self, extraction_context):
+        """Parse all documents and merge the extracted data
+
+        This mode keeps at most one row per extracted feature across
+        all candidate documents. When every document with extracted
+        data has a known ordinance year, newer ordinances take
+        precedence and older ordinances are only used to fill in
+        features that are missing from the newer sources. If any
+        candidate document has an unknown year, documents are instead
+        prioritized by how many ordinance features they contain.
+
+        Documents with extracted prohibitions are treated specially.
+        If any candidate document contains a prohibition, only
+        prohibition-bearing documents are considered for the final
+        merged output. The returned rows keep the source and year of
+        the document they came from so downstream consumers can still
+        trace each retained feature back to its originating ordinance.
+
+        Parameters
+        ----------
+        extraction_context : ExtractionContext
+            Context containing candidate documents to parse.
+
+        Returns
+        -------
+        ExtractionContext or None
+            Context with extracted data/information stored in the
+            ``.attrs`` dictionary, or ``None`` if no data was extracted.
+        """
+
+        tasks = [
+            asyncio.create_task(
+                self.parse_for_structured_data(doc_for_extraction),
+                name=self.jurisdiction.full_name,
+            )
+            for doc_for_extraction in extraction_context
+        ]
+        data_dfs = await asyncio.gather(*tasks)
+
+        candidates = []
+        for doc_ind, (data_df, doc) in enumerate(
+            zip(data_dfs, extraction_context, strict=True), start=1
+        ):
+            row_count = self.get_structured_data_row_count(data_df)
+            if row_count == 0:
+                continue
+
+            data_df["source"] = doc.attrs.get("source")
+            data_df["year"] = year = extract_year_from_doc_attrs(doc.attrs)
+            candidates.append(
+                {
+                    "data_df": data_df,
+                    "doc": doc,
+                    "doc_ind": doc_ind,
+                    "row_count": row_count,
+                    "year": year,
+                }
+            )
+
+        if not candidates:
+            logger.debug(
+                "No ordinances found; searched %d docs",
+                extraction_context.num_documents,
+            )
+            return None
+
+        candidates = _filter_to_prohibition_cands_if_needed(candidates)
+        candidates = _prioritize_candidates(candidates)
+        extraction_context.attrs["structured_data"] = await _merge_candidates(
+            candidates, extraction_context, self.jurisdiction.full_name
+        )
+        return extraction_context
 
     async def parse_for_structured_data(self, source):
         """Extract all possible structured data from a document
@@ -1064,7 +1298,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
 def _valid_chunk(chunk):
     """True if chunk has content"""
-    return chunk and "no relevant text" not in chunk.lower()
+    return bool(chunk and "no relevant text" not in chunk.lower())
 
 
 def _validate_in_out_keys(consumers, producers):
@@ -1190,3 +1424,86 @@ async def _fill_in_all_sources(data_df, extraction_context, out_fn_stem):
         )
 
     return data_df
+
+
+def _filter_to_prohibition_cands_if_needed(candidates):
+    """Filter to just candidates with prohibitions, if any"""
+    prohibition_candidates = [
+        candidate
+        for candidate in candidates
+        if _has_prohibitions(candidate["data_df"])
+    ]
+    return prohibition_candidates or candidates
+
+
+def _prioritize_candidates(candidates):
+    """Sort candidates by year (only if all have years) and row count"""
+    if len(candidates) <= 1:
+        return candidates
+
+    if all(candidate["year"] is not None for candidate in candidates):
+        return sorted(
+            candidates,
+            key=operator.itemgetter("year", "row_count"),
+            reverse=True,
+        )
+
+    return sorted(
+        candidates,
+        key=operator.itemgetter("row_count"),
+        reverse=True,
+    )
+
+
+async def _merge_candidates(candidates, extraction_context, out_stem):
+    """Merge extracted features while respecting candidate priority"""
+    merged_rows = []
+    merged_features = set()
+    contributing_candidates = []
+    for candidate in candidates:
+        data_df = candidate["data_df"]
+        if data_df is None or data_df.empty or "feature" not in data_df:
+            continue
+
+        feature_keys = data_df["feature"].map(_feature_key)
+        keep_mask = feature_keys.notna()
+        if merged_features:
+            keep_mask &= ~feature_keys.isin(merged_features)
+        keep_mask &= ~feature_keys.duplicated()
+        if not keep_mask.any():
+            continue
+
+        selected_feature_keys = feature_keys.loc[keep_mask]
+        merged_features.update(selected_feature_keys.tolist())
+        merged_rows.extend(data_df.loc[keep_mask].to_dict("records"))
+        contributing_candidates.append(candidate)
+
+    if not merged_rows:
+        return None
+
+    for candidate in contributing_candidates:
+        await extraction_context.mark_doc_as_data_source(
+            candidate["doc"],
+            out_fn_stem=f"{out_stem}_{candidate['doc_ind']}",
+        )
+
+    return pd.DataFrame(merged_rows).reset_index(drop=True)
+
+
+def _feature_key(feature):
+    """Get normalized feature key"""
+    if pd.isna(feature):
+        return None
+    return str(feature).strip().casefold()
+
+
+def _has_prohibitions(data_df):
+    """Check for prohibition in data"""
+    if data_df is None or data_df.empty or "feature" not in data_df:
+        return False
+
+    prohibition_mask = data_df["feature"].map(_feature_key).eq("prohibitions")
+    if not prohibition_mask.any():
+        return False
+
+    return num_ordinances_dataframe(data_df.loc[prohibition_mask]) > 0

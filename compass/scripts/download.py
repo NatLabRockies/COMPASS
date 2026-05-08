@@ -699,9 +699,7 @@ async def filter_ordinance_docs(
         "Found %d potential ordinance documents for %s\n\t- %s",
         len(docs),
         jurisdiction.full_name,
-        "\n\t- ".join(
-            [doc.attrs.get("source", "Unknown source") for doc in docs]
-        ),
+        "\n\t- ".join([str(doc) for doc in docs]),
     )
     return docs
 
@@ -817,7 +815,7 @@ def _sort_final_ord_docs(all_ord_docs):
 
 def _ord_doc_sorting_key(doc):
     """Compute a composite sorting score for ordinance documents"""
-    no_date = (-1, -1, -1)
+    no_date = (_NEG_INF, _NEG_INF, _NEG_INF)
     latest_year, latest_month, latest_day = doc.attrs.get("date") or no_date
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
     prefer_pdf_files = isinstance(doc, PDFDocument)
