@@ -322,7 +322,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
-    COMPASSLocalFileLoader = AsyncLocalFileLoader
+    COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
     COMPASSWebFileLoader = AsyncWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalFileLoader
