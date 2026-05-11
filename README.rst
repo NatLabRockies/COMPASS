@@ -73,7 +73,7 @@ Example fields extracted are listed below:
    cost, setbacks, redrilling, plus daily/monthly/annual withdrawal limits.
 
 In addition, COMPASS supports a **one-shot, schema-driven plugin** for arbitrary ordinance
-types: provide a JSON schema for the fields you want and COMPASS will use OpenAI structured
+types: provide a JSON schema for the fields you want and COMPASS will use LLM structured
 outputs to do a single-call extraction without writing decision trees. See the
 `one-shot schema extraction example
 <https://github.com/NatLabRockies/COMPASS/tree/main/examples/one_shot_schema_extraction>`_
@@ -83,16 +83,15 @@ for a walkthrough.
 How does COMPASS find the codes and ordinances?
 ================================================
 A *jurisdiction* in COMPASS is the place that issues the ordinance — typically a U.S. county
-(or equivalent) plus its state, e.g. "Boulder County, Colorado." Each run is driven by a CSV
+(or equivalent), e.g. "Boulder County, Colorado." Each run is driven by a CSV
 of jurisdictions you want covered.
 
-COMPASS finds source documents on the open web using **four-step retrieval** per jurisdiction:
+COMPASS can handle source documents in four different ways:
 
-1. **Known local docs** — any documents you pre-stage on disk for that jurisdiction.
-2. **Known URLs** — direct links you've supplied in the jurisdiction config.
+1. **Known local docs** — any documents you already have on hand jurisdiction.
+2. **Known URLs** — links containing documents from which you want to pull data.
 3. **Targeted document search** — plugin-defined queries that look for the **ordinance
-   document itself** (e.g. ``"{jurisdiction} solar ordinance"``). The top hits are
-   downloaded directly. Best for ordinances that are well-indexed by search engines as
+   document itself** . Best for ordinances that are well-indexed by search engines as
    standalone PDFs or pages.
 4. **Jurisdiction-website crawl** — for ordinances buried inside a county or municipal
    website. COMPASS first runs a *different* search (e.g. ``"{jurisdiction} website"``) to
@@ -139,7 +138,7 @@ with live cost tracking on a progress bar.
 
 Where is the data stored and how is it maintained?
 ===================================================
-The latest published ordinance datasets for solar and wind are available here:
+The latest published ordinance datasets are available here:
 
 - Solar: https://data.openei.org/submissions/8519
 - Wind: https://data.openei.org/submissions/8602
@@ -152,7 +151,7 @@ How can I expand COMPASS to cover other ordinances?
 Two paths, depending on how much customization you need:
 
 - **Schema-driven (fastest)** — write a JSON schema describing the fields you want and pass
-  it to ``compass process --plugin <schema.json>``. No Python required. Walkthrough:
+  it to ``compass process --plugin path/to/schema.json``. No Python required. Walkthrough:
   `one-shot schema extraction example
   <https://github.com/NatLabRockies/COMPASS/tree/main/examples/one_shot_schema_extraction>`_.
 - **Full plugin (most control)** — implement a custom extraction plugin with your own search
