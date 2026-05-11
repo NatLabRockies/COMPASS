@@ -72,6 +72,13 @@ set. Example fields extracted are listed below:
    plugging requirements, external-transfer requirements, production reporting, production
    cost, setbacks, redrilling, plus daily/monthly/annual withdrawal limits.
 
+The following plugins are under active development:
+
+6. **Geothermal electricity** (``tech: "geothermal"``) — Coming Soon.
+7. **Transmission lines** (``tech: "transmission"``) — Coming Soon.
+8. **Data centers** (``tech: "data centers"``) — Coming Soon.
+9. **Natural gas** (``tech: "natural gas"``) — Coming Soon.
+
 In addition, INFRA-COMPASS supports a **one-shot, schema-driven plugin** for arbitrary
 ordinance types: provide a JSON schema for the fields you want and INFRA-COMPASS will use
 LLM structured outputs to do a single-call extraction without writing decision trees. See
@@ -112,19 +119,23 @@ to keep cost down and hallucinations out:
    any LLM call.
 2. **Legal-text validation** — an LLM classifies each surviving section as legally-binding
    regulation or not, with surrounding context for borderline cases.
-3. **Decision-tree prompting** — rather than asking the LLM to fill out a whole row of values
-   in one mega-prompt, INFRA-COMPASS extracts each value by walking a small decision tree of
-   focused yes/no questions. For a setback value, that might look like: "Does this text
-   mention a setback from property lines for utility-scale solar?" → if yes, "Is the value
-   given as a fixed distance, a multiple of system height, or relative to another feature?"
-   → "What are the units?" → "What is the numeric value?" Each answer narrows the next
-   question, and the conversation history carries forward so later prompts know what was
-   already decided. This breaks an ambiguous extraction task into a sequence of unambiguous
-   ones — which is what keeps structured output accurate even on messy ordinance language.
-4. **Hallucination guardrail** — cleaned text is compared back to the original; if too much
-   has been invented or paraphrased away, INFRA-COMPASS retries and ultimately drops the document
-   rather than recording a fabricated value.
-5. **Structured parsing** — extracted values are assembled into a tidy per-jurisdiction CSV
+3. **Relevant-text extraction** — each document is summarized down to just the passages that
+   actually pertain to the target technology, producing a much shorter cleaned text that
+   later steps work from.
+4. **Hallucination guardrail** — the cleaned text is compared back to the original; if too
+   much has been invented or paraphrased away, INFRA-COMPASS retries and ultimately drops
+   the document rather than passing fabricated text to the next step.
+5. **Decision-tree prompting** — rather than asking the LLM to fill out a whole row of
+   values in one mega-prompt, INFRA-COMPASS extracts each value by walking a small decision
+   tree of focused yes/no questions over the cleaned text. For a setback value, that might
+   look like: "Does this text mention a setback from property lines for utility-scale
+   solar?" → if yes, "Is the value given as a fixed distance, a multiple of system height,
+   or relative to another feature?" → "What are the units?" → "What is the numeric value?"
+   Each answer narrows the next question, and the conversation history carries forward so
+   later prompts know what was already decided. This breaks an ambiguous extraction task
+   into a sequence of unambiguous ones — which is what keeps structured output accurate
+   even on messy ordinance language.
+6. **Structured parsing** — extracted values are assembled into a tidy per-jurisdiction CSV
    row (one row of setbacks, height limits, lot sizes, and the rest), then merged across all
    jurisdictions into a single output database at the end of the run. Each row records the
    **source URL** of the document it came from, so any extracted value can be traced back to
