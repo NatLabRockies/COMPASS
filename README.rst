@@ -28,9 +28,58 @@ Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INF
 .. inclusion-intro
 
 
-INFRA-COMPASS is an innovative software tool that harnesses the power of Large Language Models (LLMs)
-to automate the compilation and continued maintenance of an inventory of state and local codes
-and ordinances pertaining to energy infrastructure.
+What is INFRA-COMPASS?
+======================
+INFRA-COMPASS is an innovative software tool that harnesses the power of Large Language
+Models (LLMs) to automate the compilation and continued maintenance of an inventory of
+state and local codes and ordinances pertaining to energy infrastructure.
+
+At a high level, INFRA-COMPASS does two things: it *retrieves* the right ordinance
+documents for each jurisdiction you ask about, and then *extracts* structured data from
+those documents into a versioned database that downstream users can query as a CSV, Excel
+workbook, or GeoPackage.
+
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/readme-expand-overview/docs/source/_static/overview.png
+   :alt: High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval (web search, document validation) and ordinance extraction (text extraction, value extraction), producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage.
+   :align: center
+
+What makes INFRA-COMPASS different from simply asking ChatGPT for ordinance data is the
+architecture around the LLM call:
+
+- **Structured, downstream-ready output** — consistent CSV rows with stable column
+  names, units, and feature labels that drop straight into siting and capacity-modeling
+  tools like `reV <https://github.com/NREL/reV>`_, GIS workflows, or any pipeline that
+  needs setbacks, height limits, and noise thresholds as numbers rather than prose.
+- **Decision-tree prompting** — each value is extracted by walking a small graph of
+  focused yes/no questions rather than via one mega-prompt, which keeps accuracy high
+  on long, messy ordinance language.
+- **Hallucination guardrails** — cleaned text is checked against the source and dropped
+  if it drifts too far, so fabricated values never reach the database.
+- **Source-URL traceability** — every record carries a URL back to the original
+  ordinance document, so any value can be audited or spot-checked.
+- **Cost control** — cheap heuristic filters reject obviously irrelevant text before
+  any LLM call runs, making it tractable to extract data across hundreds of
+  jurisdictions.
+
+
+Where is the extracted ordinance data?
+======================================
+The latest published ordinance datasets are available here:
+
+- Solar: https://data.openei.org/submissions/8519
+- Wind: https://data.openei.org/submissions/8602
+
+The National Laboratories of the Rockies (NLR) typically runs the INFRA-COMPASS pipeline
+annually and publishes refreshed datasets to OpenEI.
+
+If the technology or jurisdictions you need aren't in a published release — or you don't
+want to wait for the next annual refresh — you can **run INFRA-COMPASS yourself**
+on just the jurisdictions and technologies you care about.
+
+**You bring your own LLM API key.** INFRA-COMPASS is built around OpenAI
+(``client_type: "openai"``) and Azure OpenAI (``client_type: "azure"``). Set
+``OPENAI_API_KEY`` (or the ``AZURE_OPENAI_*`` trio) in your environment before starting a
+run. Support for other LLM providers is under consideration.
 
 
 Which local codes and ordinances does INFRA-COMPASS support?
@@ -93,7 +142,16 @@ A *jurisdiction* in INFRA-COMPASS is the place that issues the ordinance — typ
 U.S. county (or equivalent), e.g. "Boulder County, Colorado." Each run is driven by a CSV
 of jurisdictions you want covered.
 
-INFRA-COMPASS can handle source documents in four different ways:
+The retrieval flow is summarized below. INFRA-COMPASS first gathers candidate documents
+from several possible sources, then uses an LLM-driven filter to keep only those that are
+legally binding, pertain to the correct jurisdiction, and contain the relevant technology
+regulations.
+
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/readme-expand-overview/docs/source/_static/document_retrieval.png
+   :alt: Document retrieval flow. From a user-supplied jurisdiction (e.g. "Jefferson County, Colorado"), Step 1 web-scrapes via search engine or website crawl; Step 2 downloads the document collection; Step 3 runs an LLM filter as a series of decision-tree questions ("Is the document a legal ordinance?", "Does it pertain to the correct jurisdiction?", "Does it contain relevant technology regulations?") to produce a confirmed ordinance document.
+   :align: center
+
+In practice, INFRA-COMPASS can find source documents in four different ways:
 
 1. **Known local docs** — any documents you already have on hand for the jurisdiction.
 2. **Known URLs** — links containing documents from which you want to pull data.
@@ -104,22 +162,24 @@ INFRA-COMPASS can handle source documents in four different ways:
    website. INFRA-COMPASS first finds the jurisdiction's official website, then crawls it
    for ordinance text using plugin-defined heuristics.
 
-**You bring your own LLM API key.** INFRA-COMPASS is built around OpenAI (``client_type: "openai"``)
-and Azure OpenAI (``client_type: "azure"``). Set ``OPENAI_API_KEY`` (or the
-``AZURE_OPENAI_*`` trio) in your environment before starting a run. Support for other LLM
-providers is under consideration.
-
 
 How does INFRA-COMPASS extract the data?
 ========================================
-Once a candidate document is downloaded, INFRA-COMPASS runs a multi-step pipeline designed
-to keep cost down and hallucinations out:
+Once a candidate document is in hand, INFRA-COMPASS reduces it to just the passages that
+actually pertain to the target technology, and then walks a small decision tree per
+ordinance feature to read structured values out of those passages.
+
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/readme-expand-overview/docs/source/_static/document_extraction.png
+   :alt: Document extraction flow. Step 1 (Ordinance Text Extraction) takes an ordinance document, splits it into text chunks, runs each chunk through an LLM content filter, and concatenates the relevant chunks into a single cleaned "ordinance text." Step 2 (Ordinance Value Extraction) feeds that cleaned text to a separate decision tree for each ordinance feature (e.g. Max Shadow Flicker, Property Line Setback, Road Setback, Structure Setback), producing structured ordinance data.
+   :align: center
+
+The full pipeline is designed to keep cost down and hallucinations out:
 
 1. **Cheap keyword filter** — rejects sections that obviously aren't ordinance text *before*
    any LLM call.
 2. **Legal-text validation** — an LLM classifies each surviving section as legally-binding
    regulation or not, with surrounding context for borderline cases.
-3. **Relevant-text extraction** — each document is summarized down to just the passages that
+3. **Relevant-text extraction** — each document is filtered down to just the passages that
    actually pertain to the target technology, producing a much shorter cleaned text that
    later steps work from.
 4. **Hallucination guardrail** — the cleaned text is compared back to the original; if too
@@ -137,23 +197,13 @@ to keep cost down and hallucinations out:
    even on messy ordinance language.
 6. **Structured parsing** — extracted values are assembled into a tidy per-jurisdiction CSV
    row (one row of setbacks, height limits, lot sizes, and the rest), then merged across all
-   jurisdictions into a single output database at the end of the run. Each row records the
-   **source URL** of the document it came from, so any extracted value can be traced back to
-   the original ordinance text and independently verified.
+   jurisdictions into the final ordinance database — published as CSV, Excel workbook, and
+   GeoPackage. Each row records the **source URL** of the document it came from, so any
+   extracted value can be traced back to the original ordinance text and independently
+   verified.
 
 Jurisdictions are processed concurrently while respecting your API provider's rate limits,
 with live cost tracking on a progress bar.
-
-
-Where is the data stored and how is it maintained?
-===================================================
-The latest published ordinance datasets are available here:
-
-- Solar: https://data.openei.org/submissions/8519
-- Wind: https://data.openei.org/submissions/8602
-
-The National Laboratories of the Rockies (NLR) typically runs the INFRA-COMPASS pipeline
-annually and publishes refreshed datasets to OpenEI.
 
 
 How can I expand INFRA-COMPASS to cover other ordinances?
@@ -169,7 +219,7 @@ Two paths, depending on how much customization you need:
   `solar plugin <https://github.com/NatLabRockies/COMPASS/tree/main/compass/extraction/solar>`_
   is the cleanest reference to copy and adapt.
 
-See the development guides for details:
+See the development guides for full details:
 `plugin development <https://natlabrockies.github.io/COMPASS/dev/plugin_development.html>`_
 and
 `advanced plugin development <https://natlabrockies.github.io/COMPASS/dev/advanced_plugin_development.html>`_.
