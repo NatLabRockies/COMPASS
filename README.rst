@@ -33,24 +33,24 @@ to automate the compilation and continued maintenance of an inventory of state a
 and ordinances pertaining to energy infrastructure.
 
 
-Which local codes and ordinances does COMPASS support?
-======================================================
-COMPASS currently has five extraction plugins (the value you set as ``tech`` in the input
-config). Each plugin defines its own search queries, keyword heuristics, and field set.
-Example fields extracted are listed below:
+Which local codes and ordinances does INFRA-COMPASS support?
+============================================================
+INFRA-COMPASS supports several extraction plugins (the value you set as ``tech`` in the
+input config). Each plugin defines its own search queries, keyword heuristics, and field
+set. Example fields extracted are listed below:
 
-1. **Solar** (``tech: "solar"``) — utility-scale solar siting ordinances. The most polished
-   plugin and the one used by the quickstart demo. Examples: setbacks (from structures,
-   property lines, roads, railroads, transmission, water, conservation lands), maximum
-   structure height, minimum/maximum lot size, maximum project size, panel spacing, land-use
-   density, land coverage, noise, glare, visual impact, fencing, signage, screening,
-   decommissioning, repowering, prohibitions, plus permitted-use district lists.
+1. **Solar** (``tech: "solar"``) — utility-scale solar siting ordinances. Examples:
+   setbacks (from structures, property lines, roads, railroads, transmission, water,
+   conservation lands), maximum structure height, minimum/maximum lot size, maximum
+   project size, panel spacing, land-use density, land coverage, noise, glare, visual
+   impact, fencing, signage, screening, decommissioning, repowering, prohibitions, plus
+   permitted-use district lists.
 
 2. **Wind** (``tech: "wind"``) — utility-scale wind siting ordinances. Examples: setbacks
    (same feature set as solar), maximum turbine height, minimum/maximum lot size, maximum
-   project size, separation from other WECS, shadow flicker, tower density, blade clearance,
-   noise, color, lighting, decommissioning, repowering, climbing prevention, signage, visual
-   impact, prohibitions.
+   project size, separation from other wind energy conversion systems (WECS), shadow
+   flicker, tower density, blade clearance, noise, color, lighting, decommissioning,
+   repowering, climbing prevention, signage, visual impact, prohibitions.
 
 3. **Small wind** (``tech: "small wind"``) — distributed / residential-scale wind ordinances.
    Examples: setbacks (extended to also include unoccupied structures), maximum turbine
@@ -60,7 +60,7 @@ Example fields extracted are listed below:
 
 4. **Geothermal heat pumps** (``tech: "ghp"``) — GHP / ground-source heat-pump local codes.
    Examples: setbacks from driveways, property lines, yards, private/public water, building
-   foundations, wastewater, water/sewer lines, animal enclosures, roads, ROW,
+   foundations, wastewater, water/sewer lines, animal enclosures, roads, rights-of-way (ROW),
    above/below-ground fuel, subsurface drains, wetlands, pools, hazardous materials;
    minimum/maximum well depth, noise, well/geothermal/GHP definitions, licensed-driller and
    certification requirements, screening, permits, inspections, decommissioning,
@@ -72,50 +72,48 @@ Example fields extracted are listed below:
    plugging requirements, external-transfer requirements, production reporting, production
    cost, setbacks, redrilling, plus daily/monthly/annual withdrawal limits.
 
-In addition, COMPASS supports a **one-shot, schema-driven plugin** for arbitrary ordinance
-types: provide a JSON schema for the fields you want and COMPASS will use LLM structured
-outputs to do a single-call extraction without writing decision trees. See the
-`one-shot schema extraction example
+In addition, INFRA-COMPASS supports a **one-shot, schema-driven plugin** for arbitrary
+ordinance types: provide a JSON schema for the fields you want and INFRA-COMPASS will use
+LLM structured outputs to do a single-call extraction without writing decision trees. See
+the `one-shot schema extraction example
 <https://github.com/NatLabRockies/COMPASS/tree/main/examples/one_shot_schema_extraction>`_
 for a walkthrough.
 
 
-How does COMPASS find the codes and ordinances?
-================================================
-A *jurisdiction* in COMPASS is the place that issues the ordinance — typically a U.S. county
-(or equivalent), e.g. "Boulder County, Colorado." Each run is driven by a CSV
+How does INFRA-COMPASS find the codes and ordinances?
+=====================================================
+A *jurisdiction* in INFRA-COMPASS is the place that issues the ordinance — typically a
+U.S. county (or equivalent), e.g. "Boulder County, Colorado." Each run is driven by a CSV
 of jurisdictions you want covered.
 
-COMPASS can handle source documents in four different ways:
+INFRA-COMPASS can handle source documents in four different ways:
 
-1. **Known local docs** — any documents you already have on hand jurisdiction.
+1. **Known local docs** — any documents you already have on hand for the jurisdiction.
 2. **Known URLs** — links containing documents from which you want to pull data.
-3. **Targeted document search** — plugin-defined queries that look for the **ordinance
-   document itself** . Best for ordinances that are well-indexed by search engines as
-   standalone PDFs or pages.
+3. **Targeted document search** — plugin-defined queries that directly look for the
+   **ordinance document itself**. Best for ordinances that are well-indexed by search
+   engines as standalone PDFs or pages.
 4. **Jurisdiction-website crawl** — for ordinances buried inside a county or municipal
-   website. COMPASS first runs a *different* search (e.g. ``"{jurisdiction} website"``) to
-   find the jurisdiction's official home page, asks an LLM to confirm the site really
-   belongs to that jurisdiction, then does a BFS, keyword-prioritized crawl of that one
-   site looking for ordinance pages.
+   website. INFRA-COMPASS first finds the jurisdiction's official website, then crawls it
+   for ordinance text using plugin-defined heuristics.
 
-**You bring your own LLM API key.** COMPASS is built around OpenAI (``client_type: "openai"``)
+**You bring your own LLM API key.** INFRA-COMPASS is built around OpenAI (``client_type: "openai"``)
 and Azure OpenAI (``client_type: "azure"``). Set ``OPENAI_API_KEY`` (or the
-``AZURE_OPENAI_*`` trio) in your environment before starting a run. Anthropic support is
-available as an optional extra (``pip install infra-compass[anthropic]``).
+``AZURE_OPENAI_*`` trio) in your environment before starting a run. Support for other LLM
+providers is under consideration.
 
 
-How does COMPASS extract the data?
-==================================
-Once a candidate document is downloaded, COMPASS runs a multi-step pipeline designed to keep
-cost down and hallucinations out:
+How does INFRA-COMPASS extract the data?
+========================================
+Once a candidate document is downloaded, INFRA-COMPASS runs a multi-step pipeline designed
+to keep cost down and hallucinations out:
 
 1. **Cheap keyword filter** — rejects sections that obviously aren't ordinance text *before*
    any LLM call.
 2. **Legal-text validation** — an LLM classifies each surviving section as legally-binding
    regulation or not, with surrounding context for borderline cases.
 3. **Decision-tree prompting** — rather than asking the LLM to fill out a whole row of values
-   in one mega-prompt, COMPASS extracts each value by walking a small decision tree of
+   in one mega-prompt, INFRA-COMPASS extracts each value by walking a small decision tree of
    focused yes/no questions. For a setback value, that might look like: "Does this text
    mention a setback from property lines for utility-scale solar?" → if yes, "Is the value
    given as a fixed distance, a multiple of system height, or relative to another feature?"
@@ -124,7 +122,7 @@ cost down and hallucinations out:
    already decided. This breaks an ambiguous extraction task into a sequence of unambiguous
    ones — which is what keeps structured output accurate even on messy ordinance language.
 4. **Hallucination guardrail** — cleaned text is compared back to the original; if too much
-   has been invented or paraphrased away, COMPASS retries and ultimately drops the document
+   has been invented or paraphrased away, INFRA-COMPASS retries and ultimately drops the document
    rather than recording a fabricated value.
 5. **Structured parsing** — extracted values are assembled into a tidy per-jurisdiction CSV
    row (one row of setbacks, height limits, lot sizes, and the rest), then merged across all
@@ -143,11 +141,12 @@ The latest published ordinance datasets are available here:
 - Solar: https://data.openei.org/submissions/8519
 - Wind: https://data.openei.org/submissions/8602
 
-NLR typically runs the COMPASS pipeline annually and publishes refreshed datasets to OpenEI.
+The National Laboratories of the Rockies (NLR) typically runs the INFRA-COMPASS pipeline
+annually and publishes refreshed datasets to OpenEI.
 
 
-How can I expand COMPASS to cover other ordinances?
-====================================================
+How can I expand INFRA-COMPASS to cover other ordinances?
+=========================================================
 Two paths, depending on how much customization you need:
 
 - **Schema-driven (fastest)** — write a JSON schema describing the fields you want and pass
@@ -180,7 +179,7 @@ If you would like to install and run INFRA-COMPASS from source, we recommend usi
     git clone git@github.com:NatLabRockies/COMPASS.git; cd COMPASS
     pixi run compass
 
-Before performing any web searches (i.e. running the COMPASS pipeline), you will need to run the following command:
+Before performing any web searches (i.e. running the INFRA-COMPASS pipeline), you will need to run the following command:
 
 .. code-block:: shell
 
