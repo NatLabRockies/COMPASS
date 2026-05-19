@@ -28,6 +28,7 @@ from core import (
     find_feature_row,
     find_missing_features,
     find_missing_locations,
+    load_run,
     match_labels,
     run_checks,
     score_run,
@@ -69,32 +70,6 @@ class C:
     def bold(s: str) -> str: return f"{C.BOLD}{s}{C.RESET}"
 
 
-# ── Data loading ─────────────────────────────────────────────────────
-
-
-def load_run(path: str | Path) -> pl.DataFrame:
-    """Read a CSV run, normalise key columns to stripped lowercase"""
-    df = pl.read_csv(path, infer_schema_length=0)
-    if "subdivision" not in df.columns:
-        df = df.with_columns(
-            pl.lit(None).cast(pl.Utf8).alias("subdivision")
-        )
-    if "fips" in df.columns and "FIPS" not in df.columns:
-        df = df.rename({"fips": "FIPS"})
-    df = df.with_columns(
-        pl.col(c).str.strip_chars().str.to_lowercase()
-        for c in KEY_COLS if c in df.columns
-    )
-    for c in df.columns:
-        df = df.with_columns(
-            pl.when(pl.col(c).str.strip_chars() == "")
-            .then(None)
-            .otherwise(pl.col(c).str.strip_chars())
-            .alias(c)
-        )
-    return df
-
-
 # ── Formatting helpers ───────────────────────────────────────────────
 
 
@@ -126,12 +101,31 @@ def cmd_validate(
     verbose: bool = False,
     output_format: str = "text",
 ):
-    df = load_run(run_path)
+    """Validate a run against reference and return formatted output
+
+    Parameters
+    ----------
+    run_path : str
+        Path to the CSV run file to validate.
+    ref_path : str
+        Path to the reference YAML file or directory.
+    verbose : bool, default=False
+        Include passing checks in text output. By default, False.
+    output_format : str, default="text"
+        Output format to render. Supported values are ``"text"``
+        and ``"json"``. By default, text.
+
+    Returns
+    -------
+    str
+        Rendered validation report as text or JSON string.
+    """
+    lf = load_run(run_path)
     ref = load_reference(ref_path)
 
     return validate_formated(
         ref,
-        df.lazy(),
+        lf,
         run_path,
         ref_path,
         output_format=output_format,
@@ -149,8 +143,8 @@ def cmd_compare(
     ref_path: str | None = None,
     verbose: bool = False,
 ):
-    df_a = load_run(run_a_path)
-    df_b = load_run(run_b_path)
+    df_a = load_run(run_a_path).collect()
+    df_b = load_run(run_b_path).collect()
 
     label_a = Path(run_a_path).stem
     label_b = Path(run_b_path).stem
@@ -357,7 +351,7 @@ def _find_divergences(
 
 def cmd_init(run_path: str, output_path: str):
     """Generate a reference YAML template from an existing CSV run"""
-    df = load_run(run_path)
+    df = load_run(run_path).collect()
 
     grouped: dict[str, dict[str, Any]] = {}
     for row in df.iter_rows(named=True):
