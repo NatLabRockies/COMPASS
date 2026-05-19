@@ -7,29 +7,29 @@ from collections.abc import Generator
 
 import polars as pl
 
-from store import location_label
+from reference import location_label
 
 logger = logging.getLogger(__name__)
 
 
 def match_labels(
-    truth: dict[str, dict],
+    ref: dict[str, dict],
     lf: pl.LazyFrame,
 ) -> Generator[tuple[dict, pl.DataFrame], None, None]:
     """Pair ground-truth locations with matching run rows
 
-    Iterates over each location in *truth*, builds a
+    Iterates over each location in *ref*, builds a
     geographic filter (state, county, and subdivision when
     defined), applies it to *lf*, and collects the result.
-    When the truth entry declares a FIPS code, the matched
+    When the reference entry declares a FIPS code, the matched
     rows are checked for agreement; mismatches are reported
     via ``logging.error``.
 
     Parameters
     ----------
-    truth : dict[str, dict]
-        Ground-truth dict as returned by
-        ``store.load_truth()``, keyed by normalised
+    ref : dict[str, dict]
+        Reference dict as returned by
+        ``reference.load_reference()``, keyed by normalised
         location string.
     lf : pl.LazyFrame
         Lazy representation of a run CSV, as produced by
@@ -39,10 +39,10 @@ def match_labels(
     ------
     tuple[dict, pl.DataFrame]
         A pair ``(loc_data, loc_df)`` for each location in
-        *truth*:
+        *ref*:
 
         loc_data
-            The truth dict for one location, containing
+            The reference dict for one location, containing
             state, county, subdivision, FIPS, and features
             with their check specs.
         loc_df
@@ -51,7 +51,7 @@ def match_labels(
             empty when the run has no data for that
             location.
     """
-    for _loc_key, loc_data in truth.items():
+    for _loc_key, loc_data in ref.items():
         mask = (
             (pl.col("county") == loc_data["county"])
             & (pl.col("state") == loc_data["state"])
@@ -75,7 +75,7 @@ def match_labels(
             if mismatched:
                 loc_lbl = location_label(loc_data)
                 logger.error(
-                    "FIPS mismatch for %s: truth declares %s, "
+                    "FIPS mismatch for %s: reference declares %s, "
                     "run contains %s",
                     loc_lbl, expected_fips, mismatched,
                 )
@@ -88,16 +88,16 @@ def find_missing_features(
     lf: pl.LazyFrame,
 ) -> list[str]:
     """
-    Find features declared in truth but absent from the run.
+    Find features declared in the reference but absent from the run.
 
     Compares the feature names listed in *loc_data* against
     the distinct ``feature`` values present in *lf*.  Any
-    feature that appears in the truth but has no matching
+    feature that appears in the reference but has no matching
     row in the run is considered missing.
 
     Designed to compose with :func:`match_labels`::
 
-        for loc_data, loc_df in match_labels(truth, run_lf):
+        for loc_data, loc_df in match_labels(ref, run_lf):
             missing = find_missing_features(
                 loc_data, loc_df.lazy(),
             )
@@ -116,7 +116,7 @@ def find_missing_features(
     Returns
     -------
     list[str]
-        Feature names present in the truth but not found
+        Feature names present in the reference but not found
         in the run, in the order they appear in
         ``loc_data["features"]``.  Empty list when all
         features are present.
