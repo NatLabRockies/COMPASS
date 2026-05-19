@@ -1,15 +1,108 @@
-"""Core functionalities to validate CSV outputs with manual labels"""
+"""
+core.py — Composable building blocks for matching and validation
+"""
 
 from __future__ import annotations
 
 import logging
 from collections.abc import Generator
+from dataclasses import dataclass
 
 import polars as pl
 
 from reference import location_label
 
 logger = logging.getLogger(__name__)
+
+
+# ── Data types ───────────────────────────────────────────────────────
+
+
+@dataclass
+class CheckResult:
+    """Outcome of a single field-level check"""
+
+    field: str
+    mode: str
+    passed: bool
+    expected: str
+    actual: str
+    detail: str = ""
+
+
+# ── Location-level functions ─────────────────────────────────────────
+
+
+def extract_locations(
+    lf: pl.LazyFrame,
+) -> set[tuple[str, str, str | None]]:
+    """
+    Collect distinct locations from a LazyFrame
+
+    Each location is a tuple of ``(state, county, subdivision)``
+    where *subdivision* is ``None`` for county-level records.
+
+    Parameters
+    ----------
+    lf : pl.LazyFrame
+        Lazy representation of run data containing at least
+        the columns ``state``, ``county``, and
+        ``subdivision``.
+
+    Returns
+    -------
+    set[tuple[str, str, str | None]]
+        Unique location tuples found in the data.
+    """
+    rows = (
+        lf.select("state", "county", "subdivision")
+        .unique()
+        .collect()
+        .iter_rows()
+    )
+    return {(state, county, subdiv) for state, county, subdiv in rows}
+
+
+def find_missing_locations(
+    ref: dict[str, dict],
+    lf: pl.LazyFrame,
+) -> list[dict]:
+    """
+    Find reference locations absent from the target
+
+    Compares the locations declared in *ref* against the
+    distinct locations present in *lf*.  Returns the
+    reference entries whose geographic key (state, county,
+    subdivision) has no matching rows in the target.
+
+    Parameters
+    ----------
+    ref : dict[str, dict]
+        Reference dict as returned by
+        ``reference.load_reference()``.
+    lf : pl.LazyFrame
+        Lazy representation of the target run data.
+
+    Returns
+    -------
+    list[dict]
+        The ``loc_data`` dicts for each reference location
+        not found in the target, in the order they appear
+        in *ref*.  Empty list when all reference locations
+        are present.
+    """
+    target_locs = extract_locations(lf)
+
+    missing = []
+    for _loc_key, loc_data in ref.items():
+        loc_tuple = (
+            loc_data["state"],
+            loc_data["county"],
+            loc_data.get("subdivision"),
+        )
+        if loc_tuple not in target_locs:
+            missing.append(loc_data)
+    return missing
 
 
 def match_labels(
