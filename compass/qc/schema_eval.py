@@ -16,10 +16,10 @@ Examples
 
 from __future__ import annotations
 
-import argparse
 from pathlib import Path
 from typing import Any
 
+import click
 import polars as pl
 
 from core import (
@@ -432,75 +432,89 @@ def cmd_init(run_path: str, output_path: str):
 # ── CLI ──────────────────────────────────────────────────────────────
 
 
+@click.group(
+    epilog=__doc__,
+    context_settings={"help_option_names": ["-h", "--help"]},
+)
 def main():
-    parser = argparse.ArgumentParser(
-        description=(
-            "Evaluate and compare LLM extraction runs "
-            "against reference."
-        ),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__,
-    )
-    sub = parser.add_subparsers(dest="command", required=True)
+    """Evaluate and compare LLM extraction runs against reference"""
 
-    p_init = sub.add_parser(
-        "init",
-        help="Scaffold reference YAML from a CSV run",
-    )
-    p_init.add_argument("run", help="Path to the CSV run file")
-    p_init.add_argument(
-        "-o", "--output",
-        default="ground_truth.yaml", help="Output YAML path",
-    )
 
-    p_val = sub.add_parser(
-        "validate",
-        help="Validate a CSV run against reference",
-    )
-    p_val.add_argument("run", help="Path to the CSV run file")
-    p_val.add_argument(
-        "-t", "--ref", required=True,
-        help="Path to reference YAML file or directory",
-    )
-    p_val.add_argument(
-        "-v", "--verbose", action="store_true",
-        help="Show passing checks too",
-    )
-    p_val.add_argument(
-        "-f", "--format",
-        choices=["text", "json"],
-        default="text",
-        help="Output format for validation report",
-    )
+@main.command("init")
+@click.argument("run")
+@click.option(
+    "-o",
+    "--output",
+    "output_path",
+    default="ground_truth.yaml",
+    show_default=True,
+    help="Output YAML path",
+)
+def init_command(run: str, output_path: str):
+    """Scaffold reference YAML from a CSV run"""
+    cmd_init(run, output_path)
 
-    p_cmp = sub.add_parser(
-        "compare", help="Compare two CSV runs",
-    )
-    p_cmp.add_argument(
-        "run_a", help="Path to the first (baseline) CSV run",
-    )
-    p_cmp.add_argument(
-        "run_b", help="Path to the second (new) CSV run",
-    )
-    p_cmp.add_argument(
-        "-t", "--ref", default=None,
-        help="Optional reference YAML file or directory",
-    )
-    p_cmp.add_argument(
-        "-v", "--verbose", action="store_true",
-        help="Show unchanged rows too",
-    )
 
-    args = parser.parse_args()
+@main.command("validate")
+@click.argument("run")
+@click.option(
+    "-t",
+    "--ref",
+    "ref_path",
+    required=True,
+    help="Path to reference YAML file or directory",
+)
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Show passing checks too",
+)
+@click.option(
+    "-f",
+    "--format",
+    "output_format",
+    type=click.Choice(["text", "json"]),
+    default="text",
+    show_default=True,
+    help="Output format for validation report",
+)
+def validate_command(
+    run: str,
+    ref_path: str,
+    verbose: bool,
+    output_format: str,
+):
+    """Validate a CSV run against reference"""
+    print(cmd_validate(run, ref_path, verbose, output_format))
 
-    if args.command == "init":
-        cmd_init(args.run, args.output)
-    elif args.command == "validate":
-        print(cmd_validate(
-            args.run, args.ref, args.verbose, args.format
-        ))
-    elif args.command == "compare":
-        cmd_compare(args.run_a, args.run_b, args.ref, args.verbose)
+
+@main.command("compare")
+@click.argument("run_a")
+@click.argument("run_b")
+@click.option(
+    "-t",
+    "--ref",
+    "ref_path",
+    default=None,
+    help="Optional reference YAML file or directory",
+)
+@click.option(
+    "-v",
+    "--verbose",
+    is_flag=True,
+    default=False,
+    help="Show unchanged rows too",
+)
+def compare_command(
+    run_a: str,
+    run_b: str,
+    ref_path: str | None,
+    verbose: bool,
+):
+    """Compare two CSV runs"""
+    cmd_compare(run_a, run_b, ref_path, verbose)
 
 
 if __name__ == "__main__":
