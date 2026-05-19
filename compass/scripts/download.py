@@ -770,6 +770,16 @@ async def _down_select_docs_correct_jurisdiction(
     docs, jurisdiction, usage_tracker, model_config
 ):
     """Remove documents that do not match the target jurisdiction"""
+    exempt_docs, docs_to_check = [], []
+    for doc in docs:
+        if doc.attrs.get("check_correct_jurisdiction", True):
+            docs_to_check.append(doc)
+        else:
+            exempt_docs.append(doc)
+
+    if not docs_to_check:
+        return exempt_docs
+
     jurisdiction_validator = JurisdictionValidator(
         text_splitter=model_config.text_splitter,
         llm_service=model_config.llm_service,
@@ -777,12 +787,13 @@ async def _down_select_docs_correct_jurisdiction(
         **model_config.llm_call_kwargs,
     )
     logger.debug("Validating documents for %r", jurisdiction)
-    return await filter_documents(
-        docs,
+    checked_docs = await filter_documents(
+        docs_to_check,
         validation_coroutine=jurisdiction_validator.check,
         jurisdiction=jurisdiction,
         task_name=jurisdiction.full_name,
     )
+    return exempt_docs + checked_docs
 
 
 async def _contains_relevant_text(
