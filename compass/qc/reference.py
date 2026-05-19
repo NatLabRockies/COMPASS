@@ -1,5 +1,5 @@
 """
-truth_store.py — Load, merge, and validate ground-truth YAML files.
+reference.py — Load, merge, and validate reference YAML files.
 
 Handles single files, directories (recursive), and duplicate detection
 both within and across files.
@@ -9,7 +9,7 @@ Location keys support two granularities:
   County level  : "County, State"                → e.g. "Power, Idaho"
   Township level: "Subdivision, County, State"    → e.g. "Springfield, Power, Idaho"
 
-load_truth() returns a dict grouped by location rather than a flat list,
+load_reference() returns a dict grouped by location rather than a flat list,
 so downstream code can process and summarise per-location.
 """
 
@@ -20,7 +20,7 @@ from pathlib import Path
 import yaml
 
 # ── Field definitions ────────────────────────────────────────────────────────
-# These define which CSV columns the ground-truth format understands.
+# These define which CSV columns the reference format understands.
 
 # Columns where exact string match is the natural comparison
 EXACT_FIELDS = ["value", "units", "adder", "min_dist", "max_dist", "year"]
@@ -88,7 +88,7 @@ def location_label(loc: dict[str, str | None]) -> str:
 # ── File collection ──────────────────────────────────────────────────────────
 
 
-def collect_truth_files(path: str | Path) -> list[Path]:
+def collect_reference_files(path: str | Path) -> list[Path]:
     """
     Walk *path* and return every .yaml / .yml file found.
 
@@ -110,13 +110,13 @@ def collect_truth_files(path: str | Path) -> list[Path]:
                 seen.add(resolved)
                 unique.append(f)
         return unique
-    raise FileNotFoundError(f"Ground-truth path not found: {p}")
+    raise FileNotFoundError(f"Reference path not found: {p}")
 
 
 # ── Merging & duplicate detection ────────────────────────────────────────────
 
 
-def merge_truth_dicts(files: list[Path]) -> dict:
+def merge_reference_dicts(files: list[Path]) -> dict:
     """
     Load every YAML file and merge into one dict.
 
@@ -217,9 +217,9 @@ def _build_checks(field_checks: dict) -> dict[str, dict]:
 # ── Main loader ──────────────────────────────────────────────────────────────
 
 
-def load_truth(path: str | Path) -> dict[str, dict]:
+def load_reference(path: str | Path) -> dict[str, dict]:
     """
-    Parse ground-truth YAML(s) into a dict grouped by location.
+    Parse reference YAML(s) into a dict grouped by location.
 
     *path* can be:
       - a single .yaml / .yml file
@@ -253,11 +253,11 @@ def load_truth(path: str | Path) -> dict[str, dict]:
             },
         }
     """
-    files = collect_truth_files(path)
+    files = collect_reference_files(path)
     if not files:
         raise FileNotFoundError(f"No .yaml / .yml files found under {path}")
 
-    raw = merge_truth_dicts(files)
+    raw = merge_reference_dicts(files)
     result: dict[str, dict] = {}
 
     for location_key, loc_data in raw.items():
@@ -270,10 +270,12 @@ def load_truth(path: str | Path) -> dict[str, dict]:
         parsed_features: dict[str, dict] = {}
         for feat_name, field_checks in raw_features.items():
             if field_checks is None:
+                # Feature listed with no arguments — still
+                # track it so presence checks can catch it.
+                parsed_features[feat_name.lower()] = {}
                 continue
             checks = _build_checks(field_checks)
-            if checks:
-                parsed_features[feat_name.lower()] = checks
+            parsed_features[feat_name.lower()] = checks
 
         result[norm_key] = {
             **loc,
