@@ -25,7 +25,7 @@ from compass.exceptions import COMPASSValueError, COMPASSError
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.llm import OpenAIConfig
 from compass.services.cpu import (
-    PDFLoader,
+    FileLoader,
     OCRPDFLoader,
     read_pdf_doc,
     read_pdf_doc_ocr,
@@ -518,13 +518,18 @@ class _COMPASSRunner:
         if self.web_search_params.pytesseract_exe_fp is not None:
             _setup_pytesseract(self.web_search_params.pytesseract_exe_fp)
             file_loader_kwargs.update(
-                {"pdf_ocr_read_coroutine": read_pdf_doc_ocr}
+                {
+                    "pdf_ocr_read_coroutine": read_pdf_doc_ocr,
+                    "pytesseract_exe_fp": (
+                        self.web_search_params.pytesseract_exe_fp
+                    ),
+                }
             )
         return file_loader_kwargs
 
     @cached_property
     def local_file_loader_kwargs(self):
-        """dict: Keyword arguments for ``AsyncLocalFileLoader``"""
+        """dict: Keyword arguments for ``COMPASSLocalFileLoader``"""
         file_loader_kwargs = {
             "pdf_read_coroutine": read_pdf_file,
             "html_read_coroutine": read_html_file,
@@ -539,7 +544,12 @@ class _COMPASSRunner:
         if self.web_search_params.pytesseract_exe_fp is not None:
             _setup_pytesseract(self.web_search_params.pytesseract_exe_fp)
             file_loader_kwargs.update(
-                {"pdf_ocr_read_coroutine": read_pdf_file_ocr}
+                {
+                    "pdf_ocr_read_coroutine": read_pdf_file_ocr,
+                    "pytesseract_exe_fp": (
+                        self.web_search_params.pytesseract_exe_fp
+                    ),
+                }
             )
         return file_loader_kwargs
 
@@ -598,7 +608,7 @@ class _COMPASSRunner:
                 self.dirs.out / "jurisdictions.json",
                 tpe_kwargs=self.tpe_kwargs,
             ),
-            PDFLoader(**(self.process_kwargs.ppe_kwargs or {})),
+            FileLoader(**(self.process_kwargs.ppe_kwargs or {})),
             HTMLFileLoader(**self.tpe_kwargs),
         ]
 

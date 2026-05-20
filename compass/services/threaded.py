@@ -98,7 +98,7 @@ def _write_ord_db(extraction_context, out_dir, out_fn=None):
         return None
 
     out_fp = Path(out_dir) / out_fn
-    ord_db.to_csv(out_fp, index=False)
+    ord_db.to_csv(out_fp, index=False, encoding="utf-8-sig")
     return out_fp
 
 
@@ -549,7 +549,7 @@ def _compile_doc_info(doc):
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
         "ord_filename": Path(out_fp or "unknown").name,
-        "num_pages": len(doc.pages),
+        "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),
         "is_pdf": isinstance(doc, PDFDocument),
         "from_ocr": doc.attrs.get("from_ocr", False),

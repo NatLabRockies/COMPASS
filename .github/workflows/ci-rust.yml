@@ -11,7 +11,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - .github/workflows/ci-rust.yml
-      - pyproject.toml
+      - pixi.toml
       - pixi.lock
   pull_request:
     paths:
@@ -19,7 +19,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - .github/workflows/ci-rust.yml
-      - pyproject.toml
+      - pixi.toml
       - pixi.lock
   schedule:
     - cron: '0 5 * * 1'
@@ -32,15 +32,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.62.2
-          frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           # Don't save cache for cargo check!
@@ -59,15 +58,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.62.2
-          frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           # Don't save cache for cargo fmt or clippy!
@@ -89,20 +87,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-26-intel, windows-latest]
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.62.2
-          frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
@@ -127,15 +124,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.62.2
-          frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           save-if: false
@@ -158,15 +154,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.62.2
-          frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           save-if: false
@@ -187,15 +182,14 @@ jobs:
       - name: Checkout sources
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.9.4
+      - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
           pixi-version: v0.62.2
-          frozen: true
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           save-if: false

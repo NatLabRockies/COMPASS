@@ -7,11 +7,12 @@ https://www.zopatista.com/python/2019/05/11/asyncio-logging/
 import os
 import time
 import json
+import copy
 import asyncio
 import logging
 import threading
+import multiprocessing
 from pathlib import Path
-from queue import SimpleQueue
 from functools import partial, partialmethod
 from logging.handlers import QueueHandler, QueueListener
 from importlib.metadata import version, PackageNotFoundError
@@ -20,8 +21,31 @@ from compass import __version__
 from compass.exceptions import COMPASSValueError
 
 
-LOGGING_QUEUE = SimpleQueue()
 COMPASS_DEBUG_LEVEL = int(os.environ.get("COMPASS_DEBUG_LEVEL", "0"))
+
+
+class _LQ:
+    """Logging queue descriptor"""
+
+    def __get__(self, __, lq_class=None):
+        lq_class.QUEUE = multiprocessing.get_context().Queue()
+        return lq_class.QUEUE
+
+
+class LQ:
+    """Logging queue using lazy loading of multiprocessing queue
+
+    Have to load it lazily so that multiprocessing context can still be
+    set elsewhere in the code (e.g. in the CLI). If the queue is loaded
+    at the module level, the multiprocessing context is set to "fork" by
+    default on unix systems, which causes issues when the process pool
+    executor is launched. By loading lazily, we can ensure that the
+    multiprocessing context is set to "spawn" in the CLI before the
+    queue is loaded.
+    """
+
+    QUEUE = _LQ()
+    """Logging queue instance"""
 
 
 class NoLocationFilter(logging.Filter):
@@ -132,7 +156,11 @@ class _LocalProcessQueueHandler(QueueHandler):
             Log record containing the log message + default attributes.
         """
         try:
-            self.enqueue(record)
+            self.enqueue(
+                _prepare_mp_queue_safe_record(
+                    record, self.formatter or logging.Formatter()
+                )
+            )
         except asyncio.CancelledError:
             raise
         except Exception:  # noqa: BLE001
@@ -157,7 +185,7 @@ class LogListener:
         self.logger_names = logger_names
         self.level = level
         self._listener = None
-        self._queue_handler = _LocalProcessQueueHandler(LOGGING_QUEUE)
+        self._queue_handler = _LocalProcessQueueHandler(LQ.QUEUE)
         self._queue_handler.addFilter(AddLocationFilter())
 
     def _setup_listener(self):
@@ -165,7 +193,9 @@ class LogListener:
         if self._listener is not None:
             return
         self._listener = QueueListener(
-            LOGGING_QUEUE, logging.NullHandler(), respect_handler_level=True
+            LQ.QUEUE,
+            logging.NullHandler(),
+            respect_handler_level=True,
         )
         self._listener.handlers = list(self._listener.handlers)
 
@@ -363,7 +393,7 @@ class LocationFileLog:
     async def __aexit__(self, exc_type, exc, tb):
         start_time = time.monotonic()
         while (
-            not LOGGING_QUEUE.empty()
+            not LQ.QUEUE.empty()
             and (time.monotonic() - start_time) < self.max_teardown_time
         ):
             await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)
@@ -375,29 +405,19 @@ class ExceptionOnlyFilter(logging.Filter):
     """Filter to only pass through Exception logging (errors)"""
 
     def filter(self, record):  # noqa: D102, PLR6301
-        return bool(record.exc_info)
+        return bool(record.exc_info or getattr(record, "exc_type", None))
 
 
 class _JsonFormatter(logging.Formatter):
     """Formatter that converts a record into a dictionary"""
 
     def format(self, record):
-        exc_info = record.exc_info
-        exc_text = None
-        if exc_info:
-            try:
-                exc_text = exc_info[1].args[0]
-            except Exception:  # noqa: BLE001
-                exc_text = None
-
-            try:
-                exc_info = exc_info[0].__name__
-            except Exception:  # noqa: BLE001
-                exc_info = None
+        exc_info, exc_text = _extract_exc_info_from_record(record)
 
         message = record.getMessage()
         if message and len(message) > 103:  # noqa: PLR2004
             message = message[:103]
+
         return {
             "timestamp": self.formatTime(record),
             "message": message,
@@ -494,7 +514,7 @@ def log_versions(logger):
         "NLR-ELM",
         "openai",
         "playwright",
-        "tf-playwright-stealth",
+        "playwright-stealth",
         "rebrowser-playwright",
         "camoufox",
         "pdftotext",
@@ -531,3 +551,59 @@ def _get_version(pkg_name):
         return version(pkg_name)
     except PackageNotFoundError:
         return "not installed"
+
+
+def _prepare_mp_queue_safe_record(record, formatter):
+    """Prepare a multiprocessing queue-safe copy of a log record
+
+    This resolves the formatted message eagerly, clears ``args`` to
+    avoid transporting arbitrary objects through the queue, and
+    converts ``exc_info`` into queue-safe exception fields before
+    removing the raw traceback tuple.
+
+    The main benefit is that queued logging keeps useful exception
+    context (``exc_type``, ``exc_message``, and ``exc_text``)
+    without trying to transport traceback state, which is fragile
+    and can be difficult to serialize across queue boundaries.
+    """
+    prepared = copy.copy(record)  # don't break for other handlers
+    prepared.message = prepared.getMessage()
+    prepared.msg = prepared.message
+    prepared.args = None
+
+    if prepared.exc_info:
+        exc_type, exc_value, __ = prepared.exc_info
+        prepared.exc_type = getattr(exc_type, "__name__", None)
+        prepared.exc_message = getattr(exc_value, "args", [None])[0]
+        prepared.exc_text = formatter.formatException(prepared.exc_info)
+        prepared.exc_info = None
+
+    return prepared
+
+
+def _extract_exc_info_from_record(record):
+    """Extract exception info from a log record
+
+    This method accounts for both standard and multiprocessing
+    queue-safe versions of log- records
+    """
+
+    exc_info = record.exc_info
+
+    if not exc_info:
+        # Check for multiprocessing queue-safe exception info attributes
+        exc_info = getattr(record, "exc_type", None)
+        exc_text = getattr(record, "exc_message", None)
+        return exc_info, exc_text
+
+    try:
+        exc_text = exc_info[1].args[0]
+    except Exception:  # noqa: BLE001
+        exc_text = None
+
+    try:
+        exc_info = exc_info[0].__name__
+    except Exception:  # noqa: BLE001
+        exc_info = None
+
+    return exc_info, exc_text

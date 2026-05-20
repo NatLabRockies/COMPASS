@@ -57,9 +57,12 @@ extensions = [
     "sphinx_click.ext",
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
+    "myst_parser",
 ]
 
 intersphinx_mapping = {
+    "aiohttp": ("https://docs.aiohttp.org/en/stable", None),
+    "docling_core": ("https://docling-project.github.io/docling", None),
     "elm": ("https://natlabrockies.github.io/elm", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
@@ -77,7 +80,10 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 
 # source_parsers = {'.md': MarkdownParser}
 
@@ -137,6 +143,7 @@ nitpick_ignore = [
         "compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.OUT_LABEL",
     ),
     ("py:class", "compass.utilities.io._ConfigType"),
+    ("py:class", "elm.web.document.Document"),
 ]
 
 # -- Options for HTML output -------------------------------------------------
