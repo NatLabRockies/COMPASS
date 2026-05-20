@@ -25,7 +25,7 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.web.url_utils import _sanitize_url
+from compass.web.url_utils import sanitize_url
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
 
@@ -826,7 +826,7 @@ def _sanitize_doc_sources(docs):
     for doc in docs:
         source = doc.attrs.get("source")
         if source and " " in source:
-            doc.attrs["source"] = _sanitize_url(source)
+            doc.attrs["source"] = sanitize_url(source)
 
 
 def _sort_final_ord_docs(all_ord_docs):

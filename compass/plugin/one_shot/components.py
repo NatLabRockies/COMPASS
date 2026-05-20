@@ -3,7 +3,6 @@
 import json
 import asyncio
 import logging
-import re
 from datetime import datetime
 from abc import ABC, abstractmethod
 
@@ -296,12 +295,6 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         return text_summary
 
 
-# Constants for magic values
-_MAGIC_NEIGHBOR_CHUNK_COUNT = 2
-_MAGIC_HOUR_12 = 12
-_MAGIC_MINUTE_59 = 59
-
-
 class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     """Base class for parsing structured data"""
 
@@ -396,8 +389,6 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     def _to_dataframe(self, data):
         """Convert LLM output to a DataFrame"""
 
-        data = self._normalize_outputs(data)
-
         output_items = self.SCHEMA["properties"]["outputs"]["items"]
         all_features = output_items["properties"]["feature"]["enum"]
 
@@ -422,108 +413,3 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         ]
         out_cols = [col for col in possible_out_cols if col in full_df.columns]
         return full_df[["feature", *out_cols, "quantitative"]]
-
-    def _normalize_outputs(self, data):
-        """Normalize selected feature payloads for stable CSV outputs"""
-
-        rules = self.SCHEMA.get("$postprocess_rules") or {}
-        pipeline = rules.get("pipeline") or []
-        if not pipeline:
-            return data
-
-        norm = []
-        norm_extend = norm.extend
-        for row in data:
-            if not isinstance(row, dict):
-                continue
-            out = row
-            for step in pipeline:
-                out = self._apply_postprocess_step(out, step)
-                if out is None:
-                    break
-            if out is not None:
-                norm_extend([out])
-        return norm
-
-    def _apply_postprocess_step(self, row, step):
-        """Apply one schema-configured postprocessing step to a row"""
-        operation = (step.get("operation") or "").casefold()
-        if not operation:
-            return row
-        if operation == "bounded_time_from_summary":
-            return self._pp_bounded_time_from_summary(row, step)
-        logger.debug("Unknown postprocess operation: %r", operation)
-        return row
-
-    def _pp_bounded_time_from_summary(self, row, step):
-        """
-        Prefer bounded time windows from summary over fallback
-        values
-        """
-        feature = (row.get("feature") or "").casefold()
-        source_field = step.get("source_field", "summary")
-        source_text = row.get(source_field) or ""
-        time_values = self._extract_times_from_text(source_text)
-        for pair in step.get("feature_pairs") or []:
-            start_feature = pair.get("start_feature", "").casefold()
-            end_feature = pair.get("end_feature", "").casefold()
-            if feature not in {start_feature, end_feature}:
-                continue
-            if "units" in pair:
-                row["units"] = pair.get("units")
-            fallback_values = {
-                str(v) for v in pair.get("fallback_values", ["00:00", "24:00"])
-            }
-            if (
-                len(time_values) < _MAGIC_NEIGHBOR_CHUNK_COUNT
-                or str(row.get("value")) not in fallback_values
-            ):
-                return row
-            if feature == start_feature:
-                row["value"] = min(time_values)
-            elif feature == end_feature:
-                row["value"] = max(time_values)
-            return row
-        return row
-
-    @staticmethod
-    def _extract_times_from_text(text):
-        """
-        Extract times from text as normalized 24-hour HH:MM
-        strings
-        """
-        if not text:
-            return []
-        ampm_pattern = re.compile(
-            r"(?<!\d)(\d{1,2})(?::(\d{2}))?\s*(a\.?m\.?|p\.?m\.?)",
-            re.IGNORECASE,
-        )
-        hhmm_pattern = re.compile(r"\b([01]\d|2[0-4]):([0-5]\d)\b")
-        out = []
-        for match in ampm_pattern.finditer(text):
-            hour = int(match.group(1))
-            minute = int(match.group(2) or 0)
-            ampm = match.group(3).lower().replace(".", "")
-            if (
-                hour < 1
-                or hour > _MAGIC_HOUR_12
-                or minute < 0
-                or minute > _MAGIC_MINUTE_59
-            ):
-                continue
-            if ampm == "am":
-                hour = 0 if hour == _MAGIC_HOUR_12 else hour
-            else:
-                hour = (
-                    _MAGIC_HOUR_12
-                    if hour == _MAGIC_HOUR_12
-                    else hour + _MAGIC_HOUR_12
-                )
-            out.append(f"{hour:02d}:{minute:02d}")
-        out.extend(
-            [
-                f"{int(match.group(1)):02d}:{int(match.group(2)):02d}"
-                for match in hhmm_pattern.finditer(text)
-            ]
-        )
-        return sorted(set(out))

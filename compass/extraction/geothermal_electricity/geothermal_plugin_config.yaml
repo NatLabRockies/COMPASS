@@ -168,3 +168,5 @@ heuristic_keywords:
     - "cannabis"
     - "cannabis cultivation"
     - "commercial cannabis"
+
+collection_prompts: True

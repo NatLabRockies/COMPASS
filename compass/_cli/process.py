@@ -69,14 +69,8 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
     """Download and extract ordinances for a list of jurisdictions"""
     config = load_config(config)
 
-    if out_dir_exists is not None:
-        out_dir_policy = out_dir_exists
-    elif sys.stdin.isatty():
-        out_dir_policy = "prompt"
-    else:
-        out_dir_policy = "fail"
     config["out_dir"] = _resolve_out_dir_conflict(
-        config["out_dir"], out_dir_policy
+        config["out_dir"], out_dir_exists
     )
 
     if plugin is not None:
@@ -90,12 +84,6 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
     _setup_cli_logging(
         console, verbose, log_level=config.get("log_level", "INFO")
     )
-
-    # Need to set start method to "spawn" instead of "fork" for unix
-    # systems. If this call is not present, software hangs when process
-    # pool executor is launched.
-    # More info here: https://stackoverflow.com/a/63897175/20650649
-    multiprocessing.set_start_method("spawn")
 
     # asyncio.run(...) doesn't throw exceptions correctly for some
     # reason...
@@ -159,12 +147,9 @@ def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
 def _resolve_out_dir_conflict(out_dir, policy):
     """Handle existing output directory using the selected policy"""
     out_dir = Path(out_dir)
-    policy = policy.lower()
+    policy = _resolve_out_dir_policy(policy)
 
-    if not out_dir.exists():
-        return out_dir
-
-    if policy == "fail":
+    if not out_dir.exists() or policy == "fail":
         return out_dir
 
     if policy == "increment":
@@ -181,37 +166,7 @@ def _resolve_out_dir_conflict(out_dir, policy):
         return out_dir
 
     if policy == "prompt":
-        if not sys.stdin.isatty():
-            msg = (
-                "Cannot use out_dir_exists='prompt' in non-interactive mode. "
-                "Use one of: fail, increment, overwrite."
-            )
-            raise click.ClickException(msg)
-
-        create_incremented = click.confirm(
-            f"Output directory '{out_dir!s}' already exists. "
-            "Create a new incremented directory automatically?",
-            default=True,
-        )
-        if create_incremented:
-            new_out_dir = _next_versioned_directory(out_dir)
-            click.echo(f"Using incremented directory: {new_out_dir!s}")
-            return new_out_dir
-
-        overwrite = click.confirm(
-            f"Overwrite '{out_dir!s}' by deleting it and continuing?",
-            default=False,
-        )
-        if overwrite:
-            click.echo(f"Overwriting existing output directory: {out_dir!s}")
-            shutil.rmtree(out_dir)
-            return out_dir
-
-        msg = (
-            "Run cancelled. Please update out_dir in config, or rerun with "
-            "--out_dir_exists increment/overwrite."
-        )
-        raise click.ClickException(msg)
+        return _resolve_prompt_out_dir_conflict(out_dir)
 
     msg = (
         f"Unknown out_dir_exists policy '{policy}'. "
@@ -226,8 +181,59 @@ def _next_versioned_directory(out_dir):
     versioning
     """
     idx = 2
-    while True:
+    max_idx = 1_000_000
+    while idx <= max_idx:
         candidate = out_dir.parent / f"{out_dir.name}_v{idx}"
         if not candidate.exists():
             return candidate
         idx += 1
+
+    msg = (
+        f"Unable to find an available versioned directory for '{out_dir!s}' "
+        f"up to suffix _v{max_idx}."
+    )
+    raise click.ClickException(msg)
+
+
+def _resolve_out_dir_policy(policy):
+    """Resolve output directory policy from explicit input or terminal mode"""
+    if policy is not None:
+        return policy.lower()
+    if sys.stdin.isatty():
+        return "prompt"
+    return "fail"
+
+
+def _resolve_prompt_out_dir_conflict(out_dir):
+    """Handle interactive prompt flow for an existing output directory"""
+    if not sys.stdin.isatty():
+        msg = (
+            "Cannot use out_dir_exists='prompt' in non-interactive mode. "
+            "Use one of: fail, increment, overwrite."
+        )
+        raise click.ClickException(msg)
+
+    create_incremented = click.confirm(
+        f"Output directory '{out_dir!s}' already exists. "
+        "Create a new incremented directory automatically?",
+        default=True,
+    )
+    if create_incremented:
+        new_out_dir = _next_versioned_directory(out_dir)
+        click.echo(f"Using incremented directory: {new_out_dir!s}")
+        return new_out_dir
+
+    overwrite = click.confirm(
+        f"Overwrite '{out_dir!s}' by deleting it and continuing?",
+        default=False,
+    )
+    if overwrite:
+        click.echo(f"Overwriting existing output directory: {out_dir!s}")
+        shutil.rmtree(out_dir)
+        return out_dir
+
+    msg = (
+        "Run cancelled. Please update out_dir in config, or rerun with "
+        "--out_dir_exists increment/overwrite."
+    )
+    raise click.ClickException(msg)

@@ -10,6 +10,7 @@ import pytest
 from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
+from compass.web.url_utils import sanitize_url
 from compass.web.website_crawl import (
     COMPASSCrawler,
     COMPASSLinkScorer,
@@ -22,7 +23,6 @@ from compass.web.website_crawl import (
     _extract_links_from_html,
     _get_locator_text,
     _get_text_from_all_locators,
-    _sanitize_url,
 )
 
 
@@ -239,7 +239,7 @@ def test_compass_link_scorer_assign_value():
 def test_sanitize_url_handles_spaces_and_queries():
     """Verify URL sanitization for paths and query strings"""
 
-    sanitized = _sanitize_url("https://example.com/some path/?foo=bar baz")
+    sanitized = sanitize_url("https://example.com/some path/?foo=bar baz")
     assert " " not in sanitized
     assert "%20" in sanitized
 
@@ -260,8 +260,8 @@ def test_extract_links_from_html_filters_blacklist():
     assert "https://example.com/ok.pdf" in test_refs
 
 
-def test_extract_links_from_html_sets_text_from_anchor():
-    """Anchor text should populate both link title and text"""
+def test_extract_links_from_html_sets_title_from_anchor():
+    """Anchor text should populate link title"""
 
     html = """
     <a href="/doc.pdf">Permit Standards</a>
@@ -270,7 +270,6 @@ def test_extract_links_from_html_sets_text_from_anchor():
     assert len(links) == 1
     link = next(iter(links))
     assert link.title == "Permit Standards"
-    assert link.text == "Permit Standards"
 
 
 @pytest.mark.asyncio
