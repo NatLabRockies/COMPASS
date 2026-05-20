@@ -855,8 +855,9 @@ class _SingleJurisdictionRunner:
         start_time = time.monotonic()
         extraction_context = None
         logger.info(
-            "Kicking off processing for jurisdiction: %s",
+            "Kicking off processing for jurisdiction: %s (%s)",
             self.jurisdiction.full_name,
+            self.jurisdiction.code,
         )
         try:
             extraction_context = await self._run()
