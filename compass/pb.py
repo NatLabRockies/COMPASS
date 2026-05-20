@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import contextlib
 from datetime import timedelta
 from contextlib import asynccontextmanager, contextmanager
 
@@ -128,6 +129,34 @@ class _COMPASSProgressBars:
     def group(self):
         """rich.console.Group: Group of renderable progress bars"""
         return self._group
+
+    def reset(self):
+        """Reset progress-bar state for a new run"""
+        if self._main_task is not None:
+            self._main.remove_task(self._main_task)
+            self._main_task = None
+
+        for pb_map in (
+            self._jd_pbs,
+            self._dl_pbs,
+            self._wc_pbs,
+            self._cwc_pbs,
+        ):
+            for pb in pb_map.values():
+                with contextlib.suppress(ValueError):
+                    self._group.renderables.remove(pb)
+
+        self._total_cost = 0
+        self._jd_pbs = {}
+        self._jd_tasks = {}
+        self._dl_pbs = {}
+        self._dl_tasks = {}
+        self._wc_pbs = {}
+        self._wc_tasks = {}
+        self._wc_docs_found = {}
+        self._cwc_pbs = {}
+        self._cwc_tasks = {}
+        self._cwc_docs_found = {}
 
     def create_main_task(self, num_jurisdictions):
         """Set up main task to track number of jurisdictions processed
