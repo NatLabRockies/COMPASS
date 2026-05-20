@@ -6,6 +6,7 @@ import shutil
 import sys
 import warnings
 import multiprocessing
+
 from pathlib import Path
 
 import click
@@ -84,6 +85,12 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
     _setup_cli_logging(
         console, verbose, log_level=config.get("log_level", "INFO")
     )
+
+    # Need to set start method to "spawn" instead of "fork" for unix
+    # systems. If this call is not present, software hangs when process
+    # pool executor is launched.
+    # More info here: https://stackoverflow.com/a/63897175/20650649
+    multiprocessing.set_start_method("spawn")
 
     # asyncio.run(...) doesn't throw exceptions correctly for some
     # reason...
@@ -196,7 +203,10 @@ def _next_versioned_directory(out_dir):
 
 
 def _resolve_out_dir_policy(policy):
-    """Resolve output directory policy from explicit input or terminal mode"""
+    """Resolve output directory policy from explicit input
+
+    Falls back to terminal mode defaults when no policy is set.
+    """
     if policy is not None:
         return policy.lower()
     if sys.stdin.isatty():
@@ -205,7 +215,7 @@ def _resolve_out_dir_policy(policy):
 
 
 def _resolve_prompt_out_dir_conflict(out_dir):
-    """Handle interactive prompt flow for an existing output directory"""
+    """Handle interactive prompt flow for existing output directory"""
     if not sys.stdin.isatty():
         msg = (
             "Cannot use out_dir_exists='prompt' in non-interactive mode. "
