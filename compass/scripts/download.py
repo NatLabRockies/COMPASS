@@ -25,6 +25,7 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
+from compass.web.url_utils import sanitize_url
 from compass.utilities.enums import LLMTasks
 from compass.pb import COMPASS_PB
 
@@ -381,11 +382,19 @@ async def download_jurisdiction_ordinances_from_website(
         ch = None
 
     async with crawl_semaphore, cpb:
-        return await crawler.run(
+        docs_or_pair = await crawler.run(
             website,
             on_result_hook=ch,
             return_c4ai_results=return_c4ai_results,
         )
+
+    if return_c4ai_results:
+        docs, c4ai_results = docs_or_pair
+        _sanitize_doc_sources(docs)
+        return docs, c4ai_results
+
+    _sanitize_doc_sources(docs_or_pair)
+    return docs_or_pair
 
 
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
@@ -803,6 +812,21 @@ async def _contains_relevant_text(
             doc, date_model_config, usage_tracker=usage_tracker
         )
     return found_text
+
+
+def _sanitize_doc_sources(docs):
+    """Rewrite source attrs on documents returned by ELMWebsiteCrawler
+
+    crawl4ai can surface PDF URLs containing raw spaces (e.g. filenames
+    like "Land Use Code.pdf").  These fail when the file loader issues
+    an HTTP request because spaces are invalid in a URL path.  This
+    function percent-encodes each document's ``source`` attribute
+    in-place so that all downstream consumers receive a valid URL.
+    """
+    for doc in docs:
+        source = doc.attrs.get("source")
+        if source and " " in source:
+            doc.attrs["source"] = sanitize_url(source)
 
 
 def _sort_final_ord_docs(all_ord_docs):
