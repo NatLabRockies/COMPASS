@@ -42,7 +42,7 @@ workbook, or GeoPackage.
 .. raw:: html
 
    <p align="center"><img
-     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/readme-expand-overview/docs/source/_static/overview.png"
+     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png"
      alt="High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval (web search, document validation) and ordinance extraction (text extraction, value extraction), producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage."
    /></p>
 
@@ -153,7 +153,7 @@ regulations.
 .. raw:: html
 
    <p align="center"><img
-     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/readme-expand-overview/docs/source/_static/document_retrieval.png"
+     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_retrieval.png"
      alt="Document retrieval flow. From a user-supplied jurisdiction (e.g. 'Jefferson County, Colorado'), Step 1 web-scrapes via search engine or website crawl; Step 2 downloads the document collection; Step 3 runs an LLM filter as a series of decision-tree questions ('Is the document a legal ordinance?', 'Does it pertain to the correct jurisdiction?', 'Does it contain relevant technology regulations?') to produce a confirmed ordinance document."
    /></p>
 
@@ -178,7 +178,7 @@ ordinance feature to read structured values out of those passages.
 .. raw:: html
 
    <p align="center"><img
-     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/readme-expand-overview/docs/source/_static/document_extraction.png"
+     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_extraction.png"
      alt="Document extraction flow. Step 1 (Ordinance Text Extraction) takes an ordinance document, splits it into text chunks, runs each chunk through an LLM content filter, and concatenates the relevant chunks into a single cleaned 'ordinance text.' Step 2 (Ordinance Value Extraction) feeds that cleaned text to a separate decision tree for each ordinance feature (e.g. Max Shadow Flicker, Property Line Setback, Road Setback, Structure Setback), producing structured ordinance data."
    /></p>
 
