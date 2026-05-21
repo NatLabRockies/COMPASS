@@ -560,7 +560,10 @@ class _COMPASSRunner:
         if isinstance(known_local_docs, str):
             known_local_docs = load_config(known_local_docs)
         inventory = {int(key): val for key, val in known_local_docs.items()}
-        logger.trace("Loaded known local docs for FIPS codes: %s", list(inventory.keys()))
+        logger.trace(
+            "Loaded known local docs for FIPS codes: %s",
+            list(inventory.keys()),
+        )
         return inventory
 
     @cached_property
