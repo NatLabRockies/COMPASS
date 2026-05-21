@@ -199,7 +199,9 @@ ConfigType = _ConfigType(
 """An enumeration of the parseable config types"""
 
 
-def load_config(config_filepath, resolve_paths=True):
+def load_config(
+    config_filepath, resolve_paths=True, file_name="Configuration"
+):
     """Load a config file
 
     Parameters
@@ -210,6 +212,9 @@ def load_config(config_filepath, resolve_paths=True):
         Option to (recursively) resolve file-paths in the dictionary
         w.r.t the config file directory.
         By default, ``True``.
+    file_name : str, optional
+        Name of the config file for error messages.
+        By default, "Configuration".
 
     Returns
     -------
@@ -224,13 +229,13 @@ def load_config(config_filepath, resolve_paths=True):
     config_filepath = Path(config_filepath).expanduser().resolve()
     if "." not in config_filepath.name:
         msg = (
-            f"Configuration file must have a file-ending. Got: "
+            f"{file_name} file must have a file-ending. Got: "
             f"{config_filepath.name}"
         )
         raise COMPASSValueError(msg)
 
     if not config_filepath.exists():
-        msg = f"Config file does not exist: {config_filepath}"
+        msg = f"{file_name} file does not exist: {config_filepath}"
         raise COMPASSFileNotFoundError(msg)
 
     try:
