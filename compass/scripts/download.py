@@ -705,7 +705,7 @@ async def filter_ordinance_docs(
 
     docs = _sort_final_ord_docs(docs)
     logger.info(
-        "Found %d potential ordinance documents for %s\n\t- %s",
+        "Found %d potential ordinance document(s) for %s\n\t- %s",
         len(docs),
         jurisdiction.full_name,
         "\n\t- ".join([str(doc) for doc in docs]),
