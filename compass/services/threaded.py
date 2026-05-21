@@ -50,7 +50,7 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir, out_fn=None):
+def _move_file(doc, out_dir, out_fn=None, verb="downloaded"):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -60,7 +60,7 @@ def _move_file(doc, out_dir, out_fn=None):
     date = datetime.now().strftime("%Y_%m_%d")
     out_fn = out_fn or cached_fp.stem
     out_fn = out_fn.replace(",", "").replace(" ", "_")
-    out_fn = f"{out_fn}_downloaded_{date}"
+    out_fn = f"{out_fn}_{verb}_{date}"
     if not out_fn.endswith(cached_fp.suffix):
         out_fn = f"{out_fn}{cached_fp.suffix}"
 
