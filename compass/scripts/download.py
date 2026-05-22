@@ -834,7 +834,13 @@ def _sort_final_ord_docs(all_ord_docs):
 
 
 def _ord_doc_sorting_key(doc):
-    """Compute a composite sorting score for ordinance documents"""
+    """Compute a composite sorting score for ordinance documents
+
+    Documents with larger scores will be prioritized.
+    """
+    from_steps = doc.attrs.get("from_steps") or []
+    num_steps_found_doc = len(from_steps)
+    best_step = _best_step(from_steps)
     no_date = (_NEG_INF, _NEG_INF, _NEG_INF)
     latest_year, latest_month, latest_day = doc.attrs.get("date") or no_date
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
@@ -847,6 +853,8 @@ def _ord_doc_sorting_key(doc):
     )
     shortest_text_length = -1 * len(doc.text)
     return (
+        num_steps_found_doc,
+        best_step,
         best_docs_from_website,
         latest_year or _NEG_INF,
         prefer_pdf_files,
@@ -855,3 +863,19 @@ def _ord_doc_sorting_key(doc):
         latest_month or _NEG_INF,
         latest_day or _NEG_INF,
     )
+
+
+def _best_step(from_steps):
+    """Get the best step that led to finding a document"""
+    if not from_steps:
+        return 0
+
+    step_priorities = {
+        "known_local_docs": 5,
+        "known_doc_urls": 4,
+        "search_engine": 3,
+        "website_search_elm": 2,
+        "website_search_compass": 1,
+    }
+
+    return max(step_priorities.get(step, 0) for step in from_steps)
