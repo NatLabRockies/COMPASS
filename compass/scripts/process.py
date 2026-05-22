@@ -1328,6 +1328,41 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     return file_loader_kwargs
 
 
+async def _persist_doc(doc, out_fn, from_steps):
+    """Persist a collected document and its parsed text"""
+    await _move_file_to_collection_dir(doc, out_fn)
+    await _persist_parsed_text(doc, out_fn)
+    return _serialize_collection_doc_info(doc, from_steps=from_steps)
+
+
+async def _move_file_to_collection_dir(doc, out_fn):
+    """Move PDF or HTML text file to output directory"""
+    doc.attrs["source_fp"] = await FileMover.call(doc, out_fn, "downloaded")
+
+
+async def _persist_parsed_text(doc, out_fn):
+    """Persist parsed document text to the collection output dir"""
+    doc.attrs["parsed_fp"] = await ParsedFileWriter.call(doc, out_fn)
+
+
+def _serialize_collection_doc_info(doc, from_steps):
+    """Serialize a collected document for manifest storage"""
+    serialized = dict(doc.attrs)
+    serialized.pop("cache_fn", None)
+    serialized.pop("cleaned_fps", None)
+    serialized.update(
+        {
+            "is_pdf": doc.attrs.get("is_pdf", isinstance(doc, PDFDocument)),
+            "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
+            "check_correct_jurisdiction": doc.attrs.get(
+                "check_correct_jurisdiction", True
+            ),
+            "from_steps": from_steps,
+        }
+    )
+    return serialized
+
+
 async def _load_docs_from_collection_info(collection_info, task_name):
     """Load persisted collection artifacts back into documents"""
     tasks = []
