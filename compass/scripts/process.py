@@ -1328,6 +1328,19 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     return file_loader_kwargs
 
 
+def _collection_doc_key(doc, use_fallback=False):
+    """Build a deduplication key for a collected document"""
+    if use_fallback:
+        return str(
+            doc.attrs.get("checksum")
+            or doc.attrs.get("source_fp")
+            or doc.attrs.get("source")
+            or doc.attrs.get("cache_fn")
+            or id(doc)
+        )
+    return str(doc.attrs["checksum"])
+
+
 async def _persist_doc(doc, out_fn, from_steps):
     """Persist a collected document and its parsed text"""
     await _move_file_to_collection_dir(doc, out_fn)
