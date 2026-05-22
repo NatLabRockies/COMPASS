@@ -5,6 +5,24 @@ INFRA-COMPASS Execution Basics
 This example walks you through setting up and executing your first INFRA-COMPASS run.
 
 
+Choosing a Run Mode
+===================
+INFRA-COMPASS now supports three related CLI workflows that share the same
+core orchestration code:
+
+- ``compass process`` runs document collection and data extraction as one
+    end-to-end job.
+- ``compass collect`` collects documents only and writes a reusable
+    ``collection_manifest.json`` file to the run output directory.
+- ``compass extract`` reads a saved collection manifest and runs only the
+    extraction phase.
+
+Use ``process`` when you want the traditional one-command workflow. Use the
+split ``collect`` and ``extract`` commands when you want to decouple document
+acquisition from LLM-backed extraction, re-run extraction on saved artifacts,
+or review the collected corpus before spending model tokens.
+
+
 Prerequisites
 =============
 We recommend enabling Optical Character Recognition (OCR) for PDF parsing, which
@@ -174,7 +192,12 @@ Any model not found in the ``llm_costs`` block will not contribute to the final 
 
 Execution
 =========
-Once you are happy with the configuration parameters, you can kick off the processing using
+Once you are happy with the configuration parameters, you can kick off the
+workflow that best fits your run.
+
+End-to-End Processing
+---------------------
+Use ``process`` to keep the original collect-and-extract behavior:
 
 .. code-block:: shell
 
@@ -195,10 +218,47 @@ or run with ``pixi`` directly:
 
 Replace ``config.json5`` with the path to your actual configuration file.
 
+
+Split Collection and Extraction
+-------------------------------
+Use ``collect`` when you want to gather documents first and defer extraction:
+
+.. code-block:: shell
+
+    compass collect -c config.json5
+
+or with ``pixi``:
+
+.. code-block:: shell
+
+    pixi run compass collect -c config.json5
+
+This writes the normal collection artifacts plus
+``<out_dir>/collection_manifest.json``. That manifest is the contract between
+the two phases. At a minimum, it records the run ``tech``, creation time,
+jurisdiction metadata, and a ``documents`` list for each jurisdiction. Each
+document entry stores the persisted parsed text path, the saved source file
+path when one exists, whether the source was a PDF, and the collected document
+attributes and provenance needed to rebuild extraction inputs later.
+
+You can then run extraction from that manifest:
+
+.. code-block:: shell
+
+    compass extract -c extract_config.json5
+
+or with ``pixi``:
+
+.. code-block:: shell
+
+    pixi run compass extract -c extract_config.json5
+
+The extraction config should point to ``collection_manifest_fp`` directly.
+
 You may also wish to add a ``-v`` option to print logs to the terminal (however, keep in mind that the code runs
 asynchronously, so the the logs will not print in order).
 
-During execution, INFRA-COMPASS will:
+During ``process`` execution, INFRA-COMPASS will:
 
 1. Load and validate the jurisdiction CSV.
 2. Attempt to locate and download relevant ordinance documents for each jurisdiction.
@@ -217,6 +277,8 @@ Outputs
 After completion, you'll find several outputs in the ``out_dir``:
 
 - **Extracted Ordinances**: Structured CSV files containing parsed ordinance values.
+- **Collection Manifest**: ``collection_manifest.json`` describing the saved
+    collection artifacts that ``compass extract`` can replay later.
 - **Ordinance Documents**: PDF or text (HTML) documents containing the legal ordinance.
 - **Cleaned Text Files**: Text files containing the ordinance-specific text excerpts portions of the downloaded documents.
 - **Metadata Files**: JSON files describing metadata parameters corresponding to your run.
