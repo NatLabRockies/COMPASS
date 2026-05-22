@@ -1376,16 +1376,14 @@ def _serialize_collection_doc_info(doc, from_steps):
     return serialized
 
 
-async def _load_docs_from_collection_info(collection_info, task_name):
-    """Load persisted collection artifacts back into documents"""
-    tasks = []
-    for doc_info in collection_info.get("documents") or []:
-        task = asyncio.create_task(
-            _load_collected_doc(doc_info), name=task_name
-        )
-        tasks.append(task)
-
-    return await asyncio.gather(*tasks)
+def _write_collection_manifest(manifest_fp, collection_manifest):
+    """Write a collection manifest to disk"""
+    manifest_fp = Path(manifest_fp)
+    manifest_fp.write_text(
+        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
+        encoding="utf-8",
+    )
+    return manifest_fp
 
 
 async def _load_collected_doc(doc_info):
