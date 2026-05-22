@@ -50,7 +50,7 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir, out_fn=None, verb="downloaded"):
+def _move_file(doc, out_dir, out_fn=None, verb="processed"):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -91,6 +91,19 @@ def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
     return out_paths
 
 
+def _write_parsed_text(doc, out_dir, out_fn=None):
+    """Write parsed document text to directory"""
+    if not doc.text or out_fn is None:
+        return None
+
+    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
+    out_fp = Path(out_dir) / out_fn
+    if out_fp.suffix != ".txt":
+        out_fp = out_fp.with_suffix(".txt")
+    out_fp.write_text(doc.text, encoding="utf-8")
+    return out_fp
+
+
 def _write_ord_db(extraction_context, out_dir, out_fn=None):
     """Write parsed ordinance database to directory"""
     ord_db = extraction_context.attrs.get("structured_data")
@@ -118,6 +131,7 @@ def _copy_doc_source_to_temp(doc, out_dir):
 _PROCESSING_FUNCTIONS = {
     "move": _move_file,
     "write_clean": _write_cleaned_file,
+    "write_parsed": _write_parsed_text,
     "write_db": _write_ord_db,
 }
 
@@ -363,6 +377,12 @@ class CleanedFileWriter(StoreFileOnDisk):
     """Service that writes cleaned text to a file"""
 
     _PROCESS = "write_clean"
+
+
+class ParsedFileWriter(StoreFileOnDisk):
+    """Service that writes parsed document text to a file"""
+
+    _PROCESS = "write_parsed"
 
 
 class OrdDBFileWriter(StoreFileOnDisk):
