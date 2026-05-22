@@ -4,11 +4,15 @@ import time
 import json
 import asyncio
 import logging
+import contextlib
 from copy import deepcopy
+from pathlib import Path
+from warnings import warn
 from functools import cached_property
 from contextlib import AsyncExitStack, contextmanager
 from datetime import datetime, UTC
 
+from elm.web.document import PDFDocument
 from elm.web.utilities import get_redirected_url
 
 from compass.plugin import PLUGIN_REGISTRY
@@ -31,6 +35,7 @@ from compass.services.cpu import (
     read_pdf_doc_ocr,
     read_pdf_file,
     read_pdf_file_ocr,
+    read_docling_local_file,
 )
 from compass.services.usage import UsageTracker
 from compass.services.openai import usage_from_response
@@ -38,9 +43,11 @@ from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
     TempFileCachePB,
     TempFileCache,
+    TempFileCacheCopier,
     FileMover,
     CleanedFileWriter,
     OrdDBFileWriter,
+    ParsedFileWriter,
     UsageUpdater,
     JurisdictionUpdater,
     HTMLFileLoader,
@@ -49,6 +56,7 @@ from compass.services.threaded import (
 from compass.utilities import (
     LLM_COST_REGISTRY,
     compile_run_summary_message,
+    compile_collection_summary_message,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
     save_run_meta,
@@ -67,11 +75,13 @@ from compass.utilities.logs import (
 from compass.utilities.base import WebSearchParams
 from compass.utilities.io import load_config
 from compass.utilities.parsing import convert_paths_to_strings
+from compass.warn import COMPASSWarning
 from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
 MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 10
+COLLECTION_MANIFEST_FILENAME = "collection_manifest.json"
 
 
 async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
@@ -379,9 +389,464 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         and may include color-coded cost information if the terminal
         supports it.
     """
+    return await _run_compass_mode(
+        mode="process",
+        out_dir=out_dir,
+        tech=tech,
+        jurisdiction_fp=jurisdiction_fp,
+        model=model,
+        num_urls_to_check_per_jurisdiction=(
+            num_urls_to_check_per_jurisdiction
+        ),
+        max_num_concurrent_browsers=max_num_concurrent_browsers,
+        max_num_concurrent_website_searches=(
+            max_num_concurrent_website_searches
+        ),
+        max_num_concurrent_jurisdictions=(max_num_concurrent_jurisdictions),
+        url_ignore_substrings=url_ignore_substrings,
+        known_local_docs=known_local_docs,
+        known_doc_urls=known_doc_urls,
+        file_loader_kwargs=file_loader_kwargs,
+        search_engines=search_engines,
+        pytesseract_exe_fp=pytesseract_exe_fp,
+        td_kwargs=td_kwargs,
+        tpe_kwargs=tpe_kwargs,
+        ppe_kwargs=ppe_kwargs,
+        log_dir=log_dir,
+        clean_dir=clean_dir,
+        ordinance_file_dir=ordinance_file_dir,
+        jurisdiction_dbs_dir=jurisdiction_dbs_dir,
+        perform_se_search=perform_se_search,
+        perform_website_search=perform_website_search,
+        llm_costs=llm_costs,
+        log_level=log_level,
+        keep_async_logs=keep_async_logs,
+    )
+
+
+async def collect_jurisdiction_documents(  # noqa: PLR0917, PLR0913
+    out_dir,
+    tech,
+    jurisdiction_fp,
+    model=None,
+    num_urls_to_check_per_jurisdiction=5,
+    max_num_concurrent_browsers=10,
+    max_num_concurrent_website_searches=10,
+    max_num_concurrent_jurisdictions=25,
+    url_ignore_substrings=None,
+    known_local_docs=None,
+    known_doc_urls=None,
+    file_loader_kwargs=None,
+    search_engines=None,
+    pytesseract_exe_fp=None,
+    td_kwargs=None,
+    tpe_kwargs=None,
+    ppe_kwargs=None,
+    log_dir=None,
+    source_file_dir=None,
+    parsed_file_dir=None,
+    perform_se_search=True,
+    perform_website_search=True,
+    llm_costs=None,
+    log_level="INFO",
+    keep_async_logs=False,
+):
+    """Collect ordinance documents without running extraction
+
+    This function retrieves and stores candidate ordinance documents for
+    one or more jurisdictions without running the structured extraction
+    pipeline. It follows the same document acquisition order as
+    :func:`process_jurisdictions_with_openai`, but instead of parsing
+    the documents into structured ordinance data, it writes the raw
+    source files, parsed text files, and a collection manifest to disk.
+
+    The collection has a well-defined order:
+
+        1. Collect any/all known local documents
+        2. Collect any/all known document URLs
+        3. Search engine-based search for ordinance documents
+        4. Jurisdiction website crawl-based search for ordinance
+           documents
+
+    Users can disable any of these steps via inputs to this function.
+    All collected candidate documents are de-duplicated, persisted to
+    disk, and recorded in a manifest that can later be passed to
+    :func:`extract_collected_jurisdiction_documents`.
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Path to the output directory. If it does not exist, it will be
+        created. This directory will contain the saved collection
+        manifest, downloaded ordinance documents, parsed document text,
+        usage metadata, and default subdirectories for logs and
+        intermediate outputs (unless otherwise specified).
+    tech : str
+        Label indicating which technology type is being processed. Must
+        be one of the keys of
+        :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.
+    jurisdiction_fp : path-like
+        Path to a CSV file specifying the jurisdictions to process.
+        The CSV must contain at least two columns: "County" and "State",
+        which specify the county and state names, respectively. If you
+        would like to process a subdivision with a county, you must also
+        include "Subdivision" and "Jurisdiction Type" columns. The
+        "Subdivision" should be the name of the subdivision, and the
+        "Jurisdiction Type" should be a string identifying the type of
+        subdivision (e.g., "City", "Township", etc.)
+    model : str or list of dict, optional
+        Optional model configuration used only for collection-side LLM
+        tasks, such as validating a user-supplied jurisdiction website.
+        If provided as a string, it is treated as the default model
+        name. If provided as a list, each entry should contain keyword
+        arguments used to initialize
+        :class:`~compass.llm.config.OpenAIConfig`, along with a
+        ``tasks`` key describing which LLM tasks that configuration
+        should handle. By default, ``None``.
+    num_urls_to_check_per_jurisdiction : int, optional
+        Number of unique Google search result URLs to check for each
+        jurisdiction when attempting to locate ordinance documents.
+        By default, ``5``.
+    max_num_concurrent_browsers : int, optional
+        Maximum number of browser instances to launch concurrently for
+        retrieving information from the web. Increasing this value too
+        much may lead to timeouts or performance issues on machines with
+        limited resources. By default, ``10``.
+    max_num_concurrent_website_searches : int, optional
+        Maximum number of website searches allowed to run
+        simultaneously. Increasing this value can speed up searches, but
+        may lead to timeouts or performance issues on machines with
+        limited resources. By default, ``10``.
+    max_num_concurrent_jurisdictions : int, optional
+        Maximum number of jurisdictions to process concurrently.
+        Limiting this can help manage memory usage when dealing with a
+        large number of documents. By default, ``25``.
+    url_ignore_substrings : list of str, optional
+        A list of substrings that, if found in any URL, will cause the
+        URL to be excluded from consideration. This can be used to
+        specify particular websites or entire domains to ignore.
+        By default, ``None``.
+    known_local_docs : dict or path-like, optional
+        A dictionary where keys are the jurisdiction codes (as strings)
+        and values are lists of dictionaries containing information
+        about each local document. Each document dictionary should
+        contain at least the key ``"source_fp"`` pointing to the full
+        local document path. Additional keys are copied onto the loaded
+        document as attributes. This input can also be a path to a JSON
+        file containing the same mapping. By default, ``None``.
+    known_doc_urls : dict or path-like, optional
+        A dictionary where keys are the jurisdiction codes (as strings)
+        and values are lists of dictionaries containing information
+        about each known URL to check. Each document dictionary should
+        contain at least the key ``"source"`` representing the known
+        document URL. Additional keys are copied onto the loaded
+        document as attributes. This input can also be a path to a JSON
+        file containing the same mapping. By default, ``None``.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword argument pairs to initialize
+        :class:`elm.web.file_loader.AsyncWebFileLoader`. If found, the
+        ``"pw_launch_kwargs"`` key in these will also be used to
+        initialize the Playwright-backed Google search used for search
+        engine retrieval. By default, ``None``.
+    search_engines : list, optional
+        A list of dictionaries describing the search engine classes and
+        keyword arguments to use for search engine retrieval. If
+        ``None``, the default search engine configurations and fallback
+        order are used. By default, ``None``.
+    pytesseract_exe_fp : path-like, optional
+        Path to the `pytesseract` executable. If specified, OCR will be
+        used to extract text from scanned PDFs using Google's Tesseract.
+        By default, ``None``.
+    td_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`tempfile.TemporaryDirectory`. The temporary directory is
+        used to store documents which have not yet been confirmed to
+        contain relevant information. By default, ``None``.
+    tpe_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ThreadPoolExecutor`, used for
+        I/O-bound tasks such as logging and file writes.
+        By default, ``None``.
+    ppe_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ProcessPoolExecutor`, used for
+        CPU-bound tasks such as PDF loading and parsing.
+        By default, ``None``.
+    log_dir : path-like, optional
+        Path to the directory for storing log files. If not provided, a
+        ``logs`` subdirectory will be created inside `out_dir`.
+        By default, ``None``.
+    source_file_dir : path-like, optional
+        Path to the directory where collected source ordinance files
+        (PDFs or HTML) are stored. If not provided, an
+        ``ordinance_files`` subdirectory will be created inside
+        `out_dir`. By default, ``None``.
+    parsed_file_dir : path-like, optional
+        Path to the directory where parsed document text files are
+        stored. If not provided, a ``cleaned_text`` subdirectory will
+        be created inside `out_dir`. By default, ``None``.
+    perform_se_search : bool, optional
+        Option to perform a search engine-based search for ordinance
+        documents. This is the standard way to collect ordinance
+        documents, and it is recommended to leave this set to ``True``
+        unless you are collecting only from known sources. If ``True``,
+        the search engine approach is used before falling back to a
+        website crawl-based search, if that has also been enabled.
+        By default, ``True``.
+    perform_website_search : bool, optional
+        Option to fallback to a jurisdiction website crawl-based search
+        for ordinance documents if earlier collection steps fail to
+        recover any relevant documents. By default, ``True``.
+    llm_costs : dict, optional
+        Dictionary mapping model names to their token costs, used to
+        track the estimated total cost of any LLM usage during the run.
+        This is mainly relevant when collection invokes LLM-backed
+        validation tasks. The structure should be::
+
+            {"model_name": {"prompt": float, "response": float}}
+
+        Costs are specified in dollars per million tokens.
+        By default, ``None``.
+    log_level : str, optional
+        Logging level for document collection (e.g., "TRACE", "DEBUG",
+        "INFO", "WARNING", or "ERROR"). By default, ``"INFO"``.
+    keep_async_logs : bool, optional
+        Option to store the full asynchronous log record to a file. This
+        is only useful if you intend to monitor overall processing
+        progress from a file instead of from the terminal. If ``True``,
+        all of the unordered records are written to an ``all.log`` file
+        in the `log_dir` directory. By default, ``False``.
+
+    Returns
+    -------
+    str
+        Message summarizing collection results, including total
+        collection time, the saved manifest path, and the number of
+        jurisdictions and documents represented in the manifest. The
+        message is formatted for easy reading in the terminal.
+    """
+    return await _run_compass_mode(
+        mode="collect",
+        out_dir=out_dir,
+        tech=tech,
+        jurisdiction_fp=jurisdiction_fp,
+        model=model,
+        num_urls_to_check_per_jurisdiction=(
+            num_urls_to_check_per_jurisdiction
+        ),
+        max_num_concurrent_browsers=max_num_concurrent_browsers,
+        max_num_concurrent_website_searches=(
+            max_num_concurrent_website_searches
+        ),
+        max_num_concurrent_jurisdictions=(max_num_concurrent_jurisdictions),
+        url_ignore_substrings=url_ignore_substrings,
+        known_local_docs=known_local_docs,
+        known_doc_urls=known_doc_urls,
+        file_loader_kwargs=file_loader_kwargs,
+        search_engines=search_engines,
+        pytesseract_exe_fp=pytesseract_exe_fp,
+        td_kwargs=td_kwargs,
+        tpe_kwargs=tpe_kwargs,
+        ppe_kwargs=ppe_kwargs,
+        log_dir=log_dir,
+        clean_dir=parsed_file_dir,
+        ordinance_file_dir=source_file_dir,
+        perform_se_search=perform_se_search,
+        perform_website_search=perform_website_search,
+        llm_costs=llm_costs,
+        log_level=log_level,
+        keep_async_logs=keep_async_logs,
+    )
+
+
+async def extract_collected_jurisdiction_documents(  # noqa: PLR0917, PLR0913
+    out_dir,
+    tech,
+    jurisdiction_fp,
+    collection_manifest_fp,
+    model="gpt-4o-mini",
+    max_num_concurrent_jurisdictions=25,
+    file_loader_kwargs=None,
+    td_kwargs=None,
+    tpe_kwargs=None,
+    ppe_kwargs=None,
+    log_dir=None,
+    clean_dir=None,
+    ordinance_file_dir=None,
+    jurisdiction_dbs_dir=None,
+    llm_costs=None,
+    log_level="INFO",
+    keep_async_logs=False,
+):
+    """Extract structured data from a saved collection manifest
+
+    This function loads a previously saved collection manifest produced
+    by :func:`collect_jurisdiction_documents` and runs only the
+    structured extraction stage of the COMPASS pipeline. It reuses the
+    persisted parsed document text referenced by the manifest, skips the
+    document acquisition stages, and writes structured ordinance output,
+    logs, and run metadata to disk.
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Path to the output directory. If it does not exist, it will be
+        created. This directory will contain the structured ordinance
+        CSV file, usage metadata, and default subdirectories for logs
+        and intermediate outputs (unless otherwise specified).
+    tech : str
+        Label indicating which technology type is being processed. Must
+        be one of the keys of
+        :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`. If the
+        collection manifest includes a ``"tech"`` value, it must match
+        this input.
+    jurisdiction_fp : path-like
+        Path to a CSV file specifying the jurisdictions to process.
+        The CSV must contain at least two columns: "County" and "State",
+        which specify the county and state names, respectively. If you
+        would like to process a subdivision within a county, you must
+        also include "Subdivision" and "Jurisdiction Type" columns.
+    collection_manifest_fp : path-like
+        Path to the JSON collection manifest created by
+        :func:`collect_jurisdiction_documents`. The manifest must
+        contain the persisted document information needed to reload each
+        collected document for extraction.
+    model : str or list of dict, optional
+        LLM model(s) to use for structured extraction. If a string is
+        provided, it is treated as the default model name. If a list is
+        provided, each entry should contain keyword arguments used to
+        initialize :class:`~compass.llm.config.OpenAIConfig`, along with
+        a ``tasks`` key indicating which LLM tasks that configuration
+        should handle. Exactly one configuration must define the
+        default task. By default, ``"gpt-4o-mini"``.
+    max_num_concurrent_jurisdictions : int, optional
+        Maximum number of jurisdictions to process concurrently.
+        Limiting this can help manage memory usage when extracting from
+        a large saved collection. By default, ``25``.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword argument pairs used to initialize
+        :class:`elm.web.file_loader.AsyncWebFileLoader`. These settings
+        are used when reconstructing document loading behavior for the
+        extraction run. By default, ``None``.
+    td_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`tempfile.TemporaryDirectory`. The temporary directory is
+        used for transient file handling during extraction.
+        By default, ``None``.
+    tpe_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ThreadPoolExecutor`, used for
+        I/O-bound tasks such as logging and file writes.
+        By default, ``None``.
+    ppe_kwargs : dict, optional
+        Additional keyword arguments to pass to
+        :class:`concurrent.futures.ProcessPoolExecutor`, used for
+        CPU-bound tasks such as PDF loading and parsing.
+        By default, ``None``.
+    log_dir : path-like, optional
+        Path to the directory for storing log files. If not provided, a
+        ``logs`` subdirectory will be created inside `out_dir`.
+        By default, ``None``.
+    clean_dir : path-like, optional
+        Path to the directory for storing cleaned ordinance text output.
+        If not provided, a ``cleaned_text`` subdirectory will be created
+        inside `out_dir`. By default, ``None``.
+    ordinance_file_dir : path-like, optional
+        Path to the directory where ordinance source files associated
+        with the extraction run are stored. If not provided, an
+        ``ordinance_files`` subdirectory will be created inside
+        `out_dir`. By default, ``None``.
+    jurisdiction_dbs_dir : path-like, optional
+        Path to the directory where parsed ordinance database files are
+        stored for each jurisdiction. If not provided, a
+        ``jurisdiction_dbs`` subdirectory will be created inside
+        `out_dir`. By default, ``None``.
+    llm_costs : dict, optional
+        Dictionary mapping model names to their token costs, used to
+        track the estimated total cost of LLM usage during the run. The
+        structure should be::
+
+            {"model_name": {"prompt": float, "response": float}}
+
+        Costs are specified in dollars per million tokens. If set to
+        ``None``, no custom model costs are recorded. By default,
+        ``None``.
+    log_level : str, optional
+        Logging level for ordinance parsing (e.g., "TRACE", "DEBUG",
+        "INFO", "WARNING", or "ERROR"). By default, ``"INFO"``.
+    keep_async_logs : bool, optional
+        Option to store the full asynchronous log record to a file. If
+        ``True``, all unordered records are written to an ``all.log``
+        file in the `log_dir` directory. By default, ``False``.
+
+    Returns
+    -------
+    str
+        Message summarizing extraction results, including total
+        processing time, total cost, output directory, and number of
+        documents with structured ordinance output. The message is
+        formatted for easy reading in the terminal and may include
+        color-coded cost information if the terminal supports it.
+    """
+
+    return await _run_compass_mode(
+        mode="extract",
+        out_dir=out_dir,
+        tech=tech,
+        jurisdiction_fp=jurisdiction_fp,
+        model=model,
+        max_num_concurrent_jurisdictions=(max_num_concurrent_jurisdictions),
+        file_loader_kwargs=file_loader_kwargs,
+        td_kwargs=td_kwargs,
+        tpe_kwargs=tpe_kwargs,
+        ppe_kwargs=ppe_kwargs,
+        log_dir=log_dir,
+        clean_dir=clean_dir,
+        ordinance_file_dir=ordinance_file_dir,
+        jurisdiction_dbs_dir=jurisdiction_dbs_dir,
+        llm_costs=llm_costs,
+        log_level=log_level,
+        keep_async_logs=keep_async_logs,
+        collection_manifest_fp=collection_manifest_fp,
+    )
+
+
+async def _run_compass_mode(  # noqa: PLR0917, PLR0913
+    mode,
+    out_dir,
+    tech,
+    jurisdiction_fp,
+    collection_manifest_fp=None,
+    model="gpt-4o-mini",
+    num_urls_to_check_per_jurisdiction=5,
+    max_num_concurrent_browsers=10,
+    max_num_concurrent_website_searches=10,
+    max_num_concurrent_jurisdictions=25,
+    url_ignore_substrings=None,
+    known_local_docs=None,
+    known_doc_urls=None,
+    file_loader_kwargs=None,
+    search_engines=None,
+    pytesseract_exe_fp=None,
+    td_kwargs=None,
+    tpe_kwargs=None,
+    ppe_kwargs=None,
+    log_dir=None,
+    clean_dir=None,
+    ordinance_file_dir=None,
+    jurisdiction_dbs_dir=None,
+    perform_se_search=True,
+    perform_website_search=True,
+    llm_costs=None,
+    log_level="INFO",
+    keep_async_logs=False,
+):
+    """Run COMPASS in process, collect, or extract mode"""
     called_args = locals()
     if log_level == "DEBUG":
         log_level = "DEBUG_TO_FILE"
+
+    mode = mode.casefold().strip()  # TODO: turn into enum
 
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
@@ -391,15 +856,19 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         clean_dir=clean_dir,
         ofd=ordinance_file_dir,
         jdd=jurisdiction_dbs_dir,
+        collect_only=(mode == "collect"),
     )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
-        steps = _check_enabled_steps(
-            known_local_docs=known_local_docs,
-            known_doc_urls=known_doc_urls,
-            perform_se_search=perform_se_search,
-            perform_website_search=perform_website_search,
-        )
+        if mode in {"process", "collect"}:
+            steps = _check_enabled_steps(
+                known_local_docs=known_local_docs,
+                known_doc_urls=known_doc_urls,
+                perform_se_search=perform_se_search,
+                perform_website_search=perform_website_search,
+            )
+        else:
+            steps = ["Extract collected documents"]
         _log_exec_info(called_args, steps)
         try:
             pk = ProcessKwargs(
@@ -419,7 +888,11 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
                 pytesseract_exe_fp,
                 search_engines,
             )
-            models = _initialize_model_params(model)
+            if model is not None and mode != "collect":
+                models = _initialize_model_params(model)
+            else:
+                models = {}
+
             runner = _COMPASSRunner(
                 dirs=dirs,
                 log_listener=log_listener,
@@ -430,6 +903,8 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
                 perform_se_search=perform_se_search,
                 perform_website_search=perform_website_search,
                 log_level=log_level,
+                mode=mode,
+                collection_manifest_fp=collection_manifest_fp,
             )
             return await runner.run(jurisdiction_fp)
         except COMPASSError:
@@ -442,7 +917,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
 class _COMPASSRunner:
     """Helper class to run COMPASS"""
 
-    def __init__(
+    def __init__(  # noqa: PLR0913, PLR0917
         self,
         dirs,
         log_listener,
@@ -453,6 +928,8 @@ class _COMPASSRunner:
         perform_se_search=True,
         perform_website_search=True,
         log_level="INFO",
+        mode="process",
+        collection_manifest_fp=None,
     ):
         self.dirs = dirs
         self.log_listener = log_listener
@@ -463,6 +940,8 @@ class _COMPASSRunner:
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
         self.log_level = log_level
+        self.mode = mode
+        self.collection_manifest_fp = collection_manifest_fp
 
     @cached_property
     def browser_semaphore(self):
@@ -612,6 +1091,20 @@ class _COMPASSRunner:
             HTMLFileLoader(**self.tpe_kwargs),
         ]
 
+        if self.mode == "collect":
+            base_services.append(
+                ParsedFileWriter(
+                    self.dirs.clean_files, tpe_kwargs=self.tpe_kwargs
+                ),
+            )
+        elif self.mode == "extract":
+            base_services.append(
+                TempFileCacheCopier(
+                    td_kwargs=self.process_kwargs.td_kwargs,
+                    tpe_kwargs=self.tpe_kwargs,
+                ),
+            )
+
         if self.web_search_params.pytesseract_exe_fp is not None:
             base_services.append(
                 # pytesseract locks up with multiple processes, so
@@ -638,12 +1131,353 @@ class _COMPASSRunner:
             the terminal supports it.
         """
         jurisdictions_df = _load_jurisdictions_to_process(jurisdiction_fp)
-
         num_jurisdictions = len(jurisdictions_df)
-        COMPASS_PB.create_main_task(num_jurisdictions=num_jurisdictions)
-        start_date = datetime.now(UTC)
+        if self.mode == "collect":
+            action = "Collecting documents for"
+        elif self.mode == "extract":
+            action = "Parsing documents for"
+        else:
+            action = "Searching"
 
-        doc_infos, total_cost = await self._run_all(jurisdictions_df)
+        COMPASS_PB.create_main_task(
+            num_jurisdictions=num_jurisdictions, action=action
+        )
+
+        services = self._base_services
+        if self.mode != "collect":
+            services += [
+                model.llm_service for model in set(self.models.values())
+            ]
+
+        async with RunningAsyncServices(services):
+            if self.mode == "collect":
+                return await self.run_collection(jurisdictions_df)
+            if self.mode == "extract":
+                return await self.run_extraction(jurisdictions_df)
+            if self.mode == "process":
+                return await self.run_processing(jurisdictions_df)
+
+        msg = f"Unknown mode: {self.mode}"
+        raise COMPASSValueError(msg)
+
+    async def run_collection(self, jurisdictions_df):
+        """Collect documents and write a manifest to disk"""
+        start_date = datetime.now(UTC)
+        collection_manifest = await self._collect_all(jurisdictions_df)
+        manifest_fp = _write_collection_manifest(
+            self.dirs.out / COLLECTION_MANIFEST_FILENAME,
+            collection_manifest,
+        )
+        time_elapsed = datetime.now(UTC) - start_date
+        collection_msg = compile_collection_summary_message(
+            manifest_fp,
+            collection_manifest,
+            total_seconds=time_elapsed.seconds,
+        )
+        for sub_msg in collection_msg.split("\n"):
+            logger.info(sub_msg)
+        return collection_msg
+
+    async def run_extraction(self, jurisdictions_df):
+        """Extract structured data from a collection manifest"""
+        collection_manifest = load_config(
+            self.collection_manifest_fp, file_name="Collection manifest"
+        )
+        manifest_tech = collection_manifest.get("tech")
+        if manifest_tech and (manifest_tech != self.tech):
+            msg = (
+                f"Collection manifest tech ({manifest_tech}) "
+                f"does not match specified tech ({self.tech})"
+            )
+            raise COMPASSValueError(msg)
+
+        start_date = datetime.now(UTC)
+        doc_infos = await self._extract_all(
+            jurisdictions_df, collection_manifest
+        )
+        return await self._finalize_extraction(
+            doc_infos, start_date, len(jurisdictions_df)
+        )
+
+    async def run_processing(self, jurisdictions_df):
+        """Extract structured data from a collection manifest"""
+        start_date = datetime.now(UTC)
+        doc_infos = await self._process_all(jurisdictions_df)
+        return await self._finalize_extraction(
+            doc_infos, start_date, len(jurisdictions_df)
+        )
+
+    async def _process_all(self, jurisdictions_df):
+        """Collect and extract each jurisdiction in a single task"""
+        _ = self.file_loader_kwargs
+        _ = self.local_file_loader_kwargs
+        logger.info(
+            "Processing %d jurisdiction(s) with continuous collection "
+            "and extraction",
+            len(jurisdictions_df),
+        )
+        tasks = []
+        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+            task = asyncio.create_task(
+                self._processed_jurisdiction_info_with_pb(jurisdiction),
+                name=jurisdiction.full_name,
+            )
+            tasks.append(task)
+
+        return await asyncio.gather(*tasks)
+
+    async def _collect_all(self, jurisdictions_df):
+        """Collect all configured candidate documents"""
+        _ = self.file_loader_kwargs
+        _ = self.local_file_loader_kwargs
+        logger.info(
+            "Collecting documents for %d jurisdiction(s)",
+            len(jurisdictions_df),
+        )
+        tasks = []
+        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+            task = asyncio.create_task(
+                self._collected_jurisdiction_info_with_pb(jurisdiction),
+                name=jurisdiction.full_name,
+            )
+            tasks.append(task)
+        collection_infos = await asyncio.gather(*tasks)
+
+        return {
+            "tech": self.tech,
+            "created_at": datetime.now(UTC).isoformat(),
+            "jurisdictions": collection_infos,
+        }
+
+    async def _extract_all(self, jurisdictions_df, collection_manifest):
+        """Extract data from a saved collection manifest"""
+        _ = self.file_loader_kwargs
+        _ = self.local_file_loader_kwargs
+        jurisdictions = collection_manifest.get("jurisdictions", [])
+        logger.info(
+            "Extracting structured data for %d jurisdiction(s)",
+            len(jurisdictions),
+        )
+        tasks = []
+        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+            collection_info = [
+                ci
+                for ci in jurisdictions
+                if ci.get("FIPS") == jurisdiction.code
+            ]
+            if not collection_info:
+                logger.warning(
+                    "No collection info found for %s; skipping extraction",
+                    jurisdiction.full_name,
+                )
+                continue
+            collection_info = collection_info[0]
+            usage_tracker = UsageTracker(
+                jurisdiction.full_name, usage_from_response
+            )
+            task = asyncio.create_task(
+                self._extracted_jurisdiction_info_with_pb(
+                    jurisdiction,
+                    collection_info,
+                    usage_tracker=usage_tracker,
+                ),
+                name=jurisdiction.full_name,
+            )
+            tasks.append(task)
+        return await asyncio.gather(*tasks)
+
+    async def _processed_jurisdiction_info_with_pb(self, jurisdiction):
+        """Collect and then extract one jurisdiction continuously"""
+        async with self.jurisdiction_semaphore:
+            with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
+                usage_tracker = UsageTracker(
+                    jurisdiction.full_name, usage_from_response
+                )
+                return await self._processed_jurisdiction(
+                    jurisdiction, usage_tracker=usage_tracker
+                )
+
+    async def _processed_jurisdiction(self, jurisdiction, usage_tracker=None):
+        """Convert extracted document to minimal metadata"""
+
+        async with LocationFileLog(
+            self.log_listener,
+            self.dirs.logs,
+            location=jurisdiction.full_name,
+            level=self.log_level,
+        ):
+            task = asyncio.create_task(
+                _SingleJurisdictionRunner(
+                    self.extractor_class(
+                        jurisdiction=jurisdiction,
+                        model_configs=self.models,
+                        usage_tracker=usage_tracker,
+                    ),
+                    jurisdiction,
+                    self.models,
+                    self.web_search_params,
+                    self.file_loader_kwargs,
+                    known_local_docs=self.known_local_docs.get(
+                        jurisdiction.code
+                    ),
+                    known_doc_urls=self.known_doc_urls.get(jurisdiction.code),
+                    local_file_loader_kwargs=self.local_file_loader_kwargs,
+                    browser_semaphore=self.browser_semaphore,
+                    crawl_semaphore=self.crawl_semaphore,
+                    search_engine_semaphore=self.search_engine_semaphore,
+                    perform_se_search=self.perform_se_search,
+                    perform_website_search=self.perform_website_search,
+                    usage_tracker=usage_tracker,
+                    validate_user_website_input=True,
+                ).process(),
+                name=jurisdiction.full_name,
+            )
+            try:
+                extraction_context, *__ = await asyncio.gather(task)
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:
+                msg = "Encountered error of type %r while extracting %s:"
+                err_type = type(e)
+                logger.exception(msg, err_type, jurisdiction.full_name)
+                return None
+
+        if extraction_context is None or isinstance(
+            extraction_context, Exception
+        ):
+            return None
+
+        doc_info = {
+            "jurisdiction": jurisdiction,
+            "ord_db_fp": extraction_context.attrs.get("ord_db_fp"),
+        }
+        logger.debug("Saving the following doc info:\n%s", doc_info)
+        return doc_info
+
+    async def _collected_jurisdiction_info_with_pb(
+        self, jurisdiction, *args, **kwargs
+    ):
+        """Collect a jurisdiction while updating the progress bar"""
+        async with self.jurisdiction_semaphore:
+            with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
+                return await self._collect_jurisdiction_info(
+                    jurisdiction, *args, **kwargs
+                )
+
+    async def _collect_jurisdiction_info(self, jurisdiction):
+        """Collect and persist docs for one jurisdiction"""
+        async with LocationFileLog(
+            self.log_listener,
+            self.dirs.logs,
+            location=jurisdiction.full_name,
+            level=self.log_level,
+        ):
+            task = asyncio.create_task(
+                _SingleJurisdictionRunner(
+                    self.extractor_class(
+                        jurisdiction=jurisdiction,
+                        model_configs=self.models,
+                        usage_tracker=None,
+                    ),
+                    jurisdiction,
+                    self.models,
+                    self.web_search_params,
+                    self.file_loader_kwargs,
+                    local_file_loader_kwargs=self.local_file_loader_kwargs,
+                    known_local_docs=self.known_local_docs.get(
+                        jurisdiction.code
+                    ),
+                    known_doc_urls=self.known_doc_urls.get(jurisdiction.code),
+                    browser_semaphore=self.browser_semaphore,
+                    crawl_semaphore=self.crawl_semaphore,
+                    search_engine_semaphore=self.search_engine_semaphore,
+                    perform_se_search=self.perform_se_search,
+                    perform_website_search=self.perform_website_search,
+                    validate_user_website_input=False,
+                ).collect(),
+                name=jurisdiction.full_name,
+            )
+            try:
+                collection_info, *__ = await asyncio.gather(task)
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:
+                msg = "Encountered error of type %r while collecting %s:"
+                err_type = type(e)
+                logger.exception(msg, err_type, jurisdiction.full_name)
+                collection_info = None
+
+            return collection_info
+
+    async def _extracted_jurisdiction_info_with_pb(
+        self, jurisdiction, collection_info, *args, **kwargs
+    ):
+        """Extract a jurisdiction while updating the progress bar"""
+        async with self.jurisdiction_semaphore:
+            with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
+                return await self._extracted_jurisdiction_info(
+                    jurisdiction, collection_info, *args, **kwargs
+                )
+
+    async def _extracted_jurisdiction_info(
+        self, jurisdiction, collection_info, usage_tracker=None
+    ):
+        """Convert extracted document to minimal metadata"""
+        async with LocationFileLog(
+            self.log_listener,
+            self.dirs.logs,
+            location=jurisdiction.full_name,
+            level=self.log_level,
+        ):
+            task = asyncio.create_task(
+                _SingleJurisdictionRunner(
+                    self.extractor_class(
+                        jurisdiction=jurisdiction,
+                        model_configs=self.models,
+                        usage_tracker=usage_tracker,
+                    ),
+                    jurisdiction,
+                    self.models,
+                    self.web_search_params,
+                    self.file_loader_kwargs,
+                    local_file_loader_kwargs=self.local_file_loader_kwargs,
+                    browser_semaphore=self.browser_semaphore,
+                    crawl_semaphore=self.crawl_semaphore,
+                    search_engine_semaphore=self.search_engine_semaphore,
+                    perform_se_search=self.perform_se_search,
+                    perform_website_search=self.perform_website_search,
+                    usage_tracker=usage_tracker,
+                    validate_user_website_input=True,
+                ).extract_from_collection_info(collection_info),
+                name=jurisdiction.full_name,
+            )
+            try:
+                extraction_context, *__ = await asyncio.gather(task)
+            except KeyboardInterrupt:
+                raise
+            except Exception as e:
+                msg = "Encountered error of type %r while extracting %s:"
+                err_type = type(e)
+                logger.exception(msg, err_type, jurisdiction.full_name)
+                return None
+
+        if extraction_context is None or isinstance(
+            extraction_context, Exception
+        ):
+            return None
+
+        doc_info = {
+            "jurisdiction": jurisdiction,
+            "ord_db_fp": extraction_context.attrs.get("ord_db_fp"),
+        }
+        logger.debug("Saving the following doc info:\n%s", doc_info)
+        return doc_info
+
+    async def _finalize_extraction(
+        self, doc_infos, start_date, num_jurisdictions
+    ):
+        """Finalize extraction"""
+        total_cost = await _compute_total_cost()
         doc_infos = [
             di
             for di in doc_infos
@@ -679,114 +1513,6 @@ class _COMPASSRunner:
             )
         return run_msg
 
-    async def _run_all(self, jurisdictions_df):
-        """Process all jurisdictions while required services run"""
-        services = [model.llm_service for model in set(self.models.values())]
-        services += self._base_services
-        _ = self.file_loader_kwargs  # init loader kwargs once
-        _ = self.local_file_loader_kwargs  # init local loader kwargs once
-        logger.info("Processing %d jurisdiction(s)", len(jurisdictions_df))
-        async with RunningAsyncServices(services):
-            tasks = []
-            for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-                usage_tracker = UsageTracker(
-                    jurisdiction.full_name, usage_from_response
-                )
-                task = asyncio.create_task(
-                    self._processed_jurisdiction_info_with_pb(
-                        jurisdiction,
-                        self.known_local_docs.get(jurisdiction.code),
-                        self.known_doc_urls.get(jurisdiction.code),
-                        usage_tracker=usage_tracker,
-                    ),
-                    name=jurisdiction.full_name,
-                )
-                tasks.append(task)
-            doc_infos = await asyncio.gather(*tasks)
-            total_cost = await _compute_total_cost()
-
-        return doc_infos, total_cost
-
-    async def _processed_jurisdiction_info_with_pb(
-        self, jurisdiction, *args, **kwargs
-    ):
-        """Process a jurisdiction while updating the progress bar"""
-        async with self.jurisdiction_semaphore:
-            with COMPASS_PB.jurisdiction_prog_bar(jurisdiction.full_name):
-                return await self._processed_jurisdiction_info(
-                    jurisdiction, *args, **kwargs
-                )
-
-    async def _processed_jurisdiction_info(
-        self, jurisdiction, *args, **kwargs
-    ):
-        """Convert processed document to minimal metadata"""
-
-        extraction_context = await self._process_jurisdiction_with_logging(
-            jurisdiction, *args, **kwargs
-        )
-
-        if extraction_context is None or isinstance(
-            extraction_context, Exception
-        ):
-            return None
-
-        doc_info = {
-            "jurisdiction": jurisdiction,
-            "ord_db_fp": extraction_context.attrs.get("ord_db_fp"),
-        }
-        logger.debug("Saving the following doc info:\n%s", doc_info)
-        return doc_info
-
-    async def _process_jurisdiction_with_logging(
-        self,
-        jurisdiction,
-        known_local_docs=None,
-        known_doc_urls=None,
-        usage_tracker=None,
-    ):
-        """Retrieve ordinance document with location-scoped logging"""
-        async with LocationFileLog(
-            self.log_listener,
-            self.dirs.logs,
-            location=jurisdiction.full_name,
-            level=self.log_level,
-        ):
-            task = asyncio.create_task(
-                _SingleJurisdictionRunner(
-                    self.extractor_class(
-                        jurisdiction=jurisdiction,
-                        model_configs=self.models,
-                        usage_tracker=usage_tracker,
-                    ),
-                    jurisdiction,
-                    self.models,
-                    self.web_search_params,
-                    self.file_loader_kwargs,
-                    local_file_loader_kwargs=self.local_file_loader_kwargs,
-                    known_local_docs=known_local_docs,
-                    known_doc_urls=known_doc_urls,
-                    browser_semaphore=self.browser_semaphore,
-                    crawl_semaphore=self.crawl_semaphore,
-                    search_engine_semaphore=self.search_engine_semaphore,
-                    perform_se_search=self.perform_se_search,
-                    perform_website_search=self.perform_website_search,
-                    usage_tracker=usage_tracker,
-                ).run(),
-                name=jurisdiction.full_name,
-            )
-            try:
-                extraction_context, *__ = await asyncio.gather(task)
-            except KeyboardInterrupt:
-                raise
-            except Exception as e:
-                msg = "Encountered error of type %r while processing %s:"
-                err_type = type(e)
-                logger.exception(msg, err_type, jurisdiction.full_name)
-                extraction_context = None
-
-            return extraction_context
-
 
 class _SingleJurisdictionRunner:
     """Helper class to process a single jurisdiction"""
@@ -808,6 +1534,7 @@ class _SingleJurisdictionRunner:
         perform_se_search=True,
         perform_website_search=True,
         usage_tracker=None,
+        validate_user_website_input=True,
     ):
         self.extractor = extractor
         self.jurisdiction = jurisdiction
@@ -824,7 +1551,7 @@ class _SingleJurisdictionRunner:
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
         self.jurisdiction_website = jurisdiction.website_url
-        self.validate_user_website_input = True
+        self.validate_user_website_input = validate_user_website_input
         self._jsp = None
 
     @cached_property
@@ -843,15 +1570,8 @@ class _SingleJurisdictionRunner:
 
         self._jsp = None
 
-    async def run(self):
-        """Download and parse ordinances for a single jurisdiction
-
-        Returns
-        -------
-        BaseDocument or None
-            Document containing ordinance information, or ``None`` when
-            no valid ordinance content was identified.
-        """
+    async def process(self):
+        """Collect, persist, and serialize candidate documents"""
         start_time = time.monotonic()
         extraction_context = None
         logger.info(
@@ -859,7 +1579,9 @@ class _SingleJurisdictionRunner:
             self.jurisdiction.full_name,
         )
         try:
-            extraction_context = await self._run()
+            extraction_context = await self._collect_documents(
+                eager_extract=True
+            )
         finally:
             await self.extractor.record_usage()
             await _record_jurisdiction_info(
@@ -869,81 +1591,61 @@ class _SingleJurisdictionRunner:
                 self.usage_tracker,
             )
             logger.info(
-                "Completed processing for jurisdiction: %s",
+                "Completed extraction for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
+        return extraction_context
+
+    async def collect(self):
+        """Collect, persist, and serialize candidate documents"""
+        logger.info(
+            "Kicking off collection for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        collection_info = await self._collect_documents(eager_extract=False)
+        logger.info(
+            "Completed collection for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        return collection_info
+
+    async def extract_from_collection_info(self, collection_info):
+        """Extract structured data from a saved collection entry"""
+        start_time = time.monotonic()
+        extraction_context = None
+        logger.info(
+            "Kicking off extraction for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        self.jurisdiction_website = collection_info.get("jurisdiction_website")
+        try:
+            docs = await self._load_docs_from_collection_info(collection_info)
+            extraction_context = await self._extract_from_docs(docs)
+        finally:
+            await self.extractor.record_usage()
+            await _record_jurisdiction_info(
+                self.jurisdiction,
+                extraction_context,
+                start_time,
+                self.usage_tracker,
+            )
+            logger.info(
+                "Completed extraction for jurisdiction: %s",
                 self.jurisdiction.full_name,
             )
 
         return extraction_context
 
-    async def _run(self):
-        """Search for documents and parse them for ordinances"""
-        if self.known_local_docs:
-            logger.debug(
-                "Checking local docs for jurisdiction: %s",
-                self.jurisdiction.full_name,
+    async def _load_docs_from_collection_info(self, collection_info):
+        """Load persisted collection artifacts back into documents"""
+        tasks = []
+        for doc_info in collection_info.get("documents") or []:
+            task = asyncio.create_task(
+                _load_collected_doc(doc_info), name=self.jurisdiction.full_name
             )
-            extraction_context = await self._try_find_ordinances(
-                method=self._load_known_local_documents,
-            )
-            if extraction_context is not None:
-                return extraction_context
-        else:
-            logger.debug(
-                "%r processing had no known local docs configured",
-                self.jurisdiction.full_name,
-            )
+            tasks.append(task)
 
-        if self.known_doc_urls:
-            logger.debug(
-                "Checking known URLs for jurisdiction: %s",
-                self.jurisdiction.full_name,
-            )
-            extraction_context = await self._try_find_ordinances(
-                method=self._download_known_url_documents,
-            )
-            if extraction_context is not None:
-                return extraction_context
-        else:
-            logger.debug(
-                "%r processing had no known URLs configured",
-                self.jurisdiction.full_name,
-            )
-
-        if self.perform_se_search:
-            logger.debug(
-                "Collecting documents using a search engine for "
-                "jurisdiction: %s",
-                self.jurisdiction.full_name,
-            )
-            extraction_context = await self._try_find_ordinances(
-                method=self._find_documents_using_search_engine,
-            )
-            if extraction_context is not None:
-                return extraction_context
-        else:
-            logger.debug(
-                "%r processing didn't have SE search enabled",
-                self.jurisdiction.full_name,
-            )
-
-        if self.perform_website_search:
-            logger.debug(
-                "Collecting documents from the jurisdiction website for: %s",
-                self.jurisdiction.full_name,
-            )
-            extraction_context = await self._try_find_ordinances(
-                method=self._find_documents_from_website,
-            )
-            if extraction_context is not None:
-                return extraction_context
-        else:
-            logger.debug(
-                "%r processing didn't have jurisdiction website search "
-                "enabled",
-                self.jurisdiction.full_name,
-            )
-
-        return None
+        return await asyncio.gather(*tasks)
 
     async def _try_find_ordinances(self, method, *args, **kwargs):
         """Execute a retrieval method and parse resulting documents"""
@@ -962,65 +1664,259 @@ class _SingleJurisdictionRunner:
         logger.debug("Final extraction context:\n%s", context)
         return context
 
+    async def _collect_documents(self, eager_extract=False):  # noqa
+        """Collect all configured documents and persist them"""
+        collected_docs = {}
+
+        if self.known_local_docs:
+            logger.debug(
+                "Checking local docs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
+            try:
+                docs = await self._load_known_local_documents()
+            except Exception:
+                logger.exception(
+                    "Error loading known local documents for %s",
+                    self.jurisdiction.full_name,
+                )
+                docs = []
+
+            logger.debug(
+                "About to add docs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
+            self._add_docs_to_collection(
+                collected_docs,
+                docs,
+                step_name="known_local_docs",
+                need_jurisdiction_verification=False,
+            )
+            if eager_extract:
+                context = await self._extract_from_docs(docs)
+                if context is not None:
+                    return context
+
+        else:
+            logger.debug(
+                "%r processing had no known local docs configured",
+                self.jurisdiction.full_name,
+            )
+
+        if self.known_doc_urls:
+            logger.debug(
+                "Checking known URLs for jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
+            try:
+                docs = await self._download_known_url_documents()
+            except Exception:
+                logger.exception(
+                    "Error loading known urls for %s",
+                    self.jurisdiction.full_name,
+                )
+                docs = []
+            self._add_docs_to_collection(
+                collected_docs,
+                docs,
+                step_name="known_doc_urls",
+                need_jurisdiction_verification=False,
+            )
+            if eager_extract:
+                context = await self._extract_from_docs(docs)
+                if context is not None:
+                    return context
+        else:
+            logger.debug(
+                "%r processing had no known URLs configured",
+                self.jurisdiction.full_name,
+            )
+
+        if self.perform_se_search:
+            logger.debug(
+                "Collecting documents using a search engine for "
+                "jurisdiction: %s",
+                self.jurisdiction.full_name,
+            )
+            try:
+                docs = await self._find_documents_using_search_engine()
+            except Exception:
+                logger.exception(
+                    "Error collecting documents using a search engine for %s",
+                    self.jurisdiction.full_name,
+                )
+                docs = []
+            self._add_docs_to_collection(
+                collected_docs,
+                docs,
+                step_name="search_engine",
+                need_jurisdiction_verification=True,
+            )
+            if eager_extract:
+                context = await self._extract_from_docs(docs)
+                if context is not None:
+                    return context
+        else:
+            logger.debug(
+                "%r processing didn't have SE search enabled",
+                self.jurisdiction.full_name,
+            )
+
+        if self.perform_website_search:
+            logger.debug(
+                "Collecting documents using ELM web crawl for: %s",
+                self.jurisdiction.full_name,
+            )
+            with contextlib.suppress(Exception):
+                await self._try_set_website_from_jurisdiction()
+            if not self.jurisdiction_website:
+                logger.debug(
+                    "No jurisdiction website found for %r; skipping "
+                    "website document collection",
+                    self.jurisdiction.full_name,
+                )
+                if eager_extract:
+                    return None
+                return await self._persist_collection(collected_docs)
+
+            try:
+                elm_docs, scrape_results = await self._try_elm_crawl()
+            except Exception:
+                logger.exception(
+                    "Error collecting documents using ELM web crawl for %s",
+                    self.jurisdiction.full_name,
+                )
+                elm_docs = []
+            self._add_docs_to_collection(
+                collected_docs,
+                elm_docs,
+                step_name="website_search_elm",
+                need_jurisdiction_verification=True,
+            )
+            if eager_extract:
+                context = await self._extract_from_docs(elm_docs)
+                if context is not None:
+                    return context
+            logger.debug(
+                "Collecting documents using COMPASS web crawl for: %s",
+                self.jurisdiction.full_name,
+            )
+            try:
+                compass_docs = await self._try_compass_crawl(scrape_results)
+            except Exception:
+                logger.exception(
+                    "Error collecting documents using COMPASS web crawl "
+                    "for %s",
+                    self.jurisdiction.full_name,
+                )
+                compass_docs = []
+            self._add_docs_to_collection(
+                collected_docs,
+                compass_docs,
+                step_name="website_search_compass",
+                need_jurisdiction_verification=True,
+            )
+
+            if eager_extract:
+                context = await self._extract_from_docs(compass_docs)
+                if context is not None:
+                    return context
+        else:
+            logger.debug(
+                "%r processing didn't have jurisdiction website search "
+                "enabled",
+                self.jurisdiction.full_name,
+            )
+
+        if eager_extract:
+            return None
+
+        return await self._persist_collection(collected_docs)
+
+    def _add_docs_to_collection(
+        self,
+        collected_docs,
+        docs,
+        *,
+        step_name,
+        need_jurisdiction_verification,
+    ):
+        """Add docs to a deduplicated collection mapping"""
+        if not docs:
+            logger.debug("No docs found to add for step %r", step_name)
+            return
+
+        logger.debug("Adding %d doc(s) to collection", len(docs))
+        for doc in docs:
+            logger.debug("Adding doc to collection:\n%s", doc)
+            doc.attrs.setdefault(
+                "jurisdiction_name", self.jurisdiction.full_name
+            )
+            doc.attrs["check_correct_jurisdiction"] = (
+                need_jurisdiction_verification
+            )
+            key = _collection_doc_key(doc)
+            if key not in collected_docs:
+                collected_docs[key] = {"doc": doc, "from_steps": []}
+
+            collected_docs[key]["from_steps"].append(step_name)
+
+    async def _persist_collection(self, collected_docs):
+        """Persist collected docs and return serialized metadata"""
+
+        tasks = []
+        for index, info in enumerate(collected_docs.values(), start=1):
+            task = asyncio.create_task(
+                _persist_doc(
+                    info["doc"],
+                    out_fn=f"{self.jurisdiction.full_name}_{index}",
+                    from_steps=info["from_steps"],
+                ),
+                name=self.jurisdiction.full_name,
+            )
+            tasks.append(task)
+
+        documents = await asyncio.gather(*tasks)
+
+        return {
+            "full_name": self.jurisdiction.full_name,
+            "county": self.jurisdiction.county,
+            "state": self.jurisdiction.state,
+            "subdivision": self.jurisdiction.subdivision_name,
+            "jurisdiction_type": self.jurisdiction.type,
+            "FIPS": self.jurisdiction.code,
+            "jurisdiction_website": self.jurisdiction_website,
+            "documents": documents,
+        }
+
     async def _load_known_local_documents(self):
         """Load ordinance documents from known local file paths"""
-
         docs = await load_known_docs(
             self.jurisdiction,
             [info["source_fp"] for info in self.known_local_docs],
             local_file_loader_kwargs=self.local_file_loader_kwargs,
         )
-
-        if not docs:
-            return None
-
-        _add_known_doc_attrs_to_all_docs(
+        return _add_known_doc_attrs_to_all_docs(
             docs, self.known_local_docs, key="source_fp"
         )
-        extraction_context = await self._filter_docs(
-            docs, need_jurisdiction_verification=False
-        )
-        if not extraction_context:
-            return None
-
-        extraction_context.attrs["jurisdiction_website"] = None
-        extraction_context.attrs["compass_crawl"] = False
-
-        await self.extractor.record_usage()
-        return extraction_context
 
     async def _download_known_url_documents(self):
         """Download ordinance documents from pre-specified URLs"""
-
         docs = await download_known_urls(
             self.jurisdiction,
             [info["source"] for info in self.known_doc_urls],
             browser_semaphore=self.browser_semaphore,
             file_loader_kwargs=self.file_loader_kwargs,
         )
-
-        if not docs:
-            return None
-
-        _add_known_doc_attrs_to_all_docs(
+        return _add_known_doc_attrs_to_all_docs(
             docs, self.known_doc_urls, key="source"
         )
-        extraction_context = await self._filter_docs(
-            docs, need_jurisdiction_verification=False
-        )
-        if not extraction_context:
-            return None
-
-        extraction_context.attrs["jurisdiction_website"] = None
-        extraction_context.attrs["compass_crawl"] = False
-
-        await self.extractor.record_usage()
-        return extraction_context
 
     async def _find_documents_using_search_engine(self):
         """Search the web for ordinance docs using search engines"""
-        docs = await download_jurisdiction_ordinance_using_search_engine(
-            await self.extractor.get_query_templates(),
+        query_templates = await self.extractor.get_query_templates()
+        return await download_jurisdiction_ordinance_using_search_engine(
+            query_templates,
             self.jurisdiction,
             num_urls=self.web_search_params.num_urls_to_check_per_jurisdiction,
             file_loader_kwargs=self.file_loader_kwargs,
@@ -1029,46 +1925,22 @@ class _SingleJurisdictionRunner:
             url_ignore_substrings=self.web_search_params.url_ignore_substrings,
             **self.web_search_params.se_kwargs,
         )
-        extraction_context = await self._filter_docs(
-            docs, need_jurisdiction_verification=True
-        )
-        if not extraction_context:
-            return None
 
-        extraction_context.attrs["jurisdiction_website"] = None
-        extraction_context.attrs["compass_crawl"] = False
-
-        await self.extractor.record_usage()
-        return extraction_context
-
-    async def _find_documents_from_website(self):
-        """Search the jurisdiction website for ordinance documents"""
-        if self.jurisdiction_website and self.validate_user_website_input:
-            await self._validate_jurisdiction_website()
+    async def _try_set_website_from_jurisdiction(self):
+        """Try to find the correct jurisdiction website"""
+        if self.jurisdiction_website:
+            if self.validate_user_website_input:
+                await self._validate_jurisdiction_website()
+            else:
+                self.jurisdiction_website = await get_redirected_url(
+                    self.jurisdiction_website, timeout=30
+                )
 
         if not self.jurisdiction_website:
             website = await self._try_find_jurisdiction_website()
             if not website:
-                return None
+                return
             self.jurisdiction_website = website
-
-        extraction_context, scrape_results = await self._try_elm_crawl()
-
-        found_with_compass_crawl = False
-        if not extraction_context:
-            extraction_context = await self._try_compass_crawl(scrape_results)
-            found_with_compass_crawl = True
-
-        if not extraction_context:
-            return None
-
-        extraction_context.attrs["jurisdiction_website"] = (
-            self.jurisdiction_website
-        )
-        extraction_context.attrs["compass_crawl"] = found_with_compass_crawl
-
-        await self.extractor.record_usage()
-        return extraction_context
 
     async def _validate_jurisdiction_website(self):
         """Validate a user-supplied jurisdiction website URL"""
@@ -1126,7 +1998,7 @@ class _SingleJurisdictionRunner:
         self.jurisdiction_website = await get_redirected_url(
             self.jurisdiction_website, timeout=30
         )
-        out = await download_jurisdiction_ordinances_from_website(
+        return await download_jurisdiction_ordinances_from_website(
             self.jurisdiction_website,
             heuristic=await self.extractor.get_heuristic(),
             keyword_points=await self.extractor.get_website_keywords(),
@@ -1135,11 +2007,6 @@ class _SingleJurisdictionRunner:
             pb_jurisdiction_name=self.jurisdiction.full_name,
             return_c4ai_results=True,
         )
-        docs, scrape_results = out
-        extraction_context = await self._filter_docs(
-            docs, need_jurisdiction_verification=True
-        )
-        return extraction_context, scrape_results
 
     async def _try_compass_crawl(self, scrape_results):
         """Crawl the jurisdiction website using the COMPASS crawler"""
@@ -1158,9 +2025,36 @@ class _SingleJurisdictionRunner:
                 pb_jurisdiction_name=self.jurisdiction.full_name,
             )
         )
-        return await self._filter_docs(
+
+        for doc in docs:
+            doc.attrs["compass_crawl"] = True
+        return docs
+
+    async def _extract_from_docs(self, docs):
+        """Filter and parse a set of collected documents"""
+        if not docs:
+            return None
+
+        extraction_context = await self._filter_docs(
             docs, need_jurisdiction_verification=True
         )
+        if not extraction_context:
+            return None
+
+        extraction_context.attrs["jurisdiction_website"] = (
+            self.jurisdiction_website
+        )
+
+        COMPASS_PB.update_jurisdiction_task(
+            self.jurisdiction.full_name,
+            description="Extracting structured data...",
+        )
+        context = await self.extractor.parse_docs_for_structured_data(
+            extraction_context
+        )
+        await self._write_out_structured_data(extraction_context)
+        logger.debug("Final extraction context:\n%s", context)
+        return context
 
     async def _filter_docs(self, docs, need_jurisdiction_verification):
         if not docs:
@@ -1380,6 +2274,7 @@ def _serialize_collection_doc_info(doc, from_steps):
 
 def _write_collection_manifest(manifest_fp, collection_manifest):
     """Write a collection manifest to disk"""
+    # TODO: Add option for collection paths to be relative to config
     manifest_fp = Path(manifest_fp)
     manifest_fp.write_text(
         json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
