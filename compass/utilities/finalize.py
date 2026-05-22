@@ -333,6 +333,47 @@ def compile_run_summary_message(
     )
 
 
+def compile_collection_summary_message(
+    manifest_fp, collection_manifest, total_seconds
+):
+    """Compile a short collection summary message
+
+    Parameters
+    ----------
+    manifest_fp : path-like
+        File path where the collection manifest was written. The value
+        is embedded in the summary text.
+    collection_manifest : dict
+        Dictionary describing the collection results, including a list
+        of jurisdictions and their associated documents. The function
+        extracts jurisdiction and document counts from the manifest for
+        inclusion in the summary.
+    total_seconds : float or int
+        Duration of the collection phase in seconds, used to report
+        total runtime in the summary.
+
+    Returns
+    -------
+    str
+        Summary string formatted for CLI presentation with ``rich``
+        markup.
+    """
+    num_jurisdictions = len(collection_manifest.get("jurisdictions", []))
+    num_documents = sum(
+        len((info or {}).get("documents") or [])
+        for info in collection_manifest.get("jurisdictions", [])
+    )
+    runtime = _elapsed_time_as_str(total_seconds)
+    locs = "jurisdiction" if num_jurisdictions == 1 else "jurisdictions"
+    docs = "document" if num_documents == 1 else "documents"
+    return (
+        f"✅ Collection complete!\nCollection manifest: {manifest_fp}\n"
+        f"Total runtime: {runtime}\n"
+        f"{num_documents:,d} {docs} collected for "
+        f"{num_jurisdictions:,d} {locs}"
+    )
+
+
 def _elapsed_time_as_str(seconds_elapsed):
     """Format elapsed time into human readable string"""
     days, seconds = divmod(int(seconds_elapsed), 24 * 3600)
