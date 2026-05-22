@@ -1253,7 +1253,7 @@ def _check_enabled_steps(
 
 def _setup_folders(
     out_dir,
-    dirs = Directories(out_dir, log_dir, clean_dir, ofd, jdd, collect_only)
+    log_dir=None,
     clean_dir=None,
     ofd=None,
     jdd=None,
