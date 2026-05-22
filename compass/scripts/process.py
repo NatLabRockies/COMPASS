@@ -1328,9 +1328,20 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     return file_loader_kwargs
 
 
+async def _load_docs_from_collection_info(collection_info, task_name):
+    """Load persisted collection artifacts back into documents"""
+    tasks = []
+    for doc_info in collection_info.get("documents") or []:
+        task = asyncio.create_task(
+            _load_collected_doc(doc_info), name=task_name
+        )
+        tasks.append(task)
+
+    return await asyncio.gather(*tasks)
+
+
 async def _load_collected_doc(doc_info):
     """Load a collected doc from persisted collection artifacts"""
-
     fp = doc_info.get("parsed_fp")
     if fp is None:
         msg = (
