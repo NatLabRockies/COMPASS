@@ -1114,6 +1114,7 @@ class _SingleJurisdictionRunner:
             search_semaphore=self.search_engine_semaphore,
             browser_semaphore=self.browser_semaphore,
             usage_tracker=self.usage_tracker,
+            validate=self.validate_user_website_input,
             url_ignore_substrings=(
                 self.web_search_params.url_ignore_substrings
             ),
@@ -1145,6 +1146,7 @@ class _SingleJurisdictionRunner:
         checked_urls = set()
         for scrape_result in scrape_results:
             checked_urls.update({sub_res.url for sub_res in scrape_result})
+
         docs = (
             await download_jurisdiction_ordinances_from_website_compass_crawl(
                 self.jurisdiction_website,
