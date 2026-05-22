@@ -1151,16 +1151,16 @@ class _COMPASSRunner:
 
         async with RunningAsyncServices(services):
             if self.mode == "collect":
-                return await self.run_collection(jurisdictions_df)
+                return await self._run_collection(jurisdictions_df)
             if self.mode == "extract":
-                return await self.run_extraction(jurisdictions_df)
+                return await self._run_extraction(jurisdictions_df)
             if self.mode == "process":
-                return await self.run_processing(jurisdictions_df)
+                return await self._run_processing(jurisdictions_df)
 
         msg = f"Unknown mode: {self.mode}"
         raise COMPASSValueError(msg)
 
-    async def run_collection(self, jurisdictions_df):
+    async def _run_collection(self, jurisdictions_df):
         """Collect documents and write a manifest to disk"""
         start_date = datetime.now(UTC)
         collection_manifest = await self._collect_all(jurisdictions_df)
@@ -1178,7 +1178,7 @@ class _COMPASSRunner:
             logger.info(sub_msg)
         return collection_msg
 
-    async def run_extraction(self, jurisdictions_df):
+    async def _run_extraction(self, jurisdictions_df):
         """Extract structured data from a collection manifest"""
         collection_manifest = load_config(
             self.collection_manifest_fp, file_name="Collection manifest"
@@ -1199,7 +1199,7 @@ class _COMPASSRunner:
             doc_infos, start_date, len(jurisdictions_df)
         )
 
-    async def run_processing(self, jurisdictions_df):
+    async def _run_processing(self, jurisdictions_df):
         """Extract structured data from a collection manifest"""
         start_date = datetime.now(UTC)
         doc_infos = await self._process_all(jurisdictions_df)
