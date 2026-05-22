@@ -400,7 +400,7 @@ async def parse_by_chunks(
     heuristic,
     text_kind_validator=None,
     callbacks=None,
-    min_chunks_to_process=3,
+    min_chunks_to_process=5,
 ):
     """Stream text chunks through heuristic and legal validators
 
@@ -432,7 +432,7 @@ async def parse_by_chunks(
         which does not use any callbacks.
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
-        not being legal. By default, ``3``.
+        not being legal. By default, ``5``.
 
     Notes
     -----

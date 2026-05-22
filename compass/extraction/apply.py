@@ -26,7 +26,7 @@ async def check_for_relevant_text(
     tech,
     text_collectors,
     usage_tracker=None,
-    min_chunks_to_process=3,
+    min_chunks_to_process=5,
 ):
     """Parse a single document for relevant text (e.g. ordinances)
 
@@ -64,7 +64,7 @@ async def check_for_relevant_text(
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
         failing the heuristic or deemed not legal (if applicable).
-        By default, ``3``.
+        By default, ``5``.
 
     Returns
     -------
