@@ -94,11 +94,22 @@ class ParseChunksWithMemory:
             self._inverted_mem(ind), self._inverted_text(ind), strict=False
         )
         for step, (mem, text) in enumerate(mem_text):
-            logger.debug("Mem at ind %d is %s", step, mem)
+            logger.debug(
+                "Mem at ind %d while checking key %r is %s",
+                ind - step,
+                key,
+                mem,
+            )
             check = mem.get(key)
             if check is None:
                 check = mem[key] = await llm_call_callback(
                     key, text, *args, **kwargs
+                )
+                logger.trace(
+                    "New mem at ind %d while checking key %r is %s",
+                    ind - step,
+                    key,
+                    mem,
                 )
             if check:
                 return check
