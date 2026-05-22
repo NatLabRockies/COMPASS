@@ -561,7 +561,6 @@ def _dump_jurisdiction_info(
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "jurisdiction_website": None,
-        "compass_crawl": False,
         "cost": None,
         "documents": None,
     }
@@ -577,9 +576,6 @@ def _dump_jurisdiction_info(
         ]
         new_info["jurisdiction_website"] = extraction_context.attrs.get(
             "jurisdiction_website"
-        )
-        new_info["compass_crawl"] = extraction_context.attrs.get(
-            "compass_crawl", False
         )
 
     jurisdiction_info["jurisdictions"].append(new_info)
