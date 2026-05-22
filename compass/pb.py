@@ -158,13 +158,16 @@ class _COMPASSProgressBars:
         self._cwc_tasks = {}
         self._cwc_docs_found = {}
 
-    def create_main_task(self, num_jurisdictions):
+    def create_main_task(self, num_jurisdictions, action="Searching"):
         """Set up main task to track number of jurisdictions processed
 
         Parameters
         ----------
         num_jurisdictions : int
             Number of jurisdictions that are being processed.
+        action : str, optional
+            Action being performed, e.g. "Collecting" or "Processing".
+            By default, ``"Searching"``.
 
         Raises
         ------
@@ -180,9 +183,9 @@ class _COMPASSProgressBars:
             num_jurisdictions,
         )
         if num_jurisdictions == 1:
-            text = "[bold cyan]Searching 1 Jurisdiction"
+            text = f"[bold cyan]{action} 1 Jurisdiction"
         else:
-            text = f"[bold cyan]Searching {num_jurisdictions:,} Jurisdictions"
+            text = f"[bold cyan]{action} {num_jurisdictions:,} Jurisdictions"
 
         self._main_task = self._main.add_task(
             f"{text:<40}", total=num_jurisdictions
