@@ -9,6 +9,7 @@ from .costs import (
 )
 from .finalize import (
     compile_run_summary_message,
+    compile_collection_summary_message,
     doc_infos_to_db,
     save_db,
     save_run_meta,
