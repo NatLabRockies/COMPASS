@@ -1357,6 +1357,8 @@ def _add_known_doc_attrs_to_all_docs(docs, doc_infos, key):
 
         _add_known_doc_attrs(doc, source_fp, doc_infos, key)
 
+    return docs
+
 
 def _add_known_doc_attrs(doc, source_fp, doc_infos, key):
     """Add user-defined doc attributes to a loaded doc"""
