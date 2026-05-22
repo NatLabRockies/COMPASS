@@ -1251,9 +1251,16 @@ def _check_enabled_steps(
     return steps
 
 
-def _setup_folders(out_dir, log_dir=None, clean_dir=None, ofd=None, jdd=None):
+def _setup_folders(
+    out_dir,
+    dirs = Directories(out_dir, log_dir, clean_dir, ofd, jdd, collect_only)
+    clean_dir=None,
+    ofd=None,
+    jdd=None,
+    collect_only=False,
+):
     """Setup output directory folders"""
-    dirs = Directories(out_dir, log_dir, clean_dir, ofd, jdd)
+    dirs = Directories(out_dir, log_dir, clean_dir, ofd, jdd, collect_only)
 
     if dirs.out.exists():
         msg = (

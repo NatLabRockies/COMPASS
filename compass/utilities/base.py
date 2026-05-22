@@ -162,6 +162,7 @@ class Directories:
         clean_files=None,
         ordinance_files=None,
         jurisdiction_dbs=None,
+        collect_only=False,
     ):
         """
 
@@ -185,17 +186,19 @@ class Directories:
             specified, defaults to ``out/jurisdiction_dbs``.
             By default, ``None``
         """
+        self.collect_only = collect_only
         self.out = _full_path(out)
         self.logs = _full_path(logs) if logs else self.out / "logs"
         self.clean_files = (
             _full_path(clean_files)
             if clean_files
-            else self.out / "cleaned_text"
+            else self.out / ("parsed_docs" if collect_only else "cleaned_text")
         )
         self.ordinance_files = (
             _full_path(ordinance_files)
             if ordinance_files
-            else self.out / "ordinance_files"
+            else self.out
+            / ("source_docs" if collect_only else "ordinance_files")
         )
         self.jurisdiction_dbs = (
             _full_path(jurisdiction_dbs)
@@ -216,6 +219,8 @@ class Directories:
         yield self.logs
         yield self.clean_files
         yield self.ordinance_files
+        if self.collect_only:
+            return
         yield self.jurisdiction_dbs
 
     def make_dirs(self):
