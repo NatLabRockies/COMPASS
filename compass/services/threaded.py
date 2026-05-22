@@ -61,10 +61,11 @@ def _move_file(doc, out_dir, out_fn=None, verb="downloaded"):
     out_fn = out_fn or cached_fp.stem
     out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
     out_fn = f"{out_fn}_{verb}_{date}"
-    if not out_fn.endswith(cached_fp.suffix):
-        out_fn = f"{out_fn}{cached_fp.suffix}"
-
     out_fp = Path(out_dir) / out_fn
+
+    if out_fp.suffix != cached_fp.suffix:
+        out_fp = out_fp.with_suffix(cached_fp.suffix)
+
     shutil.move(cached_fp, out_fp)
     return out_fp
 
