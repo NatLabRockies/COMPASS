@@ -244,7 +244,7 @@ async def find_jurisdiction_website(
         return None
 
     if not validate:
-        return potential_website_links[0]
+        return potential_website_links.pop()
 
     model_config = model_configs.get(
         LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION,
