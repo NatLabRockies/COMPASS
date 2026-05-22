@@ -102,6 +102,18 @@ def _write_ord_db(extraction_context, out_dir, out_fn=None):
     return out_fp
 
 
+def _copy_doc_source_to_temp(doc, out_dir):
+    """Copy a document from its current location to a temp directory"""
+    source_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
+    if source_fp is None:
+        return None
+
+    source_fp = Path(source_fp)
+    out_fp = Path(out_dir) / source_fp.name
+    shutil.copy2(source_fp, out_fp)
+    return out_fp
+
+
 _PROCESSING_FUNCTIONS = {
     "move": _move_file,
     "write_clean": _write_cleaned_file,
@@ -241,6 +253,42 @@ class TempFileCachePB(TempFileCache):
             COMPASS_PB.update_download_task(jurisdiction, advance=1)
 
         return out
+
+
+class TempFileCacheCopier(TempFileCache):
+    """Service that locally caches files downloaded from the internet"""
+
+    async def process(self, doc):
+        """Write URL doc to file asynchronously
+
+        Parameters
+        ----------
+        doc : BaseDocument
+            Document containing meta information about the file. Must
+            have a "source" key in the ``attrs`` dict containing the
+            URL, which will be converted to a file name using
+            :func:`elm.web.utilities.compute_fn_from_url`.
+        file_content : str or bytes
+            File content, typically string text for HTML files and bytes
+            for PDF file.
+        make_name_unique : bool, optional
+            Option to make file name unique by adding a UUID at the end
+            of the file name. By default, ``False``.
+
+        Returns
+        -------
+        Path
+            Path to output file.
+        """
+        loop = asyncio.get_running_loop()
+        cache_fp = await loop.run_in_executor(
+            self.pool,
+            _copy_doc_source_to_temp,
+            doc,
+            self._td.name,
+        )
+        logger.debug("Cached doc from %s", doc.attrs.get("source", "Unknown"))
+        return cache_fp
 
 
 class StoreFileOnDisk(ThreadedService):
