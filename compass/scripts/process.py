@@ -1328,6 +1328,27 @@ def _configure_file_loader_kwargs(file_loader_kwargs):
     return file_loader_kwargs
 
 
+async def _load_collected_doc(doc_info):
+    """Load a collected doc from persisted collection artifacts"""
+
+    fp = doc_info.get("parsed_fp")
+    if fp is None:
+        msg = (
+            "Parsed file path ('parsed_fp') is required to load a collected "
+            "document, but it is missing from the following doc info:\n"
+            f"{doc_info}\nSkipping..."
+        )
+        warn(msg, COMPASSWarning)
+        return None
+
+    doc, *__ = await read_docling_local_file(fp)
+    doc.attrs.update(doc_info)
+    doc.remove_comments = False
+
+    doc.attrs["cache_fn"] = await TempFileCacheCopier.call(doc)
+    return doc
+
+
 async def _record_jurisdiction_info(
     loc, extraction_context, start_time, usage_tracker
 ):
