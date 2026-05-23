@@ -1,17 +1,27 @@
 """Tests for compass.scripts.process"""
 
+import json
 import logging
 from pathlib import Path
 from itertools import product
 
+import pandas as pd
 import pytest
 
+from compass.plugin.registry import PLUGIN_REGISTRY, register_plugin
+from compass.plugin.base import BaseExtractionPlugin
+from compass.pb import COMPASS_PB
+from compass.services.base import Service
 from compass.exceptions import COMPASSValueError, COMPASSFileNotFoundError
 import compass.scripts.process as process_module
 from compass.scripts.process import (
     _COMPASSRunner,
+    collect_jurisdiction_documents,
+    extract_collected_jurisdiction_documents,
     process_jurisdictions_with_openai,
+    COLLECTION_MANIFEST_FILENAME,
 )
+from compass.utilities.enums import LLMTasks
 from compass.utilities import ProcessKwargs
 
 
@@ -43,13 +53,22 @@ def patched_runner(monkeypatch):
     class DummyRunner:
         """Minimal runner that bypasses full processing"""
 
-        def __init__(self, **_):
-            pass
+        LAST_MODE_USED = None
+
+        def __init__(self, mode, **_):
+            DummyRunner.LAST_MODE_USED = mode
+
+        async def _run_collection(self, jurisdiction_fp):
+            return f"collected {jurisdiction_fp}"
+
+        async def _run_extraction(self, **kwargs):
+            return f"extracted {kwargs}"
 
         async def run(self, jurisdiction_fp):
             return f"processed {jurisdiction_fp}"
 
     monkeypatch.setattr(process_module, "_COMPASSRunner", DummyRunner)
+    return DummyRunner
 
 
 def test_known_local_docs_missing_file(tmp_path):
@@ -64,7 +83,7 @@ def test_known_local_docs_missing_file(tmp_path):
     )
 
     with pytest.raises(
-        COMPASSFileNotFoundError, match="Config file does not exist"
+        COMPASSFileNotFoundError, match="Configuration file does not exist"
     ):
         _ = runner.known_local_docs
 
@@ -82,14 +101,307 @@ def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
     )
 
     with pytest.raises(
-        COMPASSFileNotFoundError, match="Config file does not exist"
+        COMPASSFileNotFoundError, match="Configuration file does not exist"
     ):
         _ = runner.known_local_docs
 
     assert testing_log_file.exists()
-    assert "Config file does not exist" in testing_log_file.read_text(
+    assert "Configuration file does not exist" in testing_log_file.read_text(
         encoding="utf-8"
     )
+
+
+class _DummyLLMService(Service):
+    """No-op service used to satisfy extraction orchestration in tests"""
+
+    @property
+    def can_process(self):
+        """bool: Always ready to process"""
+        return True
+
+    async def process(self, *args, **kwargs):
+        """Return a no-op response"""
+        return
+
+
+class _DummyModelConfig:
+    """Minimal model config for deterministic extraction tests"""
+
+    def __init__(self):
+        self.name = "dummy-model"
+        self.llm_service = _DummyLLMService()
+        self.llm_call_kwargs = {}
+        self.llm_service_rate_limit = 1
+        self.text_splitter_chunk_size = 1000
+        self.text_splitter_chunk_overlap = 0
+        self.client_type = "test"
+
+
+class _RoundtripTestPlugin(BaseExtractionPlugin):
+    """Deterministic plugin for collection and extraction round trips"""
+
+    IDENTIFIER = "roundtrip-test"
+
+    async def get_query_templates(self):
+        """Return empty query templates for local-doc tests"""
+        return []
+
+    async def get_website_keywords(self):
+        """Return empty website keywords for local-doc tests"""
+        return {}
+
+    async def get_heuristic(self):
+        """Return a heuristic that keeps all docs"""
+
+        class _KeepEverything:
+            def check(self, text):
+                return bool(text)
+
+        return _KeepEverything()
+
+    async def filter_docs(
+        self, extraction_context, need_jurisdiction_verification=True
+    ):
+        """Keep all docs for deterministic round-trip tests"""
+        if not extraction_context:
+            return None
+        return extraction_context
+
+    async def parse_docs_for_structured_data(self, extraction_context):
+        """Turn each source doc into one structured row"""
+        rows = []
+        for doc in extraction_context.documents:
+            await extraction_context.mark_doc_as_data_source(doc)
+            rows.append(
+                {
+                    "jurisdiction": self.jurisdiction.full_name,
+                    "source": doc.attrs.get("source"),
+                    "source_kind": (
+                        "pdf"
+                        if str(doc.attrs.get("source", "")).endswith(".pdf")
+                        else "text"
+                    ),
+                    "user_label": doc.attrs.get("user_label"),
+                    "num_pages": len(doc.pages),
+                }
+            )
+
+        extraction_context.attrs["structured_data"] = pd.DataFrame(rows)
+        extraction_context.attrs["out_data_fn"] = (
+            f"{self.jurisdiction.full_name} Ordinances.csv"
+        )
+        return extraction_context
+
+    @classmethod
+    def save_structured_data(cls, doc_infos, out_dir):
+        """Write a simple combined CSV and return the row count"""
+        frames = []
+        for doc_info in doc_infos:
+            if doc_info.get("ord_db_fp") is None:
+                continue
+            frames.append(pd.read_csv(doc_info["ord_db_fp"]))
+
+        if not frames:
+            return 0
+
+        combined = pd.concat(frames, ignore_index=True)
+        combined.to_csv(
+            Path(out_dir) / "roundtrip_test_combined.csv",
+            index=False,
+            encoding="utf-8-sig",
+        )
+        return len(frames)
+
+
+@pytest.fixture
+def registered_roundtrip_plugin():
+    """Register a deterministic plugin for process round-trip tests"""
+    plugin_id = _RoundtripTestPlugin.IDENTIFIER.casefold()
+    already_registered = plugin_id in PLUGIN_REGISTRY
+    if not already_registered:
+        register_plugin(_RoundtripTestPlugin)
+
+    yield _RoundtripTestPlugin
+
+    if not already_registered:
+        PLUGIN_REGISTRY.pop(plugin_id, None)
+
+
+@pytest.fixture
+def patched_model_configs(monkeypatch):
+    """Replace OpenAI model config setup with a deterministic stub"""
+
+    def _dummy_initialize_model_params(user_input):
+        return {LLMTasks.DEFAULT: _DummyModelConfig()}
+
+    monkeypatch.setattr(
+        process_module,
+        "_initialize_model_params",
+        _dummy_initialize_model_params,
+    )
+
+
+@pytest.fixture
+def roundtrip_local_docs_inputs(tmp_path, test_data_files_dir):
+    """Create jurisdiction and local-doc inputs for round-trip tests"""
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.write_text(
+        "State,County,Subdivision,Jurisdiction Type\n"
+        "Washington,Whatcom,,county\n"
+        "New York,Allegany,Caneadea,town\n",
+        encoding="utf-8",
+    )
+
+    known_local_docs = {
+        "53073": [
+            {
+                "source_fp": test_data_files_dir / "Whatcom.txt",
+                "user_label": "whatcom-text",
+            }
+        ],
+        "3600312243": [
+            {
+                "source_fp": test_data_files_dir / "Caneadea New York.pdf",
+                "user_label": "caneadea-pdf",
+            }
+        ],
+    }
+
+    return jurisdiction_fp, known_local_docs
+
+
+@pytest.mark.asyncio
+async def test_collect_wrapper_uses_collection_runner(
+    tmp_path, patched_runner
+):
+    """Collection wrapper should dispatch to the collection runner"""
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+
+    result = await collect_jurisdiction_documents(
+        out_dir=tmp_path / "outputs",
+        tech="solar",
+        jurisdiction_fp=jurisdiction_fp,
+    )
+
+    assert result == f"processed {jurisdiction_fp}"
+    assert patched_runner.LAST_MODE_USED == "collect"
+
+
+@pytest.mark.asyncio
+async def test_extract_wrapper_uses_extraction_runner(
+    tmp_path, patched_runner
+):
+    """Extraction wrapper should dispatch to the extraction runner"""
+    out_dir = tmp_path / "outputs"
+
+    manifest_fp = tmp_path / COLLECTION_MANIFEST_FILENAME
+    manifest_fp.write_text('{"jurisdictions": []}', encoding="utf-8")
+
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+
+    manifest_fp = tmp_path / "manifest_fp.json"
+    manifest_fp.touch()
+
+    result = await extract_collected_jurisdiction_documents(
+        out_dir=out_dir,
+        tech="solar",
+        jurisdiction_fp=jurisdiction_fp,
+        collection_manifest_fp=manifest_fp,
+    )
+
+    assert "processed" in result
+    assert patched_runner.LAST_MODE_USED == "extract"
+
+
+@pytest.mark.asyncio
+async def test_collect_then_extract_round_trip_from_manifest(
+    tmp_path,
+    registered_roundtrip_plugin,
+    patched_model_configs,
+    roundtrip_local_docs_inputs,
+):
+    """Collect docs to a manifest and then extract from that manifest"""
+    jurisdiction_fp, known_local_docs = roundtrip_local_docs_inputs
+    out_dir = tmp_path / "collection"
+
+    collection_msg = await collect_jurisdiction_documents(
+        out_dir=out_dir,
+        tech="roundtrip-test",
+        jurisdiction_fp=jurisdiction_fp,
+        known_local_docs=known_local_docs,
+        perform_se_search=False,
+        perform_website_search=False,
+    )
+
+    assert "2 documents collected for 2 jurisdictions" in collection_msg
+
+    manifest_fp = out_dir / COLLECTION_MANIFEST_FILENAME
+    manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
+    assert manifest["tech"] == "roundtrip-test"
+    assert len(manifest["jurisdictions"]) == 2
+
+    whatcom = next(
+        info for info in manifest["jurisdictions"] if info["FIPS"] == 53073
+    )
+    caneadea = next(
+        info
+        for info in manifest["jurisdictions"]
+        if info["FIPS"] == 3600312243
+    )
+
+    assert whatcom["documents"][0]["source_fp"] is not None
+    assert Path(whatcom["documents"][0]["parsed_fp"]).exists()
+    assert whatcom["documents"][0]["from_steps"] == ["known_local_docs"]
+
+    assert Path(caneadea["documents"][0]["source_fp"]).exists()
+    assert Path(caneadea["documents"][0]["parsed_fp"]).exists()
+    assert caneadea["documents"][0]["is_pdf"] is True
+
+    COMPASS_PB.reset()
+    extraction_dir = tmp_path / "extracted"
+    extraction_msg = await extract_collected_jurisdiction_documents(
+        out_dir=extraction_dir,
+        tech="roundtrip-test",
+        collection_manifest_fp=manifest_fp,
+        jurisdiction_fp=jurisdiction_fp,
+    )
+
+    assert "Number of jurisdictions with extracted data: 2" in extraction_msg
+    combined_fp = extraction_dir / "roundtrip_test_combined.csv"
+    assert combined_fp.exists()
+
+    combined = pd.read_csv(combined_fp)
+    assert set(combined["user_label"]) == {"whatcom-text", "caneadea-pdf"}
+    assert set(combined["source_kind"]) == {"text", "pdf"}
+
+
+@pytest.mark.asyncio
+async def test_process_writes_manifest_and_structured_outputs(
+    tmp_path,
+    registered_roundtrip_plugin,
+    patched_model_configs,
+    roundtrip_local_docs_inputs,
+):
+    """End-to-end process should compose collection and extraction"""
+    jurisdiction_fp, known_local_docs = roundtrip_local_docs_inputs
+    out_dir = tmp_path / "outputs"
+
+    COMPASS_PB.reset()
+    result = await process_jurisdictions_with_openai(
+        out_dir=out_dir,
+        tech="roundtrip-test",
+        jurisdiction_fp=jurisdiction_fp,
+        known_local_docs=known_local_docs,
+        perform_se_search=False,
+        perform_website_search=False,
+    )
+
+    assert "Number of jurisdictions with extracted data: 2" in result
+    assert not (out_dir / COLLECTION_MANIFEST_FILENAME).exists()
+    assert (out_dir / "roundtrip_test_combined.csv").exists()
+    assert any((out_dir / "jurisdiction_dbs").glob("*.csv"))
 
 
 @pytest.mark.asyncio
@@ -274,6 +586,7 @@ async def test_process_steps_logged(
     )
 
     assert result == f"processed {jurisdiction_fp}"
+    assert patched_runner.LAST_MODE_USED == "process"
 
     assert_message_was_logged(
         "Using the following document acquisition step(s):", log_level="INFO"
