@@ -594,5 +594,97 @@ async def test_process_steps_logged(
     assert_message_was_logged(" -> ".join(expected_steps), log_level="INFO")
 
 
+# @pytest.mark.asyncio
+# async def test_process_mode_collects_and_extracts_each_jurisdiction_in_order(
+#     monkeypatch, tmp_path
+# ):
+#     """Process mode should extract each jurisdiction after its collection"""
+#     from compass.utilities import Directories
+#     from compass.utilities.logs import LogListener
+
+#     jurisdictions_df = pd.DataFrame(
+#         [
+#             {
+#                 "State": "Colorado",
+#                 "County": "Adams",
+#                 "Subdivision": None,
+#                 "Jurisdiction Type": "county",
+#                 "FIPS": 1,
+#                 "Website": None,
+#             },
+#             {
+#                 "State": "Colorado",
+#                 "County": "Boulder",
+#                 "Subdivision": None,
+#                 "Jurisdiction Type": "county",
+#                 "FIPS": 2,
+#                 "Website": None,
+#             },
+#         ]
+#     )
+#     events = []
+
+#     async def _collect(  # noqa
+#         jurisdiction, known_local_docs=None, known_doc_urls=None
+#     ):
+#         events.append(("collect", jurisdiction.code))
+#         return {
+#             "full_name": jurisdiction.full_name,
+#             "county": jurisdiction.county,
+#             "state": jurisdiction.state,
+#             "subdivision": jurisdiction.subdivision_name,
+#             "jurisdiction_type": jurisdiction.type,
+#             "FIPS": jurisdiction.code,
+#             "jurisdiction_website": None,
+#             "found": True,
+#             "documents": [],
+#         }
+
+#     async def _extract(  # noqa
+#         jurisdiction, collection_info, usage_tracker=None
+#     ):
+#         events.append(("extract", jurisdiction.code))
+#         return {
+#             "jurisdiction": jurisdiction,
+#             "ord_db_fp": f"{jurisdiction.code}.csv",
+#         }
+
+#     COMPASS_PB.reset()
+#     COMPASS_PB.create_main_task(num_jurisdictions=len(jurisdictions_df))
+
+#     with LogListener(["compass"], level="INFO") as ll:
+#         runner = _COMPASSRunner(
+#             dirs=Directories(tmp_path),
+#             log_listener=ll,
+#             tech="solar",
+#             models={},
+#             process_kwargs=ProcessKwargs(
+#                 None, None, None, None, None, None, 1
+#             ),
+#         )
+
+#         monkeypatch.setattr(runner, "_collect_jurisdiction_info", _collect)
+#         monkeypatch.setattr(runner, "_extracted_jurisdiction_info", _extract)
+
+#         try:
+#             collection_manifest, doc_infos = await runner._process_all(
+#                 jurisdictions_df
+#             )
+#         finally:
+#             COMPASS_PB.reset()
+
+#     assert [info["FIPS"] for info in collection_manifest["jurisdictions"]] == [
+#         1,
+#         2,
+#     ]
+#     assert [info["ord_db_fp"] for info in doc_infos] == ["1.csv", "2.csv"]
+#     assert events == [
+#         ("collect", 1),
+#         ("extract", 1),
+#         ("collect", 2),
+#         ("extract", 2),
+#     ]
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
