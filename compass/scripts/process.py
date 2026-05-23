@@ -1792,7 +1792,7 @@ class _SingleJurisdictionRunner:
                     "Error collecting documents using ELM web crawl for %s",
                     self.jurisdiction.full_name,
                 )
-                elm_docs = []
+                elm_docs = scrape_results = []
             self._add_docs_to_collection(
                 collected_docs,
                 elm_docs,
