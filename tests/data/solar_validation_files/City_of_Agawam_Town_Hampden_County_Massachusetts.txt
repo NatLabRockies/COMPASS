@@ -1,0 +1,691 @@
+home Home
+
+code Code
+
+Code
+
+Index
+
+law Laws (4)
+
+New Laws (4)
+
+Law Ledger (0)
+
+help_center Help
+
+Help
+
+About Us
+
+ecode ecode
+
+search
+
+Login
+
+Town of Agawam, MA  chevron_right 2025-01-06  info chevron_right Part II:
+General Legislation chevron_right Chapter 180 Zoning chevron_right Article XXI
+Solar Energy Systems
+
+arrow_back
+
+print Print email Email download Download share Share add_alert Get Updates
+
+arrow_forward
+
+Article XXI  Solar Energy Systems
+
+[Added 4-2-2018 by TOR 2017-13]
+
+§ 180-148  Purpose.
+
+chevron_right
+
+§ 180-149  Definitions.
+
+chevron_right
+
+§ 180-150  Solar energy systems.
+
+chevron_right
+
+§ 180-151  Solar energy systems, building-integrated, roof-mounted and small
+scale.
+
+chevron_right
+
+§ 180-152  Solar energy systems, medium-scale.
+
+chevron_right
+
+§ 180-153  Solar energy systems, large-scale.
+
+chevron_right
+
+§ 180-154  General requirements for large-scale solar energy system
+installations.
+
+chevron_right
+
+§ 180-155  Site plan review.
+
+chevron_right
+
+§ 180-156  Site control, operation and maintenance plan, and utility
+notification.
+
+chevron_right
+
+§ 180-157  Dimension and density requirements.
+
+chevron_right
+
+§ 180-158  Design, safety, and environmental standards.
+
+chevron_right
+
+§ 180-159  Monitoring and maintenance.
+
+chevron_right
+
+§ 180-160  Financial surety.
+
+chevron_right
+
+§ 180-148  Purpose.
+
+The purpose of this article is to promote the reasonable regulation of solar
+energy systems, including commercial ground-mounted solar energy
+installations, by providing standards for the placement, design, construction,
+operation, monitoring, modification and removal of such installations that
+address public health, safety, and welfare and minimize impacts on scenic,
+natural and historic resources and provide adequate financial assurance for
+the eventual decommissioning of such installations.
+
+§ 180-149  Definitions.
+
+PHOTOVOLTAIC SYSTEM
+
+An active solar energy system that converts solar energy directly into
+electricity.
+
+RATED NAMEPLATE CAPACITY
+
+The maximum rated output of electric power production of the photovoltaic
+system in watts of direct current (DC).
+
+SOLAR ENERGY
+
+Radiant energy received from the sun that can be collected in the form of heat
+or light by a solar collector.
+
+SOLAR ENERGY SYSTEM
+
+A device or structural design feature, a substantial purpose of which is to
+provide daylight for interior lighting or provide for the collection, storage
+and distribution of solar energy for space heating or cooling, electricity
+generation, or water heating.
+
+SOLAR ENERGY SYSTEM BUILDING-INTEGRATED
+
+A solar energy system that is directly incorporated into the building by
+replacing typical building materials.
+
+SOLAR ENERGY SYSTEM, GROUND-MOUNTED
+
+An active solar energy system that is structurally mounted to the ground and
+is not roof-mounted; may be of any size (small-, medium- or large-scale).
+
+SOLAR ENERGY SYSTEM, LARGE-SCALE
+
+An active solar energy system that occupies more than one acre of surface area
+(equivalent to a rated nameplate capacity of about 250 kW DC or greater).
+
+SOLAR ENERGY SYSTEM, MEDIUM-SCALE
+
+An active solar energy system that occupies more than 1,750 square feet of
+surface area but less than one acre of surface area (equivalent to a rated
+nameplate capacity of about 10 to 250 kW DC).
+
+SOLAR ENERGY SYSTEM, OFF-GRID
+
+A photovoltaic solar energy system in which the circuits energized by the
+solar energy system are not electrically connected in any way to electric
+circuits that are served by an electric utility.
+
+SOLAR ENERGY SYSTEM, ROOF-MOUNTED
+
+An active solar energy system that is structurally mounted to the roof of a
+building or structure; may be of any size (small-, medium- or large-scale).
+
+SOLAR ENERGY SYSTEM, SMALL-SCALE
+
+An active solar energy system that occupies 1,750 square feet of surface area
+or less (equivalent to a rated nameplate capacity of about 10 kW DC or less).
+
+SOLAR THERMAL SYSTEM
+
+An active solar energy system that uses collectors to convert the sun's rays
+into useful forms of energy for water heating, space heating, or space
+cooling.
+
+§ 180-150  Solar energy systems.
+
+See the Table of Use Regulations for allowed principal and accessory uses in
+all zoning districts.[1]
+
+[1]
+
+Editor's Note: The Table of Use Regulations is included as an attachment to
+this chapter.
+
+§ 180-151  Solar energy systems, building-integrated, roof-mounted and small
+scale.
+
+Building-integrated solar energy systems, roof-mounted solar energy systems
+and small-scale solar energy systems are allowable as an accessory use in all
+zoning districts, subject to the following requirements:
+
+A.
+
+Height. Roof-mounted solar energy systems shall not project beyond three feet
+above the peak of the roof and shall not be more than three feet above the
+roof surface to which they are attached. The height of a small-scale solar
+energy system shall not exceed 15 feet.
+
+B.
+
+Setback. Roof-mounted solar energy systems shall comply with all building
+setbacks in the applicable zoning district and shall not extend beyond the
+exterior perimeter of the building on which the system is mounted.
+
+C.
+
+Coverage. Roof-mounted solar energy systems shall not cover more than 90% of
+the total area of the roof.
+
+D.
+
+Exempt. Building-integrated solar energy systems are exempt from the
+requirements of this section and shall be regulated as any other building
+element.
+
+E.
+
+Certifications. Roof-mounted and building-integrated solar energy system
+components shall be certified by Underwriters' Laboratories, Inc., and the
+Solar Rating and Certification Corporation. The Town reserves the right to
+deny a building permit for proposed solar energy systems deemed to have
+inadequate certification.
+
+F.
+
+Aesthetics. All roof-mounted and building-integrated solar energy systems
+shall use colors that blend with the color of the roof or other structures.
+Reflection angles from collector surfaces shall be oriented so as not to
+interfere with the use and enjoyment of other properties. Where necessary,
+screening shall be required to address glare.
+
+G.
+
+Small-scale solar energy systems shall be located in the rear or side yard
+areas only.
+
+§ 180-152  Solar energy systems, medium-scale.
+
+All medium-scale solar energy system installations shall undergo site plan
+review as outlined in § 180-13 of the Code of the Town of Agawam prior to
+construction, installation or modification of the facility. The total area of
+medium-scale solar energy structures shall include the total of all areas
+where the solar panels are installed, all appurtenant and accessory buildings,
+access roads, landscaping, fencing and visual screening elements. The height
+of a medium-scale solar energy system shall not exceed 15 feet.
+
+§ 180-153  Solar energy systems, large-scale.
+
+The balance of this article shall apply to large-scale solar energy system
+installations which measure one acre and larger. The area included for
+determining whether a proposed installation is a large-scale solar energy
+system is contained in § 180-155 below. The provisions of this article shall
+not apply to land owned by the Town of Agawam.
+
+§ 180-154  General requirements for large-scale solar energy system
+installations.
+
+A.
+
+Compliance with laws, ordinances and regulations. The construction and
+operation of all large-scale solar energy installations shall be consistent
+with all applicable local, state and federal requirements, including but not
+limited to all applicable safety, construction, electrical, and communications
+requirements. All buildings and fixtures forming part of a large-scale solar
+energy system installation shall be constructed in accordance with the state
+building code and any other applicable state and federal laws.
+
+B.
+
+Location. Large-scale solar energy system installations shall be allowed as a
+matter of right in any industrial zone, and shall be allowed by special permit
+only in the Agricultural Zone. No large-scale solar energy system
+installations shall be constructed or installed in any residential or business
+zone.
+
+C.
+
+Special permit. Large-scale solar energy system installations shall be allowed
+by special permit only in the Agricultural Zone. The City Council shall be the
+special permit granting authority and shall include as part of its special
+permit review and proceedings all the provisions and requirements of the site
+plan review. The City Council shall consider the following criteria in
+determining whether to grant a special permit:
+
+(1)
+
+That the use is in harmony with the general purpose and intent of the zoning
+ordinances of the Town of Agawam;
+
+(2)
+
+That the use is in an appropriate location and is not significantly
+detrimental to the neighborhood and does not significantly alter the character
+of the neighborhood;
+
+(3)
+
+Adequate and appropriate facilities will be provided for the proper operation
+of the proposed use; and
+
+(4)
+
+That the proposed use would not be detrimental or offensive to the adjoining
+zoning districts and neighboring properties due to the effects of lighting,
+odors, smoke, noise, sewage, refuse materials and/or other visual nuisances.
+
+D.
+
+Building permit. No large-scale solar energy system installation shall be
+constructed, installed or modified as provided in this article without first
+obtaining site plan approval by the Planning Board and then a special permit
+from the City Council (if necessary) and finally a building permit.
+
+§ 180-155  Site plan review.
+
+A.
+
+All large-scale solar energy system installations shall undergo site plan
+review as outlined in § 180-13 of the Code of the Town of Agawam prior to
+construction, installation or modification of the facility as provided in this
+article. The total area of large-scale solar energy systems shall include the
+total of all areas where the solar panels are installed, all appurtenant and
+accessory buildings, access roads, landscaping, fencing and visual screening
+elements.
+
+B.
+
+Required documents. In addition to the required site plan content described in
+§ 180-13 of the Code of the Town of Agawam, the project proponent shall
+provide the following additional documents and information to the Planning
+Board. The Planning Board may waive any of these requirements as it deems
+appropriate.
+
+(1)
+
+A site plan showing:
+
+(a)
+
+Property lines and physical features, including roads for the project site,
+wetlands, wildlife corridors and other relevant features;
+
+(b)
+
+Location and approximate height of existing and proposed tree cover, including
+any trees on public property that are approximated to be 72 years and older or
+with a diameter of 36 inches or greater;
+
+(c)
+
+Proposed changes to the site, including proposed roads, grading, vegetation
+clearing and planting, parking areas, exterior lighting, screening vegetation,
+stormwater controls, and all structures;
+
+(d)
+
+Elevations of the solar energy system installation, including the proposed
+layout of the system and any potential shading from structures and vegetation,
+including those on abutting properties;
+
+(e)
+
+A three-line electrical diagram detailing the solar energy system
+installation, associated components, and electrical interconnection methods,
+with all National Electrical Code compliant disconnects and overcurrent
+devices;
+
+(f)
+
+Documentation of the major system components to be used, including the
+photovoltaic panels, mounting system and inverter;
+
+(g)
+
+Name, address, and contact information for the proposed system installer;
+
+(h)
+
+Name, address, and contact information for the project proponent, as well as
+all co-proponents and property owners, if any;
+
+(i)
+
+The name and contact information of any agents representing the project
+proponent;
+
+(j)
+
+Documentation of actual or proposed access and control of the project site;
+
+(k)
+
+An operation and maintenance plan for the proposed project;
+
+(l)
+
+The location of active farmland and prime farmland soils, wetlands,
+permanently protected open space, priority habitat areas and critical natural
+landscape core habitat areas as set forth by the Natural Heritage and
+Endangered Species Program (NHESP) and "Important Wildlife Habitat" mapped by
+the Massachusetts DEP; and
+
+(m)
+
+Locations of any local or national historic districts.
+
+(2)
+
+Proof of property and liability insurance consistent with industry standards
+for the proposed facility;
+
+(3)
+
+Description of financial surety consistent with this article; and
+
+(4)
+
+A public outreach plan, including a project development timeline, which
+indicates how the project proponent will inform and educate abutters and the
+community about the project.
+
+C.
+
+All plans shall be prepared, stamped and signed by a professional engineer
+licensed in the Commonwealth of Massachusetts.
+
+§ 180-156  Site control, operation and maintenance plan, and utility
+notification.
+
+A.
+
+The project proponent shall submit documentation of actual or proposed access
+and control of the project site sufficient to allow for the construction and
+operation of the proposed large-scale solar energy system installation.
+
+B.
+
+The project proponent shall submit a plan for the operation and maintenance of
+the large-scale solar energy system installation, which shall include measures
+for maintaining safe access to the installation and stormwater controls, as
+well as general procedures for operational maintenance of the installation.
+
+C.
+
+The project proponent shall submit evidence that the utility company that
+operates the electrical distribution system grid where the installation is to
+be located has been informed of the proposed large-scale solar energy system
+installation. Off-grid large-scale solar energy system installations shall be
+exempt from this requirement.
+
+§ 180-157  Dimension and density requirements.
+
+A.
+
+Setback and height requirements. The setbacks for large-scale solar energy
+system installations, including appurtenant structures and parking areas,
+shall be at least 75 feet from any property boundary. The setback areas shall
+not be included in the calculation of the size of the large-scale solar energy
+system installations. The height of any large-scale solar energy system
+installation or any appurtenant structure shall not exceed 15 feet.
+
+B.
+
+Lot coverage. The lot coverage requirements of § 180-58 of the Code of the
+Town of Agawam shall not apply to large-scale solar energy system
+installations.
+
+C.
+
+Appurtenant structures. All appurtenant structures to large-scale solar energy
+system installations shall comply with the requirements of the Code of the
+Town of Agawam. All such appurtenant structures include, but are not limited
+to, equipment shelters, storage facilities, transformers, fencing and
+substations.
+
+§ 180-158  Design, safety, and environmental standards.
+
+A.
+
+Lighting. Lighting of large-scale solar energy system installations shall be
+consistent with local, state and federal law. Lighting of other parts of the
+installation, such as appurtenant structures, shall be limited to that
+required for safety and operational purposes, and shall be reasonably shielded
+from abutting properties. Lighting of the large-scale solar energy system
+installations shall be directed downward and shall incorporate all feasible
+measures to reduce light pollution.
+
+B.
+
+Signage. Any signs on large-scale solar energy system installations and
+property shall comply with Article XIII of the Code of the Town of Agawam. A
+sign shall be required which shall identify the owner and provide a twenty-
+four-hour emergency contact phone number. Large-scale solar energy system
+installations shall not be used for displaying any advertising except for
+reasonable identification of the manufacturer or operator of the large-scale
+solar energy system installation.
+
+C.
+
+Utility connections. Reasonable efforts, as determined by the Planning Board
+during the site plan review, shall be made to place all utility connections
+from the large-scale solar energy system installation underground, depending
+on appropriate soil conditions, shape, and topography of the site and any
+requirements of the utility provider. Electrical transformers for utility
+interconnections may be above ground if required by the utility provider.
+
+D.
+
+Landscaping. All land associated with the large-scale solar energy system
+installations shall be covered and grown in natural vegetation. All ground
+surface areas beneath solar arrays and setback areas shall be pervious to
+maximize on-site infiltration of stormwater. Impervious paving of areas
+beneath solar arrays is prohibited. To the greatest extent feasible, a
+diversity of plant species, including both deciduous and coniferous plantings,
+shall be used, with preference given to species that are native to New
+England. All original plantings shall be at least six feet high. Reasonable
+efforts shall be taken to minimize the establishment of invasive species. All
+plantings shall be maintained annually, and herbicides shall be applied only
+by properly licensed personnel in conformance with all applicable state and
+federal laws.
+
+E.
+
+Parking and access. Reasonable on-site parking is required for vehicles that
+will service the installation only.
+
+F.
+
+Visual impact mitigation. The plan for a large-scale solar energy system
+installation shall be designed to maximize the preservation of on-site and
+abutting natural and developed features. In undeveloped areas, existing
+vegetation shall be retained to the greatest extent feasible, especially where
+such vegetation provides a benefit to the natural environment. In developed
+areas, the design of the large-scale solar energy system installation shall
+consider and incorporate contextual landscaping and landscape amenities that
+complement the physical features of the site and abutting properties. To the
+greatest extent feasible, structures should be screened from view by
+vegetation and/or joined or clustered to avoid adverse visual impacts and be
+architecturally compatible with each other. Vegetation shall be of varieties
+native to New England. Vegetative screening shall reach a mature form to
+effectively screen the installation within five years of installation. The
+mature height of the vegetated screening shall be such that the installation's
+structures are not apparent to a person upon any public road and viewing the
+installation from a height of eight feet. Planting of the vegetative screening
+shall be completed prior to final approval of the large-scale solar energy
+system installation by the Building Inspector.
+
+G.
+
+Emergency services. The owner or operator of the large-scale solar energy
+system installation shall provide a copy of the project summary, electrical
+schematic, and site plan to the Agawam Fire Department. Upon request, the
+owner or operator shall cooperate with local emergency services in developing
+an emergency response plan. All means of disconnecting the large-scale solar
+energy system installation shall be clearly marked. The owner or operator
+shall identify and provide contact information for a person who is responsible
+for responding to all public and emergency inquiries related to the
+installation. This information shall be updated as needed, and at least on an
+annual basis.
+
+H.
+
+Land clearing, soil erosion and habitat impacts. Clearing of natural
+vegetation shall be limited to that which is necessary for the construction,
+operation and maintenance of the large-scale solar energy system installation
+or otherwise prescribed by applicable laws, regulations, and ordinances.
+Sufficient vegetation shall be maintained to minimize soil erosion. Large-
+scale solar energy system installations shall be installed only upon water-
+permeable surfaces as approved during site plan review.
+
+I.
+
+Preservation of trees. Large-scale solar energy system installations shall be
+designed and constructed to preserve and maintain the health and root systems
+of significant trees on public property that are approximated to be 75 years
+and older or with a diameter of 36 inches or greater.
+
+J.
+
+Wildlife corridors. Large-scale solar energy system installations shall be
+designed and constructed to minimize the impacts on wildlife corridors.
+
+K.
+
+Sound levels. Sound levels under normal operating conditions of the large-
+scale solar energy system installation measured at the boundary of the lot on
+which the installation is sited shall not be more than 10 decibels greater
+than would otherwise exist in the absence of the facility.
+
+L.
+
+Hazardous materials. Hazardous materials that are stored, used, or generated
+on site shall not exceed the amount for a very small quantity generator of
+hazardous waste as defined by Massachusetts DEP and shall meet all applicable
+requirements, including storage of hazardous materials in a building with an
+impervious floor that is not adjacent to any floor drains to prevent discharge
+to the outside environment. If hazardous materials are utilized within the
+solar electric equipment, then impervious containment areas capable of
+controlling any release to the environment and to prevent potential
+contamination of groundwater are required.
+
+M.
+
+Independent engineer. Upon request of the Planning Board, the proponent shall
+pay for a licensed third-party independent engineer selected by the Planning
+Board to assist the Planning Board in its review of submitted materials.
+
+§ 180-159  Monitoring and maintenance.
+
+A.
+
+Solar photovoltaic installation conditions. The owner or operator of a large-
+scale solar energy system installation shall maintain the facility in good
+condition. Maintenance shall include, but not be limited to, painting,
+structural repairs, landscaping and integrity of security measures. Site
+access shall be maintained to a level acceptable to the Agawam Fire Chief,
+Building Inspector and Town's Electrical Inspector. The owner or operator
+shall be responsible for the cost of maintaining the installation and any
+access road, unless accepted as a public way.
+
+B.
+
+Modifications. All material modifications to a large-scale solar energy system
+installation made after issuance of the required building permit shall require
+site plan approval by the Planning Board.
+
+C.
+
+Removal requirements and abandonment.
+
+(1)
+
+Abandonment. Absent notice of a proposed date of decommissioning or written
+notice of extenuating circumstances, a large-scale solar energy system
+installation shall be considered abandoned when it fails to operate for more
+than one year without a written waiver by the Planning Board. If the owner or
+operator of a large-scale solar energy system installation fails to remove the
+installation in accordance with the requirements of this section within 150
+days of abandonment or the proposed date of decommissioning, the Town or its
+agents may enter the property and physically remove the installation, the full
+cost of which shall be the responsibility of the owner or operator.
+
+(2)
+
+Removal requirements. Any large-scale solar energy system installation which
+has reached the end of its useful life or has been deemed abandoned consistent
+with this article shall be removed. The owner or operator shall physically
+remove the installation no more than 150 days after the date of discontinued
+operations. The owner or operator shall notify the Planning Board by certified
+mail of the proposed date of discontinued operations and plans for removal.
+Decommissioning shall consist of:
+
+(a)
+
+Physical removal of all solar photovoltaic installations, structures,
+equipment, security barriers and electrical lines from the site;
+
+(b)
+
+Disposal of all solid and hazardous waste in accordance with local, state, and
+federal waste disposal regulations;
+
+(c)
+
+Stabilization and revegetation of the site as necessary to minimize erosion;
+and
+
+(d)
+
+The Planning Board may allow the owner or operator to leave landscaping or
+designated below-grade foundations to minimize erosion and disruption to
+vegetation.
+
+§ 180-160  Financial surety.
+
+The project proponent of large-scale solar energy system installations shall
+provide a form of surety, either through escrow account, bond or line of
+credit from a creditable financial institution, in an amount sufficient to
+cover the cost of removal in the event the Town of Agawam deems the large-
+scale solar energy system installation to be abandoned and must remove the
+installation and remediate the landscape. The amount and form of the surety
+shall be determined to be reasonable by the Planning Board, but in no event
+should exceed more than 110% of the cost of removal and compliance with the
+additional requirements set forth herein, as determined by the project
+proponent. Such surety is not required for municipally owned or state-owned
+facilities. The project proponent shall submit a fully inclusive estimate of
+the costs associated with removal prepared by a qualified engineer. The amount
+shall include a mechanism for calculating increased removal costs due to
+inflation.
+
+By using eCode360 you agree to be legally bound by the Terms of Use and
+Privacy Policy.
+

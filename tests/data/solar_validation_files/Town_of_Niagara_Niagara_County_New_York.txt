@@ -1,0 +1,1464 @@
+home Home
+
+code Code
+
+Code
+
+Index
+
+law Laws (4)
+
+New Laws (4)
+
+Law Ledger (0)
+
+help_center Help
+
+Help
+
+About Us
+
+ecode ecode
+
+search
+
+Login
+
+Town of Niagara, NY  chevron_right 2024-06-18  info chevron_right Part II:
+General Legislation chevron_right Chapter 245 Zoning chevron_right Article
+XVII Solar Energy Systems
+
+arrow_back
+
+print Print email Email download Download share Share add_alert Get Updates
+
+arrow_forward
+
+Article XVII  Solar Energy Systems
+
+[Added 6-18-2024 by L.L. No. 1-2024]
+
+§ 245-78  Authority.
+
+chevron_right
+
+§ 245-79  Findings/statement of purpose.
+
+chevron_right
+
+§ 245-80  Definitions.
+
+chevron_right
+
+§ 245-81  Applicability.
+
+chevron_right
+
+§ 245-82  General requirements.
+
+chevron_right
+
+§ 245-83  Permits and approvals required and applicable zoning districts.
+
+chevron_right
+
+§ 245-84  General criteria.
+
+chevron_right
+
+§ 245-85  Special permit requirements (Tier 3 and 4).
+
+chevron_right
+
+§ 245-86  Special permit criteria (Tier 3 and 4).
+
+chevron_right
+
+§ 245-87  Maintenance, procedures, and fees.
+
+chevron_right
+
+§ 245-88  Revocation.
+
+chevron_right
+
+§ 245-89  Interpretation; conflict with other law.
+
+chevron_right
+
+§ 245-90  Enforcement.
+
+chevron_right
+
+§ 245-91  Severability.
+
+chevron_right
+
+§ 245-92  Waiver.
+
+chevron_right
+
+§ 245-78  Authority.
+
+This Zoning for solar energy systems is adopted pursuant to Sections 261-264
+of the Town Law of the State of New York, which authorizes the Town of Niagara
+to adopt zoning provisions that advance and protect the health, safety, and
+welfare of the community and to make provisions for, so far as conditions may
+permit, the accommodations of solar energy systems and equipment.
+
+§ 245-79  Findings/statement of purpose.
+
+The Town Board of the Town of Niagara makes the following findings:
+
+A.
+
+The Town Board of the Town of Niagara, recognizing that solar energy is a
+clean, readily available, and renewable energy source that decreases energy
+costs and provides local business and job opportunities, intends to
+accommodate, and encourage the use of solar energy systems.
+
+B.
+
+However, the Town Board finds a growing need to properly site solar energy
+systems within the boundaries of the Town of Niagara to protect residential,
+business areas and other land uses, to preserve the overall beauty, nature,
+and character of the Town of Niagara, to promote the effective and efficient
+use of solar energy resources, and to protect the health, safety, and general
+welfare of the citizens of the Town of Niagara.
+
+C.
+
+Solar energy systems, like all land uses, shall be regulated through the
+zoning of the Town and sited, in accordance with the Community's Comprehensive
+Plan and the Town's Zoning Map and Code. The larger solar energy systems can
+have significant impacts on the Town of Niagara and the community's future. In
+accordance with the Town's Comprehensive Plan these systems will be sited to
+minimize impacts to the Town's Agricultural community, rural character,
+neighborhoods, important commercial corridors and other significant features.
+In considering these impacts, the Town will reference the Town of Niagara,
+Open Space, Niagara County and Regional Plans.
+
+D.
+
+Solar energy systems need to be regulated for removal when no longer utilized.
+
+§ 245-80  Definitions.
+
+The following definitions shall apply to this article:
+
+APPLICANT
+
+The person or entity filing an application and seeking an approval under this
+article; the owner of a solar energy system or a proposed solar energy system
+project; the operator of solar energy system or a proposed solar energy system
+project; any person acting on behalf of an applicant, solar energy system or
+proposed solar energy system. Whenever the term "applicant" or "owner" or
+"operator" are used in this article, said term shall include any person acting
+as an applicant, owner or operator.
+
+BUILDING-INTEGRATED PHOTOVOLTAIC SYSTEM (Tier 1)
+
+A combination of photovoltaic building components integrated into any building
+envelope system such as vertical facades including glass and other facade
+material, semitransparent skylight systems, roofing materials, and shading
+over windows.
+
+BUILDING-MOUNTED SOLAR ENERGY SYSTEMS (Tier 1)
+
+A solar energy system that is affixed to the side(s) of a building or other
+structure either directly or by means of support structures or other mounting
+devices, but not including those mounted to the roof or top surface of a
+building. Said system is designed and intended to generate electricity
+primarily for use on said lot (net metering is allowed), potentially for
+multiple tenants, through a distribution system that is not available to the
+general public.
+
+GROUND-MOUNTED SOLAR ENERGY SYSTEM (Tier 2)
+
+A solar energy system that is affixed to the ground either directly or by
+support structures or other mounting devices. Said system is an accessory
+structure, designed and intended to generate electricity primarily for use on
+said lot (net metering is allowed), potentially for multiple tenants, through
+a distribution system that is not available to the general public, and that
+generate up to 110% of the electricity consumed on the site over the previous
+12 months (confirmed by information presented to the Town). Ground-mounted
+solar energy system not meeting the definition as outlined in this article
+will be treated as a large-scale or utility-scale solar energy systems and the
+requirements of such.
+
+HOST COMMUNITY AGREEMENT
+
+A contract between a developer and a local governing body, whereby the
+developer agrees to provide the community with certain benefits and mitigate
+specified impacts of the solar project.
+
+LARGE-SCALE SOLAR ENERGY SYSTEM (TIER 3)
+
+Any solar energy system that is less than 30 acres in size (as measured by the
+fenced in area), that cumulatively on a lot is designed and intended to supply
+energy primarily into a utility grid for sale to the general public, or does
+not meet the definition of Tier 1, Tier 2 and Tier 4 solar energy systems.
+
+NATIVE PERENNIAL VEGETATION
+
+Native wildflowers, forbs, and grasses that serve as habitat, forage, and
+migratory way stations for pollinators and shall not include any prohibited or
+regulated invasive species as determined by the New York State Department of
+Environmental Conservation.
+
+NET METERING
+
+A billing mechanism that credits solar energy system owners for the
+electricity they add to the grid. For example, if a residential customer has a
+PV system on their roof, it may generate more electricity than the home uses
+during daylight hours.
+
+NON-PARTICIPATING PROPERTY
+
+A property that is not affiliated with a solar energy system project in any
+contractual way related to the solar project.
+
+PARTICIPATING PROPERTY
+
+A property that is being leased for solar usage, or a property that has an
+agreement or lease related to the solar project.
+
+POLLINATOR
+
+Bees, birds, bats, and other insects or wildlife that pollinate flowering
+plants, and includes both wild and managed insects.
+
+ROOFTOP-MOUNTED SOLAR ENERGY SYSTEM (Tier 1)
+
+Any solar energy system that is affixed to the roof of a building and wholly
+contained within the limits of the roof surface. Said system is designed and
+intended to generate electricity solely for use on said lot (net metering is
+allowed), potentially for multiple tenants.
+
+SKYSPACE (SOLAR)
+
+The space between a solar collector and the sun through which solar radiation
+passes.
+
+UTILITY-SCALE SOLAR ENERGY SYSTEM (Tier 4)
+
+Any solar energy system that is 30 acres or more in size (as measured by the
+fenced in area), that cumulatively on a lot is designed and intended to supply
+energy primarily into a utility grid for sale to the general public or does
+not meet the definition of a Tier 1, Tier 2 or Tier 3 solar energy system.
+
+§ 245-81  Applicability.
+
+A.
+
+The requirements of this article shall apply to all solar energy systems
+permitted, installed, or modified in the Town after the effective date of this
+article, excluding general maintenance and repair.
+
+B.
+
+Solar energy systems constructed or installed prior to the effective date of
+this article shall not be required to meet the requirements of this article.
+
+C.
+
+Modifications to an existing solar energy system that increase the solar
+energy system area by more than 5% of the original area of the solar energy
+system (exclusive of moving any fencing) shall be subject to this article.
+
+D.
+
+All solar energy systems shall be designed, erected, and installed in
+accordance with all applicable codes, regulations, and industry standards as
+referenced in the NYS Uniform Fire Prevention and Building Code ("Building
+Code"), the NYS Energy Conservation Code ("Energy Code"), NFPA, NEC, other
+Federal and State Codes, Niagara County regulations and the Town Code.
+
+E.
+
+Any application (including variance applications) pending (except those
+specifically excluded from the moratorium in place at that time) for solar
+energy systems on the effective date of this article shall be subject to the
+provisions of this article.
+
+§ 245-82  General requirements.
+
+A.
+
+A building permit shall be required for installation of all solar energy
+systems.
+
+B.
+
+Issuance of permits and approvals by the Town Board shall include review
+pursuant to the State Environmental Quality Review Act ECL Article 8 and its
+implementing regulations at 6 NYCRR Part 617 ("SEQRA").
+
+C.
+
+This article shall take precedence over any inconsistent provision of the
+Zoning Law of the Town of Niagara.
+
+D.
+
+Solar applications shall be referred to the applicable fire company for input.
+
+§ 245-83  Permits and approvals required and applicable zoning districts.
+
+The placement, construction, and major modification of all solar energy
+systems within the boundaries of the Town of Niagara shall be permitted only
+as follows:
+
+A.
+
+Tier 1: Rooftop-mounted, building-mounted and building-integrated solar energy
+systems upon issuance of building permit (specific Town of Niagara building
+permit and requirements for rooftop mounted systems).
+
+B.
+
+Tier 2: Ground-mounted solar energy systems, through site plan approval issued
+by the Town of Niagara Board and upon issuance of a building permit, shall be
+subject to all provisions of this article.
+
+C.
+
+Large-scale solar energy systems (Tier 3) shall not be considered a permitted
+use unless shown to meet the requirements (and one is issued) of a special
+permit pursuant to this article and Article IX of the Town of Niagara Zoning
+Code, and subject to site plan review by the Town Board and requiring issuance
+of a building permit within the A, B-1, B-2, LI, PID, HI, SW, and PL
+districts. These Tier 3 systems are also limited per the following:
+
+(1)
+
+To further reduce potential impacts, a Tier 3 system shall not be located on a
+property adjacent (including across the street) to a nonparticipating property
+in a district zoned Residential (R-1, R-2, R-3/R-4, and Cluster Residential).
+
+D.
+
+Utility-scale solar energy systems (Tier 4) shall not be considered a
+permitted use unless shown to meet the requirements (and one is issued) of a
+special permit pursuant to this article and Article IX of the Town of Niagara
+Zoning Code, and subject to site plan review by the Planning Board, approval
+by Town Board, and requiring issuance of a building permit within the A, B-1,
+B-2, LI, PID, HI, SW, and PL districts. These Tier 4 systems are also limited
+per the following:
+
+(1)
+
+To further reduce potential impacts, a Tier 4 system shall not be located on a
+property adjacent (including across the street) to a property in a district
+zoned Residential (R-1, R-2, R-3/R-4, and Cluster Residential).
+
+E.
+
+Tier 3 and Tier 4 systems are not allowed in the R-1, R-2, R-3/R-4, and
+Cluster Residential zoning districts.
+
+F.
+
+Any solar energy system to be used strictly for agricultural use purposes in
+accordance with NYS Agriculture and Markets Law, may have some requirements of
+this article waived by the Town Board and will include an expedited approval
+process, as necessary.
+
+§ 245-84  General criteria.
+
+A.
+
+Rooftop-mounted and building-mounted solar energy systems shall not be more
+than three feet higher than the finished roof to which it is mounted and in no
+instance shall any part of the system extend beyond three feet before the edge
+of the roof. All rooftop-mounted or building-mounted solar energy systems
+shall meet all building permit requirements (special Town of Niagara permit
+for rooftop solar units) including the NYS Uniform Fire Prevention and
+Building Code standards and the following standards:
+
+(1)
+
+Solar panels on pitched roofs shall be mounted with a maximum distance of
+eight inches between the roof surface the highest edge of the system.
+
+(2)
+
+Solar panels on pitched roofs shall be installed parallel to the roof surface
+on which they are mounted or attached.
+
+(3)
+
+Solar panels on pitched roofs shall not extend higher than the highest point
+of the roof surface on which they are mounted or attached.
+
+(4)
+
+Solar panels on flat roofs shall not extend above the top of the surrounding
+parapet, or more than 24 inches above the flat surface of the roof, whichever
+is higher.
+
+(5)
+
+All solar panels shall have antireflective coating(s) and proof of such must
+be provided at permit application.
+
+B.
+
+Building-integrated solar energy systems. Building-integrated solar energy
+systems shall be shown on the plans submitted for the building permit
+application for the building containing the system.
+
+C.
+
+Tier 2: Ground-mounted solar energy systems shall be subject to the following
+requirements:
+
+(1)
+
+The location of said solar energy system shall be placed the greater of: two
+times the standard primary structure side yard setback requirement of the use
+district in which it is located or at a minimum of 20 feet from any side yard
+property line. The system shall also be located a minimum of 20 feet from any
+rear property line. This distance shall be measured from the panels and any
+associated equipment to the property line; and
+
+(2)
+
+The location of said solar energy system shall be only located in the side or
+rear yard (as defined in the Town Code); and
+
+(3)
+
+A remote disconnect must be provided and shown on the site plan.
+
+(4)
+
+The height of said solar energy system shall not exceed 12 feet when oriented
+at maximum tilt on a lot situated in a R-1, R-2, R-3/R-4, and Cluster
+Residential District; and
+
+(5)
+
+The height of said solar energy system shall not exceed 15 feet when oriented
+at maximum tilt on a lot situated in an A, B-1, B-2, LI, PID, HI, SW, and PL
+districts; and
+
+(6)
+
+The total area occupied by said solar energy system on a lot shall not exceed
+500 square feet in a R-1, R-2, R-3/R-4, and Cluster Residential Zoning
+District (units proposed that exceed this area limitation will require a
+variance through the Town Zoning Board); and
+
+(7)
+
+The total area occupied by said solar system on a lot which is two acres or
+less situated in an A, B-1, B-2, LI, PID, HI, SW, and PL districts shall not
+exceed 1,000 square feet (Units proposed that exceed this area limitation will
+require a variance through the Town Zoning Board); and
+
+(8)
+
+The total area occupied by said solar energy system on a lot which is greater
+than two acres and but less than five acres situated in an A, B-1, B-2, LI,
+PID, HI, SW, and PL districts shall not exceed 5% of the total square footage
+of the entire lot; and
+
+(9)
+
+The total area occupied by said solar energy system on a lot which is greater
+than five acres or more situated in an A, B-1, B-2, LI, PID, HI, SW, and PL
+districts shall not exceed 10% of the total square footage of the entire lot.
+
+D.
+
+Site plan requirements for a ground-mounted, Tier 2 solar energy system. Site
+plan approval is required by this article for ground-mounted Tier 2 solar
+energy systems and the applicant shall be required to submit a site plan drawn
+in sufficient detail as follows:
+
+(1)
+
+Plans and drawings of the solar energy system installation signed by a
+professional engineer registered in New York State showing the proposal layout
+of the solar energy system along with a description of all components,
+existing vegetation, any proposed clearing and grading of the lot involved,
+any storm water or erosion disturbances, and utility lines, both above and
+below ground, on the site and adjacent to the site; and
+
+(2)
+
+Property lot lines and the location and dimensions of all existing structures
+and uses on site within 200 feet of the proposed solar panels; and
+
+(3)
+
+Any proposed fencing and/or screening for said project; and
+
+(4)
+
+Any such additional information as may be required by the Town's professional
+engineer or consultant, Town of Niagara Planning Board, Town Attorney,
+Building Inspector, or Town Board; and
+
+(5)
+
+A public hearing on said site plan may be required by the Planning Board in
+accordance with the Town's site plan requirements (Chapter 135).
+
+E.
+
+Any solar energy system shall be accessible for all emergency service vehicles
+and personnel. All applications will be referred to the applicable emergency
+service providers and the Town Fire Company for input.
+
+F.
+
+All structures and devices used to support solar collectors shall be
+nonreflective and/or painted a subtle or earth-tone color. The design,
+construction, operation, and maintenance of any solar energy system shall
+prevent the misdirection and/or reflection of solar rays onto neighboring
+properties, public roads, and public parks in excess of that which already
+exists.
+
+G.
+
+Artificial lighting of any solar energy systems shall be limited to lighting
+required for safety and operational purposes and shall be shielded from all
+neighboring properties and public roads.
+
+H.
+
+If the use of an approved solar energy system is discontinued, the owner or
+operator shall notify the Building Inspector within 30 days of such
+discontinuance. If a solar energy system is to be retained and reused, the
+owner or operator shall further inform the Building Inspector of this in
+writing at such time and obtain any necessary approvals within one year,
+otherwise it shall be automatically deemed abandoned (and removed per this
+article).
+
+§ 245-85  Special permit requirements (Tier 3 and 4).
+
+Applications for Tier 3 and 4 systems under this article shall be made in
+accordance with Town Zoning Code Article IX, Special Use Permits and as
+follows. Applicants for a special permit to place, construct, and make a major
+modification to a large-scale or utility-scale solar energy systems within the
+boundaries of the Town of Niagara shall submit six sets (and an electronic
+copy) of the following information to the Building Inspector, who shall first
+present it to a professional engineer or consultant for an initial review and
+then onto the Planning Board for its review and recommendation. The Planning
+Board may make such additional referrals as it deems appropriate. No such
+application shall be deemed filed until any required application fee has been
+paid. The following information shall be contained in the application:
+
+A.
+
+A completed State Environmental Quality Review Act (SEQRA) full environmental
+assessment form (FEAF), with the Town of Niagara Town Board to be designated
+as lead agency for the SEQRA process.
+
+B.
+
+Necessary permit information:
+
+(1)
+
+Name, address, and telephone number of the property owner. If the property
+owner is not the applicant, the application shall include the name, address,
+and telephone number of the applicant and a letter or other written permission
+signed by the property owner authorizing the applicant to represent the
+property owner; and
+
+(2)
+
+Documentation of access to the project site(s), including location of all
+access roads (meeting state, town, and emergency service provider's
+requirements), gates, parking areas, etc.; and
+
+(3)
+
+Documentation of the clearing, grading, storm water and erosion control plans;
+and
+
+(4)
+
+Fire safety plan (to be reviewed by the Building Department and Fire Company).
+
+(5)
+
+Property operation and maintenance plan. Such plan shall describe continuing
+photovoltaic maintenance and property upkeep, such as mowing and trimming (or
+other methodologies), maintenance of access drives, maintenance of ditches or
+other waterways through the site (potential emergency access easement provided
+to the Town), and maintenance of the plantings for the required screening.
+This operation and maintenance plan shall reflect all lands that are being
+leased or owned by the applicant.
+
+(6)
+
+Utility interconnection data and a copy of written notification to the utility
+of the proposed interconnection; and
+
+(7)
+
+One or three-line electrical diagram detailing the solar energy system
+installation, associated components, and electrical interconnection methods,
+with all disconnects and over-current devices; and
+
+(8)
+
+A property owner or applicant who has installed or intends to install a large-
+scale or utility-scale solar energy system may choose to negotiate with other
+property owners in the vicinity for any necessary solar skyspace easements.
+The issuance of a special use permit does not constitute solar skyspace
+rights, and the Town shall not be responsible for ensuring impermissible
+obstruction to the solar skyspace because of uses or development performed in
+accordance with Town Code.
+
+(9)
+
+Copy of the lease or contract of sale for the property (redacted as
+necessary).
+
+(10)
+
+A copy of a letter acknowledging Niagara County's solar panel Recycling
+Regulations.
+
+C.
+
+A site plan drawn in sufficient detail meeting the Town of Niagara
+requirements and as follows:
+
+(1)
+
+Plans and drawings of the solar energy system installation signed by a
+professional engineer registered in New York State showing the proposal layout
+of the entire solar energy system along with a description of all components,
+whether on site or off site, existing vegetation and proposed clearing and
+grading of all sites involved, and utility lines, both above and below ground,
+on the site and adjacent to the site; and
+
+(2)
+
+Property lot lines and the location and dimensions of all existing structures
+and uses on site within 500 feet of the solar panels; and
+
+(3)
+
+Proposed fencing and/or screening for said project.
+
+D.
+
+A decommissioning plan to ensure the proper removal of a large-scale or
+utility-scale solar energy systems. The decommissioning plan is to be
+submitted as part of the special use permit application to the Building
+Inspector for approval and must specify that after the large-scale or utility-
+scale solar energy system is no longer in use (as determined by the
+owner/operator or the Building Inspector per this article), it shall be
+removed by the applicant or any subsequent owner. The decommissioning plan
+shall identify the anticipated life of the project. The plan shall demonstrate
+how the removal of all infrastructure and restoration shall be conducted to
+return the parcel to its original state prior to construction. The plan shall
+also include an expected timeline for execution and a cost estimate for
+decommissioning prepared by a professional engineer or qualified contractor.
+Cost estimates shall take inflation into consideration and be revised every
+five years during operation of the system (recycle and salvage value shall be
+excluded in these estimates as they are unpredictable in nature). Removal of
+the large-scale or utility-scale solar energy system must be completed in
+accordance with the approved decommissioning plan and the standards provided
+as follows:
+
+(1)
+
+All structures and foundations associated with the large-scale or utility
+scale solar energy systems shall be removed;
+
+(2)
+
+All disturbed ground surfaces shall be restored to original conditions
+including topsoil and seeding as necessary; and
+
+(3)
+
+All electrical systems shall be properly disconnected, and all cables and
+wiring buried shall be removed.
+
+E.
+
+A bond or other approved security shall be provided to cover the cost of
+removal and restoration of the area impacted by the solar system.
+
+(1)
+
+The deposit, execution, or filing with the Town Clerk of cash, bond, or other
+form of security reasonably acceptable to the Town Attorney and Town Engineer
+and approved by the Town Board, shall be in an amount sufficient to ensure the
+good faith performance of the terms and conditions of the permit issued
+pursuant hereto and to provide for the removal and restorations of the site
+subsequent to removal. The amount of the bond or security shall be 125% of the
+cost of removal of the Tier 3 or Tier 4 solar energy system and restoration of
+the property with an escalator of 2% annually for the life of the solar energy
+system. The decommissioning amount shall not be reduced by the amount of the
+estimated salvage value of the solar energy system. The bond shall be renewed
+every five years or, as necessary, to reflect adjustments in the projected
+costs of decommissioning.
+
+(2)
+
+In the event of default upon performance of such conditions, after proper
+notice and expiration of any cure periods, the cash deposit, bond, or security
+shall be forfeited to the Town, which shall be entitled to maintain an action
+thereon. The cash deposit, bond, or security shall remain in full force and
+effect until restoration of the property as set forth in the decommissioning
+plan is completed.
+
+(3)
+
+In the event of default or abandonment of the solar energy system, the system
+shall be decommissioned as set forth in this article.
+
+F.
+
+All applications shall submit a proposal for a host community agreement (to be
+reviewed and approved by the Town Board prior to issuance of the SUP). The
+host community agreement should reflect a value of at least 50% of the
+estimated overall PILOT/allowed payments for the project.
+
+G.
+
+Any such additional information as may be required by the Town's professional
+engineer or consultant, Town of Niagara Planning Board, Town Attorney,
+Building Inspector, or Town Board.
+
+H.
+
+Applications for large-scale and utility-scale Tier 3 and 4 solar energy
+systems shall meet the following additional criteria:
+
+(1)
+
+Photo simulations shall be included showing the proposed solar energy system
+in relation to the building/site along with elevation views and dimensions,
+and manufacturer's specs and photos of the proposed solar energy system, solar
+collectors, and all other components. These photo simulations must include
+before and after simulations from locations where the solar energy system will
+be viewed from off-site locations as determined by the Planning Board. "After
+simulations" must include landscaping at the condition when first planted and
+another at maturity (see section on screening and visibility for other
+requirements).
+
+(2)
+
+Any site containing a large-scale or utility-scale solar energy system shall
+contain fencing or another type of enclosure acceptable to the Town (and
+meeting State and National Code standards) enclosing all solar energy system
+components that present safety hazards. The style of fencing shall fit into
+the character of the area and be approved by the Town Board.
+
+(3)
+
+A berm, landscape screen, or other opaque enclosure, or any combination
+thereof acceptable to the Town capable of screening the site, shall be
+provided along any property line that abuts an important community resource,
+an existing residence or any property zoned other than LI, PID, HI, or SW. See
+following paragraphs for additional information on screening.
+
+(4)
+
+After completion of a large or utility-scale solar energy system, the
+applicant shall provide a postconstruction certification from a professional
+engineer registered in New York State that the project complies with
+applicable codes and industry practices and has been constructed and is
+operating according to the design plans.
+
+I.
+
+Screening and visibility.
+
+(1)
+
+Solar energy systems shall have views minimized from adjacent properties using
+architectural features, earthen berms, landscaping, or other screening methods
+that will harmonize with the character of the property and surrounding area.
+
+(2)
+
+Solar energy systems shall be required to:
+
+(a)
+
+Conduct a visual assessment of the visual impacts of the solar energy system
+on public roadways and adjacent properties and as directed by the Planning
+Board. As required previously, this analysis must consider conditions at day
+one of operation and when the landscaping has matured. At a minimum, a line-
+of-sight profile analysis shall be provided, but photo-simulations are
+required for all areas that will have a view of the project site. Depending
+upon the scope and potential significance of the visual impacts, additional
+impact analyses, including, for example, a digital view shed report, may be
+required to be submitted by the applicant. The Town may hire an independent
+consultant, at the cost of the applicant, to review and/or conduct their own
+visual assessment.
+
+(b)
+
+Submit a screening and landscaping plan to show adequate measures to screen
+through landscaping, grading, or other means so that views of solar panels and
+solar energy equipment shall be minimized as reasonably practical from public
+roadways and adjacent properties to the extent feasible. The Town Board will
+in good faith determine the adequacy of these measures in its sole and
+absolute discretion.
+
+(c)
+
+The screening and landscaping plan shall specify the locations, elevations,
+height, plant species, and/or materials that will comprise the structures,
+landscaping, and/or grading used to screen and/or mitigate any adverse
+aesthetic effects of the system. The landscaped screening shall, at a minimum,
+be comprised of evergreen/coniferous trees (planted at recommended spacing for
+the type of tree), at least eight feet to 10 feet high at the time of planting
+(depending on site conditions and the result of the visualizations; may need
+to be installed in a zig-zag pattern to maximum screening), plus supplemental
+shrubs (deer resistant) placed in between the evergreen trees at the
+reasonable discretion of the Town Board. These plantings are to be planted,
+typically, within 10 linear feet of the solar energy system fencing or as
+directed by the Planning Board to achieve maximum screening. In some cases,
+existing vegetation located on participating properties, may be used to
+satisfy all or a portion of the required landscaped screening. Suitable
+evergreen tree and shrub species are to be determined by a professional
+arborist and approved by the Town. This minimum screening requirement will be
+reduced if adjoining properties are participating properties. All plantings
+shall come with a ten-year guarantee and must be replaced if dead or diseased
+(include this in operation and maintenance plan). This will be enforced by the
+Town through the required yearly inspections. Berms can also be utilized to
+reduce heights of proposed plantings, but the berms must not interfere with
+site drainage arid must be properly designed to maintain vegetation.
+
+[1]
+
+Landscape plans must be completed by a NYS registered landscape architect.
+
+(d)
+
+For any buildings or structures (not panels) to be placed on the site, the
+applicant shall be required to submit plans illustrating how these structures
+will blend into the character of the area. For example, buildings can be made
+to look like agricultural structures such as barns.
+
+J.
+
+Additional application and permitting requirements for utility-scale Tier 4
+solar energy systems:
+
+(1)
+
+All the information/requirements listed for a Tier 3 system plus the following
+additional information/requirements.
+
+(2)
+
+Submittal of an agricultural impact statement to determine the impact to
+Agriculture in the Town and community. The Town Board, on a project-by-project
+basis, will work with the applicant on finalizing the requirements of this
+agricultural impact statement, but at a minimum will include whether the
+farmland is active (how long it has been farmed or not farmed) and if it is
+farmed by the property owner or leased. If leased, how the removal of this
+leased land will affect the farmer who leases this site and other farmlands
+and other leases that the farmer has in the Town. Include information on the
+improvements that have been made to the lands (tiling, irrigation, etc.),
+history of the farm and its products, number of workers, products purchased,
+and used for farming operations, etc.
+
+(3)
+
+Submittal of an economic impact analysis to determine the impact of the
+project on the economy of the Town. This includes the agricultural impacts in
+the agricultural impact statement and information as noted by the Town Board
+(Town to work with the applicant on the scoping of this study, but will
+include, at a minimum, the estimated PILOT and HCA payments to the Town).
+
+(4)
+
+Proposal for a host community agreement (to be reviewed and approved by the
+Town Board prior to any approvals granted by other boards or agencies) that
+reflects the large-scale impacts of the project.
+
+K.
+
+Additional agricultural resources requirements. For projects located on
+agricultural lands:
+
+(1)
+
+Tier 3 and 4 solar energy systems allowed to be located on farmland (through
+the processes described in this article) shall be constructed in accordance
+with the construction requirements of the New York State Department of
+Agriculture and Markets (See NYS Agriculture and Markets Guidelines).
+
+L.
+
+Noise. The Tier 3 or 4 project shall not result in any adverse noise impacts
+on any surrounding homes or other sensitive receptors (use of NYSDEC
+regulations concerning noise). Specifically, the project must be shown to not
+generate noise at 45 dBA or above at any nonparticipating property line.
+
+M.
+
+Hazardous materials. The Tier 3 or 4 project components shall not contain any
+hazardous materials that could contaminate soils or the air by their release
+(units shall not contain cadmium or other hazardous substances). Specific
+material data information/specifications (SDS/MSDS sheets) shall be submitted
+on all components of the project. The applicant must ensure that no harmful
+chemicals will be leaked into the soils over the life of the project. For
+certain components of the project, information on spill containment systems
+will need to be provided. This required information shall be reviewed by the
+Planning Board, their consultants, and the fire company.
+
+N.
+
+Airport impacts (NFARS encroachment issues). All Tier 3 or 4 solar energy
+projects must complete a study to be submitted to the Niagara Falls Air
+Reserve Station and the Niagara Falls International Airport that discusses the
+following:
+
+(1)
+
+Distance from installation.
+
+(2)
+
+Location relative to approach/departure and flight patterns associated with
+the base or special use/training areas.
+
+(3)
+
+Glare impact on airport sensitive receptors at Niagara Falls Air Reserve
+Station. Analysis should include a knowledge of sun position, observer
+location, and the solar module/array characteristics (e.g., tilt, azimuth or
+orientation, location, extent and if tracking those parameters for the entire
+path of the moving panels). Note: Though not required by the FAA it is
+strongly encouraged to utilize the Solar Glare Hazard Analysis Tool (SGHAT) to
+predict potential glare with assessed results relative to the FAA's Solar
+Policy and Ocular Hazard Standard (also adopted by the U.S. Department of
+Defense DoD) under Instruction (DODI) 4165.57 and implemented by US Air Force
+AFI 32-7063.
+
+(4)
+
+Any additional lighting of the field to include anti-collision.
+
+(5)
+
+Storm water runoff which may affect the base or the tributaries transitioning
+through the base or the creation of storm ponds which would attract wildlife
+and waterfowl.
+
+(6)
+
+Possible changes to wildlife habitat or migratory patterns that will affect
+aircraft flight path.
+
+O.
+
+Utility-grade solar energy system (Tier 3 and 4) liability insurance.
+
+(1)
+
+The holder of a special use permit for a solar energy system shall agree to
+secure and maintain for the duration of the permit, public liability insurance
+as follows (unless waived by the Town Board for smaller Tier 3 systems):
+
+(a)
+
+Commercial general liability covering personal injuries, death, and property
+damage:
+
+[1]
+
+$5,000,000 per occurrence which shall specifically include the Town of Niagara
+and its officers, councils, employees, attorneys, agents and consultants as
+additional named insured;
+
+(2)
+
+Insurance company. The insurance policies shall be issued by an agent or
+representative of an insurance company licensed to do business in the state
+and with at least a Best's rating of "A."
+
+(3)
+
+Insurance policy cancellation. The insurance policies shall contain an
+endorsement obligating the insurance company to furnish the Town of Niagara
+with at least 30 days' prior written notice in advance of cancellation.
+
+(4)
+
+Insurance policy renewal. Renewal or replacement policies shall be delivered
+to the Town of Niagara Town Clerk at least 15 days before the expiration of
+the insurance that such policies are to renew or replace.
+
+(5)
+
+Copies of insurance policy. No more than 15 days after the grant of the permit
+and before construction is initiated, the permit holder shall deliver to the
+Town of Niagara a copy of each of the policies or certificates representing
+the insurance in the required amounts.
+
+(6)
+
+Certificate of insurance. A certificate of insurance states that it is for
+informational purposes only and does not confer sufficient rights upon the
+Town of Niagara shall not be deemed to comply with this article.
+
+(7)
+
+Indemnification. Any application for a solar energy system within the Town of
+Niagara shall contain an indemnification provision. The provision shall
+require the applicant/owner/operator to at all times defend, indemnify,
+protect, save, hold harmless and exempt the Town of Niagara and its officers,
+Town Board, employees, attorneys, agents and consultants from any and all
+penalties, damages, costs or charges arising out of any and all claims, suits,
+demands, causes of action or award of damages whether compensatory or
+punitive, or expenses arising therefrom either at law or in equity which might
+arise out of or are caused by the placement, construction, erection,
+modification, location, equipment's performance, use, operation, maintenance,
+repair, installation, replacement, removal or restoration of said solar energy
+system, excepting however, any portion of such claims, suits, demands, causes
+of action or award of damages as may be attributable to the negligent or
+intentional acts or omissions of the Town of Niagara or its employees or
+agents. With respect to the penalties, damages, or changes referenced herein,
+reasonable attorneys' fees, consultant' fees and expert witness fees are
+included in those costs that are recoverable by the Town of Niagara.
+
+§ 245-86  Special permit criteria (Tier 3 and 4).
+
+Special permits issued for large-scale or utility-scale solar energy systems
+shall meet the following conditions:
+
+A.
+
+Minimum lot area: none.
+
+B.
+
+Maximum lot area (as measured by the fenced in area): less than 30 acres for
+Tier 3 systems.
+
+C.
+
+Lot coverage. There are no lot coverage requirements, except if the land is
+presently being farmed or has been farmed in the last five years, then the
+maximum lot coverage is 60%.
+
+D.
+
+Setbacks. Any large-scale or utility-scale solar energy system shall adhere to
+the following setbacks (this setback distance shall be measured from the fence
+that surrounds all panels and equipment):
+
+(1)
+
+From any nonparticipating property lot line: a minimum of 200 feet from any
+property lot line, plus appropriate screening.
+
+(2)
+
+From any participating property lot line: a minimum of 50 feet from any
+property lot line, plus any screening required by the Planning Board (if
+necessary). If the property line separates two parcels that are being leased
+or purchased to have panels placed on them, the fifty-foot setback does not
+apply.
+
+(3)
+
+From buildings, structures, or homes (nonparticipating/participating):
+
+(a)
+
+Nonparticipating: a minimum of 300 feet.
+
+(b)
+
+Participating: a minimum of 50 feet.
+
+(4)
+
+From public roads:
+
+(a)
+
+A minimum of 500 feet from any public road (measured from the fence to the
+road right-of-way or property line); and,
+
+(b)
+
+Where the lot line abuts a public right-of-way, the setbacks specified above
+shall be measured from such right-of-way line.
+
+E.
+
+Maximum overall height. The height of a utility-scale solar energy system
+shall not exceed 15 feet when oriented at maximum tilt.
+
+F.
+
+A large-scale or utility-scale solar energy system shall only be located in a
+rear yard if there is a principal structure or dwelling on said lot.
+
+G.
+
+A large-scale or utility-scale solar energy system shall adhere to all
+applicable federal, state, county, and Town of Niagara laws, regulations,
+building, plumbing, electrical, and fire codes.
+
+H.
+
+Development and operation of a large-scale or utility-scale solar energy
+system shall not have a significant adverse impact on fish, wildlife, or plant
+species or their critical habitats, or other significant habitats identified
+by the Town of Niagara or other federal or state regulatory agencies.
+
+I.
+
+The design, construction, operation, and maintenance of a large-scale or
+utility-scale solar energy system shall prevent the misdirection and/or
+reflection of solar rays onto neighboring properties, public roads, and public
+parks in excess of that which already exists. A glare study to Town
+requirements must be submitted to illustrate this. The Town may hire an
+independent consultant to review and verify this study at the cost of the
+applicant.
+
+J.
+
+All structures and devices used to support solar collectors shall be
+nonreflective and/or painted a subtle or earth-tone color.
+
+K.
+
+All transmission lines and wiring associated with a large-scale or utility-
+scale solar energy system shall be buried and include necessary encasements in
+accordance with the National Electric Code and Town requirements. The
+applicant is required to show the locations of all proposed overhead (where
+necessary) and underground electric utility lines, including substations and
+junction boxes and other electrical components for the project on the site
+plan.
+
+L.
+
+All transmission lines and electrical wiring shall be in compliance with the
+utility company's requirements for interconnection (proof to be provided).
+
+M.
+
+Artificial lighting of large-scale or utility-scale solar energy systems shall
+be limited to lighting required for safety and operational purposes and shall
+be shielded from all neighboring properties and public roads.
+
+N.
+
+Any signage shall be in accordance with the Town's signage regulations and
+meet the following:
+
+(1)
+
+No signage or graphic content shall be displayed on the solar energy systems
+except the manufacturer's name, equipment specification information, safety
+information, and twenty-four-hour emergency contact information. Said
+information shall be depicted within an area no more than eight square feet.
+
+(2)
+
+As required by National Electric Code (NEC), disconnect and other emergency
+shutoff information shall be clearly displayed on a light reflective surface.
+A clearly visible warning sign concerning voltage shall be placed at the base
+of all pad-mounted transformers, invertors, and substations.
+
+O.
+
+Any site containing a large-scale or utility-scale solar energy system shall
+contain fencing or other device/structure acceptable to the Town and meeting
+Fire Safety and Electric Codes enclosing all solar energy system components
+that prevent safety hazards. Fencing shall be a minimum of seven feet in
+height as prescribed by the Code; this supersedes any other zoning requirement
+for fence heights.
+
+P.
+
+A berm, landscape screen, or other opaque enclosure, or any combination
+thereof acceptable to the Town capable of screening the site may be required
+along any property line that abuts an existing residence.
+
+Q.
+
+After completion of a large-scale or utility-scale solar energy system, the
+applicant shall provide a post-construction certification from a professional
+engineer registered in New York State (agreed to by the Town of Niagara) that
+the project complies with applicable codes and industry practices and has been
+constructed and is operating according to the design plans. All costs for such
+inspection and certification shall be paid for by the applicant/owner.
+
+R.
+
+The special permit approval will include the requirement that the
+applicant/owner shall return to the Town Board one year after construction is
+certified as being completed. The Town Board will review the project's special
+permit conditions, reports from the Building Inspector, Town Engineer, and
+other Town officials, and any complaints received on the project. The Town
+Board will then determine if the project is in accordance with the special
+permit and all conditions placed on that permit. If the Town Board finds that
+the project is in accordance with the special permit and all conditions, the
+applicant will not need to return to the Town Board. If the Town Board finds
+that the project is not operating in accordance with the special permit and
+the conditions of that permit, that applicant shall remedy those deficiencies
+to the satisfaction of the Town and/or be subject to fines and penalties (as
+set by the Town), and potential loss of the special permit. In this case, the
+applicant shall return again to the Town Board after one year of remedying
+these deficiencies for the Town Board to again review the project against the
+special permit and the conditions of that permit.
+
+S.
+
+Compliance with regulatory agencies. The applicant is required to obtain all
+necessary regulatory approvals and permits from all federal, state, county,
+and local agencies having jurisdiction and approval related to the completion
+of a large-scale or utility-scale solar energy system.
+
+T.
+
+A bond or other appropriate form of security shall be offered by the applicant
+as part of their decommissioning plan (the bond/security and decommissioning
+plan is prescribed in this article) to cover the cost of the removal and site
+restoration by the Town of Niagara Town Board and said proof of appropriate
+form of security shall be filed prior to construction and on an annual basis
+with the Town Clerk.
+
+U.
+
+Clearing, grading, storm water and erosion control:
+
+(1)
+
+Before the Town of Niagara shall issue a clearing, grading, storm water or
+building permit for a large-scale or utility-scale solar energy system, the
+applicant shall submit a storm water and erosion control plan to the Town of
+Niagara for its review and approval; and
+
+(2)
+
+The plan shall minimize the potential adverse impacts on wetlands and Class I
+and II streams and the banks and vegetation along those streams and wetlands
+and minimize erosion or sedimentation.
+
+§ 245-87  Maintenance, procedures, and fees.
+
+A.
+
+Time limit on completion. After the granting of a special permit of a large-
+scale or utility-scale solar energy system with concurrent site plan approval
+or site plan approval of a freestanding or ground-mounted solar energy system
+by the Town Board, the building permit shall be obtained within six months and
+the project shall be completed within 12 months. A six-month extension to
+obtain a building permit or the completion time can be issued by the Town
+Board upon application by the applicant. If not constructed, the special
+permit and/or site plan approval shall automatically lapse within 12 months
+after the date of approval by the Town of Niagara Town Board (unless an
+extension is granted).
+
+B.
+
+Inspections. Upon reasonable notice, the Town of Niagara Building Inspector or
+his or her designee may enter a lot on which a solar energy system has been
+approved for the purpose of compliance with any requirements or conditions.
+Twenty-four hours' advance notice by telephone to the owner/operator or
+designated contact person shall be deemed reasonable notice. Furthermore, a
+utility-scale solar energy system shall be inspected once every five years by
+a New York State licensed professional engineer that has been approved by the
+Town or at any other time, upon a determination by the Town's Building
+Inspector that damage may have occurred, and a copy of the inspection report
+shall be submitted to the Town Building Inspector. Any fee or expense
+associated with this inspection shall be borne entirely by the permit holder.
+
+C.
+
+General complaint process. During construction, the Town Building Inspector
+can issue a stop order at any time for any violations of a special permit or
+building permit. After construction is complete, the permit holder of a Tier 3
+or Tier 4 solar energy system shall establish a contact person, including name
+and phone number, for receipt of any complaint concerning any permit
+requirements.
+
+D.
+
+Continued operation. A solar energy system shall be maintained in operational
+condition at all times, subject to reasonable maintenance and repair outages.
+Operational condition includes meeting all approval requirements and
+conditions. Further, the Building Inspector shall also have the right to
+request documentation from the owner for a solar energy system regarding the
+system's usage at any time.
+
+E.
+
+Removal. All solar energy systems shall be dismantled and removed immediately
+from a lot when the special permit or approval has been revoked by the Town of
+Niagara Town Board or the solar energy system has been deemed inoperative or
+abandoned by the Building Inspector for a period of more than 365 days at the
+cost of the owner. If the owner does not dismantle and remove said solar
+energy system as required, the Town Board may, after a hearing at which the
+owner shall be given an opportunity to be heard and present evidence,
+dismantle and remove said facility and place the cost of removal as a tax lien
+on said parcel.
+
+F.
+
+Determination of abandonment or inoperability. A determination of the
+abandonment or inoperability of a solar energy system shall be made by the
+Town Building Inspector, who shall provide the owner with written notice by
+personal service or certified mail. Any appeal by the owner of the Building
+Inspector's determination of abandonment or inoperability shall be filed with
+the Town of Niagara Zoning Board of Appeals within 30 days of the Building
+Inspector causing personal service or mailing certified mail his written
+determination and the Board shall hold a hearing on same. The filing of an
+appeal does not stay the following time frame unless the Zoning Board of
+Appeals or a court of competent jurisdiction grants a stay or reverses said
+determination. At the earlier of the 366 days from the date of determination
+of abandonment or inoperability without reactivation or upon completion of
+dismantling and removal, any approvals for the solar energy system shall
+automatically expire.
+
+G.
+
+Application and annual fees.
+
+(1)
+
+Large-scale and utility-scale solar energy system. An applicant shall pay an
+initial application fee in the amount as set by the Town Board, upon filing
+its special permit and site plan application to cover the cost of processing
+and reviewing the application. Per sections of this article, if the Planning
+Board needs to hire specialists/consultants to review reports/materials
+submitted by the applicant, the Town will charge the costs of these reviews to
+the applicant (may require escrow money to be deposited). If the project is
+approved, the owner shall pay an annual fee in the amount as set by the Town
+Board, to cover the cost of processing and reviewing the annual inspection
+reports and for administration, inspections and enforcement, as well as the
+building permit fee and the special permit fee set by the Town Board.
+
+(2)
+
+Site plan application for ground-mounted solar energy systems. An applicant
+shall pay the standard site plan review fee as determined from time to time by
+the Town Board, by resolution.
+
+(3)
+
+All fees contained in this article may be revised or changed from time to time
+by Town Board resolution.
+
+(4)
+
+The Town of Niagara reserves the right to, by local law, provide that no
+exemption pursuant to the provision of the New York State Real Property Tax
+Law (RPTL) § 487 shall be applicable within its jurisdiction.
+
+H.
+
+Prior to the issuance of a building permit, the applicant shall document that
+all applicable federal, state, county, and local permits have been obtained.
+
+I.
+
+Special permits for a large-scale or utility-scale solar energy system granted
+under this article shall be issued only as required by the Town Zoning Law.
+
+J.
+
+The planning board may:
+
+(1)
+
+For large-scale or utility-scale solar energy systems, recommend the granting
+of a special permit, deny a special permit, or grant a special permit with
+written stated conditions. The Town Board in making this decision shall make
+Findings in accordance with § 245-41 of Article IX of the Town Zoning Code.
+Denial of a special permit shall be by written decision based upon substantial
+evidence considered by the Board. If a special permit is granted, the Town
+Board may grant site plan approval, deny site plan approval or grant site plan
+approval with written stated conditions. Denial of site plan approval shall be
+by written decision based upon substantial evidence considered by the Board.
+Upon issuance of a special permit and site plan approval, the applicant shall
+obtain a building permit for the large-scale or utility-scale solar energy
+system.
+
+(2)
+
+For ground-mounted (Tier 2) solar energy systems, grant site plan approval,
+deny site plan approval or grant site plan approval with written stated
+conditions. Denial of site plan approval shall be by written decision based
+upon substantial evidence considered by the Board. Upon issuance of a site
+plan approval, the applicant shall obtain a building permit for the
+freestanding or ground-mounted solar energy system.
+
+K.
+
+Any changes or alterations post construction to a large-scale or utility-
+scale, freestanding or ground-mounted solar energy system shall be done only
+by amendment to the special permit and/or site plan (if required) subject to
+all requirements of this code.
+
+L.
+
+Special permits for a large-scale or utility-scale solar energy systems shall
+be assignable or transferrable so long as they are in full compliance with
+this article and all the conditions, and the Building Inspector is notified in
+writing at least 15 days' prior thereto. The Town shall notify the applicant
+of receipt of the notice and provide instructions for the new owners on
+meeting the requirements of the special use permit (bonds, decommissioning
+plans, etc.).
+
+M.
+
+In addition to the requirements of this article, the special permit
+application shall be subject to any other site plan approval requirements set
+forth in the Town Zoning Code.
+
+§ 245-88  Revocation.
+
+If the applicant violates any of the conditions of its special permit, site
+plan approval or violates any other local, state, or federal laws, rules, or
+regulations, this shall be grounds for revocation of the special permit or
+site plan approval. Revocation may occur after the applicant is notified in
+writing of the violations and the Town of Niagara Town Board holds a hearing
+on same.
+
+§ 245-89  Interpretation; conflict with other law.
+
+In their interpretation and application, the provisions of this article shall
+be held to be minimum requirements, adopted for the promotion of the public
+health, safety, and general welfare. It is not intended to interfere with,
+abrogate, or annul other rules, regulations, or laws, provided that whenever
+the requirements of this article are at a variance with the requirements of
+any other lawfully adopted regulations, rules or laws, the most restrictive,
+or those which impose the highest standards, shall govern.
+
+§ 245-90  Enforcement.
+
+Any violation of this article shall be subject to the same enforcement
+requirements, including the civil and criminal penalties, provided for in the
+zoning or land use regulations of the Town Code.
+
+§ 245-91  Severability.
+
+If any section, subsection, phrase, sentence, or other portion of this article
+is for any reason held invalid, void, unconstitutional, or unenforceable by
+any court of competent jurisdiction, such portion shall be deemed a separate,
+distinct, and independent provision, and such holding shall not affect the
+validity of the remaining portions hereof.
+
+§ 245-92  Waiver.
+
+Upon request, the Town Board may, in its sole discretion, waive any of the
+requirements of this article regulating solar electric energy systems.
+
+By using eCode360 you agree to be legally bound by the Terms of Use and
+Privacy Policy.
+

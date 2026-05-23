@@ -137,6 +137,8 @@ format = "ruff format ./compass"
 tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
 tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=10 tests/python/integration"
+# Opt-in tests that make live, billable LLM calls (deselected by default).
+tests-expensive = "pytest -rapP -vv -s --log-cli-level=INFO -m expensive tests/python/integration"
 
 [tool.pixi.feature.python-doc.tasks]
 python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
@@ -416,9 +418,12 @@ omit = [
 
 
 [tool.pytest.ini_options]
-addopts = "--disable-warnings"
+addopts = '--disable-warnings -m "not expensive"'
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
+markers = [
+  "expensive: opt-in tests that are deselected by default (e.g. tests that make live, billable LLM calls). Run explicitly with `-m expensive`.",
+]
 testpaths = [
   "tests/python/unit",
   "tests/python/integration",

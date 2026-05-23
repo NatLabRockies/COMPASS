@@ -1,0 +1,495 @@
+[
+  {
+    "fips": 13015,
+    "jurisdiction": "Bartow Georgia",
+    "file": "Bartow_County_Georgia.pdf",
+    "source": "https://cms2.revize.com/revize/bartowga/ordinance%20updated%20thru%2011-04-20.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 53005,
+    "jurisdiction": "Benton Washington",
+    "file": "Benton_County_Washington.pdf",
+    "source": "https://bentoncountywa.municipalone.com/docview.aspx?docid=29828",
+    "expected_year": null  // Rajendra verified no year in doc
+  },
+  {
+    "fips": 29019,
+    "jurisdiction": "Boone Missouri",
+    "file": "Boone_County_Missouri.pdf",
+    "source": "https://www.showmeboone.com/resource-management/Solar/03-18-24%20Final%20Drafts/SECTION_30_SOLAR_ENERGY_OVERLAY_DISTRICT_FINAL_DRAFT_20240318.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 22015,
+    "jurisdiction": "Bossier Louisiana",
+    "file": "Bossier_Parish_Louisiana.pdf",
+    "source": "https://www.bossierparishla.gov/docs/default-source/police-jury/recent-ordinances/4910.pdf?sfvrsn=aa884719_3#:~:text=BE%20IT%20ORDAINED%20that%20the,Police%20Jury%2C%20excluding%20state%2Downed",
+    "expected_year": 2022
+  },
+  {
+    "fips": 38011,
+    "jurisdiction": "Bowman North Dakota",
+    "file": "Bowman_County_North_Dakota.pdf",
+    "source": "https://bowmannd.com/wp-content/uploads/2024/12/2024-ZONING-ORDINACE.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 19017,
+    "jurisdiction": "Bremer Iowa",
+    "file": "Bremer_County_Iowa.pdf",
+    "source": "https://cms7files.revize.com/bremercountyia/document_center/Building%20Zoning/Ordinances%20and%20codes/Recorded%20Ord%2022-07%20(Zoning%20Ord).pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 27017,
+    "jurisdiction": "Carlton Minnesota",
+    "file": "Carlton_County_Minnesota.pdf",
+    "source": "https://www.carltoncountymn.gov/DocumentCenter/View/931/Renewable-Energy-Ordinance-PDF",
+    "expected_year": 2017
+  },
+  {
+    "fips": 17015,
+    "jurisdiction": "Carroll Illinois",
+    "file": "Carroll_County_Illinois.pdf",
+    "source": "https://cms9files.revize.com/carrollil/Chapter%20725%20Solar%20Amended%2005.18.2023.pdf",
+    "expected_year": 2023
+  },
+  {
+    "fips": 18015,
+    "jurisdiction": "Carroll Indiana",
+    "file": "Carroll_County_Indiana.pdf",
+    "source": "https://www.in.gov/counties/carroll/files/ORDINANCE-2024-01.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 27025,
+    "jurisdiction": "Chisago Minnesota",
+    "file": "Chisago_County_Minnesota.pdf",
+    "source": "https://www.chisagocountymn.gov/DocumentCenter/View/7211/Solar-Energy-Systems-Ordinance-PDF",
+    "expected_year": 2020
+  },
+  {
+    "fips": 2501300840,
+    "jurisdiction": "Agawam Town Hampden Massachusetts",
+    "file": "City_of_Agawam_Town_Hampden_County_Massachusetts.txt",
+    "source": "https://ecode360.com/34134372",
+    "expected_year": 2025,  // Available in webpage breadcrumb
+    "allow_failure": true
+  },
+  {
+    "fips": 27027,
+    "jurisdiction": "Clay Minnesota",
+    "file": "Clay_County_Minnesota.pdf",
+    "source": "https://claycountymn.gov/DocumentCenter/View/16228",
+    "expected_year": null  // Rajendra verified no year in doc
+  },
+  {
+    "fips": 56011,
+    "jurisdiction": "Crook Wyoming",
+    "file": "Crook_County_Wyoming.pdf",
+    "source": "https://cms2.revize.com/revize/crookscountynew/elected_officials/commissioners/docs/Proposed_Rules_&_Regs/Wind%20and%20Solar%20Regulation%20after%20August%205%202025.pdf?t=202508192041490&t=202508192041490",
+    "expected_year": 2025
+  },
+  {
+    "fips": 47035,
+    "jurisdiction": "Cumberland Tennessee",
+    "file": "Cumberland_County_Tennessee.pdf",
+    "source": "https://www.cumberlandcountync.gov/vd-Planning/downloads/ord_amendments/county/Solar%20Farm%20__Approved__051815.pdf",
+    "expected_year": 2015
+  },
+  {
+    "fips": 19061,
+    "jurisdiction": "Dubuque Iowa",
+    "file": "Dubuque_County_Iowa.pdf",
+    "source": "https://www.dubuquecountyiowa.gov/DocumentCenter/View/7375/Ch-05---Renewable-Energy-Ordinance-DRAFT-2024-07-29-PDF",
+    "expected_year": 2024
+  },
+  {
+    "fips": 21079,
+    "jurisdiction": "Garrard Kentucky",
+    "file": "Garrard_County_Kentucky.pdf",
+    "source": "https://garrardcountyky.gov/wp-content/uploads/2024/01/Solar-Ordinance-Second-Reading-Signed.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 47059,
+    "jurisdiction": "Greene Tennessee",
+    "file": "Greene_County_Tennessee.pdf",
+    "source": "https://www.greenecountytngov.com/wp-content/uploads/2017/09/Greene%20County,%20TN.Zoning%20Res.Dec%202015.pdf",
+    "expected_year": 2015
+  },
+  {
+    "fips": 17065,
+    "jurisdiction": "Hamilton Illinois",
+    "file": "Hamilton_County_Illinois.pdf",
+    "source": "https://www.hamiltoncountyil.gov/app/uploads/2022/06/Hamilton-County-IL-Commercial-Solar-Energy-Ordinance-2024-05-02.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 18073,
+    "jurisdiction": "Jasper Indiana",
+    "file": "Jasper_County_Indiana.pdf",
+    "source": "https://jasper.county.codes/JCC/20.50.950",
+    "expected_year": 2025,  // Available in webpage footer
+    "allow_failure": true
+  },
+  {
+    "fips": 39103,
+    "jurisdiction": "Medina Ohio",
+    "file": "Medina_County_Ohio.txt",
+    "source": "https://codelibrary.amlegal.com/codes/medina/latest/medina_oh/0-0-0-29637",
+    "expected_year": 2014
+  },
+  {
+    "fips": 19137,
+    "jurisdiction": "Montgomery Iowa",
+    "file": "Montgomery_County_Iowa.pdf",
+    "source": "https://www.montgomerycountyia.gov/docview.aspx?docid=50714",
+    "expected_year": 2022
+  },
+  {
+    "fips": 38061,
+    "jurisdiction": "Mountrail North Dakota",
+    "file": "Mountrail_County_North_Dakota.pdf",
+    "source": "http://www.co.mountrail.nd.us/Documents/Uploads/Mountrail-Co-LDC-Recorded-Document-455088.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 27101,
+    "jurisdiction": "Murray Minnesota",
+    "file": "Murray_County_Minnesota.pdf",
+    "source": "https://cms9files.revize.com/murraycounty/Renewable_Energy_eff_01-01-20.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 53047,
+    "jurisdiction": "Okanogan Washington",
+    "file": "Okanogan_County_Washington.txt",
+    "source": "https://www.codepublishing.com/WA/OkanoganCounty/html/OkanoganCounty17/OkanoganCounty17255.html",
+    "expected_year": 2024
+  },
+  {
+    "fips": 27111,
+    "jurisdiction": "Otter Tail Minnesota",
+    "file": "Otter_Tail_County_Minnesota.pdf",
+    "source": "https://ottertailcounty.gov/wp-content/uploads/2021/07/Renewable-Energy-Ordinance-11-23-2021.pdf",
+    "expected_year": 2021
+  },
+  {
+    "fips": 27121,
+    "jurisdiction": "Pope Minnesota",
+    "file": "Pope_County_Minnesota.pdf",
+    "source": "https://www.popecountymn.gov/wp-content/uploads/2024/09/Resolution-202424-Approving-Amendments-to-the-Pope-County-LUCO-Sec2.2-10.4-10.12-10.24-and-11.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 19155,
+    "jurisdiction": "Pottawattamie Iowa",
+    "file": "Pottawattamie_County_Iowa.pdf",
+    "source": "https://www.pottcounty-ia.gov/files/meetings/2023-11-14_packet_board_of_supervisors_50640.pdf",
+    "expected_year": 2023
+  },
+  {
+    "fips": 24035,
+    "jurisdiction": "Queen Anne'S Maryland",
+    "file": "Queen_Anne'S_County_Maryland.pdf",
+    "source": "https://dnr.maryland.gov/pprp/Documents/QueenAnneZoningDocs.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 17165,
+    "jurisdiction": "Saline Illinois",
+    "file": "Saline_County_Illinois.pdf",
+    "source": "https://energyzoning.org/sites/default/files/PDF/17165_Saline%20_20230118.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 51175,
+    "jurisdiction": "Southampton Virginia",
+    "file": "Southampton_County_Virginia.pdf",
+    "source": "https://www.southamptoncounty.org/BOS%20Agenda%202022/March%2022,%202022/No.%2015%20-%20Draft%20Ordinance%20-%20Utility%20Scale%20Solar%20Projects.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 12111,
+    "jurisdiction": "St. Lucie Florida",
+    "file": "St._Lucie_County_Florida.pdf",
+    "source": "https://mcclibraryfunctions.azurewebsites.us/api/ordinanceDownload/14641/485031/pdf",
+    "expected_year": 2010
+  },
+  {
+    "fips": 3602102099,
+    "jurisdiction": "Ancram Columbia New York",
+    "file": "Town_of_Ancram_Columbia_County_New_York.pdf",
+    "source": "https://www.ancramny.org/ws/wp-content/uploads/2021/04/Abstract-of-Local-Law-1-of-2021-Solar-Law.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3612102418,
+    "jurisdiction": "Arcade Wyoming New York",
+    "file": "Town_of_Arcade_Wyoming_County_New_York.pdf",
+    "source": "https://villageofarcade.org/wp-content/uploads/VOA-files/Zoning%20Board%20Documents/Town%20of%20Arcade%20Zoning%20Law%20December%202020.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 3600106211,
+    "jurisdiction": "Berne Albany New York",
+    "file": "Town_of_Berne_Albany_County_New_York.pdf",
+    "source": "https://berneny.org/wp-content/uploads/Proposed-Local-Law-3-of-2022.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3600706618,
+    "jurisdiction": "Binghamton Broome New York",
+    "file": "Town_of_Binghamton_Broome_County_New_York.pdf",
+    "source": "https://townofbinghamton.com/wp-content/uploads/2020/10/TOB-Draft-Solar-Law-REV.-8-31-20-.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 3602907454,
+    "jurisdiction": "Boston Erie New York",
+    "file": "Town_of_Boston_Erie_County_New_York.pdf",
+    "source": "https://ecode360.com/BO0557/laws/LF1193731.pdf",
+    "expected_year": 2019
+  },
+  {
+    "fips": 2500107175,
+    "jurisdiction": "Bourne Barnstable Massachusetts",
+    "file": "Town_of_Bourne_Barnstable_County_Massachusetts.pdf",
+    "source": "https://www.townofbourne.com/sites/g/files/vyhlif12841/f/uploads/zoning_bylaw_2022_for_website_1.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3600312243,
+    "jurisdiction": "Caneadea Allegany New York",
+    "file": "Town_of_Caneadea_Allegany_County_New_York.pdf",
+    "source": "https://cms2.revize.com/revize/caneadea/Article%2015.pdf",
+    "expected_year": null,  // Rajendra verified no year in doc
+  },
+  {
+    "fips": 3601314069,
+    "jurisdiction": "Chautauqua Chautauqua New York",
+    "file": "Town_of_Chautauqua_Chautauqua_County_New_York.pdf",
+    "source": "https://municipality-management.s3.us-east-2.amazonaws.com/48/agendas/gCGk4Sv6Jidg9xpX_11%208%2023%20Work%20Session%20Agenda-%20Solar%20Review.pdf",
+    "expected_year": 2023
+  },
+  {
+    "fips": 2300315395,
+    "jurisdiction": "Crystal Aroostook Maine",
+    "file": "Town_of_Crystal_Aroostook_County_Maine.pdf",
+    "source": "https://www.islandfallsme.us/vertical/sites/%7B22C70384-7073-450B-957A-33378347F000%7D/uploads/Solar_Ordinance_Crystal(1).pdf",
+    "expected_year": 2023
+  },
+  {
+    "fips": 2301717250,
+    "jurisdiction": "Denmark Oxford Maine",
+    "file": "Town_of_Denmark_Oxford_County_Maine.pdf",
+    "source": "https://denmarkmaine.org/uploads/zoning_ordinance_amended_02.27.2021_approved_with_5.16__8.8_additions-1-.pdf",
+    "expected_year": 2021
+  },
+  {
+    "fips": 3602720819,
+    "jurisdiction": "Dover Dutchess New York",
+    "file": "Town_of_Dover_Dutchess_County_New_York.pdf",
+    "source": "https://www.doverny.us/sites/g/files/vyhlif4341/f/news/draft_new_dover_solar_code_updated_09_13_23__0.pdf",
+    "expected_year": 2023
+  },
+  {
+    "fips": 2301923620,
+    "jurisdiction": "Enfield Penobscot Maine",
+    "file": "Town_of_Enfield_Penobscot_County_Maine.pdf",
+    "source": "https://www.enfieldmaine.org/Commercial%20Solar%20Ordinance.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 3609329366,
+    "jurisdiction": "Glenville Schenectady New York",
+    "file": "Town_of_Glenville_Schenectady_County_New_York.pdf",
+    "source": "https://www.townofglenville.org/home/files/gecc-solar-attachments",
+    "expected_year": 2024
+  },
+  {
+    "fips": 3607130631,
+    "jurisdiction": "Greenville Orange New York",
+    "file": "Town_of_Greenville_Orange_County_New_York.pdf",
+    "source": "https://ecode360.com/GR1575/laws/LF2129396.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 2301930795,
+    "jurisdiction": "Hampden Penobscot Maine",
+    "file": "Town_of_Hampden_Penobscot_County_Maine.pdf",
+    "source": "https://www.hampdenmaine.gov/vertical/sites/%7B1FCAF0C4-5C5E-476D-A92E-1BED5B1F9E05%7D/uploads/SOLAR_ENERGY_ORDINANCE.pdf",
+    "expected_year": 2021
+  },
+  {
+    "fips": 3606332490,
+    "jurisdiction": "Hartland Niagara New York",
+    "file": "Town_of_Hartland_Niagara_County_New_York.pdf",
+    "source": "https://cms5.revize.com/revize/hartlandny/Businesses/Town%20of%20Hartland%20Code/Zoning%20&%20All%20Codes/HA0923-144.pdf",
+    "expected_year": 2017  // Has "Added 3-15-2017 by L.L. No. 1-2017" text
+  },
+  {
+    "fips": 3606351033,
+    "jurisdiction": "Niagara Niagara New York",
+    "file": "Town_of_Niagara_Niagara_County_New_York.txt",
+    "source": "https://ecode360.com/45924925",
+    "expected_year": 2024
+  },
+  {
+    "fips": 3603936178,
+    "jurisdiction": "Hunter Greene New York",
+    "file": "Town_of_Hunter_Greene_County_New_York.pdf",
+    "source": "https://townofhunterny.gov/wp-content/uploads/2021/06/solar-law-2021.pdf",
+    "expected_year": 2021
+  },
+  {
+    "fips": 3604342752,
+    "jurisdiction": "Little Falls Herkimer New York",
+    "file": "Town_of_Little_Falls_Herkimer_County_New_York.pdf",
+    "source": "https://townoflittlefallsny.com/wp-content/uploads/2023/12/1-2020-1-Solar-Energy-Regulations-Law-AMENDMENT-TO-LAW-2017-2-2.pdf",
+    "expected_year": 2020
+  },
+  {
+    "fips": 3602142917,
+    "jurisdiction": "Livingston Columbia New York",
+    "file": "Town_of_Livingston_Columbia_County_New_York.pdf",
+    "source": "https://townoflivingston.org/wp-content/uploads/2022/06/Local-Law-2-of-2021.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3605142961,
+    "jurisdiction": "Livonia Livingston New York",
+    "file": "Town_of_Livonia_Livingston_County_New_York.txt",
+    "source": "https://ecode360.com/38054462",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3301747700,
+    "jurisdiction": "Middleton Strafford New Hampshire",
+    "file": "Town_of_Middleton_Strafford_County_New_Hampshire.pdf",
+    "source": "https://middletonnh.gov/uploads/proposed-zoning-ordinances.pdf",
+    "expected_year": 2023
+  },
+  {
+    "fips": 2302547455,
+    "jurisdiction": "Moscow Somerset Maine",
+    "file": "Town_of_Moscow_Somerset_County_Maine.pdf",
+    "source": "https://moscowmaine.org/s/Solar-Farm-Ordinance.pdf",
+    "expected_year": null  // Rajendra verified no year in doc
+  },
+  {
+    "fips": 2500351580,
+    "jurisdiction": "Otis Berkshire Massachusetts",
+    "file": "Town_of_Otis_Berkshire_County_Massachusetts.pdf",
+    "source": "https://ecode360.com/43529091#43529410",
+    "expected_year": 2025
+  },
+  {
+    "fips": 3606755651,
+    "jurisdiction": "Otisco Onondaga New York",
+    "file": "Town_of_Otisco_Onondaga_County_New_York.pdf",
+    "source": "https://townofotisco.com/wp-content/uploads/2024/04/Local-Law-2024-05.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 3606357111,
+    "jurisdiction": "Pendleton Niagara New York",
+    "file": "Town_of_Pendleton_Niagara_County_New_York.txt",
+    "source": "https://ecode360.com/5125460",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3300974740,
+    "jurisdiction": "Sugar Hill Grafton New Hampshire",
+    "file": "Town_of_Sugar_Hill_Grafton_County_New_Hampshire.pdf",
+    "source": "https://www.sugarhillnh.org/wp-content/uploads/2024/04/SH-Zoning-Ordinance-Amended-03122024.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 3601172037,
+    "jurisdiction": "Summerhill Cayuga New York",
+    "file": "Town_of_Summerhill_Cayuga_County_New_York.pdf",
+    "source": "https://www.cayugacounty.us/DocumentCenter/View/19649/Town-of-Summerhill-Proposed-Solar-Land-Use-Regs-PDF",
+    "expected_year": 2022
+  },
+  {
+    "fips": 3602578047,
+    "jurisdiction": "Walton Delaware New York",
+    "file": "Town_of_Walton_Delaware_County_New_York.txt",
+    "source": "https://ecode360.com/34256634",
+    "expected_year": 2019
+  },
+  {
+    "fips": 2501572880,
+    "jurisdiction": "Ware Hampshire Massachusetts",
+    "file": "Town_of_Ware_Hampshire_County_Massachusetts.pdf",
+    "source": "https://cms1files.revize.com/warema/Ware%20Bylaw%20-%20Utility%20Scale%20Solar%20Revision.pdf",
+    "expected_year": null  // Rajendra verified no year in doc
+  },
+  {
+    "fips": 4400377720,
+    "jurisdiction": "West Greenwich Kent Rhode Island",
+    "file": "Town_of_West_Greenwich_Kent_County_Rhode_Island.pdf",
+    "source": "https://ecode360.com/33936687#33936687",
+    "expected_year": 2025,  // Date available in webpage breadcrumb
+    "allow_failure": true
+  },
+  {
+    "fips": 3600179851,
+    "jurisdiction": "Westerlo Albany New York",
+    "file": "Town_of_Westerlo_Albany_County_New_York.pdf",
+    "source": "https://townofwesterlony.com/wp-content/uploads/2021/12/LL-No-4-of-2021-Solar-Energy-Systems-FINAL-2.pdf",
+    "expected_year": 2021
+  },
+  {
+    "fips": 3611581633,
+    "jurisdiction": "Whitehall Washington New York",
+    "file": "Town_of_Whitehall_Washington_County_New_York.pdf",
+    "source": "https://www.washingtoncountyny.gov/DocumentCenter/View/25318/Town-Whitehall-Moratorium-with-SEQRAFS",
+    "expected_year": 2024
+  },
+  {
+    "fips": 3603982480,
+    "jurisdiction": "Windham Greene New York",
+    "file": "Town_of_Windham_Greene_County_New_York.pdf",
+    "source": "https://www.townofwindhamny.com/wp-content/uploads/2022/06/Local-Law-1-of-2022-Regulating-Solar-Energy-Systems.pdf",
+    "expected_year": 2022
+  },
+  {
+    "fips": 27157,
+    "jurisdiction": "Wabasha Minnesota",
+    "file": "Wabasha_County_Minnesota.pdf",
+    "source": "https://cms9files1.revize.com/wabasha/document_center/Wabasha%20County%20Ordinances/ordinance_89.pdf",
+    "expected_year": 2024
+  },
+  {
+    "fips": 13305,
+    "jurisdiction": "Wayne Georgia",
+    "file": "Wayne_County_Georgia.pdf",
+    "source": "https://mcclibraryfunctions.azurewebsites.us/api/ordinanceDownload/12423/1246775/pdf?forceDownload=true#:~:text=(j)%20All%20solar%20farms%20shall,of%20the%20International%20Fire%20Code.",
+    "expected_year": 2023
+  },
+  {
+    "fips": 17201,
+    "jurisdiction": "Winnebago Illinois",
+    "file": "Winnebago_County_Illinois.pdf",
+    "source": "https://energyzoning.org/sites/default/files/PDF/17201_Winnebago%20_20220929.pdf",
+    "expected_year": 2015
+  },
+  {
+    "fips": 17203,
+    "jurisdiction": "Woodford Illinois",
+    "file": "Woodford_County_Illinois.pdf",
+    "source": "https://woodford-county.org/AgendaCenter/ViewFile/Agenda/_02152023-1370",
+    "expected_year": 2018
+  },
+  {
+    "fips": 4025,
+    "jurisdiction": "Yavapai Arizona",
+    "file": "Yavapai_County_Arizona.pdf",
+    "source": "https://www.yavapaiaz.gov/files/sharedassets/public/v/1/development-and-permits/development-services/documents/news/sec-608-solar-facilities-approved-11-6-24-in-effect-12-4-24-watermarked.pdf",
+    "expected_year": 2024
+  }
+]

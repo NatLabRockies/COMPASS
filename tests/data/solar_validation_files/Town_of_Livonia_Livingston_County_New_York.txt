@@ -1,0 +1,741 @@
+home Home
+
+code Code
+
+Code
+
+Index
+
+law Laws (2)
+
+New Laws (2)
+
+Law Ledger (0)
+
+help_center Help
+
+Help
+
+About Us
+
+ecode ecode
+
+search
+
+Login
+
+Town of Livonia, NY  chevron_right 2023-09-21  info chevron_right Part II:
+General Legislation chevron_right Chapter 150 Zoning chevron_right Article
+XVII Solar Energy Systems
+
+arrow_back
+
+print Print email Email download Download share Share add_alert Get Updates
+
+arrow_forward
+
+Article XVII  Solar Energy Systems
+
+[Added 2-17-2022 by L.L. No. 1-2022]
+
+§ 150-161  Authority; legislative intent.
+
+chevron_right
+
+§ 150-162  Findings.
+
+chevron_right
+
+§ 150-163  Definitions.
+
+chevron_right
+
+§ 150-164  Applicability.
+
+chevron_right
+
+§ 150-165  Use districts where allowed.
+
+chevron_right
+
+§ 150-166  Permitting requirements.
+
+chevron_right
+
+§ 150-167  Maintenance, procedures and fees.
+
+chevron_right
+
+§ 150-168  Revocation.
+
+chevron_right
+
+§ 150-169  Interpretation; conflict with other law.
+
+chevron_right
+
+§ 150-170  Severability.
+
+chevron_right
+
+§ 150-171  When effective.
+
+chevron_right
+
+§ 150-172  through § 150-174. (Reserved)
+
+chevron_right
+
+§ 150-161  Authority; legislative intent.
+
+The Town Board of the Town of Livonia states the following as its findings and
+legislative intent:
+
+A.
+
+This article is adopted pursuant to New York State Town Law §§ 261, 263 and
+264, which authorize the Town of Livonia to adopt zoning provisions that
+advance and protect the health, safety and welfare of the community, and to
+provide for, so far as conditions may permit, the accommodation of solar
+energy systems (as hereafter defined) and equipment which generate electricity
+primarily for on-site use.
+
+B.
+
+This Solar Energy Law is adopted to permit the construction of solar energy
+systems in the Town of Livonia in a manner that advances and protects the
+public health, safety and welfare of the Town of Livonia while facilitating
+the production of renewable energy. In so doing, this article seeks to:
+
+(1)
+
+Take advantage of a safe, abundant, renewable and nonpolluting energy
+resource.
+
+(2)
+
+Preserve and protect the natural resources and prime farmland/farmland of
+statewide importance within the Town of Livonia in accordance with the Town's
+Comprehensive Plan.
+
+(3)
+
+Permit solar installations as hereinafter defined in all zoning districts for
+the production of renewable energy to be used principally on site, subject to
+reasonable conditions to mitigate potential impacts to adjoining properties
+and preserve neighborhood aesthetics.
+
+§ 150-162  Findings.
+
+The Town Board of the Town of Livonia makes the following findings:
+
+A.
+
+The Town Board of the Town of Livonia has previously adopted a temporary
+moratorium concerning the siting and construction of large-scale or
+commercial/industrial solar energy systems within the Town of Livonia. In
+connection with its review of this subject, the Town Board has recognized the
+desirability of promulgating regulations as to the siting and construction of
+solar energy systems in other applications. The Town Board of the Town of
+Livonia has not prohibited the erection or creation of small-scale solar
+energy systems intended to primarily benefit the property on which the solar
+energy system is located. To date, existing solar energy systems in the Town
+of Livonia have been built and used in residential applications.
+
+B.
+
+The Town Board of the Town of Livonia recognizes that solar energy can be a
+clean, readily available and renewable energy source. At this time, the Town
+of Livonia intends to accommodate the use of solar energy systems in the
+context of residential and agricultural applications, as well as single-user
+commercial applications in which the solar energy system provides energy for
+the commercial property, but is not intended to create sufficient excess solar
+energy to make its resale as a marketable commodity the purpose of the solar
+energy system, but rather an incidental or subordinate product thereof. The
+Town Board's determination not to allow large-scale solar energy systems (as
+hereinafter defined) is based on the Town's farmland protection objectives,
+recognition of unique local conditions, i.e., the prevalence of highly
+productive soils throughout the entire Town, and recognition that
+fragmentation of the land base is counter to local objectives and threatens
+the sustainability of agriculture.
+
+C.
+
+The Town Board acknowledges and finds a growing need to properly site solar
+energy systems within the boundaries of the Town of Livonia so as to protect
+the large abundance of prime farmland/farmland of statewide importance within
+the Town, residential properties, business areas and other land uses, to
+preserve the overall beauty, nature and character of the Town of Livonia, to
+promote the effective and efficient use of solar energy resources, and to
+protect the health, safety and general welfare of the citizens of the Town of
+Livonia.
+
+D.
+
+Prior to the adoption of this article, no specific procedures existed to
+address the siting of solar energy systems or to mitigate their potential
+impact upon adjoining properties or the public viewshed. Accordingly, the Town
+Board finds that the promulgation of this article is necessary to direct the
+location and construction of these systems.
+
+E.
+
+Solar energy systems need to be regulated for removal when no longer utilized.
+
+§ 150-163  Definitions.
+
+The following definitions shall apply to this chapter:
+
+APPLICANT
+
+The person or entity filing an application and seeking approval under this
+chapter.
+
+BUILDING-INTEGRATED PHOTOVOLTAIC SYSTEM
+
+A combination of photovoltaic building components integrated into any building
+envelope system, such as vertical facades including glass and other facade
+material, semitransparent skylight systems, roofing materials, and shading
+over windows.
+
+BUILDING-MOUNTED SOLAR ENERGY SYSTEM
+
+Any solar energy system that is affixed to the side(s) of a building or other
+structure either directly or by means of support structures or other mounting
+devices, but not including those mounted to the roof or top surface of a
+building. Said system is designed and intended to generate electricity solely
+for use on said lot, potentially for multiple tenants, through a distribution
+system that is not available to the general public.
+
+FARMLAND OF STATEWIDE IMPORTANCE
+
+Land, designated as "farmland of statewide importance" in the U.S. Department
+of Agriculture Natural Resources Conservation Service's (NRCS's) Soil Survey
+Geographic (SSURGO) Database on Web Soil Survey, that is of statewide
+importance for the production of food, feed, fiber, forage, and oilseed crops
+as determined by the appropriate state agency or agencies.
+
+GLARE
+
+The effect by reflections of light with intensity sufficient as determined in
+a commercially reasonable manner to cause annoyance, discomfort, or loss in
+visual performance and visibility in material aspects.
+
+GROUND-MOUNTED SOLAR ENERGY SYSTEM
+
+Any solar energy system that is affixed directly or indirectly to the ground
+or land surface, rather than attached to the wall or roof of a structure. Said
+system is designed and intended to generate electricity solely for use on said
+lot, potentially for multiple tenants, through a distribution system that is
+not available to the general public.
+
+LARGE-SCALE SOLAR ENERGY SYSTEM
+
+A solar energy system that is ground-mounted and produces energy primarily for
+the purpose of off-site sale or consumption. Large-scale solar energy systems
+are not authorized or permitted in any zoning district within the Town of
+Livonia and are specifically intended to be a prohibited use within the Town
+of Livonia.
+
+PRIME FARMLAND
+
+Land, designated as "prime farmland" in the U.S. Department of Agriculture
+Natural Resources Conservation Service's (NRCS's) Soil Survey Geographic
+(SSURGO) Database, that has the best combination of physical and chemical
+characteristics for producing food, feed, forage, fiber, and oilseed crops and
+is also available for these uses. It has the soil quality, growing season, and
+moisture supply needed to produce economically sustained high yields of crops
+when treated and managed according to acceptable farming methods, including
+water management. In general, prime farmlands have an adequate and dependable
+water supply from precipitation or irrigation, a favorable temperature and
+growing season, acceptable acidity or alkalinity, acceptable salt and sodium
+content, and few or no rocks. They are permeable to water and air. Prime
+farmlands are not excessively erodible or saturated with water for a long
+period of time, and they either do not flood frequently or are protected from
+flooding.
+
+ROOFTOP-MOUNTED SOLAR ENERGY SYSTEM
+
+Any solar energy system that is affixed to the roof of a building and wholly
+contained within the limits of the roof surface. Said system is designed and
+intended to generate electricity solely for use on the lot (upon which the
+structure containing the solar energy system is located), potentially for
+multiple tenants, through a distribution system that is not available to the
+general public.
+
+SOLAR ACCESS
+
+Space open to the sun and clear of overhangs or shade so as to permit the uses
+of active and/or passive solar energy systems on individual properties.
+
+SOLAR ENERGY EQUIPMENT
+
+Electrical storage devices, material, hardware, inverters, or other electrical
+equipment and conduit of photovoltaic devices associated with the production
+of electrical energy.
+
+SOLAR ENERGY SYSTEM
+
+The components and subsystems required to convert solar energy into electric
+energy suitable for use. The term includes, but is not limited to, solar
+panels and solar energy equipment. The area of a solar energy system includes
+all of the land inside the perimeter of the solar energy system which extends
+to any interconnection equipment. A solar energy system is classified as a
+Tier 1, Tier 2 or Tier 3 solar energy system as follows:
+
+A.
+
+Tier 1 solar energy systems include the following:
+
+(1)
+
+Roof-mounted solar energy systems.
+
+(2)
+
+Building-integrated solar energy systems.
+
+B.
+
+Tier 2 solar energy systems are ground-mounted solar energy systems that
+generate no more than 110% of the electricity consumed on the site or more
+than one site or piece of property within the jurisdictional limits of the
+Town of Livonia owned by the same person, entity, farm or business over the
+previous 12 months. Tier 2 solar energy systems may include solar energy
+systems that are developed, operated and maintained by a third party by lease
+agreement or through a power purchase agreement, but in no event shall such
+systems produce power in excess of the 110% total consumption as referenced
+immediately above.
+
+C.
+
+Tier 3 solar energy systems are systems that are not included in the list for
+Tier 1 and Tier 2 solar energy systems.
+
+SOLAR PANEL
+
+A photovoltaic device capable of collecting and converting solar energy into
+electrical energy.
+
+STORAGE BATTERY
+
+A device that stores energy and makes it available in an electrical form.
+
+UNIFIED SOLAR PERMIT
+
+An expedited solar permitting process has been developed by the NY-Sun public-
+private partnership, which process utilizes a standard, unified permit across
+municipalities in New York State.
+
+§ 150-164  Applicability.
+
+The placement, construction and major modification of all solar energy systems
+within the boundaries of the Town of Livonia shall be permitted only as
+follows:
+
+A.
+
+A building permit issued by the Town of Livonia Building Department shall be
+required for the installation of any solar energy system.
+
+B.
+
+All solar energy systems existing on the effective date of this article shall
+be allowed to continue in usage as such presently exist. Routine maintenance
+(including replacement with a new system of like construction and size) shall
+be permitted on such existing systems. New construction other than routine
+maintenance shall comply with the requirements of this chapter.
+
+C.
+
+No solar energy system shall hereafter be erected, moved, reconstructed,
+changed or altered except in conformity with these regulations.
+
+D.
+
+All solar energy systems shall be designed, erected, and installed in
+accordance with all applicable codes, regulations, and industry standards as
+referenced in the NYS Uniform Fire Prevention and Building Code ("Building
+Code), the NYS Energy Conservation Code ("Energy Code") and the Town of
+Livonia Code.
+
+E.
+
+Any applications pending for solar energy systems on the effective date of
+this article shall be subject to the provisions of this article.
+
+F.
+
+This article shall take precedence over any inconsistent provisions of the
+Zoning Law of the Town of Livonia.
+
+§ 150-165  Use districts where allowed.
+
+Subject to the provisions of this chapter, certain solar energy systems shall
+be allowed as follows:
+
+A.
+
+Tier 1 solar energy systems are permitted outright in all zoning districts in
+the Town.
+
+B.
+
+Tier 2 solar energy systems are permitted as accessory structures in all
+zoning districts in the Town.
+
+C.
+
+Tier 3 solar energy systems are prohibited in all zoning districts in the
+Town.
+
+D.
+
+Any inconsistent provisions of the Zoning Law which purport to or may be
+interpreted to regulate or to allow solar energy systems other than as set
+forth in this article are hereby superseded.
+
+§ 150-166  Permitting requirements.
+
+A.
+
+Tier 1 solar energy systems shall be permitted in all zoning districts and
+shall be exempt from site plan review under the local zoning code or other
+land use regulation, subject to the following requirements for each type of
+solar energy system:
+
+(1)
+
+Roof-mounted solar energy systems may be attached to any lawfully permitted
+building or structure and shall incorporate the following design requirements:
+
+(a)
+
+Roof-mounted solar energy systems shall not exceed the maximum height
+restrictions of the zoning district within which they are located and are
+provided the same height exemptions granted to building-mounted mechanical
+devices or equipment.
+
+(b)
+
+Solar panels on pitched roofs shall be mounted with a maximum distance of 12
+inches between the roof surface and the highest edge of the system.
+
+(c)
+
+Solar panels on pitched roofs shall not extend higher than the highest point
+of the roof surface on which they are mounted or attached.
+
+(d)
+
+Glare: All solar panels shall have antireflective coating(s).
+
+(2)
+
+Building-integrated solar energy systems shall be shown on the plans submitted
+for the building permit application for any building containing such system
+and shall meet the following requirements:
+
+(a)
+
+Building-mounted solar energy systems shall not be located or extend more than
+seven feet from the building wall, and in no instance shall any part of the
+system extend beyond the roofline or parapet wall.
+
+B.
+
+Tier 2 solar energy systems shall be permitted in all zoning districts as
+accessory structures. Site plan approval is required for Tier 2 solar energy
+systems to be built or modified for the production of electricity principally
+for on-site use for a commercial or industrial business within the Town of
+Livonia. All other Tier 2 solar energy systems, including systems for farm
+operations, are exempt from site plan approval.
+
+(1)
+
+Tier 2 solar energy systems shall be subject to the following requirements:
+
+(a)
+
+Setbacks: Tier 2 solar energy systems shall be subject to the setback
+regulations for a building or accessory structures within the underlying
+zoning district, whichever setback is greater.
+
+(b)
+
+Location: Tier 2 solar energy systems shall be located in the side or rear
+yard of a property. No placement in a front yard shall be permitted unless the
+location is a minimum distance of 200 feet from the road and entirely
+concealed from view from the road due to topography or landscape conditions
+that must be maintained for the duration of the installation of said system.
+
+(c)
+
+Height: Tier 2 solar energy systems shall not exceed a maximum height of 15
+feet as measured from the highest point of any solar panel (oriented at
+maximum tilt) or solar energy equipment to the ground directly beneath it.
+
+(d)
+
+Glare: All solar panels shall have antireflective coating(s).
+
+(e)
+
+Screening and visibility: All Tier 2 solar energy systems shall be screened so
+that the view of such systems is minimized from adjacent properties to the
+extent reasonably practicable. Evergreen tree plantings may be required to
+screen portions of the site from nearby residential property, public roads,
+and from public sites known to contain important views or vistas, such as
+gateway entrances to the Town. Solar energy equipment shall be located in a
+manner to reasonably avoid and/or minimize blockage of views from surrounding
+properties and shading of property to the north, while still providing
+adequate solar access.
+
+(2)
+
+Tier 2 solar energy systems within Agricultural Residential Conservation-3
+Districts (ARC-3), Agricultural Residential Conservation-5 Districts (ARC-5)
+and which are a part of a farm operation as defined by Article 25AA of the New
+York State Agriculture and Markets Law shall not be subject to site plan
+review and shall be subject to the following requirements:
+
+(a)
+
+Setbacks: Tier 2 solar energy systems shall be subject to the setback
+regulations for a building or accessory structures within the underlying
+zoning district, whichever setback is greater.
+
+(b)
+
+Height: Tier 2 solar energy systems shall not exceed a maximum height of 15
+feet as measured from the highest point of any solar panel (oriented at
+maximum tilt) or solar energy equipment to the ground directly beneath it.
+
+(c)
+
+Glare: All solar panels shall have antireflective coating(s).
+
+C.
+
+Solar storage batteries. When solar storage batteries are included as part of
+any solar energy system, they shall be placed in secure container or enclosure
+meeting the requirements of the New York State Building Code. Such solar
+storage batteries shall only be permitted for purposes of storing energy for
+use on site and in conjunction with a permitted solar energy system. Large-
+scale solar energy storage systems are not permitted in any zoning district
+within the Town.
+
+D.
+
+All solar energy systems shall adhere to all applicable federal, state, county
+and Town of Livonia codes, laws, regulations and building, plumbing,
+electrical and fire codes.
+
+E.
+
+Any solar energy system shall be situated in a location which shall be readily
+accessible for all emergency service vehicles and personnel.
+
+F.
+
+All structures and devices used to support solar collectors shall be
+nonreflective and/or painted a subtle or earth-tone color.
+
+G.
+
+The design, construction, operation and maintenance of any solar energy system
+shall prevent the misdirection and/or reflection of solar rays onto
+neighboring properties, public roads and public parks in excess of that which
+already exists.
+
+H.
+
+The development and operation of a solar energy system shall not have a
+significant adverse impact on fish, wildlife or plant species or their
+critical habitats, or other significant habitats identified by the Town of
+Livonia or other federal or state regulatory agencies.
+
+I.
+
+Artificial lighting of any solar energy systems shall be limited to lighting
+required for safety and operational purposes only and shall be shielded from
+all neighboring properties and public roads so as to prevent the illumination
+of adjoining properties or excessive lighting.
+
+J.
+
+If the use of an approved solar energy system is discontinued, the owner or
+operator shall notify the Building Inspector within 30 days of such
+discontinuance. If a solar energy system is to be retained and reused, the
+owner or operator shall further inform the Building Inspector of this, in
+writing, at such time and obtain any necessary approvals within one year;
+otherwise it shall be automatically deemed abandoned.
+
+§ 150-167  Maintenance, procedures and fees.
+
+A.
+
+Time limit on completion. After the granting of site plan approval of a
+ground-mounted solar energy system by the Planning Board, the building permit
+shall be obtained within six months and the project shall be completed within
+12 months. If not constructed, the permit and/or site plan approval shall
+automatically lapse 12 months after the date of approval by the Town of
+Livonia Planning Board. A new application will be subject to ordinary review
+and approval to obtain a new building permit.
+
+B.
+
+Inspections. Upon reasonable notice, the Town of Livonia Building Inspector or
+his or her designee may enter a lot on which a solar energy system has been
+constructed for the purpose of compliance with any requirements or conditions.
+Twenty-four hours' advance notice by telephone to the owner/operator or
+designated contact person shall be deemed reasonable notice. Any fee or
+expense associated with this inspection shall be borne entirely by the permit
+holder. Consent to such inspection shall be deemed given by the applicant upon
+submission and granting of a unified solar permit.
+
+C.
+
+General complaint process. During construction, the Town Building Inspector
+can issue a stop order at any time for any violations of a site plan or
+building permit.
+
+D.
+
+Continued operation. A solar energy system shall be maintained in operational
+condition at all times, subject to reasonable maintenance and repair outages.
+Operational condition includes meeting all approval requirements and
+conditions. Further, the Building Inspector shall also have the right to
+request documentation from the owner for a solar energy system regarding the
+system's usage at any time.
+
+E.
+
+Removal and soil remediation. All ground-mounted solar energy systems shall be
+dismantled and removed immediately from a lot where the permit or approval has
+been revoked by the Town of Livonia Planning Board or the solar energy system
+has been deemed by the Code Enforcement Officer to be inoperative or abandoned
+for a period of more than 365 days, which said dismantling and removal shall
+be at the cost of the solar energy system owner. Removal of all equipment and
+infrastructure and remediation of soil and vegetation in the entire area which
+supported the installation shall be required to be returned to its original
+state (prior to construction), within 365 days of such revocation of the
+permit or approval, or after having been deemed inoperative or abandoned. This
+work shall be inspected and approved for satisfactory compliance by the Town
+Code Enforcement Officer. If the solar energy system owner, applicant,
+successor or landowner (if different) does not dismantle and remove from the
+premises said solar energy system as required, and does not restore and
+remediate the soil so as to support vegetation and plant life of the type that
+would have been supported on said site prior to the installation of the solar
+energy system, the Town Board may, after a hearing at which the solar energy
+system owner, applicant, successor or landowner shall be given an opportunity
+to be heard and present evidence, dismantle and remove said facility and/or
+remediate the site and place the cost of removal and/or remediation as a tax
+lien on said parcel, regardless of whether the owner of the parcel owned or
+leased the solar energy system. The Town Board shall also be authorized to
+maintain an action at law to compel the solar energy system owner, applicant,
+successor or landowner to accomplish such removal and remediation, but the
+Board cannot be required to exercise this remedy, which shall be available to
+it in its reasonable discretion.
+
+F.
+
+Determination of abandonment or inoperability. A determination of the
+abandonment or inoperability of a solar energy system shall be made by the
+Town Code Enforcement Officer, who shall provide the solar energy system
+owner, applicant, successor or landowner with written notice by personal
+service or certified mail. Any appeal by the solar energy system owner,
+applicant, successor or landowner of the Code Enforcement Officer's
+determination of abandonment or inoperability shall be filed with the Town of
+Livonia Zoning Board of Appeals within 30 days of the Code Enforcement Officer
+causing personal service or mailing certified mail his written determination,
+and the Board shall hold a hearing on same. The filing of an appeal does not
+stay the following time frame unless the Zoning Board of Appeals or a court of
+competent jurisdiction grants a stay or reverses said determination. At the
+earlier of the 366 days from the date of determination of abandonment or
+inoperability without reactivation or upon completion of dismantling and
+removal, any approvals for the solar energy system shall automatically expire.
+
+G.
+
+Application and annual fees.
+
+(1)
+
+Site plan application for ground-mounted solar energy systems. An applicant
+shall pay the standard site plan review fee as determined from time to time by
+the Town Board, by resolution.
+
+(2)
+
+Fee for issuance of a building permit. In addition to any site plan
+application fee, an applicant shall pay a building permit fee for a:
+
+(a)
+
+Building-mounted, ground-mounted or rooftop-mounted solar energy system: 1/2
+of 1% of the project cost, or such other amount as the Town Board may, from
+time to time, determine by resolution.
+
+H.
+
+Prior to the issuance of a building permit, the applicant shall document that
+all applicable federal, state, county and local permits have been obtained.
+
+I.
+
+In the context of the requirement of site plan approval, the Town of Livonia
+Planning Board may, for ground-mounted solar energy systems when review is
+required by the Board pursuant to this article, grant site plan approval, deny
+site plan approval or grant site plan approval with written stated conditions.
+Denial of site plan approval shall be by written decision based upon
+substantial evidence considered by the Board. Upon issuance of a site plan
+approval, the applicant shall obtain a building permit for the ground-mounted
+solar energy system.
+
+J.
+
+Any changes or alterations after construction to a ground-mounted solar energy
+system shall be done only by amendment to any previously issued building
+permit and/or site plan (if required) subject to all requirements of this
+Code.
+
+§ 150-168  Revocation.
+
+If the applicant violates any of the conditions of its building permit, site
+plan approval or violates any other local, state or federal laws, rules or
+regulations, this shall be grounds for revocation of the building permit or
+site plan approval. Revocation may occur after the applicant is notified, in
+writing, of the violations and the Town of Livonia Planning Board holds a
+hearing on same.
+
+§ 150-169  Interpretation; conflict with other law.
+
+In their interpretation and application, the provisions of this article shall
+be held to be minimum requirements, adopted for the promotion of the public
+health, safety and general welfare. It is not intended to interfere with,
+abrogate or annul other rules, regulations or laws, provided that whenever the
+requirements of this article are at a variance with the requirements of any
+other lawfully adopted regulations, rules or laws, the most restrictive, or
+those which impose the highest standards, shall govern. The requirements of
+this article shall apply to all solar energy systems installed or modified
+after its effective date, excluding general maintenance and repair.
+
+§ 150-170  Severability.
+
+If any section, subsection, phrase, sentence or other portion of this article
+is for any reason held invalid, void, unconstitutional, or unenforceable by
+any court of competent jurisdiction, such portion shall be deemed a separate,
+distinct and independent provision, and such holding shall not affect the
+validity of the remaining portions hereof.
+
+§ 150-171  When effective.
+
+This article shall take effect immediately upon filing with the Secretary of
+State of New York.
+
+§ 150-172  through § 150-174. (Reserved)
+
+By using eCode360 you agree to be legally bound by the Terms of Use and
+Privacy Policy.
+

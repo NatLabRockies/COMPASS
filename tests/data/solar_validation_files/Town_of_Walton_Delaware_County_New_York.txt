@@ -1,0 +1,811 @@
+home Home
+
+code Code
+
+Code
+
+Index
+
+law Laws (0)
+
+New Laws (0)
+
+Law Ledger (0)
+
+help_center Help
+
+Help
+
+About Us
+
+ecode ecode
+
+search
+
+Login
+
+Town of Walton, NY  chevron_right 2024-08-05  info chevron_right Part II:
+General Legislation chevron_right Chapter 200 Zoning chevron_right Article X
+Solar Energy
+
+arrow_back
+
+print Print email Email download Download share Share
+
+arrow_forward
+
+Article X  Solar Energy
+
+[Added 5-13-2019 by L.L. No. 2-2019]
+
+§ 200-91  Authority.
+
+chevron_right
+
+§ 200-92  Statement of purpose.
+
+chevron_right
+
+§ 200-93  Definitions.
+
+chevron_right
+
+§ 200-94  Applicability.
+
+chevron_right
+
+§ 200-95  General requirements.
+
+chevron_right
+
+§ 200-96  Permitting requirements for Tier 1 solar systems.
+
+chevron_right
+
+§ 200-97  Permitting requirements for Tier 2 solar systems.
+
+chevron_right
+
+§ 200-98  Permitting requirements for Tier 3 solar systems.
+
+chevron_right
+
+§ 200-99  Safety.
+
+chevron_right
+
+§ 200-100  Permit time frame and abandonment.
+
+chevron_right
+
+§ 200-101  Enforcement.
+
+chevron_right
+
+§ 200-102  Severability.
+
+chevron_right
+
+§ 200-91  Authority.
+
+This article is adopted pursuant to §§ 261 to 263 of the Town Law of the State
+of New York, which authorize the Town of Walton, New York, to adopt zoning
+provisions that advance and protect the health, safety, and welfare of the
+community, and, in accordance with the Town Law of New York State, "to make
+provision for, so far as conditions may permit, the accommodation of solar
+energy systems and equipment and access to sunlight necessary therefor."
+
+§ 200-92  Statement of purpose.
+
+A.
+
+This article is adopted to advance and protect the public health, safety, and
+welfare of the Town by creating regulations for the installation and use of
+solar energy generating systems and equipment, with the following objectives:
+
+(1)
+
+To take advantage of a safe, abundant, renewable, and nonpolluting energy
+resource;
+
+(2)
+
+To decrease the cost of electricity to the owners of residential and
+commercial properties, including single-family houses;
+
+(3)
+
+To increase employment and business development in the Town, to the extent
+reasonably practical, by furthering the installation of solar energy systems;
+
+(4)
+
+To mitigate the impacts of solar energy systems on environmental resources
+such as important agricultural lands, forests, wildlife and other protected
+resources;
+
+(5)
+
+To create synergy between solar energy production and stated goals within the
+Town Comprehensive Plan, such as downtown revitalization and developing a more
+resilient sustainable community; and
+
+(6)
+
+To align the laws and regulations of the community with several policies of
+the State of New York, particularly those that encourage distributed energy
+systems.
+
+§ 200-93  Definitions.
+
+As used in this article, the following terms shall have the meanings
+indicated:
+
+BUILDING-INTEGRATED PHOTOVOLTAIC SYSTEM
+
+A combination of photovoltaic building components integrated into any building
+envelope system such as vertical facades, including glass and other facade
+material, semitransparent skylight systems, roofing materials, and shading
+over windows.
+
+FARMLAND OF STATEWIDE IMPORTANCE
+
+Land, designated as "farmland of statewide importance" in the United States
+Department of Agriculture Natural Resources Conservation Service's (NRCS) Soil
+Survey Geographic (SSURGO) Database on Web Soil Survey, that is of statewide
+importance for the production of food, feed, fiber, forage, and oilseed crops
+as determined by the appropriate state agency or agencies. Farmland of
+statewide importance may include tracts of land that have been designated for
+agriculture by state law.
+
+GLARE
+
+The effect by reflections of light with intensity sufficient as determined in
+a commercially reasonable manner to cause annoyance, discomfort, or loss in
+visual performance and visibility in any material respects.
+
+GROUND-MOUNTED SOLAR ENERGY SYSTEM
+
+A solar energy system that is anchored to the ground and attached to a pole or
+other mounting system, detached from any other structure for the primary
+purpose of producing electricity for on-site consumption.
+
+LARGE-SCALE SOLAR ENERGY SYSTEM
+
+A solar energy system that is ground-mounted and produces energy primarily for
+the purpose of off-site sale or consumption.
+
+NATIVE PERENNIAL VEGETATION
+
+Native wildflowers, forbs, and grasses that serve as habitat, forage, and
+migratory way stations for pollinators and shall not include any prohibited or
+regulated invasive species as determined by the New York State Department of
+Environmental Conservation.
+
+POLLINATOR
+
+Bees, birds, bats, and other insects or wildlife that pollinates flowering
+plants, and includes both wild and managed insects.
+
+PRIME FARMLAND
+
+Land, designated as "prime farmland" in the United States Department of
+Agriculture Natural Resources Conservation Service's (NRCS) Soil Survey
+Geographic (SSURGO) Database on Web Soil Survey, that has the best combination
+of physical and chemical characteristics for producing food, feed, forage,
+fiber, and oilseed crops and is also available for these land uses.
+
+ROOF-MOUNTED SOLAR ENERGY SYSTEM
+
+A solar panel system located on the roof of any legally permitted building or
+structure for the purpose of producing electricity for on-site or off-site
+consumption.
+
+SOLAR ACCESS
+
+Space open to the sun and clear of overhangs or shade so as to permit the use
+of active and/or passive solar energy systems on individual properties.
+
+SOLAR ENERGY EQUIPMENT
+
+Electrical material, hardware, inverters, conduit, storage devices, or other
+electrical and photovoltaic equipment associated with the production of
+electricity.
+
+SOLAR ENERGY SYSTEM
+
+The components and subsystems required to convert solar energy into electric
+energy suitable for use. The term includes, but is not limited to, solar
+panels and solar energy equipment. The area of a solar energy system includes
+all the land inside the perimeter of the solar energy system, which extends to
+any interconnection equipment. A solar energy system is classified as a Tier
+1, Tier 2, or Tier 3 solar energy system as follows:
+
+A.
+
+Tier 1 solar energy systems include the following:
+
+(1)
+
+Roof-mounted solar energy systems.
+
+(2)
+
+Building-integrated solar energy systems.
+
+B.
+
+Tier 2 solar energy systems include ground-mounted solar energy systems with
+system capacity up to 20 kilowatt AC and that generate no more than 110% of
+the electricity consumed on the site over the previous 12 months.
+
+C.
+
+Tier 3 solar energy systems are systems with a capacity above 20 kilowatt AC
+and that are not included in the list for Tier 1 and Tier 2 solar energy
+systems.
+
+SOLAR PANEL
+
+A photovoltaic device capable of collecting and converting solar energy into
+electrical energy.
+
+STORAGE BATTERY
+
+A device that stores energy and makes it available in an electrical form.
+
+§ 200-94  Applicability.
+
+A.
+
+The requirements of this article shall apply to all solar energy systems
+permitted, installed, or modified in the Town, after the effective date of
+this article, excluding general maintenance and repair and building-integrated
+photovoltaic systems.
+
+B.
+
+Solar energy systems constructed or installed prior to the effective date of
+this article shall not be required to meet the requirements of this article.
+
+C.
+
+Modifications to an existing solar energy system that increase the solar
+energy systems area by more than 5% of the original area of the solar energy
+system (exclusive of moving any fencing) shall be subject to this article.
+
+D.
+
+All solar energy systems shall be designed, erected, and installed in
+accordance with all applicable codes, regulations, and industry standards as
+referenced in the New York State Uniform Fire Prevention and Building Code
+("Building Code"), the New York State Energy Conservation Code ("Energy
+Code"), and the Town Code.
+
+§ 200-95  General requirements.
+
+A.
+
+A building permit shall be required for installation of all solar energy
+systems.
+
+B.
+
+Issuance of permits and approvals by the Town Planning Board shall include
+review pursuant to the State Environmental Quality Review Act (SEQRA).[1]
+
+[1]
+
+Editor's Note: See Environmental Conservation Law § 8-0101 et seq.
+
+§ 200-96  Permitting requirements for Tier 1 solar systems.
+
+All Tier 1 solar energy systems shall be permitted in all zoning districts and
+shall be exempt from site plan review under this chapter, subject to the
+following conditions for each type of solar energy systems:
+
+A.
+
+Roof-mounted solar energy systems.
+
+(1)
+
+Roof-mounted solar energy systems shall incorporate, when feasible, the
+following design requirements:
+
+(a)
+
+Solar panels on pitched roofs shall be mounted with a maximum distance of
+eight inches between the roof surface and the highest edge of the system.
+
+(b)
+
+Solar panels on pitched roofs shall be installed parallel to the roof surface
+on which they are mounted or attached.
+
+(c)
+
+Solar panels on pitched roofs shall not extend higher than the highest point
+of the roof surface on which they are mounted or attached.
+
+(d)
+
+Solar panels on flat roofs shall not extend above the top of the surrounding
+parapet, or more than 24 inches above the flat surface of the roof, whichever
+is higher.
+
+(2)
+
+Glare. All solar panels shall have antireflective coating(s).
+
+(3)
+
+Height. All roof-mounted solar energy systems shall be subject to the maximum
+height regulations specified for principal and accessory buildings within the
+underlying zoning district.
+
+B.
+
+Building-integrated solar energy systems shall be shown on the plans submitted
+for the building permit application for the building containing the system.
+
+§ 200-97  Permitting requirements for Tier 2 solar systems.
+
+All Tier 2 solar energy systems shall be permitted in all zoning districts as
+accessory structures and shall be exempt from site plan review under this
+article or other land use regulations, subject to the following conditions:
+
+A.
+
+Glare. All solar panels shall have antireflective coating(s).
+
+B.
+
+Setbacks. Tier 2 solar energy systems shall be subject to the setback
+regulations specified for the accessory structures within the underlying
+zoning district. All ground-mounted solar energy systems shall only be
+installed in the side or rear yards in residential districts.
+
+C.
+
+Height. Tier 2 solar energy systems shall be subject to the height limitations
+specified within the underlying zoning district.
+
+D.
+
+Screening and visibility.
+
+(1)
+
+All Tier 2 solar energy systems shall have views minimized from adjacent
+properties to the extent reasonably practicable.
+
+(2)
+
+Solar energy equipment shall be located in a manner to reasonably avoid and/or
+minimize blockage of views from surrounding properties and shading of property
+to the north while providing adequate solar access.
+
+E.
+
+Lot size. Tier 2 solar energy systems shall comply with the existing lot size
+requirement specified within the underlying zoning district.
+
+§ 200-98  Permitting requirements for Tier 3 solar systems.
+
+All Tier 3 solar energy systems are permitted through the issuance of a
+special use permit within all zoning districts, and subject to site plan
+application requirements set forth in this section.
+
+A.
+
+Applications for the installation of Tier 3 solar energy system shall be:
+
+(1)
+
+Reviewed by the Code Enforcement Officer for completeness. Applicants shall be
+advised within 30 business days of receipt of their application. The Code
+Enforcement Officer will notify the applicants of the completeness of their
+application or any deficiencies that must be addressed prior to substantive
+review by the Planning Board.
+
+(2)
+
+Subject to a public hearing to hear all comments for and against the
+application. The Planning Board of the Town of Walton shall have a notice
+printed in a newspaper of general circulation in the Town at least five days
+in advance of such hearing. Applicants shall have delivered the notice by
+first class mail to adjoining landowners or landowners within 200 feet of the
+property at least 10 days prior to such a hearing. Proof of mailing shall be
+provided to the Planning Board at the public hearing.
+
+(3)
+
+Referred to the County Planning Board pursuant to General Municipal Law §
+239-m, if required.
+
+(4)
+
+Upon closing of the public hearing, the Planning Board shall take action on
+the application within 62 days of the public hearing, which can include
+approval, approval with conditions, or denial. The sixty-two-day period may be
+extended upon consent by both the Planning Board and the applicant.
+
+B.
+
+Underground requirements. All on-site utility lines shall be placed
+underground to the extent feasible and as permitted by the serving utility,
+with the exception of the main service connection at the utility company
+right-of-way and any new interconnection equipment, including, without
+limitation, any poles, with new easements and rights-of-way.
+
+C.
+
+Vehicular paths. Vehicular paths within the site shall be designed to minimize
+the extent of impervious materials and soil compaction.
+
+D.
+
+Signage.
+
+(1)
+
+No signage or graphic content shall be displayed on the solar energy systems
+except the manufacturer's name, equipment specification information, safety
+information, and twenty-four-hour emergency contact information. Said
+information shall be depicted within an area no more than eight square feet.
+
+(2)
+
+As required by National Electric Code (NEC), disconnect and other emergency
+shutoff information shall be clearly displayed on a light reflective surface.
+A clearly visible warning sign concerning voltage shall be placed at the base
+of all pad-mounted transformers and substations.
+
+E.
+
+Glare. All solar panels shall have antireflective coating(s).
+
+F.
+
+Lighting. Lighting of the solar energy systems shall be limited to that
+minimally required for safety and operational purposes and shall be reasonably
+shielded and downcast from abutting properties.
+
+G.
+
+Tree cutting. Removal of existing trees larger than six inches in diameter
+should be minimized to the greatest extent possible.
+
+H.
+
+Decommissioning.
+
+(1)
+
+Solar energy systems that have been abandoned and/or not producing electricity
+for a period of one year shall be removed at the owner's and/or operator's
+expense, which at the owner's option may come from any security made with the
+Town as set forth in § 200-100B herein.
+
+(2)
+
+A decommissioning plan (see example in Appendix A[1]) signed by the owner
+and/or operator of the solar energy system shall be submitted to the Town
+Board by the applicant, addressing the following:
+
+(a)
+
+The cost of removing the solar energy system.
+
+(b)
+
+The time required to decommission and remove the solar energy system and any
+ancillary structures.
+
+(c)
+
+The time required to repair any land which was disturbed by the installation
+and removal of the solar energy system. Upon completion of the
+decommissioning, the parcel of land shall be returned to the condition it was
+prior to the installation.
+
+[1]
+
+Editor's Note: Appendix A is included as an attachment to this chapter.
+
+(3)
+
+Security.
+
+(a)
+
+The deposit, executions, or filing with the Town Clerk of cash, bond, or other
+form of security reasonably acceptable to the Town Attorney and/or engineer
+shall be in an amount sufficient to ensure the good-faith performance of the
+terms and conditions of the permit issued pursuant hereto and to provide for
+the removal and restorations of the site subsequent to removal. The amount of
+the bond or security shall be 125% of the cost of removal of the Tier 3 solar
+energy system and restoration of the property with an escalator of 2% annually
+for the life of the solar energy system.
+
+(b)
+
+In the event of default upon performance of such conditions, after proper
+notice and expiration of any cure periods, the cash deposit, bond, or security
+shall be forfeited to the Town, which shall be entitled to maintain an action
+thereon. The cash deposit, bond, or security shall remain in full force and
+effect until restoration of the property, as set forth in the decommissioning
+plan, is completed.
+
+(c)
+
+In the event of default or abandonment of the solar energy system, the system
+shall be decommissioned as set forth in § 200-100B and C herein.
+
+I.
+
+Site plan application. For any solar energy system requiring a special use
+permit, site plan approval shall be required. Any site plan application shall
+include the following information:
+
+(1)
+
+Property lines and physical features, including roads, for the project site.
+
+(2)
+
+Proposed changes to the landscape of the site, grading, vegetation clearing
+and planting, exterior lighting, and screening vegetation or structures.
+
+(3)
+
+A one- or three-line electrical diagram detailing the solar energy system
+layout, solar collector installation, associated components, and electrical
+interconnection methods, with all National Electrical Code-compliant
+disconnects and overcurrent devices.
+
+(4)
+
+A preliminary equipment specification sheet that documents all proposed solar
+panels, significant components, mounting systems, and inverters that are to be
+installed. A final equipment specification sheet shall be submitted prior to
+the issuance of building permit.
+
+(5)
+
+Name, address, and contact information of proposed or potential system
+installer and the owner and/or operator of the solar energy system. Such
+information of the final system installer shall be submitted prior to the
+issuance of building permit.
+
+(6)
+
+Name, address, phone number, and signature of the project applicant, as well
+as all the property owners, demonstrating their consent to the application and
+the use of the property for the solar energy system.
+
+(7)
+
+Zoning district designation for the parcel(s) of land comprising the project
+site.
+
+(8)
+
+Property operation and maintenance plan. Such plan shall describe continuing
+photovoltaic maintenance and property upkeep, such as mowing and trimming.
+
+J.
+
+Special use permit standards.
+
+(1)
+
+Lot size. The property on which the Tier 3 solar energy system is placed shall
+meet the lot size requirements of the underlying zoning district.
+
+(2)
+
+Setbacks. The Tier 3 solar energy systems shall comply with the setback
+requirements of the underlying zoning district for principal structures.
+
+(3)
+
+Height.
+
+(a)
+
+The Tier 3 solar energy systems shall comply with the building height
+limitations for principal structures of the underlying zoning district.
+
+(4)
+
+Lot coverage.
+
+(a)
+
+The following components of a Tier 3 solar energy system shall be considered
+included in the calculations for lot coverage requirements:
+
+[1]
+
+Foundation systems, typically consisting of driven piles or monopoles or
+helical screws with or without small concrete collars.
+
+[2]
+
+All mechanical equipment of the solar energy system, including any pad mounted
+structure for batteries, switchboard, transformers, or storage cells.
+
+[3]
+
+Paved access roads servicing the solar energy system.
+
+(b)
+
+Lot coverage of the solar energy system, as defined above, shall not exceed
+the maximum lot coverage requirement of the underlying zoning district.
+
+(5)
+
+Fencing requirements.
+
+(a)
+
+All mechanical equipment, including any structure for storage batteries, shall
+be enclosed by a seven-foot-high fence, as required by the National Electric
+Code (NEC), with a self-locking gate to prevent unauthorized access.
+
+(6)
+
+Screening and visibility.
+
+(a)
+
+Solar energy systems smaller than 10 acres shall have views minimized from
+adjacent properties to the extent reasonably practicable using architectural
+features, earth berms, landscaping, or other screening methods that will
+harmonize with the character of the property and surrounding area.
+
+(b)
+
+Solar energy systems larger than 10 acres shall be required to:
+
+[1]
+
+Conduct a visual assessment of the visual impacts of the solar energy system
+on public roadways and adjacent properties. At a minimum, a line-of-sight
+profile analysis shall be provided. Depending upon the scope and potential
+significance of the visual impacts, additional impact analyses, including for
+example a digital viewshed report, may be required to be submitted by the
+applicant.
+
+[Amended at time of adoption of Code (see Ch. 1, General Provisions, Art. I)]
+
+[2]
+
+Submit a landscape plan to show adequate measures to screen through
+landscaping, grading, or other means so that views of solar panels and solar
+energy equipment shall be minimized as reasonably practical from public
+roadways and adjacent properties to the greatest extent feasible.
+
+[a]
+
+The landscape plan shall specify the locations, elevations, height, plant
+species, and/or materials that will comprise the structures, landscaping,
+and/or grading used to screen and/or mitigate any adverse aesthetic effects of
+the system. The landscape plan shall be reviewed by the Town Planning Board
+and approved as part of the site plan approval process. Existing vegetation
+may be used to satisfy all or a portion of the required landscaped screening.
+
+(7)
+
+Agricultural resources. For projects located on agricultural lands:
+
+(8)
+
+Any Tier 3 solar energy system located on the areas that consist of prime
+farmland or farmland of statewide importance shall not exceed 50% of the area
+of prime farmland or farmland of statewide importance on the parcel.
+
+(9)
+
+To the maximum extent practicable, Tier 3 solar energy systems located on
+prime farmland shall be constructed in accordance with the construction
+requirements of the New York State Agriculture and Markets Law.
+
+(10)
+
+Tier 3 solar energy system owners shall develop, implement, and maintain
+native vegetation to the extent practicable pursuant to a vegetation
+management plan by providing native perennial vegetation and foraging habitat
+beneficial to game birds, songbirds, and pollinators. To the extent
+practicable, when establishing perennial vegetation and beneficial foraging
+habitat, the owners shall use native plant species and seed mixes.
+
+K.
+
+Ownership changes. If the owner or operator of the solar energy system changes
+or the owner of the property changes, the special use permit shall remain in
+effect, provided that the successor owner or operator assumes, in writing, all
+of the obligations of the special use permit, site plan approval, and
+decommissioning plan. A new owner or operator of the solar energy system shall
+notify the Code Enforcement Officer of such change in ownership or operator
+within 30 days of the ownership change.
+
+[Amended at time of adoption of Code (see Ch. 1, General Provisions, Art. I)]
+
+§ 200-99  Safety.
+
+A.
+
+Solar energy systems and solar energy equipment shall be certified under the
+applicable electrical and/or building codes as required.
+
+B.
+
+Solar energy systems shall be maintained in good working order and in
+accordance with industry standards. Site access shall be maintained, including
+snow removal at a level acceptable to the local fire department and, if the
+Tier 3 solar energy system is located in an ambulance district, the local
+ambulance corps.
+
+C.
+
+If storage batteries are included as part of the solar energy system, they
+shall meet the requirements of any applicable fire prevention and building
+code when in use and, when no longer used, shall be disposed of in accordance
+with the laws and regulations of the Town and any applicable federal, state,
+or county laws or regulations.
+
+§ 200-100  Permit time frame and abandonment.
+
+A.
+
+The special use permit and site plan approval for a solar energy system shall
+be valid for a period of 18 months, provided that a building permit is issued
+for construction or construction is commenced. In the event construction is
+not completed in accordance with the final site plan, as may have been amended
+and approved, as required by the Planning Board, within 18 months after
+approval, the applicant or the Town may extend the time to complete
+construction for 180 days. If the owner and/or operator fails to perform
+substantial construction after 24 months, the approvals shall expire.
+
+B.
+
+Upon cessation of electricity generation of a solar energy system on a
+continuous basis for 12 months, the Town may notify and instruct the owner
+and/or operator of the solar energy system to implement the decommissioning
+plan. The decommissioning plan must be completed within 360 days of
+notification.
+
+C.
+
+If the owner and/or operator fails to comply with decommissioning upon any
+abandonment, the Town may, at its discretion, utilize the bond and/or security
+for the removal of the solar energy system and restoration of the site in
+accordance with the decommissioning plan.
+
+§ 200-101  Enforcement.
+
+Any violation of this article shall be subject to the same enforcement
+requirements, including the civil and criminal penalties, provided for in this
+chapter or land use regulations of the Town.[1]
+
+[1]
+
+Editor's Note: See also Ch. 127, Flood Damage Prevention, and Ch. 180,
+Subdivision of Land.
+
+§ 200-102  Severability.
+
+The invalidity or unenforceability of any section, subsection, paragraph,
+sentence, clause, provision, or phrase of the aforementioned sections, as
+declared by the valid judgment of any court of competent jurisdiction to be
+unconstitutional, shall not affect the validity or enforceability of any other
+section, subsection, paragraph, sentence, clause, provision, or phrase, which
+shall remain in full force and effect.
+
+By using eCode360 you agree to be legally bound by the Terms of Use and
+Privacy Policy.
+

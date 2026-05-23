@@ -1,0 +1,398 @@
+## Chapter 17.255  
+SPECIAL USES
+
+Sections:
+
+17.255.010    Purpose.
+
+17.255.020    Use standards.
+
+17.255.030    Cryptocurrency mining operations.
+
+17.255.040    Electric vehicle charging stations.
+
+17.255.050    Energy facilities.
+
+17.255.055    Wind energy facilities.
+
+17.255.060    Solar energy facilities.
+
+17.255.070    High and low impact utilities.
+
+17.255.080    Unclassified uses.
+
+### 17.255.010 Purpose.
+
+The purpose of this chapter is to provide zoning and land use regulations
+pursuant to state law, and the county’s authority to regulate land use
+activities within the unincorporated areas for various uses as identified
+here. All such uses, due to their nature, are deemed to require specific
+regulations to meet health, safety, and general welfare. This chapter also
+provides review criteria for uses that are not classified in the Okanogan
+County Code. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.020 Use standards.
+
+A. All uses shall comply with OCC 17.10.140, Water availability.
+
+B. Uses shall be allowed according to the district use chart, Chapter 17.220
+OCC. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.030 Cryptocurrency mining operations.
+
+All cryptocurrency mining operations, server farms, and/or data centers where
+allowed by the district use chart shall meet the following standards unless
+otherwise regulated within this code:
+
+A. Application for a business license shall be processed as an administrative
+approval without public notice.
+
+B. The use of cargo containers, railroad cars, semi-truck trailers and other
+similar storage containers for any component of the operation is only allowed
+in the industrial zones as long as the unit is new, pre-engineered and
+certified by the Department of Labor and Industries.
+
+C. Prior to approving the business license, the applicant shall provide
+written verification from the local electrical utility provider stating the
+following:
+
+1. Adequate capacity is available on the applicable supply lines and substation to ensure that the capacity available to serve the other needs of the planning area is consistent with the normal projected load growth envisioned by the local utility provider;
+
+2. Utility supply equipment and related electrical infrastructure are sufficiently sized and can safely accommodate the proposed use; and
+
+3. The use will not cause electrical interference or fluctuations in line voltage on and off the operating premises.
+
+D. Prior to any cryptocurrency mining, server farms, and/or data centers, a
+copy of the Washington State Department of Labor and Industries electrical
+permit and written verification that the electrical work has passed a final
+inspection shall be provided to the county and the local utility provider.
+
+E. All cryptocurrency mining operations, server farms, and/or data centers,
+including all ancillary equipment/operations for purposes such as cooling,
+shall be designed, constructed, operated, and maintained so as to be
+harmonious and appropriate in appearance with the existing or intended
+character of the surrounding properties and not cause the dissemination of
+dust, smoke, glare, heat, vibration or noise in excess of the maximum
+environmental noise level established by the county code or Chapter 173-60 WAC
+beyond the property line or affecting adjacent buildings. Violation of these
+established noise levels will result in revocation of a county business
+license pursuant to the county code or any other applicable penalties.
+
+F. No facade shall have more than 20 percent of the area exposed with
+apparatus (e.g., vents, fans, HVAC systems, etc.).
+
+G. Any use or activity producing air, noise, exhaust, heat, or humidity in any
+form shall be carried on in such a manner that it is not perceptible at or
+beyond the property line.
+
+H. Electric fields and magnetic fields shall not be created that adversely
+affect the public health, safety, and welfare, including but not limited to
+interference with the normal operation of equipment or instruments or normal
+radio, telephone, or television reception from off the premises where the
+activity is conducted.
+
+I. Noise emanating from a use or activity which exceeds the maximum
+permissible noise levels set forth in WAC 173-60-040 shall not be permitted.
+Exemptions to the maximum permissible noise levels cited in this chapter shall
+be as enumerated in WAC 173-60-050, Maximum Environmental Noise Levels
+Exemptions. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.040 Electric vehicle charging stations.
+
+This section applies to all electric vehicle charging stations located in off-
+street parking facilities or parking garages allowed by the district use
+chart.
+
+A. An electric vehicle charging station equipped with Level 1 or Level 2
+charging equipment is permitted as an accessory use to any principal use.
+However, only a private battery charging station is permitted in a residential
+zone.
+
+B. Number. No minimum number of charging spaces is required.
+
+C. Minimum Parking Requirements. When provided, spaces shall be standard stall
+size. An electric vehicle charging station space may be included in the
+calculation for minimum required parking spaces that are required pursuant to
+other provisions of code.
+
+D. Signage. Each charging station space shall be posted with signage
+indicating the space is only for electric vehicle charging purposes. Days and
+hours of operations shall be included if time limits or tow away provisions
+are to be enforced.
+
+E. Charging station equipment should be maintained in all respects, including
+the functioning of the charging equipment.
+
+F. Where charging station equipment is provided within an adjacent pedestrian
+circulation area, such as a sidewalk or accessible route to the building
+entrance, charging equipment should be located so as to not interfere with
+accessibility requirements of WAC 51-50-005.
+
+G. Lighting. Where charging equipment is installed, adequate site lighting
+shall exist, unless charging is for daytime purposes only.
+
+H. Notification. Information on the charging station, identifying voltage and
+amperage levels, and any time of use, fees, or safety information.
+
+I. Prior to approving the business license or approving a development that
+includes a residential electric vehicle charger, the applicant shall provide
+written verification from the local electrical utility provider stating the
+following:
+
+1. Adequate capacity is available on the applicable supply lines and substation to ensure that the capacity available to serve the other needs of the planning area is consistent with the normal projected load growth envisioned by the local utility provider;
+
+2. Utility supply equipment and related electrical infrastructure are sufficiently sized and can safely accommodate the proposed use; and
+
+3. The use will not cause electrical interference or fluctuations in line voltage on and off the operating premises. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.050 Energy facilities.
+
+Commercial energy facilities, e.g., wind, solar, geothermal energy facilities,
+are reviewed and approved through Washington State Energy Facility Site
+Evaluation Council. Such facilities shall also be in compliance with all other
+applicable county requirements, such as the critical areas ordinance,
+environmental review regulations, and building code requirements.
+
+The following standards shall apply to all energy facilities:
+
+A. Noise. The facility shall maintain sound levels at project boundaries that
+are under the maximum levels for the adjacent receiving properties based on
+the receiving properties’ designation for noise abatement in accordance with
+state regulations. The facility shall at all times comply with applicable
+noise control regulations adopted by the Washington Department of Ecology and
+WAC 173-60-040.
+
+B. Air Quality. All applicable air emission permits shall be obtained and all
+conditions complied with. The applicant shall revegetate any disturbed areas
+that are not permanently occupied by the project features. The applicant shall
+comply with county road standards for dust control and erosion. The applicant
+shall maintain a water truck on site during construction for dust suppression.
+
+C. Vegetation and Wildlife Construction Limitations. Based upon the
+information provided under SEPA requirements, the applicant shall limit
+construction disturbance by flagging sensitive areas and conducting ongoing
+environmental monitoring during construction to assure that flagged areas are
+avoided. The applicant shall develop a reseeding/restoration and weed
+management plan in consultation with the Okanogan County Noxious Weed program.
+
+D. Overhead Electrical Transmission and Collector Lines. Overhead electrical
+transmission and collector lines should be constructed consistently with the
+existing Avian Power Line Interaction Committee (APLIC) recommendations for
+raptor protection on power lines or such other commonly accepted industry or
+regulatory standards.
+
+E. The applicant shall develop and maintain an on-site health and safety plan
+that informs employees and others on site what to do in case of emergencies,
+including the locations of fire extinguishers and nearby hospitals, telephone
+numbers for emergency responders, and first aid techniques.
+
+F. All energy facilities must comply with any applicable critical areas
+standards found in Chapter 14.12 OCC. Additionally, energy facilities that
+will impact fish and wildlife habitat areas including but not limited to
+priority habitat areas must comply with the protection and mitigation
+requirements found in the Washington Department of Fish and Wildlife Wind
+Power Guidelines, published in April 2009, or as amended hereafter.
+
+1. In the event an energy facility proponent chooses to utilize the fee-in-lieu option offered by the WDFW wind power guidelines, a qualifying entity must be identified as the recipient of the funds. The qualifying recipient must be a bona fide and verifiable conservation organization with a specialization or focus on land and habitat conservation. A binding agreement executed by the energy facility proponent and the recipient shall be presented in advance of any land use application hearing demonstrating that the requirements in the WDFW wind power guidelines have been satisfied.
+
+2. Washington Department of Fish and Wildlife shall provide a written approval of the terms and conditions of the fee-in-lieu agreement prior to any public hearings required for the energy facility. All energy facilities that will impact Okanogan County fish and wildlife habitat areas, including but not limited to WDFW priority habitats and species (PHS) areas, must comply with the protection and mitigation requirements found in the Washington Department of Fish and Wildlife Wind and Solar Power Guidelines, as amended, and Management Recommendations for Washington’s Priority Habitats: Shrubsteppe, published in 2011, updated 2020, or as amended hereafter (referred to as PHS Management Recommendations for Shrubsteppe).
+
+G. All energy facilities are restricted in locations where biodiversity and
+corridors (BACs) occur that are identified by WDFW’s priority habitats and
+species (PHS) program, as amended.
+
+H. Site Access and Traffic Management. Prior to commencement of construction,
+the applicant shall provide the department with a construction-phase traffic
+management plan:
+
+1. Ingress and egress points shall be located and improved (if needed) in order to assure adequate capacity for existing and projected traffic volumes and to provide efficient movement of traffic, including existing and anticipated agricultural traffic.
+
+2. All applicable governmental permits for approvals shall have been obtained, including access or driveway permits to state or county roads (if needed), construction within state or county highways, and overweight or oversize loads.
+
+3. All-weather access roads (including graveled roads), suitable to handle emergency equipment, shall be provided to within 150 feet of any built structure or surface activity area.
+
+I. Public roads to be utilized by the applicant shall be identified in the
+permit application. A qualified third-party engineer shall document road
+conditions prior to construction and again within 30 days after construction
+is complete or as weather permits. The applicant shall enter into a county
+road use agreement for the repair of damage to public roads resulting from
+project activities after construction.
+
+J. Prior to approving the business license, the applicant shall provide
+written verification from the local electrical utility provider stating the
+following:
+
+1. Adequate capacity is available on the applicable supply lines and substation to ensure that the capacity available to serve the other needs of the planning area is consistent with the normal projected load growth envisioned by the local utility provider;
+
+2. Utility supply equipment and related electrical infrastructure are sufficiently sized and can safely accommodate the proposed use; and
+
+3. The use will not cause electrical interference or fluctuations in line voltage on and off the operating premises. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.055 Wind energy facilities.
+
+A. Setbacks. All setback distances established in this section shall be
+measured from the closest point of the tower to the closest point of an
+existing and permitted residence (home).
+
+1. Minimum Nonwaivable Residential Setbacks. Wind energy turbine towers shall be sited a minimum of 1.1 times the height of the wind turbine generator away from existing residential structures, measured from the ground to the maximum extent of the turbine blade, regardless of whether the residential owners consent to the location.
+
+2. Residential Visual and Aesthetic Setbacks. Visual and aesthetic setbacks are imposed to address wholly local concerns regarding the visual and aesthetic impacts of wind turbine generators. For all nonconsenting, nonparticipating landowners, commercial wind energy turbine towers shall be set back a minimum distance of four times the maximum height of the turbine, measured to blade tip at its maximum elevation, from the nonparticipating landowner’s residence. In view of the low density, rural/agricultural nature of the zoning districts deemed to be suitable for commercial wind energy facilities, the minimum residential structure visual and aesthetic standard shall be considered sufficient to address any visual and aesthetic impacts.
+
+3. State Noise Standard Compliance. During operations, the project shall comply with applicable state noise standards.
+
+4. Setbacks from Nonparticipating Property Lines. There shall be a minimum distance of four times the maximum height of the wind turbine generator away from the property line of any nonparticipating landowner, measured from the ground to the maximum extent of the turbine blade.
+
+B. Height limits shall be subject to standards imposed by the FAA,
+transmission towers, and wind data collecting devices such as anemometers.
+(Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.060 Solar energy facilities.
+
+A. Solar energy facilities shall not be allowed on properties zoned
+agriculture with comprehensive plan designations of agricultural resource or
+forest resources.
+
+B. Solar energy facilities shall not be allowed on sites or portions of sites
+with an existing average slope greater than seven percent. Each solar energy
+facility submitted for permit consideration shall include a full topographic
+survey of the site with two-foot contour intervals. The topographic survey
+shall delineate all portions of the site greater than seven percent slope.
+
+C. Maximum structure height for the solar array shall be 20 feet as measured
+from the highest existing native grade below each panel.
+
+D. Setbacks for solar energy facilities shall comply with the standard
+setbacks of the underlying zoning classification. Additionally, in no case
+shall any component of a solar energy facility be constructed within 100 feet
+of any off-site residence.
+
+E. Prior to approving the business license, the applicant shall provide
+written verification from the local electrical utility provider stating the
+following:
+
+1. Adequate capacity is available on the applicable supply lines and substation to ensure that the capacity available to serve the other needs of the planning area is consistent with the normal projected load growth envisioned by the local electrical utility provider;
+
+2. Utility supply equipment and related electrical infrastructure are sufficiently sized and can safely accommodate the proposed use; and
+
+3. The use will not cause electrical interference or fluctuations in line voltage on and off the operating premises.
+
+F. Solar energy facilities shall incorporate glare reducing materials. Glare
+reducing materials shall be maintained over the life of the solar energy
+facility project. In all instances, no fugitive glare shall be permitted to
+emit onto adjacent properties and/or rights-of-way. Additional glare analyses
+may be required when a solar energy facility may have the potential to affect
+flight paths of military operations. These requests will typically, although
+not exclusively, be made by the United States Department of Defense.
+
+G. Any lighting incorporated into the design of a solar energy facility shall
+be designed to provide full cutoff shielding and shall not emit off-site
+glare.
+
+H. The applicant for any solar energy facility is required to enter into a
+development agreement with Okanogan County pursuant to Chapter 18.05 OCC
+concurrently with the land use applications for the solar energy facility. The
+purpose of the development agreement is to ensure that the
+decommissioning/reclamation of the site is adequately addressed pursuant to
+the following:
+
+1. A decommissioning and reclamation plan shall be prepared and submitted with the initial application for a new solar energy facility.
+
+2. Decommissioning/reclamation of a solar energy facility shall be completed within three years of the date that power production is deemed to have ceased or after the facility has ceased to produce power for a period of 12 consecutive months at any time during the life of the facility.
+
+3. All nonutility owned equipment, conduits, structures, fencing, and foundations to a depth of at least three feet below grade shall be removed.
+
+4. All fences, graveled areas and access roads shall be removed unless landowner agreement to retain is presented, in writing, in which the property owner agrees for these elements to remain.
+
+5. The property shall be restored to a condition reasonably similar to its condition prior to development of the solar energy facility. Restoration/reclamation conditions must comply with the Stormwater Management Manual for Eastern Washington in effect at the time of reclamation.
+
+6. The developer or owner of the solar energy facility is responsible for the decommissioning; the development agreement shall transfer to any future operator or owner of the site.
+
+7. Decommissioning/reclamation cost estimates, which shall be updated every five years from the establishment and submittal of the security, shall include all costs associated with the dismantlement, recycling, and safe disposal of facility components and site reclamation activities, including the following elements:
+
+a. All labor, equipment, transportation, and disposal costs associated with
+the removal of all facility components from the facility site;
+
+b. All costs associated with full reclamation of the facility site, including
+removal of nonnative soils, fences, and constructed access roads;
+
+c. All costs associated with reclamation of any primary agricultural soils at
+the facility site to ensure each area of direct impact shall be materially
+similar to the condition it was before construction;
+
+d. All decommissioning/reclamation activity management, site supervision, site
+safety costs;
+
+e. Any other costs, including administrative costs, associated with the
+decommissioning and reclamation of the facility site; and
+
+f. The estimated date of submission of the security to Okanogan County.
+
+8. Prior to issuance of any grading or building permits, an irrevocable standby letter of credit, bond, or alternate form of security in an amount sufficient to fund the estimated decommissioning/reclamation costs required by this code. The security shall:
+
+a. Name the board of county commissioners of Okanogan County as the sole
+beneficiary of the letter of credit;
+
+b. Be issued by an A-rated financial institution based upon a rating provided
+by S&P, Moody’s, Fitch, AM Best, or other rating agency with similar
+credentials;
+
+c. Include an automatic extension provision or “evergreen clause”; and
+
+d. Be “bankruptcy remote,” meaning the security will be unaffected by the
+bankruptcy of the solar energy facility operator;
+
+e. Okanogan County, in its sole discretion, may approve alternative forms of
+security such as, but not limited to: bonds, letters of credit, or other
+securities, if it finds that such alternative forms will provide an assurance
+of the availability of financial resources for decommissioning/reclamation
+that equals or exceeds that provided by the form required herein;
+
+f. Okanogan County, at its sole discretion, may also approve modified terms
+and timing of the bond amounts based on the lifecycle stage of the solar
+energy facility.
+
+9. The developer or owner of the solar energy facility will include in the development agreement the plan for disposal of any damaged or decommissioned components. Various solar energy facility components are considered a form of toxic, hazardous electronic or “e-waste,” therefore disposal of solar energy facility components will not be acceptable within Okanogan County.
+
+I. Damage and Repair. Any solar energy facility that is damaged by the
+elements or vandalism shall be required to submit applicable building permit
+applications (if any required) within one year of the date the damage was
+first observed. Damage and repair do not qualify as decommissioned or
+abandoned unless the duration of the cessation of power production meets the
+requirements of subsection H of this section. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.070 High and low impact utilities.
+
+The following minimum criteria shall apply to public utility uses:
+
+A. The use shall be fenced.
+
+B. The use shall be landscaped with site obstructing shrubs or trees.
+
+C. The minimum lot size in the district that a utility use is located in may
+be waived on a finding that the waiver will not result in noise or other
+detrimental effects to adjacent properties.
+
+1. When the minimum lot size is waived, a note shall be placed on the face of the plat that states that the parcel is not a building site other than for a permitted public utility use. The requirement for verification of adequate provisions for domestic water and sewage disposal may be waived.
+
+2. When the minimum lot size is waived, a notice to title shall be recorded with the Okanogan County auditor stating that the parcel is not an allowable building site other than for a permitted utility use. (Ord. 2024-5 (Att. A), 2024).
+
+### 17.255.080 Unclassified uses.
+
+A. In the event that a proposed use is not listed in the district use chart or
+there is ambiguity as to if a proposed use meets the definition of a use
+defined by the Okanogan County Code, an applicant may request an
+interpretation of the zoning code by the administrator to determine if a
+proposed use not specifically listed is either allowed, allowed as an
+accessory use, allowed as a conditional use or prohibited, utilizing the
+criteria in subsection B of this section.
+
+B. Criteria for Unclassified Uses. In order to make a determination that an
+unclassified use is permitted, conditionally permitted, or accessory, the
+administrator must find that the use is:
+
+1. In keeping with the purpose and intent of the zoning district as described in the Okanogan County comprehensive plan.
+
+2. Compatible with other permitted, accessory or conditional uses in the zoning district including, but not limited to, being similar in nature to and no more intense than a specifically listed permitted, conditional or accessory use.
+
+3. Compatible in an alternative zoning district that is more appropriate for the proposed use. Evaluation should include, but not be limited to, traffic, access, noise, odor, smoke, vibrations, parking, outdoor storage, and adjacent use or zoning buffers. (Ord. 2024-5 (Att. A), 2024).
+
