@@ -1038,7 +1038,12 @@ class _COMPASSRunner:
         known_local_docs = self.process_kwargs.known_local_docs or {}
         if isinstance(known_local_docs, str):
             known_local_docs = load_config(known_local_docs)
-        return {int(key): val for key, val in known_local_docs.items()}
+        inventory = {int(key): val for key, val in known_local_docs.items()}
+        logger.trace(
+            "Loaded known local docs for FIPS codes: %s",
+            list(inventory.keys()),
+        )
+        return inventory
 
     @cached_property
     def known_doc_urls(self):
@@ -1575,8 +1580,9 @@ class _SingleJurisdictionRunner:
         start_time = time.monotonic()
         extraction_context = None
         logger.info(
-            "Kicking off processing for jurisdiction: %s",
+            "Kicking off processing for jurisdiction: %s (%s)",
             self.jurisdiction.full_name,
+            self.jurisdiction.code,
         )
         try:
             extraction_context = await self._collect_documents(

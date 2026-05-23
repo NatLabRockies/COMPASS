@@ -214,7 +214,6 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             ind_to_grab = chunk_ind + offset
             if ind_to_grab < 0 or ind_to_grab >= len(parser.text_chunks):
                 continue
-
             self._chunks.setdefault(
                 ind_to_grab, parser.text_chunks[ind_to_grab]
             )
@@ -300,7 +299,8 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     """Base class for parsing structured data"""
 
     DATA_TYPE_SHORT_DESC = None
-    """Optional short description of the type of data being extracted
+    """
+    Optional short description of the type of data being extracted
 
     Examples
     --------

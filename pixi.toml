@@ -119,6 +119,11 @@ transformers = "==4.46.3"
 [feature.python-default.target.win-64.pypi-dependencies]
 docling = "==2.90.0"
 
+[feature.python-default.target.osx-arm64.dependencies]
+docling-parse = ">=5.11.0,<6"
+docling = ">=2.91.0,<3"
+docling-core = ">=2.75.0,<3"
+
 # ELM dependencies explicitly enumerated
 # We should remove this once ELM better defines its dependencies
 [feature.elm.pypi-dependencies]
