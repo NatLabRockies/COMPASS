@@ -5,6 +5,7 @@ import json
 import logging
 import asyncio
 from pathlib import Path
+from queue import Empty
 
 import pytest
 
@@ -22,7 +23,7 @@ from compass.utilities.logs import (
     _JsonFormatter,
     _LocalProcessQueueHandler,
     _get_version,
-    LOGGING_QUEUE,
+    LQ,
 )
 
 
@@ -616,10 +617,13 @@ def test_setup_logging_levels():
 
 def test_local_process_queue_handler_emit():
     """Test _LocalProcessQueueHandler correctly enqueues records"""
-    handler = _LocalProcessQueueHandler(LOGGING_QUEUE)
+    handler = _LocalProcessQueueHandler(LQ.QUEUE)
 
-    while not LOGGING_QUEUE.empty():
-        LOGGING_QUEUE.get()
+    while True:
+        try:
+            LQ.QUEUE.get_nowait()
+        except Empty:
+            break
 
     record = _sample_log_record(
         pathname="test.py",
@@ -630,9 +634,36 @@ def test_local_process_queue_handler_emit():
 
     handler.emit(record)
 
-    assert not LOGGING_QUEUE.empty()
-    queued_record = LOGGING_QUEUE.get()
+    queued_record = LQ.QUEUE.get(timeout=1)
     assert queued_record.msg == "test message"
+
+
+def test_local_process_queue_handler_emit_exception_record():
+    """Test queued exception records remain picklable and informative"""
+    handler = _LocalProcessQueueHandler(LQ.QUEUE)
+
+    while True:
+        try:
+            LQ.QUEUE.get_nowait()
+        except Empty:
+            break
+
+    record = _sample_log_record(
+        pathname="test.py",
+        lineno=42,
+        msg="failure happened",
+        func="test_func",
+    )
+    _attach_value_error_exc_info(record, "queued exception")
+
+    handler.emit(record)
+
+    queued_record = LQ.QUEUE.get(timeout=1)
+    assert queued_record.msg == "failure happened"
+    assert queued_record.exc_info is None
+    assert queued_record.exc_type == "ValueError"
+    assert queued_record.exc_message == "queued exception"
+    assert "ValueError: queued exception" in queued_record.exc_text
 
 
 def test_log_versions_logs_expected_packages(
@@ -646,7 +677,7 @@ def test_log_versions_logs_expected_packages(
         "NLR-ELM",
         "openai",
         "playwright",
-        "tf-playwright-stealth",
+        "playwright-stealth",
         "rebrowser-playwright",
         "camoufox",
         "pdftotext",

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM ghcr.io/prefix-dev/pixi:0.50.2 AS build
+FROM ghcr.io/prefix-dev/pixi:0.68.1 AS build
 
 ARG PIXI_ENV=default
 

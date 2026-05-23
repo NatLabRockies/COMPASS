@@ -11,7 +11,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - .github/workflows/ci-rust.yml
-      - pyproject.toml
+      - pixi.toml
       - pixi.lock
   pull_request:
     paths:
@@ -19,7 +19,7 @@ on:
       - Cargo.toml
       - Cargo.lock
       - .github/workflows/ci-rust.yml
-      - pyproject.toml
+      - pixi.toml
       - pixi.lock
   schedule:
     - cron: '0 5 * * 1'
@@ -34,8 +34,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -61,8 +60,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -89,15 +87,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-26-intel, windows-latest]
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -129,8 +126,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -160,8 +156,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -189,8 +184,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev

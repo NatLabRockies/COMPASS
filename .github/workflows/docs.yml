@@ -37,7 +37,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
+          pixi-version: v0.68.1
           locked: true
           cache: false  # Don't use cache because we use the ``pdoc`` environment
           environments: pdoc
@@ -46,7 +46,7 @@ jobs:
         run: pixi run -e pdoc python-docs  # This errors on warnings
 
       - name: deploy
-        uses: peaceiris/actions-gh-pages@4f9cc6602d3f66b9c108549d475ec49e8ef4d45e # v4.0.0
+        uses: peaceiris/actions-gh-pages@84c30a85c19949d7eee79c4ff27748b70285e453 # v4.1.0
         if: startsWith(github.ref, 'refs/tags/v')
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}

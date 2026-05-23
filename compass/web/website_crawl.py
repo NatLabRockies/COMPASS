@@ -9,15 +9,7 @@ import logging
 import operator
 from collections import Counter
 from contextlib import AsyncExitStack
-from urllib.parse import (
-    urlparse,
-    urlunparse,
-    quote,
-    unquote,
-    parse_qsl,
-    urlencode,
-    urljoin,
-)
+from urllib.parse import urljoin, urlsplit
 
 from crawl4ai.models import Link as c4AILink
 from bs4 import BeautifulSoup
@@ -26,8 +18,10 @@ from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
 from elm.web.document import PDFDocument, HTMLDocument
-from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
+from compass.web.url_utils import sanitize_url
+
+from compass.web.file_loader import COMPASSWebFileLoader
 
 
 logger = logging.getLogger(__name__)
@@ -181,7 +175,7 @@ class COMPASSCrawler:
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
         flk.update(file_loader_kwargs or {})
-        self.afl = AsyncWebFileLoader(**flk)
+        self.afl = COMPASSWebFileLoader(**flk)
         self.pw_launch_kwargs = (
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )
@@ -193,6 +187,7 @@ class COMPASSCrawler:
 
         self._out_docs = []
         self._already_visited = {}
+        self._failed_external_domains = set()
         self._should_stop = None
 
     async def run(
@@ -311,10 +306,11 @@ class COMPASSCrawler:
         """Reset crawl state and initialize crawling link"""
         self._out_docs = []
         self._already_visited = {}
-        base_url = _sanitize_url(base_url)
+        self._failed_external_domains = set()
+        base_url = sanitize_url(base_url)
         return base_url, _Link(
             title="Landing Page",
-            href=_sanitize_url(urljoin(base_url, base_url.split(" ")[0])),
+            href=sanitize_url(urljoin(base_url, base_url.split(" ")[0])),
             base_domain=base_url,
         )
 
@@ -339,6 +335,28 @@ class COMPASSCrawler:
 
     async def _website_link_is_pdf(self, link, depth, score):
         """Fetch page content; keep only PDFs"""
+        if not link.consistent_domain and not link.resembles_pdf:
+            logger.debug(
+                "Skipping external non-PDF candidate: %s",
+                link.href,
+            )
+            return False
+
+        parsed = urlsplit(link.href)
+        if parsed.scheme not in {"http", "https"}:
+            logger.debug("Skipping non-http URL: %s", link.href)
+            return False
+
+        if (
+            not link.consistent_domain
+            and parsed.netloc.casefold() in self._failed_external_domains
+        ):
+            logger.debug(
+                "Skipping external domain after previous fetch failure: %s",
+                parsed.netloc,
+            )
+            return False
+
         logger.debug("Loading Link: %s", link)
 
         try:
@@ -352,6 +370,8 @@ class COMPASSCrawler:
             )
             err_type = type(e)
             logger.exception(msg, err_type, link)
+            if not link.consistent_domain and parsed.netloc:
+                self._failed_external_domains.add(parsed.netloc.casefold())
             return False
 
         if isinstance(doc, PDFDocument):
@@ -495,32 +515,6 @@ def _debug_info_on_links(links):
         logger.debug("    ...")
 
 
-def _sanitize_url(url):
-    """Fix common URL issues
-
-    - Encode spaces and unsafe characters in the path
-    - Encode query parameters safely
-    - Leave existing percent-encoding intact
-    """
-    parsed = urlparse(url)
-
-    safe_path = quote(unquote(parsed.path), safe="/")
-
-    query_params = parse_qsl(parsed.query, keep_blank_values=True)
-    safe_query = urlencode(query_params, doseq=True)  # cspell: disable-line
-
-    return urlunparse(
-        (
-            parsed.scheme,
-            parsed.netloc,
-            safe_path,
-            parsed.params,
-            safe_query,
-            parsed.fragment,
-        )
-    )
-
-
 def _extract_links_from_html(text, base_url):
     """Parse HTML and extract all links"""
     soup = BeautifulSoup(text, "html.parser")
@@ -529,20 +523,30 @@ def _extract_links_from_html(text, base_url):
         for a in soup.find_all("a", href=True)
     ]
 
-    return {
-        _Link(
-            title=title,
-            href=_sanitize_url(urljoin(base_url, path)),
-            base_domain=base_url,
+    out_links = set()
+    for title, path in links:
+        if not title or not path:
+            continue
+
+        if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
+            continue
+
+        if any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS):
+            continue
+
+        href = sanitize_url(urljoin(base_url, path))
+        if urlsplit(href).scheme not in {"http", "https"}:
+            continue
+
+        out_links.add(
+            _Link(
+                title=title,
+                href=href,
+                base_domain=base_url,
+            )
         )
-        for (title, path) in links
-        if title
-        and path
-        and not any(
-            substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS
-        )
-        and not any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS)
-    }
+
+    return out_links
 
 
 async def _get_text_from_all_locators(page):

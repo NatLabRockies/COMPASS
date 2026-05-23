@@ -10,6 +10,7 @@ import pytest
 from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
+from compass.web.url_utils import sanitize_url
 from compass.web.website_crawl import (
     COMPASSCrawler,
     COMPASSLinkScorer,
@@ -22,7 +23,6 @@ from compass.web.website_crawl import (
     _extract_links_from_html,
     _get_locator_text,
     _get_text_from_all_locators,
-    _sanitize_url,
 )
 
 
@@ -130,7 +130,7 @@ def crawler_setup(monkeypatch):
 
     monkeypatch.setattr(website_crawl, "PDFDocument", DummyPDFDocument)
     monkeypatch.setattr(website_crawl, "HTMLDocument", DummyHTMLDocument)
-    monkeypatch.setattr(website_crawl, "AsyncWebFileLoader", DummyLoader)
+    monkeypatch.setattr(website_crawl, "COMPASSWebFileLoader", DummyLoader)
 
     async def validator(doc):
         await asyncio.sleep(0)
@@ -239,7 +239,7 @@ def test_compass_link_scorer_assign_value():
 def test_sanitize_url_handles_spaces_and_queries():
     """Verify URL sanitization for paths and query strings"""
 
-    sanitized = _sanitize_url("https://example.com/some path/?foo=bar baz")
+    sanitized = sanitize_url("https://example.com/some path/?foo=bar baz")
     assert " " not in sanitized
     assert "%20" in sanitized
 
@@ -258,6 +258,36 @@ def test_extract_links_from_html_filters_blacklist():
     assert "https://example.com/keep" in test_refs
     assert all("facebook" not in link.href for link in links)
     assert "https://example.com/ok.pdf" in test_refs
+
+
+def test_extract_links_from_html_sets_title_from_anchor():
+    """Anchor text should populate link title"""
+
+    html = """
+    <a href="/doc.pdf">Permit Standards</a>
+    """
+    links = _extract_links_from_html(html, base_url="https://example.com")
+    assert len(links) == 1
+    link = next(iter(links))
+    assert link.title == "Permit Standards"
+
+
+@pytest.mark.asyncio
+async def test_compass_link_scorer_scores_anchor_text():
+    """COMPASSLinkScorer must score anchor text via the 'text' key"""
+
+    scorer = COMPASSLinkScorer(keyword_points={"permit": 10, "pdf": 3})
+    links = [
+        {
+            "text": "Permit Standards",
+            "href": "https://example.com/doc.pdf",
+            "title": "Permit Standards",
+        },
+        {"text": "", "href": "https://example.com/index.html", "title": ""},
+    ]
+    scored = await scorer.score(links)
+    assert scored[0]["score"] == 13
+    assert scored[1]["score"] == 0
 
 
 def test_debug_info_on_links_logs_expected(
