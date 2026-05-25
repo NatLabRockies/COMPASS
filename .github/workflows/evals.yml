@@ -5,6 +5,9 @@ name: Evals
 # Supports 2 kinds of eval markers:
 #   "dev_eval"   -> frequent dev-dataset evals
 #   "held_out"   -> pre-release hidden held-out evals
+#
+# `workflow_dispatch` already requires repo write access to trigger, which is
+# the (intentional, mild) control over who can kick off these billable runs.
 
 permissions:
   contents: read
@@ -20,18 +23,10 @@ on:
         options:
           - "dev_eval"
           - "held_out"
-      test_path:
-        description: Path (dir or file) to collect tests from.
-        required: false
-        default: "tests/python/integration"
       test_filter:
         description: Optional pytest -k expression to run a subset.
         required: false
         default: ""
-      pixi_env:
-        description: pixi environment to run the tests in.
-        required: false
-        default: "pdev"
 
 jobs:
   gated-tests:
@@ -50,7 +45,7 @@ jobs:
           locked: true
           cache: true
           cache-write: false
-          environments: ${{ inputs.pixi_env }}
+          environments: pdev
 
       - name: Run gated tests
         env:
@@ -62,17 +57,15 @@ jobs:
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_VERSION: ${{ secrets.AZURE_OPENAI_VERSION }}
           MARKER: ${{ inputs.marker }}
-          TEST_PATH: ${{ inputs.test_path }}
           TEST_FILTER: ${{ inputs.test_filter }}
-          PIXI_ENV: ${{ inputs.pixi_env }}
         run: |
-          pixi reinstall -e "${PIXI_ENV}" INFRA-COMPASS
+          pixi reinstall -e pdev INFRA-COMPASS
 
           args=(-rapP -vv -s --log-cli-level=INFO -m "${MARKER}")
           if [ -n "${TEST_FILTER}" ]; then
             args+=(-k "${TEST_FILTER}")
           fi
-          args+=("${TEST_PATH}")
+          args+=(tests/python/evals)
 
           echo "Running: pytest ${args[*]}"
-          pixi run -e "${PIXI_ENV}" pytest "${args[@]}"
+          pixi run -e pdev pytest "${args[@]}"
