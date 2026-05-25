@@ -27,6 +27,11 @@ extraction actually works. That only holds if we *don't* tune against it:
 - Treat `held_out` as a checkpoint you look at occasionally (e.g. before a
   release), not a development loop.
 
+The harness helps enforce this: a `held_out` run writes **only summary
+metrics** (`held_out_eval_metrics.csv`) — no per-case breakdown, and per-case
+predictions are not logged — so there is nothing to eyeball or tune against.
+`dev` runs write the full per-case breakdown.
+
 It is committed in plaintext (not encrypted/hidden) on purpose: we trust
 developers to follow the above rather than adding friction. If we later find
 this trust is being abused (too-frequent held-out runs, tuning against it),

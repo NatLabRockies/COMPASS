@@ -1,9 +1,12 @@
-"""Eval fixtures and reporting hooks.
+"""Eval reporting + regression gate (``pytest_terminal_summary``).
 
-After an eval run, ``pytest_terminal_summary`` writes a detailed per-case
-breakdown CSV and an overall metrics summary (accuracy / precision / recall /
-F1) to ``tests/python/evals/results/``, and prints a short summary to the
-terminal. No-ops in normal test runs (the evals are deselected by default).
+Writes results to ``tests/python/evals/results/`` and gates against the
+committed baseline; no-ops in normal runs (evals deselected by default).
+
+- **dev**: per-case breakdown CSV + metrics CSV; gate = aggregate failing
+  count AND per-row regression (tolerance for sampling noise).
+- **held_out**: metrics CSV only (no per-case detail, by design, to keep the
+  held-out set hard to tune against); gate = aggregate failing count only.
 """
 
 import csv
@@ -87,20 +90,11 @@ def _compute_metrics(results):
     }
 
 
-def _write_reports(results_dir, cadence, results, metrics):
-    """Write the per-case breakdown CSV + metrics summary for a cadence"""
-    results_dir.mkdir(parents=True, exist_ok=True)
-
-    breakdown_fp = results_dir / f"{cadence}_eval_breakdown.csv"
-    with breakdown_fp.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=_CSV_FIELDS)
-        writer.writeheader()
-        for row in sorted(results, key=itemgetter("jurisdiction")):
-            writer.writerow({k: row.get(k) for k in _CSV_FIELDS})
-
-    summary_fp = results_dir / f"{cadence}_eval_metrics.csv"
+def _write_metrics_csv(fp, metrics):
+    """Write the aggregate metrics summary CSV"""
     c = metrics["counts"]
-    with summary_fp.open("w", newline="", encoding="utf-8") as fh:
+    fails = c["FP"] + c["FN"] + c["WRONG"]
+    with fp.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
         writer.writerow(["metric", "value"])
         writer.writerow(["generated_utc", datetime.now(UTC).isoformat()])
@@ -114,61 +108,86 @@ def _write_reports(results_dir, cadence, results, metrics):
         writer.writerow(["false_positive", c["FP"]])
         writer.writerow(["false_negative", c["FN"]])
         writer.writerow(["wrong_year", c["WRONG"]])
+        writer.writerow(["failing_cases", fails])
         writer.writerow(["total_cost_usd", f"{metrics['total_cost']:.4f}"])
 
-    return breakdown_fp, summary_fp
+
+def _write_breakdown_csv(fp, results):
+    """Write the detailed per-case breakdown CSV"""
+    with fp.open("w", newline="", encoding="utf-8") as fh:
+        writer = csv.DictWriter(fh, fieldnames=_CSV_FIELDS)
+        writer.writeheader()
+        for row in sorted(results, key=itemgetter("jurisdiction")):
+            writer.writerow({k: row.get(k) for k in _CSV_FIELDS})
 
 
 def _load_baseline_correct(breakdown_fp):
-    """Map {fips: was_correct} from a committed baseline breakdown CSV
-
-    Returns ``None`` if no baseline exists yet (first run establishes it).
-    """
+    """Map {fips: was_correct} from a baseline breakdown CSV, or None"""
     if not breakdown_fp.exists():
         return None
-    baseline = {}
     with breakdown_fp.open(newline="", encoding="utf-8") as fh:
-        for row in csv.DictReader(fh):
-            baseline[str(row["fips"])] = row["correct"] == "True"
-    return baseline
+        return {
+            str(row["fips"]): row["correct"] == "True"
+            for row in csv.DictReader(fh)
+        }
 
 
-def _check_regression(rows, baseline):
-    """Compare a cadence's rows to its baseline; return (failures, lines)
+def _load_baseline_failing(metrics_fp):
+    """Read ``failing_cases`` from a baseline metrics CSV, or None"""
+    if not metrics_fp.exists():
+        return None
+    with metrics_fp.open(newline="", encoding="utf-8") as fh:
+        for row in csv.reader(fh):
+            if row and row[0] == "failing_cases":
+                return int(row[1])
+    return None
 
-    Two gates (fails if EITHER trips):
-      - aggregate (tight): more failing rows now than in the baseline.
-      - per-row (loose): more than ``_ROW_REGRESSION_TOLERANCE`` rows that
-        were correct in the baseline are now wrong.
-    """
+
+def _check_full_regression(rows, baseline):
+    """dev gate: aggregate (failing count) + per-row regression checks"""
     if baseline is None:
-        return [], ["  regression gate: no baseline yet (this run sets it)"]
+        return [], ["  gate: no baseline yet (this run sets it)"]
 
     now_correct = {str(r["fips"]): r["correct"] for r in rows}
     fails_now = sum(1 for r in rows if not r["correct"])
     fails_base = sum(1 for ok in baseline.values() if not ok)
-
     regressed = sorted(
         fips
         for fips, was_ok in baseline.items()
         if was_ok and now_correct.get(fips) is False
     )
 
-    failures, lines = [], []
-    lines.append(
-        f"  regression gate: failing rows now={fails_now} "
-        f"baseline={fails_base}; "
-        f"row regressions={len(regressed)} (tol={_ROW_REGRESSION_TOLERANCE})"
-    )
+    failures = []
+    lines = [
+        (
+            f"  gate: failing now={fails_now} baseline={fails_base}; "
+            f"row regressions={len(regressed)} "
+            f"(tol={_ROW_REGRESSION_TOLERANCE})"
+        )
+    ]
     if fails_now > fails_base:
         failures.append(
-            f"aggregate regression: {fails_now} failing rows > "
-            f"baseline {fails_base}"
+            f"aggregate regression: {fails_now} failing > {fails_base}"
         )
     if len(regressed) > _ROW_REGRESSION_TOLERANCE:
         failures.append(
-            f"{len(regressed)} previously-correct rows regressed "
-            f"(tolerance {_ROW_REGRESSION_TOLERANCE}): {regressed}"
+            f"{len(regressed)} rows regressed "
+            f"(tol {_ROW_REGRESSION_TOLERANCE}): {regressed}"
+        )
+    return failures, lines
+
+
+def _check_aggregate_regression(metrics, baseline_failing):
+    """held_out gate: aggregate failing-count only (no per-row detail)"""
+    c = metrics["counts"]
+    fails_now = c["FP"] + c["FN"] + c["WRONG"]
+    if baseline_failing is None:
+        return [], ["  gate: no baseline yet (this run sets it)"]
+    lines = [f"  gate: failing now={fails_now} baseline={baseline_failing}"]
+    failures = []
+    if fails_now > baseline_failing:
+        failures.append(
+            f"aggregate regression: {fails_now} failing > {baseline_failing}"
         )
     return failures, lines
 
@@ -188,9 +207,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         return
 
     results_dir = module.RESULTS_DIR
+    results_dir.mkdir(parents=True, exist_ok=True)
     write = terminalreporter.write_line
 
-    # Group by cadence so dev and held-out get separate reports.
     by_cadence = {}
     for r in results:
         by_cadence.setdefault(r["cadence"], []).append(r)
@@ -198,15 +217,32 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     gate_failures = []
     for cadence, rows in sorted(by_cadence.items()):
         metrics = _compute_metrics(rows)
-        # Read the committed baseline BEFORE overwriting the breakdown CSV.
-        baseline = _load_baseline_correct(
-            results_dir / f"{cadence}_eval_breakdown.csv"
-        )
-        breakdown_fp, summary_fp = _write_reports(
-            results_dir, cadence, rows, metrics
-        )
-        regress_failures, regress_lines = _check_regression(rows, baseline)
-        gate_failures.extend(f"[{cadence}] {m}" for m in regress_failures)
+        metrics_fp = results_dir / f"{cadence}_eval_metrics.csv"
+
+        # held_out: only summary stats are surfaced/saved (no per-case
+        # breakdown), and the gate is aggregate-only -- this keeps the
+        # held-out set hard to inspect or tune against.
+        if cadence == "held_out":
+            baseline_failing = _load_baseline_failing(metrics_fp)
+            failures, lines = _check_aggregate_regression(
+                metrics, baseline_failing
+            )
+            _write_metrics_csv(metrics_fp, metrics)
+            extra = [f"  metrics: {metrics_fp}"]
+        else:
+            baseline = _load_baseline_correct(
+                results_dir / f"{cadence}_eval_breakdown.csv"
+            )
+            failures, lines = _check_full_regression(rows, baseline)
+            breakdown_fp = results_dir / f"{cadence}_eval_breakdown.csv"
+            _write_breakdown_csv(breakdown_fp, rows)
+            _write_metrics_csv(metrics_fp, metrics)
+            extra = [
+                f"  breakdown: {breakdown_fp}",
+                f"  metrics: {metrics_fp}",
+            ]
+
+        gate_failures.extend(f"[{cadence}] {m}" for m in failures)
 
         terminalreporter.section(f"Eval summary: {cadence}")
         c = metrics["counts"]
@@ -222,14 +258,13 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             f"f1={metrics['f1']:.3f}"
         )
         write(f"  total LLM cost: ${metrics['total_cost']:.4f}")
-        for line in regress_lines:
+        for line in lines:
             write(line)
-        write(f"  breakdown: {breakdown_fp}")
-        write(f"  metrics:   {summary_fp}")
+        for line in extra:
+            write(line)
 
     if gate_failures:
         terminalreporter.section("Eval regression gate: FAILED")
         for f in gate_failures:
             write(f"  - {f}")
-        # Force a non-zero session exit so the run goes red.
         terminalreporter._session.exitstatus = pytest.ExitCode.TESTS_FAILED
