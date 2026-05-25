@@ -1,0 +1,14 @@
+metric,value
+generated_utc,2026-05-25T23:03:44.220467+00:00
+n_cases,48
+accuracy,0.5625
+precision,0.9231
+recall,0.5333
+f1,0.6761
+true_positive,24
+true_negative,3
+false_positive,0
+false_negative,19
+wrong_year,2
+failing_cases,21
+total_cost_usd,0.0737

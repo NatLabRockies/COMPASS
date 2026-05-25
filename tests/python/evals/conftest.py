@@ -36,6 +36,10 @@ _CSV_FIELDS = [
 # wrong (e.g. from temperature sampling noise) before the gate fails.
 _ROW_REGRESSION_TOLERANCE = 2
 
+# Prefix for result filenames, so this eval's CSVs are distinguishable from
+# any other eval's output sharing the results/ directory.
+_EVAL_NAME = "date_extraction"
+
 
 def _eval_module():
     """Return the date-accuracy test module if it ran, else None
@@ -217,7 +221,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     gate_failures = []
     for cadence, rows in sorted(by_cadence.items()):
         metrics = _compute_metrics(rows)
-        metrics_fp = results_dir / f"{cadence}_eval_metrics.csv"
+        stem = f"{_EVAL_NAME}_{cadence}"
+        metrics_fp = results_dir / f"{stem}_metrics.csv"
+        breakdown_fp = results_dir / f"{stem}_breakdown.csv"
 
         # held_out: only summary stats are surfaced/saved (no per-case
         # breakdown), and the gate is aggregate-only -- this keeps the
@@ -230,11 +236,8 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             _write_metrics_csv(metrics_fp, metrics)
             extra = [f"  metrics: {metrics_fp}"]
         else:
-            baseline = _load_baseline_correct(
-                results_dir / f"{cadence}_eval_breakdown.csv"
-            )
+            baseline = _load_baseline_correct(breakdown_fp)
             failures, lines = _check_full_regression(rows, baseline)
-            breakdown_fp = results_dir / f"{cadence}_eval_breakdown.csv"
             _write_breakdown_csv(breakdown_fp, rows)
             _write_metrics_csv(metrics_fp, metrics)
             extra = [
