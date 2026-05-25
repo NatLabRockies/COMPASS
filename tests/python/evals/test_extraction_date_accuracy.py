@@ -7,9 +7,13 @@ its ``attrs`` and the parsed document text in its ``raw_pages``. The known
 "correct" enactment year for each document comes from the solar-validation
 ground-truth dataset.
 
-The dataset is described by the hand-maintained
-``tests/data/solar_validation_files/manifest.json5`` (alongside the
-documents it references). Each manifest entry has::
+There are two datasets, same eval logic, different cadence:
+  - ``dev``: run frequently during development (`-m dev_eval`)
+  - ``held-out``: run before a release (`-m held_out`)
+
+Each lives under ``tests/python/evals/data/<cadence>/solar_validation_files/``
+with a hand-maintained ``manifest.json5`` (alongside the documents). Each
+manifest entry has::
 
     {
         "fips": 13015,
@@ -30,11 +34,16 @@ Azure OpenAI credentials are available in the environment. Configure via:
     AZURE_OPENAI_ENDPOINT
     AZURE_OPENAI_VERSION             (default: "2025-04-01-preview")
 
+After a run, the ``pytest_terminal_summary`` hook in this package's
+``conftest.py`` writes a detailed per-case breakdown CSV (expected vs
+predicted, correct flag, classification category, cost) plus overall
+accuracy / precision / recall / F1 to ``tests/python/evals/results/``.
+
 Notes
 -----
-The CSV ground truth contains only the enactment **year** (no month/day), so
-each case strictly asserts the extracted year. Month and day are reported for
-visibility but not asserted.
+The ground truth contains only the enactment **year** (no month/day), so each
+case asserts the extracted year. Month and day are recorded for visibility but
+not asserted.
 
 Cases where the ground truth says there is *no* enactment date have
 ``expected_year: null`` in the manifest; for those, the test asserts that
@@ -64,20 +73,17 @@ from compass.services.provider import RunningAsyncServices
 
 logger = logging.getLogger(__name__)
 
-# Two eval datasets, same test logic:
-#   - dev: committed in-repo, iterated on frequently (`dev_eval` cadence).
-#   - held-out: hidden set used before a release (`held_out` cadence). It is
-#     not committed; supply it at run time via COMPASS_DATE_HELD_OUT_MANIFEST
-#     (e.g. a decrypted manifest). Documents are resolved relative to each
-#     manifest's own directory.
-DATA_DIR = Path(__file__).parents[2] / "data"
-DEV_MANIFEST_FP = DATA_DIR / "solar_validation_files" / "manifest.json5"
-HELD_OUT_MANIFEST_FP = Path(
-    os.environ.get(
-        "COMPASS_DATE_HELD_OUT_MANIFEST",
-        DATA_DIR / "solar_validation_held_out" / "manifest.json5",
-    )
+# Two eval datasets, same test logic, both committed in-repo. They differ
+# only by cadence + which split of the data they hold (see data/README.md).
+# Documents are resolved relative to each manifest's own directory.
+_DATA_DIR = Path(__file__).parent / "data"
+DEV_MANIFEST_FP = (
+    _DATA_DIR / "dev" / "solar_validation_files" / "manifest.json5"
 )
+HELD_OUT_MANIFEST_FP = (
+    _DATA_DIR / "held-out" / "solar_validation_files" / "manifest.json5"
+)
+RESULTS_DIR = Path(__file__).parent / "results"
 
 DEFAULT_MODEL = "compassop-gpt-5.4"
 
@@ -176,7 +182,27 @@ def _build_doc(case, dataset_dir):
     return HTMLDocument([text], attrs=attrs)
 
 
-async def _extract_year(case, dataset_dir, model_config):
+def _classify(expected, extracted):
+    """Confusion-matrix category for an (expected, extracted) year pair
+
+    Positive class = "an enactment year exists". A wrong year counts as
+    BOTH a false positive and a false negative (matches the convention in
+    solar_validation's ``margin_metrics``).
+
+      TP  expected exists, extracted it correctly
+      TN  no expected year, correctly extracted none
+      FN  expected exists but nothing extracted (missed)
+      FP  no expected year but a year was invented
+      WRONG  expected exists, extracted a *different* year (FP and FN)
+    """
+    if expected is None:
+        return "TN" if extracted is None else "FP"
+    if extracted is None:
+        return "FN"
+    return "TP" if extracted == expected else "WRONG"
+
+
+async def _extract_year(case, dataset_dir, cadence, model_config):
     """Run ``extract_date`` for one case and return the extracted year"""
     doc = _build_doc(case, dataset_dir)
     assert "date" not in doc.attrs, "doc should not be pre-dated"
@@ -189,19 +215,22 @@ async def _extract_year(case, dataset_dir, model_config):
 
     cost = compute_cost_from_totals(usage_tracker.totals)
     year, month, day = doc.attrs["date"]
-
-    if case["expected_year"] is None:
-        correct = year is None
-    else:
-        correct = year == case["expected_year"]
+    expected = case["expected_year"]
+    correct = (year is None) if expected is None else (year == expected)
 
     DATE_ACCURACY_RESULTS.append(
         {
+            "cadence": cadence,
+            "fips": case["fips"],
             "jurisdiction": case["jurisdiction"],
             "file": case["file"],
-            "expected": case["expected_year"],
-            "extracted": year,
+            "source": case["source"],
+            "expected_year": expected,
+            "extracted_year": year,
+            "extracted_month": month,
+            "extracted_day": day,
             "correct": correct,
+            "category": _classify(expected, year),
             "allow_failure": bool(case.get("allow_failure")),
             "cost": cost,
         }
@@ -211,7 +240,7 @@ async def _extract_year(case, dataset_dir, model_config):
         "%s (FIPS %s): expected_year=%s -> extracted=(%s, %s, %s)  cost=$%.4f",
         case["jurisdiction"],
         case["fips"],
-        case["expected_year"],
+        expected,
         year,
         month,
         day,
@@ -220,7 +249,7 @@ async def _extract_year(case, dataset_dir, model_config):
     return year
 
 
-async def _assert_year(case, dataset_dir, model_config):
+async def _assert_year(case, dataset_dir, cadence, model_config):
     """Shared eval logic: extract a year and assert it vs ground truth
 
     For documents with a known enactment year, the extracted year must
@@ -231,7 +260,9 @@ async def _assert_year(case, dataset_dir, model_config):
     known-hard: a mismatch is reported as an xfail rather than failing
     the suite, while an unexpected pass shows up as an xpass.
     """
-    extracted_year = await _extract_year(case, dataset_dir, model_config)
+    extracted_year = await _extract_year(
+        case, dataset_dir, cadence, model_config
+    )
     expected = case["expected_year"]
 
     if expected is None:
@@ -261,22 +292,25 @@ async def _assert_year(case, dataset_dir, model_config):
     "case", _DEV_CASES, ids=[c["file"] for c in _DEV_CASES]
 )
 async def test_date_year_accuracy_dev(case, date_model_config):
-    """Date-extraction accuracy on the committed dev dataset"""
-    await _assert_year(case, DEV_MANIFEST_FP.parent, date_model_config)
+    """Date-extraction accuracy on the dev dataset"""
+    await _assert_year(
+        case, DEV_MANIFEST_FP.parent, "dev", date_model_config
+    )
 
 
 @pytest.mark.held_out
 @pytest.mark.skipif(
     not HELD_OUT_MANIFEST_FP.exists(),
-    reason=f"Held-out dataset not found at {HELD_OUT_MANIFEST_FP} "
-    "(supply via COMPASS_DATE_HELD_OUT_MANIFEST)",
+    reason=f"Held-out dataset not found at {HELD_OUT_MANIFEST_FP}",
 )
 @pytest.mark.parametrize(
     "case", _HELD_OUT_CASES, ids=[c["file"] for c in _HELD_OUT_CASES]
 )
 async def test_date_year_accuracy_held_out(case, date_model_config):
-    """Date-extraction accuracy on the hidden held-out dataset"""
-    await _assert_year(case, HELD_OUT_MANIFEST_FP.parent, date_model_config)
+    """Date-extraction accuracy on the held-out dataset"""
+    await _assert_year(
+        case, HELD_OUT_MANIFEST_FP.parent, "held_out", date_model_config
+    )
 
 
 if __name__ == "__main__":

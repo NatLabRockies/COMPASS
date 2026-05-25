@@ -1,0 +1,158 @@
+[
+    {
+        "fips": 18015,
+        "jurisdiction": "Carroll Indiana",
+        "file": "Carroll_County_Indiana.pdf",
+        "source": "https://www.in.gov/counties/carroll/files/ORDINANCE-2024-01.pdf",
+        "expected_year": 2024
+    },
+    {
+        "fips": 2501300840,
+        "jurisdiction": "Agawam Town Hampden Massachusetts",
+        "file": "City_of_Agawam_Town_Hampden_County_Massachusetts.txt",
+        "source": "https://ecode360.com/34134372",
+        "expected_year": 2025,
+        "allow_failure": true
+    },
+    {
+        "fips": 18073,
+        "jurisdiction": "Jasper Indiana",
+        "file": "Jasper_County_Indiana.pdf",
+        "source": "https://jasper.county.codes/JCC/20.50.950",
+        "expected_year": 2025,
+        "allow_failure": true
+    },
+    {
+        "fips": 19137,
+        "jurisdiction": "Montgomery Iowa",
+        "file": "Montgomery_County_Iowa.pdf",
+        "source": "https://www.montgomerycountyia.gov/docview.aspx?docid=50714",
+        "expected_year": 2022
+    },
+    {
+        "fips": 38061,
+        "jurisdiction": "Mountrail North Dakota",
+        "file": "Mountrail_County_North_Dakota.pdf",
+        "source": "http://www.co.mountrail.nd.us/Documents/Uploads/Mountrail-Co-LDC-Recorded-Document-455088.pdf",
+        "expected_year": 2022
+    },
+    {
+        "fips": 27101,
+        "jurisdiction": "Murray Minnesota",
+        "file": "Murray_County_Minnesota.pdf",
+        "source": "https://cms9files.revize.com/murraycounty/Renewable_Energy_eff_01-01-20.pdf",
+        "expected_year": 2020
+    },
+    {
+        "fips": 27111,
+        "jurisdiction": "Otter Tail Minnesota",
+        "file": "Otter_Tail_County_Minnesota.pdf",
+        "source": "https://ottertailcounty.gov/wp-content/uploads/2021/07/Renewable-Energy-Ordinance-11-23-2021.pdf",
+        "expected_year": 2021
+    },
+    {
+        "fips": 27121,
+        "jurisdiction": "Pope Minnesota",
+        "file": "Pope_County_Minnesota.pdf",
+        "source": "https://www.popecountymn.gov/wp-content/uploads/2024/09/Resolution-202424-Approving-Amendments-to-the-Pope-County-LUCO-Sec2.2-10.4-10.12-10.24-and-11.pdf",
+        "expected_year": 2024
+    },
+    {
+        "fips": 3602102099,
+        "jurisdiction": "Ancram Columbia New York",
+        "file": "Town_of_Ancram_Columbia_County_New_York.pdf",
+        "source": "https://www.ancramny.org/ws/wp-content/uploads/2021/04/Abstract-of-Local-Law-1-of-2021-Solar-Law.pdf",
+        "expected_year": 2022
+    },
+    {
+        "fips": 3612102418,
+        "jurisdiction": "Arcade Wyoming New York",
+        "file": "Town_of_Arcade_Wyoming_County_New_York.pdf",
+        "source": "https://villageofarcade.org/wp-content/uploads/VOA-files/Zoning%20Board%20Documents/Town%20of%20Arcade%20Zoning%20Law%20December%202020.pdf",
+        "expected_year": 2020
+    },
+    {
+        "fips": 3600312243,
+        "jurisdiction": "Caneadea Allegany New York",
+        "file": "Town_of_Caneadea_Allegany_County_New_York.pdf",
+        "source": "https://cms2.revize.com/revize/caneadea/Article%2015.pdf",
+        "expected_year": null
+    },
+    {
+        "fips": 2300315395,
+        "jurisdiction": "Crystal Aroostook Maine",
+        "file": "Town_of_Crystal_Aroostook_County_Maine.pdf",
+        "source": "https://www.islandfallsme.us/vertical/sites/%7B22C70384-7073-450B-957A-33378347F000%7D/uploads/Solar_Ordinance_Crystal(1).pdf",
+        "expected_year": 2023
+    },
+    {
+        "fips": 2301923620,
+        "jurisdiction": "Enfield Penobscot Maine",
+        "file": "Town_of_Enfield_Penobscot_County_Maine.pdf",
+        "source": "https://www.enfieldmaine.org/Commercial%20Solar%20Ordinance.pdf",
+        "expected_year": 2024
+    },
+    {
+        "fips": 3607130631,
+        "jurisdiction": "Greenville Orange New York",
+        "file": "Town_of_Greenville_Orange_County_New_York.pdf",
+        "source": "https://ecode360.com/GR1575/laws/LF2129396.pdf",
+        "expected_year": 2024
+    },
+    {
+        "fips": 2301930795,
+        "jurisdiction": "Hampden Penobscot Maine",
+        "file": "Town_of_Hampden_Penobscot_County_Maine.pdf",
+        "source": "https://www.hampdenmaine.gov/vertical/sites/%7B1FCAF0C4-5C5E-476D-A92E-1BED5B1F9E05%7D/uploads/SOLAR_ENERGY_ORDINANCE.pdf",
+        "expected_year": 2021
+    },
+    {
+        "fips": 3606351033,
+        "jurisdiction": "Niagara Niagara New York",
+        "file": "Town_of_Niagara_Niagara_County_New_York.txt",
+        "source": "https://ecode360.com/45924925",
+        "expected_year": 2024
+    },
+    {
+        "fips": 3604342752,
+        "jurisdiction": "Little Falls Herkimer New York",
+        "file": "Town_of_Little_Falls_Herkimer_County_New_York.pdf",
+        "source": "https://townoflittlefallsny.com/wp-content/uploads/2023/12/1-2020-1-Solar-Energy-Regulations-Law-AMENDMENT-TO-LAW-2017-2-2.pdf",
+        "expected_year": 2020
+    },
+    {
+        "fips": 2302547455,
+        "jurisdiction": "Moscow Somerset Maine",
+        "file": "Town_of_Moscow_Somerset_County_Maine.pdf",
+        "source": "https://moscowmaine.org/s/Solar-Farm-Ordinance.pdf",
+        "expected_year": null
+    },
+    {
+        "fips": 3606755651,
+        "jurisdiction": "Otisco Onondaga New York",
+        "file": "Town_of_Otisco_Onondaga_County_New_York.pdf",
+        "source": "https://townofotisco.com/wp-content/uploads/2024/04/Local-Law-2024-05.pdf",
+        "expected_year": 2024
+    },
+    {
+        "fips": 3601172037,
+        "jurisdiction": "Summerhill Cayuga New York",
+        "file": "Town_of_Summerhill_Cayuga_County_New_York.pdf",
+        "source": "https://www.cayugacounty.us/DocumentCenter/View/19649/Town-of-Summerhill-Proposed-Solar-Land-Use-Regs-PDF",
+        "expected_year": 2022
+    },
+    {
+        "fips": 3602578047,
+        "jurisdiction": "Walton Delaware New York",
+        "file": "Town_of_Walton_Delaware_County_New_York.txt",
+        "source": "https://ecode360.com/34256634",
+        "expected_year": 2019
+    },
+    {
+        "fips": 27157,
+        "jurisdiction": "Wabasha Minnesota",
+        "file": "Wabasha_County_Minnesota.pdf",
+        "source": "https://cms9files1.revize.com/wabasha/document_center/Wabasha%20County%20Ordinances/ordinance_89.pdf",
+        "expected_year": 2024
+    }
+]
