@@ -1,16 +1,15 @@
-name: Evals
-
 # Do live API call to perform system evaluation (Evals). Typically manually
 # triggered after changes to the part of code that affects the LLM behavior.
 # Supports 2 kinds of eval markers:
 #   "dev_eval"   -> frequent dev-dataset evals
 #   "held_out"   -> pre-release hidden held-out evals
 #
-# `workflow_dispatch` already requires repo write access to trigger, which is
-# the (intentional, mild) control over who can kick off these billable runs.
+name: Evals
 
 permissions:
   contents: read
+  pull-requests: write
+  issues: write
 
 on:
   workflow_dispatch:
@@ -49,10 +48,6 @@ jobs:
 
       - name: Run gated tests
         env:
-          # Pass ONLY the secrets the evals need (least privilege). When a new
-          # gated test needs a different secret, add it here explicitly -- do
-          # not pass `toJSON(secrets)`, which exposes every org/repo secret to
-          # the runner (flagged by CodeQL's excessive-secrets-exposure rule).
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_VERSION: ${{ secrets.AZURE_OPENAI_VERSION }}
