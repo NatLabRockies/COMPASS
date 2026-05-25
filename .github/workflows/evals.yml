@@ -1,28 +1,10 @@
-name: Manual eval
+name: Evals
 
-# Manually-triggered runner for evals and other tests deselected from normal
-# CI (e.g. tests that make live, billable LLM calls). Run from the Actions tab
-# via "Run workflow".
-#
-# Common uses:
-#   marker: "eval"               -> all evals
-#   marker: "dev_eval"           -> frequent dev-dataset evals
-#   marker: "held_out"           -> pre-release hidden held-out evals
-#
-# This workflow is intentionally generic: it runs whatever pytest marker /
-# path / filter you pass as inputs. To add a new gated test later, just mark
-# it with a pytest marker on your branch and dispatch this workflow against
-# that branch (the "Use workflow from" dropdown) -- no need to re-merge the
-# workflow to the default branch.
-#
-# Triggers: manual only (workflow_dispatch). Other triggers (scheduled
-# dev_eval, PR-label opt-in, etc.) can be added to the `on:` block later; the
-# run step already keys off inputs, and event-specific behavior can branch on
-# `github.event_name`.
-#
-# NOTE: GitHub reads the trigger/inputs of a `workflow_dispatch` workflow from
-# the DEFAULT branch, so this file must be on the default branch once. After
-# that, the job body and the tests it runs come from the selected branch.
+# Do live API call to perform system evaluation (Evals). Typically manually
+# triggered after changes to the part of code that affects the LLM behavior.
+# Supports 2 kinds of eval markers:
+#   "dev_eval"   -> frequent dev-dataset evals
+#   "held_out"   -> pre-release hidden held-out evals
 
 permissions:
   contents: read
@@ -31,11 +13,13 @@ on:
   workflow_dispatch:
     inputs:
       marker:
-        description: >-
-          pytest -m marker expression selecting the evals to run
-          (e.g. "eval", "dev_eval", or "held_out").
+        description: Which evals to run.
         required: false
-        default: "eval"
+        type: choice
+        default: "dev_eval"
+        options:
+          - "dev_eval"
+          - "held_out"
       test_path:
         description: Path (dir or file) to collect tests from.
         required: false
@@ -48,12 +32,6 @@ on:
         description: pixi environment to run the tests in.
         required: false
         default: "pdev"
-      model:
-        description: >-
-          Optional model/deployment name, exposed as COMPASS_DATE_TEST_MODEL
-          for tests that read it.
-        required: false
-        default: ""
 
 jobs:
   gated-tests:
@@ -83,7 +61,6 @@ jobs:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_VERSION: ${{ secrets.AZURE_OPENAI_VERSION }}
-          COMPASS_DATE_TEST_MODEL: ${{ inputs.model }}
           MARKER: ${{ inputs.marker }}
           TEST_PATH: ${{ inputs.test_path }}
           TEST_FILTER: ${{ inputs.test_filter }}
