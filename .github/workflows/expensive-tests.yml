@@ -1,9 +1,18 @@
-name: Expensive tests (manual)
+name: Gated tests (manual)
 
-# Manually-triggered only. These tests make live, billable LLM calls
-# (e.g. the date-extraction accuracy test) and are deselected from every
-# other workflow via the `expensive` pytest marker. Run from the Actions
-# tab via "Run workflow".
+# Manually-triggered runner for tests that are deselected from normal CI
+# (e.g. tests that make live, billable LLM calls). Run from the Actions tab
+# via "Run workflow".
+#
+# This workflow is intentionally generic: it runs whatever pytest marker /
+# path / filter you pass as inputs. To add a new gated test later, just mark
+# it with a pytest marker on your branch and dispatch this workflow against
+# that branch (the "Use workflow from" dropdown) -- no need to re-merge the
+# workflow to the default branch.
+#
+# NOTE: GitHub reads the trigger/inputs of a `workflow_dispatch` workflow from
+# the DEFAULT branch, so this file must be on the default branch once. After
+# that, the job body and the tests it runs come from the selected branch.
 
 permissions:
   contents: read
@@ -11,20 +20,34 @@ permissions:
 on:
   workflow_dispatch:
     inputs:
-      test_filter:
+      marker:
         description: >-
-          Optional pytest -k expression to run a subset (e.g. "Bartow").
-          Leave blank to run all expensive tests.
+          pytest -m marker expression selecting the gated tests to run
+          (e.g. "expensive", or "expensive and not slow").
+        required: false
+        default: "expensive"
+      test_path:
+        description: Path (dir or file) to collect tests from.
+        required: false
+        default: "tests/python/integration"
+      test_filter:
+        description: Optional pytest -k expression to run a subset.
         required: false
         default: ""
-      model:
-        description: Azure deployment name to exercise.
+      pixi_env:
+        description: pixi environment to run the tests in.
         required: false
-        default: "compassop-gpt-5.4"
+        default: "pdev"
+      model:
+        description: >-
+          Optional model/deployment name, exposed as COMPASS_DATE_TEST_MODEL
+          for tests that read it.
+        required: false
+        default: ""
 
 jobs:
-  expensive-tests:
-    name: Run expensive (live-LLM) tests
+  gated-tests:
+    name: Run gated tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
@@ -35,29 +58,36 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@1b2de7f3351f171c8b4dfeb558c639cb58ed4ec0 # v0.9.5
         with:
-          pixi-version: v0.62.2
+          pixi-version: v0.68.1
           locked: true
           cache: true
           cache-write: false
-          environments: pdev
+          environments: ${{ inputs.pixi_env }}
 
-      - name: Run expensive tests
+      - name: Run gated tests
         env:
+          # Explicit, well-known creds for the current live-LLM tests.
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_VERSION: ${{ secrets.AZURE_OPENAI_VERSION }}
-          COMPASS_DATE_TEST_MODEL: ${{ github.event.inputs.model }}
+          COMPASS_DATE_TEST_MODEL: ${{ inputs.model }}
+          # Passthrough of all repo secrets as JSON, so a future gated test
+          # needing a different secret can read it without editing this file.
+          # Parse in-test, e.g.:
+          #   json.loads(os.environ["ALL_SECRETS"])["MY_SECRET"]
+          ALL_SECRETS: ${{ toJSON(secrets) }}
+          MARKER: ${{ inputs.marker }}
+          TEST_PATH: ${{ inputs.test_path }}
+          TEST_FILTER: ${{ inputs.test_filter }}
+          PIXI_ENV: ${{ inputs.pixi_env }}
         run: |
-          if [ -z "${AZURE_OPENAI_API_KEY}" ] || [ -z "${AZURE_OPENAI_ENDPOINT}" ]; then
-            echo "::error::AZURE_OPENAI_API_KEY / AZURE_OPENAI_ENDPOINT secrets are not set."
-            echo "Add them in repo Settings -> Secrets and variables -> Actions."
-            exit 1
+          pixi reinstall -e "${PIXI_ENV}" INFRA-COMPASS
+
+          args=(-rapP -vv -s --log-cli-level=INFO -m "${MARKER}")
+          if [ -n "${TEST_FILTER}" ]; then
+            args+=(-k "${TEST_FILTER}")
           fi
-          pixi reinstall -e pdev INFRA-COMPASS
-          if [ -n "${{ github.event.inputs.test_filter }}" ]; then
-            pixi run -e pdev pytest -rapP -vv -s --log-cli-level=INFO \
-              -m expensive -k "${{ github.event.inputs.test_filter }}" \
-              tests/python/integration
-          else
-            pixi run -e pdev tests-expensive
-          fi
+          args+=("${TEST_PATH}")
+
+          echo "Running: pytest ${args[*]}"
+          pixi run -e "${PIXI_ENV}" pytest "${args[@]}"
