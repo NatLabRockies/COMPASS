@@ -1,0 +1,14 @@
+metric,value,ci95_wilson
+generated_utc,2026-05-25T23:39:07.239499+00:00,
+n_cases,48,
+accuracy,0.5833,0.4428-0.7115
+precision,0.9615,0.8111-0.9932
+recall,0.5556,0.4118-0.6906
+f1,0.7042,
+true_positive,25,
+true_negative,3,
+false_positive,0,
+false_negative,19,
+wrong_year,1,
+failing_cases,20,
+total_cost_usd,0.0738,

@@ -7,7 +7,7 @@ committed in plaintext and split from the same source labels.
 
 | | `dev/` | `held-out/` |
 | --- | --- | --- |
-| Cadence | run frequently during development (`-m dev_eval`) | run before a release (`-m held_out`) |
+| Cadence | run frequently during development (`-m dev_eval`) | run before a release (`-m held_out_eval`) |
 | Purpose | iterate, tune prompts/logic, debug failures | unbiased estimate of true performance |
 | Size | ~70% of the labeled cases | ~30% of the labeled cases |
 
@@ -20,15 +20,15 @@ where it does not**, so both datasets keep the same mix of "has a date" and
 The held-out set is meant to give an **honest** read on how well date
 extraction actually works. That only holds if we *don't* tune against it:
 
-- **Do not** run `held_out` repeatedly while iterating — use `dev` for that.
+- **Do not** run `held_out_eval` repeatedly while iterating — use `dev` for that.
 - **Do not** inspect held-out failures to "fix" the extractor for those
   specific documents. The moment you optimize against the held-out set, it
   stops being held-out and its numbers become optimistic.
-- Treat `held_out` as a checkpoint you look at occasionally (e.g. before a
+- Treat `held_out_eval` as a checkpoint you look at occasionally (e.g. before a
   release), not a development loop.
 
-The harness helps enforce this: a `held_out` run writes **only summary
-metrics** (`date_extraction_held_out_metrics.csv`) — no per-case breakdown, and per-case
+The harness helps enforce this: a `held_out_eval` run writes **only summary
+metrics** (`date_extraction_held_out_eval_metrics.csv`) — no per-case breakdown, and per-case
 predictions are not logged — so there is nothing to eyeball or tune against.
 `dev` runs write the full per-case breakdown.
 

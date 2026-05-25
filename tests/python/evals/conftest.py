@@ -5,8 +5,8 @@ committed baseline; no-ops in normal runs (evals deselected by default).
 
 - **dev**: per-case breakdown CSV + metrics CSV; gate = aggregate failing
   count AND per-row regression (tolerance for sampling noise).
-- **held_out**: metrics CSV only (no per-case detail, by design, to keep the
-  held-out set hard to tune against); gate = aggregate failing count only.
+- **held_out_eval**: metrics CSV only (no per-case detail, by design, to keep
+  the held-out set hard to tune against); gate = aggregate failing count only.
 """
 
 import csv
@@ -216,7 +216,7 @@ def _check_full_regression(rows, baseline):
 
 
 def _check_aggregate_regression(metrics, baseline_failing):
-    """held_out gate: aggregate failing-count only (no per-row detail)"""
+    """held_out_eval gate: aggregate failing-count only (no per-row detail)"""
     c = metrics["counts"]
     fails_now = c["FP"] + c["FN"] + c["WRONG"]
     if baseline_failing is None:
@@ -259,10 +259,10 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         metrics_fp = results_dir / f"{stem}_metrics.csv"
         breakdown_fp = results_dir / f"{stem}_breakdown.csv"
 
-        # held_out: only summary stats are surfaced/saved (no per-case
+        # held_out_eval: only summary stats are surfaced/saved (no per-case
         # breakdown), and the gate is aggregate-only -- this keeps the
         # held-out set hard to inspect or tune against.
-        if cadence == "held_out":
+        if cadence == "held_out_eval":
             baseline_failing = _load_baseline_failing(metrics_fp)
             failures, lines = _check_aggregate_regression(
                 metrics, baseline_failing

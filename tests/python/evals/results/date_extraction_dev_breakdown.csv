@@ -1,0 +1,49 @@
+cadence,fips,jurisdiction,file,source,expected_year,extracted_year,extracted_month,extracted_day,correct,category,cost
+dev,13015,Bartow Georgia,Bartow_County_Georgia.pdf,https://cms2.revize.com/revize/bartowga/ordinance%20updated%20thru%2011-04-20.pdf,2020,2020,11,4,True,TP,0.0007149999999999999
+dev,53005,Benton Washington,Benton_County_Washington.pdf,https://bentoncountywa.municipalone.com/docview.aspx?docid=29828,,,,,True,TN,0.0006837499999999999
+dev,3600106211,Berne Albany New York,Town_of_Berne_Albany_County_New_York.pdf,https://berneny.org/wp-content/uploads/Proposed-Local-Law-3-of-2022.pdf,2022,2022,,,True,TP,0.00084625
+dev,3600706618,Binghamton Broome New York,Town_of_Binghamton_Broome_County_New_York.pdf,https://townofbinghamton.com/wp-content/uploads/2020/10/TOB-Draft-Solar-Law-REV.-8-31-20-.pdf,2020,2020,8,31,True,TP,0.00080875
+dev,29019,Boone Missouri,Boone_County_Missouri.pdf,https://www.showmeboone.com/resource-management/Solar/03-18-24%20Final%20Drafts/SECTION_30_SOLAR_ENERGY_OVERLAY_DISTRICT_FINAL_DRAFT_20240318.pdf,2024,2024,3,18,True,TP,0.0008137499999999999
+dev,22015,Bossier Louisiana,Bossier_Parish_Louisiana.pdf,"https://www.bossierparishla.gov/docs/default-source/police-jury/recent-ordinances/4910.pdf?sfvrsn=aa884719_3#:~:text=BE%20IT%20ORDAINED%20that%20the,Police%20Jury%2C%20excluding%20state%2Downed",2022,,,,False,FN,0.00084625
+dev,3602907454,Boston Erie New York,Town_of_Boston_Erie_County_New_York.pdf,https://ecode360.com/BO0557/laws/LF1193731.pdf,2019,,,,False,FN,0.0007412499999999999
+dev,2500107175,Bourne Barnstable Massachusetts,Town_of_Bourne_Barnstable_County_Massachusetts.pdf,https://www.townofbourne.com/sites/g/files/vyhlif12841/f/uploads/zoning_bylaw_2022_for_website_1.pdf,2022,2022,,,True,TP,0.00079875
+dev,38011,Bowman North Dakota,Bowman_County_North_Dakota.pdf,https://bowmannd.com/wp-content/uploads/2024/12/2024-ZONING-ORDINACE.pdf,2024,2024,12,,True,TP,0.00089375
+dev,19017,Bremer Iowa,Bremer_County_Iowa.pdf,https://cms7files.revize.com/bremercountyia/document_center/Building%20Zoning/Ordinances%20and%20codes/Recorded%20Ord%2022-07%20(Zoning%20Ord).pdf,2022,2022,,,True,TP,0.0009699999999999999
+dev,27017,Carlton Minnesota,Carlton_County_Minnesota.pdf,https://www.carltoncountymn.gov/DocumentCenter/View/931/Renewable-Energy-Ordinance-PDF,2017,,,,False,FN,0.00080625
+dev,17015,Carroll Illinois,Carroll_County_Illinois.pdf,https://cms9files.revize.com/carrollil/Chapter%20725%20Solar%20Amended%2005.18.2023.pdf,2023,2023,5,18,True,TP,0.0006925
+dev,3601314069,Chautauqua Chautauqua New York,Town_of_Chautauqua_Chautauqua_County_New_York.pdf,https://municipality-management.s3.us-east-2.amazonaws.com/48/agendas/gCGk4Sv6Jidg9xpX_11%208%2023%20Work%20Session%20Agenda-%20Solar%20Review.pdf,2023,2023,11,8,True,TP,0.0009349999999999999
+dev,27025,Chisago Minnesota,Chisago_County_Minnesota.pdf,https://www.chisagocountymn.gov/DocumentCenter/View/7211/Solar-Energy-Systems-Ordinance-PDF,2020,,,,False,FN,0.0007412499999999999
+dev,27027,Clay Minnesota,Clay_County_Minnesota.pdf,https://claycountymn.gov/DocumentCenter/View/16228,,,,,True,TN,0.00075375
+dev,56011,Crook Wyoming,Crook_County_Wyoming.pdf,https://cms2.revize.com/revize/crookscountynew/elected_officials/commissioners/docs/Proposed_Rules_&_Regs/Wind%20and%20Solar%20Regulation%20after%20August%205%202025.pdf?t=202508192041490&t=202508192041490,2025,2025,8,19,True,TP,0.00095
+dev,47035,Cumberland Tennessee,Cumberland_County_Tennessee.pdf,https://www.cumberlandcountync.gov/vd-Planning/downloads/ord_amendments/county/Solar%20Farm%20__Approved__051815.pdf,2015,2015,5,18,True,TP,0.000755
+dev,2301717250,Denmark Oxford Maine,Town_of_Denmark_Oxford_County_Maine.pdf,https://denmarkmaine.org/uploads/zoning_ordinance_amended_02.27.2021_approved_with_5.16__8.8_additions-1-.pdf,2021,2021,2,27,True,TP,0.000985
+dev,3602720819,Dover Dutchess New York,Town_of_Dover_Dutchess_County_New_York.pdf,https://www.doverny.us/sites/g/files/vyhlif4341/f/news/draft_new_dover_solar_code_updated_09_13_23__0.pdf,2023,2023,9,13,True,TP,0.00069
+dev,19061,Dubuque Iowa,Dubuque_County_Iowa.pdf,https://www.dubuquecountyiowa.gov/DocumentCenter/View/7375/Ch-05---Renewable-Energy-Ordinance-DRAFT-2024-07-29-PDF,2024,2024,7,29,True,TP,0.00083
+dev,21079,Garrard Kentucky,Garrard_County_Kentucky.pdf,https://garrardcountyky.gov/wp-content/uploads/2024/01/Solar-Ordinance-Second-Reading-Signed.pdf,2024,2024,1,,True,TP,0.0008225000000000001
+dev,3609329366,Glenville Schenectady New York,Town_of_Glenville_Schenectady_County_New_York.pdf,https://www.townofglenville.org/home/files/gecc-solar-attachments,2024,,,,False,FN,0.000795
+dev,47059,Greene Tennessee,Greene_County_Tennessee.pdf,"https://www.greenecountytngov.com/wp-content/uploads/2017/09/Greene%20County,%20TN.Zoning%20Res.Dec%202015.pdf",2015,2015,12,,True,TP,0.00093875
+dev,17065,Hamilton Illinois,Hamilton_County_Illinois.pdf,https://www.hamiltoncountyil.gov/app/uploads/2022/06/Hamilton-County-IL-Commercial-Solar-Energy-Ordinance-2024-05-02.pdf,2024,2024,5,2,True,TP,0.0007525
+dev,3606332490,Hartland Niagara New York,Town_of_Hartland_Niagara_County_New_York.pdf,https://cms5.revize.com/revize/hartlandny/Businesses/Town%20of%20Hartland%20Code/Zoning%20&%20All%20Codes/HA0923-144.pdf,2017,,,,False,FN,0.00092
+dev,3603936178,Hunter Greene New York,Town_of_Hunter_Greene_County_New_York.pdf,https://townofhunterny.gov/wp-content/uploads/2021/06/solar-law-2021.pdf,2021,2021,6,,True,TP,0.00080875
+dev,3602142917,Livingston Columbia New York,Town_of_Livingston_Columbia_County_New_York.pdf,https://townoflivingston.org/wp-content/uploads/2022/06/Local-Law-2-of-2021.pdf,2022,2022,6,,True,TP,0.0010825
+dev,3605142961,Livonia Livingston New York,Town_of_Livonia_Livingston_County_New_York.txt,https://ecode360.com/38054462,2022,,,,False,FN,0.0007687499999999999
+dev,39103,Medina Ohio,Medina_County_Ohio.txt,https://codelibrary.amlegal.com/codes/medina/latest/medina_oh/0-0-0-29637,2014,,,,False,FN,0.0006875
+dev,3301747700,Middleton Strafford New Hampshire,Town_of_Middleton_Strafford_County_New_Hampshire.pdf,https://middletonnh.gov/uploads/proposed-zoning-ordinances.pdf,2023,,,,False,FN,0.00080625
+dev,53047,Okanogan Washington,Okanogan_County_Washington.txt,https://www.codepublishing.com/WA/OkanoganCounty/html/OkanoganCounty17/OkanoganCounty17255.html,2024,,,,False,FN,0.0007225
+dev,2500351580,Otis Berkshire Massachusetts,Town_of_Otis_Berkshire_County_Massachusetts.pdf,https://ecode360.com/43529091#43529410,2025,,,,False,FN,0.0006312500000000001
+dev,3606357111,Pendleton Niagara New York,Town_of_Pendleton_Niagara_County_New_York.txt,https://ecode360.com/5125460,2022,,,,False,FN,0.00074625
+dev,19155,Pottawattamie Iowa,Pottawattamie_County_Iowa.pdf,https://www.pottcounty-ia.gov/files/meetings/2023-11-14_packet_board_of_supervisors_50640.pdf,2023,2023,11,14,True,TP,0.0007875
+dev,24035,Queen Anne'S Maryland,Queen_Anne'S_County_Maryland.pdf,https://dnr.maryland.gov/pprp/Documents/QueenAnneZoningDocs.pdf,2020,,,,False,FN,0.0006462499999999999
+dev,17165,Saline Illinois,Saline_County_Illinois.pdf,https://energyzoning.org/sites/default/files/PDF/17165_Saline%20_20230118.pdf,2020,,,,False,FN,0
+dev,51175,Southampton Virginia,Southampton_County_Virginia.pdf,"https://www.southamptoncounty.org/BOS%20Agenda%202022/March%2022,%202022/No.%2015%20-%20Draft%20Ordinance%20-%20Utility%20Scale%20Solar%20Projects.pdf",2022,2022,3,22,True,TP,0.0007199999999999999
+dev,12111,St. Lucie Florida,St._Lucie_County_Florida.pdf,https://mcclibraryfunctions.azurewebsites.us/api/ordinanceDownload/14641/485031/pdf,2010,,,,False,FN,0.00068
+dev,3300974740,Sugar Hill Grafton New Hampshire,Town_of_Sugar_Hill_Grafton_County_New_Hampshire.pdf,https://www.sugarhillnh.org/wp-content/uploads/2024/04/SH-Zoning-Ordinance-Amended-03122024.pdf,2024,2024,3,12,True,TP,0.0007574999999999999
+dev,2501572880,Ware Hampshire Massachusetts,Town_of_Ware_Hampshire_County_Massachusetts.pdf,https://cms1files.revize.com/warema/Ware%20Bylaw%20-%20Utility%20Scale%20Solar%20Revision.pdf,,,,,True,TN,0.0008049999999999999
+dev,13305,Wayne Georgia,Wayne_County_Georgia.pdf,"https://mcclibraryfunctions.azurewebsites.us/api/ordinanceDownload/12423/1246775/pdf?forceDownload=true#:~:text=(j)%20All%20solar%20farms%20shall,of%20the%20International%20Fire%20Code.",2023,,,,False,FN,0.00071375
+dev,4400377720,West Greenwich Kent Rhode Island,Town_of_West_Greenwich_Kent_County_Rhode_Island.pdf,https://ecode360.com/33936687#33936687,2025,,,,False,FN,0.0007212500000000001
+dev,3600179851,Westerlo Albany New York,Town_of_Westerlo_Albany_County_New_York.pdf,https://townofwesterlony.com/wp-content/uploads/2021/12/LL-No-4-of-2021-Solar-Energy-Systems-FINAL-2.pdf,2021,2021,12,,True,TP,0.00090125
+dev,3611581633,Whitehall Washington New York,Town_of_Whitehall_Washington_County_New_York.pdf,https://www.washingtoncountyny.gov/DocumentCenter/View/25318/Town-Whitehall-Moratorium-with-SEQRAFS,2024,,,,False,FN,0.0007637499999999999
+dev,3603982480,Windham Greene New York,Town_of_Windham_Greene_County_New_York.pdf,https://www.townofwindhamny.com/wp-content/uploads/2022/06/Local-Law-1-of-2022-Regulating-Solar-Energy-Systems.pdf,2022,2022,6,,True,TP,0.00085625
+dev,17201,Winnebago Illinois,Winnebago_County_Illinois.pdf,https://energyzoning.org/sites/default/files/PDF/17201_Winnebago%20_20220929.pdf,2015,,,,False,FN,0.037081249999999996
+dev,17203,Woodford Illinois,Woodford_County_Illinois.pdf,https://woodford-county.org/AgendaCenter/ViewFile/Agenda/_02152023-1370,2018,2023,2,15,False,WRONG,0.00080625
+dev,4025,Yavapai Arizona,Yavapai_County_Arizona.pdf,https://www.yavapaiaz.gov/files/sharedassets/public/v/1/development-and-permits/development-services/documents/news/sec-608-solar-facilities-approved-11-6-24-in-effect-12-4-24-watermarked.pdf,2024,2024,12,4,True,TP,0.0008374999999999999

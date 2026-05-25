@@ -9,7 +9,7 @@ come from per-cadence manifests under ``data/{dev,held-out}/`` (see
 Run one cadence at a time (deselected by default; needs Azure creds):
 
     pytest -m dev_eval     # frequent, during development
-    pytest -m held_out     # before a release
+    pytest -m held_out_eval     # before a release
 
 A case fails ONLY on a mechanical error (``extract_date`` raising). A wrong
 prediction is recorded, not failed -- correctness is scored in the breakdown
@@ -145,7 +145,7 @@ async def _run_case(case, dataset_dir, cadence, model_config):
     )
     # Held-out per-case detail is intentionally not logged (only summary
     # stats are surfaced) so the held-out set stays hard to tune against.
-    if cadence != "held_out":
+    if cadence != "held_out_eval":
         logger.info(
             "%s (FIPS %s): expected=%s extracted=(%s,%s,%s) cost=$%.4f",
             case["jurisdiction"],
@@ -167,7 +167,7 @@ async def test_date_year_accuracy_dev(case, date_model_config):
     await _run_case(case, DEV_MANIFEST_FP.parent, "dev", date_model_config)
 
 
-@pytest.mark.held_out
+@pytest.mark.held_out_eval
 @pytest.mark.skipif(
     not HELD_OUT_MANIFEST_FP.exists(),
     reason=f"Held-out dataset not found at {HELD_OUT_MANIFEST_FP}",
@@ -178,5 +178,5 @@ async def test_date_year_accuracy_dev(case, date_model_config):
 async def test_date_year_accuracy_held_out(case, date_model_config):
     """Run date extraction on each held-out document"""
     await _run_case(
-        case, HELD_OUT_MANIFEST_FP.parent, "held_out", date_model_config
+        case, HELD_OUT_MANIFEST_FP.parent, "held_out_eval", date_model_config
     )
