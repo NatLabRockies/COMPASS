@@ -1,4 +1,4 @@
-name: Evals (manual)
+name: Manual eval
 
 # Manually-triggered runner for evals and other tests deselected from normal
 # CI (e.g. tests that make live, billable LLM calls). Run from the Actions tab
@@ -14,6 +14,11 @@ name: Evals (manual)
 # it with a pytest marker on your branch and dispatch this workflow against
 # that branch (the "Use workflow from" dropdown) -- no need to re-merge the
 # workflow to the default branch.
+#
+# Triggers: manual only (workflow_dispatch). Other triggers (scheduled
+# dev_eval, PR-label opt-in, etc.) can be added to the `on:` block later; the
+# run step already keys off inputs, and event-specific behavior can branch on
+# `github.event_name`.
 #
 # NOTE: GitHub reads the trigger/inputs of a `workflow_dispatch` workflow from
 # the DEFAULT branch, so this file must be on the default branch once. After
