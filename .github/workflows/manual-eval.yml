@@ -76,16 +76,14 @@ jobs:
 
       - name: Run gated tests
         env:
-          # Explicit, well-known creds for the current live-LLM tests.
+          # Pass ONLY the secrets the evals need (least privilege). When a new
+          # gated test needs a different secret, add it here explicitly -- do
+          # not pass `toJSON(secrets)`, which exposes every org/repo secret to
+          # the runner (flagged by CodeQL's excessive-secrets-exposure rule).
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
           AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
           AZURE_OPENAI_VERSION: ${{ secrets.AZURE_OPENAI_VERSION }}
           COMPASS_DATE_TEST_MODEL: ${{ inputs.model }}
-          # Passthrough of all repo secrets as JSON, so a future gated test
-          # needing a different secret can read it without editing this file.
-          # Parse in-test, e.g.:
-          #   json.loads(os.environ["ALL_SECRETS"])["MY_SECRET"]
-          ALL_SECRETS: ${{ toJSON(secrets) }}
           MARKER: ${{ inputs.marker }}
           TEST_PATH: ${{ inputs.test_path }}
           TEST_FILTER: ${{ inputs.test_filter }}
