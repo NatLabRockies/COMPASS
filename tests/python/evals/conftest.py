@@ -15,7 +15,6 @@ from operator import itemgetter
 from datetime import datetime, UTC
 
 import pytest
-from statsmodels.stats.proportion import proportion_confint
 
 
 _CSV_FIELDS = [
@@ -54,10 +53,17 @@ def _eval_module():
 def _wilson_ci(k, n, alpha=0.05):
     """95% Wilson score interval for k/n, or (None, None) if n == 0
 
-    IID (ignores clustering). Uses statsmodels' ``proportion_confint``.
+    IID (ignores clustering). Imported lazily so the base test session
+    (which collects this conftest but deselects the evals) does not depend
+    on statsmodels -- only an actual eval run needs it.
     """
     if n == 0:
         return None, None
+    # Lazy import (see docstring): keep statsmodels out of the base session.
+    from statsmodels.stats.proportion import (  # noqa: PLC0415
+        proportion_confint,
+    )
+
     lo, hi = proportion_confint(k, n, alpha=alpha, method="wilson")
     return float(lo), float(hi)
 
