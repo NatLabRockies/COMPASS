@@ -64,8 +64,20 @@ from compass.services.provider import RunningAsyncServices
 
 logger = logging.getLogger(__name__)
 
-DATASET_DIR = Path(__file__).parents[2] / "data" / "solar_validation_files"
-MANIFEST_FP = DATASET_DIR / "manifest.json5"
+# Two eval datasets, same test logic:
+#   - dev: committed in-repo, iterated on frequently (`dev_eval` cadence).
+#   - held-out: hidden set used before a release (`held_out` cadence). It is
+#     not committed; supply it at run time via COMPASS_DATE_HELD_OUT_MANIFEST
+#     (e.g. a decrypted manifest). Documents are resolved relative to each
+#     manifest's own directory.
+DATA_DIR = Path(__file__).parents[2] / "data"
+DEV_MANIFEST_FP = DATA_DIR / "solar_validation_files" / "manifest.json5"
+HELD_OUT_MANIFEST_FP = Path(
+    os.environ.get(
+        "COMPASS_DATE_HELD_OUT_MANIFEST",
+        DATA_DIR / "solar_validation_held_out" / "manifest.json5",
+    )
+)
 
 DEFAULT_MODEL = "compassop-gpt-5.4"
 
@@ -87,31 +99,29 @@ def _azure_credentials_available():
     )
 
 
-def _load_manifest():
-    """Load the date-accuracy ground-truth manifest"""
-    if not MANIFEST_FP.exists():
+def _load_manifest(manifest_fp):
+    """Load a date-accuracy ground-truth manifest, or [] if absent"""
+    if not manifest_fp.exists():
         return []
-    return load_config(MANIFEST_FP)
+    return load_config(manifest_fp)
 
 
-# This test makes live, billable LLM calls. It is opt-in only:
-#   - `expensive` marker -> deselected by default; run with `-m expensive`
-#   - credential skip    -> also requires Azure creds in the environment
-#   - manifest skip      -> requires the ground-truth dataset
+# This is an eval (it makes live, billable LLM calls). It is opt-in only:
+#   - `eval` marker   -> deselected by default; run with `-m eval`
+#   - credential skip -> also requires Azure creds in the environment
+# Cadence is selected by marker on the per-dataset test functions below
+# (`dev_eval` vs `held_out`); each also skips if its dataset is absent.
 pytestmark = [
-    pytest.mark.expensive,
+    pytest.mark.eval,
     pytest.mark.skipif(
         not _azure_credentials_available(),
         reason="Azure OpenAI credentials not set "
         "(AZURE_OPENAI_API_KEY / AZURE_OPENAI_ENDPOINT)",
     ),
-    pytest.mark.skipif(
-        not MANIFEST_FP.exists(),
-        reason=f"Date-accuracy manifest not found at {MANIFEST_FP}",
-    ),
 ]
 
-_MANIFEST = _load_manifest()
+_DEV_CASES = _load_manifest(DEV_MANIFEST_FP)
+_HELD_OUT_CASES = _load_manifest(HELD_OUT_MANIFEST_FP)
 
 
 @pytest.fixture(scope="module")
@@ -146,15 +156,16 @@ def date_model_config():
     )
 
 
-def _build_doc(case):
+def _build_doc(case, dataset_dir):
     """Build a production-shaped document from a manifest case
 
     Mirrors what the pipeline feeds ``extract_date``: a document carrying
     the real ``source`` URL in ``attrs`` and the parsed text in
     ``raw_pages``. No ``"date"`` attr is set, so extraction is not
-    short-circuited.
+    short-circuited. Document files are resolved relative to the manifest's
+    own directory (so dev and held-out sets stay independent).
     """
-    fp = DATASET_DIR / case["file"]
+    fp = dataset_dir / case["file"]
     attrs = {"source": case["source"]}
 
     if fp.suffix.casefold() == ".pdf":
@@ -165,9 +176,9 @@ def _build_doc(case):
     return HTMLDocument([text], attrs=attrs)
 
 
-async def _extract_year(case, model_config):
+async def _extract_year(case, dataset_dir, model_config):
     """Run ``extract_date`` for one case and return the extracted year"""
-    doc = _build_doc(case)
+    doc = _build_doc(case, dataset_dir)
     assert "date" not in doc.attrs, "doc should not be pre-dated"
 
     usage_tracker = UsageTracker(case["jurisdiction"], usage_from_response)
@@ -209,13 +220,8 @@ async def _extract_year(case, model_config):
     return year
 
 
-@pytest.mark.parametrize(
-    "case",
-    _MANIFEST,
-    ids=[c["file"] for c in _MANIFEST],
-)
-async def test_extract_date_year_accuracy(case, date_model_config, request):
-    """Extracted year matches the known ground truth for the document
+async def _assert_year(case, dataset_dir, model_config):
+    """Shared eval logic: extract a year and assert it vs ground truth
 
     For documents with a known enactment year, the extracted year must
     match it. For documents the ground truth marks as having no date
@@ -225,7 +231,7 @@ async def test_extract_date_year_accuracy(case, date_model_config, request):
     known-hard: a mismatch is reported as an xfail rather than failing
     the suite, while an unexpected pass shows up as an xpass.
     """
-    extracted_year = await _extract_year(case, date_model_config)
+    extracted_year = await _extract_year(case, dataset_dir, model_config)
     expected = case["expected_year"]
 
     if expected is None:
@@ -248,6 +254,29 @@ async def test_extract_date_year_accuracy(case, date_model_config, request):
         pytest.xfail(f"known-hard case: {message}")
 
     assert correct, message
+
+
+@pytest.mark.dev_eval
+@pytest.mark.parametrize(
+    "case", _DEV_CASES, ids=[c["file"] for c in _DEV_CASES]
+)
+async def test_date_year_accuracy_dev(case, date_model_config):
+    """Date-extraction accuracy on the committed dev dataset"""
+    await _assert_year(case, DEV_MANIFEST_FP.parent, date_model_config)
+
+
+@pytest.mark.held_out
+@pytest.mark.skipif(
+    not HELD_OUT_MANIFEST_FP.exists(),
+    reason=f"Held-out dataset not found at {HELD_OUT_MANIFEST_FP} "
+    "(supply via COMPASS_DATE_HELD_OUT_MANIFEST)",
+)
+@pytest.mark.parametrize(
+    "case", _HELD_OUT_CASES, ids=[c["file"] for c in _HELD_OUT_CASES]
+)
+async def test_date_year_accuracy_held_out(case, date_model_config):
+    """Date-extraction accuracy on the hidden held-out dataset"""
+    await _assert_year(case, HELD_OUT_MANIFEST_FP.parent, date_model_config)
 
 
 if __name__ == "__main__":
