@@ -49,8 +49,8 @@ jobs:
       - name: Run gated tests
         env:
           AZURE_OPENAI_API_KEY: ${{ secrets.AZURE_OPENAI_API_KEY }}
-          AZURE_OPENAI_ENDPOINT: ${{ secrets.AZURE_OPENAI_ENDPOINT }}
-          AZURE_OPENAI_VERSION: ${{ secrets.AZURE_OPENAI_VERSION }}
+          AZURE_OPENAI_ENDPOINT: ${{ vars.AZURE_OPENAI_ENDPOINT }}
+          AZURE_OPENAI_VERSION: ${{ vars.AZURE_OPENAI_VERSION }}
           MARKER: ${{ inputs.marker }}
           TEST_FILTER: ${{ inputs.test_filter }}
         run: |
