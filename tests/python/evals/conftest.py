@@ -15,6 +15,7 @@ from operator import itemgetter
 from datetime import datetime, UTC
 
 import pytest
+from statsmodels.stats.proportion import proportion_confint
 
 
 _CSV_FIELDS = [
@@ -50,17 +51,29 @@ def _eval_module():
     return sys.modules.get("test_extraction_date_accuracy")
 
 
+def _wilson_ci(k, n, alpha=0.05):
+    """95% Wilson score interval for k/n, or (None, None) if n == 0
+
+    IID (ignores clustering). Uses statsmodels' ``proportion_confint``.
+    """
+    if n == 0:
+        return None, None
+    lo, hi = proportion_confint(k, n, alpha=alpha, method="wilson")
+    return float(lo), float(hi)
+
+
 def _compute_metrics(results):
-    """Accuracy / precision / recall / F1 from per-case categories
+    """Accuracy / precision / recall / F1 (+ 95% Wilson CIs) from categories
 
     Positive class = "an enactment year exists". A WRONG year (extracted a
     different year than expected) counts as both a false positive and a
-    false negative.
+    false negative. Each rate is a binomial proportion k/n with its own
+    denominator, so it gets its own Wilson CI:
 
       accuracy  = (TP + TN) / N
-      precision = TP / (TP + FP + WRONG)
-      recall    = TP / (TP + FN + WRONG)
-      f1        = 2PR / (P + R)
+      precision = TP / (TP + FP + WRONG)     # over cases that output a year
+      recall    = TP / (TP + FN + WRONG)     # over cases where a year exists
+      f1        = 2PR / (P + R)              # point estimate only
     """
     counts = {"TP": 0, "TN": 0, "FP": 0, "FN": 0, "WRONG": 0}
     for r in results:
@@ -74,46 +87,67 @@ def _compute_metrics(results):
         counts["WRONG"],
     )
     n = len(results)
+    pred_pos = tp + fp + wrong
+    actual_pos = tp + fn + wrong
 
     def _safe_div(num, den):
         return num / den if den else 0.0
 
-    accuracy = _safe_div(tp + tn, n)
-    precision = _safe_div(tp, tp + fp + wrong)
-    recall = _safe_div(tp, tp + fn + wrong)
+    precision = _safe_div(tp, pred_pos)
+    recall = _safe_div(tp, actual_pos)
     f1 = _safe_div(2 * precision * recall, precision + recall)
 
     return {
         "n": n,
         "counts": counts,
-        "accuracy": accuracy,
+        "accuracy": _safe_div(tp + tn, n),
         "precision": precision,
         "recall": recall,
         "f1": f1,
+        "accuracy_ci": _wilson_ci(tp + tn, n),
+        "precision_ci": _wilson_ci(tp, pred_pos),
+        "recall_ci": _wilson_ci(tp, actual_pos),
         "total_cost": sum(r["cost"] for r in results),
     }
 
 
+def _fmt_ci(ci):
+    """Format a (lo, hi) CI as 'lo-hi', or '' if undefined"""
+    lo, hi = ci
+    return "" if lo is None else f"{lo:.4f}-{hi:.4f}"
+
+
 def _write_metrics_csv(fp, metrics):
-    """Write the aggregate metrics summary CSV"""
+    """Write the aggregate metrics summary CSV (with 95% Wilson CIs)"""
     c = metrics["counts"]
     fails = c["FP"] + c["FN"] + c["WRONG"]
     with fp.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.writer(fh)
-        writer.writerow(["metric", "value"])
-        writer.writerow(["generated_utc", datetime.now(UTC).isoformat()])
-        writer.writerow(["n_cases", metrics["n"]])
-        writer.writerow(["accuracy", f"{metrics['accuracy']:.4f}"])
-        writer.writerow(["precision", f"{metrics['precision']:.4f}"])
-        writer.writerow(["recall", f"{metrics['recall']:.4f}"])
-        writer.writerow(["f1", f"{metrics['f1']:.4f}"])
-        writer.writerow(["true_positive", c["TP"]])
-        writer.writerow(["true_negative", c["TN"]])
-        writer.writerow(["false_positive", c["FP"]])
-        writer.writerow(["false_negative", c["FN"]])
-        writer.writerow(["wrong_year", c["WRONG"]])
-        writer.writerow(["failing_cases", fails])
-        writer.writerow(["total_cost_usd", f"{metrics['total_cost']:.4f}"])
+        writer.writerow(["metric", "value", "ci95_wilson"])
+        writer.writerow(["generated_utc", datetime.now(UTC).isoformat(), ""])
+        writer.writerow(["n_cases", metrics["n"], ""])
+        writer.writerow(
+            ["accuracy", f"{metrics['accuracy']:.4f}",
+             _fmt_ci(metrics["accuracy_ci"])]
+        )
+        writer.writerow(
+            ["precision", f"{metrics['precision']:.4f}",
+             _fmt_ci(metrics["precision_ci"])]
+        )
+        writer.writerow(
+            ["recall", f"{metrics['recall']:.4f}",
+             _fmt_ci(metrics["recall_ci"])]
+        )
+        writer.writerow(["f1", f"{metrics['f1']:.4f}", ""])
+        writer.writerow(["true_positive", c["TP"], ""])
+        writer.writerow(["true_negative", c["TN"], ""])
+        writer.writerow(["false_positive", c["FP"], ""])
+        writer.writerow(["false_negative", c["FN"], ""])
+        writer.writerow(["wrong_year", c["WRONG"], ""])
+        writer.writerow(["failing_cases", fails, ""])
+        writer.writerow(
+            ["total_cost_usd", f"{metrics['total_cost']:.4f}", ""]
+        )
 
 
 def _write_breakdown_csv(fp, results):
@@ -255,9 +289,14 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
             f"FN={c['FN']} wrong={c['WRONG']}"
         )
         write(
-            f"  accuracy={metrics['accuracy']:.3f}  "
-            f"precision={metrics['precision']:.3f}  "
-            f"recall={metrics['recall']:.3f}  "
+            f"  accuracy={metrics['accuracy']:.3f} "
+            f"95%CI[{_fmt_ci(metrics['accuracy_ci'])}]"
+        )
+        write(
+            f"  precision={metrics['precision']:.3f} "
+            f"95%CI[{_fmt_ci(metrics['precision_ci'])}]  "
+            f"recall={metrics['recall']:.3f} "
+            f"95%CI[{_fmt_ci(metrics['recall_ci'])}]  "
             f"f1={metrics['f1']:.3f}"
         )
         write(f"  total LLM cost: ${metrics['total_cost']:.4f}")
