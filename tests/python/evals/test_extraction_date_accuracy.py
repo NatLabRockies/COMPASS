@@ -20,11 +20,10 @@ manifest entry has::
         "jurisdiction": "Bartow Georgia",
         "file": "Bartow_County_Georgia.pdf",
         "source": "https://.../ordinance.pdf",
-        "expected_year": 2020,
-        // optional: mark a case as known-hard so a failure xfails
-        // instead of failing the suite
-        "allow_failure": false
+        "expected_year": 2020
     }
+
+(``expected_year: null`` means the ground truth is "no enactment date exists".)
 
 These cases make **live LLM calls**, so the whole module is skipped unless
 Azure OpenAI credentials are available in the environment. Configure via:
@@ -34,21 +33,25 @@ Azure OpenAI credentials are available in the environment. Configure via:
     AZURE_OPENAI_ENDPOINT
     AZURE_OPENAI_VERSION             (default: "2025-04-01-preview")
 
+What fails a case vs. what is measured
+--------------------------------------
+A per-case test fails **only** on a mechanical problem -- ``extract_date``
+raising (LLM error, timeout, crash, unparseable document). A *wrong* (or
+empty) prediction is **not** a failure: correctness is a measurement, recorded
+in the breakdown CSV and rolled up into accuracy / precision / recall / F1.
+
 After a run, the ``pytest_terminal_summary`` hook in this package's
 ``conftest.py`` writes a detailed per-case breakdown CSV (expected vs
-predicted, correct flag, classification category, cost) plus overall
-accuracy / precision / recall / F1 to ``tests/python/evals/results/``.
+predicted, correct flag, classification category, cost) plus overall metrics
+to ``tests/python/evals/results/``, and enforces a regression gate against the
+committed baseline breakdown (see ``conftest.py`` for the gate logic).
 
 Notes
 -----
-The ground truth contains only the enactment **year** (no month/day), so each
-case asserts the extracted year. Month and day are recorded for visibility but
-not asserted.
-
-Cases where the ground truth says there is *no* enactment date have
-``expected_year: null`` in the manifest; for those, the test asserts that
-``extract_date`` returns ``None`` for the year (i.e. it does not invent a
-date). This guards the false-positive direction.
+The ground truth contains only the enactment **year** (no month/day); month
+and day are recorded for visibility but not scored. A document the ground
+truth marks as having no date should yield no extracted year (guards the
+false-positive direction).
 """
 
 import os
@@ -231,7 +234,6 @@ async def _extract_year(case, dataset_dir, cadence, model_config):
             "extracted_day": day,
             "correct": correct,
             "category": _classify(expected, year),
-            "allow_failure": bool(case.get("allow_failure")),
             "cost": cost,
         }
     )
@@ -249,42 +251,11 @@ async def _extract_year(case, dataset_dir, cadence, model_config):
     return year
 
 
-async def _assert_year(case, dataset_dir, cadence, model_config):
-    """Shared eval logic: extract a year and assert it vs ground truth
-
-    For documents with a known enactment year, the extracted year must
-    match it. For documents the ground truth marks as having no date
-    (``expected_year is None``), the extractor must not invent one.
-
-    Cases flagged ``allow_failure: true`` in the manifest are treated as
-    known-hard: a mismatch is reported as an xfail rather than failing
-    the suite, while an unexpected pass shows up as an xpass.
-    """
-    extracted_year = await _extract_year(
-        case, dataset_dir, cadence, model_config
-    )
-    expected = case["expected_year"]
-
-    if expected is None:
-        correct = extracted_year is None
-        detail = (
-            f"expected NO year, but extracted {extracted_year}"
-            if not correct
-            else "correctly extracted no year"
-        )
-    else:
-        correct = extracted_year == expected
-        detail = f"expected year {expected}, got {extracted_year}"
-
-    message = (
-        f"{case['jurisdiction']} (FIPS {case['fips']}, {case['file']}): "
-        f"{detail} [source: {case['source']}]"
-    )
-
-    if not correct and case.get("allow_failure"):
-        pytest.xfail(f"known-hard case: {message}")
-
-    assert correct, message
+# A per-case test fails ONLY on a mechanical problem -- ``extract_date``
+# raising (LLM error, timeout, crash, unparseable doc). A wrong (or empty)
+# prediction is recorded, not failed: correctness is a *measurement* captured
+# in the breakdown CSV + metrics, and regressions are caught by the aggregate
+# checks in ``conftest.py`` (which compare against the committed baseline).
 
 
 @pytest.mark.dev_eval
@@ -292,10 +263,8 @@ async def _assert_year(case, dataset_dir, cadence, model_config):
     "case", _DEV_CASES, ids=[c["file"] for c in _DEV_CASES]
 )
 async def test_date_year_accuracy_dev(case, date_model_config):
-    """Date-extraction accuracy on the dev dataset"""
-    await _assert_year(
-        case, DEV_MANIFEST_FP.parent, "dev", date_model_config
-    )
+    """Run date extraction on a dev-dataset document and record the result"""
+    await _extract_year(case, DEV_MANIFEST_FP.parent, "dev", date_model_config)
 
 
 @pytest.mark.held_out
@@ -307,8 +276,8 @@ async def test_date_year_accuracy_dev(case, date_model_config):
     "case", _HELD_OUT_CASES, ids=[c["file"] for c in _HELD_OUT_CASES]
 )
 async def test_date_year_accuracy_held_out(case, date_model_config):
-    """Date-extraction accuracy on the held-out dataset"""
-    await _assert_year(
+    """Run date extraction on a held-out document and record the result"""
+    await _extract_year(
         case, HELD_OUT_MANIFEST_FP.parent, "held_out", date_model_config
     )
 

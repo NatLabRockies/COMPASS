@@ -284,8 +284,7 @@
         "jurisdiction": "West Greenwich Kent Rhode Island",
         "file": "Town_of_West_Greenwich_Kent_County_Rhode_Island.pdf",
         "source": "https://ecode360.com/33936687#33936687",
-        "expected_year": 2025,
-        "allow_failure": true
+        "expected_year": 2025
     },
     {
         "fips": 3600179851,

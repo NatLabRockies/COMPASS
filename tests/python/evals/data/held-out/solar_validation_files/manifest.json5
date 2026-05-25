@@ -11,16 +11,14 @@
         "jurisdiction": "Agawam Town Hampden Massachusetts",
         "file": "City_of_Agawam_Town_Hampden_County_Massachusetts.txt",
         "source": "https://ecode360.com/34134372",
-        "expected_year": 2025,
-        "allow_failure": true
+        "expected_year": 2025
     },
     {
         "fips": 18073,
         "jurisdiction": "Jasper Indiana",
         "file": "Jasper_County_Indiana.pdf",
         "source": "https://jasper.county.codes/JCC/20.50.950",
-        "expected_year": 2025,
-        "allow_failure": true
+        "expected_year": 2025
     },
     {
         "fips": 19137,

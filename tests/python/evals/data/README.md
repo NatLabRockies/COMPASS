@@ -36,7 +36,7 @@ we can revisit (e.g. move held-out behind encryption or a separate location).
 
 ```
 dev/solar_validation_files/
-  manifest.json5      # [{fips, jurisdiction, file, source, expected_year, allow_failure?}, ...]
+  manifest.json5      # [{fips, jurisdiction, file, source, expected_year}, ...]
   <documents>         # the ordinance PDFs/text files referenced by the manifest
 held-out/solar_validation_files/
   manifest.json5
