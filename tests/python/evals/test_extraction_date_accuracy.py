@@ -106,13 +106,13 @@ def _load_manifest(manifest_fp):
     return load_config(manifest_fp)
 
 
-# This is an eval (it makes live, billable LLM calls). It is opt-in only:
-#   - `eval` marker   -> deselected by default; run with `-m eval`
-#   - credential skip -> also requires Azure creds in the environment
-# Cadence is selected by marker on the per-dataset test functions below
-# (`dev_eval` vs `held_out`); each also skips if its dataset is absent.
+# These are evals (they make live, billable LLM calls). Opt-in only:
+#   - deselected by default (the `dev_eval` / `held_out` markers below);
+#     run one cadence at a time with `-m dev_eval` or `-m held_out`.
+#   - credential skip -> also requires Azure creds in the environment.
+# Each per-dataset test below carries exactly one cadence marker and skips
+# if its dataset is absent. There is no umbrella marker that runs both.
 pytestmark = [
-    pytest.mark.eval,
     pytest.mark.skipif(
         not _azure_credentials_available(),
         reason="Azure OpenAI credentials not set "
