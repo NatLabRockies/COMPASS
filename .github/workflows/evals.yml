@@ -1,8 +1,13 @@
-name: Gated tests (manual)
+name: Evals (manual)
 
-# Manually-triggered runner for tests that are deselected from normal CI
-# (e.g. tests that make live, billable LLM calls). Run from the Actions tab
+# Manually-triggered runner for evals and other tests deselected from normal
+# CI (e.g. tests that make live, billable LLM calls). Run from the Actions tab
 # via "Run workflow".
+#
+# Common uses:
+#   marker: "eval"               -> all evals
+#   marker: "dev_eval"           -> frequent dev-dataset evals
+#   marker: "held_out"           -> pre-release hidden held-out evals
 #
 # This workflow is intentionally generic: it runs whatever pytest marker /
 # path / filter you pass as inputs. To add a new gated test later, just mark
@@ -22,10 +27,10 @@ on:
     inputs:
       marker:
         description: >-
-          pytest -m marker expression selecting the gated tests to run
-          (e.g. "expensive", or "expensive and not slow").
+          pytest -m marker expression selecting the evals to run
+          (e.g. "eval", "dev_eval", or "held_out").
         required: false
-        default: "expensive"
+        default: "eval"
       test_path:
         description: Path (dir or file) to collect tests from.
         required: false

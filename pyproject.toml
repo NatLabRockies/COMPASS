@@ -269,11 +269,13 @@ omit = [
 
 
 [tool.pytest.ini_options]
-addopts = '--disable-warnings -m "not expensive"'
+addopts = '--disable-warnings -m "not eval"'
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
 markers = [
-  "expensive: opt-in tests that are deselected by default (e.g. tests that make live, billable LLM calls). Run explicitly with `-m expensive`.",
+  "eval: accuracy/quality evals, deselected by default (often make live, billable LLM calls). Run explicitly with `-m eval`.",
+  "dev_eval: evals run frequently during development against the in-repo dev dataset. Implies `eval`.",
+  "held_out: evals run before a release against the hidden held-out dataset. Implies `eval`.",
 ]
 testpaths = [
   "tests/python/unit",
