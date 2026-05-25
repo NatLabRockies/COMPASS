@@ -256,7 +256,7 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     for cadence, rows in sorted(by_cadence.items()):
         metrics = _compute_metrics(rows)
         stem = f"{_EVAL_NAME}_{cadence}"
-        metrics_fp = results_dir / f"{stem}_metrics.csv"
+        metrics_fp = results_dir / f"{stem}.csv"
         breakdown_fp = results_dir / f"{stem}_breakdown.csv"
 
         # held_out_eval: only summary stats are surfaced/saved (no per-case

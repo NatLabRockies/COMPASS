@@ -164,7 +164,9 @@ async def _run_case(case, dataset_dir, cadence, model_config):
 )
 async def test_date_year_accuracy_dev(case, date_model_config):
     """Run date extraction on each dev-dataset document"""
-    await _run_case(case, DEV_MANIFEST_FP.parent, "dev", date_model_config)
+    await _run_case(
+        case, DEV_MANIFEST_FP.parent, "dev_eval", date_model_config
+    )
 
 
 @pytest.mark.held_out_eval
