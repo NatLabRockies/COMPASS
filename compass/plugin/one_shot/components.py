@@ -404,8 +404,12 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         full_df = full_df.merge(df, on="feature", how="left")
 
         possible_out_cols = [
+            "location",
+            "restriction_type",
+            "geothermal_applicability",
             "value",
             "units",
+            "ammendment",
             "summary",
             "year",
             "section",
