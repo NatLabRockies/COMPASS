@@ -1,0 +1,87 @@
+"""COMPASS CLI search-only subcommand"""
+
+import asyncio
+
+import click
+from rich.console import Console
+from rich.theme import Theme
+
+from compass._cli.common import setup_cli_logging
+from compass.plugin import create_schema_based_one_shot_extraction_plugin
+from compass.scripts.search_only import (
+    run_search_only,
+    write_search_only_report,
+)
+from compass.utilities.io import load_config
+
+
+@click.command(name="search-only")
+@click.option(
+    "--config",
+    "-c",
+    required=True,
+    type=click.Path(exists=True),
+    help="Path to ordinance configuration JSON or JSON5 file. Only the "
+    "search-related keys (``tech``, ``jurisdiction_fp``, "
+    "``search_engines``, ``url_ignore_substrings``, "
+    "``num_urls_to_check_per_jurisdiction``, "
+    "``max_num_concurrent_browsers``) are read.",
+)
+@click.option(
+    "-n",
+    "--n-top-urls",
+    "n_top_urls",
+    type=int,
+    default=None,
+    help="Override the number of top URLs to retain per jurisdiction "
+    "(``num_urls_to_check_per_jurisdiction``).",
+)
+@click.option(
+    "-o",
+    "--output",
+    "output",
+    type=click.Path(),
+    default=None,
+    help="Optional path to write the JSON report. If omitted, the "
+    "report is written to stdout.",
+)
+@click.option(
+    "-v",
+    "--verbose",
+    count=True,
+    help="Show logs on stderr. Add extra libraries to get logs from by "
+    "increasing the input (-v, -vv, -vvv).",
+)
+@click.option(
+    "--plugin",
+    "-p",
+    required=False,
+    default=None,
+    help="One-shot plugin configuration to register before searching",
+)
+def search_only(config, n_top_urls, output, verbose, plugin):
+    """Run only the search step and emit ranked URLs as JSON"""
+    config_path = config
+    config = load_config(config)
+
+    if plugin is not None:
+        create_schema_based_one_shot_extraction_plugin(
+            config=plugin, tech=config["tech"]
+        )
+
+    if n_top_urls is not None:
+        config["num_urls_to_check_per_jurisdiction"] = n_top_urls
+
+    custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
+    console = Console(theme=custom_theme, stderr=True)
+    setup_cli_logging(
+        console, verbose, log_level=config.get("log_level", "INFO")
+    )
+
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
+    report = loop.run_until_complete(
+        run_search_only(config_path=config_path, **config)
+    )
+    write_search_only_report(report, out_path=output)
