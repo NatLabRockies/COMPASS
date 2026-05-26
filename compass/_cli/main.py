@@ -5,6 +5,7 @@ import click
 from compass import __version__
 from compass._cli.process import process
 from compass._cli.finalize import finalize
+from compass._cli.search_only import search_only
 
 
 @click.group()
@@ -17,6 +18,7 @@ def main(ctx):
 
 main.add_command(process)
 main.add_command(finalize)
+main.add_command(search_only)
 
 
 if __name__ == "__main__":
