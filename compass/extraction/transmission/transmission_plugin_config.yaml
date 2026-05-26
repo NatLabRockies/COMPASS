@@ -1,0 +1,15 @@
+schema: ./transmission_schema.json5
+
+data_type_short_desc: high-voltage transmission lines ordinance
+
+query_templates:
+  - "filetype:pdf {jurisdiction} electric transmission line ordinance"
+
+website_keywords:
+  pdf: 92160
+
+heuristic_keywords: true
+
+collection_prompts: true
+
+cache_llm_generated_content: true
