@@ -447,6 +447,7 @@ async def collect_jurisdiction_documents(  # noqa: PLR0917, PLR0913
     parsed_file_dir=None,
     perform_se_search=True,
     perform_website_search=True,
+    make_paths_relative=True,
     llm_costs=None,
     log_level="INFO",
     keep_async_logs=False,
@@ -597,6 +598,12 @@ async def collect_jurisdiction_documents(  # noqa: PLR0917, PLR0913
         Option to fallback to a jurisdiction website crawl-based search
         for ordinance documents if earlier collection steps fail to
         recover any relevant documents. By default, ``True``.
+    make_paths_relative : bool, optional
+        Option to make all file paths in the saved collection manifest
+        relative to the output directory. This can be helpful for
+        sharing the manifest or for ensuring that it can be loaded
+        correctly on a different machine. If ``False``, absolute paths
+        are used in the manifest. By default, ``True``.
     llm_costs : dict, optional
         Dictionary mapping model names to their token costs, used to
         track the estimated total cost of any LLM usage during the run.
@@ -653,6 +660,7 @@ async def collect_jurisdiction_documents(  # noqa: PLR0917, PLR0913
         ordinance_file_dir=source_file_dir,
         perform_se_search=perform_se_search,
         perform_website_search=perform_website_search,
+        make_paths_relative=make_paths_relative,
         llm_costs=llm_costs,
         log_level=log_level,
         keep_async_logs=keep_async_logs,
@@ -837,6 +845,7 @@ async def _run_compass_mode(  # noqa: PLR0917, PLR0913
     jurisdiction_dbs_dir=None,
     perform_se_search=True,
     perform_website_search=True,
+    make_paths_relative=False,
     llm_costs=None,
     log_level="INFO",
     keep_async_logs=False,
@@ -905,6 +914,7 @@ async def _run_compass_mode(  # noqa: PLR0917, PLR0913
                 log_level=log_level,
                 mode=mode,
                 collection_manifest_fp=collection_manifest_fp,
+                make_paths_relative=make_paths_relative,
             )
             return await runner.run(jurisdiction_fp)
         except COMPASSError:
@@ -930,6 +940,7 @@ class _COMPASSRunner:
         log_level="INFO",
         mode="process",
         collection_manifest_fp=None,
+        make_paths_relative=False,
     ):
         self.dirs = dirs
         self.log_listener = log_listener
@@ -942,6 +953,7 @@ class _COMPASSRunner:
         self.log_level = log_level
         self.mode = mode
         self.collection_manifest_fp = collection_manifest_fp
+        self.make_paths_relative = make_paths_relative
 
     @cached_property
     def browser_semaphore(self):
@@ -1371,6 +1383,7 @@ class _COMPASSRunner:
 
     async def _collect_jurisdiction_info(self, jurisdiction):
         """Collect and persist docs for one jurisdiction"""
+        relative_to = self.dirs.out if self.make_paths_relative else None
         async with LocationFileLog(
             self.log_listener,
             self.dirs.logs,
@@ -1399,7 +1412,7 @@ class _COMPASSRunner:
                     perform_se_search=self.perform_se_search,
                     perform_website_search=self.perform_website_search,
                     validate_user_website_input=False,
-                ).collect(),
+                ).collect(relative_to=relative_to),
                 name=jurisdiction.full_name,
             )
             try:
@@ -1576,7 +1589,14 @@ class _SingleJurisdictionRunner:
         self._jsp = None
 
     async def process(self):
-        """Collect, persist, and serialize candidate documents"""
+        """Collect, persist, and serialize candidate documents
+
+        Returns
+        -------
+        compass.extraction.context.ExtractionContext or None
+            Extraction context containing the results of the extraction
+            or ``None`` if extraction was unsuccessful.
+        """
         start_time = time.monotonic()
         extraction_context = None
         logger.info(
@@ -1602,13 +1622,30 @@ class _SingleJurisdictionRunner:
             )
         return extraction_context
 
-    async def collect(self):
-        """Collect, persist, and serialize candidate documents"""
+    async def collect(self, relative_to=None):
+        """Collect, persist, and serialize candidate documents
+
+        Parameters
+        ----------
+        relative_to : path-like, optional
+            Directory to which paths should be 'normalized' (i.e. made
+            relative to). By default, ``None``.
+
+        Returns
+        -------
+        dict
+            Collection info, including jurisdiction metadata and paths
+            to collected documents. Paths may be absolute or relative to
+            the input `relative_to` directory, depending on the value of
+            that parameter.
+        """
         logger.info(
             "Kicking off collection for jurisdiction: %s",
             self.jurisdiction.full_name,
         )
-        collection_info = await self._collect_documents(eager_extract=False)
+        collection_info = await self._collect_documents(
+            eager_extract=False, relative_to=relative_to
+        )
         logger.info(
             "Completed collection for jurisdiction: %s",
             self.jurisdiction.full_name,
@@ -1616,7 +1653,25 @@ class _SingleJurisdictionRunner:
         return collection_info
 
     async def extract_from_collection_info(self, collection_info):
-        """Extract structured data from a saved collection entry"""
+        """Extract structured data from a saved collection entry
+
+        Parameters
+        ----------
+        collection_info : dict
+            Dictionary containing information about a jurisdiction's
+            collected documents, as well as any other relevant metadata.
+            This is the same format as the entries in the
+            "jurisdictions" list of the collection manifest. The method
+            will look for documents in the "documents" key of this
+            dictionary and attempt to extract structured data from them.
+
+        Returns
+        -------
+        compass.extraction.context.ExtractionContext or None
+            Extraction context containing the results of the extraction
+            or ``None`` if extraction was unsuccessful or if no
+            documents were found in the input `collection_info`.
+        """
         start_time = time.monotonic()
         extraction_context = None
         logger.info(
@@ -1670,7 +1725,9 @@ class _SingleJurisdictionRunner:
         logger.debug("Final extraction context:\n%s", context)
         return context
 
-    async def _collect_documents(self, eager_extract=False):  # noqa
+    async def _collect_documents(  # noqa
+        self, eager_extract=False, relative_to=None
+    ):
         """Collect all configured documents and persist them"""
         collected_docs = {}
 
@@ -1783,7 +1840,9 @@ class _SingleJurisdictionRunner:
                 )
                 if eager_extract:
                     return None
-                return await self._persist_collection(collected_docs)
+                return await self._persist_collection(
+                    collected_docs, relative_to=relative_to
+                )
 
             try:
                 elm_docs, scrape_results = await self._try_elm_crawl()
@@ -1837,7 +1896,9 @@ class _SingleJurisdictionRunner:
         if eager_extract:
             return None
 
-        return await self._persist_collection(collected_docs)
+        return await self._persist_collection(
+            collected_docs, relative_to=relative_to
+        )
 
     def _add_docs_to_collection(
         self,
@@ -1867,7 +1928,7 @@ class _SingleJurisdictionRunner:
 
             collected_docs[key]["from_steps"].append(step_name)
 
-    async def _persist_collection(self, collected_docs):
+    async def _persist_collection(self, collected_docs, relative_to):
         """Persist collected docs and return serialized metadata"""
 
         tasks = []
@@ -1877,6 +1938,7 @@ class _SingleJurisdictionRunner:
                     info["doc"],
                     out_fn=f"{self.jurisdiction.full_name}_{index}",
                     from_steps=info["from_steps"],
+                    relative_to=relative_to,
                 ),
                 name=self.jurisdiction.full_name,
             )
@@ -2243,21 +2305,40 @@ def _collection_doc_key(doc, use_fallback=False):
     return str(doc.attrs["checksum"])
 
 
-async def _persist_doc(doc, out_fn, from_steps):
+async def _persist_doc(doc, out_fn, from_steps, relative_to):
     """Persist a collected document and its parsed text"""
-    await _move_file_to_collection_dir(doc, out_fn)
-    await _persist_parsed_text(doc, out_fn)
+    await _move_file_to_collection_dir(doc, out_fn, relative_to=relative_to)
+    await _persist_parsed_text(doc, out_fn, relative_to=relative_to)
     return _serialize_collection_doc_info(doc, from_steps=from_steps)
 
 
-async def _move_file_to_collection_dir(doc, out_fn):
+async def _move_file_to_collection_dir(doc, out_fn, relative_to):
     """Move PDF or HTML text file to output directory"""
-    doc.attrs["source_fp"] = await FileMover.call(doc, out_fn, "downloaded")
+    out_fp = await FileMover.call(doc, out_fn, "downloaded")
+    if relative_to is not None:
+        out_fp = _make_relative(out_fp, relative_to)
+    doc.attrs["source_fp"] = out_fp
 
 
-async def _persist_parsed_text(doc, out_fn):
+async def _persist_parsed_text(doc, out_fn, relative_to):
     """Persist parsed document text to the collection output dir"""
-    doc.attrs["parsed_fp"] = await ParsedFileWriter.call(doc, out_fn)
+    out_fp = await ParsedFileWriter.call(doc, out_fn)
+    if relative_to is not None:
+        out_fp = _make_relative(out_fp, relative_to)
+    doc.attrs["parsed_fp"] = out_fp
+
+
+def _make_relative(fp, relative_to):
+    """Make a file path relative to another path if possible"""
+    try:
+        return fp.relative_to(relative_to)
+    except ValueError:
+        msg = (
+            f"Could not make path {fp} relative to {relative_to}; using "
+            "absolute path instead"
+        )
+        warn(msg, COMPASSWarning)
+        return fp
 
 
 def _serialize_collection_doc_info(doc, from_steps):
@@ -2280,7 +2361,6 @@ def _serialize_collection_doc_info(doc, from_steps):
 
 def _write_collection_manifest(manifest_fp, collection_manifest):
     """Write a collection manifest to disk"""
-    # TODO: Add option for collection paths to be relative to config
     manifest_fp = Path(manifest_fp)
     manifest_fp.write_text(
         json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
