@@ -49,7 +49,7 @@ class LQ:
 
 
 class NoLocationFilter(logging.Filter):
-    """Filter that catches all records without a location attribute."""
+    """Filter that catches all records without a location attribute"""
 
     def filter(self, record):  # noqa: PLR6301
         """Filter logging record.

@@ -16,11 +16,11 @@ LOGGING_META_FILES = {"exceptions.py"}
 
 @pytest.fixture
 def assert_message_was_logged(caplog):
-    """Assert that a particular (partial) message was logged."""
+    """Assert that a particular (partial) message was logged"""
     caplog.clear()
 
     def assert_message(msg, log_level=None, clear_records=False):
-        """Assert that a message was logged."""
+        """Assert that a message was logged"""
         assert caplog.records
 
         for record in caplog.records:
@@ -67,23 +67,23 @@ def service_base_class():
     job_order = []
 
     class TestService(Service):
-        """Basic service implementation for testing."""
+        """Basic service implementation for testing"""
 
         NUMBER = 0
         LEN_SLEEP = 0
         STAGGER = 0
 
         def __init__(self):
-            """Initialize service."""
+            """Initialize service"""
             self.running_jobs = set()
 
         @property
         def can_process(self):
-            """True if number of running jobs less that the class number."""
+            """True if number of running jobs less that the class number"""
             return len(self.running_jobs) < self.NUMBER
 
         async def process(self, job_id):
-            """Mock processing of input."""
+            """Mock processing of input"""
             self.running_jobs.add(job_id)
             job_order.append((self.NUMBER, job_id))
             await asyncio.sleep(self.LEN_SLEEP + self.STAGGER * job_id * 0.5)
