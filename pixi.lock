@@ -32906,6 +32906,7 @@ packages:
   - pytest-profiling>=1.8.1,<2 ; extra == 'test'
   - pytest-xdist>=3.8.0,<4 ; extra == 'test'
   - snakeviz>=2.2.2,<3 ; extra == 'test'
+  - statsmodels>=0.14,<0.15 ; extra == 'test'
   - tox>=4.52.1,<5 ; extra == 'test'
   - ghp-import>=2.1.0,<3 ; extra == 'doc'
   - myst-parser>=5.0.0,<6 ; extra == 'doc'
