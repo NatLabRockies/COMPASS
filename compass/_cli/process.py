@@ -1,7 +1,6 @@
 """COMPASS CLI process subcommand"""
 
 import asyncio
-import logging
 import shutil
 import sys
 import warnings
