@@ -198,7 +198,10 @@ def convert_paths_to_strings(obj):
     """[NOT PUBLIC API] Convert all Path instances to strings"""
     logger.trace("Converting paths to strings in object: %s", obj)
     if isinstance(obj, Path):
-        return str(obj)
+        out = str(obj)
+        if not out.startswith("/"):
+            out = f"./{out}"
+        return out
     if isinstance(obj, dict):
         return {
             convert_paths_to_strings(key): convert_paths_to_strings(value)
