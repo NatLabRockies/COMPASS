@@ -64,7 +64,7 @@ from compass.utilities import (
     ProcessKwargs,
     compute_total_cost_from_usage,
 )
-from compass.utilities.enums import LLMTasks
+from compass.utilities.enums import LLMTasks, COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import (
     LocationFileLog,
@@ -390,7 +390,7 @@ async def process_jurisdictions_with_openai(  # noqa: PLR0917, PLR0913
         supports it.
     """
     return await _run_compass_mode(
-        mode="process",
+        mode=COMPASSRunMode.PROCESS,
         out_dir=out_dir,
         tech=tech,
         jurisdiction_fp=jurisdiction_fp,
@@ -633,7 +633,7 @@ async def collect_jurisdiction_documents(  # noqa: PLR0917, PLR0913
         message is formatted for easy reading in the terminal.
     """
     return await _run_compass_mode(
-        mode="collect",
+        mode=COMPASSRunMode.COLLECT,
         out_dir=out_dir,
         tech=tech,
         jurisdiction_fp=jurisdiction_fp,
@@ -798,7 +798,7 @@ async def extract_collected_jurisdiction_documents(  # noqa: PLR0917, PLR0913
     """
 
     return await _run_compass_mode(
-        mode="extract",
+        mode=COMPASSRunMode.EXTRACT,
         out_dir=out_dir,
         tech=tech,
         jurisdiction_fp=jurisdiction_fp,
@@ -855,7 +855,7 @@ async def _run_compass_mode(  # noqa: PLR0917, PLR0913
     if log_level == "DEBUG":
         log_level = "DEBUG_TO_FILE"
 
-    mode = mode.casefold().strip()  # TODO: turn into enum
+    mode = COMPASSRunMode(mode)
 
     log_listener = LogListener(["compass", "elm"], level=log_level)
     LLM_COST_REGISTRY.update(llm_costs or {})
@@ -865,19 +865,19 @@ async def _run_compass_mode(  # noqa: PLR0917, PLR0913
         clean_dir=clean_dir,
         ofd=ordinance_file_dir,
         jdd=jurisdiction_dbs_dir,
-        collect_only=(mode == "collect"),
+        collect_only=(mode == COMPASSRunMode.COLLECT),
     )
     async with log_listener as ll:
         _setup_main_logging(dirs.logs, log_level, ll, keep_async_logs)
-        if mode in {"process", "collect"}:
+        if mode == COMPASSRunMode.EXTRACT:
+            steps = ["Extract collected documents"]
+        else:
             steps = _check_enabled_steps(
                 known_local_docs=known_local_docs,
                 known_doc_urls=known_doc_urls,
                 perform_se_search=perform_se_search,
                 perform_website_search=perform_website_search,
             )
-        else:
-            steps = ["Extract collected documents"]
         _log_exec_info(called_args, steps)
         try:
             pk = ProcessKwargs(
@@ -897,7 +897,7 @@ async def _run_compass_mode(  # noqa: PLR0917, PLR0913
                 pytesseract_exe_fp,
                 search_engines,
             )
-            if model is not None and mode != "collect":
+            if model is not None and mode != COMPASSRunMode.COLLECT:
                 models = _initialize_model_params(model)
             else:
                 models = {}
@@ -938,7 +938,7 @@ class _COMPASSRunner:
         perform_se_search=True,
         perform_website_search=True,
         log_level="INFO",
-        mode="process",
+        mode=str(COMPASSRunMode.PROCESS),
         collection_manifest_fp=None,
         make_paths_relative=False,
     ):
@@ -1108,13 +1108,13 @@ class _COMPASSRunner:
             HTMLFileLoader(**self.tpe_kwargs),
         ]
 
-        if self.mode == "collect":
+        if self.mode == COMPASSRunMode.COLLECT:
             base_services.append(
                 ParsedFileWriter(
                     self.dirs.clean_files, tpe_kwargs=self.tpe_kwargs
                 ),
             )
-        elif self.mode == "extract":
+        elif self.mode == COMPASSRunMode.EXTRACT:
             base_services.append(
                 TempFileCacheCopier(
                     td_kwargs=self.process_kwargs.td_kwargs,
@@ -1149,32 +1149,25 @@ class _COMPASSRunner:
         """
         jurisdictions_df = _load_jurisdictions_to_process(jurisdiction_fp)
         num_jurisdictions = len(jurisdictions_df)
-        if self.mode == "collect":
-            action = "Collecting documents for"
-        elif self.mode == "extract":
-            action = "Parsing documents for"
-        else:
-            action = "Searching"
-
         COMPASS_PB.create_main_task(
-            num_jurisdictions=num_jurisdictions, action=action
+            num_jurisdictions=num_jurisdictions, action=self.mode.pb_action_str
         )
 
         services = self._base_services
-        if self.mode != "collect":
+        if self.mode != COMPASSRunMode.COLLECT:
             services += [
                 model.llm_service for model in set(self.models.values())
             ]
 
         async with RunningAsyncServices(services):
-            if self.mode == "collect":
+            if self.mode == COMPASSRunMode.COLLECT:
                 return await self._run_collection(jurisdictions_df)
-            if self.mode == "extract":
+            if self.mode == COMPASSRunMode.EXTRACT:
                 return await self._run_extraction(jurisdictions_df)
-            if self.mode == "process":
+            if self.mode == COMPASSRunMode.PROCESS:
                 return await self._run_processing(jurisdictions_df)
 
-        msg = f"Unknown mode: {self.mode}"
+        msg = f"Unsupported mode: {self.mode}"
         raise COMPASSValueError(msg)
 
     async def _run_collection(self, jurisdictions_df):

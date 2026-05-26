@@ -180,3 +180,26 @@ class LLMTasks(StrEnum):
 
     PLUGIN_GENERATION = LLMUsageCategory.PLUGIN_GENERATION
     """Task related to generating plugin prompts and templates"""
+
+
+class COMPASSRunMode(CaseInsensitiveEnum):
+    """Base config type enum class only meant to be initialized once"""
+
+    PROCESS = auto()
+    """Execute full COMPASS processing pipeline for jurisdictions"""
+    COLLECT = auto()
+    """Collect potential ordinance documents for jurisdictions"""
+    EXTRACT = auto()
+    """Extract data from ordinance documents for jurisdictions"""
+
+    @classmethod
+    def _new_post_hook(cls, obj, value):
+        """Hook for post-processing after __new__; adds methods"""
+        if value == "collect":
+            obj.pb_action_str = "Collecting documents for"
+        elif value == "extract":
+            obj.pb_action_str = "Parsing documents for"
+        else:
+            obj.pb_action_str = "Searching"
+        obj.__doc__ = f"{value.upper()} config file handler"
+        return obj
