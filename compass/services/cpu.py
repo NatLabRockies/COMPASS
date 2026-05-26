@@ -273,6 +273,8 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
 
 def _read_pdf_file(pdf_fp, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
+    kwargs.pop("image_to_string_kwargs", None)
+    kwargs.pop("convert_from_bytes_kwargs", None)
     pdf_bytes = Path(pdf_fp).read_bytes()
     pages = read_pdf(pdf_bytes, verbose=False)
     return PDFDocument(pages, **kwargs), pdf_bytes
@@ -283,8 +285,16 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     if tesseract_cmd:
         _configure_pytesseract(tesseract_cmd)
 
+    image_to_string_kwargs = kwargs.pop("image_to_string_kwargs", None)
+    convert_from_bytes_kwargs = kwargs.pop("convert_from_bytes_kwargs", None)
+
     pdf_bytes = Path(pdf_fp).read_bytes()
-    pages = read_pdf_ocr(pdf_bytes, verbose=False)
+    pages = read_pdf_ocr(
+        pdf_bytes,
+        verbose=True,
+        image_to_string_kwargs=image_to_string_kwargs,
+        convert_from_bytes_kwargs=convert_from_bytes_kwargs,
+    )
     doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True
     return doc, pdf_bytes
@@ -366,8 +376,20 @@ def _read_file_docling(fp, **kwargs):
 def _configure_pytesseract(tesseract_cmd):
     """Set the tesseract_cmd"""
     import pytesseract  # noqa: PLC0415
+    from glob import iglob  # noqa: PLC0415
+    from os import remove  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+
+    # On Windows, Tesseract may still hold the temp PPM file open when
+    # pytesseract's cleanup runs, causing WinError 32. Patch cleanup to
+    # suppress all OSErrors so the OCR result is not lost.
+    def _cleanup_win(temp_name):
+        for filename in iglob(f'{temp_name}*' if temp_name else temp_name):
+            with contextlib.suppress(OSError):
+                remove(filename)
+
+    pytesseract.pytesseract.cleanup = _cleanup_win
 
 
 def _try_decode_ocr_pages(pages):

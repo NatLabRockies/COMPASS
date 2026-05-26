@@ -12,6 +12,9 @@ ptest = { features = ["python-default", "elm", "python-test"], solve-group = "py
 pdoc = { features = ["python-default", "elm", "python-doc"], solve-group = "python" }
 pbuild = { features = ["python-default", "elm", "python-build"], solve-group = "python" }
 
+[activation]
+scripts = ["local_activate.bat"]
+
 [tasks]
 openai-solar-demo = { cmd = "export OPENAI_API_KEY={{ api_key }}; compass process -c config.json5", args = ["api_key"], cwd = "examples/openai_solar_demo"}
 

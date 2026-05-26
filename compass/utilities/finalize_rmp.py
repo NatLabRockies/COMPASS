@@ -10,7 +10,7 @@ from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
 from compass.utilities.parsing import (
-    extract_ord_year_from_doc_attrs,
+    extract_year_from_doc_attrs as extract_ord_year_from_doc_attrs,
     num_ordinances_dataframe,
     ordinances_bool_index,
 )

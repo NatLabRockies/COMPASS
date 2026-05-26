@@ -17,6 +17,8 @@ from compass.plugin import (
     OrdinanceExtractionPlugin,
     KeywordBasedHeuristic,
 )
+import compass.utilities.finalize as _finalize_default
+import compass.utilities.finalize_rmp as _finalize_rmp
 from compass.plugin.one_shot.generators import (
     generate_query_templates,
     generate_website_keywords,
@@ -222,6 +224,18 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
 
         WEBSITE_KEYWORDS = {}  # set by user or LLM-generated
         """dict: Keyword weight mapping for link crawl prioritization"""
+
+        @classmethod
+        def save_structured_data(cls, doc_infos, out_dir):
+            """Write extracted data using finalize module from config"""
+            fin = (
+                _finalize_rmp
+                if config.get("finalize") == "rmp"
+                else _finalize_default
+            )
+            db, num_docs_found = fin.doc_infos_to_db(doc_infos)
+            fin.save_db(db, out_dir)
+            return num_docs_found
 
         async def get_heuristic(self):
             """Get a `BaseHeuristic` instance with a `check()` method
