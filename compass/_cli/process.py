@@ -12,14 +12,13 @@ from pathlib import Path
 import click
 from rich.live import Live
 from rich.theme import Theme
-from rich.logging import RichHandler
 from rich.console import Console
 
+from compass._cli.common import setup_cli_logging
 from compass.pb import COMPASS_PB
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.process import process_jurisdictions_with_openai
 from compass.utilities.io import load_config
-from compass.utilities.logs import AddLocationFilter
 
 
 OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
@@ -82,7 +81,7 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
-    _setup_cli_logging(
+    setup_cli_logging(
         console, verbose, log_level=config.get("log_level", "INFO")
     )
 
@@ -118,37 +117,6 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
 
     console.print(run_msg)
     COMPASS_PB.console = None
-
-
-def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
-    """Setup logging for CLI"""
-    libs = []
-    if verbosity_level >= 1:
-        libs.append("compass")
-    if verbosity_level >= 2:  # noqa: PLR2004
-        libs.extend(("elm", "docling"))
-    if verbosity_level >= 3:  # noqa: PLR2004
-        libs.append("openai")
-    if verbosity_level >= 4:  # noqa: PLR2004
-        libs.extend(("networkx", "pytesseract", "pdf2image", "pdftotext"))
-
-    for lib in libs:
-        logger = logging.getLogger(lib)
-        handler = RichHandler(
-            level=log_level,
-            console=console,
-            rich_tracebacks=True,
-            omit_repeated_times=True,
-            markup=True,
-        )
-        fmt = logging.Formatter(
-            fmt="[[magenta]%(location)s[/magenta]]: %(message)s",
-            defaults={"location": "main"},
-        )
-        handler.setFormatter(fmt)
-        handler.addFilter(AddLocationFilter())
-        logger.addHandler(handler)
-        logger.setLevel(log_level)
 
 
 def _resolve_out_dir_conflict(out_dir, policy):
