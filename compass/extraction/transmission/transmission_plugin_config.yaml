@@ -11,6 +11,25 @@ query_templates:
 
 website_keywords:
   pdf: 92160
+  transmission: 46080
+  ordinance: 23040
+  zoning: 11520
+  utility: 5760
+  electric: 5760
+  right-of-way: 1440
+  overhead: 720
+  permit: 720
+  land use: 720
+  municipal: 360
+  county: 360
+  code of ordinances: 360
+  ordinance code: 360
+  land use code: 360
+  conditional use permit: 180
+  special use permit: 180
+  statute: 180
+  administrative code: 180
+  government: 180
 
 heuristic_keywords: true
 
