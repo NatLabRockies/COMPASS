@@ -59,7 +59,7 @@ class DocumentDeDuplicator:
 
     @property
     def values(self):
-        """dict_values: Deduplicated collected docs"""
+        """Deduplicated collected docs"""
         return self._docs.values()
 
     def __bool__(self):

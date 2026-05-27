@@ -586,11 +586,11 @@ class BaseRequest:
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
         collection_manifest_fp : path-like, optional
-            Path to the JSON collection manifest created by
-            :func:`collect_jurisdiction_documents`. The manifest must
-            contain the persisted document information needed to reload
-            each collected document for extraction. Only needed if
-            running in extraction mode with a separate collection step.
+            Path to the JSON collection manifest created by the document
+            collection step. The manifest must contain the persisted
+            document information needed to reload each collected
+            document for extraction. Only needed if running in
+            extraction mode with a separate collection step.
             By default, ``None``.
         """
         self.tech = tech
@@ -719,11 +719,10 @@ class ExtractionRequest(BaseRequest):
             be a string identifying the type of subdivision (e.g.,
             "City", "Township", etc.)
         collection_manifest_fp : path-like
-            Path to the JSON collection manifest created by
-            :func:`collect_jurisdiction_documents`. The manifest must
-            contain the persisted document information needed to reload
-            each collected document for extraction. Only needed if
-            running in extraction mode with a separate collection step.
+            Path to the JSON collection manifest created by the document
+            collection step. The manifest must contain the persisted
+            document information needed to reload each collected
+            document for extraction.
         **kwargs : dict
             Additional keyword arguments forwarded to
             :class:`BaseRequest`.

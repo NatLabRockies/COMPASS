@@ -23,7 +23,7 @@ class DocumentExtraction:
 
         Parameters
         ----------
-        docs : iterable of Document
+        docs : iterable
             The documents to filter and extract structured data from.
         needs_jurisdiction_verification : bool, optional
             Flag indicating whether the jurisdiction of the document

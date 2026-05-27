@@ -213,7 +213,8 @@ async def find_jurisdiction_website(
         Substrings are applied case-insensitively. By default, ``None``.
     validate : bool, default=True
         If ``True``, each potential jurisdiction website will be checked
-        for validity using the :class:`JurisdictionWebsiteValidator`
+        for validity using the
+        :class:`~compass.validation.location.JurisdictionWebsiteValidator`
         before being returned. If ``False``, the first potential website
         will be returned without validation. By default, ``True``.
     **kwargs
