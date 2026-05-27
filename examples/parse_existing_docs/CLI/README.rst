@@ -43,7 +43,7 @@ steps that a document retrieved via search would go through, including
 legal text validation and date extraction. To skip some or all of these
 steps, you can include additional metadata fields in the document dicts
 as described in the
-`COMPASS documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
+`COMPASS documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.pipeline.data_classes.ProcessRequest.html#compass.pipeline.data_classes.ProcessRequest>`_.
 Below is an example of a more fully specified document mapping that
 includes multiple documents, each with additional metadata fields to
 skip certain processing steps:
