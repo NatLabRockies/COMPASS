@@ -322,15 +322,20 @@ def resolve_path(path, base_dir):
         The resolved path.
     """
     base_dir = Path(base_dir)
+    normalized = path.replace("\\", "/")
 
-    if path.startswith("./"):
-        path = base_dir / Path(path[2:])
-    elif path.startswith(".."):
-        path = base_dir / Path(path)
-    elif "./" in path:  # this covers both './' and '../'
-        path = Path(path)
+    if normalized.startswith("./"):
+        path = base_dir / Path(normalized[2:])
+    elif normalized.startswith(".."):
+        path = base_dir / Path(normalized)
+    elif (
+        "/./" in normalized
+        or normalized.endswith("/.")
+        or ("/../" in normalized or normalized.endswith("/.."))
+    ):
+        path = Path(normalized)
 
-    with contextlib.suppress(AttributeError):  # `path` is still a `str`
+    with contextlib.suppress(AttributeError):
         path = path.expanduser().resolve().as_posix()
 
     return path
