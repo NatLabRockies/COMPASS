@@ -59,7 +59,7 @@ async def run_search_only(
     ----------
     tech : str
         Technology identifier used to look up the registered plugin in
-        :obj:`~compass.plugin.PLUGIN_REGISTRY`.
+        :data:`compass.plugin.registry.PLUGIN_REGISTRY`.
     jurisdiction_fp : path-like
         Path to a CSV describing the jurisdictions to search.
     num_urls_to_check_per_jurisdiction : int, optional
