@@ -53,7 +53,6 @@ def date_model_config():
 
 
 def _build_doc(case, dataset_dir):
-    """Production-shaped doc with the real source URL and no pre-set date"""
     fp = dataset_dir / case["file"]
     attrs = {"source": case["source"]}
     if fp.suffix.casefold() == ".pdf":
@@ -104,7 +103,7 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     )
     # Held-out per-case detail is intentionally not logged (only summary
     # stats are surfaced) so the held-out set stays hard to tune against.
-    if eval_type != "held_out_evals":
+    if eval_type != "held_out":
         logger.info(
             "%s (FIPS %s): expected=%s extracted=(%s,%s,%s) cost=$%.4f",
             case["jurisdiction"],
@@ -124,7 +123,7 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
 async def test_date_year_accuracy_dev(case, date_model_config):
     """Run date extraction on each dev-dataset document"""
     await _run_case(
-        case, DEV_MANIFEST_FP.parent, "dev_evals", date_model_config
+        case, DEV_MANIFEST_FP.parent, "dev", date_model_config
     )
 
 
@@ -135,5 +134,5 @@ async def test_date_year_accuracy_dev(case, date_model_config):
 async def test_date_year_accuracy_held_out(case, date_model_config):
     """Run date extraction on each held-out document"""
     await _run_case(
-        case, HELD_OUT_MANIFEST_FP.parent, "held_out_evals", date_model_config
+        case, HELD_OUT_MANIFEST_FP.parent, "held_out", date_model_config
     )

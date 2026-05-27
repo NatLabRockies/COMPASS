@@ -19,18 +19,13 @@ when their marker is explicitly selected.
 
 ## `dev` vs `held-out` evals
 
-Each dataset is split into a frequently-run **dev** set and a sacred **held-out** set (~30%) used as an unbiased measure of
-true performance:
+Each dataset is split into a frequently-run **dev** set and a sacred
+ **held-out** set used as an unbiased measure of true performance:
 
 | | `dev/` | `held-out/` |
 | --- | --- | --- |
 | Eval type | run frequently during development (`-m dev_evals`) | run before a release (`-m held_out_evals`) |
 | Purpose | iterate, tune prompts/logic, debug failures | unbiased estimate of true performance |
-| Size | ~70% of the labeled cases | ~30% of the labeled cases |
-
-The split samples **30% from cases where the field exists** and **30% from
-cases where it does not**, so both datasets keep the same mix of present
-and absent ground truth.
 
 The held-out set only gives an **honest** read if we *don't* tune against it:
 
@@ -46,18 +41,15 @@ metrics** (no per-case breakdown), and per-case predictions are not logged
 — so there is nothing to eyeball or tune against. `dev` runs write the full
 per-case breakdown.
 
-Datasets are committed in plaintext (not encrypted/hidden) on purpose: we
-trust developers to follow the above rather than adding friction. If we
-later find this trust is being abused (too-frequent held-out runs, tuning
-against it), we can revisit (e.g. move held-out behind encryption or a
-separate location).
-
 ## Layout
 
 ```
 test_run_<name>_evals.py   # one eval suite per extractor (e.g. test_run_solar_evals.py)
-conftest.py                # reporter + regression gate (writes results/*.csv)
-results/                   # committed baseline CSVs — the regression gate reads these
+conftest.py                # reporter + regression gate (writes into results/)
+results/
+  dev/<name>_evals.csv               # committed baseline metrics (regression gate reads these)
+  dev/<name>_evals_breakdown.csv     # committed per-case dev breakdown
+  held_out/<name>_evals.csv          # committed baseline held-out metrics (no per-case detail)
 data/
   dev/<tech>/
     manifest.json5         # [{fips, jurisdiction, file, source, expected: {year, ...}}, ...]
@@ -79,4 +71,4 @@ exists" — the extractor should return no year for that document.
 1. Drop ground-truth docs + a `manifest.json5` under `data/{dev,held-out}/<tech>/`.
 2. Write `test_run_<name>_evals.py` with `@pytest.mark.dev_evals` and
    `@pytest.mark.held_out_evals` test functions.
-3. First run sets the baseline; commit the resulting `results/<name>_*.csv`.
+3. First run sets the baseline; commit the resulting `results/{dev,held_out}/<name>_evals*.csv`.
