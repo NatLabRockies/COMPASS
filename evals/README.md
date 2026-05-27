@@ -8,6 +8,24 @@ specific extractor end-to-end and writes a breakdown + metrics file to
 `results/`. A regression gate (run by the test module's autouse fixture)
 fails the run if the committed baseline gets worse.
 
+## First-time setup
+
+Eval documents (PDFs and text) live in Git LFS to keep the repo lean.
+`git-lfs` is bundled in the `ptest` and `pdev` pixi envs, so you don't
+need to install it on your host -- but you do need to register the LFS
+git filters **once per machine**:
+
+```bash
+pixi run -e ptest git lfs install
+```
+
+That writes the LFS smudge/clean filters to `~/.gitconfig`. Subsequent
+`git clone` / `git pull` will fetch eval documents lazily through LFS.
+
+If you also use git from outside pixi (IDE git pane, native terminal),
+install LFS on the host too -- e.g. `brew install git-lfs` on macOS --
+otherwise those tools will fail with `git-lfs: command not found`.
+
 ## Run
 
 ```bash
@@ -59,10 +77,10 @@ results/
   dev/<name>_evals.json              # committed baseline metrics (gate reads these)
   dev/<name>_evals_breakdown.csv     # committed per-case dev breakdown
   held_out/<name>_evals.json         # committed baseline held-out metrics (no per-case detail)
-data/
+data/                      # ordinance documents are stored via Git LFS
   dev/<tech>/
     manifest.json5         # [{state, county, subdivision, jurisdiction_type, file, source, expected: {year, ...}}, ...]
-    <documents>            # the ordinance PDFs/text files referenced by the manifest
+    <documents>            # ordinance PDFs/text files (LFS-tracked; manifest stays in regular git)
   held-out/<tech>/
     manifest.json5
     <documents>
