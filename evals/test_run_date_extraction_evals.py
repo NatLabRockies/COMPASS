@@ -37,7 +37,7 @@ RESULTS = []
 # correct becomes wrong, another wrong becomes correct), keeping
 # aggregate accuracy flat -- the breakdown CSV always shows the swap,
 # this gate just makes a large enough swap surface as a test failure.
-_DEV_ROW_REGRESSION_TOLERANCE = 2
+REGRESSION_TOL = 2
 
 
 def pytest_generate_tests(metafunc):
@@ -61,32 +61,36 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture(scope="module", autouse=True)
 def _report(request):
-    """Write CSVs/JSON, print summary, and (dev only) enforce the gate"""
+    """Write CSVs/JSON, print summary, and (dev evals only) enforce the gate"""
     yield  # The code below runs after the test module finishes
     held_out = request.config.getoption("--held-out")
     eval_subdir = "held_out" if held_out else "dev"
-    data = report_evals(
+    evals_data = report_evals(
         request,
         EVAL_NAME,
         RESULTS,
         RESULTS_DIR / eval_subdir,
         write_breakdown=not held_out,
     )
-    if not data or held_out:
-        return  # held-out runs are unbiased reads, not gates
+    if not evals_data or held_out:
+        return  # held-out evals aren't compared against stored values
 
     failures = []
-    base = data["baseline_failing"]
-    if base is not None and data["fails_now"] > base:
+    if (
+        evals_data["prev_nfail"] is not None
+        and evals_data["current_nfail"] > evals_data["prev_nfail"]
+    ):
         failures.append(
-            f"aggregate regression: {data['fails_now']} failing "
-            f"> baseline {base}"
+            f"aggregate regression: {evals_data['current_nfail']} failing"
+            f" > previous {evals_data['prev_nfail']}"
         )
-    regressed = data["regressed_rows"]
-    if regressed and len(regressed) > _DEV_ROW_REGRESSION_TOLERANCE:
+    if (
+        evals_data["regressed_jurs"]
+        and len(evals_data["regressed_jurs"]) > REGRESSION_TOL
+    ):
         failures.append(
-            f"{len(regressed)} rows regressed "
-            f"(tol {_DEV_ROW_REGRESSION_TOLERANCE}): {regressed}"
+            f"{len(evals_data['regressed_jurs'])} rows regressed "
+            f"(tol {REGRESSION_TOL}): {evals_data['regressed_jurs']}"
         )
     if failures:
         pytest.fail("Eval regression gate:\n  " + "\n  ".join(failures))
