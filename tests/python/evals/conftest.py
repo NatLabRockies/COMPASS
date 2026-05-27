@@ -76,16 +76,15 @@ def _compute_metrics(results):
         "false_negative": 0,
     }
     for r in results:
-        if r["comparison_result"] == "Success":
-            if r["expected"] is not None:
-                counts["true_positive"] += 1
-            else:
-                counts["true_negative"] += 1
-        else:
-            if r["extracted"] is not None:
-                counts["false_positive"] += 1
-            if r["expected"] is not None:
-                counts["false_negative"] += 1
+        success = r["comparison_result"] == "Success"
+        if success and r["expected"] is not None:
+            counts["true_positive"] += 1
+        if success and r["expected"] is None:
+            counts["true_negative"] += 1
+        if not success and r["extracted"] is not None:
+            counts["false_positive"] += 1
+        if not success and r["expected"] is not None:
+            counts["false_negative"] += 1
 
     n = len(results)
     tp = counts["true_positive"]
