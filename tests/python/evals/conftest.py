@@ -73,21 +73,28 @@ def _compute_metrics(results):
       recall    = TP / (TP + FN)             # over cases where a value exists
       f1        = 2PR / (P + R)              # point estimate only
     """
-    counts = {"TP": 0, "TN": 0, "FP": 0, "FN": 0}
+    counts = {
+        "true_positive": 0,
+        "true_negative": 0,
+        "false_positive": 0,
+        "false_negative": 0,
+    }
     for r in results:
         exp, ext = r["expected"], r["extracted"]
         if r["comparison_result"] == "Success":
-            counts["TP" if exp is not None else "TN"] += 1
+            key = "true_positive" if exp is not None else "true_negative"
+            counts[key] += 1
         else:
             if ext is not None:
-                counts["FP"] += 1
+                counts["false_positive"] += 1
             if exp is not None:
-                counts["FN"] += 1
+                counts["false_negative"] += 1
 
-    tp, tn, fp, fn = counts["TP"], counts["TN"], counts["FP"], counts["FN"]
     n = len(results)
-    pred_pos = tp + fp
-    actual_pos = tp + fn
+    tp = counts["true_positive"]
+    tn = counts["true_negative"]
+    pred_pos = tp + counts["false_positive"]
+    actual_pos = tp + counts["false_negative"]
 
     def _safe_div(num, den):
         return num / den if den else 0.0
@@ -98,10 +105,7 @@ def _compute_metrics(results):
 
     return {
         "n_cases": n,
-        "true_positive": tp,
-        "true_negative": tn,
-        "false_positive": fp,
-        "false_negative": fn,
+        **counts,
         "failing_cases": n - tp - tn,
         "accuracy": _safe_div(tp + tn, n),
         "precision": precision,
