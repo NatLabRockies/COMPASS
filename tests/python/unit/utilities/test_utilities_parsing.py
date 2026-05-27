@@ -1,5 +1,6 @@
 """Test COMPASS Ordinance parsing utilities"""
 
+import os
 from pathlib import Path
 
 import numpy as np
@@ -188,6 +189,9 @@ def test_ordinances_bool_index_value_only():
 def test_convert_paths_to_strings_all_structures():
     """Test `convert_paths_to_strings` across nested containers"""
 
+    def rel(value):
+        return os.path.join(".", value)  # noqa PTH118
+
     input_obj = {
         Path("path_key"): {
             "list": [
@@ -210,22 +214,35 @@ def test_convert_paths_to_strings_all_structures():
     result = convert_paths_to_strings(input_obj)
 
     expected = {
-        "./path_key": {
+        rel("path_key"): {
             "list": [
-                "./inner_list_item",
-                {"./dict_key": "./dict_value"},
+                rel("inner_list_item"),
+                {rel("dict_key"): rel("dict_value")},
             ],
-            "tuple": ("./inner_tuple_item", "preserve"),
-            "set": {"./inner_set_item", "inner_literal"},
+            "tuple": (rel("inner_tuple_item"), "preserve"),
+            "set": {rel("inner_set_item"), "inner_literal"},
         },
-        "list": ["./top_list_item", ("./tuple_in_list",)],
-        "tuple": ("./top_tuple_item", {"./tuple_set_item"}),
-        "set": {"./top_set_item", ("nested_tuple", "./nested_tuple_path")},
+        "list": [rel("top_list_item"), (rel("tuple_in_list"),)],
+        "tuple": (rel("top_tuple_item"), {rel("tuple_set_item")}),
+        "set": {
+            rel("top_set_item"),
+            ("nested_tuple", rel("nested_tuple_path")),
+        },
         "value": "literal",
-        "path_value": "./top_value_path",
+        "path_value": rel("top_value_path"),
     }
 
     assert result == expected
+
+
+def test_convert_paths_to_strings_keeps_absolute_paths():
+    """Test `convert_paths_to_strings` leaves absolute paths unchanged"""
+
+    input_path = Path.cwd() / "top_value_path"
+
+    result = convert_paths_to_strings(input_path)
+
+    assert result == str(input_path)
 
 
 if __name__ == "__main__":

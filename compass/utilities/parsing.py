@@ -1,5 +1,6 @@
 """COMPASS ordinance parsing utilities"""
 
+import os
 import json
 import logging
 from pathlib import Path
@@ -198,9 +199,9 @@ def convert_paths_to_strings(obj):
     """[NOT PUBLIC API] Convert all Path instances to strings"""
     logger.trace("Converting paths to strings in object: %s", obj)
     if isinstance(obj, Path):
-        out = str(obj)
-        if not out.startswith("/"):
-            out = f"./{out}"
+        out = os.fspath(obj)
+        if not obj.is_absolute():
+            out = os.path.join(".", out)  # noqa PTH118
         return out
     if isinstance(obj, dict):
         return {
