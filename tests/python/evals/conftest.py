@@ -32,25 +32,26 @@ _CSV_FIELDS = [
     "time_taken_s",
     "cost",
 ]
-
-# Comparison-result value that counts as "correct" (vs. failing).
-_SUCCESS = "Success"
-
-# Per-row regression tolerance: how many previously-correct rows may flip to
-# wrong (e.g. from temperature sampling noise) before the gate fails.
+# We allow up to 2 fields to regress (TP/TN becomes WRONG/FP/FN)
+# We still prevent accuracy from regressing. This can happen if
+# two flaky fields trade places (some correct becomes incorrect and vice versa)
+# The breakdown csv will always show this change but this gate makes it more
+# visible by failing the evals test when the change crosses the tolerance.
 _ROW_REGRESSION_TOLERANCE = 2
 
 
 def _wilson_ci(k, n, alpha=0.05):
     """95% Wilson score interval for k/n, or (None, None) if n == 0
+    Wilson confidence interval is chosen over the normal approximation because
+    it provides better coverage with small sample sizes and at the boundaries.
+    IID (ignores clustering).
 
-    IID (ignores clustering). Imported lazily so the base test session
+    Imported lazily so the base test session
     (which collects this conftest but deselects the evals) does not depend
     on statsmodels -- only an actual eval run needs it.
     """
     if n == 0:
         return None, None
-    # Lazy import (see docstring): keep statsmodels out of the base session.
     from statsmodels.stats.proportion import (  # noqa: PLC0415
         proportion_confint,
     )
@@ -61,17 +62,12 @@ def _wilson_ci(k, n, alpha=0.05):
 
 def _compute_metrics(results):
     """Accuracy / precision / recall / F1 (+ 95% Wilson CIs)
+    A wrong value is counted towards both false positives and false negatives.
 
-    Positive class = "a value exists" (``expected`` is not None).
-    TP/TN/FP/FN are derived from ``(expected, extracted, comparison_result)``:
-    a wrong-value case (both non-None but unequal) counts as **both** a
-    false positive (predicted positive, wrong class) and a false negative
-    (real positive went uncaught).
-
-      accuracy  = (TP + TN) / N
-      precision = TP / (TP + FP)             # over cases that output a value
-      recall    = TP / (TP + FN)             # over cases where a value exists
-      f1        = 2PR / (P + R)              # point estimate only
+    accuracy  = (TP + TN) / N
+    precision = TP / (TP + FP)             # over cases that output a value
+    recall    = TP / (TP + FN)             # over cases where a value exists
+    f1        = 2PR / (P + R)              # point estimate only
     """
     counts = {
         "true_positive": 0,
@@ -80,14 +76,15 @@ def _compute_metrics(results):
         "false_negative": 0,
     }
     for r in results:
-        exp, ext = r["expected"], r["extracted"]
         if r["comparison_result"] == "Success":
-            key = "true_positive" if exp is not None else "true_negative"
-            counts[key] += 1
+            if r["expected"] is not None:
+                counts["true_positive"] += 1
+            else:
+                counts["true_negative"] += 1
         else:
-            if ext is not None:
+            if r["extracted"] is not None:
                 counts["false_positive"] += 1
-            if exp is not None:
+            if r["expected"] is not None:
                 counts["false_negative"] += 1
 
     n = len(results)
@@ -180,7 +177,7 @@ def _load_baseline_correct(breakdown_fp):
         return None
     with breakdown_fp.open(newline="", encoding="utf-8") as fh:
         return {
-            str(row["fips"]): row["comparison_result"] == _SUCCESS
+            str(row["fips"]): row["comparison_result"] == "Success"
             for row in csv.DictReader(fh)
         }
 
@@ -200,7 +197,7 @@ def _check_full_regression(rows, baseline):
         return [], ["  gate: no baseline yet (this run sets it)"]
 
     now_correct = {
-        str(r["fips"]): r["comparison_result"] == _SUCCESS
+        str(r["fips"]): r["comparison_result"] == "Success"
         for r in rows
     }
     fails_now = sum(1 for ok in now_correct.values() if not ok)
