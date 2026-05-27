@@ -259,12 +259,12 @@ async def _search_one_query(
             continue
 
         try:
-            if opt.uses_browser:
-                await asyncio.sleep(random.uniform(1, 10))  # noqa: S311
-                async with browser_semaphore:
-                    raw = await engine.results(query, num_results=10)
-            else:
-                raw = await engine.results(query, num_results=10)
+            raw = await _run_query_with_engine(
+                engine,
+                query,
+                uses_browser=opt.uses_browser,
+                browser_semaphore=browser_semaphore,
+            )
         except Exception as exc:  # noqa: BLE001
             logger.warning(
                 "[%s] %s search failed for %r: %s",
@@ -293,6 +293,18 @@ async def _search_one_query(
         ]
 
     return []
+
+
+async def _run_query_with_engine(
+    engine, query, uses_browser, browser_semaphore
+):
+    """Execute one query for a pre-initialized engine"""
+    if uses_browser:
+        await asyncio.sleep(random.uniform(1, 10))  # noqa: S311
+        async with browser_semaphore:
+            return await engine.results(query, num_results=10)
+
+    return await engine.results(query, num_results=10)
 
 
 def _apply_filters(results, blacklist, num_urls):
