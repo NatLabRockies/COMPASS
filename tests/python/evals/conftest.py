@@ -15,9 +15,7 @@ import csv
 import json
 from dataclasses import asdict
 from operator import attrgetter
-
 import pytest
-
 from common import RESULT_FIELDS, SUCCESS
 
 # We allow up to 2 fields to regress (TP/TN becomes WRONG/FP/FN)
@@ -75,29 +73,32 @@ def _compute_metrics(results):
             counts["false_negative"] += 1
 
     n = len(results)
-    tp = counts["true_positive"]
-    tn = counts["true_negative"]
-    pred_pos = tp + counts["false_positive"]
-    actual_pos = tp + counts["false_negative"]
+    pred_pos = counts["true_positive"] + counts["false_positive"]
+    actual_pos = counts["true_positive"] + counts["false_negative"]
+    correct = counts["true_positive"] + counts["true_negative"]
 
     def _safe_div(num, den):
         return num / den if den else 0.0
 
-    precision = _safe_div(tp, pred_pos)
-    recall = _safe_div(tp, actual_pos)
+    precision = _safe_div(counts["true_positive"], pred_pos)
+    recall = _safe_div(counts["true_positive"], actual_pos)
     f1 = _safe_div(2 * precision * recall, precision + recall)
 
     return {
         "n_cases": n,
         **counts,
-        "failing_cases": n - tp - tn,
-        "accuracy": _safe_div(tp + tn, n),
+        "failing_cases": n - correct,
+        "accuracy": _safe_div(correct, n),
         "precision": precision,
         "recall": recall,
         "f1": f1,
-        "accuracy_95_percent_confidence_interval": _wilson_ci(tp + tn, n),
-        "precision_95_percent_confidence_interval": _wilson_ci(tp, pred_pos),
-        "recall_95_percent_confidence_interval": _wilson_ci(tp, actual_pos),
+        "accuracy_95_percent_confidence_interval": _wilson_ci(correct, n),
+        "precision_95_percent_confidence_interval": _wilson_ci(
+            counts["true_positive"], pred_pos
+        ),
+        "recall_95_percent_confidence_interval": _wilson_ci(
+            counts["true_positive"], actual_pos
+        ),
         "total_prompt_tokens": sum(r.prompt_tokens for r in results),
         "total_response_tokens": sum(r.response_tokens for r in results),
         "total_time_taken_s": sum(r.time_taken_s for r in results),
