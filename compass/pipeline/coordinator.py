@@ -159,7 +159,7 @@ class BaseRunMode(ABC):
         raise NotImplementedError
 
 
-class ProcessWorkflow(BaseRunMode):
+class COMPASSFullProcessing(BaseRunMode):
     """Concrete Strategy for full process mode"""
 
     async def run(self, jurisdictions_df):
@@ -215,7 +215,7 @@ class ProcessWorkflow(BaseRunMode):
         )
 
 
-class CollectionWorkflow(BaseRunMode):
+class COMPASSCollection(BaseRunMode):
     """Concrete Strategy for document collection mode"""
 
     async def run(self, jurisdictions_df):
@@ -287,7 +287,7 @@ class CollectionWorkflow(BaseRunMode):
         return collection_msg
 
 
-class ExtractionWorkflow(BaseRunMode):
+class COMPASSExtraction(BaseRunMode):
     """Concrete Strategy for extraction mode over saved manifests"""
 
     async def run(self, jurisdictions_df):
@@ -417,11 +417,11 @@ def _build_models(user_input, *, allow_empty=False):
 def _select_workflow(runtime):
     """Select the concrete mode workflow"""
     if runtime.mode == COMPASSRunMode.COLLECT:
-        return CollectionWorkflow(runtime)
+        return COMPASSCollection(runtime)
     if runtime.mode == COMPASSRunMode.EXTRACT:
-        return ExtractionWorkflow(runtime)
+        return COMPASSExtraction(runtime)
     if runtime.mode == COMPASSRunMode.PROCESS:
-        return ProcessWorkflow(runtime)
+        return COMPASSFullProcessing(runtime)
 
     msg = f"Unsupported mode: {runtime.mode}"
     raise COMPASSValueError(msg)
