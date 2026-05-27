@@ -20,7 +20,7 @@ from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
 
-from common import Result, classify, display_name
+from common import Result, classify, jurisdiction_from_case
 
 
 logger = logging.getLogger(__name__)
@@ -78,7 +78,7 @@ def _build_doc(case, dataset_dir):
 
 async def _run_case(case, dataset_dir, eval_type, model_config):
     """Extract the date for one case and record the result"""
-    label = display_name(case)
+    label = jurisdiction_from_case(case).full_name
     doc = _build_doc(case, dataset_dir)
     usage_tracker = UsageTracker(label, usage_from_response)
     start = time.perf_counter()

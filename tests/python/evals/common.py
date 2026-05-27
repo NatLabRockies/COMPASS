@@ -49,7 +49,19 @@ def classify(expected, extracted):
     return SUCCESS if extracted == expected else FAILURE
 
 
-def display_name(case):
-    """Human-readable jurisdiction label from a manifest case"""
-    parts = [case["subdivision"], case["county"], case["state"]]
-    return ", ".join(p for p in parts if p)
+def jurisdiction_from_case(case):
+    """Build a :class:`compass.utilities.jurisdictions.Jurisdiction`
+
+    Translates manifest field names (``subdivision``, ``jurisdiction_type``)
+    to the constructor's parameter names (``subdivision_name``,
+    ``subdivision_type``). Use ``.full_name`` on the returned object for
+    a human-readable display label.
+    """
+    from compass.utilities.jurisdictions import Jurisdiction  # noqa: PLC0415
+
+    return Jurisdiction(
+        subdivision_type=case["jurisdiction_type"],
+        state=case["state"],
+        county=case["county"],
+        subdivision_name=case["subdivision"],
+    )

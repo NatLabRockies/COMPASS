@@ -52,7 +52,7 @@ def _compute_metrics(results):
     accuracy  = (TP + TN) / N
     precision = TP / (TP + FP)             # over cases that output a value
     recall    = TP / (TP + FN)             # over cases where a value exists
-    f1        = 2PR / (P + R)              # point estimate only
+    f1        = 2PR / (P + R)
     """
     counts = {
         "true_positive": 0,
@@ -152,7 +152,6 @@ def _write_breakdown_csv(fp, results):
 
 
 def _row_id(state, county, subdivision):
-    """Identity tuple for matching baseline rows to live rows"""
     return (state, county, subdivision or "")
 
 
