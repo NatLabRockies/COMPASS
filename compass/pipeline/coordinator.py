@@ -101,7 +101,7 @@ async def run_compass(request):
             raise
 
 
-class ModeWorkflow(ABC):
+class BaseRunMode(ABC):
     """Strategy base class for mode-specific workflows"""
 
     def __init__(self, runtime):
@@ -159,7 +159,7 @@ class ModeWorkflow(ABC):
         raise NotImplementedError
 
 
-class ProcessWorkflow(ModeWorkflow):
+class ProcessWorkflow(BaseRunMode):
     """Concrete Strategy for full process mode"""
 
     async def run(self, jurisdictions_df):
@@ -215,7 +215,7 @@ class ProcessWorkflow(ModeWorkflow):
         )
 
 
-class CollectionWorkflow(ModeWorkflow):
+class CollectionWorkflow(BaseRunMode):
     """Concrete Strategy for document collection mode"""
 
     async def run(self, jurisdictions_df):
@@ -287,7 +287,7 @@ class CollectionWorkflow(ModeWorkflow):
         return collection_msg
 
 
-class ExtractionWorkflow(ModeWorkflow):
+class ExtractionWorkflow(BaseRunMode):
     """Concrete Strategy for extraction mode over saved manifests"""
 
     async def run(self, jurisdictions_df):
