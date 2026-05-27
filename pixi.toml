@@ -1,0 +1,180 @@
+
+[workspace]
+name = "INFRA-COMPASS"
+channels = ["conda-forge", "microsoft"]
+platforms = ["win-64", "osx-arm64", "osx-64", "linux-64", "linux-aarch64"]
+
+[environments]
+default = { features = ["python-default", "elm"], solve-group = "default" }
+rdev = { features = ["rust-dev"], solve-group = "rust" }
+pdev = { features = ["python-default", "elm", "python-dev", "python-build", "python-test", "python-doc", "python-anthropic"], solve-group = "python" }
+ptest = { features = ["python-default", "elm", "python-test"], solve-group = "python" }
+pdoc = { features = ["python-default", "elm", "python-doc"], solve-group = "python" }
+pbuild = { features = ["python-default", "elm", "python-build"], solve-group = "python" }
+
+[tasks]
+openai-solar-demo = { cmd = "export OPENAI_API_KEY={{ api_key }}; compass process -c config.json5", args = ["api_key"], cwd = "examples/openai_solar_demo"}
+
+[feature.rust-dev.tasks]
+tests-r = "cargo test --locked --workspace --no-fail-fast"
+publish-db = "cargo publish --locked -p infra-compass-db --all-features"
+publish-cli = "cargo publish --locked -p infra-compass-cli --all-features"
+
+[feature.python-dev.tasks]
+lint = "ruff check ./compass"
+format = "ruff format ./compass"
+
+[feature.python-test.tasks]
+tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
+tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
+tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=10 tests/python/integration"
+
+[feature.python-doc.tasks]
+python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
+
+[feature.python-build.tasks]
+build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
+
+[dependencies]
+poppler = ">=24.8.0,<25"
+python = ">=3.12,<3.14"
+
+[target.linux-aarch64.dependencies]
+compilers = ">=1.11.0,<2"
+clangdev = ">=20.1.8,<21"
+libclang = ">=20.1.8,<21"
+maturin = ">=1.8.6,<2"
+rust = ">=1.89.0,<1.90"
+
+[target.win.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[target.linux-64.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[target.osx.dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[feature.rust-dev.dependencies]
+rust = ">=1.89.0,<1.92"
+cxx-compiler = ">=1.11.0,<2"
+graphviz = ">=12.2.1,<13"
+
+[feature.rust-dev.target.win-64.dependencies]
+cargo-c = ">=0.10.16,<0.11"
+clangdev = ">=21.1.6,<22"
+libclang = ">=21.1.6,<22"
+
+[feature.python-default.dependencies]
+aiohttp = ">=3.11.6,<4"
+beautifulsoup4 = ">=4.12.3,<5"
+click = ">=8.1.7,<9"
+google-api-python-client = ">=2.160.0,<3"
+html2text = ">=2024.2.26,<2025"
+html5lib = ">=1.1,<2"
+huggingface_hub = "<1"
+httpx = ">=0.28.1,<0.29"
+ipython = ">=8.29.0,<9"
+langchain-text-splitters = ">=1.0.0,<2"
+lxml = ">=5.3.0,<6"
+networkx = ">=3.4.2,<4"
+nltk = ">=3.9.1,<4"
+numpy = ">=2.4.3,<3"
+openai = ">=2.34.0"
+pandas = ">=2.2.3,<3"
+pdf2image = ">=1.17.0,<2"
+pillow = ">=10.4,<11.dev0"  # version range required for c4ai
+playwright = ">=1.49.1,<1.50"  # version range required for c4ai is >=1.49.0,<1.52, but we pin for consistency with rebrowser-playwright
+platformdirs = ">=4.5.1,<5"
+pypdf2 = ">=3.0.1,<4"
+pytesseract = ">=0.3.13,<0.4"
+python-dotenv = ">=1.0.1,<2"
+python-slugify = ">=8.0.4,<9"
+rich = ">=13.9.4,<14"
+scipy = ">=1.14.1,<2"
+snowballstemmer = ">=2.2,<3.dev0"  # version range required for c4ai
+tabulate = ">=0.9.0,<0.10"
+tesseract = ">=5.5.0,<6"
+tiktoken = ">=0.12.0,<0.13"
+
+# rebrowser-playwright
+greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
+pyee = "==12.0.0"  # version pin required for rebrowser-playwright
+
+[feature.python-default.pypi-dependencies]
+crawl4ai = ">=0.8.6,<0.9"
+docling = ">=2.90.0,<3"
+docling-core = ">=2.73.0,<3.0.0"
+docling-parse = ">=5.3.2,<6.0.0"
+INFRA-COMPASS = { path = ".", editable = true}
+
+[feature.python-default.target.linux-aarch64.pypi-dependencies]
+pdftotext = ">=2.2.2,<3"
+
+[feature.python-default.target.win-64.dependencies]
+pytorch-cpu = "==2.5.1"
+torchvision = "==0.20.1"
+transformers = "==4.46.3"
+
+[feature.python-default.target.win-64.pypi-dependencies]
+docling = "==2.90.0"
+
+[feature.python-default.target.osx-arm64.dependencies]
+docling-parse = ">=5.11.0,<6"
+docling = ">=2.91.0,<3"
+docling-core = ">=2.75.0,<3"
+
+# ELM dependencies explicitly enumerated
+# We should remove this once ELM better defines its dependencies
+[feature.elm.pypi-dependencies]
+camoufox = ">=0.4.11,<0.5"
+ddgs = ">=9.2.3,<10"
+fake-useragent = ">=2.0.3,<3"
+google-search-results = ">=2.4.2,<3"
+playwright-stealth = ">=2.0.3,<3"
+rebrowser-playwright = ">=1.49.1,<1.50"  # match playwright dep
+scrapling = ">=0.2.99,<0.3"
+tavily-python = ">=0.5.0,<0.6"
+
+[feature.python-dev.dependencies]
+geopandas = ">=1.0.1,<2"
+ipykernel = ">=7.1.0,<8"
+jupyter = ">=1.0.0,<1.1"
+pipreqs = ">=0.4.13,<0.5"
+ruff = ">=0.15.5,<0.16"
+ruff-lsp = ">=0.0.62,<0.0.63"
+seaborn = ">=0.13.2,<0.14"
+
+[feature.python-test.dependencies]
+flaky = ">=3.8.1,<4"
+pytest = ">=9.0.3,<10"
+pytest-asyncio = ">=1.3.0,<2"
+pytest-cases = ">=3.10.1,<4"
+pytest-cov = ">=7.1.0,<8"
+pytest-mock = ">=3.15.1,<4"
+pytest-profiling = ">=1.8.1,<2"
+pytest-xdist = ">=3.8.0,<4"
+snakeviz = ">=2.2.2,<3"
+tox = ">=4.52.1,<5"
+
+[feature.python-doc.dependencies]
+ghp-import = ">=2.1.0,<3"
+make = ">=4.4.1,<5"
+myst-parser = ">=5.0.0,<6"
+pydata-sphinx-theme = ">=0.17.1,<0.18"
+sphinx-click = ">=6.2.0,<7"
+sphinx-copybutton = ">=0.5.2,<0.6"
+sphinxcontrib-mermaid = ">=2.0.1,<3"
+
+[feature.python-doc.pypi-dependencies]
+sphinx-tabs = ">=3.5,<4"
+
+[feature.python-anthropic.dependencies]
+anthropic = ">=0.40.0,<0.41"
+botocore = ">=1.35.72,<2"
+boto3 = ">=1.35.71,<2"
+
+[feature.python-build.dependencies]
+python-build = ">=1.2.2,<2"
+pkginfo = ">=1.12.1.2,<2"
+uv = ">=0.8.4,<0.9"

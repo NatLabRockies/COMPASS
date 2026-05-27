@@ -30,7 +30,7 @@ pub(super) struct Jurisdiction {
     /// Full name of the jurisdiction, such as "Golden City, Colorado"
     full_name: String,
     /// County where the jurisdiction is located, such as "Jefferson County"
-    county: String,
+    county: Option<String>,
     /// State where the jurisdiction is located, such as "Colorado"
     state: String,
     /// Subdivision of the jurisdiction, if any, such as "Golden"
@@ -39,13 +39,17 @@ pub(super) struct Jurisdiction {
     jurisdiction_type: Option<String>,
     #[serde(alias = "FIPS")]
     /// Federal Information Processing Standards code for the jurisdiction
-    fips: u32,
-    /// Whether the jurisdiction was found during the scrapping
+    fips: u64,
+    /// Whether the jurisdiction was found during the scraping
     found: bool,
-    /// Total time spent scrapping the jurisdiction, in seconds
+    /// Total time spent scraping the jurisdiction, in seconds
     total_time: f64,
-    /// Total time spent scrapping the jurisdiction, as a string
+    /// Total time spent scraping the jurisdiction, as a string
     total_time_string: String,
+    /// Main jurisdiction website used for web crawling, if any, as a string
+    jurisdiction_website: Option<String>,
+    /// Whether the jurisdiction document was found using the custom compass website crawl
+    compass_crawl: bool,
     /// Total cost to run the scraper, in $
     cost: Option<f64>,
     /// List of documents associated with the jurisdiction
@@ -73,9 +77,17 @@ pub(super) struct Document {
     num_pages: u16,
     /// Checksum of the original raw document
     checksum: String,
+    /// Whether the document is a PDF file
+    is_pdf: bool,
+    /// Whether the document text was parsed using OCR
+    from_ocr: bool,
     #[allow(dead_code)]
     /// When the document was obtained, i.e. downloaded.
     access_time: Option<String>,
+    /// N-gram score for extracting ordinance text
+    ordinance_text_ngram_score: Option<f64>,
+    /// N-gram score for extracting permitted uses text
+    permitted_use_text_ngram_score: Option<f64>,
 }
 
 impl Source {
@@ -101,7 +113,11 @@ impl Source {
             filename TEXT,
             num_pages INTEGER,
             checksum TEXT,
+            is_pdf BOOLEAN,
+            from_ocr BOOLEAN,
             access_time TIMESTAMP,
+            ordinance_text_ngram_score REAL,
+            permitted_use_text_ngram_score REAL,
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             );",
         )?;
@@ -118,10 +134,12 @@ impl Source {
             state TEXT,
             subdivision TEXT,
             jurisdiction_type TEXT,
-            fips INTEGER,
+            fips UBIGINT,
             found BOOLEAN,
             total_time REAL,
             total_time_string TEXT,
+            jurisdiction_website TEXT,
+            compass_crawl BOOLEAN,
             cost REAL,
             documents TEXT,
             archive_lnk INTEGER REFERENCES archive(id),
@@ -133,9 +151,17 @@ impl Source {
     }
 
     fn from_json(content: &str) -> Result<Self> {
-        trace!("Parsing sources from JSON: {:?}", content);
+        trace!("Parsing sources' jurisdictions from json: {:?}", content);
 
-        let source = serde_json::from_str(content).unwrap();
+        let source = match serde_json::from_str(content) {
+            Ok(source) => source,
+            Err(e) => {
+                error!("Error parsing sources' jurisdictions from json: {:?}", e);
+                return Err(crate::error::Error::Undefined(
+                    "Failed to parse sources' jurisdiction as a json".to_string(),
+                ));
+            }
+        };
         Ok(source)
     }
 
@@ -153,7 +179,7 @@ impl Source {
     ///
     /// * `root` - The root directory where the scrapped output is located.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        debug!("Opening source documents");
+        debug!("Opening source documents from {:?}", root.as_ref());
 
         trace!("Opening jurisdictions collection");
 
@@ -175,8 +201,14 @@ impl Source {
             ));
         }
 
-        let content = tokio::fs::read_to_string(path).await?;
-        let jurisdictions = Self::from_json(&content)?;
+        let content = tokio::fs::read_to_string(&path).await?;
+        let jurisdictions = match Self::from_json(&content) {
+            Ok(jurisdictions) => jurisdictions,
+            Err(e) => {
+                error!("Failed parsing file: {:?}", &path);
+                return Err(e);
+            }
+        };
         trace!("Jurisdictions loaded: {:?}", jurisdictions);
 
         // ========================
@@ -200,35 +232,32 @@ impl Source {
 
         trace!("Scanning source directory: {:?}", path);
 
-        let mut inventory = tokio::fs::read_dir(path).await?;
+        let mut walker = tokio::fs::read_dir(&path).await?;
+        let mut jobs = tokio::task::JoinSet::new();
+        while let Some(entry) = walker.next_entry().await? {
+            trace!("Spawning job for entry: {:?}", entry.path());
+            jobs.spawn(async move { File::new(entry.path()).await });
+        }
+        trace!("Waiting for all jobs to complete");
+        let inventory = jobs.join_all().await;
+        trace!("Inventory of files: {:?}", inventory);
+        debug!("Finished reading {} source documents", inventory.len());
 
-        // Should we filter which files to process, such as only PDFs?
-        // We probably will work with more types.
-        while let Some(entry) = inventory.next_entry().await? {
-            trace!("Processing entry: {:?}", entry);
-            let path = entry.path();
-            let ftype = entry.metadata().await?.file_type();
-            if ftype.is_file() {
-                trace!("Processing ordinance file: {:?}", path);
-
-                let checksum = checksum_file(&path).await?;
-                trace!("Checksum for file {:?}: {:?}", path, checksum);
-
-                let file_name = path.file_name().unwrap().to_str().unwrap().to_string();
-                if known_sources.contains(&(file_name, checksum)) {
-                    trace!("File {:?} matches known jurisdiction source", path);
-                } else {
-                    warn!("File {:?} doesn't match known sources", path);
+        for file in inventory {
+            match file {
+                Ok(file) => {
+                    let (file_name, checksum) = (file.filename, file.checksum);
+                    if known_sources.contains(&(file_name, checksum)) {
+                        trace!("File {:?} matches known jurisdiction source", file.path);
+                    } else {
+                        warn!("File {:?} doesn't match known sources", file.path);
+                    }
                 }
-            } else if ftype.is_dir() {
-                trace!(
-                    "Ignoring unexpected directory in ordinance files: {:?}",
-                    path
-                );
+                Err(e) => {
+                    error!("Error processing file: {:?}", e);
+                }
             }
         }
-
-        // trace!("Found a total of {} source documents", sources.len());
 
         Ok(jurisdictions)
     }
@@ -255,8 +284,8 @@ impl Source {
                     r"
                     INSERT INTO archive
                     (source, effective_day, effective_month, effective_year, filename, num_pages,
-                      checksum)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                      checksum, is_pdf, from_ocr, ordinance_text_ngram_score, permitted_use_text_ngram_score)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     RETURNING id",
                 )?;
 
@@ -271,6 +300,10 @@ impl Source {
                             document.ord_filename,
                             document.num_pages,
                             document.checksum,
+                            document.is_pdf,
+                            document.from_ocr,
+                            document.ordinance_text_ngram_score,
+                            document.permitted_use_text_ngram_score,
                         ])?
                         .next()
                         .unwrap()
@@ -290,8 +323,8 @@ impl Source {
                 (bookkeeper_lnk, full_name, county, state,
                   subdivision, jurisdiction_type, fips,
                   found, total_time, total_time_string,
-                  cost, documents)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                  jurisdiction_website, compass_crawl, cost, documents)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             )?;
             stmt_source.execute(duckdb::params![
                 commit_id,
@@ -304,6 +337,8 @@ impl Source {
                 jurisdiction.found,
                 jurisdiction.total_time,
                 jurisdiction.total_time_string,
+                jurisdiction.jurisdiction_website,
+                jurisdiction.compass_crawl,
                 jurisdiction.cost,
                 dids.iter()
                     .map(|did| did.to_string())
@@ -315,6 +350,34 @@ impl Source {
     }
 }
 
+#[derive(Debug)]
+struct File {
+    path: std::path::PathBuf,
+    filename: String,
+    checksum: String,
+}
+
+impl File {
+    async fn new<P: AsRef<std::path::Path> + std::fmt::Debug>(path: P) -> Result<Self> {
+        debug!("Processing ordinance file: {:?}", path.as_ref());
+
+        let metadata = tokio::fs::metadata(&path).await?;
+        if !metadata.is_file() {
+            warn!("Expected to be a file. Ignoring: {:?}", path);
+            return Err(crate::error::Error::Undefined(
+                "Expected a file, but found a directory or other type".to_string(),
+            ));
+        }
+        let path = path.as_ref().to_path_buf();
+        let checksum = checksum_file(&path).await?;
+        let filename = path.file_name().unwrap().to_str().unwrap().to_string();
+        Ok(Self {
+            path,
+            filename,
+            checksum,
+        })
+    }
+}
 /// Calculate the checksum of a local file
 ///
 /// # Returns
@@ -335,7 +398,7 @@ async fn checksum_file<P: AsRef<std::path::Path>>(path: P) -> Result<String> {
         hasher.update(&buffer[..n]);
     }
     let result = hasher.finalize();
-    let checksum = format!("sha256:{:x}", result);
+    let checksum = format!("sha256:{result:x}");
 
     trace!("Checksum for {:?}: {}", path.as_ref(), checksum);
     Ok(checksum)
@@ -365,6 +428,8 @@ pub(crate) mod sample {
                     "found": true,
                     "total_time": 3.14,
                     "total_time_string": "0::0::03.14",
+                    "jurisdiction_website": null,
+                    "compass_crawl": false,
                     "documents": [
                         {
                             "source": "https://example.com/sample_ordinance.pdf",
@@ -373,7 +438,11 @@ pub(crate) mod sample {
                             "effective_day": null,
                             "ord_filename": "sample_ordinance.pdf",
                             "num_pages": 10,
-                            "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef"
+                            "checksum": "sha256:1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
+                            "is_pdf": true,
+                            "from_ocr": false,
+                            "ordinance_text_ngram_score": 0.95,
+                            "permitted_use_text_ngram_score": null
                         }
                     ]
                 }

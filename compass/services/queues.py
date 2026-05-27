@@ -18,7 +18,7 @@ def initialize_service_queue(service_name):
 
     Returns
     -------
-    asyncio.Queue()
+    asyncio.Queue
         Queue instance for this service.
     """
     return _QUEUES.setdefault(service_name, asyncio.Queue())

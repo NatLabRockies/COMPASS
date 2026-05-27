@@ -1,5 +1,5 @@
 Installation
 ============
 
-.. include:: ../../../INSTALL.rst
+.. include:: INSTALL.rst
    :start-after: inclusion-install

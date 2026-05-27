@@ -1,0 +1,394 @@
+{
+  "title": "Geothermal Electricity Ordinance Extraction Schema",
+  "description": "Single-shot structured extraction schema for utility-scale geothermal electricity ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
+  "version": "2.1.2",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit exactly one row per feature — never two rows with the same feature name. For array-valued features (primary use districts, special use districts, accessory use districts, prohibited use districts, required permits), merge all qualifying items from the entire document into a single consolidated array in that one row. Never infer, imply, or guess a requirement from related context.",
+      "items": {
+        "type": "object",
+        "required": [
+          "feature",
+          "value",
+          "units",
+          "section",
+          "summary",
+          "explanation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs exactly as written. Do not invent aliases, prefixes, or synonym variants; for example, use 'residential zones distance' and never 'structures residential zones distance'.",
+            "enum": [
+              "residential zones distance",
+              "property lines distance",
+              "roads distance",
+              "railroads distance",
+              "existing transmission lines distance",
+              "water bodies distance",
+              "combustible tanks distance",
+              "domestic wells distance",
+              "active faults distance",
+              "schools distance",
+              "hospitals distance",
+              "drilling start time",
+              "drilling end time",
+              "noise",
+              "maximum height",
+              "minimum lot size",
+              "fencing",
+              "color requirements",
+              "lighting requirements",
+              "visual impact assessment",
+              "seismic monitoring plan",
+              "primary use districts",
+              "special use districts",
+              "accessory use districts",
+              "prohibited use districts",
+              "required permits",
+              "bond requirement",
+              "decommissioning",
+              "prohibitions"
+            ]
+          },
+          "value": {
+            "description": "The extracted ordinance value. For numerical distance thresholds and limits, use a number. For permit or district lists, use an array of strings. For drilling start and end time features, use a string in 24-hour HH:MM format. For date language or other categorical outcomes, use a string. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters'. For minimum lot size, use 'acres' or 'square feet'. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. For drilling start and drilling end features, use 'HH:MM (24-hour)'. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use null for district lists, permit lists, dates, and qualitative requirements without measurable units."
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "The section title or number where the requirement appears. Include labels or numbers if available. Null if no section identifier is available."
+          },
+          "summary": {
+            "type": "string",
+            "description": "A short summary with direct ordinance excerpts or quotes whenever possible. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should contain direct ordinance language. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
+          }
+        }
+      }
+    }
+  },
+  "$core_principles": {
+    "scope_context": {
+      "description": "Only extract requirements that apply to utility-scale geothermal electricity generation and directly associated geothermal electricity infrastructure, including exploration or drilling operations, production or injection wells, geothermal power plants, associated substations, and gen-tie lines only when the ordinance text explicitly governs them. Exclude geothermal heat pumps, HVAC, direct-use geothermal, district heating, greenhouse heating, residential geothermal, and other non-generation systems unless the ordinance explicitly governs utility-scale electricity generation as well. State statutes and regulations are in scope when they impose enforceable siting, zoning, drilling, permitting, monitoring, bonding, setback, or decommissioning requirements on geothermal electricity projects in the jurisdiction. This schema must work across nationwide ordinance styles, including county, municipal, township, parish, borough, tribal, and state-level regulatory text."
+    },
+    "technology_applicability_gate": {
+      "description": "Extract a row only when the cited evidence clearly applies to geothermal electricity. If the excerpt does not explicitly mention geothermal, the summary must include clear evidence that the governing section or table applies to geothermal electricity projects (for example a geothermal-specific chapter heading, geothermal-defined use class, or explicit cross-reference in the same provided text). If applicability is ambiguous or technology-neutral without clear geothermal linkage, omit the feature."
+    },
+    "nationwide_jurisdiction_handling": {
+      "description": "Preserve the ordinance's own governance vocabulary instead of normalizing it to one jurisdiction type. Districts may appear as zoning districts, use districts, overlays, resource areas, exclusive farm use zones, planned development areas, or similar land-use categories. Permits may appear as conditional use permits, special use permits, administrative permits, use permits, site certificates, plans of operation, drilling authorizations, county approvals, state board approvals, or similar authorizations. If a jurisdiction is effectively unzoned or the controlling requirements come from state regulation without district tables, omit district features rather than forcing a district classification."
+    },
+    "strict_evidence_gate": {
+      "description": "Extract a feature only when the ordinance text explicitly states a requirement, permission, district allowance, prohibition, date, or other operative rule for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. Tables, matrices, footnotes, appendices, and labeled exhibits count when they state the operative requirement. If the ordinance points to another chapter, outside document, or technical standard without restating the controlling requirement in the provided text, omit the feature instead of emitting a blank, placeholder, or inferred value."
+    },
+    "data_omission": {
+      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units=null only when an enacted, explicit requirement for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+    },
+    "numeric_prioritization": {
+      "description": "When multiple numeric values apply to the same feature, keep one row and select the controlling most restrictive value for that feature. Restrictiveness rules: distance features choose the largest minimum separation distance; noise choose the lowest allowed numeric limit; maximum height choose the lowest maximum height; minimum lot size choose the highest minimum lot size. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same geothermal electricity feature."
+    },
+    "district_and_permit_routing": {
+      "description": "Use the district features only for zoning districts, overlay districts, or land-use districts that explicitly classify geothermal electricity facilities. Use 'primary use districts' when the use is allowed by right or as a principal permitted use. Use 'special use districts' when the use requires a conditional use permit, special use permit, or comparable discretionary approval. Use 'accessory use districts' only when the ordinance explicitly allows geothermal electricity as an accessory or secondary use. Use 'prohibited use districts' only for districts where geothermal electricity facilities are explicitly and unconditionally prohibited. Use 'required permits' only for explicit permits or approvals that are mandatory to initiate geothermal exploration, geothermal drilling, geothermal power plant construction, or geothermal electricity operation. Do not use 'required permits' for generic county-wide permit administration language, fee schedules, broad permit references that apply to all development, or permit provisions that are not clearly tied to geothermal electricity in the same evidence. Do not route permit requirements into district features, and do not route district tables into permit features. ONE ROW PER FEATURE: When multiple districts or permits qualify for the same feature category, combine ALL of them into a single array in one row. Never emit two or more rows with the same feature name — the one-row-per-feature rule is absolute for district and permit features. For example, if both 'Exclusive Farm Use (EFU)' and 'Forestry (F)' are conditional use districts, the single 'special use districts' row must have value: ['Exclusive Farm Use (EFU)', 'Forestry (F)'], not two separate rows."
+    },
+    "prohibition_boundary": {
+      "description": "Use 'prohibitions' only for currently effective bans or moratoria on geothermal electricity exploration, drilling, well development, power plant siting, facility construction, or related project deployment. A ban on hydraulic fracturing or fracking counts only when the ordinance explicitly uses that ban to prohibit, limit, or condition geothermal electricity development. Do not treat ordinary permit conditions, environmental standards, or operational restrictions as prohibitions when the project remains allowable subject to compliance."
+    }
+  },
+  "$definitions": {
+    "setback_features": {
+      "description": "Setback features for geothermal electricity facilities and related infrastructure. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in summary. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
+      "properties": {
+        "residential zones distance": {
+          "description": "Minimum required separation from structures, dwellings, occupied buildings, residences, homes, residential receptors, residential uses, or residential zoning districts. Extract this feature only when the ordinance explicitly ties the setback to structures, residences, occupied buildings, or residential zones. If one clause applies a common setback to multiple structure-like receptors such as homes, occupied buildings, and residential districts, keep one row under this feature and preserve the exact receptor list in summary. Do not map generic property line or district boundary setbacks here unless the text explicitly names structures or residential zones."
+        },
+        "property lines distance": {
+          "description": "Minimum required separation from property lines, lot lines, parcel boundaries, or lease boundaries when the ordinance explicitly states the distance is measured from that boundary. Do not remap property-line distances to roads, transmission lines, or residential zones unless the text explicitly makes them equivalent for that requirement. Distances to official plan lines or specific plan lines for public highways do not belong here unless the ordinance expressly defines those lines as property boundaries for the same requirement."
+        },
+        "roads distance": {
+          "description": "Minimum required separation from public roads, road rights-of-way, streets, highways, named roadway corridors, official plan lines, specific plan lines for highways, or similar transportation corridors explicitly framed as roads. Property-line distances do not count for this feature unless the ordinance text explicitly states that the property line is the road right-of-way or otherwise makes them the same boundary for that requirement."
+        },
+        "railroads distance": {
+          "description": "Minimum required separation from railroads, railroad rights-of-way, rail corridors, or active rail lines. Extract only when rail infrastructure is explicitly named."
+        },
+        "existing transmission lines distance": {
+          "description": "Minimum required separation from existing transmission lines, transmission corridors, substations, or other existing electric transmission infrastructure when explicitly named. Use this feature for geothermal generation or gen-tie line setbacks from existing transmission assets only when the ordinance text expressly states the setback."
+        },
+        "water bodies distance": {
+          "description": "Minimum required separation from rivers, streams, lakes, ponds, wetlands, reservoirs, shorelines, floodplains, springs, or other water bodies explicitly named in the ordinance. Do not map domestic water well setbacks here."
+        },
+        "combustible tanks distance": {
+          "description": "Minimum required separation from combustible tanks, fuel tanks, flammable storage tanks, petroleum tanks, or similar combustible storage infrastructure. Extract only when that storage infrastructure is explicitly named."
+        },
+        "domestic wells distance": {
+          "description": "Minimum required separation from domestic wells, private wells, drinking water wells, household wells, or other non-production water supply wells explicitly identified as domestic or private. Do not map production, injection, monitoring, or geothermal wells here."
+        },
+        "active faults distance": {
+          "description": "Minimum required separation from active faults, known faults, fault traces, seismic hazard zones, or similar geologic fault features when explicitly named as a setback or exclusion distance."
+        },
+        "schools distance": {
+          "description": "Minimum required separation from schools, school properties, school buildings, educational campuses, or similar school uses explicitly named in the ordinance."
+        },
+        "hospitals distance": {
+          "description": "Minimum required separation from hospitals, medical centers, clinics, nursing facilities, or similar health-care institutions explicitly named in the ordinance."
+        }
+      }
+    },
+    "numerical_features": {
+      "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the ordinance text.",
+      "properties": {
+        "noise": {
+          "description": "Extract maximum allowable operational noise for geothermal electricity facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in summary. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
+        },
+        "maximum height": {
+          "description": "Extract maximum allowed structure, drill rig, stack, tower, cooling equipment, or facility height only when an explicit numeric cap is stated. If multiple height caps apply to the same geothermal electricity feature, keep the lowest maximum and list the alternatives in summary."
+        },
+        "minimum lot size": {
+          "description": "Extract the minimum lot, parcel, tract, or site area required for geothermal electricity facilities only when an explicit numeric minimum is stated. If multiple minimum sizes apply, keep the highest minimum and list condition-specific alternatives in summary."
+        }
+      }
+    },
+    "time_window_features": {
+      "description": "Time-of-day or day-of-week operational schedule restrictions.",
+      "properties": {
+        "drilling start time": {
+          "description": "Extract the earliest allowed geothermal drilling start time in 24-hour HH:MM format from explicit ordinance drilling-hour requirements. Normalize times like 7 a.m. to 07:00. When the ordinance states prohibited windows, convert to the corresponding allowed start time if the allowed window is explicit. If the ordinance contains both a broad 24-hour allowance and a narrower recurring non-emergency window for drilling or drilling-related activities (for example site preparation, drill-pipe handling, well workover, or similar drilling-stage tasks), use the narrower recurring window as the controlling schedule and describe the 24-hour exception in summary. Use units 'HH:MM (24-hour)'. Do not infer drilling schedule limits from general noise rules unless the ordinance explicitly sets drilling-hour restrictions."
+        },
+        "drilling end time": {
+          "description": "Extract the latest allowed geothermal drilling end time in 24-hour HH:MM format from explicit ordinance drilling-hour requirements. Normalize times like 7 p.m. to 19:00. When the ordinance allows 24-hour drilling, use 24:00 as the end time and 00:00 as the start time only if no narrower recurring non-emergency drilling window is also stated. If both are present, use the narrower recurring window and capture the 24-hour exception in summary. Use units 'HH:MM (24-hour)'. Do not infer drilling schedule limits from general noise rules unless the ordinance explicitly sets drilling-hour restrictions."
+        }
+      }
+    },
+    "qualitative_features": {
+      "description": "Operational, design, permit, monitoring, and end-of-life requirements that are primarily textual obligations.",
+      "properties": {
+        "fencing": {
+          "description": "Extract explicit fencing, enclosure, controlled-access, or perimeter barrier requirements for geothermal electricity facilities, wells, plants, or related equipment. Do not map generic security plans here unless the ordinance explicitly requires fencing or enclosure."
+        },
+        "color requirements": {
+          "description": "Extract explicit color, paint, finish, or color-treatment requirements for geothermal electricity structures or equipment. Do not map generic visual mitigation here unless the ordinance expressly requires a color treatment."
+        },
+        "lighting requirements": {
+          "description": "Extract explicit lighting requirements, shielding, directionality, glare controls, night-lighting limits, or aviation-lighting conditions for geothermal electricity facilities or related equipment."
+        },
+        "visual impact assessment": {
+          "description": "Extract explicit requirements for a visual impact assessment, visual resource study, scenic impact analysis, photo simulation, line-of-sight analysis, or similar visual review document. Do not use this feature for ordinary screening requirements unless the ordinance explicitly requires an assessment or study."
+        },
+        "seismic monitoring plan": {
+          "description": "Extract explicit requirements for a seismic monitoring plan, induced seismicity monitoring plan, geophysical monitoring plan, or similar seismicity-management document or program. Do not use this feature for generic environmental monitoring unless the ordinance explicitly ties it to seismic or fault-related monitoring."
+        },
+        "required permits": {
+          "description": "Extract explicit permits, approvals, authorizations, reviews, certifications, or comparable entitlements that must be filed or obtained to initiate geothermal exploration, drilling, facility construction, or facility operation. This includes conditional use permits, special use permits, zoning permits, drilling permits, county permits, municipal permits, use permits, site plan approvals, plans of operation, state board approvals, siting certificates, and similar authorizations. Preserve exact permit names in value. Always output value as an array of strings, even when only one permit is required. Extract only when the same cited evidence explicitly ties the permit requirement to geothermal electricity facilities or geothermal exploration/drilling for electricity generation. Exclude generic permitting frameworks, administrative filing workflows, fee schedules, broad references to permit requirements for all uses, and non-filing actions such as appeals, interpretations, lot line adjustments, variances not required for geothermal initiation, temporary-event permits, or unrelated permits unless the ordinance explicitly makes them mandatory for geothermal project initiation."
+        },
+        "bond requirement": {
+          "description": "Extract explicit bonding, financial assurance, surety, letter-of-credit, security, escrow, reclamation guarantee, decommissioning guarantee, or similar assurance requirements. Use value=null and units=null unless the ordinance states a specific numeric amount or formula that should be preserved in summary. If the ordinance uses a formula, engineer estimate, inflation adjustment, or agency-determined amount instead of a fixed number, keep that logic in summary rather than forcing a numeric value."
+        },
+        "decommissioning": {
+          "description": "Extract requirements for decommissioning, abandonment, plugging, removal, reclamation, site restoration, salvage, or retirement of geothermal electricity facilities, wells, plants, or associated infrastructure, including responsible party and timeline details when explicitly stated."
+        }
+      }
+    },
+    "district_features": {
+      "description": "Zoning, overlay, and land-use district allowances for geothermal electricity facilities.",
+      "properties": {
+        "primary use districts": {
+          "description": "Extract all districts, zones, overlays, resource areas, or similar land-use categories where geothermal electricity facilities are explicitly allowed by right, as a principal permitted use, or under an overlay that functions as a primary-use authorization. Use an array of district names in value. Preserve exact district names or codes and describe by-right allowance in summary. Geothermal applicability must be explicitly established for each included district: either the district clause itself mentions geothermal, or cite an explicit in-document definition or use class that unambiguously links to geothermal power generation (e.g., 'Commercial Power Generating Facility' defined to include geothermal power). If the ordinance classifies geothermal as conditional, special, discretionary, exception, or permit-only, do not use this feature; use 'special use districts' instead."
+        },
+        "special use districts": {
+          "description": "Extract all districts, zones, overlays, or similar land-use categories where geothermal electricity facilities are allowed only through special use, conditional use, special exception, discretionary review, or comparable approval. Use an array of district names in value and preserve the approval posture in summary. Geothermal applicability must be explicitly established for each included district: either the district clause itself mentions geothermal, or cite an explicit in-document definition or use class that unambiguously links to geothermal power generation (e.g., 'Commercial Power Generating Facility' defined to include geothermal power, or 'Extensive Impact Services' explicitly listed to include geothermal operations). Do not route the permit type itself here unless it is part of the district allowance language. If the ordinance states geothermal is conditional in a district, never classify that district as primary use."
+        },
+        "accessory use districts": {
+          "description": "Extract all districts, zones, overlays, or similar land-use categories where geothermal electricity facilities are explicitly allowed only as an accessory, incidental, or subordinate use to another principal use. Use an array of district names in value and preserve the accessory-use condition in summary. Geothermal applicability must be explicitly established for each included district: either the district clause itself mentions geothermal, or cite an explicit in-document definition or use class that unambiguously links to geothermal power generation."
+        },
+        "prohibited use districts": {
+          "description": "Extract all districts, zones, overlays, or similar land-use categories where geothermal electricity facilities are explicitly and unconditionally prohibited. Use an array of district names in value and quote the prohibitory language in summary. Geothermal applicability must be explicitly established for each included district: either the district clause itself mentions geothermal, or cite an explicit in-document definition or use class that unambiguously links to geothermal power generation. Do not include districts where geothermal electricity may still be allowed with a permit, variance, overlay, or other conditional path."
+        }
+      }
+    },
+    "prohibition_features": {
+      "description": "Prohibitions, bans, or moratoria on geothermal electricity exploration, drilling, facility siting, or deployment.",
+      "properties": {
+        "prohibitions": {
+          "description": "Extract currently effective bans, moratoria, or explicit prohibitions on geothermal electricity exploration, drilling, well development, plant construction, or facility siting. Include fracking or hydraulic-fracturing bans only when the ordinance explicitly uses them to ban, limit, or condition geothermal electricity activity. If there are carve-outs, exceptions, or conditional permitting paths that still allow the project, do not classify the rule as a prohibition. For moratoria, include explicit effective-period timing details (start date, end date, sunset, or extension language) in summary when provided, and omit moratoria that are explicitly expired as of the extraction date."
+        }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "outputs": [
+        {
+          "feature": "property lines distance",
+          "value": 500,
+          "units": "feet",
+          "section": "Section 8.4 - Setbacks",
+          "summary": "'Geothermal production wells and associated facilities shall be set back at least 500 feet from all property lines.'",
+          "explanation": "The excerpt states an explicit numeric minimum separation from property lines, so it maps directly to 'property lines distance' with value 500 feet."
+        },
+        {
+          "feature": "special use districts",
+          "value": [
+            "Industrial",
+            "Agricultural"
+          ],
+          "units": null,
+          "section": "Table 4 - Allowed Uses",
+          "summary": "'Geothermal power plants may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.'",
+          "explanation": "The ordinance explicitly lists two districts where geothermal power plants are allowed only through conditional-use approval, so this belongs under 'special use districts' with the district names preserved as an array."
+        },
+        {
+          "feature": "required permits",
+          "value": [
+            "conditional use permit",
+            "county drilling permit"
+          ],
+          "units": null,
+          "section": "Section 5.2 - Approval Process",
+          "summary": "'A conditional use permit and county drilling permit shall be obtained prior to the construction or operation of any geothermal power plant or exploratory well.'",
+          "explanation": "The clause explicitly requires two project approvals before geothermal development can start, so it belongs under 'required permits' with both permit names preserved as an array."
+        },
+        {
+          "feature": "drilling start time",
+          "value": "07:00",
+          "units": "HH:MM (24-hour)",
+          "section": "Section 6.7 - Drilling Operations",
+          "summary": "'Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "explanation": "The ordinance gives an explicit drilling window beginning at 7:00 a.m., normalized to 24-hour time as 07:00."
+        },
+        {
+          "feature": "drilling end time",
+          "value": "19:00",
+          "units": "HH:MM (24-hour)",
+          "section": "Section 6.7 - Drilling Operations",
+          "summary": "'Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "explanation": "The ordinance gives an explicit drilling window ending at 7:00 p.m., normalized to 24-hour time as 19:00."
+        },
+        {
+          "feature": "bond requirement",
+          "value": null,
+          "units": null,
+          "section": "Section 9.3 - Financial Assurance",
+          "summary": "'Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil, gas, and geothermal agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.'",
+          "explanation": "The clause imposes an enforceable financial assurance requirement but leaves the amount to an agency-determined formula, so it fits 'bond requirement' with value and units set to null."
+        }
+      ]
+    }
+  ],
+  "$instructions": {
+    "general": [
+      "Use direct text excerpts and quotes in summary whenever possible.",
+      "Each feature may appear at most once in outputs — the one-row-per-feature rule is absolute. If multiple ordinance clauses or sections match the same feature, consolidate them into exactly one row as follows: for array-valued features (primary use districts, special use districts, accessory use districts, prohibited use districts, required permits), combine ALL matching items into a single array in that one row and capture all source clauses in summary; for numeric features, keep the controlling most restrictive value in value and list alternatives in summary.",
+      "Feature IDs are strict canonical keys. Do not output aliases, prefixed variants, or paraphrased feature names not present in the enum.",
+      "For any numeric feature, the summary must support the same requirement that produced value and units for that row. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
+      "Standardize units in the units field using this schema's canonical vocabulary, while preserving ordinance-specific wording in summary.",
+      "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
+      "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
+      "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
+      "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
+      "Tables, table footnotes, and labeled graphics count as valid ordinance evidence when they state the controlling requirement; preserve the relevant table cell or footnote context in summary.",
+      "Preserve exact local or state regulatory terminology in summary and, where applicable, in value. Do not rename district categories, permit names, or agency approvals into a preferred local template.",
+      "If ordinance text shows an amended or superseding requirement, extract the current operative requirement as written rather than a superseded historical value unless the ordinance text clearly keeps both rules active.",
+      "For moratoria and temporary prohibitions, preserve explicit timing windows in summary and omit clearly expired moratoria.",
+      "If text is suggestive but not explicit for the target feature, omit the feature.",
+      "If the text references a different chapter or external document for the controlling value but does not restate that value here, omit the feature instead of outputting blanks or placeholders.",
+      "If a provision is written for renewable or energy facilities generally, extract it only when the same provided evidence clearly ties that provision to geothermal electricity."
+    ],
+    "setbacks": [
+      "Setbacks should be extracted as minimum separation distances.",
+      "Prefer numeric values with units such as 'feet' or 'meters'.",
+      "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
+      "If both general and condition-specific setbacks are provided, select the controlling most restrictive value for the geothermal electricity scenario and describe conditions in summary.",
+      "Do not infer one setback feature from another. A property-line setback is not a structures setback, and a roads setback is not a railroad setback, unless the ordinance text explicitly says so.",
+      "When one setback clause explicitly names multiple target features and provides one shared numeric threshold, emit one row per explicitly named feature using the same threshold and units.",
+      "Treat distances to official plan lines or specific plan lines for public highways as roads distance unless the ordinance explicitly defines them as property boundaries for the same requirement."
+    ],
+    "numerical": [
+      "Numerical features in this schema are the eleven distance features plus noise, maximum height, and minimum lot size.",
+      "For noise, maximum height, and minimum lot size, extract only explicit numeric thresholds. If the ordinance gives only narrative standards or references other codes without restating the threshold, omit the feature.",
+      "For drilling schedule requirements, extract explicit start and end times into 'drilling start time' and 'drilling end time' using 24-hour HH:MM format and units 'HH:MM (24-hour)'."
+    ],
+    "qualitative": [
+      "For qualitative features, output only when an explicit enforceable requirement is present.",
+      "For fencing, color requirements, lighting requirements, visual impact assessment, seismic monitoring plan, bond requirement, and decommissioning, prefer value=null and units=null unless the ordinance states a specific numeric threshold or an explicit list that should be preserved in value.",
+      "For required permits, always use an array of strings in value, even when only one permit is required.",
+      "For required permits, require a direct geothermal-electricity applicability anchor in the same cited evidence, such as geothermal power plant, geothermal generating facility, geothermal exploration or production wells, renewable energy provision explicitly including geothermal, or a geothermal-specific use table row.",
+      "Do not emit required permits from documents that are primarily fee schedules, permit fee tables, or generic county permitting handbooks unless the cited clause explicitly imposes a geothermal-electricity initiation permit requirement.",
+      "For drilling start and end times, if both a broad 24-hour allowance and a narrower recurring non-emergency drilling window are present, extract the narrower recurring window and mention the 24-hour exception in summary.",
+      "For bond requirement, preserve formulas, engineer estimates, inflation adjustments, agency-set amounts, and similar non-fixed sizing logic in summary instead of forcing a numeric amount.",
+      "Do not map generic application materials, narrative findings, or descriptive recitals into these features unless the ordinance explicitly makes them enforceable requirements."
+    ],
+    "districts": [
+      "One row per district feature, no exceptions. Scan the entire ordinance text for every qualifying district before writing the row. Collect all matching district names into a single array — never split them across two or more rows.",
+      "For all district features, use an array of district or zone names and set units to null.",
+      "Use the exact district names or codes as they appear in the ordinance text whenever possible.",
+      "For each district listed in value, require an explicit geothermal-electricity applicability anchor: either the district clause directly mentions geothermal, or cite a clearly defined use class in the same ordinance that explicitly includes geothermal power (e.g., 'Commercial Power Generating Facility' defined to include geothermal, or 'Geothermal Overlay Zone', or ordinance language stating a use category 'includes geothermal operations'). Do not include districts based on generic utility or infrastructure terminology alone unless the same document explicitly states those categories encompass geothermal power generation.",
+      "Use 'primary use districts' for by-right or principal-use authorization, 'special use districts' for conditional or discretionary authorization, 'accessory use districts' for accessory-only authorization, and 'prohibited use districts' for unconditional district-level bans.",
+      "Preserve the legal approval posture in summary, but keep only the district names in value.",
+      "If the jurisdiction is unzoned, statewide, or otherwise does not use district-style land-use categories for the operative geothermal rule, omit district features rather than inventing a district mapping.",
+      "If the ordinance does not explicitly list district names, omit the feature rather than paraphrasing a generic zoning statement."
+    ],
+    "prohibitions": [
+      "Classify prohibitions as currently effective bans or moratoria on geothermal electricity exploration, drilling, well development, facility siting, or deployment.",
+      "If no active prohibition is found, omit the feature rather than using placeholder values.",
+      "Distinguish between complete prohibition and conditional permitting. Conditional permitting is not a ban.",
+      "Do not treat ordinary operational, environmental, design, monitoring, or permit conditions as prohibitions when the ordinance still allows the project to proceed subject to compliance.",
+      "A fracking ban belongs here only when the ordinance explicitly uses it to regulate geothermal electricity development."
+    ]
+  },
+  "$qa_checklist": [
+    "Enforce uniqueness by feature with len(outputs) == len(unique(feature values)); if duplicates exist, merge or drop invalid rows until equality is true.",
+    "Every row must have non-null, non-empty strings for summary and explanation.",
+    "Explanation must explicitly tie summary evidence to the selected feature and must not contradict feature inclusion or exclusion criteria.",
+    "For every numeric feature row, require numeric value and non-null units.",
+    "For every district-feature row, require value to be a non-empty array of strings and units to be null.",
+    "For every district-feature row, require summary to include explicit geothermal-electricity applicability evidence for each included district: either the ordinance text directly mentions geothermal for that district, or cites a defined use class (documented in the same ordinance) that explicitly includes geothermal power generation.",
+    "Reject district entries from generic utility or infrastructure categories unless the same ordinance document explicitly states those categories encompass geothermal power generation and that linkage is cited in summary.",
+    "For 'required permits', require value to be a non-empty array of strings and units to be null.",
+    "For 'required permits', require summary to include explicit geothermal-electricity applicability evidence in the same cited clause or table context; otherwise omit the row.",
+    "Reject permit entries that are generic process steps or optional planning pathways unless the cited evidence explicitly makes them required for the geothermal-electricity project path being extracted.",
+    "Reject 'required permits' rows sourced only from generic fee schedules or broad permit-administration text when no geothermal-electricity initiation requirement is stated.",
+    "For drilling schedule rows, require both 'drilling start time' and 'drilling end time' when the ordinance states an explicit allowed window.",
+    "For drilling schedule rows with both 24-hour and narrower recurring windows, keep the narrower recurring window values and retain 24-hour language in summary only as an exception.",
+    "Reject any district row where summary language indicates conditional, special, discretionary, or permit-only approval but feature is 'primary use districts'.",
+    "Remove any numeric-feature row derived only from qualitative language when no numeric threshold is quoted.",
+    "If summary or explanation indicates the feature is not applicable, omit the row.",
+    "If a feature fails any check, omit it rather than returning a partial row."
+  ],
+  "$qualitative_features": [
+    "fencing",
+    "color requirements",
+    "lighting requirements",
+    "visual impact assessment",
+    "seismic monitoring plan",
+    "bond requirement",
+    "decommissioning",
+    "prohibitions"
+  ]
+}

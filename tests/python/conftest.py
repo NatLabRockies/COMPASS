@@ -1,5 +1,6 @@
 """Fixtures for use across all tests"""
 
+import time
 import asyncio
 from pathlib import Path
 
@@ -50,8 +51,14 @@ def test_dir():
 
 @pytest.fixture(scope="session")
 def test_data_dir(test_dir):
+    """Directory containing test data"""
+    return test_dir.parent / "data"
+
+
+@pytest.fixture(scope="session")
+def test_data_files_dir(test_data_dir):
     """Directory containing test data files"""
-    return test_dir / "data_files"
+    return test_data_dir / "files"
 
 
 @pytest.fixture
@@ -119,3 +126,26 @@ def sample_openai_response():
         )
 
     return _get_response
+
+
+@pytest.fixture
+def patched_clock(monkeypatch):
+    """Fixture to patch time.monotonic with a deterministic clock"""
+
+    class FakeClock:
+        """Deterministic replacement for ``time.monotonic`` in tests"""
+
+        def __init__(self, start=0.0):
+            self._now = start
+
+        def __call__(self):
+            return self._now
+
+        def advance(self, seconds):
+            self._now += seconds
+            return self._now
+
+    fake_clock = FakeClock()
+    monkeypatch.setattr(time, "monotonic", fake_clock)
+
+    return fake_clock

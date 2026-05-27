@@ -1,9 +1,11 @@
-"""COMPASS Ordinances parsing utilities."""
+"""COMPASS ordinance parsing utilities"""
 
 import json
 import logging
+from pathlib import Path
 
 import numpy as np
+
 
 logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "summary"]
@@ -15,32 +17,38 @@ def clean_backticks_from_llm_response(content):
     Parameters
     ----------
     content : str
-        LLM response that may or may not contain markdown-style triple
-        backticks.
+        LLM response that may contain markdown triple backticks.
 
     Returns
     -------
     str
-        LLM response stripped of the markdown-style backticks
+        Response stripped of all leading and trailing backtick markers.
     """
     content = content.lstrip().rstrip()
     return content.removeprefix("```").lstrip("\n").removesuffix("```")
 
 
 def llm_response_as_json(content):
-    """LLM response to JSON
+    """Parse a raw LLM response into JSON-compatible data
 
     Parameters
     ----------
     content : str
-        LLM response that contains a string representation of
-        a JSON file.
+        Response text expected to contain a JSON object, possibly with
+        Markdown fences or Python boolean literals.
 
     Returns
     -------
     dict
-        Response parsed into dictionary. This dictionary will be empty
-        if the response cannot be parsed by JSON.
+        Parsed JSON structure. When parsing fails, the function returns
+        an empty dictionary.
+
+    Notes
+    -----
+    The parser strips Markdown code fences, coerces Python-style
+    booleans to lowercase JSON literals, and logs the raw response on
+    decode failure. The logging includes guidance for increasing token
+    limits or updating prompts.
     """
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
@@ -61,7 +69,12 @@ def llm_response_as_json(content):
 
 
 def merge_overlapping_texts(text_chunks, n=300):
-    """Merge chunks of text by removing any overlap.
+    """Merge text chunks while trimming overlapping boundaries
+
+    Overlap detection compares at most ``n`` characters at each
+    boundary but never more than half the length of the accumulated
+    output. Chunks that do not overlap are concatenated with a newline
+    separator.
 
     Parameters
     ----------
@@ -77,7 +90,7 @@ def merge_overlapping_texts(text_chunks, n=300):
     Returns
     -------
     str
-        Merged text.
+        Merged text assembled from the non-overlapping portions.
     """
     text_chunks = list(filter(None, text_chunks))
     if not text_chunks:
@@ -98,8 +111,8 @@ def merge_overlapping_texts(text_chunks, n=300):
     return out_text
 
 
-def extract_ord_year_from_doc_attrs(doc_attrs):
-    """Extract year corresponding to the ordinance from doc instance
+def extract_year_from_doc_attrs(doc_attrs):
+    """Extract the ordinance year stored in document attributes
 
     Parameters
     ----------
@@ -113,47 +126,25 @@ def extract_ord_year_from_doc_attrs(doc_attrs):
     Returns
     -------
     int or None
-        Parsed year for ordinance (int) or ``None`` if it wasn't found
-        in the document's attrs.
+        Parsed ordinance year or ``None`` when unavailable or invalid.
+
+    Examples
+    --------
+    >>> extract_year_from_doc_attrs({"date": (2024, 5, 17)})
+    2024
+    >>> extract_year_from_doc_attrs({"date": (None, None, None)})
+    None
     """
-    year = doc_attrs.get("date", (None, None, None))[0]
+    year, *__ = doc_attrs.get("date") or (None, None, None)
     return year if year is not None and year > 0 else None
 
 
-def num_ordinances_in_doc(doc, exclude_features=None):
-    """Count number of ordinances found in document
-
-    Parameters
-    ----------
-    doc : elm.web.document.Document
-        Document potentially containing ordinances for a jurisdiction.
-        If no ordinance values are found, this function returns ``0``.
-    exclude_features : iterable of str, optional
-        Optional features to exclude from ordinance count.
-        By default, ``None``.
-
-    Returns
-    -------
-    int
-        Number of unique ordinance values extracted from this document.
-    """
-    if doc is None:
-        return 0
-
-    if "ordinance_values" not in doc.attrs:
-        return 0
-
-    return num_ordinances_dataframe(
-        doc.attrs["ordinance_values"], exclude_features=exclude_features
-    )
-
-
 def num_ordinances_dataframe(data, exclude_features=None):
-    """Count number of ordinances found in DataFrame
+    """Count ordinance rows contained in a DataFrame
 
     Parameters
     ----------
-    data : pd.DataFrame
+    data : pandas.DataFrame
         DataFrame potentially containing ordinances for a jurisdiction.
         If no ordinance values are found, this function returns ``0``.
     exclude_features : iterable of str, optional
@@ -163,7 +154,13 @@ def num_ordinances_dataframe(data, exclude_features=None):
     Returns
     -------
     int
-        Number of unique ordinance values extracted from this DataFrame.
+        Count of rows meeting the ordinance criteria.
+
+    Raises
+    ------
+    KeyError
+        If the input DataFrame lacks the ``feature`` column when
+        ``exclude_features`` is provided.
     """
     if exclude_features:
         mask = ~data["feature"].str.casefold().isin(exclude_features)
@@ -173,19 +170,18 @@ def num_ordinances_dataframe(data, exclude_features=None):
 
 
 def ordinances_bool_index(data):
-    """Array of bools indicating rows containing ordinances in DataFrame
+    """Compute a boolean mask indicating ordinance rows
 
     Parameters
     ----------
-    data : pd.DataFrame
+    data : pandas.DataFrame
         DataFrame potentially containing ordinances for a jurisdiction.
         If no ordinance values are found, this function returns ``0``.
 
     Returns
     -------
-    array-like
-        Array of bools indicating rows containing ordinances in
-        DataFrame.
+    numpy.ndarray
+        Boolean mask identifying rows that contain ordinance values.
     """
     if data is None or data.empty:
         return np.array([], dtype=bool)
@@ -196,3 +192,22 @@ def ordinances_bool_index(data):
 
     found_features = (~data[check_cols].isna()).to_numpy().sum(axis=1)
     return found_features > 0
+
+
+def convert_paths_to_strings(obj):
+    """[NOT PUBLIC API] Convert all Path instances to strings"""
+    logger.trace("Converting paths to strings in object: %s", obj)
+    if isinstance(obj, Path):
+        return str(obj)
+    if isinstance(obj, dict):
+        return {
+            convert_paths_to_strings(key): convert_paths_to_strings(value)
+            for key, value in obj.items()
+        }
+    if isinstance(obj, list):
+        return [convert_paths_to_strings(item) for item in obj]
+    if isinstance(obj, tuple):
+        return tuple(convert_paths_to_strings(item) for item in obj)
+    if isinstance(obj, set):
+        return {convert_paths_to_strings(item) for item in obj}
+    return obj

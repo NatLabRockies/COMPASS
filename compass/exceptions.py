@@ -10,14 +10,23 @@ class COMPASSError(Exception):
     """Generic COMPASS Error"""
 
     def __init__(self, *args, **kwargs):
-        """Init exception and broadcast message to logger"""
         super().__init__(*args, **kwargs)
         if args:
-            logger.error(str(args[0]), stacklevel=2)
+            logger.error(
+                "<%s> %s", self.__class__.__name__, args[0], stacklevel=2
+            )
+
+
+class COMPASSFileNotFoundError(COMPASSError, FileNotFoundError):
+    """COMPASS FileNotFoundError"""
 
 
 class COMPASSNotInitializedError(COMPASSError):
     """COMPASS not initialized error"""
+
+
+class COMPASSTypeError(COMPASSError, TypeError):
+    """COMPASS TypeError"""
 
 
 class COMPASSValueError(COMPASSError, ValueError):
@@ -26,3 +35,7 @@ class COMPASSValueError(COMPASSError, ValueError):
 
 class COMPASSRuntimeError(COMPASSError, RuntimeError):
     """COMPASS RuntimeError"""
+
+
+class COMPASSPluginConfigurationError(COMPASSRuntimeError):
+    """COMPASS Plugin Configuration Error"""

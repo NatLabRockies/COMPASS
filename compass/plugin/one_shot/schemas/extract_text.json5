@@ -1,0 +1,12 @@
+{
+    "type": "object",
+    "description": "Response containing all relevant text extracted from the input chunk based on the extraction schema/domain. The extracted text should be both **comprehensive and focused** in order to maximize extraction accuracy. The output should be **verbatim text copied from the input chunk, without any paraphrasing or rewriting**. Only text irrelevant to the extraction should be dropped. If no relevant text is found, the LLM should return null.",
+    "additionalProperties": false,
+    "required": ["domain_relevant_text"],
+    "properties": {
+        "domain_relevant_text": {
+            "type": ["string", "null"],
+            "description": "The text extracted from the input chunk that is relevant to the extraction schema/domain. This should be **verbatim text copied from the input chunk, without any paraphrasing or rewriting, but possibly with some irrelevant text removed**. If no relevant text is found, this field should be null.",
+        }
+    },
+}

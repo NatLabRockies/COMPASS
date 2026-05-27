@@ -26,14 +26,26 @@ You can likely use the following code structure to fix this:
 
 
 class Service(ABC):
-    """Abstract base class for a Service that can be queued to run"""
+    """Abstract base class for a Service that can be queued to run
+
+    See Also
+    --------
+    LLMService
+        Base class for LLM services.
+    OpenAIService
+        LLM service for OpenAI models.
+    ~compass.services.cpu.ProcessPoolService
+        Service that contains a ProcessPoolExecutor instance.
+    ~compass.services.threaded.ThreadedService
+        Service that contains a ThreadPoolExecutor instance.
+    """
 
     MAX_CONCURRENT_JOBS = 10_000
     """Max number of concurrent job submissions."""
 
     @classmethod
     def _queue(cls):
-        """Get queue for class."""
+        """Return the service queue for the class"""
         service_name = cls.__name__
         queue = get_service_queue(service_name)
         if queue is None:
@@ -53,7 +65,7 @@ class Service(ABC):
 
         Returns
         -------
-        obj
+        object
             A response object from the underlying service.
         """
         fut = asyncio.Future()
@@ -68,6 +80,8 @@ class Service(ABC):
 
     async def process_using_futures(self, fut, *args, **kwargs):
         """Process a call to the service
+
+        The result is communicated by updating ``fut``.
 
         Parameters
         ----------
@@ -97,12 +111,7 @@ class Service(ABC):
     @property
     @abstractmethod
     def can_process(self):
-        """Check if process function can be called.
-
-        This should be a fast-running method that returns a boolean
-        indicating whether or not the service can accept more
-        processing calls.
-        """
+        """bool: Flag indicating whether the service can accept work"""
 
     @abstractmethod
     async def process(self, *args, **kwargs):
@@ -117,11 +126,16 @@ class Service(ABC):
 
 
 class LLMService(Service):
-    """Base class for LLm service
+    """Base class for LLM service
 
     This service differs from other services in that it must be used
     as an object, not as a class. that is, users must initialize it and
     pass it around in functions in order to use it.
+
+    See Also
+    --------
+    OpenAIService
+        LLM service for OpenAI models.
     """
 
     def __init__(self, model_name, rate_limit, rate_tracker, service_tag=None):
@@ -136,9 +150,9 @@ class LLMService(Service):
             if the rate tracker is set to compute the total over
             minute-long intervals, this value should be the max usage
             per minute.
-        rate_tracker : `TimeBoundedUsageTracker`
-            A TimeBoundedUsageTracker instance. This will be used to
-            track usage per time interval and compare to `rate_limit`.
+        rate_tracker : TimeBoundedUsageTracker
+            Instance used to track usage per time interval and compare
+            to `rate_limit` input.
         service_tag : str, optional
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
@@ -160,7 +174,7 @@ class LLMService(Service):
         return f"{self.__class__.__name__}-{self.model_name}{self.service_tag}"
 
     def _queue(self):
-        """Get queue for class"""
+        """Return the service queue for this instance"""
         queue = get_service_queue(self.name)
         if queue is None:
             msg = MISSING_SERVICE_MESSAGE.format(service_name=self.name)
@@ -178,7 +192,7 @@ class LLMService(Service):
 
         Returns
         -------
-        obj
+        object
             A response object from the underlying service.
         """
         fut = asyncio.Future()

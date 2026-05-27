@@ -3,117 +3,135 @@
 import logging
 from warnings import warn
 
-from compass.llm import StructuredLLMCaller
+from compass.llm import JSONFromTextLLMCaller
 from compass.extraction.date import DateExtractor
 from compass.validation import (
     ParseChunksWithMemory,
     LegalTextValidator,
     parse_by_chunks,
 )
+from compass.utilities.ngrams import sentence_ngram_containment
 from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
+# Multiplier used to consider text output from LLM to be hallucination
+_TEXT_OUT_CHAR_BUFFER = 1.05
 
 
-async def check_for_ordinance_info(
+async def check_for_relevant_text(
     doc,
     model_config,
     heuristic,
-    ordinance_text_collector_class,
-    permitted_use_text_collector_class=None,
+    tech,
+    text_collectors,
     usage_tracker=None,
+    min_chunks_to_process=3,
 ):
-    """Parse a single document for ordinance information
+    """Parse a single document for relevant text (e.g. ordinances)
+
+    The results of the text parsing are stored in the documents attrs
+    under the respective text collector label.
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
-        A document potentially containing ordinance information. Note
-        that if the document's attrs contains the
-        ``"contains_ord_info"`` key, it will not be processed. To force
-        a document to be processed by this function, remove that key
-        from the documents attrs.
-    text_splitter : obj
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    doc : BaseDocument
+        A document instance (PDF, HTML, etc) potentially containing
+        ordinance information. Note that if the document's ``attrs``
+        has the relevant text output, the corresponding text collector
+        will not be run. To force a document to be processed by this
+        function, remove all previously collected text from the
+        document's ``attrs``.
+    model_config : compass.llm.config.LLMConfig
+        Configuration describing which LLM service, splitter, and call
+        parameters should be used for extraction.
+    heuristic : object
+        Domain-specific heuristic implementing a ``check`` method to
+        qualify text chunks for further processing.
+    tech : str
+        Technology of interest (e.g. "solar", "wind", etc). This is
+        used to set up some document validation decision trees.
+    text_collectors : iterable
+        Iterable of text collector classes to run during document
+        parsing. Each class must implement the
+        :class:`compass.plugin.interface.BaseTextCollector` interface.
+        If the document already contains text collected by a given
+        collector (i.e. the collector's ``OUT_LABEL`` is found in
+        ``doc.attrs``), that collector will be skipped.
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
+    min_chunks_to_process : int, optional
+        Minimum number of chunks to process before aborting due to text
+        failing the heuristic or deemed not legal (if applicable).
+        By default, ``3``.
 
     Returns
     -------
-    elm.web.document.BaseDocument
-        Document that has been parsed for ordinance text. The results of
-        the parsing are stored in the documents attrs. In particular,
-        the attrs will contain a ``"contains_ord_info"`` key that
-        will be set to ``True`` if ordinance info was found in the text,
-        and ``False`` otherwise. If ``True``, the attrs will also
-        contain a ``"date"`` key containing the most recent date that
-        the ordinance was enacted (or a tuple of `None` if not found),
-        and an ``"ordinance_text"`` key containing the ordinance text
-        snippet. Note that the snippet may contain other info as well,
-        but should encapsulate all of the ordinance text.
-    """
-    if "contains_ord_info" in doc.attrs:
-        return doc
+    bool
+        ``True`` if any text was collected by any of the text collectors
+        and ``False`` otherwise.
 
+    Notes
+    -----
+    The function updates progress bar logging as chunks are processed.
+    """
     chunks = model_config.text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
-    legal_text_validator = LegalTextValidator(
-        llm_service=model_config.llm_service,
-        usage_tracker=usage_tracker,
-        **model_config.llm_call_kwargs,
+    legal_text_validator = (
+        LegalTextValidator(
+            tech=tech,
+            llm_service=model_config.llm_service,
+            usage_tracker=usage_tracker,
+            doc_is_from_ocr=doc.attrs.get("from_ocr", False),
+            **model_config.llm_call_kwargs,
+        )
+        if doc.attrs.get("check_if_legal_doc", True)
+        else None
     )
 
-    ordinance_text_collector = ordinance_text_collector_class(
-        llm_service=model_config.llm_service,
-        usage_tracker=usage_tracker,
-        **model_config.llm_call_kwargs,
-    )
-    callbacks = [ordinance_text_collector.check_chunk]
-    if permitted_use_text_collector_class is not None:
-        permitted_use_text_collector = permitted_use_text_collector_class(
+    collectors_to_run = []
+    callbacks = []
+    for collector_class in text_collectors:
+        if collector_class is None or collector_class.OUT_LABEL in doc.attrs:
+            continue
+
+        collector = collector_class(
             llm_service=model_config.llm_service,
             usage_tracker=usage_tracker,
             **model_config.llm_call_kwargs,
         )
-        callbacks.append(permitted_use_text_collector.check_chunk)
+        collectors_to_run.append(collector)
+        callbacks.append(collector.check_chunk)
+
+    if not collectors_to_run:
+        logger.debug(
+            "No text collectors to run for document from %s",
+            doc.attrs.get("source", "unknown source"),
+        )
+        return False
 
     await parse_by_chunks(
         chunk_parser,
         heuristic,
         legal_text_validator,
         callbacks=callbacks,
-        min_chunks_to_process=3,
+        min_chunks_to_process=min_chunks_to_process,
     )
 
-    doc.attrs["contains_ord_info"] = ordinance_text_collector.contains_ord_info
-    if doc.attrs["contains_ord_info"]:
-        doc.attrs["ordinance_text"] = ordinance_text_collector.ordinance_text
-        logger.debug_to_file(
-            "Ordinance text for %s is:\n%s",
-            doc.attrs.get("source", "unknown source"),
-            doc.attrs["ordinance_text"],
-        )
-
-    if permitted_use_text_collector_class is not None:
-        doc.attrs["contains_district_info"] = (
-            permitted_use_text_collector.contains_district_info
-        )
-        if doc.attrs["contains_district_info"]:
-            doc.attrs["permitted_use_text"] = (
-                permitted_use_text_collector.permitted_use_district_text
-            )
+    found_text = False
+    for collector in collectors_to_run:
+        if text := collector.relevant_text:
+            found_text = True
+            doc.attrs[collector.OUT_LABEL] = text
             logger.debug_to_file(
-                "Permitted use text for %s is:\n%s",
+                "%r text for %s is:\n%s",
+                collector.OUT_LABEL,
                 doc.attrs.get("source", "unknown source"),
-                doc.attrs["permitted_use_text"],
+                text,
             )
 
-    return doc
+    return found_text
 
 
 async def extract_date(doc, model_config, usage_tracker=None):
@@ -121,21 +139,38 @@ async def extract_date(doc, model_config, usage_tracker=None):
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document potentially containing date information.
-    usage_tracker : compass.services.usage.UsageTracker, optional
+    model_config : compass.llm.config.LLMConfig
+        Configuration describing which LLM service, splitter, and call
+        parameters should be used for date extraction.
+    usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for dates. The results of
         the parsing are stored in the documents attrs. In particular,
         the attrs will contain a ``"date"`` key that will contain the
         parsed date information.
+
+    Notes
+    -----
+    Documents already containing a ``"date"`` attribute are returned
+    without reprocessing.
     """
-    date_llm_caller = StructuredLLMCaller(
+    if "date" in doc.attrs:
+        logger.debug(
+            "Not extracting date for doc from %s. "
+            "Found existing date in doc attrs: %r",
+            doc.attrs.get("source"),
+            doc.attrs["date"],
+        )
+        return doc
+
+    date_llm_caller = JSONFromTextLLMCaller(
         llm_service=model_config.llm_service,
         usage_tracker=usage_tracker,
         **model_config.llm_call_kwargs,
@@ -147,37 +182,34 @@ async def extract_date(doc, model_config, usage_tracker=None):
     return doc
 
 
-async def extract_ordinance_text_with_llm(
+async def extract_relevant_text_with_llm(
     doc, text_splitter, extractor, original_text_key
 ):
     """Extract ordinance text from document using LLM
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document known to contain ordinance information. This means it
-        must contain an ``"ordinance_text"`` key in the attrs. You can
-        run :func:`~compass.extraction.apply.check_for_ordinance_info`
-        to have this attribute populated automatically for documents
-        that are found to contain ordinance data. Note that if the
-        document's attrs does not contain the ``"ordinance_text"``
-        key, you will get an error.
-    text_splitter : obj
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
-    extractor : compass.extraction.ordinance.WindOrdinanceTextExtractor
-        Instance of
-        :class:`~compass.extraction.ordinance.WindOrdinanceTextExtractor`
-        used for ordinance text extraction.
+        must contain the `original_text_key` key in the attrs. You can
+        run :func:`check_for_relevant_text` to have this attribute
+        populated automatically for documents that are found to contain
+        relevant extraction text. Note that if the document's attrs does
+        not contain the `original_text_key`, you will get an error.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
+    extractor : object
+        Extractor instance exposing ``parsers`` that consume text
+        chunks and update ``doc.attrs``.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for ordinance text. The results of
         the extraction are stored in the document's attrs.
     str
@@ -185,7 +217,7 @@ async def extract_ordinance_text_with_llm(
         `doc.attrs` dictionary.
 
     """
-    prev_meta_name = original_text_key  # "ordinance_text"
+    prev_meta_name = original_text_key
     for meta_name, parser in extractor.parsers:
         doc.attrs[meta_name] = await _parse_if_input_text_not_empty(
             doc.attrs[prev_meta_name],
@@ -199,14 +231,15 @@ async def extract_ordinance_text_with_llm(
     return doc, prev_meta_name
 
 
-async def extract_ordinance_text_with_ngram_validation(
+async def extract_relevant_text_with_ngram_validation(
     doc,
     text_splitter,
     extractor,
     original_text_key,
     n=4,
     num_extraction_attempts=3,
-    ngram_fraction_threshold=0.75,
+    ngram_fraction_threshold=0.9,
+    ngram_ocr_fraction_threshold=0.75,
 ):
     """Extract ordinance text for a single document with known ord info
 
@@ -220,19 +253,21 @@ async def extract_ordinance_text_with_ngram_validation(
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document known to contain ordinance information. This means it
-        must contain an ``"ordinance_text"`` key in the attrs. You can
-        run :func:`~compass.extraction.apply.check_for_ordinance_info`
+        must contain an ``"relevant_text"`` key in the attrs. You can
+        run :func:`~compass.extraction.apply.check_for_relevant_text`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
-        document's attrs does not contain the ``"ordinance_text"``
+        document's attrs does not contain the ``"relevant_text"``
         key, it will not be processed.
-    text_splitter : obj
-        Instance of an object that implements a `split_text` method.
-        The method should take text as input (str) and return a list
-        of text chunks. Langchain's text splitters should work for this
-        input.
+    text_splitter : LCTextSplitter, optional
+        Optional Langchain text splitter (or subclass instance), or any
+        object that implements a `split_text` method. The method should
+        take text as input (str) and return a list of text chunks.
+    extractor : object
+        Extractor instance exposing ``parsers`` that consume text
+        chunks and update ``doc.attrs``.
     original_text_key : str
         String corresponding to the `doc.attrs` key containing the
         original text (before extraction).
@@ -247,13 +282,18 @@ async def extract_ordinance_text_with_ngram_validation(
         output text. Cannot be negative or 0. By default, ``3``.
     ngram_fraction_threshold : float, optional
         Fraction of ngrams in the cleaned text that are also found in
-        the original ordinance text for the extraction to be considered
-        successful. Should be a value between 0 and 1 (inclusive).
-        By default, ``0.95``.
+        the original ordinance text (parsed using poppler) for the
+        extraction to be considered successful. Should be a value
+        between 0 and 1 (inclusive). By default, ``0.9``.
+    ngram_ocr_fraction_threshold : float, optional
+        Fraction of ngrams in the cleaned text that are also found in
+        the original ordinance text (parsed using OCR) for the
+        extraction to be considered successful. Should be a value
+        between 0 and 1 (inclusive). By default, ``0.75``.
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for ordinance text. The results of
         the extraction are stored in the document's attrs.
     """
@@ -261,7 +301,8 @@ async def extract_ordinance_text_with_ngram_validation(
         msg = (
             f"Input document has no {original_text_key!r} key or string "
             "does not contain information. Please run "
-            "`check_for_ordinance_info` prior to calling this method."
+            "`compass.extraction.check_for_relevant_text()` with the proper "
+            "text collector prior to calling this method."
         )
         warn(msg, COMPASSWarning)
         return doc
@@ -274,6 +315,9 @@ async def extract_ordinance_text_with_ngram_validation(
         n=max(1, n),
         num_tries=max(1, num_extraction_attempts),
         ngram_fraction_threshold=max(0, min(1, ngram_fraction_threshold)),
+        ngram_ocr_fraction_threshold=max(
+            0, min(1, ngram_ocr_fraction_threshold)
+        ),
     )
 
 
@@ -284,35 +328,40 @@ async def _extract_with_ngram_check(
     original_text_key,
     n=4,
     num_tries=3,
-    ngram_fraction_threshold=0.75,
+    ngram_fraction_threshold=0.9,
+    ngram_ocr_fraction_threshold=0.75,
 ):
     """Extract ordinance info from doc and validate using ngrams."""
-    from compass.extraction.ngrams import sentence_ngram_containment  # noqa
 
     source = doc.attrs.get("source", "Unknown")
+    doc_is_from_ocr = doc.attrs.get("from_ocr", False)
     original_text = doc.attrs[original_text_key]
     if not original_text:
         msg = (
             "Document missing original ordinance text! No extraction "
-            "performed (Document source: %s)",
-            source,
+            f"performed (Document source: {source})"
         )
         warn(msg, COMPASSWarning)
         return doc
 
+    ngram_thresh = (
+        ngram_ocr_fraction_threshold
+        if doc_is_from_ocr
+        else ngram_fraction_threshold
+    )
+
     best_score = 0
-    best_summary = ""
-    out_text_key = "extracted_text"
     for attempt in range(1, num_tries + 1):
-        doc, out_text_key = await extract_ordinance_text_with_llm(
+        doc, out_text_key = await extract_relevant_text_with_llm(
             doc, text_splitter, extractor, original_text_key
         )
         cleaned_text = doc.attrs[out_text_key]
         if not cleaned_text:
             logger.debug(
                 "No cleaned text found after extraction on attempt %d "
-                "for document with source %s. Retrying...",
+                "of %d for document with source %s. Retrying...",
                 attempt,
+                num_tries,
                 source,
             )
             continue
@@ -320,40 +369,44 @@ async def _extract_with_ngram_check(
         ngram_frac = sentence_ngram_containment(
             original=original_text, test=cleaned_text, n=n
         )
-        if ngram_frac >= ngram_fraction_threshold:
+        if ngram_frac >= ngram_thresh:
             logger.debug(
                 "Document extraction for %r passed ngram check on attempt %d "
-                "with score %.2f (Document source: %s)",
+                "of %d with score %.2f (OCR: %r; Document source: %s)",
                 out_text_key,
-                attempt + 1,
+                attempt,
+                num_tries,
                 ngram_frac,
+                doc_is_from_ocr,
                 source,
             )
             best_score = ngram_frac
             break
 
-        if ngram_frac > best_score:
-            best_score = ngram_frac
-            best_summary = cleaned_text
+        best_score = max(best_score, ngram_frac)
 
         logger.debug(
-            "Document extraction for %r failed ngram check on attempt %d "
-            "with score %.2f (Document source: %s). Retrying...",
+            "Document extraction for %r failed ngram check on attempt %d of "
+            "%d, with score %.2f (OCR: %r; Document source: %s). Retrying...",
             out_text_key,
-            attempt + 1,
+            attempt,
+            num_tries,
             ngram_frac,
+            doc_is_from_ocr,
             source,
         )
     else:
-        doc.attrs[out_text_key] = best_summary
         msg = (
-            f"Ngram check failed after {num_tries} tries. LLM hallucination "
-            "in cleaned ordinance text is possible! Proceed with caution!! "
-            f"(Score: {best_score:.2f}; Document source: {source})"
+            f"Ngram check failed after {num_tries} tries trying to extract "
+            f"{original_text_key!r}. Not returning any extracted text due to "
+            "high possibility of LLM hallucination! "
+            f"(Best score: {best_score:.2f}; OCR: {doc_is_from_ocr}; "
+            f"Document source: {source})"
         )
         warn(msg, COMPASSWarning)
+        return doc
 
-    doc.attrs["ngram_score"] = best_score
+    doc.attrs[f"{original_text_key}_ngram_score"] = best_score
     return doc
 
 
@@ -364,14 +417,17 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
 
     Parameters
     ----------
-    doc : elm.web.document.BaseDocument
+    doc : BaseDocument
         A document known to contain ordinance text. This means it must
         contain an `text_key` key in the attrs. You can run
-        :func:`~compass.extraction.apply.extract_ordinance_text_with_llm`
+        :func:`~compass.extraction.apply.extract_relevant_text_with_llm`
         to have this attribute populated automatically for documents
         that are found to contain ordinance data. Note that if the
         document's attrs does not contain the `text_key` key, it will
         not be processed.
+    parser : object
+        Parser instance with an async ``parse`` method that converts
+        cleaned ordinance text into structured values.
     text_key : str
         Name of the key under which cleaned text is stored in
         `doc.attrs`. This text should be ready for extraction.
@@ -381,15 +437,20 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
 
     Returns
     -------
-    elm.web.document.BaseDocument
+    BaseDocument
         Document that has been parsed for ordinance values. The results
         of the extraction are stored in the document's attrs.
+
+    Notes
+    -----
+    When the cleaned text is missing or empty the function emits a
+    :class:`compass.warn.COMPASSWarning` and leaves ``doc`` unchanged.
     """
     if not doc.attrs.get(text_key):
         msg = (
             f"Input document has no {text_key!r} key or string "
             "does not contain info. Please run "
-            "`extract_ordinance_text_with_llm` prior to calling this method."
+            "`extract_relevant_text_with_llm` prior to calling this method."
         )
         warn(msg, COMPASSWarning)
         return doc
@@ -412,6 +473,15 @@ async def _parse_if_input_text_not_empty(
 
     text_chunks = text_splitter.split_text(text)
     extracted_text = await parser(text_chunks)
+
+    if len(extracted_text) > _TEXT_OUT_CHAR_BUFFER * len(text):
+        logger.debug(
+            "LLM output more text than was given (IN: %d, OUT: %d). "
+            "Throwing away response due to possible hallucination...",
+            len(text),
+            len(extracted_text),
+        )
+        return ""
 
     logger.debug_to_file(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text

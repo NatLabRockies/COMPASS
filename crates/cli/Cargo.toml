@@ -4,10 +4,12 @@ version = "0.0.6"
 authors.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-description = "Command line application to manage and query NREL's INFRA-COMPASS data"
-homepage = "https://github.com/NREL/COMPASS"
-repository = "https://github.com/NREL/COMPASS"
+description = "Command line application to manage and query NLR's INFRA-COMPASS data"
+homepage = "https://github.com/NatLabRockies/COMPASS"
+repository = "https://github.com/NatLabRockies/COMPASS"
 license.workspace = true
+categories.workspace = true
+keywords.workspace = true
 
 [dependencies]
 anyhow = { workspace = true }

@@ -21,7 +21,7 @@ sys.path.insert(0, os.path.abspath("../../"))
 
 project = "COMPASS"
 copyright = "2025, Alliance for Sustainable Energy, LLC"
-author = "NREL: Paul Pinchuk, Guilherme Pimenta Castelao"
+author = "NLR: Paul Pinchuk, Guilherme Pimenta Castelao"
 
 pkg = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 pkg = os.path.dirname(pkg)
@@ -57,18 +57,21 @@ extensions = [
     "sphinx_click.ext",
     "sphinx_tabs.tabs",
     "sphinx_copybutton",
+    "myst_parser",
 ]
 
 intersphinx_mapping = {
-    "python": ("https://docs.python.org/3/", None),
-    "numpy": ("https://numpy.org/doc/stable/", None),
-    "pandas": ("https://pandas.pydata.org/pandas-docs/stable", None),
+    "aiohttp": ("https://docs.aiohttp.org/en/stable", None),
+    "docling_core": ("https://docling-project.github.io/docling", None),
+    "elm": ("https://natlabrockies.github.io/elm", None),
     "matplotlib": ("https://matplotlib.org/stable", None),
     "networkx": ("https://networkx.org/documentation/stable", None),
-    "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
-    "psycopg": ("https://www.psycopg.org/psycopg3/docs", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
     "plotly": ("https://plotly.com/python-api-reference", None),
-    "elm": ("https://nrel.github.io/elm", None),
+    "psycopg": ("https://www.psycopg.org/psycopg3/docs", None),
+    "python": ("https://docs.python.org/3/", None),
+    "sqlalchemy": ("https://docs.sqlalchemy.org/en/20/", None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -77,7 +80,10 @@ templates_path = ["_templates"]
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
-source_suffix = ".rst"
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
 
 # source_parsers = {'.md': MarkdownParser}
 
@@ -108,6 +114,38 @@ pygments_style = "sphinx"
 # Avoid errors with self-signed certificates
 tls_verify = False
 
+# Avoid warning about api.rst not in TOC
+suppress_warnings = ["toc.not_included", "misc.highlighting_failure"]
+
+nitpick_ignore = [
+    (
+        "py:obj",
+        "compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.OUT_LABEL",
+    ),
+    (
+        "py:obj",
+        "compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.OUT_LABEL",
+    ),
+    (
+        "py:obj",
+        "compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.OUT_LABEL",
+    ),
+    (
+        "py:obj",
+        "compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.OUT_LABEL",
+    ),
+    (
+        "py:obj",
+        "compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.OUT_LABEL",
+    ),
+    (
+        "py:obj",
+        "compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.OUT_LABEL",
+    ),
+    ("py:class", "compass.utilities.io._ConfigType"),
+    ("py:class", "elm.web.document.Document"),
+]
+
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
@@ -124,7 +162,7 @@ html_css_file = ["custom.css"]
 
 html_context = {
     "display_github": True,
-    "github_user": "nrel",
+    "github_user": "nlr",
     "github_repo": "COMPASS",
     "github_version": "main",
     "conf_py_path": "/docs/source/",
@@ -200,10 +238,77 @@ texinfo_documents = [
         "COMPASS Documentation",
         author,
         "COMPASS",
-        "Geospatial Analysis Pipelines.",
         "Miscellaneous",
     ),
 ]
+
+
+def _skip_pydantic_methods(name, obj):
+    return name in {
+        "model_dump_json",
+        "model_json_schema",
+        "model_dump",
+        "model_construct",
+        "model_copy",
+        "model_fields",
+        "model_computed_fields",
+        "model_rebuild",
+        "model_parametrized_name",
+        "model_post_init",
+        "model_validate",
+        "model_validate_json",
+        "model_validate_strings",
+        "copy",
+        "construct",
+        "dict",
+        "from_orm",
+        "json",
+        "parse_file",
+        "parse_obj",
+        "parse_raw",
+        "schema",
+        "schema_json",
+        "update_forward_refs",
+        "validate",
+    } and "BaseModel" in str(obj)
+
+
+def _skip_builtin_methods(name, obj):
+    if name in {
+        "clear",
+        "pop",
+        "popitem",
+        "setdefault",
+        "update",
+    } and "MutableMapping" in str(obj):
+        return True
+
+    if name in {"items", "keys", "values"} and "Mapping" in str(obj):
+        return True
+
+    return name in {"copy", "get"} and "UserDict" in str(obj)
+
+
+def _skip_internal_api(name, obj):
+    if (getattr(obj, "__doc__", None) or "").startswith("[NOT PUBLIC API]"):
+        return True
+
+    return name in {"copy", "fromkeys"} and "UsageTracker" in str(obj)
+
+
+def _skip_member(app, what, name, obj, skip, options):
+    if (
+        _skip_internal_api(name, obj)
+        or _skip_builtin_methods(name, obj)
+        or _skip_pydantic_methods(name, obj)
+    ):
+        return True
+    return None
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", _skip_member)
+
 
 # -- Extension configuration -------------------------------------------------
 
@@ -217,14 +322,14 @@ html_show_sourcelink = False
 mermaid_version = "11.6.0"
 numpy_show_class_member = True
 napoleon_google_docstring = False
-napoleon_use_param = False
 napoleon_use_ivar = False
 napoleon_use_rtype = False
 napoleon_preprocess_types = True
+napoleon_use_param = True
 napoleon_type_aliases = {
     # general terms
     "sequence": ":term:`sequence`",
-    "iterable": ":term:`iterable`",
+    "iterable": ":class:`~collections.abc.Iterable`",
     "callable": ":py:func:`callable`",
     "dict_like": ":term:`dict-like <mapping>`",
     "dict-like": ":term:`dict-like <mapping>`",
@@ -265,8 +370,34 @@ napoleon_type_aliases = {
     "Series": "~pandas.Series",
     "DataFrame": "~pandas.DataFrame",
     "Categorical": "~pandas.Categorical",
-    "Path": "~~pathlib.Path",
+    "Path": "~pathlib.Path",
     # objects with abbreviated namespace (from pandas)
     "pd.Index": "~pandas.Index",
     "pd.NaT": "~pandas.NaT",
+    # Langchain
+    "LCTextSplitter": "`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_",
+    "RCTextSplitter": "`RecursiveCharacterTextSplitter <https://reference.langchain.com/python/langchain-text-splitters/character/RecursiveCharacterTextSplitter>`_",
+    # fixing ELM docstrings
+    "nx.DiGraph": ":class:`networkx.DiGraph`",
+    "ApiBase": ":class:`~elm.base.ApiBase`",
+    # objects from COMPASS
+    "AsyncDecisionTree": ":class:`~compass.common.tree.AsyncDecisionTree`",
+    "BaseDocument": ":class:`elm.web.document.BaseDocument`",
+    "BaseParser": ":class:`~compass.plugin.ordinance.BaseParser`",
+    "BaseTextExtractor": ":class:`~compass.plugin.ordinance.BaseTextExtractor`",
+    "ChatLLMCaller": ":class:`~compass.llm.calling.ChatLLMCaller`",
+    "ExtractionContext": ":class:`~compass.extraction.context.ExtractionContext`",
+    "Jurisdiction": ":class:`~compass.utilities.jurisdictions.Jurisdiction`",
+    "LLMCaller": ":class:`~compass.llm.calling.LLMCaller`",
+    "LLMConfig": ":class:`~compass.llm.config.LLMConfig`",
+    "LLMService": ":class:`~compass.services.base.LLMService`",
+    "LLMTasks": ":class:`~compass.utilities.enums.LLMTasks`",
+    "OpenAIService": ":class:`~compass.services.openai.OpenAIService`",
+    "ParseChunksWithMemory": ":class:`~compass.validation.content.ParseChunksWithMemory`",
+    "Service": ":class:`~compass.services.base.Service`",
+    "JSONFromTextLLMCaller": ":class:`~compass.llm.calling.JSONFromTextLLMCaller`",
+    "SchemaOutputLLMCaller": ":class:`~compass.llm.calling.SchemaOutputLLMCaller`",
+    "TimeBoundedUsageTracker": ":class:`~compass.services.usage.TimeBoundedUsageTracker`",
+    "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
+    "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",
 }

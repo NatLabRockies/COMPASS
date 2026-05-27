@@ -7,6 +7,8 @@
 use std::collections::HashMap;
 use std::io::Read;
 
+use tracing::debug;
+
 use crate::error::Result;
 
 #[allow(dead_code)]
@@ -65,7 +67,7 @@ impl Usage {
         conn.execute_batch(
             r"
             CREATE SEQUENCE usage_sequence START 1;
-            CREATE TABLE IF NOT EXISTS usage (
+            CREATE TABLE IF NOT EXISTS usage_event (
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_sequence'),
               bookkeeper_lnk INTEGER REFERENCES bookkeeper(id) NOT NULL,
               jurisdiction TEXT NOT NULL,
@@ -74,7 +76,7 @@ impl Usage {
             CREATE SEQUENCE usage_model_sequence START 1;
             CREATE TABLE IF NOT EXISTS usage_model(
               id INTEGER PRIMARY KEY DEFAULT NEXTVAL('usage_model_sequence'),
-              usage_lnk INTEGER REFERENCES usage(id) NOT NULL,
+              usage_lnk INTEGER REFERENCES usage_event(id) NOT NULL,
               model TEXT NOT NULL,
               total_requests INTEGER NOT NULL,
               total_prompt_tokens INTEGER NOT NULL,
@@ -89,7 +91,27 @@ impl Usage {
               requests INTEGER NOT NULL,
               prompt_tokens INTEGER NOT NULL,
               response_tokens INTEGER NOT NULL,
-              );",
+              );
+
+            CREATE VIEW usage AS
+              SELECT
+                usage_event.id AS usage_event_id,
+                usage_event.bookkeeper_lnk,
+                usage_event.jurisdiction,
+                usage_model.id AS usage_model_id,
+                usage_model.model,
+                usage_model.total_requests,
+                usage_model.total_prompt_tokens,
+                usage_model.total_response_tokens,
+                usage_step.id AS usage_step_id,
+                usage_step.step,
+                usage_step.requests,
+                usage_step.prompt_tokens,
+                usage_step.response_tokens
+              FROM usage_event
+                JOIN usage_model ON (usage_event.id=usage_model.usage_lnk)
+                JOIN usage_step ON (usage_model.id=usage_step.model_lnk);
+            ",
         )?;
 
         Ok(())
@@ -108,7 +130,7 @@ impl Usage {
     /// this should be changed to a lazy approach and take better advantage of
     /// been async.
     pub(super) async fn open<P: AsRef<std::path::Path>>(root: P) -> Result<Self> {
-        tracing::trace!("Opening Usage from {:?}", root.as_ref());
+        debug!("Opening Usage from {:?}", root.as_ref());
 
         let path = root.as_ref().join("usage.json");
         if !path.exists() {
@@ -148,7 +170,7 @@ impl Usage {
             // An integer type in duckdb is 32 bits.
             let jurisdiction_id: u32 = conn
                 .query_row(
-                    "INSERT INTO usage (bookkeeper_lnk, jurisdiction) VALUES (?, ?) RETURNING id",
+                    "INSERT INTO usage_event (bookkeeper_lnk, jurisdiction) VALUES (?, ?) RETURNING id",
                     [&commit_id.to_string(), jurisdiction_name],
                     |row| row.get(0),
                 )
@@ -167,7 +189,7 @@ impl Usage {
                 tracing::trace!("Writing usage for model {:?} to the database", model_name);
 
                 let model_id: u32 = conn.query_row(
-                    "INSERT INTO usage_per_model (jurisdiction_lnk, model, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
+                    "INSERT INTO usage_model (usage_lnk, model, total_requests, total_prompt_tokens, total_response_tokens) VALUES (?, ?, ?, ?, ?) RETURNING id",
                     [
                         &jurisdiction_id.to_string(),
                         model_name,

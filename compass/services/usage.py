@@ -25,7 +25,7 @@ class TimedEntry:
 
         Parameters
         ----------
-        value : obj
+        value : object
             Some value to store as an entry.
         """
         self.value = value
@@ -96,7 +96,7 @@ class TimeBoundedUsageTracker:
 
 
 class UsageTracker(UserDict):
-    """Rate or AIP usage tracker"""
+    """Rate or API usage tracker"""
 
     UNKNOWN_MODEL_LABEL = "unknown_model"
     """Label used in the usage dictionary for unknown models"""
@@ -135,14 +135,7 @@ class UsageTracker(UserDict):
 
     @property
     def totals(self):
-        """Compute total usage across all sub-labels
-
-        Returns
-        -------
-        dict
-            Dictionary containing usage information totaled across all
-            sub-labels.
-        """
+        """dict: Aggregated usage totals across all sub-labels"""
         totals = {}
         for model, model_usage in self.items():
             total_model_usage = totals[model] = {}

@@ -1,0 +1,55 @@
+name: Codecov
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - compass/**
+      - tests/**
+      - .github/workflows/codecov.yml
+      - pyproject.toml
+      - pixi.lock
+  pull_request:
+    paths:
+      - compass/**
+      - tests/**
+      - .github/workflows/codecov.yml
+      - pyproject.toml
+      - pixi.lock
+  workflow_dispatch:
+
+jobs:
+  run:
+    name: Codecov
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+      with:
+        pixi-version: v0.68.1
+        locked: true
+        cache: true
+        cache-write: false
+        environments: pdev
+
+    - name: Generate coverage report
+      run: |
+        pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked tests-p
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage.xml
+        flags: unittests
+        env_vars: OS,PYTHON
+        name: codecov-umbrella
+        fail_ci_if_error: false
+        verbose: true

@@ -1,0 +1,144 @@
+schema: ./geothermal_schema.json
+
+data_type_short_desc: utility-scale geothermal electricity ordinance
+
+cache_llm_generated_content: true
+
+query_templates:
+    - "filetype:pdf {jurisdiction} geothermal power plant ordinance"
+    - "geothermal electricity generation ordinance {jurisdiction}"
+    - "{jurisdiction} geothermal energy facility zoning ordinance"
+    - "{jurisdiction} geothermal power plant land use code"
+    - "{jurisdiction} geothermal code of ordinances"
+
+website_keywords:
+    pdf: 92160
+    geothermal: 46080
+    ordinance: 23040
+    zoning: 11520
+    regulation: 5760
+    code: 2880
+    power: 1440
+    electricity: 1440
+    planning: 720
+    permit: 720
+    land use: 720
+    municipal: 720
+    county: 360
+    ordinance code: 360
+    code of ordinances: 360
+    land use code: 360
+    use table: 360
+    chapter: 180
+    article: 180
+    title: 180
+    statute: 180
+    administrative code: 180
+    conditional use permit: 180
+    special use permit: 180
+    drilling permit: 180
+    resource development: 180
+    government: 180
+
+heuristic_keywords:
+  good_tech_keywords:
+    - "wellfield"
+    - "brine"
+  good_tech_acronyms:
+    - "egs"
+    - "kgra"
+  good_tech_phrases:
+    - "well field"
+    - "production well"
+    - "geothermal exploration"
+    - "geothermal generating"
+    - "geothermal generation"
+    - "geothermal power"
+    - "geothermal power plant"
+    - "geothermal production"
+    - "geothermal project"
+    - "geothermal overlay zone"
+    - "geothermal facility"
+    - "geothermal electric"
+    - "geothermal electricity generation"
+    - "geothermal energy facility"
+    - "geothermal resource"
+    - "geothermal resource development"
+    - "known geothermal resource area"
+    - "geothermal production project"
+    - "geothermal drilling"
+    - "geothermal lease"
+    - "geothermal development"
+    - "geothermal well"
+    - "geothermal reservoir"
+    - "binary cycle"
+    - "flash steam"
+    - "dry steam"
+    - "steam turbine"
+    - "enhanced geothermal"
+    - "reservoir temperature"
+    - "reinjection well"
+    - "production zone"
+    - "exploratory well"
+    - "injection well"
+    - "drilling permit"
+    - "plan of utilization"
+  not_tech_words:
+    - "geothermal heat pump"
+    - "ground source heat pump"
+    - "ground-source heat pump"
+    - "ghp"
+    - "ground heat pump"
+    - "gshp"
+    - "ground-coupled heat pump"
+    - "ground coupled heat pump"
+    - "earth-coupled heat pump"
+    - "earth-source heat pump"
+    - "geoexchange"
+    - "geo-exchange"
+    - "closed loop"
+    - "closed-loop"
+    - "open loop"
+    - "vertical loop"
+    - "horizontal loop"
+    - "heating and cooling"
+    - "hvac"
+    - "space heating"
+    - "water heating"
+    - "direct use"
+    - "direct-use"
+    - "district heating"
+    - "greenhouse heating"
+    - "residential geothermal"
+    - "accessory use"
+    - "energy star"
+    - "solar panel"
+    - "solar array"
+    - "solar farm"
+    - "solar energy system"
+    - "solar energy facility"
+    - "photovoltaic"
+    - "net metering"
+    - "solar collector"
+    - "solar ordinance"
+    - "wind energy"
+    - "wind farm"
+    - "wind turbine"
+    - "wind energy system"
+    - "wind energy facility"
+    - "wind energy conversion"
+    - "wind ordinance"
+    - "anemometer tower"
+    - "meteorological tower"
+    - "rotor diameter"
+    - "tip height"
+    - "nacelle"
+    - "battery storage"
+    - "energy storage system"
+    - "hydroelectric"
+    - "biomass"
+    - "cannabis"
+    - "cannabis cultivation"
+    - "commercial cannabis"
+
+collection_prompts: True

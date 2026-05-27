@@ -7,24 +7,26 @@ particular technology (e.g. Large Wind Energy Conversion Systems).
 import asyncio
 import logging
 from abc import ABC, abstractmethod
+from warnings import warn
 
-from compass.llm.calling import ChatLLMCaller, StructuredLLMCaller
+from compass.llm.calling import ChatLLMCaller, JSONFromTextLLMCaller
 from compass.validation.graphs import setup_graph_correct_document_type
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.ngrams import convert_text_to_sentence_ngrams
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
 
 
 class ParseChunksWithMemory:
-    """Check text chunks by sometimes looking at previous chunks
+    """Iterate through text chunks while caching prior LLM decisions
 
-    The idea behind this approach is that sometimes the context for a
-    setback or other ordinances is found in a previous chunk, so it may
-    be worthwhile (especially for validation purposes) to check a few
-    text chunks back for some validation pieces. In order to do this
-    semi-efficiently, we make use of a cache that's labeled "memory".
+    This helper stores an in-memory cache of prior validation results so
+    each chunk can optionally reuse outcomes from earlier LLM calls. The
+    design supports revisiting a configurable number of preceding text
+    chunks when newer chunks lack sufficient context.
     """
 
     def __init__(self, text_chunks, num_to_recall=2):
@@ -48,51 +50,44 @@ class ParseChunksWithMemory:
         self.num_to_recall = num_to_recall
         self.memory = [{} for _ in text_chunks]
 
-    # fmt: off
     def _inverted_mem(self, starting_ind):
         """Inverted memory"""
-        inverted_mem = self.memory[:starting_ind + 1:][::-1]
-        yield from inverted_mem[:self.num_to_recall]
+        inverted_mem = self.memory[:starting_ind + 1:][::-1]  # fmt: off
+        yield from inverted_mem[:self.num_to_recall]  # fmt: off
 
-    # fmt: off
     def _inverted_text(self, starting_ind):
         """Inverted text chunks"""
-        inverted_text = self.text_chunks[:starting_ind + 1:][::-1]
-        yield from inverted_text[:self.num_to_recall]
+        inverted_text = self.text_chunks[:starting_ind + 1:][::-1]  # fmt: off
+        yield from inverted_text[:self.num_to_recall]  # fmt: off
 
-    async def parse_from_ind(self, ind, key, llm_call_callback):
-        """Validate a chunk of text
+    async def parse_from_ind(
+        self, ind, key, llm_call_callback, *args, **kwargs
+    ):
+        """Validate a chunk by consulting current and prior context
 
-        Validation occurs by querying the LLM using the input prompt and
-        parsing the `key` from the response JSON. The prompt should
-        request that the key be a boolean output. If the key retrieved
-        from the LLM response is False, a number of previous text chunks
-        are checked as well, using the same prompt. This can be helpful
-        in cases where the answer to the validation prompt (e.g. does
-        this text pertain to a large WECS?) is only found in a previous
-        text chunk.
+        Cached verdicts are reused to avoid redundant LLM calls when
+        neighboring chunks have already been assessed. If the cache
+        lacks a verdict, the callback is executed and the result stored.
 
         Parameters
         ----------
         ind : int
-            Positive integer corresponding to the chunk index.
-            Must be less than `len(text_chunks)`.
+            Index of the chunk to inspect. Must be less than the number
+            of available chunks.
         key : str
-            A key expected in the JSON output of the LLM containing the
-            response for the validation question. This string will also
-            be used to format the system prompt before it is passed to
-            the LLM.
+            JSON key expected in the LLM response. The same key is used
+            to populate the decision cache.
         llm_call_callback : callable
-            Callable that takes a `key` and `text_chunk` as inputs and
-            returns a boolean indicating whether or not the text chunk
-            passes the validation check.
+            Awaitable invoked with
+            ``await llm_call_callback(key, text_chunk)`` that returns a
+            boolean indicating whether the chunk satisfies the LLM
+            validation check.
 
         Returns
         -------
         bool
-            ``True`` if the LLM returned ``True`` for this text chunk or
-            `num_to_recall-1` text chunks before it.
-            ``False`` otherwise.
+            ``True`` if the selected or recalled chunk satisfies the
+            check, ``False`` otherwise.
         """
         logger.debug("Checking %r for ind %d", key, ind)
         mem_text = zip(
@@ -102,7 +97,9 @@ class ParseChunksWithMemory:
             logger.debug("Mem at ind %d is %s", step, mem)
             check = mem.get(key)
             if check is None:
-                check = mem[key] = await llm_call_callback(key, text)
+                check = mem[key] = await llm_call_callback(
+                    key, text, *args, **kwargs
+                )
             if check:
                 return check
         return False
@@ -186,37 +183,115 @@ class Heuristic(ABC):
 
     def _count_phrase_matches(self, heuristics_text):
         """Count number of good tech phrases that appear in text"""
-        return sum(
-            all(keyword in heuristics_text for keyword in phrase.split(" "))
-            for phrase in self.GOOD_TECH_PHRASES
-        )
+        text_ngrams = {}
+        total = 0
+        for phrase in self.GOOD_TECH_PHRASES:
+            n = len(phrase.split(" "))
+            if n <= 1:
+                msg = (
+                    "Make sure your GOOD_TECH_PHRASES contain at least 2 "
+                    f"words! Got phrase: {phrase!r}"
+                )
+                warn(msg, COMPASSWarning)
+                continue
+
+            if n not in text_ngrams:
+                text_ngrams[n] = set(
+                    convert_text_to_sentence_ngrams(heuristics_text, n)
+                )
+
+            test_ngrams = (  # fmt: off
+                convert_text_to_sentence_ngrams(phrase, n)
+                + convert_text_to_sentence_ngrams(f"{phrase}s", n)
+            )
+            if any(t in text_ngrams[n] for t in test_ngrams):
+                total += 1
+
+        return total
 
     @property
     @abstractmethod
     def NOT_TECH_WORDS(self):  # noqa: N802
-        """iter: Iterable of words that don't pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Not tech keywords"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def GOOD_TECH_KEYWORDS(self):  # noqa: N802
-        """iter: Iterable of keywords that pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Tech keywords"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def GOOD_TECH_ACRONYMS(self):  # noqa: N802
-        """iter: Iterable of acronyms that pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Tech acronyms"""
         raise NotImplementedError
 
     @property
     @abstractmethod
     def GOOD_TECH_PHRASES(self):  # noqa: N802
-        """iter: Iterable of phrases that pertain to the tech"""
+        """:class:`~collections.abc.Iterable`: Tech phrases"""
         raise NotImplementedError
 
 
-class LegalTextValidator(StructuredLLMCaller):
+class TextKindValidator(ABC):
+    """Base class for a text kind validator
+
+    This class is in charge of parsing text in chunks and ultimately
+    (after some X number of chunks have been parsed) determining if the
+    text is the right 'kind' of text for a given extraction.
+    """
+
+    @property
+    @abstractmethod
+    def is_correct_kind_of_text(self):
+        """bool: ``True`` if text is a good fit for extraction"""
+        raise NotImplementedError
+
+    @abstractmethod
+    async def check_chunk(self, chunk_parser, ind):
+        """Check a chunk to see if it contains the right kind of text
+
+        You should validate chunks like so::
+
+            is_correct_kind_of_text = await chunk_parser.parse_from_ind(
+                ind,
+                key="my_unique_validation_key",
+                llm_call_callback=my_async_llm_call_function,
+            )
+
+        where the `"key"` is unique to this particular validation (it
+        will be used to cache the validation result in the chunk
+        parser's memory) and `my_async_llm_call_function` is an async
+        function that takes in a key and text chunk and returns a
+        boolean indicating whether or not the text chunk passes the
+        validation. You can call `chunk_parser.parse_from_ind` as many
+        times as you want within this method, but be sure to use unique
+        keys for each validation.
+
+        Parameters
+        ----------
+        chunk_parser : ParseChunksWithMemory
+            Instance that contains a ``parse_from_ind`` method.
+        ind : int
+            Index of the chunk to check.
+
+        Returns
+        -------
+        bool
+            Boolean flag indicating whether or not the text in the chunk
+            resembles legal text.
+
+        See Also
+        --------
+        ParseChunksWithMemory.parse_from_ind
+            Method used to parse text from a chunk with memory of prior
+            chunk validations.
+        """
+        raise NotImplementedError
+
+
+class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
     """Parse chunks to determine if they contain legal text"""
 
     SYSTEM_MESSAGE = (
@@ -224,30 +299,35 @@ class LegalTextValidator(StructuredLLMCaller):
         "source type. The goal is to identify text that is extracted from "
         "**legally binding regulations (such as zoning ordinances or "
         "enforceable bans)** and filter out text that was extracted from "
-        "anything other than an in-effect legal statute for an existing "
-        "jurisdiction."
+        "anything other than a legal statute for an existing jurisdiction."
     )
+    """System message for legal text validation LLM calls"""
 
-    def __init__(self, *args, score_threshold=0.8, **kwargs):
+    def __init__(
+        self, tech, *args, score_threshold=0.8, doc_is_from_ocr=False, **kwargs
+    ):
         """
 
         Parameters
         ----------
+        tech : str
+            Technology of interest (e.g. "solar", "wind", etc). This is
+            used to set up some document validation decision trees.
         score_threshold : float, optional
             Minimum fraction of text chunks that have to pass the legal
             check for the whole document to be considered legal text.
             By default, ``0.8``.
         *args, **kwargs
-            Parameters to pass to the
-            :class:`~compass.llm.calling.StructuredLLMCaller`
-            initializer.
+            Parameters to pass to the JSONFromTextLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
+        self.tech = tech
         self.score_threshold = score_threshold
         self._legal_text_mem = []
+        self.doc_is_from_ocr = doc_is_from_ocr
 
     @property
-    def is_legal_text(self):
+    def is_correct_kind_of_text(self):
         """bool: ``True`` if text was found to be from a legal source"""
         if not self._legal_text_mem:
             return False
@@ -260,8 +340,7 @@ class LegalTextValidator(StructuredLLMCaller):
         Parameters
         ----------
         chunk_parser : ParseChunksWithMemory
-            Instance of `ParseChunksWithMemory` that contains a
-            `parse_from_ind` method.
+            Instance that contains a ``parse_from_ind`` method.
         ind : int
             Index of the chunk to check.
 
@@ -294,43 +373,47 @@ class LegalTextValidator(StructuredLLMCaller):
         tree = setup_async_decision_tree(
             setup_graph_correct_document_type,
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
+            tech=self.tech,
             key=key,
             text=text_chunk,
             chat_llm_caller=chat_llm_caller,
+            doc_is_from_ocr=self.doc_is_from_ocr,
         )
         out = await run_async_tree(tree, response_as_json=True)
-        logger.debug("LLM response: %s", str(out))
+        logger.debug("LLM response: %s", out)
         return out.get(key, False)
 
 
 async def parse_by_chunks(
     chunk_parser,
     heuristic,
-    legal_text_validator,
+    text_kind_validator=None,
     callbacks=None,
     min_chunks_to_process=3,
 ):
-    """Parse text by chunks, passing to callbacks if it's legal text
+    """Stream text chunks through heuristic and legal validators
 
     This method goes through the chunks one by one, and passes them to
-    the callback parsers if the `legal_text_validator` check passes. If
+    the callback parsers if the `text_kind_validator` check passes. If
     `min_chunks_to_process` number of chunks fail the legal text check,
     parsing is aborted.
 
     Parameters
     ----------
     chunk_parser : ParseChunksWithMemory
-        Instance of `ParseChunksWithMemory` that contains the attributes
-        `text_chunks` and `num_to_recall`. The chunks in the
-        `text_chunks` attribute will be iterated over.
+        Instance that contains the attributes ``text_chunks`` and
+        ``num_to_recall``. The chunks in the ``text_chunks`` attribute
+        will be iterated over.
     heuristic : Heuristic
         Instance of `Heuristic` with a `check` method. This should be a
         fast check meant to quickly dispose of chunks of text. Any chunk
         that fails this check will NOT be passed to the callback
         parsers.
-    legal_text_validator : LegalTextValidator
-        Instance of `LegalTextValidator` that can be used to validate
-        each chunk for legal text.
+    text_kind_validator : TextKindValidator, optional
+        Instance of `TextKindValidator` subclass that can be used to
+        validate whether each chunk of text is the kind needed for
+        extraction (e.g. is it legal text?). If not provided, the text
+        'kind' check will be skipped. By default, ``None``.
     callbacks : list, optional
         List of async callbacks that take a `chunk_parser` and `index`
         as inputs and return a boolean determining whether the text
@@ -339,6 +422,13 @@ async def parse_by_chunks(
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
         not being legal. By default, ``3``.
+
+    Notes
+    -----
+    This coroutine only orchestrates validation. Callbacks are
+    responsible for persisting any extracted results. Callback futures
+    are awaited concurrently and share the same task name as the caller
+    to simplify tracing within structured logging.
     """
     passed_heuristic_mem = []
     callbacks = callbacks or []
@@ -347,15 +437,18 @@ async def parse_by_chunks(
     for ind, text in enumerate(chunk_parser.text_chunks):
         passed_heuristic_mem.append(heuristic.check(text))
         if ind < min_chunks_to_process:
-            is_legal = await legal_text_validator.check_chunk(
-                chunk_parser, ind
-            )
-            if not is_legal:  # don't bother checking this chunk
-                continue
+            if text_kind_validator is not None:
+                is_correct_text_kind = await text_kind_validator.check_chunk(
+                    chunk_parser, ind
+                )
+                if not is_correct_text_kind:
+                    continue  # don't bother checking this chunk
 
-        # don't bother checking this document
-        elif not legal_text_validator.is_legal_text:
-            return
+        elif (
+            text_kind_validator is not None
+            and not text_kind_validator.is_correct_kind_of_text
+        ):
+            return  # don't bother checking this document
 
         # hasn't passed heuristic, so don't pass it to callbacks
         elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):

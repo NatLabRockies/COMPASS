@@ -7,7 +7,7 @@ from functools import partial, cached_property
 
 import openai
 from elm import ApiBase
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
 from compass.services.openai import OpenAIService
 from compass.utilities import RTS_SEPARATORS
@@ -21,9 +21,9 @@ class LLMConfig(ABC):
         self,
         name,
         llm_call_kwargs=None,
-        llm_service_rate_limit=4000,
+        llm_service_rate_limit=500000,
         text_splitter_chunk_size=10_000,
-        text_splitter_chunk_overlap=1000,
+        text_splitter_chunk_overlap=500,
     ):
         """
 
@@ -60,7 +60,7 @@ class LLMConfig(ABC):
             By default, ``1000``.
         """
         self.name = name
-        self.llm_call_kwargs = {"timeout": 300, "temperature": 0}
+        self.llm_call_kwargs = {"timeout": 300}
         self.llm_call_kwargs.update(llm_call_kwargs or {})
         self.llm_service_rate_limit = llm_service_rate_limit
         self.text_splitter_chunk_size = text_splitter_chunk_size
@@ -68,7 +68,7 @@ class LLMConfig(ABC):
 
     @cached_property
     def text_splitter(self):
-        """TextSplitter: Object that can be used to chunk text"""
+        """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # noqa: W505, E501
         return RecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
@@ -97,11 +97,11 @@ class OpenAIConfig(LLMConfig):
 
     def __init__(
         self,
-        name="gpt-4o",
+        name="gpt-4o-mini",
         llm_call_kwargs=None,
-        llm_service_rate_limit=4000,
+        llm_service_rate_limit=500000,
         text_splitter_chunk_size=10_000,
-        text_splitter_chunk_overlap=1000,
+        text_splitter_chunk_overlap=500,
         client_type="azure",
         client_kwargs=None,
         tag=None,

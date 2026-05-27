@@ -1,0 +1,22 @@
+{
+    // Always required for one-shot schema extraction plugins
+    "schema": "./wind_schema.json",
+
+    // The default value for ``cache_llm_generated_content`` is
+    // ``true``, but we include it here anyway for completeness
+    // and to demonstrate that it can be set to ``false`` if desired.
+    "cache_llm_generated_content": true,
+
+    // By setting this option to ``true``, we indicate that we would
+    // like a keyword-based heuristic to be applied, but would like
+    // to use the LLM to generate heuristic keywords based on the
+    // extraction schema (instead of providing custom heuristic
+    // keywords).
+    "heuristic_keywords": true,
+
+    // By setting this option to ``true``, we indicate that we would
+    // like a text collection (filter) step, but would like to simply
+    // use the schema to guide the filtering (instead of providing
+    // custom prompts).
+    "collection_prompts": true,
+}

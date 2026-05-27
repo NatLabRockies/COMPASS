@@ -26,7 +26,7 @@ Setting Up the Run Configuration
 ================================
 The INFRA-COMPASS configuration file—written in either ``JSON`` or ``JSON5`` format—is a simple config that
 defines parameters for running the process. Each key in the config corresponds to an argument for the function
-`process_jurisdictions_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
+`process_jurisdictions_with_openai <https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
 Refer to the linked documentation for detailed and up-to-date descriptions of each input.
 
 
@@ -35,10 +35,10 @@ Minimal Config
 At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
 
 - ``out_dir``: Path to the output directory. Will be created if it does not exist.
-- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv>`_.
+- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv>`_.
 - ``tech``: A string representing the infrastructure or technology focus for the run.
 
-In `config_bare_minimum.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
+In `config_bare_minimum.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
 we show a minimal working configuration that includes only the required keys.
 
 .. literalinclude:: config_bare_minimum.json5
@@ -56,21 +56,28 @@ Your LLM credentials and endpoints should be configured as environment variables
 
 **LLM Model Defaults**
 
-This minimal setup uses the default LLM model for INFRA-COMPASS — ``gpt-4o`` as of April 11, 2025.
+This minimal setup uses the default LLM model for INFRA-COMPASS — ``gpt-4o-mini`` as of March 11, 2026.
 To override this default, add a ``model`` key to your config:
 
 .. code-block:: json
 
-    "model": "gpt-4o-mini"
+    "model": "gpt-4o"
+
+
+.. IMPORTANT::
+    You will need to update the model name to match your deployment if you are using Azure OpenAI.
+    For example, if you deployed the GPT-4o-mini model under the name ``"gpt-4o-mini-2025-04-11"``,
+    you would set ``"model": "gpt-4o-mini-2025-04-11"`` in the COMPASS config (along with the
+    deployment endpoint, version, and API key).
 
 
 Typical Config
 --------------
 In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
 You can review all available inputs in the
-`process_jurisdictions_with_openai <https://nrel.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_
+`process_jurisdictions_with_openai <https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_
 documentation.
-In `config_recommended.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
+In `config_recommended.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
 demonstrate a typical configuration that balances simplicity with additional control over execution parameters.
 
 .. literalinclude:: config_recommended.json5
@@ -94,7 +101,7 @@ You can also specify LLM credentials and endpoint details directly in the config
 Note that while this can be convenient for quick testing, storing credentials in plaintext is not recommended for production environments.
 
 **SSL Configuration**
-Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate verification errors, especially useful when running behind the NREL VPN.
+Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate verification errors, especially useful when running behind the NLR VPN.
 If you're not using the VPN, it's best to leave this value as the default (``true``).
 
 **OCR Integration**
@@ -112,7 +119,7 @@ Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 Kitchen Sink Config
 -------------------
 
-In `config_kitchen_sink.json5 <https://github.com/NREL/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_,
+In `config_kitchen_sink.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_kitchen_sink.json5>`_,
 we show what a configuration might look like that utilizes all available parameters.
 
 .. literalinclude:: config_kitchen_sink.json5
@@ -139,7 +146,8 @@ Each model includes:
 **Concurrency Settings**
 The following settings allow tuning for system resource usage and rate limits:
 
-- ``max_num_concurrent_browsers``: Limits the number of headless browsers launched for document discovery.
+- ``max_num_concurrent_browsers``: Limits the number of browsers launched for retrieving information from web links.
+- ``max_num_concurrent_website_searches``: Limits the number of concurrently-running website searches/crawls for relevant documents.
 - ``max_num_concurrent_jurisdictions``: Controls how many jurisdictions are processed in parallel.
 
 **OCR Integration**
@@ -214,5 +222,5 @@ After completion, you'll find several outputs in the ``out_dir``:
 - **Metadata Files**: JSON files describing metadata parameters corresponding to your run.
 - **Logs and Debug Files**: Helpful for reviewing LLM prompts and tracing any issues.
 
-You can now use these outputs for downstream analysis, visualization, or integration with other NREL tools like
-`reVX setbacks <https://nrel.github.io/reVX/misc/examples.setbacks.html>`_.
+You can now use these outputs for downstream analysis, visualization, or integration with other NLR tools like
+`reVX setbacks <https://natlabrockies.github.io/reVX/misc/examples.setbacks.html>`_.

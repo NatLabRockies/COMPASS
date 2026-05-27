@@ -168,10 +168,10 @@ class RunningAsyncServices:
 
         Parameters
         ----------
-        services : iterable of :class:`compass.services.base.Service`
+        services : iterable of Service
             An iterable (i.e. a list) of Services that are needed to run
             the asynchronous function.
-        coroutine :  coroutine
+        coroutine : callable
             A coroutine that should be run with the services.
 
         Returns

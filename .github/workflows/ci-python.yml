@@ -1,0 +1,198 @@
+name: Python checks
+permissions:
+  contents: read
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - compass/**
+      - tests/**
+      - .github/workflows/ci-python.yml
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+  pull_request:
+    paths:
+      - compass/**
+      - tests/**
+      - .github/workflows/ci-python.yml
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+  workflow_dispatch:
+
+jobs:
+  lint:
+    name: Lint Python Code Base with Ruff
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b # v4.0.0
+        with:
+          version: "latest"
+          args: "check"
+          src: "./compass"
+      - uses: astral-sh/ruff-action@0ce1b0bf8b818ef400413f810f8a11cdbda0034b # v4.0.0
+        with:
+          version: "latest"
+          args: "format --check"
+          src: "./compass"
+
+  locked-tests:
+    needs: lint
+    name: Pixi-Locked Test
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+      with:
+        pixi-version: v0.68.1
+        locked: true
+        cache: true
+        cache-write: false
+        environments: pdev
+
+    - run: |
+        pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked tests-u
+
+  unit-tests:
+    needs: lint
+    name: Python Unit Tests (Pixi)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-26-intel, windows-latest]
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+      with:
+        pixi-version: v0.68.1
+        locked: true
+        cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' }}
+        environments: pdev
+
+    - run: |
+        pixi reinstall -e pdev INFRA-COMPASS
+        pixi run -e pdev tests-u
+
+  integration-tests:
+    needs: lint
+    name: Python Integration Tests (Pixi)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-26-intel, windows-latest]
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
+      with:
+        pixi-version: v0.68.1
+        locked: true
+        cache: true
+        cache-write: false
+        environments: pdev
+
+    - run: |
+        pixi reinstall -e pdev INFRA-COMPASS
+        pixi run -e pdev tests-i
+
+  tox-tests:
+    needs: lint
+    name: Python tests (Tox)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      max-parallel: 8
+      matrix:
+        os: [ubuntu-latest, macos-latest, macos-26-intel]
+        python-version: ['3.13', '3.12']
+        exclude:
+          # https://docling-project.github.io/docling/getting_started/installation/#:~:text=When%20installing%20Docling,using%20Python%203.13%2B.
+          - os: macos-26-intel
+            python-version: '3.13'
+
+    steps:
+    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - name: Set up Python  ${{ matrix.python-version }} (with cache)
+      if: github.ref == 'refs/heads/main'
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      with:
+        python-version: ${{ matrix.python-version }}
+        cache: 'pip'
+
+    - name: Set up Python  ${{ matrix.python-version }} (no cache)
+      if: github.ref != 'refs/heads/main'
+      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Poppler Reqs (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libpoppler-cpp-dev poppler-utils
+
+    - name: Install Poppler Reqs (Mac)
+      if: ${{ runner.os == 'macOS' }}
+      shell: bash
+      run: |
+        brew install poppler
+
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install tox tox-gh-actions>=2.0
+        python -m pip install pdftotext
+
+    - name: Load tox cache
+      uses: actions/cache/restore@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: .tox/
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v2-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v2-
+
+    - name: Test with tox
+      run: tox -e ${{ matrix.python-version == '3.12' && 'msv' || 'latest' }}
+      env:
+        PYTHONDEVMODE: 1
+
+    - name: Save tox cache only on main
+      if: github.ref == 'refs/heads/main'
+      uses: actions/cache/save@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5.0.5
+      with:
+        path: .tox/
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v2-${{ hashFiles('**/pyproject.toml') }}

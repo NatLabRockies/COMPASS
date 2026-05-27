@@ -1,5 +1,7 @@
 """Ordinance mutually-exclusive features class"""
 
+from compass.exceptions import COMPASSValueError
+
 
 class SetbackFeatures:
     """Utility class to get mutually-exclusive feature descriptions"""
@@ -14,6 +16,7 @@ class SetbackFeatures:
         "property line": [
             "property lines",
             "lot lines",
+            "facility perimeters",
             "parcels",
             "subdivisions",
         ],
@@ -29,7 +32,13 @@ class SetbackFeatures:
             "transmission lines",
         ],
         "water": ["lakes", "reservoirs", "streams", "rivers", "wetlands"],
+        "public conservation lands": [
+            "public conservation lands",
+            "natural resource protection areas",
+            "preservation areas",
+        ],
     }
+    """Aliases for mutually-exclusive setback features"""
     FEATURES_AS_IGNORE = {
         "structures": "structures",
         "property line": "property lines",
@@ -37,15 +46,24 @@ class SetbackFeatures:
         "railroads": "railroads",
         "transmission": "transmission lines",
         "water": "wetlands",
+        "public conservation lands": "public conservation lands",
     }
+    """Features as they should appear in ignore phrases"""
     FEATURE_CLARIFICATIONS = {
-        "structures": "",
-        "property line": "",
+        "property line": (
+            "Dwelling units, structures, occupied buildings, residences, and "
+            "other buildings **are not equivalent** to property lines or "
+            "parcel boundaries unless the text **explicitly** makes that "
+            "connection. "
+        ),
+        "water": (
+            "Public conservation lands (or similar) **are not equivalent** to "
+            "wetlands (or similar) unless the text **explicitly** makes that "
+            "connection. "
+        ),
         "roads": "Roads may also be labeled as rights-of-way. ",
-        "railroads": "",
-        "transmission": "",
-        "water": "",
     }
+    """Clarifications to add to feature prompts"""
 
     def __init__(self):
         self._validate_descriptions()
@@ -73,7 +91,7 @@ class SetbackFeatures:
                 f"The following features are missing descriptors: "
                 f"{features_missing_descriptors}"
             )
-            raise ValueError(msg)
+            raise COMPASSValueError(msg)
 
     def _keep_and_ignore(self, feature_id):
         """Get the keep and ignore phrases for a feature"""

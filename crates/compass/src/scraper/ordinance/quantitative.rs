@@ -14,7 +14,7 @@ pub(super) struct QuantitativeRecord {
     state: String,
     subdivison: Option<String>,
     jurisdiction_type: Option<String>,
-    FIPS: u32,
+    FIPS: u64,
     feature: String,
     value: f64,
     units: Option<String>,
@@ -22,7 +22,7 @@ pub(super) struct QuantitativeRecord {
     min_dist: Option<f64>,
     max_dist: Option<f64>,
     summary: Option<String>,
-    ord_year: Option<u32>,
+    year: Option<u32>,
     section: Option<String>,
     source: Option<String>,
 }
@@ -42,7 +42,7 @@ impl Quantitative {
               state TEXT,
               subdivison TEXT,
               jurisdiction_type TEXT,
-              FIPS INTEGER,
+              FIPS UBIGINT,
               feature TEXT,
               value REAL,
               units TEXT,
@@ -50,7 +50,7 @@ impl Quantitative {
               min_dist REAL,
               max_dist REAL,
               summary TEXT,
-              ord_year INTEGER,
+              year INTEGER,
               section TEXT,
               source TEXT
             );",
@@ -114,7 +114,7 @@ impl Quantitative {
                 r"INSERT INTO quantitative
             (bookkeeper_lnk, county, state, subdivison,
             jurisdiction_type, FIPS, feature, value, units, adder,
-            min_dist, max_dist, summary, ord_year, section, source)
+            min_dist, max_dist, summary, year, section, source)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ",
             )
@@ -136,7 +136,7 @@ impl Quantitative {
                 record.min_dist,
                 record.max_dist,
                 record.summary,
-                record.ord_year,
+                record.year,
                 record.section,
                 record.source,
             ])?;
@@ -155,7 +155,7 @@ pub(crate) mod sample {
 
     pub(crate) fn basic() -> String {
         let mut output = String::new();
-        output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,value,units,offset,min_dist,max_dist,summary,ord_year,section,source\n");
+        output.push_str("county,state,subdivison,jurisdiction_type,FIPS,feature,value,units,offset,min_dist,max_dist,summary,year,section,source\n");
         output.push_str(
             "county-1,state-1,,jurisdiction_type-1,11111,feature-1,,,,,,,2001,,source-1\n",
         );

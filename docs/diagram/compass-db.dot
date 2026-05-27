@@ -23,8 +23,12 @@ digraph g {
       <TR><TD PORT="ltcol6"  ></TD><TD align="left" > filename </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol6"> </TD></TR>
       <TR><TD PORT="ltcol7"  ></TD><TD align="left" > num_pages </TD><TD align="left" > integer </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol7"> </TD></TR>
       <TR><TD PORT="ltcol8"  ></TD><TD align="left" > checksum </TD><TD align="left" > varchar </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol8"> </TD></TR>
-      <TR><TD PORT="ltcol9"  ></TD><TD align="left" > access_time </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol9"> </TD></TR>
-      <TR><TD PORT="ltcol10" ></TD><TD align="left" > created_at </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol10"> </TD></TR>
+      <TR><TD PORT="ltcol9"  ></TD><TD align="left" > is_pdf </TD><TD align="left" > boolean </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol9"> </TD></TR>
+      <TR><TD PORT="ltcol10"  ></TD><TD align="left" > from_ocr </TD><TD align="left" > boolean </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol10"> </TD></TR>
+      <TR><TD PORT="ltcol11"  ></TD><TD align="left" > access_time </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol11"> </TD></TR>
+      <TR><TD PORT="ltcol12"  ></TD><TD align="left" > ordinance_text_ngram_score </TD><TD align="left" > float </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol12"> </TD></TR>
+      <TR><TD PORT="ltcol13"  ></TD><TD align="left" > permitted_use_text_ngram_score </TD><TD align="left" > float </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol13"> </TD></TR>
+      <TR><TD PORT="ltcol14" ></TD><TD align="left" > created_at </TD><TD align="left" > timestamp </TD><TD align="left" >  </TD><TD align="left" >  </TD><TD align="left" PORT="rtcol14"> </TD></TR>
       </TABLE>>
       ];
 
@@ -124,20 +128,27 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol12" ></TD>
+      <TD align="left" > jurisdiction_website </TD>
+      <TD align="left" > varchar </TD>
+      <TD align="left" >  </TD> <TD align="left" >  </TD>
+      <TD align="left" PORT="rtcol11"> </TD>
+      </TR>
+    <TR>
+      <TD PORT="ltcol13" ></TD>
       <TD align="left" > cost </TD>
       <TD align="left" > float </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol12"> </TD>
       </TR>
     <TR>
-      <TD PORT="ltcol13" ></TD>
+      <TD PORT="ltcol14" ></TD>
       <TD align="left" > documents </TD>
       <TD align="left" > varchar </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol13"> </TD>
       </TR>
     <TR>
-      <TD PORT="ltcol14" ></TD>
+      <TD PORT="ltcol15" ></TD>
       <TD align="left" > archive_lnk </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
@@ -469,7 +480,7 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol10" ></TD>
-      <TD align="left" > ord_year </TD>
+      <TD align="left" > year </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol10"> </TD>
@@ -595,7 +606,7 @@ digraph g {
       </TR>
     <TR>
       <TD PORT="ltcol15" ></TD>
-      <TD align="left" > ord_year </TD>
+      <TD align="left" > year </TD>
       <TD align="left" > integer </TD>
       <TD align="left" >  </TD> <TD align="left" >  </TD>
       <TD align="left" PORT="rtcol15"> </TD>

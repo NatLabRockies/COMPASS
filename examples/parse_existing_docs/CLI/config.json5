@@ -1,0 +1,13 @@
+{
+    // Same as a typical COMPASS config
+    "out_dir": "./outputs",
+    "jurisdiction_fp": "./jurisdictions.csv",
+    "tech": "wind",
+
+    // NEW: Point to local docs mapping
+    "known_local_docs": "./local_docs.json5",
+
+    // NEW: Disable web search since we already have local docs
+    "perform_se_search": false,
+    "perform_website_search": false
+}

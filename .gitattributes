@@ -1,2 +1,8 @@
 # SCM syntax highlighting
 pixi.lock linguist-language=YAML linguist-generated=true
+
+# Ignore meta-files
+support/** linguist-vendored
+
+# Ignore Jupyter Notebooks, typically used in example code
+*.ipynb linguist-vendored

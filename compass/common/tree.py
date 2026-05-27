@@ -1,8 +1,9 @@
 """Ordinance async decision tree"""
 
-import networkx as nx
 import logging
+from functools import cached_property
 
+import networkx as nx
 from elm.tree import DecisionTree
 
 from compass.utilities.enums import LLMUsageCategory
@@ -30,8 +31,7 @@ class AsyncDecisionTree(DecisionTree):
            graph.
     Key Relationships:
         Inherits from :class:`~elm.tree.DecisionTree` to add ``async``
-        capabilities. Uses a
-        :class:`~compass.llm.calling.ChatLLMCaller` for LLm queries.
+        capabilities. Uses a ChatLLMCaller for LLm queries.
     """
 
     def __init__(self, graph, usage_sub_label=None):
@@ -39,7 +39,7 @@ class AsyncDecisionTree(DecisionTree):
 
         Parameters
         ----------
-        graph : nx.DiGraph
+        graph : networkx.DiGraph
             Directed acyclic graph where nodes are LLM prompts and edges
             are logical transitions based on the response. Must have
             high-level graph attribute "chat_llm_caller" which is a
@@ -66,27 +66,22 @@ class AsyncDecisionTree(DecisionTree):
 
     @property
     def chat_llm_caller(self):
-        """ChatLLMCaller: ChatLLMCaller instance for this tree"""
+        """ChatLLMCaller: LLM caller bound to the decision tree"""
         return self.graph.graph["chat_llm_caller"]
+
+    @cached_property
+    def tree_name(self):
+        """str: Configured decision tree name"""
+        return self._g.graph.get("_d_tree_name", "Unknown decision tree")
 
     @property
     def messages(self):
-        """Get a list of the conversation messages with the LLM
-
-        Returns
-        -------
-        list
-        """
+        """list: Conversation messages exchanged with the LLM"""
         return self.chat_llm_caller.messages
 
     @property
     def all_messages_txt(self):
-        """Get a printout of the full conversation with the LLM
-
-        Returns
-        -------
-        str
-        """
+        """str: Formatted conversation transcript"""
         messages = [
             f"{msg['role'].upper()}: {msg['content']}" for msg in self.messages
         ]
@@ -113,7 +108,11 @@ class AsyncDecisionTree(DecisionTree):
             prompt, usage_sub_label=self.usage_sub_label
         )
         logger.debug_to_file(
-            "Chat GPT prompt:\n%s\nChat GPT response:\n%s", prompt, out
+            "Chat GPT prompt (node=%r; name=%r):\n%s\nChat GPT response:\n%s",
+            node0,
+            self.tree_name,
+            prompt,
+            out,
         )
         return self._parse_graph_output(node0, out or "")
 
@@ -128,9 +127,15 @@ class AsyncDecisionTree(DecisionTree):
 
         Returns
         -------
-        out : str | None
+        out : str or None
             Final response from LLM at the leaf node or ``None`` if an
             ``AttributeError`` was raised during execution.
+
+        Raises
+        ------
+        compass.exceptions.COMPASSRuntimeError
+            Raised when the traversal encounters an unexpected
+            exception that is not an ``AttributeError``.
         """
 
         self._history = []
@@ -167,6 +172,8 @@ class AsyncDecisionTree(DecisionTree):
             else:
                 break
 
-        logger.info("Final decision tree output: %s", out)
+        logger.info(
+            "Final decision tree output (name=%r): %s", self.tree_name, out
+        )
 
         return out

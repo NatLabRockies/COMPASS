@@ -1,4 +1,4 @@
-name: Rust checks
+name: Rust Checks
 
 on:
   push:
@@ -6,129 +6,143 @@ on:
     tags:
       - 'c*.*.*'
       - 'd*.*.*'
+    paths:
+      - crates/**
+      - Cargo.toml
+      - Cargo.lock
+      - .github/workflows/ci-rust.yml
+      - pixi.toml
+      - pixi.lock
   pull_request:
     paths:
       - crates/**
       - Cargo.toml
       - Cargo.lock
       - .github/workflows/ci-rust.yml
-      - pyproject.toml
+      - pixi.toml
       - pixi.lock
   schedule:
     - cron: '0 5 * * 1'
 
 jobs:
   check:
-    name: Check
+    name: Rust - Check
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.48.0
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
-          environments: pdev rdev
+          environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Don't save cache for cargo check!
+          save-if: false
 
       - name: Run cargo check
         run: |
-          pixi run -e rdev --frozen cargo check --workspace --locked
+          pixi run -e rdev --locked cargo check --workspace --locked
 
   lints:
     # Only run tests if code looks OK
     needs: check
-    name: Lints
+    name: Rust - Lint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.48.0
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
-          environments: pdev rdev
+          environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          # Don't save cache for cargo fmt or clippy!
+          save-if: false
 
       - name: Run cargo fmt
         run: |
-          pixi run -e rdev --frozen cargo fmt --all --check
+          pixi run -e rdev --locked cargo fmt --all --check
 
       - name: Run cargo clippy
         run: |
-          pixi run -e rdev --frozen cargo clippy --locked --all-features --tests -- -D warnings
+          pixi run -e rdev --locked cargo clippy --locked --all-features --tests -- -D warnings
 
   test:
     # Only run tests if code looks OK
     needs: check
+    name: Rust - Tests
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-26-intel, windows-latest]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.48.0
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
-          environments: pdev rdev
+          environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
           save-if: ${{ github.ref == 'refs/heads/main' }}
 
-      - run: pixi run -e rdev --frozen tests-r
+      - name: Run tests for windows
+        if: runner.os == 'Windows'
+        env:
+          RUSTFLAGS: "-C link-args=rstrtmgr.lib"
+        run: pixi run -e rdev tests-r
+
+      - name: Run tests
+        if: runner.os != 'Windows'
+        run: pixi run -e rdev tests-r
 
   publish-dry:
-    name: Publish (dry-run)
+    name: Rust - Publish (dry-run)
     # Only run tests if code looks OK
     needs: check
     runs-on: ubuntu-latest
     if: ${{ !startsWith(github.ref, 'refs/heads/main') && !startsWith(github.ref, 'refs/tags/c') && !startsWith(github.ref, 'refs/tags/d') }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.48.0
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: false
 
       - name: Publish crates (DB)
         run: |
-          pixi run -e rdev --frozen publish-db --dry-run
+          pixi run -e rdev --locked publish-db --dry-run
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen publish-cli --dry-run
+          pixi run -e rdev --locked publish-cli --dry-run
 
   publish-cli:
     name: Publish Rust CLI crate
@@ -138,24 +152,23 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/c')
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.48.0
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: false
 
       - name: Publish crates (CLI)
         run: |
-          pixi run -e rdev --frozen publish-cli
+          pixi run -e rdev --locked publish-cli
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
 
@@ -167,23 +180,22 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/d')
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
-      - uses: prefix-dev/setup-pixi@v0.8.8
+      - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.48.0
-          frozen: true
+          pixi-version: v0.68.1
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
 
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           shared-key: "gha"
-          save-if: ${{ github.ref == 'refs/heads/main' }}
+          save-if: false
 
       - name: Publish crates (DB)
         run: |
-          pixi run -e rdev --frozen publish-db
+          pixi run -e rdev --locked publish-db
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}

@@ -1,0 +1,220 @@
+schema: ./wind_schema.json
+
+data_type_short_desc: wind energy ordinance
+
+query_templates:
+  - "filetype:pdf {jurisdiction} wind energy conversion system ordinances"
+  - "wind energy conversion system ordinances {jurisdiction}"
+  - "{jurisdiction} wind WECS ordinance"
+  - "Where can I find the legal text for commercial wind energy conversion system zoning ordinances in {jurisdiction}?"
+  - "What is the specific legal information regarding zoning ordinances for commercial wind energy conversion systems in {jurisdiction}?"
+
+website_keywords:
+  pdf: 92160
+  wecs: 46080
+  wind: 23040
+  zoning: 11520
+  ordinance: 5760
+  renewable energy: 1440
+  planning: 720
+  plan: 360
+  government: 180
+  code: 60
+  area: 60
+  land development: 15
+  land: 3
+  environment: 3
+  energy: 3
+  renewable: 3
+  municipal: 1
+  department: 1
+
+heuristic_keywords:
+  good_tech_keywords:
+    - "wind"
+    - "setback"
+  good_tech_acronyms:
+    - "wecs"
+    - "wes"
+    - "lwet"
+    - "uwet"
+    - "wef"
+  good_tech_phrases:
+    - "wind energy conversion"
+    - "wind turbine"
+    - "wind tower"
+    - "wind farm"
+    - "wind energy system"
+    - "wind energy farm"
+    - "utility wind energy system"
+  not_tech_words:
+    - "micro wecs"
+    - "small wecs"
+    - "mini wecs"
+    - "private wecs"
+    - "personal wecs"
+    - "pwecs"
+    - "rewind"
+    - "small wind"
+    - "micro wind"
+    - "mini wind"
+    - "private wind"
+    - "personal wind"
+    - "swecs"
+    - "windbreak"
+    - "windiest"
+    - "winds"
+    - "windshield"
+    - "window"
+    - "windy"
+    - "wind attribute"
+    - "wind blow"
+    - "wind break"
+    - "wind current"
+    - "wind damage"
+    - "wind data"
+    - "wind direction"
+    - "wind draft"
+    - "wind erosion"
+    - "wind energy resource atlas"
+    - "wind load"
+    - "wind movement"
+    - "wind orient"
+    - "wind resource"
+    - "wind runway"
+    - "prevailing wind"
+    - "downwind"
+
+collection_prompts:
+  - key: contains_ord_info
+    label: contains ordinance info
+    prompt: |-
+      You extract structured data from text. Return your answer in JSON
+      format (not markdown). Your JSON file must include exactly two keys.
+      The first key is 'wind_reqs', which is a string that summarizes all
+      zoning, siting, setback, system design, and operational
+      requirements/restrictions that are explicitly enacted in the text
+      for a wind energy system (or wind turbine/tower) for a given
+      jurisdiction. Note that wind energy bans are an important restriction
+      to track. Include any **closely related provisions** if they clearly
+      pertain to the **development, operation, modification, or removal** of
+      wind energy systems (or wind turbines/towers). All restrictions should
+      be enforceable - ignore any text that only provides a legal definition
+      of the regulation. If the text does not specify any concrete zoning,
+      siting, setback, system design, or operational requirements/restrictions
+      for a wind energy system, set this key to `null`. The last key is '{key}',
+      which is a boolean that is set to True if the text excerpt explicitly
+      details zoning, siting, setback, system design, or operational
+      requirements/restrictions for a wind energy system (or wind turbine/tower)
+      and False otherwise.
+
+  - key: x
+    label: for utility-scale WECS
+    prompt: |-
+      You are a legal scholar that reads ordinance text and determines whether
+      any of it applies to zoning, siting, setback, system design, or operational
+      requirements/restrictions for **large wind energy systems**.
+      Large wind energy systems (WES) may also be referred to as wind turbines,
+      wind energy conversion systems (WECS), wind energy facilities (WEF),
+      wind energy turbines (WET), large wind energy turbines (LWET),
+      utility-scale wind energy turbines (UWET),
+      commercial wind energy conversion systems (CWECS),
+      alternate energy systems (AES), commercial energy production systems (CEPCS),
+      or similar. Your client is a commercial wind developer that does not care
+      about ordinances related to private, residential, micro, small,
+      or medium sized wind energy systems. Ignore any text related to such systems.
+      Return your answer as a dictionary in JSON format (not markdown).
+      Your JSON file must include exactly two keys. The first key is 'summary'
+      which contains a string that lists all of the types of wind energy systems
+      the text applies to (if any). The second key is '{key}', which is a boolean
+      that is set to True if any part of the text excerpt details zoning, siting,
+      setback, system design, or operational requirements/restrictions for the
+      **large wind energy conversion systems** (or similar) that the client is
+      interested in and False otherwise.
+
+text_extraction_prompts:
+  - key: wind_energy_systems_text
+    out_fn: "{jurisdiction} Wind Ordinance.txt"
+    prompt: |-
+      # CONTEXT #
+      We want to reduce the provided excerpt to only contain information about
+      **wind energy systems**. The extracted text will be used for structured
+      data extraction, so it must be both **comprehensive** (retaining all relevant
+      details) and **focused** (excluding unrelated content), with **zero rewriting
+      or paraphrasing**. Ensure that all retained information is **directly applicable
+      to wind energy systems** while preserving full context and accuracy.
+
+      # OBJECTIVE #
+      Extract all text **pertaining to wind energy systems** from the provided excerpt.
+
+      # RESPONSE #
+      Follow these guidelines carefully:
+
+      1. ## Scope of Extraction ##:
+      - Include all text that pertains to **wind energy systems**.
+      - Explicitly include any text related to **bans or prohibitions** on wind energy systems.
+      - Explicitly include any text related to the adoption or enactment date of the ordinance (if any).
+
+      2. ## Exclusions ##:
+      - Do **not** include text that does not pertain to wind energy systems.
+
+      3. ## Formatting & Structure ##:
+      - **Preserve _all_ section titles, headers, and numberings** for reference.
+      - **Maintain the original wording, formatting, and structure** to ensure accuracy.
+
+      4. ## Output Handling ##:
+      - This is a strict extraction task — act like a text filter, **not** a summarizer or writer.
+      - Do not add, explain, reword, or summarize anything.
+      - The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**
+      - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
+      - If **no relevant text** is found, return the response: 'No relevant text.'
+
+  - key: cleaned_text_for_extraction
+    out_fn: "{jurisdiction} Utility Scale Wind Ordinance.txt"
+    prompt: |-
+      # CONTEXT #
+      We want to reduce the provided excerpt to only contain information about
+      **large wind energy systems**. The extracted text will be used for
+      structured data extraction, so it must be both **comprehensive**
+      (retaining all relevant details) and **focused** (excluding unrelated
+      content), with **zero rewriting or paraphrasing**. Ensure that all
+      retained information is **directly applicable** to large wind energy
+      systems while preserving full context and accuracy.
+
+      # OBJECTIVE #
+      Extract all text **pertaining to large wind energy systems** from the provided excerpt.
+
+      # RESPONSE #
+      Follow these guidelines carefully:
+
+      1. ## Scope of Extraction ##:
+      - Include all text that pertains to **large wind energy systems**, even if they are referred to by different names such as: Wind turbines, wind energy conversion systems (wecs), wind energy facilities (wef), wind energy turbines (wet), large wind energy turbines (lwet), utility-scale wind energy turbines (uwet), commercial wind energy conversion systems (cwecs), alternate energy systems (aes), commercial energy production systems (cepcs), or similar
+      - Explicitly include any text related to **bans or prohibitions** on large wind energy systems.
+      - Explicitly include any text related to the adoption or enactment date of the ordinance (if any).
+      - **Retain all relevant technical, design, operational, safety, environmental, and infrastructure-related provisions** that apply to the topic, such as (but not limited to):
+          - Compliance with legal or regulatory standards.
+          - Site, structural, or design specifications.
+          - Environmental impact considerations.
+          - Safety and risk mitigation measures.
+          - Infrastructure, implementation, operation, and maintenance details.
+          - All other **closely related provisions**.
+
+      2. ## Exclusions ##:
+      - Do **not** include text that explicitly applies **only** to private, residential, micro, small, or medium sized wind energy systems.
+      - Do **not** include text that does not pertain at all to wind energy systems.
+
+      3. ## Formatting & Structure ##:
+      - **Preserve _all_ section titles, headers, and numberings** for reference.
+      - **Maintain the original wording, formatting, and structure** to ensure accuracy.
+
+      4. ## Output Handling ##:
+      - This is a strict extraction task — act like a text filter, **not** a summarizer or writer.
+      - Do not add, explain, reword, or summarize anything.
+      - The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**
+      - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
+      - If **no relevant text** is found, return the response: 'No relevant text.'
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from wind energy ordinances.
+  Follow all instructions in the schema descriptions carefully.
+  Only extract requirements for large, commercial, utility-scale wind energy systems.

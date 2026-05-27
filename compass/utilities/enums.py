@@ -3,24 +3,110 @@
 from enum import StrEnum, auto
 
 
+class CaseInsensitiveEnum(StrEnum):
+    """A string enum that is case insensitive"""
+
+    def __new__(cls, value):
+        """Create new enum member"""
+
+        value = value.lower().strip()
+        obj = str.__new__(cls, value)
+        obj._value_ = value
+        return cls._new_post_hook(obj, value)
+
+    def __format__(self, format_spec):
+        return str.__format__(self._value_, format_spec)
+
+    @classmethod
+    def _missing_(cls, value):
+        """Convert value to lowercase before lookup"""
+        if value is None:
+            return None
+
+        value = value.lower().strip()
+        for member in cls:
+            if member.value == value:
+                return member
+
+        return None
+
+    @classmethod
+    def _new_post_hook(cls, obj, value):  # noqa: ARG003
+        """Hook for post-processing after __new__"""
+        return obj
+
+    @classmethod
+    def members_as_str(cls):
+        """Set of enum members as strings"""
+        return {member.value for member in cls}
+
+
 class LLMUsageCategory(StrEnum):
-    """COMPASS LLM usage categories"""
+    """Enumerate semantic buckets for tracking LLM usage
+
+    The values in this enumeration provide consistent labels when
+    recording usage metrics, billing data, and telemetry associated
+    with LLM calls originating from COMPASS pipelines. Each category
+    maps to a specific functional concern (e.g., ordinance value
+    extraction, jurisdiction validation) allowing downstream analytics
+    to aggregate usage meaningfully.
+
+    Notes
+    -----
+    Values intentionally mirror the task names used when instantiating
+    :class:`~compass.llm.calling.BaseLLMCaller` implementations so that
+    the enumerations can be converted to strings without additional
+    mapping logic.
+    """
 
     CHAT = auto()
+    """Usage related to general LLM chat calls"""
     DATE_EXTRACTION = auto()
+    """Usage related to date extraction tasks"""
     DECISION_TREE = auto()
+    """Usage related to decision tree calls"""
     DEFAULT = auto()
+    """Usage related to default/fallback calls"""
     DOCUMENT_CONTENT_VALIDATION = auto()
+    """Usage related to document content validation tasks"""
     DOCUMENT_ORDINANCE_SUMMARY = auto()
+    """Usage related to ordinance summary tasks"""
     DOCUMENT_PERMITTED_USE_CONTENT_VALIDATION = auto()
+    """Usage related to permitted use content validation tasks"""
     DOCUMENT_PERMITTED_USE_DISTRICTS_SUMMARY = auto()
+    """Usage related to permitted use districts summary tasks"""
     DOCUMENT_JURISDICTION_VALIDATION = auto()
+    """Usage related to document jurisdiction validation tasks"""
+    URL_JURISDICTION_VALIDATION = auto()
+    """Usage related to URL jurisdiction validation tasks"""
+    JURISDICTION_MAIN_WEBSITE_VALIDATION = auto()
+    """Usage related to jurisdiction main website validation tasks"""
     ORDINANCE_VALUE_EXTRACTION = auto()
+    """Usage related to ordinance value extraction tasks"""
     PERMITTED_USE_VALUE_EXTRACTION = auto()
+    """Usage related to permitted use value extraction tasks"""
+    PLUGIN_GENERATION = auto()
+    """Usage related to generating plugin prompts and templates"""
 
 
 class LLMTasks(StrEnum):
-    """LLM-based COMPASS tasks"""
+    """Human-friendly task identifiers for LLM workflows
+
+    This enumeration exposes the set of user-facing task names that map
+    onto :class:`LLMUsageCategory` entries. Pipeline components use
+    these values for configuration (e.g., selecting prompt templates)
+    while the paired usage categories ensure consistent metrics
+    tracking.
+
+    Notes
+    -----
+    When a task is defined as a direct alias of an
+    :class:`LLMUsageCategory`, it inherits the corresponding usage label
+    so downstream monitoring does not require additional translation.
+    """
+
+    DATA_EXTRACTION = auto()
+    """Default Data extraction task"""
 
     DATE_EXTRACTION = LLMUsageCategory.DATE_EXTRACTION
     """Date extraction task"""
@@ -38,7 +124,26 @@ class LLMTasks(StrEnum):
     DOCUMENT_JURISDICTION_VALIDATION = (
         LLMUsageCategory.DOCUMENT_JURISDICTION_VALIDATION
     )
-    """Document location validation task
+    """Document belongs to correct jurisdiction validation task
+
+    This represents all the tasks associated with validation that the
+    document pertains to a particular jurisdiction.
+    """
+
+    EMBEDDING = auto()
+    """Text chunk embedding task"""
+
+    TEXT_EXTRACTION = auto()
+    """Default Text extraction task
+
+    This task represents the extraction/summarization of text containing
+    information to be extracted into structured data.
+    """
+
+    JURISDICTION_MAIN_WEBSITE_VALIDATION = (
+        LLMUsageCategory.JURISDICTION_MAIN_WEBSITE_VALIDATION
+    )
+    """Webpage is main page for jurisdiction validation task
 
     This represents all the tasks associated with validation that the
     document pertains to a particular jurisdiction.
@@ -72,3 +177,6 @@ class LLMTasks(StrEnum):
     This task represents the extraction of structured permitted use
     values.
     """
+
+    PLUGIN_GENERATION = LLMUsageCategory.PLUGIN_GENERATION
+    """Task related to generating plugin prompts and templates"""

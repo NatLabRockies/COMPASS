@@ -1,32 +1,39 @@
 """COMPASS Ordinance Threaded services"""
 
 import json
+import uuid
 import shutil
 import asyncio
 import hashlib
 import logging
+import contextlib
 from pathlib import Path
 from abc import abstractmethod
 from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
+from elm.web.document import PDFDocument, HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
-from compass import COMPASS_DEBUG_LEVEL
 from compass.services.base import Service
-from compass.utilities import (
-    LLM_COST_REGISTRY,
-    num_ordinances_in_doc,
-)
+from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
+CLEANED_FP_REGISTRY = {}
 
 
 def _cache_file_with_hash(doc, file_content, out_dir, make_name_unique=False):
     """Cache file and compute its hash"""
+    if "source" not in doc.attrs:
+        doc.attrs["source"] = (
+            str(doc.attrs["source_fp"])
+            if "source_fp" in doc.attrs
+            else str(uuid.uuid4())
+        )
+
     cache_fp = write_url_doc_to_file(
         doc=doc,
         file_content=file_content,
@@ -43,7 +50,7 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir):
+def _move_file(doc, out_dir, out_fn=None):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -51,7 +58,7 @@ def _move_file(doc, out_dir):
 
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_fn = doc.attrs.get("jurisdiction_name", cached_fp.stem)
+    out_fn = out_fn or cached_fp.stem
     out_fn = out_fn.replace(",", "").replace(" ", "_")
     out_fn = f"{out_fn}_downloaded_{date}"
     if not out_fn.endswith(cached_fp.suffix):
@@ -62,68 +69,36 @@ def _move_file(doc, out_dir):
     return out_fp
 
 
-def _write_cleaned_file(doc, out_dir):
+def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
     """Write cleaned ordinance text to directory"""
-    jurisdiction_name = doc.attrs.get("jurisdiction_name")
     if jurisdiction_name is None:
         return None
 
     out_dir = Path(out_dir)
-    if COMPASS_DEBUG_LEVEL > 0:
-        _write_interim_cleaned_files(doc, out_dir, jurisdiction_name)
+    doc_key_to_clean_fp = CLEANED_FP_REGISTRY.get(tech.casefold(), {})
 
-    key_to_fp = {
-        "cleaned_ordinance_text": f"{jurisdiction_name} Ordinance Summary.txt",
-        "districts_text": f"{jurisdiction_name} Districts.txt",
-    }
     out_paths = []
-    for key, fn in key_to_fp.items():
+    for key, fn in doc_key_to_clean_fp.items():
         cleaned_text = doc.attrs.get(key)
         if cleaned_text is None:
             continue
 
-        out_fp = out_dir / fn
+        out_fp = out_dir / fn.format(jurisdiction=jurisdiction_name)
         out_fp.write_text(cleaned_text, encoding="utf-8")
         out_paths.append(out_fp)
 
     return out_paths
 
 
-def _write_interim_cleaned_files(doc, out_dir, jurisdiction_name):
-    """Write intermediate output texts to file; helpful for debugging"""
-    key_to_fp = {
-        "ordinance_text": f"{jurisdiction_name} Ordinance Original text.txt",
-        "wind_energy_systems_text": (
-            f"{jurisdiction_name} Wind Ordinance text.txt"
-        ),
-        "solar_energy_systems_text": (
-            f"{jurisdiction_name} Solar Ordinance text.txt"
-        ),
-        "permitted_use_text": (
-            f"{jurisdiction_name} Permitted Use Original text.txt"
-        ),
-        "permitted_use_only_text": (
-            f"{jurisdiction_name} Permitted Use Only text.txt"
-        ),
-    }
-    for key, fn in key_to_fp.items():
-        text = doc.attrs.get(key)
-        if text is None:
-            continue
-
-        (out_dir / fn).write_text(text, encoding="utf-8")
-
-
-def _write_ord_db(doc, out_dir):
+def _write_ord_db(extraction_context, out_dir, out_fn=None):
     """Write parsed ordinance database to directory"""
-    ord_db = doc.attrs.get("scraped_values")
-    jurisdiction_name = doc.attrs.get("jurisdiction_name")
+    ord_db = extraction_context.attrs.get("structured_data")
 
-    if ord_db is None or jurisdiction_name is None:
+    if ord_db is None or out_fn is None:
         return None
 
-    out_fp = Path(out_dir) / f"{jurisdiction_name} Ordinances.csv"
-    ord_db.to_csv(out_fp, index=False)
+    out_fp = Path(out_dir) / out_fn
+    ord_db.to_csv(out_fp, index=False, encoding="utf-8-sig")
     return out_fp
 
 
@@ -199,11 +174,11 @@ class TempFileCache(ThreadedService):
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
+            :func:`elm.web.utilities.compute_fn_from_url`.
         file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.
@@ -239,11 +214,11 @@ class TempFileCachePB(TempFileCache):
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : BaseDocument
             Document containing meta information about the file. Must
             have a "source" key in the ``attrs`` dict containing the
             URL, which will be converted to a file name using
-            :func:`compute_fn_from_url`.
+            :func:`elm.web.utilities.compute_fn_from_url`.
         file_content : str or bytes
             File content, typically string text for HTML files and bytes
             for PDF file.
@@ -262,7 +237,9 @@ class TempFileCachePB(TempFileCache):
             make_name_unique=make_name_unique,
         )
         jurisdiction = asyncio.current_task().get_name()
-        COMPASS_PB.update_download_task(jurisdiction, advance=1)
+        with contextlib.suppress(KeyError):
+            COMPASS_PB.update_download_task(jurisdiction, advance=1)
+
         return out
 
 
@@ -292,16 +269,19 @@ class StoreFileOnDisk(ThreadedService):
         """bool: Always ``True`` (limiting is handled by asyncio)"""
         return True
 
-    async def process(self, doc):
+    async def process(self, doc, *args):
         """Store file in out directory
 
         Parameters
         ----------
-        doc : elm.web.document.Document
+        doc : BaseDocument
             Document containing meta information about the file. Must
             have relevant processing keys in the ``attrs`` dict,
             otherwise the file may not be stored in the output
             directory.
+        args
+            Additional positional argument pairs to pass to the
+            processing function.
 
         Returns
         -------
@@ -310,7 +290,11 @@ class StoreFileOnDisk(ThreadedService):
         """
         loop = asyncio.get_running_loop()
         return await loop.run_in_executor(
-            self.pool, _PROCESSING_FUNCTIONS[self._PROCESS], doc, self.out_dir
+            self.pool,
+            _PROCESSING_FUNCTIONS[self._PROCESS],
+            doc,
+            self.out_dir,
+            *args,
         )
 
     @property
@@ -371,16 +355,23 @@ class UsageUpdater(ThreadedService):
 
         Parameters
         ----------
-        tracker : elm.ods.services.usage.UsageTracker
+        tracker : UsageTracker
             A usage tracker instance that contains usage info to be
             added to output file.
+
+        Returns
+        -------
+        dict
+            Updated usage dictionary persisted to ``usage_fp``.
         """
         self._is_processing = True
-        loop = asyncio.get_running_loop()
-        out = await loop.run_in_executor(
-            self.pool, _dump_usage, self.usage_fp, tracker
-        )
-        self._is_processing = False
+        try:
+            loop = asyncio.get_running_loop()
+            out = await loop.run_in_executor(
+                self.pool, _dump_usage, self.usage_fp, tracker
+            )
+        finally:
+            self._is_processing = False
         return out
 
 
@@ -409,43 +400,79 @@ class JurisdictionUpdater(ThreadedService):
         return not self._is_processing
 
     async def process(
-        self, jurisdiction, doc, seconds_elapsed, usage_tracker=None
+        self,
+        jurisdiction,
+        extraction_context,
+        seconds_elapsed,
+        usage_tracker=None,
     ):
-        """Add usage from tracker to file
+        """Record jurisdiction metadata in the tracking file
 
-        Any existing usage info in the file will remain unchanged
-        EXCEPT for anything under the label of the input `tracker`,
-        all of which will be replaced with info from the tracker itself.
+        The file on disk is updated in-place.
 
         Parameters
         ----------
-        jurisdiction : compass.utilities.location.Jurisdiction
-            Jurisdiction to record.
-        doc : elm.web.document.Document
-            Document containing meta information about the jurisdiction.
-            Must have relevant processing keys in the ``attrs`` dict,
-            otherwise the jurisdiction may not be recorded properly.
-            If ``None``, the jurisdiction is assumed not to have been
-            found.
+        jurisdiction : Jurisdiction
+            The jurisdiction instance to record.
+        extraction_context : ExtractionContext
+            Context containing meta information about the jurisdiction
+            under extraction. Must have relevant processing keys in the
+            ``attrs`` dict, otherwise the jurisdiction may not be
+            recorded properly. If ``None``, the jurisdiction is assumed
+            not to have been found.
         seconds_elapsed : int or float
             Total number of seconds it took to look for (and possibly
             parse) this document.
-        usage_tracker : compass.services.usage.UsageTracker, optional
+        usage_tracker : UsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         """
         self._is_processing = True
+        try:
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(
+                self.pool,
+                _dump_jurisdiction_info,
+                self.jurisdiction_fp,
+                jurisdiction,
+                extraction_context,
+                seconds_elapsed,
+                usage_tracker,
+            )
+        finally:
+            self._is_processing = False
+
+
+class HTMLFileLoader(ThreadedService):
+    """Service that loads HTML files from disk"""
+
+    @property
+    def can_process(self):
+        """bool: ``True`` because can always read file"""
+        return True
+
+    async def process(self, html_fp, **kwargs):
+        """Read HTML file from disk
+
+        Parameters
+        ----------
+        html_fp : path-like
+            Path to HTML file on disk.
+        **kwargs
+            Additional keyword-value argument pairs to pass to
+            :class:`elm.web.document.HTMLDocument`.
+
+        Returns
+        -------
+        tuple
+            Two-item tuple of the loaded
+            :class:`~elm.web.document.HTMLDocument`
+            and the raw HTML string content.
+        """
         loop = asyncio.get_running_loop()
-        await loop.run_in_executor(
-            self.pool,
-            _dump_jurisdiction_info,
-            self.jurisdiction_fp,
-            jurisdiction,
-            doc,
-            seconds_elapsed,
-            usage_tracker,
+        return await loop.run_in_executor(
+            self.pool, _read_html_file, html_fp, **kwargs
         )
-        self._is_processing = False
 
 
 def _dump_usage(fp, tracker):
@@ -466,7 +493,7 @@ def _dump_usage(fp, tracker):
 
 
 def _dump_jurisdiction_info(
-    fp, jurisdiction, doc, seconds_elapsed, usage_tracker
+    fp, jurisdiction, extraction_context, seconds_elapsed, usage_tracker
 ):
     """Dump jurisdiction info to an existing file"""
     if not Path(fp).exists():
@@ -485,16 +512,27 @@ def _dump_jurisdiction_info(
         "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
+        "jurisdiction_website": None,
+        "compass_crawl": False,
         "cost": None,
         "documents": None,
     }
+
     if usage_tracker is not None:
-        cost = _compute_jurisdiction_cost(usage_tracker)
+        cost = compute_cost_from_totals(usage_tracker.totals)
         new_info["cost"] = cost or None
 
-    if num_ordinances_in_doc(doc) > 0:
+    if extraction_context is not None and extraction_context.data_docs:
         new_info["found"] = True
-        new_info["documents"] = [_compile_doc_info(doc)]
+        new_info["documents"] = [
+            _compile_doc_info(doc) for doc in extraction_context.data_docs
+        ]
+        new_info["jurisdiction_website"] = extraction_context.attrs.get(
+            "jurisdiction_website"
+        )
+        new_info["compass_crawl"] = extraction_context.attrs.get(
+            "compass_crawl", False
+        )
 
     jurisdiction_info["jurisdictions"].append(new_info)
     with Path.open(fp, "w", encoding="utf-8") as fh:
@@ -503,33 +541,49 @@ def _dump_jurisdiction_info(
 
 def _compile_doc_info(doc):
     """Put together meta information about a single document"""
-    year, month, day = doc.attrs.get("date", (None, None, None))
+    year, month, day = doc.attrs.get("date") or (None, None, None)
+    out_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
     return {
         "source": doc.attrs.get("source"),
         "effective_year": year if year is not None and year > 0 else None,
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
-        "ord_filename": Path(doc.attrs.get("out_fp", "Unknown")).name,
-        "num_pages": len(doc.pages),
+        "ord_filename": Path(out_fp or "unknown").name,
+        "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),
+        "is_pdf": isinstance(doc, PDFDocument),
+        "from_ocr": doc.attrs.get("from_ocr", False),
+        "relevant_text_ngram_score": doc.attrs.get(
+            "relevant_text_ngram_score"
+        ),
+        "permitted_use_text_ngram_score": doc.attrs.get(
+            "permitted_use_text_ngram_score"
+        ),
     }
 
 
-def _compute_jurisdiction_cost(usage_tracker):
-    """Compute total cost from total tracked usage"""
+def _read_html_file(html_fp, **kwargs):
+    """Default read HTML function (runs in main thread)"""
+    text = Path(html_fp).read_text(encoding="utf-8")
+    return HTMLDocument([text], **kwargs), text
 
-    total_cost = 0
-    for model, total_usage in usage_tracker.totals.items():
-        model_costs = LLM_COST_REGISTRY.get(model, {})
-        total_cost += (
-            total_usage.get("prompt_tokens", 0)
-            / 1e6
-            * model_costs.get("prompt", 0)
-        )
-        total_cost += (
-            total_usage.get("response_tokens", 0)
-            / 1e6
-            * model_costs.get("response", 0)
-        )
 
-    return total_cost
+async def read_html_file(html_fp, **kwargs):
+    """Read HTML file in a threaded pool
+
+    Parameters
+    ----------
+    html_fp : path-like
+        Path to HTML file on disk.
+    **kwargs
+        Keyword-value argument pairs to pass to
+        :class:`elm.web.document.HTMLDocument`.
+
+    Returns
+    -------
+    tuple
+        Two-item tuple of the loaded
+        :class:`~elm.web.document.HTMLDocument`
+        and the raw HTML string content.
+    """
+    return await HTMLFileLoader.call(html_fp, **kwargs)

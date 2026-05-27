@@ -74,7 +74,19 @@ class _TotalCostColumn(ProgressColumn):
 
 
 class _COMPASSProgressBars:
-    """COMPASS progress bar configurations"""
+    """Manage the suite of rich progress bars used by COMPASS runs
+
+    The class maintains a primary progress bar plus a set of
+    jurisdiction-scoped progress bars for downloads, crawling, and
+    parsing subtasks. It centralizes creation, teardown, and cost
+    tracking so CLI runs can display consistent status updates.
+
+    Notes
+    -----
+    Instances are typically accessed via the module-level singleton
+    :data:`COMPASS_PB`. Use the context managers for scoped tasks to
+    ensure progress bars are removed even when exceptions occur.
+    """
 
     def __init__(self, console=None):
         """
@@ -105,10 +117,16 @@ class _COMPASSProgressBars:
         self._jd_tasks = {}
         self._dl_pbs = {}
         self._dl_tasks = {}
+        self._wc_pbs = {}
+        self._wc_tasks = {}
+        self._wc_docs_found = {}
+        self._cwc_pbs = {}
+        self._cwc_tasks = {}
+        self._cwc_docs_found = {}
 
     @property
     def group(self):
-        """rich.console.Group: Group of renderable progress bars."""
+        """rich.console.Group: Group of renderable progress bars"""
         return self._group
 
     def create_main_task(self, num_jurisdictions):
@@ -142,15 +160,13 @@ class _COMPASSProgressBars:
         )
 
     def progress_main_task(self):
-        """Advance the main task one step
-
-        In other words, mark one jurisdiction as complete.
+        """Advance the main jurisdiction task by one unit
 
         Raises
         ------
         COMPASSNotInitializedError
-            If the main task has not been set up (i.e.
-            `create_main_task` has not been called).
+            If the main task has not been set up via
+            :meth:`create_main_task`.
         """
         if self._main_task is None:
             msg = (
@@ -162,18 +178,16 @@ class _COMPASSProgressBars:
         self._main.update(self._main_task, advance=1)
 
     def update_total_cost(self, cost, replace=False):
-        """Update the total cost of the run
+        """Update the aggregate LLM cost displayed in the main bar
 
         Parameters
         ----------
-        cost : int or float
-            Cost value used for update.
+        cost : float or int
+            Cost increment or replacement value in US dollars.
         replace : bool, optional
-            If ``True``, the `cost` input will completely replace the
-            total cost, but only if the `cost` value is equal to or
-            larger than the existing total cost (i.e. we never want the
-            cost to decrease). If ``False``, the `cost` input is just
-            added to the running total. By default, ``False``.
+            When ``True`` the total cost is replaced by ``cost``,
+            provided it does not move backwards. When ``False``
+            the cost is added cumulatively. By default, ``False``.
         """
         if replace:
             if cost + 0.01 >= self._total_cost:
@@ -186,15 +200,15 @@ class _COMPASSProgressBars:
 
     @contextmanager
     def jurisdiction_prog_bar(self, location, progress_main=True):
-        """Set a progress bar for the processing of one jurisdiction
+        """Context manager for jurisdiction-wide processing progress
 
         Parameters
         ----------
         location : str
             Name of jurisdiction being processed.
-        progress_main : bool, default=True
-            Option to progress the main task when exiting this context
-            manager.
+        progress_main : bool, optional
+            If ``True``, the main jurisdiction task advances when the
+            context exits successfully. By default, ``True``.
 
         Yields
         ------
@@ -253,10 +267,10 @@ class _COMPASSProgressBars:
 
     @contextmanager
     def jurisdiction_sub_prog(self, location):
-        """Start a sub-progress update area for location
+        """Context manager for text-only jurisdiction sub-progress
 
-        This type of sub-progress does not have a bar, so it's useful
-        for tasks with an unknown length/duration.
+        This variant omits a progress bar and is intended for steps with
+        unknown durations, such as intermediate parsing tasks.
 
         Parameters
         ----------
@@ -290,7 +304,7 @@ class _COMPASSProgressBars:
 
     @contextmanager
     def jurisdiction_sub_prog_bar(self, location):
-        """Start a sub-progress bar for location
+        """Context manager for jurisdiction sub-progress with a bar
 
         Parameters
         ----------
@@ -331,7 +345,7 @@ class _COMPASSProgressBars:
 
     @asynccontextmanager
     async def file_download_prog_bar(self, location, num_downloads):
-        """Set a progress bar for download of files for one jurisdiction
+        """Async context manager for jurisdiction download progress
 
         Parameters
         ----------
@@ -348,7 +362,38 @@ class _COMPASSProgressBars:
         Raises
         ------
         COMPASSValueError
-            If a progress bar already exists for fine downloads for this
+            If a progress bar already exists for file downloads for this
+            location.
+        """
+        try:
+            pb, task = self.start_file_download_prog_bar(
+                location, num_downloads
+            )
+            yield pb
+        finally:
+            await self.tear_down_file_download_prog_bar(
+                location, num_downloads, pb, task
+            )
+
+    def start_file_download_prog_bar(self, location, num_downloads):
+        """Create and register a download progress bar for a location
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_downloads : int
+            Total number of downloads being processed.
+
+        Returns
+        -------
+        tuple
+            Two-item tuple of the progress instance and created task ID.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for file downloads for this
             location.
         """
         if location in self._dl_pbs:
@@ -375,16 +420,24 @@ class _COMPASSProgressBars:
         self._group.renderables.insert(insert_index, pb)
         self._dl_pbs[location] = pb
         self._dl_tasks[location] = task = pb.add_task("", total=num_downloads)
+        return pb, task
 
-        try:
-            yield pb
-        finally:
-            pb.update(task, completed=num_downloads)
-            await asyncio.sleep(1)
-            self._remove_download_prog_bar(location)
+    async def tear_down_file_download_prog_bar(
+        self, location, num_downloads, pb, task
+    ):
+        """Complete and remove a file download progress bar
 
-    def _remove_download_prog_bar(self, location):
-        """Remove download prog bar and associated task (if any)"""
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction that was being processed.
+        num_downloads : int
+            Total number of downloads that were being processed.
+
+        """
+        pb.update(task, completed=num_downloads)
+        await asyncio.sleep(1)
+
         pb = self._dl_pbs.pop(location)
         if task_id := self._dl_tasks.get(location):
             pb.remove_task(task_id)
@@ -392,7 +445,7 @@ class _COMPASSProgressBars:
         self._group.renderables.remove(pb)
 
     def update_download_task(self, location, *args, **kwargs):
-        """Update the task corresponding to the jurisdiction download
+        """Update a jurisdiction download progress entry
 
         Parameters
         ----------
@@ -404,6 +457,200 @@ class _COMPASSProgressBars:
         """
         task_id = self._dl_tasks[location]
         self._dl_pbs[location].update(task_id, *args, **kwargs)
+
+    @asynccontextmanager
+    async def website_crawl_prog_bar(self, location, num_pages):
+        """Async context manager for website crawling progress
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_pages : int
+            Total number of pages expected for the crawl.
+
+        Yields
+        ------
+        rich.progress.Progress
+            `rich` progress bar initialized for this jurisdiction.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for website crawling for
+            this location.
+        """
+        if location in self._wc_pbs:
+            msg = f"Web crawl progress bar already exists for {location}"
+            raise COMPASSValueError(msg)
+
+        pb = Progress(
+            TextColumn("       "),
+            BarColumn(
+                bar_width=30,
+                complete_style="progress.elapsed",
+                finished_style="progress.spinner",
+            ),
+            TextColumn("[bar.back]{task.description}"),
+            console=self.console,
+        )
+
+        jd_pb = self._jd_pbs.get(location)
+        if jd_pb:
+            insert_index = self._group.renderables.index(jd_pb) + 1
+        else:
+            insert_index = len(self._group.renderables)
+
+        self._group.renderables.insert(insert_index, pb)
+        self._wc_pbs[location] = pb
+        self._wc_docs_found[location] = 0
+        self._wc_tasks[location] = task = pb.add_task(
+            description="0 potential documents found", total=num_pages
+        )
+
+        try:
+            yield pb
+        finally:
+            pb.update(task, completed=num_pages)
+            await asyncio.sleep(1)
+            self._remove_website_crawl_prog_bar(location)
+
+    def _remove_website_crawl_prog_bar(self, location):
+        """Remove download prog bar and associated task (if any)"""
+        pb = self._wc_pbs.pop(location)
+        if task_id := self._wc_tasks.get(location):
+            pb.remove_task(task_id)
+
+        self._group.renderables.remove(pb)
+
+    def update_website_crawl_task(self, location, *args, **kwargs):
+        """Update the website crawl progress for a jurisdiction
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        *args, **kwargs
+            Parameters to pass to the `task.update` function in the
+            `rich` python library.
+        """
+        task_id = self._wc_tasks[location]
+        self._wc_pbs[location].update(task_id, *args, **kwargs)
+
+    def update_website_crawl_doc_found(self, location):
+        """Increment the count of documents discovered during crawling
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        """
+        self._wc_docs_found[location] = num = self._wc_docs_found[location] + 1
+        if num == 1:
+            desc = "1 potential document found"
+        else:
+            desc = f"{num:,d} potential documents found"
+
+        task_id = self._wc_tasks[location]
+        self._wc_pbs[location].update(task_id, description=desc)
+
+    @asynccontextmanager
+    async def compass_website_crawl_prog_bar(self, location, num_pages):
+        """Async context manager for COMPASS-style website crawling
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        num_pages : int
+            Total number of pages expected for the crawl.
+
+        Yields
+        ------
+        rich.progress.Progress
+            `rich` progress bar initialized for this jurisdiction.
+
+        Raises
+        ------
+        COMPASSValueError
+            If a progress bar already exists for website crawling for
+            this location.
+        """
+        if location in self._cwc_pbs:
+            msg = f"Web crawl progress bar already exists for {location}"
+            raise COMPASSValueError(msg)
+
+        pb = Progress(
+            TextColumn("       "),
+            BarColumn(
+                bar_width=30,
+                complete_style="progress.elapsed",
+                finished_style="progress.spinner",
+            ),
+            TextColumn("[bar.back]{task.description}"),
+            console=self.console,
+        )
+
+        jd_pb = self._jd_pbs.get(location)
+        if jd_pb:
+            insert_index = self._group.renderables.index(jd_pb) + 1
+        else:
+            insert_index = len(self._group.renderables)
+
+        self._group.renderables.insert(insert_index, pb)
+        self._cwc_pbs[location] = pb
+        self._cwc_docs_found[location] = 0
+        self._cwc_tasks[location] = task = pb.add_task(
+            description="0 potential documents found", total=num_pages
+        )
+
+        try:
+            yield pb
+        finally:
+            pb.update(task, completed=num_pages)
+            await asyncio.sleep(1)
+            self._remove_compass_website_crawl_prog_bar(location)
+
+    def _remove_compass_website_crawl_prog_bar(self, location):
+        """Remove download prog bar and associated task (if any)"""
+        pb = self._cwc_pbs.pop(location)
+        if task_id := self._cwc_tasks.get(location):
+            pb.remove_task(task_id)
+
+        self._group.renderables.remove(pb)
+
+    def update_compass_website_crawl_task(self, location, *args, **kwargs):
+        """Update COMPASS-style crawl progress for a jurisdiction
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        *args, **kwargs
+            Parameters to pass to the `task.update` function in the
+            `rich` python library.
+        """
+        task_id = self._cwc_tasks[location]
+        self._cwc_pbs[location].update(task_id, *args, **kwargs)
+
+    def update_compass_website_crawl_doc_found(self, location):
+        """Increment COMPASS-style crawl document discovery count
+
+        Parameters
+        ----------
+        location : str
+            Name of jurisdiction being processed.
+        """
+        self._cwc_docs_found[location] = num = (
+            self._cwc_docs_found[location] + 1
+        )
+        if num == 1:
+            desc = "1 potential document found"
+        else:
+            desc = f"{num:,d} potential documents found"
+
+        task_id = self._cwc_tasks[location]
+        self._cwc_pbs[location].update(task_id, description=desc)
 
 
 COMPASS_PB = _COMPASSProgressBars()

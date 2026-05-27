@@ -1,6 +1,8 @@
 """Ordinance date extraction logic"""
 
 import logging
+from datetime import datetime
+from collections import Counter
 
 from compass.utilities.enums import LLMUsageCategory
 
@@ -33,21 +35,22 @@ class DateExtractor:
         "if you are confident that they represent the latest date this "
         "ordinance was enacted/updated"
     )
+    """System message for date extraction LLM calls"""
 
-    def __init__(self, structured_llm_caller, text_splitter=None):
+    def __init__(self, json_llm_caller, text_splitter=None):
         """
 
         Parameters
         ----------
-        structured_llm_caller : compass.llm.StructuredLLMCaller
-            StructuredLLMCaller instance. Used for structured validation
-            queries.
-        text_splitter : langchain.text_splitter.TextSplitter, optional
-            Optional text splitter instance to attach to doc (used for
-            splitting out pages in an HTML document).
+        json_llm_caller : JSONFromTextLLMCaller
+            Instance used for structured validation queries.
+        text_splitter : LCTextSplitter, optional
+            Optional text splitter (or subclass instance, or any object
+            that implements a `split_text` method) to attach to doc
+            (used for splitting out pages in an HTML document).
             By default, ``None``.
         """
-        self.slc = structured_llm_caller
+        self.jlc = json_llm_caller
         self.text_splitter = text_splitter
 
     async def parse(self, doc):
@@ -55,7 +58,7 @@ class DateExtractor:
 
         Parameters
         ----------
-        doc : elm.web.document.BaseDocument
+        doc : BaseDocument
             Document with a `raw_pages` attribute.
 
         Returns
@@ -81,7 +84,7 @@ class DateExtractor:
         )
         if can_check_url_for_date:
             logger.debug("Checking URL for date: %s", url)
-            response = await self.slc.call(
+            response = await self.jlc.call(
                 sys_msg=self.SYSTEM_MESSAGE,
                 content=(
                     "Please extract the date from the URL for this "
@@ -91,7 +94,7 @@ class DateExtractor:
             )
             if response:
                 date = _parse_date([response])
-                logger.debug("Parsed date from URL: %s", str(date))
+                logger.debug("Parsed date from URL: %s", date)
                 return date
 
         if not doc.raw_pages:
@@ -102,7 +105,7 @@ class DateExtractor:
             if not text:
                 continue
 
-            response = await self.slc.call(
+            response = await self.jlc.call(
                 sys_msg=self.SYSTEM_MESSAGE,
                 content=f"Please extract the date for this ordinance:\n{text}",
                 usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
@@ -115,37 +118,42 @@ class DateExtractor:
 
 
 def _parse_date(json_list):
-    """Parse all date elements"""
-    year = _parse_date_element(
+    """Parse all date elements
+
+    True date is determined to be the most frequent date. In the case of
+    a tie, the latest date is chosen.
+    """
+    if not json_list:
+        return None, None, None
+
+    years = _parse_date_element(
         json_list,
         key="year",
         max_len=4,
         min_val=2000,
-        max_val=float("inf"),
+        max_val=datetime.now().year,
     )
-    month = _parse_date_element(
+    months = _parse_date_element(
         json_list, key="month", max_len=2, min_val=1, max_val=12
     )
-    day = _parse_date_element(
+    days = _parse_date_element(
         json_list, key="day", max_len=2, min_val=1, max_val=31
     )
 
-    return year, month, day
+    date_elements = Counter(zip(years, months, days, strict=False))
+    date = max(date_elements, key=lambda date: (date_elements[date], date))
+    return tuple(None if d < 0 else d for d in date)
 
 
 def _parse_date_element(json_list, key, max_len, min_val, max_val):
     """Parse out a single date element"""
     date_elements = [info.get(key) for info in json_list]
     logger.debug("key=%r, date_elements=%r", key, date_elements)
-    date_elements = [
+    return [
         int(y)
-        for y in date_elements
         if y is not None
         and len(str(y)) <= max_len
         and (min_val <= int(y) <= max_val)
+        else -1 * float("inf")
+        for y in date_elements
     ]
-    if not date_elements:
-        return -1 * float("inf")
-    return max(
-        sorted(set(date_elements), reverse=True), key=date_elements.count
-    )
