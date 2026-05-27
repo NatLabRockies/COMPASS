@@ -12,6 +12,7 @@ from compass.services.threaded import (
     FileMover,
     ParsedFileWriter,
     TempFileCacheCopier,
+    GenericFuncRunner,
 )
 from compass.services.cpu import read_docling_local_file
 from compass.utilities.io import load_config
@@ -50,7 +51,7 @@ def build_collection_manifest(tech, jurisdictions):
     }
 
 
-def write_collection_manifest(manifest_dir, collection_manifest):
+async def write_collection_manifest(manifest_dir, collection_manifest):
     """Write a collection manifest to disk
 
     Parameters
@@ -66,15 +67,12 @@ def write_collection_manifest(manifest_dir, collection_manifest):
     pathlib.Path
         Path to the written manifest file.
     """
-    manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
-    manifest_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
-        encoding="utf-8",
+    return await GenericFuncRunner.call(
+        _write_collection_manifest, manifest_dir, collection_manifest
     )
-    return manifest_fp
 
 
-def write_collection_manifest_shard(shard_dir, collection_info):
+async def write_collection_manifest_shard(shard_dir, collection_info):
     """Write one jurisdiction collection manifest shard to disk
 
     Parameters
@@ -89,17 +87,12 @@ def write_collection_manifest_shard(shard_dir, collection_info):
     pathlib.Path
         Path to the written shard file.
     """
-    shard_dir = Path(shard_dir)
-    shard_dir.mkdir(parents=True, exist_ok=True)
-    shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
-    shard_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_info), indent=4),
-        encoding="utf-8",
+    return await GenericFuncRunner.call(
+        _write_collection_manifest_shard, shard_dir, collection_info
     )
-    return shard_fp
 
 
-def load_collection_manifest(manifest_fp, expected_tech):
+async def load_collection_manifest(manifest_fp, expected_tech):
     """Load a collection manifest from disk
 
     Parameters
@@ -115,6 +108,35 @@ def load_collection_manifest(manifest_fp, expected_tech):
     dict
         Loaded collection manifest as a dictionary.
     """
+    return await GenericFuncRunner.call(
+        _load_collection_manifest, manifest_fp, expected_tech
+    )
+
+
+def _write_collection_manifest(manifest_dir, collection_manifest):
+    """Write a collection manifest to disk"""
+    manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
+    manifest_fp.write_text(
+        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
+        encoding="utf-8",
+    )
+    return manifest_fp
+
+
+def _write_collection_manifest_shard(shard_dir, collection_info):
+    """Write one jurisdiction collection manifest shard to disk"""
+    shard_dir = Path(shard_dir)
+    shard_dir.mkdir(parents=True, exist_ok=True)
+    shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
+    shard_fp.write_text(
+        json.dumps(convert_paths_to_strings(collection_info), indent=4),
+        encoding="utf-8",
+    )
+    return shard_fp
+
+
+def _load_collection_manifest(manifest_fp, expected_tech):
+    """Load a collection manifest from disk"""
     try:
         manifest = load_config(manifest_fp, file_name="Collection manifest")
     except COMPASSFileNotFoundError:
