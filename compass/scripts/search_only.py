@@ -225,9 +225,7 @@ async def _search_one_jurisdiction(
             ]
         )
     except Exception as exc:
-        logger.exception(
-            "Search failed for %s", jurisdiction.full_name
-        )
+        logger.exception("Search failed for %s", jurisdiction.full_name)
         base["error"] = f"{type(exc).__name__}: {exc}"
         return base
 
@@ -382,9 +380,7 @@ def _active_results_sorted(results):
     active_results = [
         entry for entry in results if entry["filtered_reason"] is None
     ]
-    active_results.sort(
-        key=itemgetter("query_rank", "query_index", "_order")
-    )
+    active_results.sort(key=itemgetter("query_rank", "query_index", "_order"))
     return active_results
 
 
@@ -429,10 +425,7 @@ def format_search_only_report_human(report):
             "COMPASS search-only summary",
             f"tech: {report.get('tech')}",
             f"timestamp: {report.get('timestamp')}",
-            (
-                "requested top urls: "
-                f"{report.get('num_urls_requested')}"
-            ),
+            (f"requested top urls: {report.get('num_urls_requested')}"),
             "",
         )
     )

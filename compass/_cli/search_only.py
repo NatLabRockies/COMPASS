@@ -69,9 +69,7 @@ from compass.utilities.io import load_config
     default=None,
     help="One-shot plugin configuration to register before searching",
 )
-def search_only(
-    config, n_top_urls, output, output_format, verbose, plugin
-):
+def search_only(config, n_top_urls, output, output_format, verbose, plugin):
     """Run only the search step and emit ranked URL results"""
     config_path = config
     config = load_config(config)
