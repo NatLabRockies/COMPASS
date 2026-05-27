@@ -14,7 +14,6 @@ when no rows were recorded (evals deselected by default).
 import csv
 import json
 from dataclasses import asdict
-from operator import attrgetter
 import pytest
 from common import RESULT_FIELDS, SUCCESS
 
@@ -106,41 +105,31 @@ def _compute_metrics(results):
     }
 
 
-_ROUND_4 = {
-    "accuracy", "precision", "recall", "f1", "total_cost_usd",
-}
-_ROUND_2 = {"total_time_taken_s"}
-_CI_KEYS = {
-    "accuracy_95_percent_confidence_interval",
-    "precision_95_percent_confidence_interval",
-    "recall_95_percent_confidence_interval",
-}
-
-
 def _format_entry(feature, metrics):
-    """Format a per-feature metrics dict for the JSON list
+    """Format a per-feature metrics dict for the JSON list """
 
-    Rounds floats to a sensible precision and converts CI tuples to
-    ``"lo - hi"`` strings. Keys are otherwise pass-through from
-    :func:`_compute_metrics`.
-    """
+    round_4 = {
+    "accuracy", "precision", "recall", "f1", "total_cost_usd",
+    }
+    round_2 = {"total_time_taken_s"}
+    ci_keys = {
+        "accuracy_95_percent_confidence_interval",
+        "precision_95_percent_confidence_interval",
+        "recall_95_percent_confidence_interval",
+    }
+
     out = {"feature": feature}
-    for k, v in metrics.items():
-        if k in _CI_KEYS:
-            out[k] = _ci_str(v)
-        elif k in _ROUND_4:
-            out[k] = round(v, 4)
-        elif k in _ROUND_2:
-            out[k] = round(v, 2)
+    for key, val in metrics.items():
+        if key in ci_keys:
+            lo, hi = val
+            out[key] = None if lo is None else f"{lo:.4f} - {hi:.4f}"
+        elif key in round_4:
+            out[key] = round(val, 4)
+        elif key in round_2:
+            out[key] = round(val, 2)
         else:
-            out[k] = v
+            out[key] = val
     return out
-
-
-def _ci_str(ci):
-    """Format (lo, hi) as 'lo - hi' string, or None if undefined"""
-    lo, hi = ci
-    return None if lo is None else f"{lo:.4f} - {hi:.4f}"
 
 
 def _write_metrics_json(fp, entries):
@@ -155,7 +144,10 @@ def _write_breakdown_csv(fp, results):
     with fp.open("w", newline="", encoding="utf-8") as fh:
         writer = csv.DictWriter(fh, fieldnames=RESULT_FIELDS)
         writer.writeheader()
-        for row in sorted(results, key=attrgetter("jurisdiction")):
+        for row in sorted(
+            results,
+            key=lambda r: (r.state, r.county, r.subdivision or ""),
+        ):
             writer.writerow(asdict(row))
 
 

@@ -20,7 +20,7 @@ from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
 
-from common import Result, classify
+from common import Result, classify, display_name
 
 
 logger = logging.getLogger(__name__)
@@ -78,8 +78,9 @@ def _build_doc(case, dataset_dir):
 
 async def _run_case(case, dataset_dir, eval_type, model_config):
     """Extract the date for one case and record the result"""
+    label = display_name(case)
     doc = _build_doc(case, dataset_dir)
-    usage_tracker = UsageTracker(case["jurisdiction"], usage_from_response)
+    usage_tracker = UsageTracker(label, usage_from_response)
     start = time.perf_counter()
     async with RunningAsyncServices([model_config.llm_service]):
         doc = await extract_date(
@@ -94,7 +95,10 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     RESULTS[eval_type].append(
         Result(
             fips=case["fips"],
-            jurisdiction=case["jurisdiction"],
+            state=case["state"],
+            county=case["county"],
+            subdivision=case["subdivision"],
+            jurisdiction_type=case["jurisdiction_type"],
             file=case["file"],
             source=case["source"],
             feature="year",
@@ -109,7 +113,7 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     if eval_type != "held_out":
         logger.info(
             "%s (FIPS %s): expected=%s extracted=%s cost=$%.4f",
-            case["jurisdiction"],
+            label,
             case["fips"],
             expected,
             year,

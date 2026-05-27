@@ -22,7 +22,10 @@ class Result:
 
     # identity
     fips: int
-    jurisdiction: str
+    state: str
+    county: str
+    subdivision: str | None
+    jurisdiction_type: str
     file: str
     source: str
     feature: str
@@ -45,3 +48,9 @@ RESULT_FIELDS = [f.name for f in fields(Result)]
 def classify(expected, extracted):
     """Binary success: did the extractor match ground truth?"""
     return SUCCESS if extracted == expected else FAILURE
+
+
+def display_name(case):
+    """Human-readable jurisdiction label from a manifest case"""
+    parts = [case["subdivision"], case["county"], case["state"]]
+    return ", ".join(p for p in parts if p)
