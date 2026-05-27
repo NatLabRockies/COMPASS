@@ -22,14 +22,14 @@ _CSV_FIELDS = [
     "jurisdiction",
     "file",
     "source",
-    "expected_year",
-    "extracted_year",
-    "extracted_month",
-    "extracted_day",
-    "correct",
-    "category",
+    "expected",
+    "extracted",
+    "comparison_result",
     "cost",
 ]
+
+# Comparison-result categories that count as "correct" (vs. failing).
+_CORRECT_RESULTS = {"TP", "TN"}
 
 # Per-row regression tolerance: how many previously-correct rows may flip to
 # wrong (e.g. from temperature sampling noise) before the gate fails.
@@ -82,7 +82,7 @@ def _compute_metrics(results):
     """
     counts = {"TP": 0, "TN": 0, "FP": 0, "FN": 0, "WRONG": 0}
     for r in results:
-        counts[r["category"]] += 1
+        counts[r["comparison_result"]] += 1
 
     tp, tn, fp, fn, wrong = (
         counts["TP"],
@@ -170,7 +170,7 @@ def _load_baseline_correct(breakdown_fp):
         return None
     with breakdown_fp.open(newline="", encoding="utf-8") as fh:
         return {
-            str(row["fips"]): row["correct"] == "True"
+            str(row["fips"]): row["comparison_result"] in _CORRECT_RESULTS
             for row in csv.DictReader(fh)
         }
 
@@ -191,8 +191,11 @@ def _check_full_regression(rows, baseline):
     if baseline is None:
         return [], ["  gate: no baseline yet (this run sets it)"]
 
-    now_correct = {str(r["fips"]): r["correct"] for r in rows}
-    fails_now = sum(1 for r in rows if not r["correct"])
+    now_correct = {
+        str(r["fips"]): r["comparison_result"] in _CORRECT_RESULTS
+        for r in rows
+    }
+    fails_now = sum(1 for ok in now_correct.values() if not ok)
     fails_base = sum(1 for ok in baseline.values() if not ok)
     regressed = sorted(
         fips

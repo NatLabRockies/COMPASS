@@ -80,9 +80,8 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
             doc, model_config, usage_tracker=usage_tracker
         )
 
-    year, month, day = doc.attrs["date"]
+    year, _month, _day = doc.attrs["date"]
     expected = case["expected"]["year"]
-    correct = (year is None) if expected is None else (year == expected)
     cost = compute_cost_from_totals(usage_tracker.totals)
 
     RESULTS[eval_type].append(
@@ -91,12 +90,9 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
             "jurisdiction": case["jurisdiction"],
             "file": case["file"],
             "source": case["source"],
-            "expected_year": expected,
-            "extracted_year": year,
-            "extracted_month": month,
-            "extracted_day": day,
-            "correct": correct,
-            "category": _classify(expected, year),
+            "expected": expected,
+            "extracted": year,
+            "comparison_result": _classify(expected, year),
             "cost": cost,
         }
     )
@@ -104,13 +100,11 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     # stats are surfaced) so the held-out set stays hard to tune against.
     if eval_type != "held_out":
         logger.info(
-            "%s (FIPS %s): expected=%s extracted=(%s,%s,%s) cost=$%.4f",
+            "%s (FIPS %s): expected=%s extracted=%s cost=$%.4f",
             case["jurisdiction"],
             case["fips"],
             expected,
             year,
-            month,
-            day,
             cost,
         )
 
