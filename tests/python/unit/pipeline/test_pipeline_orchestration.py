@@ -362,8 +362,7 @@ async def test_collect_then_extract_round_trip_from_manifest(
     assert manifest["tech"] == "roundtrip-test"
     assert len(manifest["jurisdictions"]) == 2
 
-    shard_dir = out_dir / "jurisdiction_dbs"
-    shard_fps = sorted(shard_dir.glob("*_collection_manifest.json"))
+    shard_fps = sorted(out_dir.rglob("*_collection_manifest.json"))
     assert len(shard_fps) == 2
 
     shard_payloads = [
