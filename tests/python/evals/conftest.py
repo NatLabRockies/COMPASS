@@ -1,17 +1,18 @@
-"""Eval reporting + regression gate (``pytest_terminal_summary``).
+"""Eval reporting + regression gate.
 
-Writes results to ``tests/python/evals/results/`` and gates against the
-committed baseline; no-ops in normal runs (evals deselected by default).
+Exposes ``report_evals(request, eval_name, results_by_type, results_dir)``
+for each eval suite's teardown fixture to call. Writes results to the
+given ``results_dir`` and gates against the committed baseline; no-ops
+when no rows were recorded (evals deselected by default).
 
-- **dev**: per-case breakdown CSV + metrics CSV; gate = aggregate failing
+- **dev**: per-case breakdown CSV + metrics JSON; gate = aggregate failing
   count AND per-row regression (tolerance for sampling noise).
-- **held_out**: metrics CSV only (no per-case detail, by design, to keep
+- **held_out**: metrics JSON only (no per-case detail, by design, to keep
   the held-out set hard to tune against); gate = aggregate failing count only.
 """
 
 import csv
 import json
-import sys
 from operator import itemgetter
 
 import pytest
@@ -38,23 +39,6 @@ _SUCCESS = "Success"
 # Per-row regression tolerance: how many previously-correct rows may flip to
 # wrong (e.g. from temperature sampling noise) before the gate fails.
 _ROW_REGRESSION_TOLERANCE = 2
-
-
-def _eval_modules():
-    """Discover loaded eval test modules by duck-typed signature
-
-    An eval suite is any module in ``sys.modules`` that exposes both
-    ``EVAL_NAME`` (str) and ``RESULTS`` (dict of {eval_type: list}). This
-    lets the conftest stay generic -- it doesn't hardcode any specific
-    eval's name or module path. The type checks rule out unrelated modules
-    (e.g. torch's lazy ``_OpNamespace``) that happen to respond truthily
-    to ``hasattr`` via a custom ``__getattr__``.
-    """
-    return [
-        m for m in sys.modules.values()
-        if isinstance(getattr(m, "EVAL_NAME", None), str)
-        and isinstance(getattr(m, "RESULTS", None), dict)
-    ]
 
 
 def _wilson_ci(k, n, alpha=0.05):
@@ -252,42 +236,42 @@ def _check_aggregate_regression(fails_now, baseline_failing):
     return failures, lines
 
 
-def pytest_terminal_summary(terminalreporter, exitstatus, config):
-    """Write eval CSVs, print a summary, and enforce the regression gate
+@pytest.fixture(scope="module")
+def report_evals(request):
+    """Return ``report(eval_name, results_by_type, results_dir)`` callable
 
-    No-ops when the eval did not run (deselected or skipped). If an eval
-    type regresses against its committed baseline, fails the session (sets
-    a non-zero exit) so the run goes red.
+    Used by each eval suite's teardown fixture to write CSVs/JSON, print
+    a summary, and enforce the regression gate. No-ops when the eval did
+    not run (deselected or skipped, so ``results_by_type`` has no rows).
     """
-    write = terminalreporter.write_line
-    gate_failures = []
-    for module in _eval_modules():
-        results_by_type = module.RESULTS
+    def report(eval_name, results_by_type, results_dir):
         if not any(results_by_type.values()):
-            continue
-        results_dir = module.RESULTS_DIR
+            return
+        tr = request.config.pluginmanager.get_plugin("terminalreporter")
+        write = tr.write_line
         results_dir.mkdir(parents=True, exist_ok=True)
 
+        gate_failures = []
         for eval_type, rows in sorted(results_by_type.items()):
             if not rows:
                 continue
             failures, summary_lines = _process_eval_type(
-                module.EVAL_NAME, eval_type, rows, results_dir
+                eval_name, eval_type, rows, results_dir
             )
             gate_failures.extend(
-                f"[{module.EVAL_NAME}/{eval_type}] {m}" for m in failures
+                f"[{eval_name}/{eval_type}] {m}" for m in failures
             )
-            terminalreporter.section(
-                f"Eval summary: {module.EVAL_NAME} / {eval_type}"
-            )
+            tr.section(f"Eval summary: {eval_name} / {eval_type}")
             for line in summary_lines:
                 write(line)
 
-    if gate_failures:
-        terminalreporter.section("Eval regression gate: FAILED")
-        for f in gate_failures:
-            write(f"  - {f}")
-        terminalreporter._session.exitstatus = pytest.ExitCode.TESTS_FAILED
+        if gate_failures:
+            tr.section("Eval regression gate: FAILED")
+            for f in gate_failures:
+                write(f"  - {f}")
+            tr._session.exitstatus = pytest.ExitCode.TESTS_FAILED
+
+    return report
 
 
 def _process_eval_type(eval_name, eval_type, rows, results_dir):

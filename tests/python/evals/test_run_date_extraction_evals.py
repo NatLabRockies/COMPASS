@@ -30,6 +30,13 @@ RESULTS_DIR = Path(__file__).parent / "results"
 RESULTS = {"dev": [], "held_out": []}
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _report(report_evals):
+    """Write CSVs/JSON, print summary, and enforce the gate at teardown"""
+    yield
+    report_evals(EVAL_NAME, RESULTS, RESULTS_DIR)
+
+
 _DEV_CASES = load_config(DEV_MANIFEST_FP)
 _HELD_OUT_CASES = load_config(HELD_OUT_MANIFEST_FP)
 
