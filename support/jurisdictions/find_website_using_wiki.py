@@ -1,6 +1,7 @@
 """Pull out websites for jurisdictions using Wikipedia"""  # noqa
 
 import re
+import sys
 import asyncio
 from asyncio import Semaphore
 from datetime import datetime, UTC
@@ -52,7 +53,11 @@ async def _find_one(jurisdiction):
     if not name:
         name = jurisdiction.county
 
-    if name and name.replace(" ", "_").casefold() not in link.casefold():
+    if (
+        name
+        and name.replace(" ", "_").replace("-", "_").casefold()
+        not in link.casefold()
+    ):
         print(
             f"{jurisdiction}:\n\t- {link}\n\t- Not a match on name ({name})",
             flush=True,
@@ -76,11 +81,10 @@ async def _find_one(jurisdiction):
 async def _main(start_ind, end_ind):
     start_time = datetime.now(UTC)
     existing = pd.read_csv("jurisdictions.csv").replace({np.nan: None})
-    subset = existing.iloc[start_ind:end_ind]
+    subset = existing.iloc[int(start_ind) : int(end_ind)]
     subset = subset[subset["Website"].isna()]
 
-    sem = Semaphore(10)
-
+    sem = Semaphore(200)
     tasks = [
         asyncio.create_task(_run_one_jurisdiction(jur, sem))
         for jur in jurisdictions_from_df(jurisdiction_info=subset)
@@ -99,4 +103,4 @@ async def _main(start_ind, end_ind):
 
 
 if __name__ == "__main__":
-    asyncio.run(_main(0, 20))
+    asyncio.run(_main(*sys.argv[1:]))
