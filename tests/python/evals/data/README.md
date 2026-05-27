@@ -40,13 +40,19 @@ we can revisit (e.g. move held-out behind encryption or a separate location).
 ## Layout
 
 ```
-dev/solar_validation_files/
-  manifest.json5      # [{fips, jurisdiction, file, source, expected_year}, ...]
+dev/solar/
+  manifest.json5      # [{fips, jurisdiction, file, source, expected: {year, ...}}, ...]
   <documents>         # the ordinance PDFs/text files referenced by the manifest
-held-out/solar_validation_files/
+held-out/solar/
   manifest.json5
   <documents>
 ```
 
-`expected_year: null` means the ground truth is "no enactment date exists" —
+Datasets are organized by tech (`solar/` here; future tech additions like
+`wind/`, `geothermal/` will be sibling directories). The `expected` block
+nests per-field ground truth so additional fields (setbacks, max height,
+etc.) can be added as keys alongside `year` without changing the manifest
+shape.
+
+`expected.year: null` means the ground truth is "no enactment date exists" —
 the extractor should return no year for that document.

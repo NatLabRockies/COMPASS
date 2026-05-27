@@ -37,12 +37,8 @@ from compass.services.provider import RunningAsyncServices
 logger = logging.getLogger(__name__)
 
 _DATA_DIR = Path(__file__).parent / "data"
-DEV_MANIFEST_FP = (
-    _DATA_DIR / "dev" / "solar_validation_files" / "manifest.json5"
-)
-HELD_OUT_MANIFEST_FP = (
-    _DATA_DIR / "held-out" / "solar_validation_files" / "manifest.json5"
-)
+DEV_MANIFEST_FP = _DATA_DIR / "dev" / "solar" / "manifest.json5"
+HELD_OUT_MANIFEST_FP = _DATA_DIR / "held-out" / "solar" / "manifest.json5"
 RESULTS_DIR = Path(__file__).parent / "results"
 
 MODEL = "compassop-gpt-5.4"
@@ -123,7 +119,7 @@ async def _run_case(case, dataset_dir, cadence, model_config):
         )
 
     year, month, day = doc.attrs["date"]
-    expected = case["expected_year"]
+    expected = case["expected"]["year"]
     correct = (year is None) if expected is None else (year == expected)
     cost = compute_cost_from_totals(usage_tracker.totals)
 

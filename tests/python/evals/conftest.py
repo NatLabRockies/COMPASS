@@ -47,7 +47,7 @@ def _eval_module():
     The test module is imported by basename under pytest's default import
     mode, so look it up in ``sys.modules`` rather than via a package path.
     """
-    return sys.modules.get("test_extraction_date_accuracy")
+    return sys.modules.get("test_run_date_extraction_eval")
 
 
 def _wilson_ci(k, n, alpha=0.05):
