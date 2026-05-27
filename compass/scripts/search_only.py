@@ -12,6 +12,7 @@ import json
 import logging
 import random
 from datetime import datetime, UTC
+from operator import itemgetter
 from pathlib import Path
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
@@ -214,12 +215,13 @@ async def _search_one_jurisdiction(
             *[
                 _search_one_query(
                     query,
+                    query_index,
                     se_names,
                     init_kwargs_by_se,
                     browser_semaphore,
                     jurisdiction.full_name,
                 )
-                for query in queries
+                for query_index, query in enumerate(queries)
             ]
         )
     except Exception as exc:
@@ -235,7 +237,12 @@ async def _search_one_jurisdiction(
 
 
 async def _search_one_query(
-    query, se_names, init_kwargs_by_se, browser_semaphore, location
+    query,
+    query_index,
+    se_names,
+    init_kwargs_by_se,
+    browser_semaphore,
+    location,
 ):
     """Run a single query through the engine fallback chain"""
     for se_name in se_names:
@@ -253,7 +260,7 @@ async def _search_one_query(
 
         try:
             if opt.uses_browser:
-                await asyncio.sleep(random.uniform(1, 10))
+                await asyncio.sleep(random.uniform(1, 10))  # noqa: S311
                 async with browser_semaphore:
                     raw = await engine.results(query, num_results=10)
             else:
@@ -276,8 +283,10 @@ async def _search_one_query(
             {
                 "url": url,
                 "query": query,
+                "query_index": query_index,
                 "search_engine": se_name,
-                "rank": rank,
+                "query_rank": rank,
+                "overall_rank": None,
                 "filtered_reason": None,
             }
             for rank, url in enumerate(urls, start=1)
@@ -355,7 +364,16 @@ def _apply_top_n_filters(results, num_urls):
             continue
         entry["filtered_reason"] = "beyond_top_n"
 
-    return results
+
+def _active_results_sorted(results):
+    """Return filtered-in rows sorted by query rank and query order"""
+    active_results = [
+        entry for entry in results if entry["filtered_reason"] is None
+    ]
+    active_results.sort(
+        key=itemgetter("query_rank", "query_index", "_order")
+    )
+    return active_results
 
 
 def write_search_only_report(report, out_path=None):
