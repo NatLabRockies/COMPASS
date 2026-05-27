@@ -1,19 +1,4 @@
-"""Eval: ordinance enactment-year extraction (`extract_date`).
-
-Feeds real documents to ``extract_date`` the way production does -- a doc
-carrying the real ``source`` URL in ``attrs`` and parsed text in ``raw_pages``,
-with no pre-set ``"date"`` (so extraction actually runs). Ground-truth years
-come from per-eval-type manifests under ``data/{dev,held-out}/`` (see the
-top-level evals ``README.md``).
-
-To run the evals:
-
-During development:
-    pixi run -e pdev pytest -m dev_evals -k date_extraction_evals
-
-Before a release:
-    pixi run -e pdev pytest -m held_out_evals -k date_extraction_evals
-"""
+"""Date Extraction Evals"""
 
 import os
 import logging
@@ -40,33 +25,13 @@ HELD_OUT_MANIFEST_FP = _DATA_DIR / "held-out" / "solar" / "manifest.json5"
 RESULTS_DIR = Path(__file__).parent / "results"
 
 MODEL = "compassop-gpt-5.4"
-COST_PER_MTOK = {"prompt": 1.25, "response": 7.5}  # $/M tokens, for reporting
+COST_PER_MTOK = {"prompt": 1.25, "response": 7.5}  # $/M tokens
 
-# Populated per case; consumed by the report/gate in conftest.py.
 DATE_ACCURACY_RESULTS = []
 
 
-def _azure_credentials_available():
-    return bool(
-        os.environ.get("AZURE_OPENAI_API_KEY")
-        and os.environ.get("AZURE_OPENAI_ENDPOINT")
-    )
-
-
-def _load_manifest(manifest_fp):
-    return load_config(manifest_fp) if manifest_fp.exists() else []
-
-
-pytestmark = [
-    pytest.mark.skipif(
-        not _azure_credentials_available(),
-        reason="Azure OpenAI credentials not set "
-        "(AZURE_OPENAI_API_KEY / AZURE_OPENAI_ENDPOINT)",
-    ),
-]
-
-_DEV_CASES = _load_manifest(DEV_MANIFEST_FP)
-_HELD_OUT_CASES = _load_manifest(HELD_OUT_MANIFEST_FP)
+_DEV_CASES = load_config(DEV_MANIFEST_FP)
+_HELD_OUT_CASES = load_config(HELD_OUT_MANIFEST_FP)
 
 
 @pytest.fixture(scope="module")
@@ -164,10 +129,6 @@ async def test_date_year_accuracy_dev(case, date_model_config):
 
 
 @pytest.mark.held_out_evals
-@pytest.mark.skipif(
-    not HELD_OUT_MANIFEST_FP.exists(),
-    reason=f"Held-out dataset not found at {HELD_OUT_MANIFEST_FP}",
-)
 @pytest.mark.parametrize(
     "case", _HELD_OUT_CASES, ids=[c["file"] for c in _HELD_OUT_CASES]
 )
