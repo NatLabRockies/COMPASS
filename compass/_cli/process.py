@@ -4,7 +4,7 @@ import click
 
 from compass._cli.common import run_async_command, OUT_DIR_POLICY_CHOICES
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.process import process_jurisdictions_with_openai
+from compass.pipeline import ProcessRequest
 from compass.utilities.io import load_config
 
 
@@ -16,7 +16,7 @@ from compass.utilities.io import load_config
     type=click.Path(exists=True),
     help="Path to ordinance configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`compass.scripts.process.process_jurisdictions_with_openai`.",
+    ":class:`~compass.pipeline.data_classes.ProcessRequest`.",
 )
 @click.option(
     "-v",
@@ -60,9 +60,5 @@ def process(config, verbose, no_progress, plugin, out_dir_exists):
         )
 
     run_async_command(
-        process_jurisdictions_with_openai,
-        config,
-        verbose,
-        no_progress,
-        out_dir_exists,
+        config, ProcessRequest, verbose, no_progress, out_dir_exists
     )

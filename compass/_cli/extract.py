@@ -4,7 +4,7 @@ import click
 
 from compass._cli.common import run_async_command, OUT_DIR_POLICY_CHOICES
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.process import extract_collected_jurisdiction_documents
+from compass.pipeline import ExtractionRequest
 from compass.utilities.io import load_config
 
 
@@ -15,8 +15,8 @@ from compass.utilities.io import load_config
     required=True,
     type=click.Path(exists=True),
     help="Path to an extraction configuration JSON or JSON5 file. This file "
-    "should contain any/all the arguments to pass to :func:"
-    "`compass.scripts.process.extract_collected_jurisdiction_documents`.",
+    "should contain any/all the arguments to pass to "
+    ":class:`~compass.pipeline.data_classes.ExtractionRequest`.",
 )
 @click.option(
     "-v",
@@ -58,9 +58,5 @@ def extract(config, verbose, no_progress, plugin, out_dir_exists):
         )
 
     run_async_command(
-        extract_collected_jurisdiction_documents,
-        config,
-        verbose,
-        no_progress,
-        out_dir_exists,
+        config, ExtractionRequest, verbose, no_progress, out_dir_exists
     )

@@ -17,27 +17,28 @@ from rich.theme import Theme
 
 from compass.pb import COMPASS_PB
 from compass.utilities.logs import AddLocationFilter
+from compass.pipeline.coordinator import run_compass
 
 
 OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
 
 
 def run_async_command(
-    command, config, verbose, no_progress, out_dir_exists=None
+    config, request_class, verbose, no_progress, out_dir_exists=None
 ):
     """Run a COMPASS async command with shared CLI behavior
 
     Parameters
     ----------
-    command : callable
-        Asynchronous COMPASS command to execute. The callable must
-        accept the keyword arguments in `config` and return a summary
-        message suitable for terminal output.
     config : dict
         Configuration dictionary passed as keyword arguments to
         `command`. This mapping must include an ``"out_dir"`` entry,
         which is resolved according to `out_dir_exists` before command
         execution.
+    request_class : callable
+        The COMPASS request class to instantiate and pass to the command
+        function, e.g.
+        :class:`~compass.pipeline.data_classes.CollectionRequest`.
     verbose : int
         CLI verbosity level controlling which library loggers are shown
         in the console. Higher values enable logs from more underlying
@@ -70,8 +71,9 @@ def run_async_command(
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
+    request = request_class(**config)
     if no_progress:
-        loop.run_until_complete(command(**config))
+        loop.run_until_complete(run_compass(request))
         return
 
     warnings.filterwarnings("ignore")
@@ -84,7 +86,7 @@ def run_async_command(
         transient=True,
     )
     with live_display:
-        run_msg = loop.run_until_complete(command(**config))
+        run_msg = loop.run_until_complete(run_compass(request))
 
     console.print(run_msg)
     COMPASS_PB.console = None

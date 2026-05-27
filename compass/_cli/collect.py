@@ -4,7 +4,7 @@ import click
 
 from compass._cli.common import run_async_command, OUT_DIR_POLICY_CHOICES
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.process import collect_jurisdiction_documents
+from compass.pipeline import CollectionRequest
 from compass.utilities.io import load_config
 
 
@@ -16,7 +16,7 @@ from compass.utilities.io import load_config
     type=click.Path(exists=True),
     help="Path to a collection configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`compass.scripts.process.collect_jurisdiction_documents`.",
+    ":class:`~compass.pipeline.data_classes.CollectionRequest`.",
 )
 @click.option(
     "-v",
@@ -58,9 +58,5 @@ def collect(config, verbose, no_progress, plugin, out_dir_exists):
         )
 
     run_async_command(
-        collect_jurisdiction_documents,
-        config,
-        verbose,
-        no_progress,
-        out_dir_exists,
+        config, CollectionRequest, verbose, no_progress, out_dir_exists
     )
