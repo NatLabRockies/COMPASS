@@ -27,8 +27,8 @@ _CSV_FIELDS = [
     "expected",
     "extracted",
     "comparison_result",
-    "input_tokens",
-    "output_tokens",
+    "prompt_tokens",
+    "response_tokens",
     "time_taken_s",
     "cost",
 ]
@@ -97,51 +97,55 @@ def _compute_metrics(results):
     f1 = _safe_div(2 * precision * recall, precision + recall)
 
     return {
-        "n": n,
-        "counts": counts,
+        "n_cases": n,
+        "true_positive": tp,
+        "true_negative": tn,
+        "false_positive": fp,
+        "false_negative": fn,
+        "failing_cases": n - tp - tn,
         "accuracy": _safe_div(tp + tn, n),
         "precision": precision,
         "recall": recall,
         "f1": f1,
-        "accuracy_ci": _wilson_ci(tp + tn, n),
-        "precision_ci": _wilson_ci(tp, pred_pos),
-        "recall_ci": _wilson_ci(tp, actual_pos),
-        "total_cost": sum(r["cost"] for r in results),
-        "total_input_tokens": sum(r["input_tokens"] for r in results),
-        "total_output_tokens": sum(r["output_tokens"] for r in results),
+        "accuracy_95_percent_confidence_interval": _wilson_ci(tp + tn, n),
+        "precision_95_percent_confidence_interval": _wilson_ci(tp, pred_pos),
+        "recall_95_percent_confidence_interval": _wilson_ci(tp, actual_pos),
+        "total_prompt_tokens": sum(r["prompt_tokens"] for r in results),
+        "total_response_tokens": sum(r["response_tokens"] for r in results),
         "total_time_taken_s": sum(r["time_taken_s"] for r in results),
+        "total_cost_usd": sum(r["cost"] for r in results),
     }
 
 
-def _metrics_entry(feature, metrics):
-    """Build the per-feature metrics dict written to the JSON list"""
-    c = metrics["counts"]
-    return {
-        "feature": feature,
-        "n_cases": metrics["n"],
-        "accuracy": round(metrics["accuracy"], 4),
-        "accuracy_95_percent_confidence_interval": _ci_str(
-            metrics["accuracy_ci"]
-        ),
-        "precision": round(metrics["precision"], 4),
-        "precision_95_percent_confidence_interval": _ci_str(
-            metrics["precision_ci"]
-        ),
-        "recall": round(metrics["recall"], 4),
-        "recall_95_percent_confidence_interval": _ci_str(
-            metrics["recall_ci"]
-        ),
-        "f1": round(metrics["f1"], 4),
-        "true_positive": c["TP"],
-        "true_negative": c["TN"],
-        "false_positive": c["FP"],
-        "false_negative": c["FN"],
-        "failing_cases": metrics["n"] - c["TP"] - c["TN"],
-        "total_input_tokens": metrics["total_input_tokens"],
-        "total_output_tokens": metrics["total_output_tokens"],
-        "total_time_taken_s": round(metrics["total_time_taken_s"], 2),
-        "total_cost_usd": round(metrics["total_cost"], 4),
-    }
+_ROUND_4 = {
+    "accuracy", "precision", "recall", "f1", "total_cost_usd",
+}
+_ROUND_2 = {"total_time_taken_s"}
+_CI_KEYS = {
+    "accuracy_95_percent_confidence_interval",
+    "precision_95_percent_confidence_interval",
+    "recall_95_percent_confidence_interval",
+}
+
+
+def _format_entry(feature, metrics):
+    """Format a per-feature metrics dict for the JSON list
+
+    Rounds floats to a sensible precision and converts CI tuples to
+    ``"lo - hi"`` strings. Keys are otherwise pass-through from
+    :func:`_compute_metrics`.
+    """
+    out = {"feature": feature}
+    for k, v in metrics.items():
+        if k in _CI_KEYS:
+            out[k] = _ci_str(v)
+        elif k in _ROUND_4:
+            out[k] = round(v, 4)
+        elif k in _ROUND_2:
+            out[k] = round(v, 2)
+        else:
+            out[k] = v
+    return out
 
 
 def _ci_str(ci):
@@ -289,7 +293,7 @@ def _process_eval_type(eval_name, eval_type, rows, results_dir):
         for f, frows in sorted(by_feature.items())
     }
     entries = [
-        _metrics_entry(f, m) for f, m in per_feature_metrics.items()
+        _format_entry(f, m) for f, m in per_feature_metrics.items()
     ]
 
     # held_out: only summary stats are surfaced/saved (no per-case
@@ -315,22 +319,22 @@ def _process_eval_type(eval_name, eval_type, rows, results_dir):
 
     summary_lines = []
     for feature, m in per_feature_metrics.items():
-        c = m["counts"]
+        acc_ci = _ci_str(m["accuracy_95_percent_confidence_interval"]) or ""
+        prec_ci = _ci_str(m["precision_95_percent_confidence_interval"]) or ""
+        rec_ci = _ci_str(m["recall_95_percent_confidence_interval"]) or ""
         summary_lines.extend([
             (
-                f"  [{feature}] cases={m['n']}  "
-                f"TP={c['TP']} TN={c['TN']} FP={c['FP']} FN={c['FN']}"
+                f"  [{feature}] cases={m['n_cases']}  "
+                f"TP={m['true_positive']} TN={m['true_negative']} "
+                f"FP={m['false_positive']} FN={m['false_negative']}"
             ),
             (
-                f"    accuracy={m['accuracy']:.3f} "
-                f"95%CI[{_ci_str(m['accuracy_ci']) or ''}]  "
-                f"precision={m['precision']:.3f} "
-                f"95%CI[{_ci_str(m['precision_ci']) or ''}]  "
-                f"recall={m['recall']:.3f} "
-                f"95%CI[{_ci_str(m['recall_ci']) or ''}]  "
+                f"    accuracy={m['accuracy']:.3f} 95%CI[{acc_ci}]  "
+                f"precision={m['precision']:.3f} 95%CI[{prec_ci}]  "
+                f"recall={m['recall']:.3f} 95%CI[{rec_ci}]  "
                 f"f1={m['f1']:.3f}"
             ),
-            f"    total LLM cost: ${m['total_cost']:.4f}",
+            f"    total LLM cost: ${m['total_cost_usd']:.4f}",
         ])
     summary_lines.extend(gate_lines)
     summary_lines.extend(extra)

@@ -12,7 +12,10 @@ from elm.utilities.parse import read_pdf
 from compass.llm.config import OpenAIConfig
 from compass.extraction.apply import extract_date
 from compass.utilities.io import load_config
-from compass.utilities.costs import LLM_COST_REGISTRY, compute_cost_from_totals
+from compass.utilities.costs import (
+    LLM_COST_REGISTRY,
+    compute_total_cost_and_token_from_totals,
+)
 from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
@@ -42,8 +45,7 @@ _HELD_OUT_CASES = load_config(HELD_OUT_MANIFEST_FP)
 
 
 @pytest.fixture(scope="module")
-def date_model_config():
-    """Azure config for the eval model (registers its cost rate)"""
+def _model_config():
     model = "compassop-gpt-5.4"
     LLM_COST_REGISTRY.setdefault(
         model, {"prompt": 1.25, "response": 7.5}  # $/M tokens
@@ -73,7 +75,6 @@ def _build_doc(case, dataset_dir):
 
 
 def _classify(expected, extracted):
-    """Binary success: did the extractor match ground truth?"""
     return "Success" if extracted == expected else "Failure"
 
 
@@ -90,10 +91,7 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
 
     year, _month, _day = doc.attrs["date"]
     expected = case["expected"]["year"]
-    totals = usage_tracker.totals
-    cost = compute_cost_from_totals(totals)
-    input_tokens = sum(u.get("prompt_tokens", 0) for u in totals.values())
-    output_tokens = sum(u.get("response_tokens", 0) for u in totals.values())
+    usage = compute_total_cost_and_token_from_totals(usage_tracker.totals)
 
     RESULTS[eval_type].append(
         {
@@ -105,14 +103,11 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
             "expected": expected,
             "extracted": year,
             "comparison_result": _classify(expected, year),
-            "input_tokens": input_tokens,
-            "output_tokens": output_tokens,
             "time_taken_s": round(elapsed, 3),
-            "cost": cost,
+            **usage,
         }
     )
-    # Held-out per-case detail is intentionally not logged (only summary
-    # stats are surfaced) so the held-out set stays hard to tune against.
+    # Held-out per-case detail hidden to prevent tuning against it
     if eval_type != "held_out":
         logger.info(
             "%s (FIPS %s): expected=%s extracted=%s cost=$%.4f",
@@ -120,7 +115,7 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
             case["fips"],
             expected,
             year,
-            cost,
+            usage["cost"],
         )
 
 
@@ -128,10 +123,10 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
 @pytest.mark.parametrize(
     "case", _DEV_CASES, ids=[c["file"] for c in _DEV_CASES]
 )
-async def test_date_year_accuracy_dev(case, date_model_config):
+async def test_date_year_accuracy_dev(case, _model_config):
     """Run date extraction on each dev-dataset document"""
     await _run_case(
-        case, DEV_MANIFEST_FP.parent, "dev", date_model_config
+        case, DEV_MANIFEST_FP.parent, "dev", _model_config
     )
 
 
@@ -139,8 +134,8 @@ async def test_date_year_accuracy_dev(case, date_model_config):
 @pytest.mark.parametrize(
     "case", _HELD_OUT_CASES, ids=[c["file"] for c in _HELD_OUT_CASES]
 )
-async def test_date_year_accuracy_held_out(case, date_model_config):
+async def test_date_year_accuracy_held_out(case, _model_config):
     """Run date extraction on each held-out document"""
     await _run_case(
-        case, HELD_OUT_MANIFEST_FP.parent, "held_out", date_model_config
+        case, HELD_OUT_MANIFEST_FP.parent, "held_out", _model_config
     )
