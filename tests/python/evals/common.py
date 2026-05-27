@@ -21,7 +21,6 @@ class Result:
     """
 
     # identity
-    fips: int
     state: str
     county: str
     subdivision: str | None

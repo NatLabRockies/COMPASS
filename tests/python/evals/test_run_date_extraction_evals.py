@@ -94,7 +94,6 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
 
     RESULTS[eval_type].append(
         Result(
-            fips=case["fips"],
             state=case["state"],
             county=case["county"],
             subdivision=case["subdivision"],
@@ -112,9 +111,8 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     # Held-out per-case detail hidden to prevent tuning against it
     if eval_type != "held_out":
         logger.info(
-            "%s (FIPS %s): expected=%s extracted=%s cost=$%.4f",
+            "%s: expected=%s extracted=%s cost=$%.4f",
             label,
-            case["fips"],
             expected,
             year,
             usage["cost"],

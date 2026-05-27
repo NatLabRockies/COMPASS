@@ -1,6 +1,5 @@
 [
     {
-        "fips": 13015,
         "state": "Georgia",
         "county": "Bartow",
         "subdivision": null,
@@ -12,7 +11,6 @@
         }
     },
     {
-        "fips": 53005,
         "state": "Washington",
         "county": "Benton",
         "subdivision": null,
@@ -24,7 +22,6 @@
         }
     },
     {
-        "fips": 29019,
         "state": "Missouri",
         "county": "Boone",
         "subdivision": null,
@@ -36,7 +33,6 @@
         }
     },
     {
-        "fips": 22015,
         "state": "Louisiana",
         "county": "Bossier",
         "subdivision": null,
@@ -48,7 +44,6 @@
         }
     },
     {
-        "fips": 38011,
         "state": "North Dakota",
         "county": "Bowman",
         "subdivision": null,
@@ -60,7 +55,6 @@
         }
     },
     {
-        "fips": 19017,
         "state": "Iowa",
         "county": "Bremer",
         "subdivision": null,
@@ -72,7 +66,6 @@
         }
     },
     {
-        "fips": 27017,
         "state": "Minnesota",
         "county": "Carlton",
         "subdivision": null,
@@ -84,7 +77,6 @@
         }
     },
     {
-        "fips": 17015,
         "state": "Illinois",
         "county": "Carroll",
         "subdivision": null,
@@ -96,7 +88,6 @@
         }
     },
     {
-        "fips": 27025,
         "state": "Minnesota",
         "county": "Chisago",
         "subdivision": null,
@@ -108,7 +99,6 @@
         }
     },
     {
-        "fips": 27027,
         "state": "Minnesota",
         "county": "Clay",
         "subdivision": null,
@@ -120,7 +110,6 @@
         }
     },
     {
-        "fips": 56011,
         "state": "Wyoming",
         "county": "Crook",
         "subdivision": null,
@@ -132,7 +121,6 @@
         }
     },
     {
-        "fips": 47035,
         "state": "Tennessee",
         "county": "Cumberland",
         "subdivision": null,
@@ -144,7 +132,6 @@
         }
     },
     {
-        "fips": 19061,
         "state": "Iowa",
         "county": "Dubuque",
         "subdivision": null,
@@ -156,7 +143,6 @@
         }
     },
     {
-        "fips": 21079,
         "state": "Kentucky",
         "county": "Garrard",
         "subdivision": null,
@@ -168,7 +154,6 @@
         }
     },
     {
-        "fips": 47059,
         "state": "Tennessee",
         "county": "Greene",
         "subdivision": null,
@@ -180,7 +165,6 @@
         }
     },
     {
-        "fips": 17065,
         "state": "Illinois",
         "county": "Hamilton",
         "subdivision": null,
@@ -192,7 +176,6 @@
         }
     },
     {
-        "fips": 39103,
         "state": "Ohio",
         "county": "Medina",
         "subdivision": null,
@@ -204,7 +187,6 @@
         }
     },
     {
-        "fips": 53047,
         "state": "Washington",
         "county": "Okanogan",
         "subdivision": null,
@@ -216,7 +198,6 @@
         }
     },
     {
-        "fips": 19155,
         "state": "Iowa",
         "county": "Pottawattamie",
         "subdivision": null,
@@ -228,7 +209,6 @@
         }
     },
     {
-        "fips": 24035,
         "state": "Maryland",
         "county": "Queen Anne's",
         "subdivision": null,
@@ -240,7 +220,6 @@
         }
     },
     {
-        "fips": 17165,
         "state": "Illinois",
         "county": "Saline",
         "subdivision": null,
@@ -252,7 +231,6 @@
         }
     },
     {
-        "fips": 51175,
         "state": "Virginia",
         "county": "Southampton",
         "subdivision": null,
@@ -264,7 +242,6 @@
         }
     },
     {
-        "fips": 12111,
         "state": "Florida",
         "county": "St. Lucie",
         "subdivision": null,
@@ -276,7 +253,6 @@
         }
     },
     {
-        "fips": 3600106211,
         "state": "New York",
         "county": "Albany",
         "subdivision": "Berne",
@@ -288,7 +264,6 @@
         }
     },
     {
-        "fips": 3600706618,
         "state": "New York",
         "county": "Broome",
         "subdivision": "Binghamton",
@@ -300,7 +275,6 @@
         }
     },
     {
-        "fips": 3602907454,
         "state": "New York",
         "county": "Erie",
         "subdivision": "Boston",
@@ -312,7 +286,6 @@
         }
     },
     {
-        "fips": 2500107175,
         "state": "Massachusetts",
         "county": "Barnstable",
         "subdivision": "Bourne",
@@ -324,7 +297,6 @@
         }
     },
     {
-        "fips": 3601314069,
         "state": "New York",
         "county": "Chautauqua",
         "subdivision": "Chautauqua",
@@ -336,7 +308,6 @@
         }
     },
     {
-        "fips": 2301717250,
         "state": "Maine",
         "county": "Oxford",
         "subdivision": "Denmark",
@@ -348,7 +319,6 @@
         }
     },
     {
-        "fips": 3602720819,
         "state": "New York",
         "county": "Dutchess",
         "subdivision": "Dover",
@@ -360,7 +330,6 @@
         }
     },
     {
-        "fips": 3609329366,
         "state": "New York",
         "county": "Schenectady",
         "subdivision": "Glenville",
@@ -372,7 +341,6 @@
         }
     },
     {
-        "fips": 3606332490,
         "state": "New York",
         "county": "Niagara",
         "subdivision": "Hartland",
@@ -384,7 +352,6 @@
         }
     },
     {
-        "fips": 3603936178,
         "state": "New York",
         "county": "Greene",
         "subdivision": "Hunter",
@@ -396,7 +363,6 @@
         }
     },
     {
-        "fips": 3602142917,
         "state": "New York",
         "county": "Columbia",
         "subdivision": "Livingston",
@@ -408,7 +374,6 @@
         }
     },
     {
-        "fips": 3605142961,
         "state": "New York",
         "county": "Livingston",
         "subdivision": "Livonia",
@@ -420,7 +385,6 @@
         }
     },
     {
-        "fips": 3301747700,
         "state": "New Hampshire",
         "county": "Strafford",
         "subdivision": "Middleton",
@@ -432,7 +396,6 @@
         }
     },
     {
-        "fips": 2500351580,
         "state": "Massachusetts",
         "county": "Berkshire",
         "subdivision": "Otis",
@@ -444,7 +407,6 @@
         }
     },
     {
-        "fips": 3606357111,
         "state": "New York",
         "county": "Niagara",
         "subdivision": "Pendleton",
@@ -456,7 +418,6 @@
         }
     },
     {
-        "fips": 3300974740,
         "state": "New Hampshire",
         "county": "Grafton",
         "subdivision": "Sugar Hill",
@@ -468,7 +429,6 @@
         }
     },
     {
-        "fips": 2501572880,
         "state": "Massachusetts",
         "county": "Hampshire",
         "subdivision": "Ware",
@@ -480,7 +440,6 @@
         }
     },
     {
-        "fips": 4400377720,
         "state": "Rhode Island",
         "county": "Kent",
         "subdivision": "West Greenwich",
@@ -492,7 +451,6 @@
         }
     },
     {
-        "fips": 3600179851,
         "state": "New York",
         "county": "Albany",
         "subdivision": "Westerlo",
@@ -504,7 +462,6 @@
         }
     },
     {
-        "fips": 3611581633,
         "state": "New York",
         "county": "Washington",
         "subdivision": "Whitehall",
@@ -516,7 +473,6 @@
         }
     },
     {
-        "fips": 3603982480,
         "state": "New York",
         "county": "Greene",
         "subdivision": "Windham",
@@ -528,7 +484,6 @@
         }
     },
     {
-        "fips": 13305,
         "state": "Georgia",
         "county": "Wayne",
         "subdivision": null,
@@ -540,7 +495,6 @@
         }
     },
     {
-        "fips": 17201,
         "state": "Illinois",
         "county": "Winnebago",
         "subdivision": null,
@@ -552,7 +506,6 @@
         }
     },
     {
-        "fips": 17203,
         "state": "Illinois",
         "county": "Woodford",
         "subdivision": null,
@@ -564,7 +517,6 @@
         }
     },
     {
-        "fips": 4025,
         "state": "Arizona",
         "county": "Yavapai",
         "subdivision": null,
