@@ -270,8 +270,7 @@ class COMPASSCollection(BaseRunMode):
 
         collection_infos = await asyncio.gather(*tasks)
         manifest = build_collection_manifest(
-            self.runtime.tech,
-            collection_infos,
+            self.runtime.tech, collection_infos
         )
         manifest_fp = write_collection_manifest(
             self.runtime.dirs.out, manifest
