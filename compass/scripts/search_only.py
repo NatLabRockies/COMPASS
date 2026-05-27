@@ -222,7 +222,7 @@ async def _search_one_jurisdiction(
                 for query in queries
             ]
         )
-    except Exception as exc:  # noqa: BLE001
+    except Exception as exc:
         logger.exception(
             "Search failed for %s", jurisdiction.full_name
         )
