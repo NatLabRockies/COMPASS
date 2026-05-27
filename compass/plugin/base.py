@@ -104,7 +104,7 @@ class BaseExtractionPlugin(ABC):
 
     @abstractmethod
     async def filter_docs(
-        self, extraction_context, need_jurisdiction_verification=True
+        self, extraction_context, needs_jurisdiction_verification=True
     ):
         """Filter down candidate documents before parsing
 
@@ -114,7 +114,7 @@ class BaseExtractionPlugin(ABC):
             Context containing candidate documents to be filtered.
             Set the ``.documents`` attribute of this object to be the
             iterable of documents that should be kept for parsing.
-        need_jurisdiction_verification : bool, optional
+        needs_jurisdiction_verification : bool, optional
             Whether to verify that documents pertain to the correct
             jurisdiction. By default, ``True``.
 

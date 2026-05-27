@@ -75,7 +75,7 @@ class DocumentCollection:
             self.de_duplicator.add_docs(
                 docs,
                 step_name=step.STEP_NAME,
-                need_jurisdiction_verification=(
+                needs_jurisdiction_verification=(
                     step.NEEDS_JURISDICTION_VERIFICATION
                 ),
                 jurisdiction_name=self.workflow.jurisdiction.full_name,
@@ -84,7 +84,7 @@ class DocumentCollection:
                 context = (
                     await self.workflow.extraction_workflow.extract_from_docs(
                         docs,
-                        need_jurisdiction_verification=(
+                        needs_jurisdiction_verification=(
                             step.NEEDS_JURISDICTION_VERIFICATION
                         ),
                     )

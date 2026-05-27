@@ -279,7 +279,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         return self.HEURISTIC()
 
     async def filter_docs(
-        self, extraction_context, need_jurisdiction_verification=True
+        self, extraction_context, needs_jurisdiction_verification=True
     ):
         """Filter down candidate documents before parsing
 
@@ -287,7 +287,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         ----------
         extraction_context : ExtractionContext
             Context containing candidate documents to be filtered.
-        need_jurisdiction_verification : bool, optional
+        needs_jurisdiction_verification : bool, optional
             Whether to verify that documents pertain to the correct
             jurisdiction. By default, ``True``.
 
@@ -324,7 +324,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             tech=self.IDENTIFIER,
             text_collectors=self.TEXT_COLLECTORS,
             usage_tracker=self.usage_tracker,
-            check_for_correct_jurisdiction=need_jurisdiction_verification,
+            check_for_correct_jurisdiction=needs_jurisdiction_verification,
         )
 
         if not docs:

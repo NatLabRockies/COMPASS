@@ -17,7 +17,7 @@ class DocumentDeDuplicator:
         docs,
         *,
         step_name,
-        need_jurisdiction_verification,
+        needs_jurisdiction_verification,
         jurisdiction_name,
     ):
         """Add documents to the collection mapping
@@ -30,7 +30,7 @@ class DocumentDeDuplicator:
         step_name : str
             Identifier for the collection step that produced the
             documents.
-        need_jurisdiction_verification : bool
+        needs_jurisdiction_verification : bool
             Whether the added documents should be flagged for later
             jurisdiction verification.
         jurisdiction_name : str
@@ -45,7 +45,7 @@ class DocumentDeDuplicator:
         for doc in docs:
             doc.attrs.setdefault("jurisdiction_name", jurisdiction_name)
             doc.attrs["check_correct_jurisdiction"] = (
-                need_jurisdiction_verification
+                needs_jurisdiction_verification
             )
             try:
                 key = _collection_doc_key(doc)

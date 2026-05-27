@@ -17,7 +17,7 @@ class DocumentExtraction:
         self.workflow = workflow
 
     async def extract_from_docs(
-        self, docs, *, need_jurisdiction_verification=True
+        self, docs, *, needs_jurisdiction_verification=True
     ):
         """Filter and extract data from a set of docs
 
@@ -25,7 +25,7 @@ class DocumentExtraction:
         ----------
         docs : iterable of Document
             The documents to filter and extract structured data from.
-        need_jurisdiction_verification : bool, optional
+        needs_jurisdiction_verification : bool, optional
             Flag indicating whether the jurisdiction of the document
             needs to be verified. By default, ``True``.
 
@@ -41,7 +41,7 @@ class DocumentExtraction:
         extraction_context = ExtractionContext(documents=docs)
         extraction_context = await self.workflow.extractor.filter_docs(
             extraction_context,
-            need_jurisdiction_verification=need_jurisdiction_verification,
+            needs_jurisdiction_verification=needs_jurisdiction_verification,
         )
         if not extraction_context:
             return None
