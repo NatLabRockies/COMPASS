@@ -3,8 +3,8 @@
 Feeds real documents to ``extract_date`` the way production does -- a doc
 carrying the real ``source`` URL in ``attrs`` and parsed text in ``raw_pages``,
 with no pre-set ``"date"`` (so extraction actually runs). Ground-truth years
-come from per-eval-type manifests under ``data/{dev,held-out}/`` (see
-``data/README.md``).
+come from per-eval-type manifests under ``data/{dev,held-out}/`` (see the
+top-level evals ``README.md``).
 
 To run the evals:
 
