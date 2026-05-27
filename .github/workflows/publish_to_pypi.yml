@@ -50,17 +50,14 @@ jobs:
       with:
         pixi-version: v0.68.1
         locked: true
-        cache: false
+        cache: true
         environments: pbuild
 
     - name: Build
       run: pixi run -e pbuild build-wheels
 
     - name: Validate package metadata
-      run: |
-        python -m venv "$RUNNER_TEMP/twine-venv"
-        "$RUNNER_TEMP/twine-venv/bin/pip" install --upgrade twine
-        "$RUNNER_TEMP/twine-venv/bin/twine" check --strict dist/*
+      run: pixi run -e pbuild twine check --strict dist/*
 
     - name: Publish package distributions to PyPI
       if: github.event_name == 'release'
