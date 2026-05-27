@@ -119,16 +119,14 @@ def load_collection_manifest(manifest_fp, expected_tech):
         manifest = load_config(manifest_fp, file_name="Collection manifest")
     except COMPASSFileNotFoundError:
         manifest = _load_collection_manifest_from_shards(
-            manifest_fp,
-            expected_tech,
+            manifest_fp, expected_tech
         )
         if manifest is None:
             raise
 
-        shard_dir = _collection_manifest_shard_dir(manifest_fp)
         msg = (
-            "Collection manifest file is missing; rebuilding from "
-            f"jurisdiction shard files in {shard_dir}"
+            f"Collection manifest file '{manifest_fp}' is missing; rebuilding "
+            "collection manifest from jurisdiction shard files"
         )
         warn(msg, COMPASSWarning)
 
@@ -316,8 +314,7 @@ def _clean_shard_name_part(value):
 def _load_collection_manifest_from_shards(manifest_fp, expected_tech):
     """Rebuild a collection manifest from jurisdiction shard files"""
     manifest_dir = Path(manifest_fp).expanduser().resolve().parent
-    shard_dir = _collection_manifest_shard_dir(manifest_fp)
-    shard_fps = sorted(shard_dir.glob("*_collection_manifest.json"))
+    shard_fps = sorted(manifest_dir.rglob("*_collection_manifest.json"))
     if not shard_fps:
         return None
 
@@ -331,9 +328,3 @@ def _load_collection_manifest_from_shards(manifest_fp, expected_tech):
         jurisdictions.append(resolve_all_paths(collection_info, manifest_dir))
 
     return build_collection_manifest(expected_tech, jurisdictions)
-
-
-def _collection_manifest_shard_dir(manifest_fp):
-    """Infer the directory containing collection manifest shards"""
-    manifest_dir = Path(manifest_fp).expanduser().resolve().parent
-    return manifest_dir / "jurisdiction_dbs"
