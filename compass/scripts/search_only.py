@@ -288,26 +288,72 @@ async def _search_one_query(
 
 def _apply_filters(results, blacklist, num_urls):
     """Mark blacklisted URLs, duplicates, and beyond top-N entries"""
-    seen = set()
-    kept = 0
+    for order, entry in enumerate(results):
+        entry["_order"] = order
+        entry["overall_rank"] = None
+
+    _apply_blacklist_filters(results, blacklist)
+    _apply_duplicate_filters(results)
+    _apply_top_n_filters(results, num_urls)
+
     for entry in results:
-        url = entry["url"]
-        match = next(
-            (sub for sub in blacklist if sub and sub in url), None
+        entry.pop("_order", None)
+        entry.pop("query_index", None)
+
+    return results
+
+
+def _apply_blacklist_filters(results, blacklist):
+    """Mark rows that match any blacklist substring"""
+    blacklist_terms = [sub for sub in blacklist if sub]
+    blacklist_terms_cf = [sub.casefold() for sub in blacklist_terms]
+    for entry in results:
+        url_cf = entry["url"].casefold()
+        match_index = next(
+            (
+                i
+                for i, sub_cf in enumerate(blacklist_terms_cf)
+                if sub_cf in url_cf
+            ),
+            None,
         )
-        if match:
-            entry["filtered_reason"] = f"blacklist:{match}"
+        if match_index is None:
+            continue
+        entry["filtered_reason"] = f"blacklist:{blacklist_terms[match_index]}"
+
+
+def _apply_duplicate_filters(results):
+    """Mark duplicate rows per search engine and URL"""
+    winners = {}
+    for entry in _active_results_sorted(results):
+        key = (entry["search_engine"], entry["url"])
+        winner = winners.get(key)
+        if winner is None:
+            winners[key] = entry
             continue
 
-        if url in seen:
-            entry["filtered_reason"] = "duplicate"
-            continue
-        seen.add(url)
+        winner.setdefault("duplicates", []).append(
+            {
+                "url": entry["url"],
+                "query": entry["query"],
+                "search_engine": entry["search_engine"],
+                "query_rank": entry["query_rank"],
+                "overall_rank": entry["overall_rank"],
+            }
+        )
 
-        if kept >= num_urls:
-            entry["filtered_reason"] = "beyond_top_n"
+        entry["filtered_reason"] = "duplicate"
+
+
+def _apply_top_n_filters(results, num_urls):
+    """Mark entries past top-N after filtering"""
+    for overall_rank, entry in enumerate(
+        _active_results_sorted(results), start=1
+    ):
+        entry["overall_rank"] = overall_rank
+        if overall_rank <= num_urls:
             continue
-        kept += 1
+        entry["filtered_reason"] = "beyond_top_n"
 
     return results
 
