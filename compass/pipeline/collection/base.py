@@ -74,7 +74,7 @@ class DocumentCollection:
             docs = await step.collect(self.workflow)
             self.de_duplicator.add_docs(
                 docs,
-                step_name=step.STEP_NAME,
+                step_name=str(step.STEP_NAME),
                 needs_jurisdiction_verification=(
                     step.NEEDS_JURISDICTION_VERIFICATION
                 ),

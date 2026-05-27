@@ -183,7 +183,7 @@ class LLMTasks(StrEnum):
 
 
 class COMPASSRunMode(CaseInsensitiveEnum):
-    """Base config type enum class only meant to be initialized once"""
+    """COMPASS run mode"""
 
     PROCESS = auto()
     """Execute full COMPASS processing pipeline for jurisdictions"""
@@ -201,5 +201,42 @@ class COMPASSRunMode(CaseInsensitiveEnum):
             obj.pb_action_str = "Parsing documents for"
         else:
             obj.pb_action_str = "Searching"
-        obj.__doc__ = f"{value.upper()} config file handler"
+
+        obj.__doc__ = f"COMPASS run mode: {value!r}"
+        return obj
+
+
+class COMPASSDocumentCollectionStep(CaseInsensitiveEnum):
+    """Compass document collection step"""
+
+    KNOWN_LOCAL_DOCS = auto()
+    """Collect known local documents (e.g. from a local file system)"""
+
+    KNOWN_DOC_URLS = auto()
+    """Collect known document URLs (e.g. from a pre-specified list)"""
+
+    SEARCH_ENGINE = auto()
+    """Collect documents discovered via search engine queries"""
+
+    WEBSITE_SEARCH_ELM = auto()
+    """Collect documents discovered via website search for ELM"""
+
+    WEBSITE_SEARCH_COMPASS = auto()
+    """Collect documents discovered via website search for COMPASS"""
+
+    @classmethod
+    def _new_post_hook(cls, obj, value):
+        """Hook for post-processing after __new__; adds methods"""
+        if value == "known_local_docs":
+            obj.priority = 5
+        elif value == "known_doc_urls":
+            obj.priority = 4
+        elif value == "search_engine":
+            obj.priority = 3
+        elif value == "website_search_elm":
+            obj.priority = 2
+        else:
+            obj.priority = 1
+
+        obj.__doc__ = f"COMPASSDocumentCollectionStep: {value!r}"
         return obj

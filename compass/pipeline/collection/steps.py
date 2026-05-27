@@ -14,7 +14,7 @@ from compass.scripts.download import (
     load_known_docs,
 )
 from compass.validation.location import JurisdictionWebsiteValidator
-from compass.utilities.enums import LLMTasks
+from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.pb import COMPASS_PB
 
 
@@ -27,7 +27,7 @@ class CollectionStep(ABC):
     @property
     @abstractmethod
     def STEP_NAME(self):  # noqa: N802
-        """str: Identifier for step (e.g. "known_local_docs")"""
+        """Identifier for step (e.g. "known_local_docs")"""
         raise NotImplementedError
 
     @property
@@ -45,8 +45,8 @@ class CollectionStep(ABC):
 class KnownLocalDocumentsStep(CollectionStep):
     """Concrete Strategy for known local document collection"""
 
-    STEP_NAME = "known_local_docs"
-    """str: Identifier for step"""
+    STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_LOCAL_DOCS
+    """Identifier for step"""
 
     NEEDS_JURISDICTION_VERIFICATION = False
     """bool: Option disabling jurisdiction verification"""
@@ -102,8 +102,8 @@ class KnownLocalDocumentsStep(CollectionStep):
 class KnownUrlDocumentsStep(CollectionStep):
     """Concrete Strategy for known URL document collection"""
 
-    STEP_NAME = "known_doc_urls"
-    """str: Identifier for step"""
+    STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_DOC_URLS
+    """Identifier for step"""
 
     NEEDS_JURISDICTION_VERIFICATION = False
     """bool: Option disabling jurisdiction verification"""
@@ -159,8 +159,8 @@ class KnownUrlDocumentsStep(CollectionStep):
 class SearchEngineDocumentsStep(CollectionStep):
     """Concrete Strategy for search-engine document collection"""
 
-    STEP_NAME = "search_engine"
-    """str: Identifier for step"""
+    STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_ENGINE
+    """Identifier for step"""
 
     NEEDS_JURISDICTION_VERIFICATION = True
     """bool: Option enabling jurisdiction verification"""
@@ -221,8 +221,8 @@ class SearchEngineDocumentsStep(CollectionStep):
 class ElmWebsiteCrawlStep(CollectionStep):
     """Concrete Strategy for ELM-based website crawling"""
 
-    STEP_NAME = "website_search_elm"
-    """str: Identifier for step"""
+    STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_ELM
+    """Identifier for step"""
 
     NEEDS_JURISDICTION_VERIFICATION = True
     """bool: Option enabling jurisdiction verification"""
@@ -306,8 +306,8 @@ class ElmWebsiteCrawlStep(CollectionStep):
 class CompassWebsiteCrawlStep(CollectionStep):
     """Concrete Strategy for COMPASS-based website crawling"""
 
-    STEP_NAME = "website_search_compass"
-    """str: Identifier for step"""
+    STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_COMPASS
+    """Identifier for step"""
 
     NEEDS_JURISDICTION_VERIFICATION = True
     """bool: Option enabling jurisdiction verification"""

@@ -26,7 +26,7 @@ from compass.web.file_loader import (
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.web.url_utils import sanitize_url
-from compass.utilities.enums import LLMTasks
+from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.pb import COMPASS_PB
 
 
@@ -894,12 +894,6 @@ def _best_step(from_steps):
     if not from_steps:
         return 0
 
-    step_priorities = {
-        "known_local_docs": 5,
-        "known_doc_urls": 4,
-        "search_engine": 3,
-        "website_search_elm": 2,
-        "website_search_compass": 1,
-    }
-
-    return max(step_priorities.get(step, 0) for step in from_steps)
+    return max(
+        COMPASSDocumentCollectionStep(step).priority for step in from_steps
+    )
