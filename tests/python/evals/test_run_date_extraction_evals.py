@@ -24,9 +24,6 @@ DEV_MANIFEST_FP = _DATA_DIR / "dev" / "solar" / "manifest.json5"
 HELD_OUT_MANIFEST_FP = _DATA_DIR / "held-out" / "solar" / "manifest.json5"
 RESULTS_DIR = Path(__file__).parent / "results"
 
-MODEL = "compassop-gpt-5.4"
-COST_PER_MTOK = {"prompt": 1.25, "response": 7.5}  # $/M tokens
-
 DATE_ACCURACY_RESULTS = []
 
 
@@ -37,9 +34,12 @@ _HELD_OUT_CASES = load_config(HELD_OUT_MANIFEST_FP)
 @pytest.fixture(scope="module")
 def date_model_config():
     """Azure config for the eval model (registers its cost rate)"""
-    LLM_COST_REGISTRY.setdefault(MODEL, COST_PER_MTOK)
+    model = "compassop-gpt-5.4"
+    LLM_COST_REGISTRY.setdefault(
+        model, {"prompt": 1.25, "response": 7.5}  # $/M tokens
+    )
     return OpenAIConfig(
-        name=MODEL,
+        name=model,
         llm_call_kwargs={"temperature": 1, "timeout": 300},
         client_type="azure",
         client_kwargs={
