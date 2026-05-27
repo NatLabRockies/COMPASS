@@ -18,7 +18,7 @@ import pytest
 
 
 _CSV_FIELDS = [
-    "cadence",
+    "eval_type",
     "fips",
     "jurisdiction",
     "file",
@@ -239,9 +239,9 @@ def _check_aggregate_regression(metrics, baseline_failing):
 def pytest_terminal_summary(terminalreporter, exitstatus, config):
     """Write eval CSVs, print a summary, and enforce the regression gate
 
-    No-ops when the eval did not run (deselected or skipped). If a cadence
-    regresses against its committed baseline, fails the session (sets a
-    non-zero exit) so the run goes red.
+    No-ops when the eval did not run (deselected or skipped). If an eval
+    type regresses against its committed baseline, fails the session (sets
+    a non-zero exit) so the run goes red.
     """
     module = _eval_module()
     if module is None:
@@ -254,21 +254,21 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     results_dir.mkdir(parents=True, exist_ok=True)
     write = terminalreporter.write_line
 
-    by_cadence = {}
+    by_eval_type = {}
     for r in results:
-        by_cadence.setdefault(r["cadence"], []).append(r)
+        by_eval_type.setdefault(r["eval_type"], []).append(r)
 
     gate_failures = []
-    for cadence, rows in sorted(by_cadence.items()):
+    for eval_type, rows in sorted(by_eval_type.items()):
         metrics = _compute_metrics(rows)
-        stem = f"{_EVAL_NAME}_{cadence}"
+        stem = f"{_EVAL_NAME}_{eval_type}"
         metrics_fp = results_dir / f"{stem}.csv"
         breakdown_fp = results_dir / f"{stem}_breakdown.csv"
 
         # held_out_eval: only summary stats are surfaced/saved (no per-case
         # breakdown), and the gate is aggregate-only -- this keeps the
         # held-out set hard to inspect or tune against.
-        if cadence == "held_out_eval":
+        if eval_type == "held_out_eval":
             baseline_failing = _load_baseline_failing(metrics_fp)
             failures, lines = _check_aggregate_regression(
                 metrics, baseline_failing
@@ -285,9 +285,9 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
                 f"  metrics: {metrics_fp}",
             ]
 
-        gate_failures.extend(f"[{cadence}] {m}" for m in failures)
+        gate_failures.extend(f"[{eval_type}] {m}" for m in failures)
 
-        terminalreporter.section(f"Eval summary: {cadence}")
+        terminalreporter.section(f"Eval summary: {eval_type}")
         c = metrics["counts"]
         write(
             f"  cases={metrics['n']}  "

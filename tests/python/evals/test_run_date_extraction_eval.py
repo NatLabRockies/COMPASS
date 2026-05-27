@@ -3,18 +3,13 @@
 Feeds real documents to ``extract_date`` the way production does -- a doc
 carrying the real ``source`` URL in ``attrs`` and parsed text in ``raw_pages``,
 with no pre-set ``"date"`` (so extraction actually runs). Ground-truth years
-come from per-cadence manifests under ``data/{dev,held-out}/`` (see
+come from per-eval-type manifests under ``data/{dev,held-out}/`` (see
 ``data/README.md``).
 
-Run one cadence at a time (deselected by default; needs Azure creds):
+To run the eval:
 
     pytest -m dev_eval     # frequent, during development
     pytest -m held_out_eval     # before a release
-
-A case fails ONLY on a mechanical error (``extract_date`` raising). A wrong
-prediction is recorded, not failed -- correctness is scored in the breakdown
-CSV + metrics and gated against the committed baseline (see ``conftest.py``).
-Only the year is scored (ground truth has no month/day).
 """
 
 import os
@@ -109,7 +104,7 @@ def _classify(expected, extracted):
     return "TP" if extracted == expected else "WRONG"
 
 
-async def _run_case(case, dataset_dir, cadence, model_config):
+async def _run_case(case, dataset_dir, eval_type, model_config):
     """Extract the date for one case and record the result"""
     doc = _build_doc(case, dataset_dir)
     usage_tracker = UsageTracker(case["jurisdiction"], usage_from_response)
@@ -125,7 +120,7 @@ async def _run_case(case, dataset_dir, cadence, model_config):
 
     DATE_ACCURACY_RESULTS.append(
         {
-            "cadence": cadence,
+            "eval_type": eval_type,
             "fips": case["fips"],
             "jurisdiction": case["jurisdiction"],
             "file": case["file"],
@@ -141,7 +136,7 @@ async def _run_case(case, dataset_dir, cadence, model_config):
     )
     # Held-out per-case detail is intentionally not logged (only summary
     # stats are surfaced) so the held-out set stays hard to tune against.
-    if cadence != "held_out_eval":
+    if eval_type != "held_out_eval":
         logger.info(
             "%s (FIPS %s): expected=%s extracted=(%s,%s,%s) cost=$%.4f",
             case["jurisdiction"],

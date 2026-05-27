@@ -7,7 +7,7 @@ committed in plaintext and split from the same source labels.
 
 | | `dev/` | `held-out/` |
 | --- | --- | --- |
-| Cadence | run frequently during development (`-m dev_eval`) | run before a release (`-m held_out_eval`) |
+| Eval type | run frequently during development (`-m dev_eval`) | run before a release (`-m held_out_eval`) |
 | Purpose | iterate, tune prompts/logic, debug failures | unbiased estimate of true performance |
 | Size | ~70% of the labeled cases | ~30% of the labeled cases |
 
