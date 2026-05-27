@@ -31,7 +31,7 @@ from compass.services.threaded import (
     read_html_file,
 )
 from compass.utilities import LLM_COST_REGISTRY, Directories
-from compass.utilities.base import WebSearchParams
+from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.io import load_config
 from compass.utilities.logs import NoLocationFilter, LogListener
 
