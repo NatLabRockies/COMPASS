@@ -3,20 +3,11 @@
     "feature": "year",
     "n_cases": 48,
     "accuracy": 0.5833,
-    "accuracy_ci95": [
-      0.4428,
-      0.7115
-    ],
+    "accuracy_95_percent_confidence_interval": "0.4428 - 0.7115",
     "precision": 0.9615,
-    "precision_ci95": [
-      0.8111,
-      0.9932
-    ],
+    "precision_95_percent_confidence_interval": "0.8111 - 0.9932",
     "recall": 0.5556,
-    "recall_ci95": [
-      0.4118,
-      0.6906
-    ],
+    "recall_95_percent_confidence_interval": "0.4118 - 0.6906",
     "f1": 0.7042,
     "true_positive": 25,
     "true_negative": 3,

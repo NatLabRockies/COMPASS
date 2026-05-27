@@ -123,12 +123,6 @@ def _compute_metrics(results):
     }
 
 
-def _fmt_ci(ci):
-    """Format a (lo, hi) CI as 'lo-hi', or '' if undefined"""
-    lo, hi = ci
-    return "" if lo is None else f"{lo:.4f}-{hi:.4f}"
-
-
 def _metrics_entry(feature, metrics):
     """Build the per-feature metrics dict written to the JSON list"""
     c = metrics["counts"]
@@ -136,11 +130,17 @@ def _metrics_entry(feature, metrics):
         "feature": feature,
         "n_cases": metrics["n"],
         "accuracy": round(metrics["accuracy"], 4),
-        "accuracy_ci95": _ci_list(metrics["accuracy_ci"]),
+        "accuracy_95_percent_confidence_interval": _ci_str(
+            metrics["accuracy_ci"]
+        ),
         "precision": round(metrics["precision"], 4),
-        "precision_ci95": _ci_list(metrics["precision_ci"]),
+        "precision_95_percent_confidence_interval": _ci_str(
+            metrics["precision_ci"]
+        ),
         "recall": round(metrics["recall"], 4),
-        "recall_ci95": _ci_list(metrics["recall_ci"]),
+        "recall_95_percent_confidence_interval": _ci_str(
+            metrics["recall_ci"]
+        ),
         "f1": round(metrics["f1"], 4),
         "true_positive": c["TP"],
         "true_negative": c["TN"],
@@ -155,10 +155,10 @@ def _metrics_entry(feature, metrics):
     }
 
 
-def _ci_list(ci):
-    """Convert (lo, hi) tuple to [lo, hi] list, or None if undefined"""
+def _ci_str(ci):
+    """Format (lo, hi) as 'lo - hi' string, or None if undefined"""
     lo, hi = ci
-    return None if lo is None else [round(lo, 4), round(hi, 4)]
+    return None if lo is None else f"{lo:.4f} - {hi:.4f}"
 
 
 def _write_metrics_json(fp, entries):
@@ -334,11 +334,11 @@ def _process_eval_type(eval_type, rows, results_dir):
             ),
             (
                 f"    accuracy={m['accuracy']:.3f} "
-                f"95%CI[{_fmt_ci(m['accuracy_ci'])}]  "
+                f"95%CI[{_ci_str(m['accuracy_ci']) or ''}]  "
                 f"precision={m['precision']:.3f} "
-                f"95%CI[{_fmt_ci(m['precision_ci'])}]  "
+                f"95%CI[{_ci_str(m['precision_ci']) or ''}]  "
                 f"recall={m['recall']:.3f} "
-                f"95%CI[{_fmt_ci(m['recall_ci'])}]  "
+                f"95%CI[{_ci_str(m['recall_ci']) or ''}]  "
                 f"f1={m['f1']:.3f}"
             ),
             f"    total LLM cost: ${m['total_cost']:.4f}",
