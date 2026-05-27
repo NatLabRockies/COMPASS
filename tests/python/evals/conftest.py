@@ -323,23 +323,8 @@ def _process_eval_type(eval_name, eval_type, rows, results_dir):
 
     summary_lines = []
     for feature, m in per_feature_metrics.items():
-        acc_ci = _ci_str(m["accuracy_95_percent_confidence_interval"]) or ""
-        prec_ci = _ci_str(m["precision_95_percent_confidence_interval"]) or ""
-        rec_ci = _ci_str(m["recall_95_percent_confidence_interval"]) or ""
-        summary_lines.extend([
-            (
-                f"  [{feature}] cases={m['n_cases']}  "
-                f"TP={m['true_positive']} TN={m['true_negative']} "
-                f"FP={m['false_positive']} FN={m['false_negative']}"
-            ),
-            (
-                f"    accuracy={m['accuracy']:.3f} 95%CI[{acc_ci}]  "
-                f"precision={m['precision']:.3f} 95%CI[{prec_ci}]  "
-                f"recall={m['recall']:.3f} 95%CI[{rec_ci}]  "
-                f"f1={m['f1']:.3f}"
-            ),
-            f"    total LLM cost: ${m['total_cost_usd']:.4f}",
-        ])
+        entry = _format_entry(feature, m)
+        summary_lines.extend(f"  {k}={v}" for k, v in entry.items())
     summary_lines.extend(gate_lines)
     summary_lines.extend(extra)
     return failures, summary_lines
