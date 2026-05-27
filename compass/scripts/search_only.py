@@ -395,3 +395,78 @@ def write_search_only_report(report, out_path=None):
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(payload, encoding="utf-8")
+
+
+def format_search_only_report_human(report):
+    """Format search-only output as readable plain text
+
+    Parameters
+    ----------
+    report : dict
+        Dictionary produced by :func:`run_search_only`.
+
+    Returns
+    -------
+    str
+        Multi-line summary containing only records that were not
+        filtered, sorted by ``overall_rank`` within each jurisdiction.
+    """
+    lines = []
+    lines.extend(
+        (
+            "COMPASS search-only summary",
+            f"tech: {report.get('tech')}",
+            f"timestamp: {report.get('timestamp')}",
+            (
+                "requested top urls: "
+                f"{report.get('num_urls_requested')}"
+            ),
+            "",
+        )
+    )
+
+    jurisdictions = report.get("jurisdictions", [])
+    for jur in jurisdictions:
+        lines.append(f"jurisdiction: {jur.get('jurisdiction')}")
+
+        if jur.get("error"):
+            lines.extend((f"  error: {jur.get('error')}", ""))
+            continue
+
+        kept = [
+            entry
+            for entry in jur.get("results", [])
+            if entry.get("filtered_reason") is None
+        ]
+        kept.sort(
+            key=lambda entry: (
+                entry.get("overall_rank")
+                if entry.get("overall_rank") is not None
+                else float("inf"),
+                entry.get("query_rank")
+                if entry.get("query_rank") is not None
+                else float("inf"),
+            )
+        )
+
+        if not kept:
+            lines.extend(("  no unfiltered results", ""))
+            continue
+
+        for entry in kept:
+            lines.extend(
+                (
+                    (
+                        "  "
+                        f"[{entry.get('overall_rank')}] "
+                        f"{entry.get('search_engine')} "
+                        f"(query_rank={entry.get('query_rank')})"
+                    ),
+                    f"    query: {entry.get('query')}",
+                    f"    url: {entry.get('url')}",
+                )
+            )
+
+        lines.append("")
+
+    return "\n".join(lines).rstrip()

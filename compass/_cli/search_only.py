@@ -1,6 +1,7 @@
 """COMPASS CLI search-only subcommand"""
 
 import asyncio
+from pathlib import Path
 
 import click
 from rich.console import Console
@@ -9,6 +10,7 @@ from rich.theme import Theme
 from compass._cli.common import setup_cli_logging
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.search_only import (
+    format_search_only_report_human,
     run_search_only,
     write_search_only_report,
 )
@@ -42,8 +44,16 @@ from compass.utilities.io import load_config
     "output",
     type=click.Path(),
     default=None,
-    help="Optional path to write the JSON report. If omitted, the "
-    "report is written to stdout.",
+    help="Optional path to write the report. If omitted, the report is "
+    "written to stdout.",
+)
+@click.option(
+    "--output-format",
+    "output_format",
+    type=click.Choice(["json", "human"], case_sensitive=False),
+    default="json",
+    show_default=True,
+    help="Output representation for search results.",
 )
 @click.option(
     "-v",
@@ -59,8 +69,10 @@ from compass.utilities.io import load_config
     default=None,
     help="One-shot plugin configuration to register before searching",
 )
-def search_only(config, n_top_urls, output, verbose, plugin):
-    """Run only the search step and emit ranked URLs as JSON"""
+def search_only(
+    config, n_top_urls, output, output_format, verbose, plugin
+):
+    """Run only the search step and emit ranked URL results"""
     config_path = config
     config = load_config(config)
 
@@ -84,4 +96,15 @@ def search_only(config, n_top_urls, output, verbose, plugin):
     report = loop.run_until_complete(
         run_search_only(config_path=config_path, **config)
     )
-    write_search_only_report(report, out_path=output)
+    if output_format == "json":
+        write_search_only_report(report, out_path=output)
+        return
+
+    text_report = format_search_only_report_human(report)
+    if output is None:
+        print(text_report)
+        return
+
+    out_path = Path(output)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    out_path.write_text(f"{text_report}\n", encoding="utf-8")
