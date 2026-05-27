@@ -200,16 +200,13 @@ class PipelineRuntime:
             ),
             FileMover(self.dirs.ordinance_files, tpe_kwargs=self.tpe_kwargs),
             CleanedFileWriter(
-                self.dirs.clean_files,
-                tpe_kwargs=self.tpe_kwargs,
+                self.dirs.clean_files, tpe_kwargs=self.tpe_kwargs
             ),
             OrdDBFileWriter(
-                self.dirs.jurisdiction_dbs,
-                tpe_kwargs=self.tpe_kwargs,
+                self.dirs.jurisdiction_dbs, tpe_kwargs=self.tpe_kwargs
             ),
             UsageUpdater(
-                self.dirs.out / "usage.json",
-                tpe_kwargs=self.tpe_kwargs,
+                self.dirs.out / "usage.json", tpe_kwargs=self.tpe_kwargs
             ),
             JurisdictionUpdater(
                 self.dirs.out / "jurisdictions.json",

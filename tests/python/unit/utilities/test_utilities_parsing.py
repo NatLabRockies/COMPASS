@@ -210,19 +210,19 @@ def test_convert_paths_to_strings_all_structures():
     result = convert_paths_to_strings(input_obj)
 
     expected = {
-        "path_key": {
+        "./path_key": {
             "list": [
-                "inner_list_item",
-                {"dict_key": "dict_value"},
+                "./inner_list_item",
+                {"./dict_key": "./dict_value"},
             ],
-            "tuple": ("inner_tuple_item", "preserve"),
-            "set": {"inner_set_item", "inner_literal"},
+            "tuple": ("./inner_tuple_item", "preserve"),
+            "set": {"./inner_set_item", "inner_literal"},
         },
-        "list": ["top_list_item", ("tuple_in_list",)],
-        "tuple": ("top_tuple_item", {"tuple_set_item"}),
-        "set": {"top_set_item", ("nested_tuple", "nested_tuple_path")},
+        "list": ["./top_list_item", ("./tuple_in_list",)],
+        "tuple": ("./top_tuple_item", {"./tuple_set_item"}),
+        "set": {"./top_set_item", ("nested_tuple", "./nested_tuple_path")},
         "value": "literal",
-        "path_value": "top_value_path",
+        "path_value": "./top_value_path",
     }
 
     assert result == expected

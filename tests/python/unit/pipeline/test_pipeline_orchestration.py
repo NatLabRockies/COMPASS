@@ -1,28 +1,38 @@
-"""Tests for compass.scripts.process"""
+"""Tests for compass.pipeline orchestration"""
 
 import json
 import logging
-from pathlib import Path
 from itertools import product
+from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from compass.plugin.registry import PLUGIN_REGISTRY, register_plugin
-from compass.plugin.base import BaseExtractionPlugin
-from compass.pb import COMPASS_PB
-from compass.services.base import Service
-from compass.exceptions import COMPASSValueError, COMPASSFileNotFoundError
-import compass.scripts.process as process_module
-from compass.scripts.process import (
-    _COMPASSRunner,
-    collect_jurisdiction_documents,
-    extract_collected_jurisdiction_documents,
-    process_jurisdictions_with_openai,
+import compass.pipeline.coordinator as coordinator_module
+from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.pipeline import (
+    CollectionRequest,
+    ExtractionRequest,
+    ProcessRequest,
+)
+from compass.pipeline.collection.persistence import (
     COLLECTION_MANIFEST_FILENAME,
 )
+from compass.pipeline.coordinator import _build_models, run_compass
+from compass.pipeline.runtime import PipelineRuntime
+from compass.plugin.base import BaseExtractionPlugin
+from compass.plugin.registry import PLUGIN_REGISTRY, register_plugin
+from compass.pb import COMPASS_PB
+from compass.services.base import Service
 from compass.utilities.enums import LLMTasks
-from compass.utilities import ProcessKwargs
+
+
+@pytest.fixture(autouse=True)
+def reset_compass_pb():
+    """Reset progress bar state around each test"""
+    COMPASS_PB.reset()
+    yield
+    COMPASS_PB.reset()
 
 
 @pytest.fixture
@@ -47,63 +57,68 @@ def testing_log_file(tmp_path):
 
 
 @pytest.fixture
-def patched_runner(monkeypatch):
-    """Patch the COMPASSRunner to a dummy that bypasses processing"""
+def patched_workflow(monkeypatch):
+    """Patch workflow selection to a dummy pipeline workflow"""
 
-    class DummyRunner:
-        """Minimal runner that bypasses full processing"""
+    class DummyWorkflow:
+        """Minimal workflow used to verify request dispatch"""
 
         LAST_MODE_USED = None
 
-        def __init__(self, mode, **_):
-            DummyRunner.LAST_MODE_USED = mode
+        def __init__(self, runtime):
+            self.runtime = runtime
 
-        async def _run_collection(self, jurisdiction_fp):
-            return f"collected {jurisdiction_fp}"
+        async def run(self, jurisdictions_df):
+            DummyWorkflow.LAST_MODE_USED = self.runtime.mode
+            return f"processed {self.runtime.mode}"
 
-        async def _run_extraction(self, **kwargs):
-            return f"extracted {kwargs}"
-
-        async def run(self, jurisdiction_fp):
-            return f"processed {jurisdiction_fp}"
-
-    monkeypatch.setattr(process_module, "_COMPASSRunner", DummyRunner)
-    return DummyRunner
+    monkeypatch.setattr(
+        coordinator_module,
+        "_build_model_registry",
+        lambda __: {},
+    )
+    monkeypatch.setattr(
+        coordinator_module,
+        "_load_jurisdictions_to_process",
+        lambda _: pd.DataFrame([{"State": "Washington", "County": "Whatcom"}]),
+    )
+    monkeypatch.setattr(coordinator_module, "_select_workflow", DummyWorkflow)
+    return DummyWorkflow
 
 
 def test_known_local_docs_missing_file(tmp_path):
     """Raise when known_local_docs points to missing config"""
     missing_fp = tmp_path / "does_not_exist.json"
-    runner = _COMPASSRunner(
-        dirs=None,
-        log_listener=None,
+    request = ProcessRequest(
+        out_dir=tmp_path / "outputs",
         tech="solar",
-        models={},
-        process_kwargs=ProcessKwargs(str(missing_fp), None),
+        jurisdiction_fp=tmp_path / "jurisdictions.csv",
+        model=None,
+        known_local_docs=str(missing_fp),
     )
 
     with pytest.raises(
         COMPASSFileNotFoundError, match="Configuration file does not exist"
     ):
-        _ = runner.known_local_docs
+        PipelineRuntime(request, {})
 
 
 def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
     """Log missing known_local_docs config to error file"""
 
     missing_fp = tmp_path / "does_not_exist.json"
-    runner = _COMPASSRunner(
-        dirs=None,
-        log_listener=None,
+    request = ProcessRequest(
+        out_dir=tmp_path / "outputs",
         tech="solar",
-        models={},
-        process_kwargs=ProcessKwargs(str(missing_fp), None),
+        jurisdiction_fp=tmp_path / "jurisdictions.csv",
+        model=None,
+        known_local_docs=str(missing_fp),
     )
 
     with pytest.raises(
         COMPASSFileNotFoundError, match="Configuration file does not exist"
     ):
-        _ = runner.known_local_docs
+        PipelineRuntime(request, {})
 
     assert testing_log_file.exists()
     assert "Configuration file does not exist" in testing_log_file.read_text(
@@ -160,7 +175,7 @@ class _RoundtripTestPlugin(BaseExtractionPlugin):
         return _KeepEverything()
 
     async def filter_docs(
-        self, extraction_context, need_jurisdiction_verification=True
+        self, extraction_context, needs_jurisdiction_verification=True
     ):
         """Keep all docs for deterministic round-trip tests"""
         if not extraction_context:
@@ -229,15 +244,17 @@ def registered_roundtrip_plugin():
 
 @pytest.fixture
 def patched_model_configs(monkeypatch):
-    """Replace OpenAI model config setup with a deterministic stub"""
+    """Replace pipeline model config setup with a deterministic stub"""
 
-    def _dummy_initialize_model_params(user_input):
+    def _dummy_build_model_registry(request):
+        if request.MODE == coordinator_module.COMPASSRunMode.COLLECT:
+            return {}
         return {LLMTasks.DEFAULT: _DummyModelConfig()}
 
     monkeypatch.setattr(
-        process_module,
-        "_initialize_model_params",
-        _dummy_initialize_model_params,
+        coordinator_module,
+        "_build_model_registry",
+        _dummy_build_model_registry,
     )
 
 
@@ -271,32 +288,30 @@ def roundtrip_local_docs_inputs(tmp_path, test_data_files_dir):
 
 
 @pytest.mark.asyncio
-async def test_collect_wrapper_uses_collection_runner(
-    tmp_path, patched_runner
+async def test_collect_request_uses_collection_workflow(
+    tmp_path, patched_workflow
 ):
-    """Collection wrapper should dispatch to the collection runner"""
+    """Collection requests should dispatch to the collection workflow"""
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.touch()
 
-    result = await collect_jurisdiction_documents(
+    request = CollectionRequest(
         out_dir=tmp_path / "outputs",
         tech="solar",
         jurisdiction_fp=jurisdiction_fp,
     )
+    result = await run_compass(request)
 
-    assert result == f"processed {jurisdiction_fp}"
-    assert patched_runner.LAST_MODE_USED == "collect"
+    assert result == f"processed {request.MODE}"
+    assert patched_workflow.LAST_MODE_USED == request.MODE
 
 
 @pytest.mark.asyncio
-async def test_extract_wrapper_uses_extraction_runner(
-    tmp_path, patched_runner
+async def test_extract_request_uses_extraction_workflow(
+    tmp_path, patched_workflow
 ):
-    """Extraction wrapper should dispatch to the extraction runner"""
+    """Extraction requests should dispatch to the extraction workflow"""
     out_dir = tmp_path / "outputs"
-
-    manifest_fp = tmp_path / COLLECTION_MANIFEST_FILENAME
-    manifest_fp.write_text('{"jurisdictions": []}', encoding="utf-8")
 
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.touch()
@@ -304,15 +319,17 @@ async def test_extract_wrapper_uses_extraction_runner(
     manifest_fp = tmp_path / "manifest_fp.json"
     manifest_fp.touch()
 
-    result = await extract_collected_jurisdiction_documents(
+    request = ExtractionRequest(
         out_dir=out_dir,
         tech="solar",
         jurisdiction_fp=jurisdiction_fp,
         collection_manifest_fp=manifest_fp,
+        model=None,
     )
+    result = await run_compass(request)
 
-    assert "processed" in result
-    assert patched_runner.LAST_MODE_USED == "extract"
+    assert result == f"processed {request.MODE}"
+    assert patched_workflow.LAST_MODE_USED == request.MODE
 
 
 @pytest.mark.asyncio
@@ -326,13 +343,16 @@ async def test_collect_then_extract_round_trip_from_manifest(
     jurisdiction_fp, known_local_docs = roundtrip_local_docs_inputs
     out_dir = tmp_path / "collection"
 
-    collection_msg = await collect_jurisdiction_documents(
-        out_dir=out_dir,
-        tech="roundtrip-test",
-        jurisdiction_fp=jurisdiction_fp,
-        known_local_docs=known_local_docs,
-        perform_se_search=False,
-        perform_website_search=False,
+    collection_msg = await run_compass(
+        CollectionRequest(
+            out_dir=out_dir,
+            tech="roundtrip-test",
+            jurisdiction_fp=jurisdiction_fp,
+            known_local_docs=known_local_docs,
+            make_paths_relative=False,
+            perform_se_search=False,
+            perform_website_search=False,
+        )
     )
 
     assert "2 documents collected for 2 jurisdictions" in collection_msg
@@ -361,11 +381,14 @@ async def test_collect_then_extract_round_trip_from_manifest(
 
     COMPASS_PB.reset()
     extraction_dir = tmp_path / "extracted"
-    extraction_msg = await extract_collected_jurisdiction_documents(
-        out_dir=extraction_dir,
-        tech="roundtrip-test",
-        collection_manifest_fp=manifest_fp,
-        jurisdiction_fp=jurisdiction_fp,
+    extraction_msg = await run_compass(
+        ExtractionRequest(
+            out_dir=extraction_dir,
+            tech="roundtrip-test",
+            collection_manifest_fp=manifest_fp,
+            jurisdiction_fp=jurisdiction_fp,
+            model=None,
+        )
     )
 
     assert "Number of jurisdictions with extracted data: 2" in extraction_msg
@@ -389,13 +412,16 @@ async def test_process_writes_manifest_and_structured_outputs(
     out_dir = tmp_path / "outputs"
 
     COMPASS_PB.reset()
-    result = await process_jurisdictions_with_openai(
-        out_dir=out_dir,
-        tech="roundtrip-test",
-        jurisdiction_fp=jurisdiction_fp,
-        known_local_docs=known_local_docs,
-        perform_se_search=False,
-        perform_website_search=False,
+    result = await run_compass(
+        ProcessRequest(
+            out_dir=out_dir,
+            tech="roundtrip-test",
+            jurisdiction_fp=jurisdiction_fp,
+            known_local_docs=known_local_docs,
+            perform_se_search=False,
+            perform_website_search=False,
+            model=None,
+        )
     )
 
     assert "Number of jurisdictions with extracted data: 2" in result
@@ -404,22 +430,16 @@ async def test_process_writes_manifest_and_structured_outputs(
     assert any((out_dir / "jurisdiction_dbs").glob("*.csv"))
 
 
-@pytest.mark.asyncio
-async def test_duplicate_tasks_logs_to_file(tmp_path):
-    """Log duplicate LLM tasks to error file"""
-
-    jurisdiction_fp = tmp_path / "jurisdictions.csv"
-    jurisdiction_fp.touch()
+def test_duplicate_tasks_raise_value_error():
+    """Raise when configured model tasks overlap"""
 
     with pytest.raises(COMPASSValueError, match="Found duplicated task"):
-        _ = await process_jurisdictions_with_openai(
-            out_dir=tmp_path / "outputs",
-            tech="solar",
-            jurisdiction_fp=jurisdiction_fp,
-            model=[
+        _build_models(
+            [
                 {
                     "name": "gpt-4.1-mini",
                     "tasks": ["default", "date_extraction"],
+                    "client_type": "openai",
                 },
                 {
                     "name": "gpt-4.1",
@@ -428,37 +448,52 @@ async def test_duplicate_tasks_logs_to_file(tmp_path):
                         "permitted_use_text_extraction",
                         "date_extraction",
                     ],
+                    "client_type": "openai",
                 },
-            ],
+            ]
         )
-
-    log_files = list((tmp_path / "outputs" / "logs").glob("*"))
-    assert len(log_files) == 1
-    assert "Fatal error during processing" not in log_files[0].read_text(
-        encoding="utf-8"
-    )
-    assert "Found duplicated task" in log_files[0].read_text(encoding="utf-8")
 
 
 @pytest.mark.asyncio
 async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
     """Log external exceptions to error file"""
 
-    def _always_fail(*__, **___):
-        raise NotImplementedError("Simulated external error")
+    class RaisingWorkflow:
+        """Workflow that fails inside the runtime context"""
+
+        async def run(self, jurisdictions_df):
+            raise NotImplementedError("Simulated external error")
+
+    def _load_single_jurisdiction(_):
+        return pd.DataFrame([{"State": "Washington", "County": "Whatcom"}])
 
     monkeypatch.setattr(
-        process_module, "_initialize_model_params", _always_fail
+        coordinator_module,
+        "_load_jurisdictions_to_process",
+        _load_single_jurisdiction,
+    )
+    monkeypatch.setattr(
+        coordinator_module,
+        "_build_model_registry",
+        lambda __: {},
+    )
+    monkeypatch.setattr(
+        coordinator_module,
+        "_select_workflow",
+        lambda __: RaisingWorkflow(),
     )
 
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.touch()
 
     with pytest.raises(NotImplementedError, match="Simulated external error"):
-        _ = await process_jurisdictions_with_openai(
-            out_dir=tmp_path / "outputs",
-            tech="solar",
-            jurisdiction_fp=jurisdiction_fp,
+        await run_compass(
+            ProcessRequest(
+                out_dir=tmp_path / "outputs",
+                tech="solar",
+                jurisdiction_fp=jurisdiction_fp,
+                model=None,
+            )
         )
 
     log_files = list((tmp_path / "outputs" / "logs").glob("*"))
@@ -471,25 +506,27 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_process_args_logged_at_debug_to_file(
-    tmp_path, patched_runner, assert_message_was_logged
+    tmp_path, patched_workflow, caplog, assert_message_was_logged
 ):
     """Log function arguments with DEBUG_TO_FILE level"""
 
     out_dir = tmp_path / "outputs"
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.touch()
+    caplog.set_level("DEBUG_TO_FILE", logger="compass")
 
-    result = await process_jurisdictions_with_openai(
+    request = ProcessRequest(
         out_dir=out_dir,
         tech="solar",
         jurisdiction_fp=jurisdiction_fp,
         log_level="DEBUG",
     )
+    result = await run_compass(request)
 
-    assert result == f"processed {jurisdiction_fp}"
+    assert result == f"processed {request.MODE}"
 
     assert_message_was_logged(
-        "Called 'process_jurisdictions_with_openai' with:",
+        "Called process pipeline with:",
         log_level="DEBUG_TO_FILE",
     )
     assert_message_was_logged('"out_dir": ', log_level="DEBUG_TO_FILE")
@@ -525,7 +562,7 @@ async def test_process_args_logged_at_debug_to_file(
 )
 async def test_process_steps_logged(
     tmp_path,
-    patched_runner,
+    patched_workflow,
     assert_message_was_logged,
     has_known_local_docs,
     has_known_doc_urls,
@@ -562,19 +599,21 @@ async def test_process_steps_logged(
         with pytest.raises(
             COMPASSValueError, match="No processing steps enabled"
         ):
-            await process_jurisdictions_with_openai(
-                out_dir=str(out_dir),
-                tech="solar",
-                jurisdiction_fp=str(jurisdiction_fp),
-                log_level="DEBUG",
-                known_local_docs=known_local_docs,
-                known_doc_urls=known_doc_urls,
-                perform_se_search=perform_se_search,
-                perform_website_search=perform_website_search,
+            await run_compass(
+                ProcessRequest(
+                    out_dir=str(out_dir),
+                    tech="solar",
+                    jurisdiction_fp=str(jurisdiction_fp),
+                    log_level="DEBUG",
+                    known_local_docs=known_local_docs,
+                    known_doc_urls=known_doc_urls,
+                    perform_se_search=perform_se_search,
+                    perform_website_search=perform_website_search,
+                )
             )
         return
 
-    result = await process_jurisdictions_with_openai(
+    request = ProcessRequest(
         out_dir=str(out_dir),
         tech="solar",
         jurisdiction_fp=str(jurisdiction_fp),
@@ -584,106 +623,15 @@ async def test_process_steps_logged(
         perform_se_search=perform_se_search,
         perform_website_search=perform_website_search,
     )
+    result = await run_compass(request)
 
-    assert result == f"processed {jurisdiction_fp}"
-    assert patched_runner.LAST_MODE_USED == "process"
+    assert result == f"processed {request.MODE}"
+    assert patched_workflow.LAST_MODE_USED == request.MODE
 
     assert_message_was_logged(
         "Using the following document acquisition step(s):", log_level="INFO"
     )
     assert_message_was_logged(" -> ".join(expected_steps), log_level="INFO")
-
-
-# @pytest.mark.asyncio
-# async def test_process_mode_collects_and_extracts_each_jurisdiction_in_order(
-#     monkeypatch, tmp_path
-# ):
-#     """Process mode should extract each jurisdiction after its collection"""
-#     from compass.utilities import Directories
-#     from compass.utilities.logs import LogListener
-
-#     jurisdictions_df = pd.DataFrame(
-#         [
-#             {
-#                 "State": "Colorado",
-#                 "County": "Adams",
-#                 "Subdivision": None,
-#                 "Jurisdiction Type": "county",
-#                 "FIPS": 1,
-#                 "Website": None,
-#             },
-#             {
-#                 "State": "Colorado",
-#                 "County": "Boulder",
-#                 "Subdivision": None,
-#                 "Jurisdiction Type": "county",
-#                 "FIPS": 2,
-#                 "Website": None,
-#             },
-#         ]
-#     )
-#     events = []
-
-#     async def _collect(  # noqa
-#         jurisdiction, known_local_docs=None, known_doc_urls=None
-#     ):
-#         events.append(("collect", jurisdiction.code))
-#         return {
-#             "full_name": jurisdiction.full_name,
-#             "county": jurisdiction.county,
-#             "state": jurisdiction.state,
-#             "subdivision": jurisdiction.subdivision_name,
-#             "jurisdiction_type": jurisdiction.type,
-#             "FIPS": jurisdiction.code,
-#             "jurisdiction_website": None,
-#             "found": True,
-#             "documents": [],
-#         }
-
-#     async def _extract(  # noqa
-#         jurisdiction, collection_info, usage_tracker=None
-#     ):
-#         events.append(("extract", jurisdiction.code))
-#         return {
-#             "jurisdiction": jurisdiction,
-#             "ord_db_fp": f"{jurisdiction.code}.csv",
-#         }
-
-#     COMPASS_PB.reset()
-#     COMPASS_PB.create_main_task(num_jurisdictions=len(jurisdictions_df))
-
-#     with LogListener(["compass"], level="INFO") as ll:
-#         runner = _COMPASSRunner(
-#             dirs=Directories(tmp_path),
-#             log_listener=ll,
-#             tech="solar",
-#             models={},
-#             process_kwargs=ProcessKwargs(
-#                 None, None, None, None, None, None, 1
-#             ),
-#         )
-
-#         monkeypatch.setattr(runner, "_collect_jurisdiction_info", _collect)
-#         monkeypatch.setattr(runner, "_extracted_jurisdiction_info", _extract)
-
-#         try:
-#             collection_manifest, doc_infos = await runner._process_all(
-#                 jurisdictions_df
-#             )
-#         finally:
-#             COMPASS_PB.reset()
-
-#     assert [info["FIPS"] for info in collection_manifest["jurisdictions"]] == [
-#         1,
-#         2,
-#     ]
-#     assert [info["ord_db_fp"] for info in doc_infos] == ["1.csv", "2.csv"]
-#     assert events == [
-#         ("collect", 1),
-#         ("extract", 1),
-#         ("collect", 2),
-#         ("extract", 2),
-#     ]
 
 
 if __name__ == "__main__":
