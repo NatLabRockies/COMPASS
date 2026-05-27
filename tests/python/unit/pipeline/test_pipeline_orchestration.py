@@ -416,6 +416,52 @@ async def test_collect_then_extract_round_trip_from_manifest(
 
 
 @pytest.mark.asyncio
+async def test_extract_recovers_from_collection_manifest_shards(
+    tmp_path,
+    registered_roundtrip_plugin,
+    patched_model_configs,
+    roundtrip_local_docs_inputs,
+):
+    """Extraction should recover from per-jurisdiction manifest shards"""
+    jurisdiction_fp, known_local_docs = roundtrip_local_docs_inputs
+    out_dir = tmp_path / "collection"
+
+    await run_compass(
+        CollectionRequest(
+            out_dir=out_dir,
+            tech="roundtrip-test",
+            jurisdiction_fp=jurisdiction_fp,
+            known_local_docs=known_local_docs,
+            make_paths_relative=True,
+            perform_se_search=False,
+            perform_website_search=False,
+        )
+    )
+
+    manifest_fp = out_dir / COLLECTION_MANIFEST_FILENAME
+    manifest_fp.unlink()
+
+    COMPASS_PB.reset()
+    extraction_dir = tmp_path / "extracted"
+    extraction_msg = await run_compass(
+        ExtractionRequest(
+            out_dir=extraction_dir,
+            tech="roundtrip-test",
+            collection_manifest_fp=manifest_fp,
+            jurisdiction_fp=jurisdiction_fp,
+            model=None,
+        )
+    )
+
+    assert "Number of jurisdictions with extracted data: 2" in extraction_msg
+    combined_fp = extraction_dir / "roundtrip_test_combined.csv"
+    assert combined_fp.exists()
+
+    combined = pd.read_csv(combined_fp)
+    assert set(combined["user_label"]) == {"whatcom-text", "caneadea-pdf"}
+
+
+@pytest.mark.asyncio
 async def test_process_writes_manifest_and_structured_outputs(
     tmp_path,
     registered_roundtrip_plugin,

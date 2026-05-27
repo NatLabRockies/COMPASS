@@ -15,9 +15,10 @@ from compass.services.threaded import (
 )
 from compass.services.cpu import read_docling_local_file
 from compass.utilities.io import load_config
+from compass.utilities.io import resolve_all_paths
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.warn import COMPASSWarning
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 
 
 COLLECTION_MANIFEST_FILENAME = "collection_manifest.json"
@@ -114,7 +115,23 @@ def load_collection_manifest(manifest_fp, expected_tech):
     dict
         Loaded collection manifest as a dictionary.
     """
-    manifest = load_config(manifest_fp, file_name="Collection manifest")
+    try:
+        manifest = load_config(manifest_fp, file_name="Collection manifest")
+    except COMPASSFileNotFoundError:
+        manifest = _load_collection_manifest_from_shards(
+            manifest_fp,
+            expected_tech,
+        )
+        if manifest is None:
+            raise
+
+        shard_dir = _collection_manifest_shard_dir(manifest_fp)
+        msg = (
+            "Collection manifest file is missing; rebuilding from "
+            f"jurisdiction shard files in {shard_dir}"
+        )
+        warn(msg, COMPASSWarning)
+
     _validate_collection_manifest(manifest, expected_tech)
     return manifest
 
@@ -294,3 +311,29 @@ def _clean_shard_name_part(value):
     for old, new in (("/", "-"), ("\\", "-"), (":", "-")):
         value = value.replace(old, new)
     return value
+
+
+def _load_collection_manifest_from_shards(manifest_fp, expected_tech):
+    """Rebuild a collection manifest from jurisdiction shard files"""
+    manifest_dir = Path(manifest_fp).expanduser().resolve().parent
+    shard_dir = _collection_manifest_shard_dir(manifest_fp)
+    shard_fps = sorted(shard_dir.glob("*_collection_manifest.json"))
+    if not shard_fps:
+        return None
+
+    jurisdictions = []
+    for shard_fp in shard_fps:
+        collection_info = load_config(
+            shard_fp,
+            resolve_paths=False,
+            file_name="Collection manifest shard",
+        )
+        jurisdictions.append(resolve_all_paths(collection_info, manifest_dir))
+
+    return build_collection_manifest(expected_tech, jurisdictions)
+
+
+def _collection_manifest_shard_dir(manifest_fp):
+    """Infer the directory containing collection manifest shards"""
+    manifest_dir = Path(manifest_fp).expanduser().resolve().parent
+    return manifest_dir / "jurisdiction_dbs"
