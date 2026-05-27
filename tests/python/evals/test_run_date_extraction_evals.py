@@ -21,6 +21,7 @@ from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
 
 from common import Result, classify
+from eval_helpers import report_evals
 from compass.utilities.jurisdictions import Jurisdiction
 
 
@@ -37,10 +38,10 @@ RESULTS = {"dev": [], "held_out": []}
 
 
 @pytest.fixture(scope="module", autouse=True)
-def _report(report_evals):
+def _report(request):
     """Write CSVs/JSON, print summary, and enforce the gate at teardown"""
     yield
-    report_evals(EVAL_NAME, RESULTS, RESULTS_DIR)
+    report_evals(request, EVAL_NAME, RESULTS, RESULTS_DIR)
 
 
 _DEV_CASES = load_config(DEV_MANIFEST_FP)

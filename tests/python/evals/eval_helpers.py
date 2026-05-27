@@ -1,9 +1,10 @@
-"""Eval reporting + regression gate.
+"""Eval reporting + regression gate (importable helper library).
 
-Exposes ``report_evals(request, eval_name, results_by_type, results_dir)``
-for each eval suite's teardown fixture to call. Writes results to the
-given ``results_dir`` and gates against the committed baseline; no-ops
-when no rows were recorded (evals deselected by default).
+Each eval suite (``test_run_<name>_evals.py``) imports
+:func:`report_evals` and calls it from a module-scoped teardown
+fixture. ``report_evals`` writes CSVs/JSON to the given ``results_dir``
+and gates against the committed baseline; it no-ops when no rows were
+recorded (evals deselected by default).
 
 - **dev**: per-case breakdown CSV + metrics JSON; gate = aggregate failing
   count AND per-row regression (tolerance for sampling noise).
@@ -229,42 +230,38 @@ def _check_aggregate_regression(fails_now, baseline_failing):
     return failures, lines
 
 
-@pytest.fixture(scope="module")
-def report_evals(request):
-    """Return ``report(eval_name, results_by_type, results_dir)`` callable
+def report_evals(request, eval_name, results_by_type, results_dir):
+    """Write CSVs/JSON, print a summary, and enforce the regression gate
 
-    Used by each eval suite's teardown fixture to write CSVs/JSON, print
-    a summary, and enforce the regression gate. No-ops when the eval did
-    not run (deselected or skipped, so ``results_by_type`` has no rows).
+    Called from each test module's teardown fixture (typically an autouse
+    module-scoped fixture). No-ops when the eval did not run (deselected
+    or skipped, so ``results_by_type`` has no rows).
     """
-    def report(eval_name, results_by_type, results_dir):
-        if not any(results_by_type.values()):
-            return
-        tr = request.config.pluginmanager.get_plugin("terminalreporter")
-        write = tr.write_line
-        results_dir.mkdir(parents=True, exist_ok=True)
+    if not any(results_by_type.values()):
+        return
+    tr = request.config.pluginmanager.get_plugin("terminalreporter")
+    write = tr.write_line
+    results_dir.mkdir(parents=True, exist_ok=True)
 
-        gate_failures = []
-        for eval_type, rows in sorted(results_by_type.items()):
-            if not rows:
-                continue
-            failures, summary_lines = _process_eval_type(
-                eval_name, eval_type, rows, results_dir
-            )
-            gate_failures.extend(
-                f"[{eval_name}/{eval_type}] {m}" for m in failures
-            )
-            tr.section(f"Eval summary: {eval_name} / {eval_type}")
-            for line in summary_lines:
-                write(line)
+    gate_failures = []
+    for eval_type, rows in sorted(results_by_type.items()):
+        if not rows:
+            continue
+        failures, summary_lines = _process_eval_type(
+            eval_name, eval_type, rows, results_dir
+        )
+        gate_failures.extend(
+            f"[{eval_name}/{eval_type}] {m}" for m in failures
+        )
+        tr.section(f"Eval summary: {eval_name} / {eval_type}")
+        for line in summary_lines:
+            write(line)
 
-        if gate_failures:
-            tr.section("Eval regression gate: FAILED")
-            for f in gate_failures:
-                write(f"  - {f}")
-            tr._session.exitstatus = pytest.ExitCode.TESTS_FAILED
-
-    return report
+    if gate_failures:
+        tr.section("Eval regression gate: FAILED")
+        for f in gate_failures:
+            write(f"  - {f}")
+        tr._session.exitstatus = pytest.ExitCode.TESTS_FAILED
 
 
 def _process_eval_type(eval_name, eval_type, rows, results_dir):
