@@ -1,12 +1,17 @@
-"""Shared schema + helpers for eval suites
+"""Shared schema + doc loading for eval suites
 
-Eval-agnostic pieces that any ``test_run_<name>_evals.py`` can import.
-Pytest-specific machinery (fixtures, gate, reporter) lives in
-``conftest.py``.
+Eval-agnostic pieces (the ``Result`` row schema, success/failure
+constants, ``classify``, ``load_doc``) that any
+``test_run_<name>_evals.py`` can import. Metric computation lives in
+``utilities.metrics``; result formatting and I/O live in
+``utilities.reports``.
 """
 
 from dataclasses import dataclass, fields
+from pathlib import Path
 
+from elm.web.document import HTMLDocument, PDFDocument
+from elm.utilities.parse import read_pdf
 from compass.utilities.jurisdictions import Jurisdiction
 
 SUCCESS = "Success"
@@ -59,3 +64,13 @@ RESULT_FIELDS = [f.name for f in fields(Result)]
 def classify(expected, extracted):
     """Binary success: did the extractor match ground truth?"""
     return SUCCESS if extracted == expected else FAILURE
+
+
+def load_doc(fp, *, source=None):
+    """Load a local file as an elm Document, dispatching on suffix"""
+    fp = Path(fp)
+    attrs = {"source": source} if source else {}
+    if fp.suffix.casefold() == ".pdf":
+        return PDFDocument(read_pdf(fp.read_bytes(), verbose=False), attrs=attrs)
+    text = fp.read_text(encoding="utf-8", errors="ignore")
+    return HTMLDocument([text], attrs=attrs)

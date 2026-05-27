@@ -28,9 +28,12 @@ format = "ruff format ./compass"
 tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python"
 tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=10 tests/python/integration"
-# Run an eval suite against its in-repo dev dataset (live LLM calls; needs Azure creds).
-# Usage:  pixi run evals date_extraction   (resolves to tests/python/evals/test_run_date_extraction_evals.py -m dev_evals)
-evals = { cmd = "pytest -rapP -vv -m dev_evals tests/python/evals/test_run_{{ name }}_evals.py", args = ["name"] }
+# Run an eval suite (live LLM calls; needs Azure creds). Dev dataset by default;
+# add `--held-out` to run against the held-out dataset (release checkpoint, no gate).
+# Usage:
+#   pixi run evals date_extraction
+#   pixi run evals date_extraction --held-out
+evals = { cmd = "pytest -rapP -vv -m evals tests/python/evals/test_run_{{ name }}_evals.py", args = ["name"] }
 
 [feature.python-doc.tasks]
 python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
@@ -147,6 +150,7 @@ pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.15.5,<0.16"
 ruff-lsp = ">=0.0.62,<0.0.63"
 seaborn = ">=0.13.2,<0.14"
+openpyxl = ">=3.1.5,<4"
 
 [feature.python-test.dependencies]
 flaky = ">=3.8.1,<4"
