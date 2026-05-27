@@ -195,7 +195,7 @@ convention = "numpy"
 "__init__.py" = [
   "F401", # unused-import
 ]
-"tests/**.py" = [
+"{tests,evals}/**.py" = [
   "ARG001", # unused-function-argument
   "ARG002", # unused-method-argument
   "D101", # undocumented-public-class

@@ -18,8 +18,7 @@ from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
 from compass.utilities.jurisdictions import Jurisdiction
 
-from utilities.base import Result, classify, load_doc
-from utilities.reports import report_evals
+from utilities import Result, classify, load_doc, report_evals
 
 
 logger = logging.getLogger(__name__)
@@ -97,7 +96,8 @@ def _report(request):
 def _model_config():
     model = "compassop-gpt-5.4"
     LLM_COST_REGISTRY.setdefault(
-        model, {"prompt": 1.25, "response": 7.5}  # $/M tokens
+        model,
+        {"prompt": 1.25, "response": 7.5},  # $/M tokens
     )
     return OpenAIConfig(name=model)
 

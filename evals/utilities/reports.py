@@ -106,7 +106,8 @@ def regressed_rows(results, breakdown_fp):
     }
     return sorted(
         (
-            jurisdiction for jurisdiction, was_ok in baseline_correct.items()
+            jurisdiction
+            for jurisdiction, was_ok in baseline_correct.items()
             if was_ok and jurisdiction not in now_correct
         ),
         key=str,
@@ -147,7 +148,9 @@ def report_evals(
 
     # Snapshot baselines BEFORE writing the new files.
     baseline_failing = load_baseline_failing(metrics_fp)
-    regressed = regressed_rows(results, breakdown_fp) if write_breakdown else None
+    regressed = (
+        regressed_rows(results, breakdown_fp) if write_breakdown else None
+    )
 
     results_by_feature = {}
     for result in results:

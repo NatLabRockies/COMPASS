@@ -71,6 +71,7 @@ def load_doc(fp, *, source=None):
     fp = Path(fp)
     attrs = {"source": source} if source else {}
     if fp.suffix.casefold() == ".pdf":
-        return PDFDocument(read_pdf(fp.read_bytes(), verbose=False), attrs=attrs)
+        pages = read_pdf(fp.read_bytes(), verbose=False)
+        return PDFDocument(pages, attrs=attrs)
     text = fp.read_text(encoding="utf-8", errors="ignore")
     return HTMLDocument([text], attrs=attrs)

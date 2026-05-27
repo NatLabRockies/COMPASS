@@ -8,7 +8,5 @@ def pytest_addoption(parser):
         "--held-out",
         action="store_true",
         default=False,
-        help=(
-            "Run the eval against the held-out dataset"
-        ),
+        help=("Run the eval against the held-out dataset"),
     )
