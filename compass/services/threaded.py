@@ -544,6 +544,40 @@ class HTMLFileLoader(ThreadedService):
         )
 
 
+class GenericFuncRunner(ThreadedService):
+    """Abstract service that manages the storage of a file on disk
+
+    Storage can occur due to creation or a move of a file.
+    """
+
+    @property
+    def can_process(self):
+        """bool: Always ``True`` (limiting is handled by asyncio)"""
+        return True
+
+    async def process(self, func, *args):
+        """Store file in out directory
+
+        Parameters
+        ----------
+        doc : BaseDocument
+            Document containing meta information about the file. Must
+            have relevant processing keys in the ``attrs`` dict,
+            otherwise the file may not be stored in the output
+            directory.
+        args
+            Additional positional argument pairs to pass to the
+            processing function.
+
+        Returns
+        -------
+        Path or None
+            Path to output file, or `None` if no file was stored.
+        """
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(self.pool, func, *args)
+
+
 def _dump_usage(fp, tracker):
     """Dump usage to an existing file"""
     if not Path(fp).exists():
