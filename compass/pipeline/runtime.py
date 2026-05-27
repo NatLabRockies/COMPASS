@@ -28,6 +28,7 @@ from compass.services.threaded import (
     TempFileCacheCopier,
     TempFileCachePB,
     UsageUpdater,
+    GenericFuncRunner,
     read_html_file,
 )
 from compass.utilities import LLM_COST_REGISTRY, Directories
@@ -214,6 +215,7 @@ class PipelineRuntime:
             ),
             FileLoader(**(runtime_settings.ppe_kwargs or {})),
             HTMLFileLoader(**self.tpe_kwargs),
+            GenericFuncRunner(**self.tpe_kwargs),
         ]
 
         if self.mode == self.mode.COLLECT:
