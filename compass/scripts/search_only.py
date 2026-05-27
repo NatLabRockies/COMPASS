@@ -11,7 +11,7 @@ import asyncio
 import json
 import logging
 import random
-from datetime import datetime, timezone
+from datetime import datetime, UTC
 from pathlib import Path
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
@@ -126,7 +126,7 @@ async def run_search_only(
     jur_results = await asyncio.gather(*tasks)
 
     return {
-        "timestamp": datetime.now(timezone.utc)
+        "timestamp": datetime.now(UTC)
         .isoformat(timespec="seconds")
         .replace("+00:00", "Z"),
         "config_path": str(Path(config_path).resolve())
