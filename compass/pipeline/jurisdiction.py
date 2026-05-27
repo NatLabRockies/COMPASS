@@ -149,8 +149,7 @@ class SingleJurisdictionRun:
             self.jurisdiction.full_name,
         )
         collection_info = await self.collection_workflow.execute(
-            eager_extract=False,
-            relative_to=relative_to,
+            eager_extract=False, relative_to=relative_to
         )
         logger.info(
             "Completed collection for jurisdiction: %s",
