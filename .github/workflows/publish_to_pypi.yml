@@ -63,6 +63,6 @@ jobs:
         "$RUNNER_TEMP/twine-venv/bin/twine" check --strict dist/*
 
     - name: Publish package distributions to PyPI
-      if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
+      if: github.event_name == 'release'
       uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
 
