@@ -29,10 +29,11 @@ tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov
 tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=30 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=10 tests/python/integration"
 # Run an eval suite (live LLM calls; needs Azure creds). Dev dataset by default;
-# add `--held-out` to run against the held-out dataset (release checkpoint, no gate).
+# pass `-- --held-out` to run against the held-out dataset (release checkpoint, no gate).
+# The `--` separator forwards subsequent flags to pytest unchanged.
 # Usage:
 #   pixi run evals date_extraction
-#   pixi run evals date_extraction --held-out
+#   pixi run evals date_extraction -- --held-out
 evals = { cmd = "pytest -rapP -vv -m evals --log-cli-level=INFO evals/test_run_{{ name }}_evals.py", args = ["name"], default-environment = "ptest" }
 
 [feature.python-doc.tasks]

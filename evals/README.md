@@ -11,9 +11,12 @@ fails the run if the committed baseline gets worse.
 ## Run
 
 ```bash
-pixi run evals date_extraction              # Run as frequently as needed
-pixi run evals date_extraction --held-out   # Only run once before a release
+pixi run evals date_extraction                 # Run as frequently as needed
+pixi run evals date_extraction -- --held-out   # Only run once before a release
 ```
+
+The `--` separator tells pixi to pass everything after it to pytest, so
+you can also tack on flags like `-k Bartow` or `--maxfail=3` the same way.
 
 Evals are deselected by default in regular `pytest` runs — they only
 fire when the `-m evals` marker is explicitly selected (which the pixi
