@@ -151,7 +151,6 @@ pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.15.5,<0.16"
 ruff-lsp = ">=0.0.62,<0.0.63"
 seaborn = ">=0.13.2,<0.14"
-openpyxl = ">=3.1.5,<4"
 
 [feature.python-test.dependencies]
 flaky = ">=3.8.1,<4"

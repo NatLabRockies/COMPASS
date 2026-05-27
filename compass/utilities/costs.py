@@ -121,10 +121,6 @@ def compute_total_tokens_from_totals(totals):
 def compute_total_cost_and_token_from_totals(totals):
     """Compute total cost and token counts together from tracked usage
 
-    Convenience for callers that want all three numbers (cost, prompt
-    tokens, response tokens) without iterating ``totals`` twice. Same
-    ``totals`` shape as :func:`compute_cost_from_totals`.
-
     Returns
     -------
     dict
