@@ -47,9 +47,9 @@ per-case breakdown.
 test_run_<name>_evals.py   # one eval suite per extractor (e.g. test_run_solar_evals.py)
 conftest.py                # reporter + regression gate (writes into results/)
 results/
-  dev/<name>_evals.csv               # committed baseline metrics (regression gate reads these)
+  dev/<name>_evals.json              # committed baseline metrics — list of per-feature dicts (gate reads these)
   dev/<name>_evals_breakdown.csv     # committed per-case dev breakdown
-  held_out/<name>_evals.csv          # committed baseline held-out metrics (no per-case detail)
+  held_out/<name>_evals.json         # committed baseline held-out metrics (no per-case detail)
 data/
   dev/<tech>/
     manifest.json5         # [{fips, jurisdiction, file, source, expected: {year, ...}}, ...]
@@ -71,4 +71,4 @@ exists" — the extractor should return no year for that document.
 1. Drop ground-truth docs + a `manifest.json5` under `data/{dev,held-out}/<tech>/`.
 2. Write `test_run_<name>_evals.py` with `@pytest.mark.dev_evals` and
    `@pytest.mark.held_out_evals` test functions.
-3. First run sets the baseline; commit the resulting `results/{dev,held_out}/<name>_evals*.csv`.
+3. First run sets the baseline; commit the resulting `results/{dev,held_out}/<name>_evals.json` (and the dev breakdown `.csv`).

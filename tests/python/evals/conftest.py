@@ -10,9 +10,9 @@ committed baseline; no-ops in normal runs (evals deselected by default).
 """
 
 import csv
+import json
 import sys
 from operator import itemgetter
-from datetime import datetime, UTC
 
 import pytest
 
@@ -22,9 +22,13 @@ _CSV_FIELDS = [
     "jurisdiction",
     "file",
     "source",
+    "feature",
     "expected",
     "extracted",
     "comparison_result",
+    "input_tokens",
+    "output_tokens",
+    "time_taken_s",
     "cost",
 ]
 
@@ -113,6 +117,9 @@ def _compute_metrics(results):
         "precision_ci": _wilson_ci(tp, pred_pos),
         "recall_ci": _wilson_ci(tp, actual_pos),
         "total_cost": sum(r["cost"] for r in results),
+        "total_input_tokens": sum(r["input_tokens"] for r in results),
+        "total_output_tokens": sum(r["output_tokens"] for r in results),
+        "total_time_taken_s": sum(r["time_taken_s"] for r in results),
     }
 
 
@@ -122,37 +129,43 @@ def _fmt_ci(ci):
     return "" if lo is None else f"{lo:.4f}-{hi:.4f}"
 
 
-def _write_metrics_csv(fp, metrics):
-    """Write the aggregate metrics summary CSV (with 95% Wilson CIs)"""
+def _metrics_entry(feature, metrics):
+    """Build the per-feature metrics dict written to the JSON list"""
     c = metrics["counts"]
-    fails = c["FP"] + c["FN"] + c["WRONG"]
-    with fp.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.writer(fh)
-        writer.writerow(["metric", "value", "ci95_wilson"])
-        writer.writerow(["generated_utc", datetime.now(UTC).isoformat(), ""])
-        writer.writerow(["n_cases", metrics["n"], ""])
-        writer.writerow(
-            ["accuracy", f"{metrics['accuracy']:.4f}",
-             _fmt_ci(metrics["accuracy_ci"])]
-        )
-        writer.writerow(
-            ["precision", f"{metrics['precision']:.4f}",
-             _fmt_ci(metrics["precision_ci"])]
-        )
-        writer.writerow(
-            ["recall", f"{metrics['recall']:.4f}",
-             _fmt_ci(metrics["recall_ci"])]
-        )
-        writer.writerow(["f1", f"{metrics['f1']:.4f}", ""])
-        writer.writerow(["true_positive", c["TP"], ""])
-        writer.writerow(["true_negative", c["TN"], ""])
-        writer.writerow(["false_positive", c["FP"], ""])
-        writer.writerow(["false_negative", c["FN"], ""])
-        writer.writerow(["wrong_year", c["WRONG"], ""])
-        writer.writerow(["failing_cases", fails, ""])
-        writer.writerow(
-            ["total_cost_usd", f"{metrics['total_cost']:.4f}", ""]
-        )
+    return {
+        "feature": feature,
+        "n_cases": metrics["n"],
+        "accuracy": round(metrics["accuracy"], 4),
+        "accuracy_ci95": _ci_list(metrics["accuracy_ci"]),
+        "precision": round(metrics["precision"], 4),
+        "precision_ci95": _ci_list(metrics["precision_ci"]),
+        "recall": round(metrics["recall"], 4),
+        "recall_ci95": _ci_list(metrics["recall_ci"]),
+        "f1": round(metrics["f1"], 4),
+        "true_positive": c["TP"],
+        "true_negative": c["TN"],
+        "false_positive": c["FP"],
+        "false_negative": c["FN"],
+        "wrong": c["WRONG"],
+        "failing_cases": c["FP"] + c["FN"] + c["WRONG"],
+        "total_input_tokens": metrics["total_input_tokens"],
+        "total_output_tokens": metrics["total_output_tokens"],
+        "total_time_taken_s": round(metrics["total_time_taken_s"], 2),
+        "total_cost_usd": round(metrics["total_cost"], 4),
+    }
+
+
+def _ci_list(ci):
+    """Convert (lo, hi) tuple to [lo, hi] list, or None if undefined"""
+    lo, hi = ci
+    return None if lo is None else [round(lo, 4), round(hi, 4)]
+
+
+def _write_metrics_json(fp, entries):
+    """Write the per-feature metrics list as JSON"""
+    with fp.open("w", encoding="utf-8") as fh:
+        json.dump(entries, fh, indent=2)
+        fh.write("\n")
 
 
 def _write_breakdown_csv(fp, results):
@@ -176,14 +189,12 @@ def _load_baseline_correct(breakdown_fp):
 
 
 def _load_baseline_failing(metrics_fp):
-    """Read ``failing_cases`` from a baseline metrics CSV, or None"""
+    """Sum of ``failing_cases`` across features in a baseline metrics JSON"""
     if not metrics_fp.exists():
         return None
-    with metrics_fp.open(newline="", encoding="utf-8") as fh:
-        for row in csv.reader(fh):
-            if row and row[0] == "failing_cases":
-                return int(row[1])
-    return None
+    with metrics_fp.open(encoding="utf-8") as fh:
+        entries = json.load(fh)
+    return sum(e["failing_cases"] for e in entries)
 
 
 def _check_full_regression(rows, baseline):
@@ -223,10 +234,8 @@ def _check_full_regression(rows, baseline):
     return failures, lines
 
 
-def _check_aggregate_regression(metrics, baseline_failing):
+def _check_aggregate_regression(fails_now, baseline_failing):
     """held_out gate: aggregate failing-count only (no per-row detail)"""
-    c = metrics["counts"]
-    fails_now = c["FP"] + c["FN"] + c["WRONG"]
     if baseline_failing is None:
         return [], ["  gate: no baseline yet (this run sets it)"]
     lines = [f"  gate: failing now={fails_now} baseline={baseline_failing}"]
@@ -260,56 +269,12 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     for eval_type, rows in sorted(results_by_type.items()):
         if not rows:
             continue
-        metrics = _compute_metrics(rows)
-        eval_type_dir = results_dir / eval_type
-        eval_type_dir.mkdir(parents=True, exist_ok=True)
-        metrics_fp = eval_type_dir / f"{_EVAL_NAME}_evals.csv"
-        breakdown_fp = eval_type_dir / f"{_EVAL_NAME}_evals_breakdown.csv"
-
-        # held_out: only summary stats are surfaced/saved (no per-case
-        # breakdown), and the gate is aggregate-only -- this keeps the
-        # held-out set hard to inspect or tune against.
-        if eval_type == "held_out":
-            baseline_failing = _load_baseline_failing(metrics_fp)
-            failures, lines = _check_aggregate_regression(
-                metrics, baseline_failing
-            )
-            _write_metrics_csv(metrics_fp, metrics)
-            extra = [f"  metrics: {metrics_fp}"]
-        else:
-            baseline = _load_baseline_correct(breakdown_fp)
-            failures, lines = _check_full_regression(rows, baseline)
-            _write_breakdown_csv(breakdown_fp, rows)
-            _write_metrics_csv(metrics_fp, metrics)
-            extra = [
-                f"  breakdown: {breakdown_fp}",
-                f"  metrics: {metrics_fp}",
-            ]
-
+        failures, summary_lines = _process_eval_type(
+            eval_type, rows, results_dir
+        )
         gate_failures.extend(f"[{eval_type}] {m}" for m in failures)
-
         terminalreporter.section(f"Eval summary: {eval_type}")
-        c = metrics["counts"]
-        write(
-            f"  cases={metrics['n']}  "
-            f"TP={c['TP']} TN={c['TN']} FP={c['FP']} "
-            f"FN={c['FN']} wrong={c['WRONG']}"
-        )
-        write(
-            f"  accuracy={metrics['accuracy']:.3f} "
-            f"95%CI[{_fmt_ci(metrics['accuracy_ci'])}]"
-        )
-        write(
-            f"  precision={metrics['precision']:.3f} "
-            f"95%CI[{_fmt_ci(metrics['precision_ci'])}]  "
-            f"recall={metrics['recall']:.3f} "
-            f"95%CI[{_fmt_ci(metrics['recall_ci'])}]  "
-            f"f1={metrics['f1']:.3f}"
-        )
-        write(f"  total LLM cost: ${metrics['total_cost']:.4f}")
-        for line in lines:
-            write(line)
-        for line in extra:
+        for line in summary_lines:
             write(line)
 
     if gate_failures:
@@ -317,3 +282,67 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         for f in gate_failures:
             write(f"  - {f}")
         terminalreporter._session.exitstatus = pytest.ExitCode.TESTS_FAILED
+
+
+def _process_eval_type(eval_type, rows, results_dir):
+    """Compute metrics, write CSVs/JSON, run gate; return (failures, lines)"""
+    eval_type_dir = results_dir / eval_type
+    eval_type_dir.mkdir(parents=True, exist_ok=True)
+    metrics_fp = eval_type_dir / f"{_EVAL_NAME}_evals.json"
+    breakdown_fp = eval_type_dir / f"{_EVAL_NAME}_evals_breakdown.csv"
+
+    by_feature = {}
+    for r in rows:
+        by_feature.setdefault(r["feature"], []).append(r)
+    per_feature_metrics = {
+        f: _compute_metrics(frows)
+        for f, frows in sorted(by_feature.items())
+    }
+    entries = [
+        _metrics_entry(f, m) for f, m in per_feature_metrics.items()
+    ]
+
+    # held_out: only summary stats are surfaced/saved (no per-case
+    # breakdown), and the gate is aggregate-only -- this keeps the
+    # held-out set hard to inspect or tune against.
+    if eval_type == "held_out":
+        baseline_failing = _load_baseline_failing(metrics_fp)
+        fails_now = sum(e["failing_cases"] for e in entries)
+        failures, gate_lines = _check_aggregate_regression(
+            fails_now, baseline_failing
+        )
+        _write_metrics_json(metrics_fp, entries)
+        extra = [f"  metrics: {metrics_fp}"]
+    else:
+        baseline = _load_baseline_correct(breakdown_fp)
+        failures, gate_lines = _check_full_regression(rows, baseline)
+        _write_breakdown_csv(breakdown_fp, rows)
+        _write_metrics_json(metrics_fp, entries)
+        extra = [
+            f"  breakdown: {breakdown_fp}",
+            f"  metrics: {metrics_fp}",
+        ]
+
+    summary_lines = []
+    for feature, m in per_feature_metrics.items():
+        c = m["counts"]
+        summary_lines.extend([
+            (
+                f"  [{feature}] cases={m['n']}  "
+                f"TP={c['TP']} TN={c['TN']} FP={c['FP']} "
+                f"FN={c['FN']} wrong={c['WRONG']}"
+            ),
+            (
+                f"    accuracy={m['accuracy']:.3f} "
+                f"95%CI[{_fmt_ci(m['accuracy_ci'])}]  "
+                f"precision={m['precision']:.3f} "
+                f"95%CI[{_fmt_ci(m['precision_ci'])}]  "
+                f"recall={m['recall']:.3f} "
+                f"95%CI[{_fmt_ci(m['recall_ci'])}]  "
+                f"f1={m['f1']:.3f}"
+            ),
+            f"    total LLM cost: ${m['total_cost']:.4f}",
+        ])
+    summary_lines.extend(gate_lines)
+    summary_lines.extend(extra)
+    return failures, summary_lines

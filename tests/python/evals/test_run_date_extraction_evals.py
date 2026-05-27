@@ -2,6 +2,7 @@
 
 import os
 import logging
+import time
 from pathlib import Path
 
 import pytest
@@ -75,14 +76,19 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     """Extract the date for one case and record the result"""
     doc = _build_doc(case, dataset_dir)
     usage_tracker = UsageTracker(case["jurisdiction"], usage_from_response)
+    start = time.perf_counter()
     async with RunningAsyncServices([model_config.llm_service]):
         doc = await extract_date(
             doc, model_config, usage_tracker=usage_tracker
         )
+    elapsed = time.perf_counter() - start
 
     year, _month, _day = doc.attrs["date"]
     expected = case["expected"]["year"]
-    cost = compute_cost_from_totals(usage_tracker.totals)
+    totals = usage_tracker.totals
+    cost = compute_cost_from_totals(totals)
+    input_tokens = sum(u.get("prompt_tokens", 0) for u in totals.values())
+    output_tokens = sum(u.get("response_tokens", 0) for u in totals.values())
 
     RESULTS[eval_type].append(
         {
@@ -90,9 +96,13 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
             "jurisdiction": case["jurisdiction"],
             "file": case["file"],
             "source": case["source"],
+            "feature": "year",
             "expected": expected,
             "extracted": year,
             "comparison_result": _classify(expected, year),
+            "input_tokens": input_tokens,
+            "output_tokens": output_tokens,
+            "time_taken_s": round(elapsed, 3),
             "cost": cost,
         }
     )

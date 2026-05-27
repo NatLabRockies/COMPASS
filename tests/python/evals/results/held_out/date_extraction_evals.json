@@ -1,0 +1,32 @@
+[
+  {
+    "feature": "year",
+    "n_cases": 22,
+    "accuracy": 0.3636,
+    "accuracy_ci95": [
+      0.1973,
+      0.5705
+    ],
+    "precision": 0.75,
+    "precision_ci95": [
+      0.4093,
+      0.9285
+    ],
+    "recall": 0.3,
+    "recall_ci95": [
+      0.1455,
+      0.519
+    ],
+    "f1": 0.4286,
+    "true_positive": 6,
+    "true_negative": 2,
+    "false_positive": 0,
+    "false_negative": 12,
+    "wrong": 2,
+    "failing_cases": 14,
+    "total_input_tokens": 0,
+    "total_output_tokens": 0,
+    "total_time_taken_s": 0,
+    "total_cost_usd": 0.0162
+  }
+]
