@@ -72,7 +72,7 @@ async def run_compass(request):
         msg = "PipelineCoordinator.run expects a request object"
         raise COMPASSValueError(msg)
 
-    if request.mode == COMPASSRunMode.EXTRACT:
+    if request.MODE == COMPASSRunMode.EXTRACT:
         steps = ["Extract collected documents"]
     else:
         steps = _enabled_steps(
@@ -89,7 +89,7 @@ async def run_compass(request):
     jurisdictions_df = _load_jurisdictions_to_process(request.jurisdiction_fp)
     COMPASS_PB.create_main_task(
         num_jurisdictions=len(jurisdictions_df),
-        action=request.mode.pb_action_str,
+        action=request.MODE.pb_action_str,
     )
     async with runtime:
         try:
@@ -369,7 +369,7 @@ def _load_jurisdictions_to_process(jurisdiction_fp):
 
 def _build_model_registry(request):
     """Build configured models for the run"""
-    if request.mode == COMPASSRunMode.COLLECT:
+    if request.MODE == COMPASSRunMode.COLLECT:
         return {}
     if request.model_selection.model is None:
         return {}
@@ -445,7 +445,7 @@ def _log_execution_info(request, steps):
 def _request_to_log_args(request):
     """Convert a request object into a loggable dictionary"""
     return {
-        "mode": str(request.mode),
+        "mode": str(request.MODE),
         "tech": request.tech,
         "jurisdiction_fp": request.jurisdiction_fp,
         "collection_manifest_fp": request.collection_manifest_fp,

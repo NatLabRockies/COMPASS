@@ -56,7 +56,7 @@ class PipelineRuntime:
             by model name.
         """
         self.request = request
-        self.mode = request.mode
+        self.mode = request.MODE
         self.tech = request.tech
         self.models = models
         self.log_level = _normalize_log_level(
