@@ -32,8 +32,8 @@ _CSV_FIELDS = [
     "cost",
 ]
 
-# Comparison-result categories that count as "correct" (vs. failing).
-_CORRECT_RESULTS = {"TP", "TN"}
+# Comparison-result value that counts as "correct" (vs. failing).
+_SUCCESS = "Success"
 
 # Per-row regression tolerance: how many previously-correct rows may flip to
 # wrong (e.g. from temperature sampling noise) before the gate fails.
@@ -72,32 +72,34 @@ def _wilson_ci(k, n, alpha=0.05):
 
 
 def _compute_metrics(results):
-    """Accuracy / precision / recall / F1 (+ 95% Wilson CIs) from categories
+    """Accuracy / precision / recall / F1 (+ 95% Wilson CIs)
 
-    Positive class = "an enactment year exists". A WRONG year (extracted a
-    different year than expected) counts as both a false positive and a
-    false negative. Each rate is a binomial proportion k/n with its own
-    denominator, so it gets its own Wilson CI:
+    Positive class = "a value exists" (``expected`` is not None).
+    TP/TN/FP/FN are derived from ``(expected, extracted, comparison_result)``:
+    a wrong-value case (both non-None but unequal) counts as **both** a
+    false positive (predicted positive, wrong class) and a false negative
+    (real positive went uncaught).
 
       accuracy  = (TP + TN) / N
-      precision = TP / (TP + FP + WRONG)     # over cases that output a year
-      recall    = TP / (TP + FN + WRONG)     # over cases where a year exists
+      precision = TP / (TP + FP)             # over cases that output a value
+      recall    = TP / (TP + FN)             # over cases where a value exists
       f1        = 2PR / (P + R)              # point estimate only
     """
-    counts = {"TP": 0, "TN": 0, "FP": 0, "FN": 0, "WRONG": 0}
+    counts = {"TP": 0, "TN": 0, "FP": 0, "FN": 0}
     for r in results:
-        counts[r["comparison_result"]] += 1
+        exp, ext = r["expected"], r["extracted"]
+        if r["comparison_result"] == "Success":
+            counts["TP" if exp is not None else "TN"] += 1
+        else:
+            if ext is not None:
+                counts["FP"] += 1
+            if exp is not None:
+                counts["FN"] += 1
 
-    tp, tn, fp, fn, wrong = (
-        counts["TP"],
-        counts["TN"],
-        counts["FP"],
-        counts["FN"],
-        counts["WRONG"],
-    )
+    tp, tn, fp, fn = counts["TP"], counts["TN"], counts["FP"], counts["FN"]
     n = len(results)
-    pred_pos = tp + fp + wrong
-    actual_pos = tp + fn + wrong
+    pred_pos = tp + fp
+    actual_pos = tp + fn
 
     def _safe_div(num, den):
         return num / den if den else 0.0
@@ -146,8 +148,7 @@ def _metrics_entry(feature, metrics):
         "true_negative": c["TN"],
         "false_positive": c["FP"],
         "false_negative": c["FN"],
-        "wrong": c["WRONG"],
-        "failing_cases": c["FP"] + c["FN"] + c["WRONG"],
+        "failing_cases": metrics["n"] - c["TP"] - c["TN"],
         "total_input_tokens": metrics["total_input_tokens"],
         "total_output_tokens": metrics["total_output_tokens"],
         "total_time_taken_s": round(metrics["total_time_taken_s"], 2),
@@ -183,7 +184,7 @@ def _load_baseline_correct(breakdown_fp):
         return None
     with breakdown_fp.open(newline="", encoding="utf-8") as fh:
         return {
-            str(row["fips"]): row["comparison_result"] in _CORRECT_RESULTS
+            str(row["fips"]): row["comparison_result"] == _SUCCESS
             for row in csv.DictReader(fh)
         }
 
@@ -203,7 +204,7 @@ def _check_full_regression(rows, baseline):
         return [], ["  gate: no baseline yet (this run sets it)"]
 
     now_correct = {
-        str(r["fips"]): r["comparison_result"] in _CORRECT_RESULTS
+        str(r["fips"]): r["comparison_result"] == _SUCCESS
         for r in rows
     }
     fails_now = sum(1 for ok in now_correct.values() if not ok)
@@ -329,8 +330,7 @@ def _process_eval_type(eval_type, rows, results_dir):
         summary_lines.extend([
             (
                 f"  [{feature}] cases={m['n']}  "
-                f"TP={c['TP']} TN={c['TN']} FP={c['FP']} "
-                f"FN={c['FN']} wrong={c['WRONG']}"
+                f"TP={c['TP']} TN={c['TN']} FP={c['FP']} FN={c['FN']}"
             ),
             (
                 f"    accuracy={m['accuracy']:.3f} "

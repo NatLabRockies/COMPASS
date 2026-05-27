@@ -64,12 +64,8 @@ def _build_doc(case, dataset_dir):
 
 
 def _classify(expected, extracted):
-    """Confusion category; a WRONG year counts as both FP and FN downstream"""
-    if expected is None:
-        return "TN" if extracted is None else "FP"
-    if extracted is None:
-        return "FN"
-    return "TP" if extracted == expected else "WRONG"
+    """Binary success: did the extractor match ground truth?"""
+    return "Success" if extracted == expected else "Failure"
 
 
 async def _run_case(case, dataset_dir, eval_type, model_config):
