@@ -70,8 +70,7 @@ class PipelineRuntime:
             collect_only=(self.mode == self.mode.COLLECT),
         )
         self.log_listener = LogListener(
-            ["compass", "elm"],
-            level=self.log_level,
+            ["compass", "elm"], level=self.log_level
         )
         self.known_local_docs, self.known_doc_urls = _load_known_sources(
             request.known_sources
