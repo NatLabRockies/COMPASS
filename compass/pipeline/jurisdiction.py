@@ -8,7 +8,10 @@ from compass.services.threaded import JurisdictionUpdater
 from compass.utilities.logs import LocationFileLog
 from compass.pipeline.collection import DocumentCollection
 from compass.pipeline import JurisdictionResult
-from compass.pipeline.collection.persistence import load_collected_docs
+from compass.pipeline.collection.persistence import (
+    load_collected_docs,
+    write_collection_manifest_shard,
+)
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pb import COMPASS_PB
 
@@ -150,6 +153,15 @@ class SingleJurisdictionRun:
         )
         collection_info = await self.collection_workflow.execute(
             eager_extract=False, relative_to=relative_to
+        )
+        shard_fp = write_collection_manifest_shard(
+            self.runtime.dirs.jurisdiction_dbs,
+            collection_info,
+        )
+        logger.info(
+            "Collection manifest shard for %s stored here: '%s'",
+            self.jurisdiction.full_name,
+            shard_fp,
         )
         logger.info(
             "Completed collection for jurisdiction: %s",

@@ -362,6 +362,19 @@ async def test_collect_then_extract_round_trip_from_manifest(
     assert manifest["tech"] == "roundtrip-test"
     assert len(manifest["jurisdictions"]) == 2
 
+    shard_dir = out_dir / "jurisdiction_dbs"
+    shard_fps = sorted(shard_dir.glob("*_collection_manifest.json"))
+    assert len(shard_fps) == 2
+
+    shard_payloads = [
+        json.loads(shard_fp.read_text(encoding="utf-8"))
+        for shard_fp in shard_fps
+    ]
+    assert {shard_payload["FIPS"] for shard_payload in shard_payloads} == {
+        53073,
+        3600312243,
+    }
+
     whatcom = next(
         info for info in manifest["jurisdictions"] if info["FIPS"] == 53073
     )
@@ -378,6 +391,8 @@ async def test_collect_then_extract_round_trip_from_manifest(
     assert Path(caneadea["documents"][0]["source_fp"]).exists()
     assert Path(caneadea["documents"][0]["parsed_fp"]).exists()
     assert caneadea["documents"][0]["is_pdf"] is True
+    assert whatcom in shard_payloads
+    assert caneadea in shard_payloads
 
     COMPASS_PB.reset()
     extraction_dir = tmp_path / "extracted"

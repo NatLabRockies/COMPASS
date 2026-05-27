@@ -73,6 +73,31 @@ def write_collection_manifest(manifest_dir, collection_manifest):
     return manifest_fp
 
 
+def write_collection_manifest_shard(shard_dir, collection_info):
+    """Write one jurisdiction collection manifest shard to disk
+
+    Parameters
+    ----------
+    shard_dir : path-like
+        Directory where the jurisdiction shard JSON should be written.
+    collection_info : dict
+        Serialized collection metadata for one jurisdiction.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the written shard file.
+    """
+    shard_dir = Path(shard_dir)
+    shard_dir.mkdir(parents=True, exist_ok=True)
+    shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
+    shard_fp.write_text(
+        json.dumps(convert_paths_to_strings(collection_info), indent=4),
+        encoding="utf-8",
+    )
+    return shard_fp
+
+
 def load_collection_manifest(manifest_fp, expected_tech):
     """Load a collection manifest from disk
 
@@ -249,3 +274,23 @@ def _serialize_collection_doc_info(doc, from_steps):
         }
     )
     return serialized
+
+
+def _collection_manifest_shard_filename(collection_info):
+    """Build a deterministic shard filename for one jurisdiction"""
+    identifier = _clean_shard_name_part(collection_info.get("FIPS"))
+    full_name = _clean_shard_name_part(collection_info.get("full_name"))
+    name_parts = [part for part in (identifier, full_name) if part]
+    base_name = "_".join(name_parts) or "jurisdiction"
+    return f"{base_name}_collection_manifest.json"
+
+
+def _clean_shard_name_part(value):
+    """Normalize one shard filename component"""
+    if value is None:
+        return ""
+
+    value = str(value).strip()
+    for old, new in (("/", "-"), ("\\", "-"), (":", "-")):
+        value = value.replace(old, new)
+    return value
