@@ -272,7 +272,7 @@ class COMPASSCollection(BaseRunMode):
         manifest = build_collection_manifest(
             self.runtime.tech, collection_infos
         )
-        manifest_fp = write_collection_manifest(
+        manifest_fp = await write_collection_manifest(
             self.runtime.dirs.out, manifest
         )
         time_elapsed = datetime.now(UTC) - start_date
@@ -313,7 +313,7 @@ class COMPASSExtraction(BaseRunMode):
             content of the message may vary depending on the results of
             the processing.
         """
-        manifest = load_collection_manifest(
+        manifest = await load_collection_manifest(
             self.runtime.request.collection_manifest_fp, self.runtime.tech
         )
         jurisdictions = manifest.get("jurisdictions", [])

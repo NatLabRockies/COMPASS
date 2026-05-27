@@ -154,9 +154,8 @@ class SingleJurisdictionRun:
         collection_info = await self.collection_workflow.execute(
             eager_extract=False, relative_to=relative_to
         )
-        shard_fp = write_collection_manifest_shard(
-            self.runtime.dirs.jurisdiction_dbs,
-            collection_info,
+        shard_fp = await write_collection_manifest_shard(
+            self.runtime.dirs.jurisdiction_dbs, collection_info
         )
         logger.info(
             "Collection manifest shard for %s stored here: '%s'",
