@@ -7,6 +7,8 @@ Pytest-specific machinery (fixtures, gate, reporter) lives in
 
 from dataclasses import dataclass, fields
 
+from compass.utilities.jurisdictions import Jurisdiction
+
 SUCCESS = "Success"
 FAILURE = "Failure"
 
@@ -40,6 +42,16 @@ class Result:
     time_taken_s: float
     cost: float
 
+    @property
+    def jurisdiction(self):
+        """Canonical Jurisdiction instance (hashable, for gate matching)"""
+        return Jurisdiction(
+            subdivision_type=self.jurisdiction_type,
+            state=self.state,
+            county=self.county,
+            subdivision_name=self.subdivision or None,
+        )
+
 
 RESULT_FIELDS = [f.name for f in fields(Result)]
 
@@ -47,21 +59,3 @@ RESULT_FIELDS = [f.name for f in fields(Result)]
 def classify(expected, extracted):
     """Binary success: did the extractor match ground truth?"""
     return SUCCESS if extracted == expected else FAILURE
-
-
-def jurisdiction_from_case(case):
-    """Build a :class:`compass.utilities.jurisdictions.Jurisdiction`
-
-    Translates manifest field names (``subdivision``, ``jurisdiction_type``)
-    to the constructor's parameter names (``subdivision_name``,
-    ``subdivision_type``). Use ``.full_name`` on the returned object for
-    a human-readable display label.
-    """
-    from compass.utilities.jurisdictions import Jurisdiction  # noqa: PLC0415
-
-    return Jurisdiction(
-        subdivision_type=case["jurisdiction_type"],
-        state=case["state"],
-        county=case["county"],
-        subdivision_name=case["subdivision"],
-    )

@@ -16,6 +16,7 @@ import json
 from dataclasses import asdict
 import pytest
 from common import RESULT_FIELDS, SUCCESS
+from compass.utilities.jurisdictions import Jurisdiction
 
 # We allow up to 2 fields to regress (TP/TN becomes WRONG/FP/FN)
 # We still prevent accuracy from regressing. This can happen if
@@ -151,18 +152,18 @@ def _write_breakdown_csv(fp, results):
             writer.writerow(asdict(row))
 
 
-def _row_id(state, county, subdivision):
-    return (state, county, subdivision or "")
-
-
 def _load_baseline_correct(breakdown_fp):
-    """Map {row_id: was_correct} from a baseline breakdown CSV, or None"""
+    """Map {Jurisdiction: was_correct} from a baseline breakdown CSV"""
     if not breakdown_fp.exists():
         return None
     with breakdown_fp.open(newline="", encoding="utf-8") as fh:
         return {
-            _row_id(row["state"], row["county"], row["subdivision"]):
-                row["comparison_result"] == SUCCESS
+            Jurisdiction(
+                subdivision_type=row["jurisdiction_type"],
+                state=row["state"],
+                county=row["county"],
+                subdivision_name=row["subdivision"] or None,
+            ): row["comparison_result"] == SUCCESS
             for row in csv.DictReader(fh)
         }
 
@@ -182,16 +183,17 @@ def _check_full_regression(rows, baseline):
         return [], ["  gate: no baseline yet (this run sets it)"]
 
     now_correct = {
-        _row_id(r.state, r.county, r.subdivision):
-            r.comparison_result == SUCCESS
+        r.jurisdiction: r.comparison_result == SUCCESS
         for r in rows
     }
     fails_now = sum(1 for ok in now_correct.values() if not ok)
     fails_base = sum(1 for ok in baseline.values() if not ok)
     regressed = sorted(
-        row_id
-        for row_id, was_ok in baseline.items()
-        if was_ok and now_correct.get(row_id) is False
+        (
+            j for j, was_ok in baseline.items()
+            if was_ok and now_correct.get(j) is False
+        ),
+        key=str,
     )
 
     failures = []
