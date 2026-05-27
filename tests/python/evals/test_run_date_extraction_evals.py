@@ -20,6 +20,8 @@ from compass.services.provider import RunningAsyncServices
 
 logger = logging.getLogger(__name__)
 
+EVAL_NAME = "date_extraction"
+
 _DATA_DIR = Path(__file__).parent / "data"
 DEV_MANIFEST_FP = _DATA_DIR / "dev" / "solar" / "manifest.json5"
 HELD_OUT_MANIFEST_FP = _DATA_DIR / "held-out" / "solar" / "manifest.json5"

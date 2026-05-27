@@ -39,18 +39,22 @@ _SUCCESS = "Success"
 # wrong (e.g. from temperature sampling noise) before the gate fails.
 _ROW_REGRESSION_TOLERANCE = 2
 
-# Prefix for result filenames, so this eval's CSVs are distinguishable from
-# any other eval's output sharing the results/ directory.
-_EVAL_NAME = "date_extraction"
 
+def _eval_modules():
+    """Discover loaded eval test modules by duck-typed signature
 
-def _eval_module():
-    """Return the date-accuracy test module if it ran, else None
-
-    The test module is imported by basename under pytest's default import
-    mode, so look it up in ``sys.modules`` rather than via a package path.
+    An eval suite is any module in ``sys.modules`` that exposes both
+    ``EVAL_NAME`` (str) and ``RESULTS`` (dict of {eval_type: list}). This
+    lets the conftest stay generic -- it doesn't hardcode any specific
+    eval's name or module path. The type checks rule out unrelated modules
+    (e.g. torch's lazy ``_OpNamespace``) that happen to respond truthily
+    to ``hasattr`` via a custom ``__getattr__``.
     """
-    return sys.modules.get("test_run_date_extraction_evals")
+    return [
+        m for m in sys.modules.values()
+        if isinstance(getattr(m, "EVAL_NAME", None), str)
+        and isinstance(getattr(m, "RESULTS", None), dict)
+    ]
 
 
 def _wilson_ci(k, n, alpha=0.05):
@@ -255,28 +259,29 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     type regresses against its committed baseline, fails the session (sets
     a non-zero exit) so the run goes red.
     """
-    module = _eval_module()
-    if module is None:
-        return
-    results_by_type = getattr(module, "RESULTS", None)
-    if not results_by_type or not any(results_by_type.values()):
-        return
-
-    results_dir = module.RESULTS_DIR
-    results_dir.mkdir(parents=True, exist_ok=True)
     write = terminalreporter.write_line
-
     gate_failures = []
-    for eval_type, rows in sorted(results_by_type.items()):
-        if not rows:
+    for module in _eval_modules():
+        results_by_type = module.RESULTS
+        if not any(results_by_type.values()):
             continue
-        failures, summary_lines = _process_eval_type(
-            eval_type, rows, results_dir
-        )
-        gate_failures.extend(f"[{eval_type}] {m}" for m in failures)
-        terminalreporter.section(f"Eval summary: {eval_type}")
-        for line in summary_lines:
-            write(line)
+        results_dir = module.RESULTS_DIR
+        results_dir.mkdir(parents=True, exist_ok=True)
+
+        for eval_type, rows in sorted(results_by_type.items()):
+            if not rows:
+                continue
+            failures, summary_lines = _process_eval_type(
+                module.EVAL_NAME, eval_type, rows, results_dir
+            )
+            gate_failures.extend(
+                f"[{module.EVAL_NAME}/{eval_type}] {m}" for m in failures
+            )
+            terminalreporter.section(
+                f"Eval summary: {module.EVAL_NAME} / {eval_type}"
+            )
+            for line in summary_lines:
+                write(line)
 
     if gate_failures:
         terminalreporter.section("Eval regression gate: FAILED")
@@ -285,12 +290,12 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         terminalreporter._session.exitstatus = pytest.ExitCode.TESTS_FAILED
 
 
-def _process_eval_type(eval_type, rows, results_dir):
+def _process_eval_type(eval_name, eval_type, rows, results_dir):
     """Compute metrics, write CSVs/JSON, run gate; return (failures, lines)"""
     eval_type_dir = results_dir / eval_type
     eval_type_dir.mkdir(parents=True, exist_ok=True)
-    metrics_fp = eval_type_dir / f"{_EVAL_NAME}_evals.json"
-    breakdown_fp = eval_type_dir / f"{_EVAL_NAME}_evals_breakdown.csv"
+    metrics_fp = eval_type_dir / f"{eval_name}_evals.json"
+    breakdown_fp = eval_type_dir / f"{eval_name}_evals_breakdown.csv"
 
     by_feature = {}
     for r in rows:
