@@ -8,6 +8,7 @@ on:
     paths:
       - compass/**
       - docs/**
+      - README.rst
       - .github/workflows/docs.yml
       - pyproject.toml
       - pixi.lock
@@ -16,6 +17,7 @@ on:
     paths:
       - compass/**
       - docs/**
+      - README.rst
       - .github/workflows/docs.yml
       - pyproject.toml
       - pixi.lock
