@@ -72,7 +72,6 @@ class Directories:
             specified, defaults to ``out/jurisdiction_dbs``.
             By default, ``None``
         """
-        self.collect_only = collect_only
         self.out = _full_path(out)
         self.logs = _full_path(logs) if logs else self.out / "logs"
         self.clean_files = (
@@ -89,7 +88,8 @@ class Directories:
         self.jurisdiction_dbs = (
             _full_path(jurisdiction_dbs)
             if jurisdiction_dbs
-            else self.out / "jurisdiction_dbs"
+            else self.out
+            / ("manifest_shards" if collect_only else "jurisdiction_dbs")
         )
 
     def __iter__(self):
@@ -105,8 +105,6 @@ class Directories:
         yield self.logs
         yield self.clean_files
         yield self.ordinance_files
-        if self.collect_only:
-            return
         yield self.jurisdiction_dbs
 
     def make_dirs(self):
