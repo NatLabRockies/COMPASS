@@ -11,12 +11,14 @@ fails the run if the committed baseline gets worse.
 ## Run
 
 ```bash
-pixi run evals date_extraction              # dev dataset (live LLM calls, needs Azure creds)
-pixi run evals date_extraction --held-out   # held-out dataset (release checkpoint, no gate)
+pixi run evals date_extraction              # Run as frequently as needed
+pixi run evals date_extraction --held-out   # Only run once before a release
 ```
 
-Evals are deselected by default in regular `pytest` runs — they only fire
-when the `-m evals` marker is explicitly selected (which the pixi task does).
+Evals are deselected by default in regular `pytest` runs — they only
+fire when the `-m evals` marker is explicitly selected (which the pixi
+task does). `--held-out` is registered in `conftest.py` and toggles
+which dataset the suite pulls cases from.
 
 ## `dev` vs `held-out` evals
 
@@ -42,20 +44,19 @@ The held-out set only gives an **honest** read if we *don't* tune against it:
 The harness helps enforce this: a `--held-out` run writes **only summary
 metrics** (no per-case breakdown), per-case predictions are not logged,
 and there is no regression gate — so there is nothing to eyeball or tune
-against, and a held-out drop won't fail CI for you (since you're not
-supposed to be running it in CI).
+against.
 
 ## Layout
 
 ```
 test_run_<name>_evals.py   # one eval suite per extractor (e.g. test_run_date_extraction_evals.py)
 conftest.py                # registers the --held-out pytest flag
-utilities/
-  base.py                  # Result schema, classify, load_doc
-  metrics.py               # compute_metrics, wilson_ci (pure math, no I/O)
-  reports.py               # report_evals + baseline-loading helpers (I/O + formatting)
+utilities/                 # shared, eval-agnostic plumbing
+  base.py                  #   Result schema, SUCCESS/FAILURE, classify, load_doc
+  metrics.py               #   compute_metrics, wilson_ci (pure math, no I/O)
+  reports.py               #   report_evals + load_baseline_failing + regressed_rows (I/O + formatting)
 results/
-  dev/<name>_evals.json              # committed baseline metrics — list of per-feature dicts (gate reads these)
+  dev/<name>_evals.json              # committed baseline metrics (gate reads these)
   dev/<name>_evals_breakdown.csv     # committed per-case dev breakdown
   held_out/<name>_evals.json         # committed baseline held-out metrics (no per-case detail)
 data/
@@ -74,12 +75,29 @@ etc.) can be added as keys alongside `year` without changing the manifest
 shape. `expected.year: null` means the ground truth is "no enactment date
 exists" — the extractor should return no year for that document.
 
+## How a suite is wired
+
+A `test_run_<name>_evals.py` file owns three pieces:
+
+1. **`pytest_generate_tests(metafunc)`** reads `--held-out`, loads the
+   right `manifest.json5`, and parametrizes the test's `case` argument.
+   It also stamps each case with `case["fp"]` (the resolved document
+   path), so the test body never has to know which dataset it came from.
+2. **`@pytest.mark.evals` test function** runs the extractor on one
+   case and appends a `Result` to the module-level `RESULTS` list.
+3. **Module-scoped autouse teardown fixture** calls
+   `report_evals(request, EVAL_NAME, RESULTS, results_dir,
+   write_breakdown=not held_out)` to compute metrics, write the
+   artifacts, and snapshot baselines. The returned dict's
+   `baseline_failing` / `fails_now` / `regressed_rows` fields drive
+   each suite's own gate -- the `reports` module does **not** decide
+   what counts as a regression. (Held-out runs skip the gate entirely.)
+
 ## Adding an eval suite
 
 1. Drop ground-truth docs + a `manifest.json5` under `data/{dev,held-out}/<tech>/`.
-2. Write `test_run_<name>_evals.py` with a single `@pytest.mark.evals`
-   test function. Use `pytest_generate_tests` to parametrize cases from
-   the dataset chosen by `--held-out`, and a module-scoped autouse
-   fixture that calls `report_evals(...)` and enforces its own gate.
+2. Copy `test_run_date_extraction_evals.py` as a starting point. Swap in
+   your extractor function and the `expected.<feature>` key you compare
+   against.
 3. First run sets the baseline; commit the resulting
    `results/{dev,held_out}/<name>_evals.json` (and the dev breakdown `.csv`).

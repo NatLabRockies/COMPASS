@@ -83,7 +83,7 @@ def load_baseline_failing(metrics_fp):
     return sum(e["failing_cases"] for e in entries)
 
 
-def regressed_rows(rows, breakdown_fp):
+def regressed_rows(results, breakdown_fp):
     """Jurisdictions that were correct in the baseline CSV but failing now
 
     Returns a sorted list of :class:`Jurisdiction` instances, or ``None``
@@ -102,19 +102,19 @@ def regressed_rows(rows, breakdown_fp):
             for row in csv.DictReader(fh)
         }
     now_correct = {
-        r.jurisdiction: r.comparison_result == SUCCESS for r in rows
+        r.jurisdiction for r in results if r.comparison_result == SUCCESS
     }
     return sorted(
         (
-            j for j, was_ok in baseline_correct.items()
-            if was_ok and now_correct.get(j) is False
+            jurisdiction for jurisdiction, was_ok in baseline_correct.items()
+            if was_ok and jurisdiction not in now_correct
         ),
         key=str,
     )
 
 
 def report_evals(
-    request, eval_name, rows, results_dir, *, write_breakdown=True
+    request, eval_name, results, results_dir, *, write_breakdown=True
 ):
     """Snapshot baselines, write CSVs/JSON, print a summary, return data
 
@@ -131,50 +131,48 @@ def report_evals(
     Returns
     -------
     dict or None
-        ``{rows, metrics, fails_now, baseline_failing, regressed_rows,
-        breakdown_fp, metrics_fp}``. ``None`` when ``rows`` is empty
+        ``{metrics, fails_now, baseline_failing, regressed_rows,
+        breakdown_fp, metrics_fp}``. ``None`` when ``results`` is empty
         (the eval did not run -- deselected or skipped).
         ``regressed_rows`` is ``None`` when the breakdown wasn't written
         or no baseline exists yet.
     """
-    if not rows:
+    if not results:
         return None
 
     tr = request.config.pluginmanager.get_plugin("terminalreporter")
-    write = tr.write_line
     results_dir.mkdir(parents=True, exist_ok=True)
     metrics_fp = results_dir / f"{eval_name}_evals.json"
     breakdown_fp = results_dir / f"{eval_name}_evals_breakdown.csv"
 
     # Snapshot baselines BEFORE writing the new files.
     baseline_failing = load_baseline_failing(metrics_fp)
-    regressed = regressed_rows(rows, breakdown_fp) if write_breakdown else None
+    regressed = regressed_rows(results, breakdown_fp) if write_breakdown else None
 
-    by_feature = {}
-    for r in rows:
-        by_feature.setdefault(r.feature, []).append(r)
-    entries = [
-        _format_entry(f, compute_metrics(frows))
-        for f, frows in sorted(by_feature.items())
+    results_by_feature = {}
+    for result in results:
+        results_by_feature.setdefault(result.feature, []).append(result)
+    metrics_by_feature = [
+        _format_entry(feature, compute_metrics(feature_results))
+        for feature, feature_results in sorted(results_by_feature.items())
     ]
-    fails_now = sum(e["failing_cases"] for e in entries)
+    fails_now = sum(e["failing_cases"] for e in metrics_by_feature)
 
-    _write_metrics_json(metrics_fp, entries)
+    _write_metrics_json(metrics_fp, metrics_by_feature)
     extra = [f"  metrics: {metrics_fp}"]
     if write_breakdown:
-        _write_breakdown_csv(breakdown_fp, rows)
+        _write_breakdown_csv(breakdown_fp, results)
         extra.insert(0, f"  breakdown: {breakdown_fp}")
 
     tr.section(f"Eval summary: {eval_name}")
-    for entry in entries:
+    for entry in metrics_by_feature:
         for k, v in entry.items():
-            write(f"  {k}={v}")
+            tr.write_line(f"  {k}={v}")
     for line in extra:
-        write(line)
+        tr.write_line(line)
 
     return {
-        "rows": rows,
-        "metrics": entries,
+        "metrics": metrics_by_feature,
         "fails_now": fails_now,
         "baseline_failing": baseline_failing,
         "regressed_rows": regressed,

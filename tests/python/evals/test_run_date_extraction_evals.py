@@ -63,7 +63,7 @@ def pytest_generate_tests(metafunc):
 @pytest.fixture(scope="module", autouse=True)
 def _report(request):
     """Write CSVs/JSON, print summary, and (dev only) enforce the gate"""
-    yield
+    yield  # The code below runs after the test module finishes
     held_out = request.config.getoption("--held-out")
     eval_subdir = "held_out" if held_out else "dev"
     data = report_evals(
