@@ -10,7 +10,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-class DocumentExtractionWorkflow:
+class DocumentExtraction:
     """Workflow object that follows a fixed extraction pipeline"""
 
     def __init__(self, workflow):

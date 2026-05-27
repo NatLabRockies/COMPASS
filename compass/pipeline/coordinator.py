@@ -30,7 +30,7 @@ from compass.pipeline.collection.persistence import (
 )
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
-from compass.pipeline.jurisdiction import JurisdictionWorkflow
+from compass.pipeline.jurisdiction import SingleJurisdictionRun
 from compass.pb import COMPASS_PB
 
 
@@ -137,7 +137,7 @@ class BaseRunMode(ABC):
             model_configs=self.runtime.models,
             usage_tracker=usage_tracker,
         )
-        return JurisdictionWorkflow(
+        return SingleJurisdictionRun(
             self.runtime,
             jurisdiction,
             extractor,
