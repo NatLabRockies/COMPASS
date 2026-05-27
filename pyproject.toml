@@ -270,12 +270,12 @@ omit = [
 
 
 [tool.pytest.ini_options]
-addopts = '--disable-warnings -m "not dev_eval and not held_out_eval"'
+addopts = '--disable-warnings -m "not dev_evals and not held_out_evals"'
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
 markers = [
-  "dev_eval: accuracy/quality eval against the in-repo dev dataset, run frequently during development. Deselected by default (makes live, billable LLM calls); run with `-m dev_eval`.",
-  "held_out_eval: accuracy/quality eval against the held-out dataset, run before a release. Deselected by default; run with `-m held_out_eval`.",
+  "dev_evals: accuracy/quality evals against the in-repo dev dataset, run frequently during development. Deselected by default (makes live, billable LLM calls); run with `-m dev_evals`.",
+  "held_out_evals: accuracy/quality evals against the held-out dataset, run before a release. Deselected by default; run with `-m held_out_evals`.",
 ]
 testpaths = [
   "tests/python/unit",

@@ -5,7 +5,7 @@ committed baseline; no-ops in normal runs (evals deselected by default).
 
 - **dev**: per-case breakdown CSV + metrics CSV; gate = aggregate failing
   count AND per-row regression (tolerance for sampling noise).
-- **held_out_eval**: metrics CSV only (no per-case detail, by design, to keep
+- **held_out_evals**: metrics CSV only (no per-case detail, by design, to keep
   the held-out set hard to tune against); gate = aggregate failing count only.
 """
 
@@ -47,7 +47,7 @@ def _eval_module():
     The test module is imported by basename under pytest's default import
     mode, so look it up in ``sys.modules`` rather than via a package path.
     """
-    return sys.modules.get("test_run_date_extraction_eval")
+    return sys.modules.get("test_run_date_extraction_evals")
 
 
 def _wilson_ci(k, n, alpha=0.05):
@@ -222,7 +222,7 @@ def _check_full_regression(rows, baseline):
 
 
 def _check_aggregate_regression(metrics, baseline_failing):
-    """held_out_eval gate: aggregate failing-count only (no per-row detail)"""
+    """held_out_evals gate: aggregate failing-count only (no per-row detail)"""
     c = metrics["counts"]
     fails_now = c["FP"] + c["FN"] + c["WRONG"]
     if baseline_failing is None:
@@ -265,10 +265,10 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
         metrics_fp = results_dir / f"{stem}.csv"
         breakdown_fp = results_dir / f"{stem}_breakdown.csv"
 
-        # held_out_eval: only summary stats are surfaced/saved (no per-case
+        # held_out_evals: only summary stats are surfaced/saved (no per-case
         # breakdown), and the gate is aggregate-only -- this keeps the
         # held-out set hard to inspect or tune against.
-        if eval_type == "held_out_eval":
+        if eval_type == "held_out_evals":
             baseline_failing = _load_baseline_failing(metrics_fp)
             failures, lines = _check_aggregate_regression(
                 metrics, baseline_failing

@@ -6,10 +6,13 @@ with no pre-set ``"date"`` (so extraction actually runs). Ground-truth years
 come from per-eval-type manifests under ``data/{dev,held-out}/`` (see
 ``data/README.md``).
 
-To run the eval:
+To run the evals:
 
-    pytest -m dev_eval     # frequent, during development
-    pytest -m held_out_eval     # before a release
+During development:
+    pixi run -e pdev pytest -m dev_evals -k date_extraction_evals
+
+Before a release:
+    pixi run -e pdev pytest -m held_out_evals -k date_extraction_evals
 """
 
 import os
@@ -136,7 +139,7 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     )
     # Held-out per-case detail is intentionally not logged (only summary
     # stats are surfaced) so the held-out set stays hard to tune against.
-    if eval_type != "held_out_eval":
+    if eval_type != "held_out_evals":
         logger.info(
             "%s (FIPS %s): expected=%s extracted=(%s,%s,%s) cost=$%.4f",
             case["jurisdiction"],
@@ -149,18 +152,18 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
         )
 
 
-@pytest.mark.dev_eval
+@pytest.mark.dev_evals
 @pytest.mark.parametrize(
     "case", _DEV_CASES, ids=[c["file"] for c in _DEV_CASES]
 )
 async def test_date_year_accuracy_dev(case, date_model_config):
     """Run date extraction on each dev-dataset document"""
     await _run_case(
-        case, DEV_MANIFEST_FP.parent, "dev_eval", date_model_config
+        case, DEV_MANIFEST_FP.parent, "dev_evals", date_model_config
     )
 
 
-@pytest.mark.held_out_eval
+@pytest.mark.held_out_evals
 @pytest.mark.skipif(
     not HELD_OUT_MANIFEST_FP.exists(),
     reason=f"Held-out dataset not found at {HELD_OUT_MANIFEST_FP}",
@@ -171,5 +174,5 @@ async def test_date_year_accuracy_dev(case, date_model_config):
 async def test_date_year_accuracy_held_out(case, date_model_config):
     """Run date extraction on each held-out document"""
     await _run_case(
-        case, HELD_OUT_MANIFEST_FP.parent, "held_out_eval", date_model_config
+        case, HELD_OUT_MANIFEST_FP.parent, "held_out_evals", date_model_config
     )
