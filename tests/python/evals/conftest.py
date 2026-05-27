@@ -13,25 +13,13 @@ when no rows were recorded (evals deselected by default).
 
 import csv
 import json
-from operator import itemgetter
+from dataclasses import asdict
+from operator import attrgetter
 
 import pytest
 
+from common import RESULT_FIELDS, SUCCESS
 
-_CSV_FIELDS = [
-    "fips",
-    "jurisdiction",
-    "file",
-    "source",
-    "feature",
-    "expected",
-    "extracted",
-    "comparison_result",
-    "prompt_tokens",
-    "response_tokens",
-    "time_taken_s",
-    "cost",
-]
 # We allow up to 2 fields to regress (TP/TN becomes WRONG/FP/FN)
 # We still prevent accuracy from regressing. This can happen if
 # two flaky fields trade places (some correct becomes incorrect and vice versa)
@@ -76,14 +64,14 @@ def _compute_metrics(results):
         "false_negative": 0,
     }
     for r in results:
-        success = r["comparison_result"] == "Success"
-        if success and r["expected"] is not None:
+        success = r.comparison_result == SUCCESS
+        if success and r.expected is not None:
             counts["true_positive"] += 1
-        if success and r["expected"] is None:
+        if success and r.expected is None:
             counts["true_negative"] += 1
-        if not success and r["extracted"] is not None:
+        if not success and r.extracted is not None:
             counts["false_positive"] += 1
-        if not success and r["expected"] is not None:
+        if not success and r.expected is not None:
             counts["false_negative"] += 1
 
     n = len(results)
@@ -110,10 +98,10 @@ def _compute_metrics(results):
         "accuracy_95_percent_confidence_interval": _wilson_ci(tp + tn, n),
         "precision_95_percent_confidence_interval": _wilson_ci(tp, pred_pos),
         "recall_95_percent_confidence_interval": _wilson_ci(tp, actual_pos),
-        "total_prompt_tokens": sum(r["prompt_tokens"] for r in results),
-        "total_response_tokens": sum(r["response_tokens"] for r in results),
-        "total_time_taken_s": sum(r["time_taken_s"] for r in results),
-        "total_cost_usd": sum(r["cost"] for r in results),
+        "total_prompt_tokens": sum(r.prompt_tokens for r in results),
+        "total_response_tokens": sum(r.response_tokens for r in results),
+        "total_time_taken_s": sum(r.time_taken_s for r in results),
+        "total_cost_usd": sum(r.cost for r in results),
     }
 
 
@@ -164,10 +152,10 @@ def _write_metrics_json(fp, entries):
 def _write_breakdown_csv(fp, results):
     """Write the detailed per-case breakdown CSV"""
     with fp.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=_CSV_FIELDS)
+        writer = csv.DictWriter(fh, fieldnames=RESULT_FIELDS)
         writer.writeheader()
-        for row in sorted(results, key=itemgetter("jurisdiction")):
-            writer.writerow({k: row.get(k) for k in _CSV_FIELDS})
+        for row in sorted(results, key=attrgetter("jurisdiction")):
+            writer.writerow(asdict(row))
 
 
 def _load_baseline_correct(breakdown_fp):
@@ -176,7 +164,7 @@ def _load_baseline_correct(breakdown_fp):
         return None
     with breakdown_fp.open(newline="", encoding="utf-8") as fh:
         return {
-            str(row["fips"]): row["comparison_result"] == "Success"
+            str(row["fips"]): row["comparison_result"] == SUCCESS
             for row in csv.DictReader(fh)
         }
 
@@ -196,7 +184,7 @@ def _check_full_regression(rows, baseline):
         return [], ["  gate: no baseline yet (this run sets it)"]
 
     now_correct = {
-        str(r["fips"]): r["comparison_result"] == "Success"
+        str(r.fips): r.comparison_result == SUCCESS
         for r in rows
     }
     fails_now = sum(1 for ok in now_correct.values() if not ok)

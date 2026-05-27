@@ -20,6 +20,8 @@ from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
 
+from common import Result, classify
+
 
 logger = logging.getLogger(__name__)
 
@@ -74,10 +76,6 @@ def _build_doc(case, dataset_dir):
     return HTMLDocument([text], attrs=attrs)
 
 
-def _classify(expected, extracted):
-    return "Success" if extracted == expected else "Failure"
-
-
 async def _run_case(case, dataset_dir, eval_type, model_config):
     """Extract the date for one case and record the result"""
     doc = _build_doc(case, dataset_dir)
@@ -94,18 +92,18 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     usage = compute_total_cost_and_token_from_totals(usage_tracker.totals)
 
     RESULTS[eval_type].append(
-        {
-            "fips": case["fips"],
-            "jurisdiction": case["jurisdiction"],
-            "file": case["file"],
-            "source": case["source"],
-            "feature": "year",
-            "expected": expected,
-            "extracted": year,
-            "comparison_result": _classify(expected, year),
-            "time_taken_s": round(elapsed, 3),
+        Result(
+            fips=case["fips"],
+            jurisdiction=case["jurisdiction"],
+            file=case["file"],
+            source=case["source"],
+            feature="year",
+            expected=expected,
+            extracted=year,
+            comparison_result=classify(expected, year),
+            time_taken_s=round(elapsed, 3),
             **usage,
-        }
+        )
     )
     # Held-out per-case detail hidden to prevent tuning against it
     if eval_type != "held_out":
