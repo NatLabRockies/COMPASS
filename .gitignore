@@ -18,6 +18,22 @@ venv.bak/
 # Scratch files
 *scratch*
 
+# OS / IDE / tool artifacts that occasionally land in the repo root
+.DS_Store
+.playwright-mcp/
+
+# Local research / scratch artifacts (presentations, side notes, output dumps)
+# kept in the repo root but not part of the project.
+/*.pptx
+/*.pdf
+/*.html
+/*.csv
+/known_solar_validation_docs.json5*
+/eval_ci_followup/
+/plots_re_run_oct/
+/examples/parse_existing_docs/CLI/outputs/
+/gemini-code-*.html
+
 # Documentation
 docs/_build/
 docs/source/_autosummary/

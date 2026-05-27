@@ -5,7 +5,9 @@ pixi.lock linguist-language=YAML linguist-generated=true
 support/** linguist-vendored
 # Ignore Jupyter Notebooks, typically used in example code
 *.ipynb linguist-vendored
-# Eval data (ordinance PDFs) -- managed via Git LFS to keep the repo lean.
+# Eval data (ordinance docs of every flavor) -- managed via Git LFS to keep
+# the repo lean. Manifests (.json5) stay in regular git: they're small,
+# structured, and meant to be diff-able.
 # Requires `git-lfs` (provided by the ptest/pdev pixi envs) and a one-time
 # `git lfs install` on each developer's machine.
 evals/data/**/*.pdf filter=lfs diff=lfs merge=lfs -text
