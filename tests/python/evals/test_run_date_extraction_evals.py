@@ -24,7 +24,7 @@ DEV_MANIFEST_FP = _DATA_DIR / "dev" / "solar" / "manifest.json5"
 HELD_OUT_MANIFEST_FP = _DATA_DIR / "held-out" / "solar" / "manifest.json5"
 RESULTS_DIR = Path(__file__).parent / "results"
 
-DATE_ACCURACY_RESULTS = []
+RESULTS = {"dev": [], "held_out": []}
 
 
 _DEV_CASES = load_config(DEV_MANIFEST_FP)
@@ -85,9 +85,8 @@ async def _run_case(case, dataset_dir, eval_type, model_config):
     correct = (year is None) if expected is None else (year == expected)
     cost = compute_cost_from_totals(usage_tracker.totals)
 
-    DATE_ACCURACY_RESULTS.append(
+    RESULTS[eval_type].append(
         {
-            "eval_type": eval_type,
             "fips": case["fips"],
             "jurisdiction": case["jurisdiction"],
             "file": case["file"],

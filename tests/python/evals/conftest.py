@@ -18,7 +18,6 @@ import pytest
 
 
 _CSV_FIELDS = [
-    "eval_type",
     "fips",
     "jurisdiction",
     "file",
@@ -246,20 +245,18 @@ def pytest_terminal_summary(terminalreporter, exitstatus, config):
     module = _eval_module()
     if module is None:
         return
-    results = getattr(module, "DATE_ACCURACY_RESULTS", None)
-    if not results:
+    results_by_type = getattr(module, "RESULTS", None)
+    if not results_by_type or not any(results_by_type.values()):
         return
 
     results_dir = module.RESULTS_DIR
     results_dir.mkdir(parents=True, exist_ok=True)
     write = terminalreporter.write_line
 
-    by_eval_type = {}
-    for r in results:
-        by_eval_type.setdefault(r["eval_type"], []).append(r)
-
     gate_failures = []
-    for eval_type, rows in sorted(by_eval_type.items()):
+    for eval_type, rows in sorted(results_by_type.items()):
+        if not rows:
+            continue
         metrics = _compute_metrics(rows)
         eval_type_dir = results_dir / eval_type
         eval_type_dir.mkdir(parents=True, exist_ok=True)
