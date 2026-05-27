@@ -1,9 +1,4 @@
-"""Eval metric computation (pure functions, no I/O).
-
-Produces the per-feature metric dict consumed by
-:mod:`utilities.reports` for serialization and by each test module's
-regression gate.
-"""
+"""Evals metrics computation"""
 
 from .base import SUCCESS
 

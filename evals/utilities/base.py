@@ -1,11 +1,4 @@
-"""Shared schema + doc loading for eval suites
-
-Eval-agnostic pieces (the ``Result`` row schema, success/failure
-constants, ``classify``, ``load_doc``) that any
-``test_run_<name>_evals.py`` can import. Metric computation lives in
-``utilities.metrics``; result formatting and I/O live in
-``utilities.reports``.
-"""
+"""Common utilities for evals suites"""
 
 from dataclasses import dataclass, fields
 from pathlib import Path
@@ -20,12 +13,7 @@ FAILURE = "Failure"
 
 @dataclass
 class Result:
-    """One row of an eval breakdown -- the per-case result schema
-
-    Identity columns describe *which* case; result columns capture
-    the ground-truth comparison; usage columns capture per-case cost.
-    Field order is the canonical column order for the breakdown CSV.
-    """
+    """One row of an evals breakdown -- the per-case result schema"""
 
     # identity
     state: str
@@ -49,7 +37,7 @@ class Result:
 
     @property
     def jurisdiction(self):
-        """Canonical Jurisdiction instance (hashable, for gate matching)"""
+        """Canonical Jurisdiction instance (hashable)"""
         return Jurisdiction(
             subdivision_type=self.jurisdiction_type,
             state=self.state,
@@ -61,9 +49,12 @@ class Result:
 RESULT_FIELDS = [f.name for f in fields(Result)]
 
 
-def classify(expected, extracted):
+def classify(expected, extracted, match_type="exact"):
     """Binary success: did the extractor match ground truth?"""
-    return SUCCESS if extracted == expected else FAILURE
+    if match_type == "exact":
+        return SUCCESS if extracted == expected else FAILURE
+    # Add other match types here as needed
+    return FAILURE
 
 
 def load_doc(fp, *, source=None):

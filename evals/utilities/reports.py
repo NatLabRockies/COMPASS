@@ -1,30 +1,10 @@
-"""Eval reporting helpers (I/O + formatting, no policy).
-
-Each eval suite (``test_run_<name>_evals.py``) calls :func:`report_evals`
-from a module-scoped teardown fixture. ``report_evals`` writes the
-per-case breakdown CSV (dev only) and the per-feature metrics JSON,
-prints a summary, and returns the data each test needs to enforce its
-own regression gate.
-
-Regression-gate *policy* lives in the calling test module. This module
-exposes two helpers each test can compose into a gate:
-
-- :func:`load_baseline_failing` -- aggregate failing count from a
-  committed metrics JSON
-- :func:`regressed_rows` -- list of jurisdictions that were correct in
-  the committed breakdown CSV but failing now
-
-A typical gate compares ``failing_cases`` now vs baseline (and, for dev,
-checks that no previously-correct row regressed).
-"""
+"""Evals reporting helpers"""
 
 import csv
 import json
 from dataclasses import asdict
 
-from compass.utilities.jurisdictions import Jurisdiction
-
-from .base import RESULT_FIELDS, SUCCESS
+from .base import RESULT_FIELDS, SUCCESS, Result
 from .metrics import compute_metrics
 
 
@@ -71,11 +51,36 @@ def _write_breakdown_csv(fp, results):
             writer.writerow(asdict(row))
 
 
-def load_baseline_failing(metrics_fp):
-    """Sum of ``failing_cases`` across features in a baseline metrics JSON
+def _read_breakdown_csv(fp):
+    """Read a committed breakdown CSV back into a list of Result rows"""
+    if not fp.exists():
+        return None
+    with fp.open(newline="", encoding="utf-8") as fh:
+        return [_result_from_csv_row(row) for row in csv.DictReader(fh)]
 
-    Returns ``None`` if the file does not exist (no baseline yet).
-    """
+
+def _result_from_csv_row(row):
+    """Reconstitute a Result from a breakdown-CSV row (cast numeric fields)"""
+    return Result(
+        state=row["state"],
+        county=row["county"],
+        subdivision=row["subdivision"] or None,
+        jurisdiction_type=row["jurisdiction_type"],
+        file=row["file"],
+        source=row["source"],
+        feature=row["feature"],
+        expected=row["expected"],
+        extracted=row["extracted"],
+        comparison_result=row["comparison_result"],
+        prompt_tokens=int(row["prompt_tokens"]),
+        response_tokens=int(row["response_tokens"]),
+        time_taken_s=float(row["time_taken_s"]),
+        cost=float(row["cost"]),
+    )
+
+
+def load_baseline_failing(metrics_fp):
+    """Sum of ``failing_cases`` across features in a baseline metrics JSON"""
     if not metrics_fp.exists():
         return None
     with metrics_fp.open(encoding="utf-8") as fh:
@@ -83,32 +88,19 @@ def load_baseline_failing(metrics_fp):
     return sum(e["failing_cases"] for e in entries)
 
 
-def regressed_rows(results, breakdown_fp):
-    """Jurisdictions that were correct in the baseline CSV but failing now
-
-    Returns a sorted list of :class:`Jurisdiction` instances, or ``None``
-    if the baseline file does not exist (no baseline yet).
-    """
-    if not breakdown_fp.exists():
+def _get_regressed_jurisdictions(new_results, existing_results):
+    """Jurisdictions correct in baseline but failing in current run"""
+    if existing_results is None:
         return None
-    with breakdown_fp.open(newline="", encoding="utf-8") as fh:
-        baseline_correct = {
-            Jurisdiction(
-                subdivision_type=row["jurisdiction_type"],
-                state=row["state"],
-                county=row["county"],
-                subdivision_name=row["subdivision"] or None,
-            ): row["comparison_result"] == SUCCESS
-            for row in csv.DictReader(fh)
-        }
     now_correct = {
-        r.jurisdiction for r in results if r.comparison_result == SUCCESS
+        r.jurisdiction for r in new_results if r.comparison_result == SUCCESS
     }
     return sorted(
         (
-            jurisdiction
-            for jurisdiction, was_ok in baseline_correct.items()
-            if was_ok and jurisdiction not in now_correct
+            r.jurisdiction
+            for r in existing_results
+            if r.comparison_result == SUCCESS
+            and r.jurisdiction not in now_correct
         ),
         key=str,
     )
@@ -148,9 +140,10 @@ def report_evals(
 
     # Snapshot baselines BEFORE writing the new files.
     baseline_failing = load_baseline_failing(metrics_fp)
-    regressed = (
-        regressed_rows(results, breakdown_fp) if write_breakdown else None
+    existing_results = (
+        _read_breakdown_csv(breakdown_fp) if write_breakdown else None
     )
+    regressed = _get_regressed_jurisdictions(results, existing_results)
 
     results_by_feature = {}
     for result in results:
