@@ -331,7 +331,7 @@ async def _extract_with_ngram_check(
     ngram_fraction_threshold=0.9,
     ngram_ocr_fraction_threshold=0.75,
 ):
-    """Extract ordinance info from doc and validate using ngrams."""
+    """Extract ordinance info from doc and validate using ngrams"""
 
     source = doc.attrs.get("source", "Unknown")
     doc_is_from_ocr = doc.attrs.get("from_ocr", False)
