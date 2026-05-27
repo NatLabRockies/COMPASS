@@ -58,8 +58,9 @@ jobs:
 
     - name: Validate package metadata
       run: |
-        python -m pip install --upgrade twine
-        twine check --strict dist/*
+        python -m venv "$RUNNER_TEMP/twine-venv"
+        "$RUNNER_TEMP/twine-venv/bin/pip" install --upgrade twine
+        "$RUNNER_TEMP/twine-venv/bin/twine" check --strict dist/*
 
     - name: Publish package distributions to PyPI
       if: github.event_name == 'release' || github.event_name == 'workflow_dispatch'
