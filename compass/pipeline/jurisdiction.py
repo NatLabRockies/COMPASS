@@ -188,9 +188,7 @@ class SingleJurisdictionRun:
             )
             docs = [doc for doc in docs if doc is not None]
             extraction_context = (
-                await self.extraction_workflow.extract_from_docs(
-                    docs,
-                )
+                await self.extraction_workflow.extract_from_docs(docs)
             )
         finally:
             await self.extractor.record_usage()
@@ -312,8 +310,5 @@ async def _record_jurisdiction_info(
 
     seconds_elapsed = time.monotonic() - start_time
     await JurisdictionUpdater.call(
-        jurisdiction,
-        extraction_context,
-        seconds_elapsed,
-        usage_tracker,
+        jurisdiction, extraction_context, seconds_elapsed, usage_tracker
     )
