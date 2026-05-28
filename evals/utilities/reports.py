@@ -1,8 +1,8 @@
 """Evals reporting helpers"""
 
-import csv
 import json
 from dataclasses import asdict
+import pandas as pd
 
 from .base import RESULT_FIELDS, SUCCESS, Result
 from .metrics import compute_metrics
@@ -66,8 +66,8 @@ def _get_failing_count(results):
 def _read_breakdown_csv(fp):
     if not fp.exists():
         return None
-    with fp.open(newline="", encoding="utf-8") as fh:
-        return [_result_from_csv_row(row) for row in csv.DictReader(fh)]
+    df = pd.read_csv(fp, dtype=str, keep_default_na=False, na_values=[])
+    return [_result_from_csv_row(row) for row in df.to_dict("records")]
 
 
 def _result_from_csv_row(row):
@@ -114,14 +114,11 @@ def _write_metrics_json(fp, entries):
 
 
 def _write_breakdown_csv(fp, results):
-    with fp.open("w", newline="", encoding="utf-8") as fh:
-        writer = csv.DictWriter(fh, fieldnames=RESULT_FIELDS)
-        writer.writeheader()
-        for row in sorted(
-            results,
-            key=lambda r: (r.state, r.county, r.subdivision or ""),
-        ):
-            writer.writerow(asdict(row))
+    ordered = sorted(
+        results, key=lambda r: (r.state, r.county, r.subdivision or "")
+    )
+    df = pd.DataFrame([asdict(r) for r in ordered], columns=RESULT_FIELDS)
+    df.to_csv(fp, index=False)
 
 
 def _format_entry(feature, metrics):
