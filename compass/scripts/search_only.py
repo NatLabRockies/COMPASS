@@ -262,10 +262,7 @@ async def _search_one_query(
                 browser_semaphore=browser_semaphore,
             )
         except Exception as exc:  # noqa: BLE001
-            msg = (
-                f"[{location}] {se_name} search failed for {query!r}: "
-                f"{exc}"
-            )
+            msg = f"[{location}] {se_name} search failed for {query!r}: {exc}"
             warn(msg, COMPASSWarning)
             continue
 
