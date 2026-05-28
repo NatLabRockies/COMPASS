@@ -13,7 +13,6 @@ import logging
 import random
 from warnings import warn
 from datetime import datetime, UTC
-from operator import itemgetter
 from pathlib import Path
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
@@ -373,11 +372,22 @@ def _apply_top_n_filters(results, num_urls):
 
 
 def _active_results_sorted(results):
-    """Return filtered-in rows sorted by query rank and query order"""
+    """Return filtered-in rows sorted by ranking priority"""
     active_results = [
         entry for entry in results if entry["filtered_reason"] is None
     ]
-    active_results.sort(key=itemgetter("query_rank", "query_index", "_order"))
+
+    def _sort_key(entry):
+        duplicate_count = len(entry.get("duplicates", []))
+        return (
+            entry["query_rank"],
+            -duplicate_count,
+            entry["search_engine"],
+            entry["query_index"],
+            entry["_order"],
+        )
+
+    active_results.sort(key=_sort_key)
     return active_results
 
 

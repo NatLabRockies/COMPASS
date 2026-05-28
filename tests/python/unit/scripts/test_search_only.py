@@ -161,6 +161,50 @@ def test_apply_top_n_filters_assigns_overall_rank_and_beyond_top_n():
     assert results[2]["filtered_reason"] == "beyond_top_n"
 
 
+def test_apply_top_n_filters_prioritizes_more_duplicates_on_tie():
+    """Rank tied rows by descending number of duplicates"""
+    results = [
+        {
+            "url": "https://example.com/dup-winner",
+            "query": "q-dup-1",
+            "query_index": 5,
+            "search_engine": "ZEngine",
+            "query_rank": 1,
+            "overall_rank": None,
+            "filtered_reason": None,
+            "_order": 0,
+        },
+        {
+            "url": "https://example.com/dup-winner",
+            "query": "q-dup-2",
+            "query_index": 6,
+            "search_engine": "ZEngine",
+            "query_rank": 2,
+            "overall_rank": None,
+            "filtered_reason": None,
+            "_order": 1,
+        },
+        {
+            "url": "https://example.com/no-dup",
+            "query": "q-other",
+            "query_index": 0,
+            "search_engine": "AEngine",
+            "query_rank": 1,
+            "overall_rank": None,
+            "filtered_reason": None,
+            "_order": 2,
+        },
+    ]
+
+    search_only_module._apply_duplicate_filters(results)
+    search_only_module._apply_top_n_filters(results, num_urls=1)
+
+    assert results[0]["overall_rank"] == 1
+    assert len(results[0]["duplicates"]) == 1
+    assert results[2]["overall_rank"] == 2
+    assert results[2]["filtered_reason"] == "beyond_top_n"
+
+
 def test_apply_filters_orders_phases_and_cleans_internal_fields():
     """Apply blacklist, duplicate, and top-N in deterministic order"""
     results = [
