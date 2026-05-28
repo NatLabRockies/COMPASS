@@ -51,6 +51,7 @@ dependencies = [
   "platformdirs>=4.5.1,<5",
   "playwright>=1.49.0,<1.52",  # version range required for c4ai"
   "pyjson5>=2.0.0,<3",
+  "python-dotenv>=1.2.2,<2",
   "rich>=13.9.4,<14",
   "toml>=0.10.2,<0.11",
 ]

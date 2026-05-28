@@ -91,7 +91,7 @@ playwright = ">=1.49.1,<1.50"  # version range required for c4ai is >=1.49.0,<1.
 platformdirs = ">=4.5.1,<5"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
-python-dotenv = ">=1.0.1,<2"
+python-dotenv = ">=1.2.2,<2"
 python-slugify = ">=8.0.4,<9"
 rich = ">=13.9.4,<14"
 scipy = ">=1.14.1,<2"
