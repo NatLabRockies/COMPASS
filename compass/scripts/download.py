@@ -685,7 +685,7 @@ async def filter_ordinance_docs(
 
     COMPASS_PB.update_jurisdiction_task(
         jurisdiction.full_name,
-        description="Checking files for relevant text...",
+        description="Checking files for extraction-relevant text...",
     )
     docs = await filter_documents(
         docs,
