@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 import compass.scripts.search_only as search_only_module
+from compass.exceptions import COMPASSValueError
 from compass.utilities.base import WebSearchParams
 
 
@@ -268,6 +269,21 @@ def test_summary_keeps_only_unfiltered_and_sorted():
     assert "https://example.com/rank1" in output
     assert "https://example.com/rank2" in output
     assert "https://example.com/dup" not in output
+
+
+@pytest.mark.asyncio
+async def test_get_query_templates_raises_compass_value_error():
+    """Raise COMPASSValueError when plugin has no query templates"""
+
+    class _PluginWithNoTemplates:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+        async def get_query_templates(self):
+            return []
+
+    with pytest.raises(COMPASSValueError):
+        await search_only_module._get_query_templates(_PluginWithNoTemplates)
 
 
 if __name__ == "__main__":

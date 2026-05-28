@@ -17,6 +17,7 @@ from pathlib import Path
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
+from compass.exceptions import COMPASSValueError
 from compass.plugin import PLUGIN_REGISTRY
 from compass.utilities.base import WebSearchParams
 from compass.utilities.jurisdictions import (
@@ -181,7 +182,7 @@ async def _get_query_templates(plugin_cls):
             "Pre-generate templates or provide them in the config before "
             "running search-only."
         )
-        raise ValueError(msg)
+        raise COMPASSValueError(msg)
     return list(templates)
 
 
