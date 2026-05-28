@@ -100,7 +100,7 @@ def search_only(config, n_top_urls, output, output_format, verbose, plugin):
 
     text_report = summary(report)
     if output is None:
-        print(text_report)
+        console.print(text_report)
         return
 
     out_path = Path(output)
