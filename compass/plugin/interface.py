@@ -181,7 +181,8 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
     def OUTPUT_COLUMNS(self):  # noqa: N802
         """list: List of output columns for the extracted data
 
-        Each entry should be an :class:`OutputColumn` instance.
+        Each entry should be an
+        :class:`compass.plugin.interface.OutputColumn` instance.
         """
         raise NotImplementedError
 

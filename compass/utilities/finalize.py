@@ -124,8 +124,9 @@ def doc_infos_to_db(doc_infos, output_columns):
         year, month, day, with ``None`` allowed), and ``"jurisdiction"``
         (a :class:`~compass.utilities.jurisdictions.Jurisdiction`
         instance).
-    output_columns : list of OutputColumn
-        List of expected output columns (as `OutputColumn` instances)
+    output_columns : list
+        List of expected output columns (as
+        :class:`compass.plugin.interface.OutputColumn` instances)
         for the consolidated database. The function enforces the
         presence of these columns in the output
         :class:`pandas.DataFrame`, filling in missing columns with null
@@ -188,8 +189,9 @@ def save_db(db, out_dir, output_columns):
         Directory where ``qualitative_ordinances.csv`` and
         ``quantitative_ordinances.csv`` should be written. The directory
         is created by :class:`pathlib.Path` if necessary.
-    output_columns : list of OutputColumn
-        List of expected output columns (as `OutputColumn` instances)
+    output_columns : list
+        List of expected output columns (as
+        :class:`compass.plugin.interface.OutputColumn` instances)
         for the consolidated database. The function enforces the
         presence of these columns in the output
         :class:`pandas.DataFrame`, filling in missing columns with null
