@@ -50,7 +50,7 @@ jobs:
       with:
         pixi-version: v0.68.1
         locked: true
-        cache: true
+        cache: false
         environments: pbuild
 
     - name: Build
