@@ -50,7 +50,7 @@ from compass.utilities.io import load_config
 @click.option(
     "--output-format",
     "output_format",
-    type=click.Choice(["json", "human"], case_sensitive=False),
+    type=click.Choice(["json", "summary"], case_sensitive=False),
     default="json",
     show_default=True,
     help="Output representation for search results.",

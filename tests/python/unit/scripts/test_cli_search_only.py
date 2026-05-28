@@ -58,8 +58,8 @@ def test_search_only_json_stdout(runner, cfg_file, monkeypatch):
     assert payload["tech"] == "wind"
 
 
-def test_search_only_human_stdout(runner, cfg_file, monkeypatch):
-    """Emit human-readable report to stdout when requested"""
+def test_search_only_summary_stdout(runner, cfg_file, monkeypatch):
+    """Emit summary report to stdout when requested"""
 
     monkeypatch.setattr(
         cli_module,
@@ -75,23 +75,23 @@ def test_search_only_human_stdout(runner, cfg_file, monkeypatch):
     monkeypatch.setattr(
         cli_module,
         "summary",
-        lambda *_: "human report",
+        lambda *_: "summary report",
     )
 
     result = runner.invoke(
         cli_module.search_only,
-        ["-c", str(cfg_file), "--output-format", "human"],
+        ["-c", str(cfg_file), "--output-format", "summary"],
     )
 
     assert result.exit_code == 0
-    assert result.output.strip() == "human report"
+    assert result.output.strip() == "summary report"
 
 
-def test_search_only_human_file_output(
+def test_search_only_summary_file_output(
     runner, cfg_file, monkeypatch, tmp_path
 ):
-    """Write human-readable report to output file"""
-    out_fp = tmp_path / "human.txt"
+    """Write summary report to output file"""
+    out_fp = tmp_path / "summary.txt"
 
     monkeypatch.setattr(
         cli_module,
@@ -107,7 +107,7 @@ def test_search_only_human_file_output(
     monkeypatch.setattr(
         cli_module,
         "summary",
-        lambda *_: "human report",
+        lambda *_: "summary report",
     )
 
     result = runner.invoke(
@@ -116,14 +116,14 @@ def test_search_only_human_file_output(
             "-c",
             str(cfg_file),
             "--output-format",
-            "human",
+            "summary",
             "-o",
             str(out_fp),
         ],
     )
 
     assert result.exit_code == 0
-    assert out_fp.read_text(encoding="utf-8") == "human report\n"
+    assert out_fp.read_text(encoding="utf-8") == "summary report\n"
 
 
 def test_search_only_n_top_urls_overrides_config(
