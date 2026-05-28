@@ -11,6 +11,7 @@ import pandas as pd
 import pytest
 
 from compass.utilities import finalize
+from compass.extraction.wind.plugin import COMPASSWindExtractor
 
 
 def _manifest_for_dirs(dirs, monkeypatch):
@@ -382,10 +383,10 @@ def test_save_run_meta_manifest_handles_out_and_parent(tmp_path, monkeypatch):
 def test_doc_infos_to_db_empty_input():
     """No documents returns empty DataFrame"""
 
-    db, count = finalize.doc_infos_to_db([])
+    db, count = finalize.doc_infos_to_db([], [])
     assert count == 0
     assert db.empty
-    assert list(db.columns) == finalize._PARSED_COLS
+    assert not list(db.columns)
 
 
 def test_doc_infos_to_db_compiles_and_formats(tmp_path):
@@ -432,7 +433,9 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
         },
     ]
 
-    db, count = finalize.doc_infos_to_db(doc_infos)
+    db, count = finalize.doc_infos_to_db(
+        doc_infos, COMPASSWindExtractor.OUTPUT_COLUMNS
+    )
     assert count == 1
     assert len(db) == 1
 
@@ -447,7 +450,8 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
 def test_save_db_writes_csvs(tmp_path):
     """Split qualitative and quantitative outputs"""
 
-    row_true = dict.fromkeys(finalize._PARSED_COLS)
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+    row_true = dict.fromkeys(out_cols)
     row_true.update(
         {
             "county": "County A",
@@ -475,7 +479,7 @@ def test_save_db_writes_csvs(tmp_path):
     )
 
     df = pd.DataFrame([row_true, row_false])
-    finalize.save_db(df, tmp_path)
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
 
     quant_path = tmp_path / "quantitative_ordinances.csv"
     qual_path = tmp_path / "qualitative_ordinances.csv"
@@ -484,9 +488,20 @@ def test_save_db_writes_csvs(tmp_path):
 
     quant = pd.read_csv(quant_path)
     qual = pd.read_csv(qual_path)
-    assert list(quant.columns) == finalize.QUANT_OUT_COLS
+    expected_cols = [
+        col.name
+        for col in COMPASSWindExtractor.OUTPUT_COLUMNS
+        if col.include_in_quant_output
+    ]
+    assert list(quant.columns) == expected_cols
     assert len(quant) == 1
-    assert list(qual.columns) == finalize.QUAL_OUT_COLS
+
+    expected_cols = [
+        col.name
+        for col in COMPASSWindExtractor.OUTPUT_COLUMNS
+        if col.include_in_qual_output
+    ]
+    assert list(qual.columns) == expected_cols
     assert len(qual) == 1
     assert quant.iloc[0]["feature"] == "Height"
     assert qual.iloc[0]["feature"] == "Setback"
@@ -495,8 +510,9 @@ def test_save_db_writes_csvs(tmp_path):
 def test_save_db_with_empty_df(tmp_path):
     """Do nothing when DataFrame is empty"""
 
-    empty_df = pd.DataFrame(columns=finalize._PARSED_COLS)
-    finalize.save_db(empty_df, tmp_path)
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+    empty_df = pd.DataFrame(columns=out_cols)
+    finalize.save_db(empty_df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
     assert not (tmp_path / "qualitative_ordinances.csv").exists()
     assert not (tmp_path / "quantitative_ordinances.csv").exists()
 
@@ -551,8 +567,9 @@ def test_formatted_db_adds_missing_columns():
             }
         ]
     )
-    formatted = finalize._formatted_db(df)
-    assert list(formatted.columns) == finalize._PARSED_COLS
+    expected_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+    formatted = finalize._formatted_db(df, expected_cols)
+    assert list(formatted.columns) == expected_cols
     assert len(formatted) == 1
     assert bool(formatted.iloc[0]["quantitative"]) is True
 
