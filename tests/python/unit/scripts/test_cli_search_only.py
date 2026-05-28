@@ -69,7 +69,7 @@ def test_search_only_human_stdout(runner, cfg_file, monkeypatch):
     )
     monkeypatch.setattr(
         cli_module,
-        "format_search_only_report_human",
+        "summary",
         lambda *_: "human report",
     )
 
@@ -99,7 +99,7 @@ def test_search_only_human_file_output(runner, cfg_file, monkeypatch, tmp_path):
     )
     monkeypatch.setattr(
         cli_module,
-        "format_search_only_report_human",
+        "summary",
         lambda *_: "human report",
     )
 

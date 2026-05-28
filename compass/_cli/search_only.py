@@ -10,8 +10,8 @@ from rich.theme import Theme
 from compass._cli.common import setup_cli_logging
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.search_only import (
-    format_search_only_report_human,
     run_search_only,
+    summary,
     write_search_only_report,
 )
 from compass.utilities.io import load_config
@@ -98,7 +98,7 @@ def search_only(config, n_top_urls, output, output_format, verbose, plugin):
         write_search_only_report(report, out_path=output)
         return
 
-    text_report = format_search_only_report_human(report)
+    text_report = summary(report)
     if output is None:
         print(text_report)
         return

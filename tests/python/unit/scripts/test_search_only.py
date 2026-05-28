@@ -220,7 +220,7 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
         assert "query_index" not in row
 
 
-def test_format_search_only_report_human_keeps_only_unfiltered_and_sorted():
+def test_summary_keeps_only_unfiltered_and_sorted():
     """Render only unfiltered rows sorted by overall rank"""
     report = {
         "tech": "wind",
@@ -260,7 +260,7 @@ def test_format_search_only_report_human_keeps_only_unfiltered_and_sorted():
         ],
     }
 
-    output = search_only_module.format_search_only_report_human(report)
+    output = search_only_module.summary(report)
 
     first_rank = output.index("[1]")
     second_rank = output.index("[2]")

@@ -405,7 +405,7 @@ def write_search_only_report(report, out_path=None):
     out_path.write_text(payload, encoding="utf-8")
 
 
-def format_search_only_report_human(report):
+def summary(report):
     """Format search-only output as readable plain text
 
     Parameters
