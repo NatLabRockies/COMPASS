@@ -41,11 +41,7 @@ REGRESSION_TOL = 2
 
 
 def pytest_generate_tests(metafunc):
-    """Parametrize ``case`` with the dataset chosen by ``--held-out``
-
-    Each case gets its resolved document path stamped on as ``case["fp"]``
-    so the test body doesn't need to know which dataset it came from.
-    """
+    """Generate evals cases with the dataset chosen by ``--held-out``"""
     if "case" not in metafunc.fixturenames:
         return
     dataset_dir = (
@@ -54,9 +50,20 @@ def pytest_generate_tests(metafunc):
         else _DEV_DATASET_DIR
     )
     cases = load_config(dataset_dir / "manifest.json5")
-    for c in cases:
-        c["fp"] = dataset_dir / c["file"]
-    metafunc.parametrize("case", cases, ids=[c["file"] for c in cases])
+    metafunc.parametrize(
+        "case",
+        [(case, dataset_dir) for case in cases],
+        ids=[case.get("file", f"case_{i}") for i, case in enumerate(cases)],
+        indirect=True,  # send to the case fixture instead of test function
+    )
+
+
+@pytest.fixture
+def case(request):
+    """Receives the (raw_case, dataset_dir) from pytest_generate_tests."""
+    case, dataset_dir = request.param
+    case["fp"] = dataset_dir / case["file"]
+    return case
 
 
 @pytest.fixture(scope="module", autouse=True)
