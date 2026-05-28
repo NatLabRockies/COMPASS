@@ -14,7 +14,7 @@ class Result:
 
     # identity
     state: str
-    county: str
+    county: str | None
     subdivision: str | None
     jurisdiction_type: str
     file: str
@@ -39,7 +39,7 @@ class Result:
             subdivision_type=self.jurisdiction_type,
             state=self.state,
             county=self.county,
-            subdivision_name=self.subdivision or None,
+            subdivision_name=self.subdivision,
         )
 
 

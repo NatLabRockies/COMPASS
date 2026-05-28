@@ -73,7 +73,7 @@ def _read_breakdown_csv(fp):
 def _result_from_csv_row(row):
     return Result(
         state=row["state"],
-        county=row["county"],
+        county=row["county"] or None,
         subdivision=row["subdivision"] or None,
         jurisdiction_type=row["jurisdiction_type"],
         file=row["file"],

@@ -73,6 +73,8 @@ def case(request):
     """Receives the (raw_case, dataset_dir) from pytest_generate_tests."""
     case, dataset_dir = request.param
     case["fp"] = dataset_dir / case["file"]
+    case["county"] = case["county"] or None
+    case["subdivision"] = case["subdivision"] or None
     return case
 
 
