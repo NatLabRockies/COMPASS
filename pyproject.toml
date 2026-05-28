@@ -279,5 +279,4 @@ markers = [
 testpaths = [
   "tests/python/unit",
   "tests/python/integration",
-  "evals",
 ]

@@ -1,5 +1,7 @@
 """Evals metrics computation"""
 
+from statsmodels.stats.proportion import proportion_confint
+
 from .base import SUCCESS
 
 
@@ -8,16 +10,10 @@ def wilson_ci(k, n, alpha=0.05):
 
     Chosen over the normal approximation because it has better coverage
     at small sample sizes and near the 0/1 boundary. IID (ignores
-    clustering). ``statsmodels`` is imported lazily so the base test
-    session (which collects this module but deselects the evals) does
-    not depend on it.
+    clustering).
     """
     if n == 0:
         return None, None
-    from statsmodels.stats.proportion import (  # noqa: PLC0415
-        proportion_confint,
-    )
-
     lo, hi = proportion_confint(k, n, alpha=alpha, method="wilson")
     return float(lo), float(hi)
 
