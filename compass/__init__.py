@@ -1,5 +1,7 @@
 """Ordinance document download and structured data extraction"""
 
+from dotenv import load_dotenv
+
 from ._version import __version__
 from .utilities.logs import setup_logging_levels, COMPASS_DEBUG_LEVEL
 
@@ -13,4 +15,5 @@ from .extraction import (
     TexasWaterRightsExtractor,
 )
 
+load_dotenv()
 setup_logging_levels()
