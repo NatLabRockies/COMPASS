@@ -11,6 +11,7 @@ import asyncio
 import json
 import logging
 import random
+from warnings import warn
 from datetime import datetime, UTC
 from operator import itemgetter
 from pathlib import Path
@@ -24,6 +25,7 @@ from compass.utilities.jurisdictions import (
     jurisdictions_from_df,
     load_jurisdictions_from_fp,
 )
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -249,12 +251,8 @@ async def _search_one_query(
         try:
             engine = opt.se_class(**init_kwargs_by_se[se_name])
         except Exception as exc:  # noqa: BLE001
-            logger.warning(
-                "[%s] could not instantiate %s: %s",
-                location,
-                se_name,
-                exc,
-            )
+            msg = f"[{location}] could not instantiate {se_name}: {exc}"
+            warn(msg, COMPASSWarning)
             continue
 
         try:
@@ -265,13 +263,11 @@ async def _search_one_query(
                 browser_semaphore=browser_semaphore,
             )
         except Exception as exc:  # noqa: BLE001
-            logger.warning(
-                "[%s] %s search failed for %r: %s",
-                location,
-                se_name,
-                query,
-                exc,
+            msg = (
+                f"[{location}] {se_name} search failed for {query!r}: "
+                f"{exc}"
             )
+            warn(msg, COMPASSWarning)
             continue
 
         urls = raw[0] if raw else []
