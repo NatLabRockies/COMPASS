@@ -6,8 +6,10 @@ import sys
 import time
 import asyncio
 import logging
-import contextlib
 import warnings
+import platform
+import contextlib
+from glob import iglob
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -376,20 +378,23 @@ def _read_file_docling(fp, **kwargs):
 def _configure_pytesseract(tesseract_cmd):
     """Set the tesseract_cmd"""
     import pytesseract  # noqa: PLC0415
-    from glob import iglob  # noqa: PLC0415
-    from os import remove  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+    if platform.system() == "Windows":
+        pytesseract.pytesseract.cleanup = _pytesseract_cleanup_win
 
-    # On Windows, Tesseract may still hold the temp PPM file open when
-    # pytesseract's cleanup runs, causing WinError 32. Patch cleanup to
-    # suppress all OSErrors so the OCR result is not lost.
-    def _cleanup_win(temp_name):
-        for filename in iglob(f'{temp_name}*' if temp_name else temp_name):
-            with contextlib.suppress(OSError):
-                remove(filename)
 
-    pytesseract.pytesseract.cleanup = _cleanup_win
+def _pytesseract_cleanup_win(temp_name):
+    """Suppress all OSErrors when cleaning up temp files on Windows
+
+    On Windows, Tesseract may still hold the temp PPM file open when
+    pytesseract's cleanup runs, causing WinError 32. This function
+    patches cleanup to suppress all OSErrors so the OCR result is not
+    lost.
+    """
+    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):  # noqa
+        with contextlib.suppress(OSError):
+            os.remove(filename)  # noqa
 
 
 def _try_decode_ocr_pages(pages):
