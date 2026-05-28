@@ -409,9 +409,18 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         full_df = full_df.merge(df, on="feature", how="left")
 
+        ignore_cols = {
+            "county",
+            "state",
+            "subdivision",
+            "jurisdiction_type",
+            "FIPS",
+            "feature",
+            "quantitative",
+        }
         out_cols = [
             col.name
             for col in self.POSSIBLE_OUT_COLS
-            if col in full_df.columns
+            if col.name in full_df.columns and col.name not in ignore_cols
         ]
         return full_df[["feature", *out_cols, "quantitative"]]
