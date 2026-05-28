@@ -50,7 +50,8 @@ jobs:
       with:
         pixi-version: v0.68.1
         locked: true
-        cache: false
+        cache: true
+        cache-write: ${{ github.ref == 'refs/heads/main' }}
         environments: pbuild
 
     - name: Build
