@@ -21,9 +21,7 @@ heuristic_keywords:
     - "closure"
     - "drilling"
     - "mineral"
-    - "no surface occupancy"
     - "nso"
-    - "surface disturbance"
   good_tech_acronyms:
     - "nso"
     - "rmp"
@@ -31,6 +29,8 @@ heuristic_keywords:
     - "tlm"
     - "esa"
   good_tech_phrases:
+    - "no surface occupancy"
+    - "surface disturbance"
     - "geothermal leasing"
     - "geothermal development"
     - "geothermal exploration"
@@ -80,4 +80,4 @@ cache_llm_generated_content: true
 
 # Allows a single jurisdiction entry to span multiple PDF documents,
 # which is typical for RMPs that are split across many files.
-allow_multi_doc_extraction: true
+doc_selection_method: multi-doc-all
