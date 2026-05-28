@@ -350,7 +350,6 @@ def _apply_duplicate_filters(results):
                 "query": entry["query"],
                 "search_engine": entry["search_engine"],
                 "query_rank": entry["query_rank"],
-                "overall_rank": entry["overall_rank"],
             }
         )
 

@@ -112,7 +112,6 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
             "query": "q1",
             "search_engine": "SerpAPIGoogleSearch",
             "query_rank": 2,
-            "overall_rank": None,
         }
     ]
     assert loser["filtered_reason"] == "duplicate"
