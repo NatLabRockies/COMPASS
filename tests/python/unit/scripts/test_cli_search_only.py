@@ -1,5 +1,6 @@
 """Tests for compass._cli.search_only"""
 
+import asyncio
 import json
 from pathlib import Path
 
@@ -26,6 +27,10 @@ def runner():
 def test_search_only_json_stdout(runner, cfg_file, monkeypatch):
     """Emit JSON report to stdout by default"""
 
+    def _write_json_stdout(report, out_path=None):
+        _ = out_path
+        print(json.dumps(report))
+
     monkeypatch.setattr(
         cli_module,
         "load_config",
@@ -40,7 +45,7 @@ def test_search_only_json_stdout(runner, cfg_file, monkeypatch):
     monkeypatch.setattr(
         cli_module,
         "write_search_only_report",
-        lambda report, out_path=None: print(json.dumps(report)),
+        _write_json_stdout,
     )
 
     result = runner.invoke(
@@ -82,7 +87,9 @@ def test_search_only_human_stdout(runner, cfg_file, monkeypatch):
     assert result.output.strip() == "human report"
 
 
-def test_search_only_human_file_output(runner, cfg_file, monkeypatch, tmp_path):
+def test_search_only_human_file_output(
+    runner, cfg_file, monkeypatch, tmp_path
+):
     """Write human-readable report to output file"""
     out_fp = tmp_path / "human.txt"
 
@@ -119,7 +126,9 @@ def test_search_only_human_file_output(runner, cfg_file, monkeypatch, tmp_path):
     assert out_fp.read_text(encoding="utf-8") == "human report\n"
 
 
-def test_search_only_n_top_urls_overrides_config(runner, cfg_file, monkeypatch):
+def test_search_only_n_top_urls_overrides_config(
+    runner, cfg_file, monkeypatch
+):
     """Override configured top URL count with CLI option"""
     captured = {}
 
@@ -190,6 +199,7 @@ def test_search_only_plugin_registers_one_shot(runner, cfg_file, monkeypatch):
 
 def _async_returns(value):
     async def _inner(*_args, **_kwargs):
+        await asyncio.sleep(0)
         return value
 
     return _inner
@@ -197,6 +207,7 @@ def _async_returns(value):
 
 def _capture_async_kwargs(out_dict):
     async def _inner(*_args, **kwargs):
+        await asyncio.sleep(0)
         out_dict.update(kwargs)
         return {"tech": "wind", "jurisdictions": []}
 
