@@ -2,6 +2,7 @@
 
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from compass.plugin.base import BaseExtractionPlugin
 from compass.llm.calling import BaseLLMCaller
@@ -13,6 +14,20 @@ from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class OutputColumn:
+    """Column expected to appear in a structured CSV output"""
+
+    name: str
+    """Name of column in output CSV"""
+
+    include_in_quant_output: bool = True
+    """Flag indicating whether to include in the quantitative output"""
+
+    include_in_qual_output: bool = True
+    """Flag indicating whether to include in the qualitative output"""
 
 
 class BaseHeuristic(ABC):
@@ -161,6 +176,15 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def OUTPUT_COLUMNS(self):  # noqa: N802
+        """list: List of output columns for the extracted data
+
+        Each entry should be an :class:`OutputColumn` instance.
+        """
+        raise NotImplementedError
+
     @classmethod
     def save_structured_data(cls, doc_infos, out_dir):
         """Write extracted water rights data to disk
@@ -184,8 +208,8 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             Number of unique jurisdictions that information was
             found/written for.
         """
-        db, num_docs_found = doc_infos_to_db(doc_infos)
-        save_db(db, out_dir)
+        db, num_docs_found = doc_infos_to_db(doc_infos, cls.OUTPUT_COLUMNS)
+        save_db(db, out_dir, cls.OUTPUT_COLUMNS)
         return num_docs_found
 
     async def pre_filter_docs_hook(self, extraction_context):  # noqa: PLR6301

@@ -8,6 +8,7 @@ from enum import StrEnum, auto
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.plugin import (
     register_plugin,
+    OutputColumn,
     NoOpHeuristic,
     NoOpTextCollector,
     NoOpTextExtractor,
@@ -17,8 +18,6 @@ from compass.plugin import (
     OrdinanceExtractionPlugin,
     KeywordBasedHeuristic,
 )
-import compass.utilities.finalize as _finalize_default
-import compass.utilities.finalize_rmp as _finalize_rmp
 from compass.plugin.one_shot.generators import (
     generate_query_templates,
     generate_website_keywords,
@@ -146,6 +145,28 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
                   most once.
 
               By default, ``"single doc"``.
+            - `extra_output_columns`: A list of additional output
+              columns to include in the output CSV, beyond the default
+              columns defined by the plugin. Each entry should be a
+              dictionary that can be used to construct an
+              :class:`compass.plugin.interface.OutputColumn` instance.
+              Do **not** include the default columns:
+
+                - ``county``
+                - ``state``
+                - ``subdivision``
+                - ``jurisdiction_type``
+                - ``FIPS``
+                - ``feature``
+                - ``value``
+                - ``units``
+                - ``summary``
+                - ``year``
+                - ``section``
+                - ``source``
+                - ``qualitative``
+
+              By default, no extra output columns are included.
 
     tech : str
         Technology identifier to use for the plugin (e.g., "wind",
@@ -225,17 +246,8 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
         WEBSITE_KEYWORDS = {}  # set by user or LLM-generated
         """dict: Keyword weight mapping for link crawl prioritization"""
 
-        @classmethod
-        def save_structured_data(cls, doc_infos, out_dir):
-            """Write extracted data using finalize module from config"""
-            fin = (
-                _finalize_rmp
-                if config.get("finalize") == "rmp"
-                else _finalize_default
-            )
-            db, num_docs_found = fin.doc_infos_to_db(doc_infos)
-            fin.save_db(db, out_dir)
-            return num_docs_found
+        OUTPUT_COLUMNS = _out_cols_from_config(config)
+        """list: List of output columns for the extracted data"""
 
         async def get_heuristic(self):
             """Get a `BaseHeuristic` instance with a `check()` method
@@ -531,6 +543,41 @@ def _parser_from_config(config, in_label):
         SYSTEM_PROMPT = new_sys_prompt
 
     return [PluginParser]
+
+
+def _out_cols_from_config(config):
+    """Create a list of OutputColumn instances for the output CSV"""
+    cols = [
+        OutputColumn("county"),
+        OutputColumn("state"),
+        OutputColumn("subdivision"),
+        OutputColumn("jurisdiction_type"),
+        OutputColumn("FIPS"),
+        OutputColumn("feature"),
+        OutputColumn("value", include_in_qual_output=False),
+        OutputColumn("units", include_in_qual_output=False),
+    ]
+    try:
+        cols += [
+            OutputColumn(**col)
+            for col in config.get("extra_output_columns", [])
+        ]
+    except Exception as e:
+        msg = f"Error parsing extra output columns: {e}"
+        raise COMPASSPluginConfigurationError(msg) from e
+
+    cols += [
+        OutputColumn("summary"),
+        OutputColumn("year"),
+        OutputColumn("section"),
+        OutputColumn("source"),
+        OutputColumn(
+            "quantitative",
+            include_in_quant_output=False,
+            include_in_qual_output=False,
+        ),
+    ]
+    return cols
 
 
 def _augment_website_keywords(keywords):

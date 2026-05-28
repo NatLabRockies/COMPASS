@@ -1,6 +1,10 @@
 """COMPASS wind extraction plugin"""
 
-from compass.plugin import OrdinanceExtractionPlugin, register_plugin
+from compass.plugin import (
+    OrdinanceExtractionPlugin,
+    OutputColumn,
+    register_plugin,
+)
 from compass.extraction.wind.ordinance import (
     WindHeuristic,
     WindOrdinanceTextCollector,
@@ -95,6 +99,30 @@ class COMPASSWindExtractor(OrdinanceExtractionPlugin):
         StructuredWindPermittedUseDistrictsParser,
     ]
     """Class for parsing structured ordinance data from text"""
+
+    OUTPUT_COLUMNS = [
+        OutputColumn("county"),
+        OutputColumn("state"),
+        OutputColumn("subdivision"),
+        OutputColumn("jurisdiction_type"),
+        OutputColumn("FIPS"),
+        OutputColumn("feature"),
+        OutputColumn("value"),
+        OutputColumn("units", include_in_qual_output=False),
+        OutputColumn("adder", include_in_qual_output=False),
+        OutputColumn("min_dist", include_in_qual_output=False),
+        OutputColumn("max_dist", include_in_qual_output=False),
+        OutputColumn("summary"),
+        OutputColumn("year"),
+        OutputColumn("section"),
+        OutputColumn("source"),
+        OutputColumn(
+            "quantitative",
+            include_in_quant_output=False,
+            include_in_qual_output=False,
+        ),
+    ]
+    """list: List of output columns for the extracted data"""
 
 
 register_plugin(COMPASSWindExtractor)

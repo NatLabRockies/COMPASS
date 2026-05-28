@@ -2,6 +2,7 @@
 
 from .base import BaseExtractionPlugin
 from .interface import (
+    OutputColumn,
     BaseHeuristic,
     BaseTextCollector,
     FilteredExtractionPlugin,
