@@ -25,6 +25,13 @@ def _pull_out_website(markdown):
     return None
 
 
+def _convert_link_to_website(link):
+    converter = DocumentConverter()
+    doc = converter.convert(link).document
+    out = doc.export_to_markdown()
+    return _pull_out_website(out)
+
+
 async def _run_one_jurisdiction(jurisdiction, sem):
     async with sem:
         try:
@@ -40,7 +47,6 @@ async def _run_one_jurisdiction(jurisdiction, sem):
 
 async def _find_one(jurisdiction):
     print(f"Processing {jurisdiction}...", flush=True)
-    converter = DocumentConverter()
     se = DuxDistributedGlobalSearch(region="us-en", timeout=10, verify=False)
     links = await se.results(f"site:wikipedia.org {jurisdiction.full_name}")
     links = links[0]
@@ -71,9 +77,7 @@ async def _find_one(jurisdiction):
         )
         return None
 
-    doc = converter.convert(link).document
-    out = doc.export_to_markdown()
-    website = _pull_out_website(out)
+    website = await asyncio.to_thread(_convert_link_to_website, link)
     print(f"{jurisdiction}:\n\t- {link}\n\t- {website}", flush=True)
     return website
 
