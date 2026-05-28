@@ -1,10 +1,7 @@
 """Common utilities for evals suites"""
 
 from dataclasses import dataclass, fields
-from pathlib import Path
 
-from elm.web.document import HTMLDocument, PDFDocument
-from elm.utilities.parse import read_pdf
 from compass.utilities.jurisdictions import Jurisdiction
 
 SUCCESS = "Success"
@@ -55,14 +52,3 @@ def classify(expected, extracted, match_type="exact"):
         return SUCCESS if extracted == expected else FAILURE
     # Add other match types here as needed
     return FAILURE
-
-
-def load_doc(fp, *, source=None):
-    """Load a local file as an elm Document, dispatching on suffix"""
-    fp = Path(fp)
-    attrs = {"source": source} if source else {}
-    if fp.suffix.casefold() == ".pdf":
-        pages = read_pdf(fp.read_bytes(), verbose=False)
-        return PDFDocument(pages, attrs=attrs)
-    text = fp.read_text(encoding="utf-8", errors="ignore")
-    return HTMLDocument([text], attrs=attrs)

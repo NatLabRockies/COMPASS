@@ -530,28 +530,11 @@ class _COMPASSRunner:
     @cached_property
     def local_file_loader_kwargs(self):
         """dict: Keyword arguments for ``COMPASSLocalFileLoader``"""
-        file_loader_kwargs = {
-            "pdf_read_coroutine": read_pdf_file,
-            "html_read_coroutine": read_html_file,
-            "pdf_read_kwargs": (
-                self.file_loader_kwargs.get("pdf_read_kwargs")
-            ),
-            "html_read_kwargs": (
-                self.file_loader_kwargs.get("html_read_kwargs")
-            ),
-        }
-
-        if self.web_search_params.pytesseract_exe_fp is not None:
-            _setup_pytesseract(self.web_search_params.pytesseract_exe_fp)
-            file_loader_kwargs.update(
-                {
-                    "pdf_ocr_read_coroutine": read_pdf_file_ocr,
-                    "pytesseract_exe_fp": (
-                        self.web_search_params.pytesseract_exe_fp
-                    ),
-                }
-            )
-        return file_loader_kwargs
+        return build_local_file_loader_kwargs(
+            pytesseract_exe_fp=self.web_search_params.pytesseract_exe_fp,
+            pdf_read_kwargs=self.file_loader_kwargs.get("pdf_read_kwargs"),
+            html_read_kwargs=self.file_loader_kwargs.get("html_read_kwargs"),
+        )
 
     @cached_property
     def known_local_docs(self):
@@ -1343,6 +1326,44 @@ def _setup_pytesseract(exe_fp):
 
     logger.debug("Setting `tesseract_cmd` to %s", exe_fp)
     pytesseract.pytesseract.tesseract_cmd = exe_fp
+
+
+def build_local_file_loader_kwargs(
+    pytesseract_exe_fp=None, pdf_read_kwargs=None, html_read_kwargs=None
+):
+    """Build keyword arguments for ``COMPASSLocalFileLoader``
+
+    Parameters
+    ----------
+    pytesseract_exe_fp : path-like, optional
+        Path to the ``tesseract`` executable. If given, an OCR read
+        coroutine is added so scanned PDFs (no text layer) are read via
+        OCR. If ``None``, OCR is not attempted. By default, ``None``.
+    pdf_read_kwargs, html_read_kwargs : dict, optional
+        Keyword arguments forwarded to the PDF and HTML read coroutines,
+        respectively. By default, ``None``.
+
+    Returns
+    -------
+    dict
+        Keyword arguments to pass to
+        :class:`~compass.web.file_loader.COMPASSLocalFileLoader`.
+    """
+    file_loader_kwargs = {
+        "pdf_read_coroutine": read_pdf_file,
+        "html_read_coroutine": read_html_file,
+        "pdf_read_kwargs": pdf_read_kwargs,
+        "html_read_kwargs": html_read_kwargs,
+    }
+    if pytesseract_exe_fp is not None:
+        _setup_pytesseract(pytesseract_exe_fp)
+        file_loader_kwargs.update(
+            {
+                "pdf_ocr_read_coroutine": read_pdf_file_ocr,
+                "pytesseract_exe_fp": pytesseract_exe_fp,
+            }
+        )
+    return file_loader_kwargs
 
 
 async def _compute_total_cost():

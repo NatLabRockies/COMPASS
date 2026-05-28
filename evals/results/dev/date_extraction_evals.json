@@ -14,9 +14,9 @@
     "accuracy_95_percent_confidence_interval": "0.4029 - 0.6742",
     "precision_95_percent_confidence_interval": "0.7503 - 0.9778",
     "recall_95_percent_confidence_interval": "0.3700 - 0.6504",
-    "total_prompt_tokens": 32185,
-    "total_response_tokens": 4358,
-    "total_time_taken_s": 142.48,
-    "total_cost_usd": 0.0729
+    "total_prompt_tokens": 35325,
+    "total_response_tokens": 4667,
+    "total_time_taken_s": 796.13,
+    "total_cost_usd": 0.0792
   }
 ]

@@ -16,9 +16,13 @@ from compass.utilities.costs import (
 from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
+from compass.services.cpu import FileLoader, OCRPDFLoader
+from compass.services.threaded import HTMLFileLoader
+from compass.scripts.process import build_local_file_loader_kwargs
 from compass.utilities.jurisdictions import Jurisdiction
+from compass.web.file_loader import COMPASSLocalFileLoader
 
-from utilities import Result, classify, load_doc, report_evals
+from utilities import Result, classify, report_evals
 
 
 logger = logging.getLogger(__name__)
@@ -121,10 +125,21 @@ async def _run_case(case, model_config, *, log_detail):
         county=case["county"],
         subdivision_name=case["subdivision"],
     ).full_name
-    doc = load_doc(case["fp"], source=case["source"])
+    loader = COMPASSLocalFileLoader(
+        **build_local_file_loader_kwargs(pytesseract_exe_fp="tesseract"),
+        doc_attrs={"source": case["source"]},
+    )
     usage_tracker = UsageTracker(label, usage_from_response)
     start = time.perf_counter()
-    async with RunningAsyncServices([model_config.llm_service]):
+    async with RunningAsyncServices(
+        [
+            model_config.llm_service,
+            FileLoader(),
+            HTMLFileLoader(),
+            OCRPDFLoader(max_workers=1),  # pytesseract locks up w/ >1 proc
+        ]
+    ):
+        doc = await loader.fetch(case["fp"])
         doc = await extract_date(
             doc, model_config, usage_tracker=usage_tracker
         )
