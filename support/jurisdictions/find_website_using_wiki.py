@@ -88,6 +88,12 @@ async def _main(start_ind, end_ind):
     subset = existing.iloc[int(start_ind) : int(end_ind)]
     subset = subset[subset["Website"].isna()]
 
+    print(
+        f"Processing jurisdictions {start_ind} to {end_ind} "
+        f"({len(subset)} total)",
+        flush=True,
+    )
+
     sem = Semaphore(200)
     tasks = [
         asyncio.create_task(_run_one_jurisdiction(jur, sem))
