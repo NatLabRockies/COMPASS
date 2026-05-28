@@ -17,9 +17,7 @@ a demonstration, but the same plugin config and schema apply to any BLM RMP.
 ## Quick Start
 
 ```bash
-compass process \
-    -c examples/rmp_demo/one-shot/config.json5 \
-    -p examples/rmp_demo/one-shot/plugin_config.yaml
+compass process-c examples/rmp_demo/one-shot/config.json5
 ```
 
 Or with pixi:
@@ -27,8 +25,7 @@ Or with pixi:
 ```bash
 pixi run --manifest-path pixi.toml \
     compass process \
-    -c examples/rmp_demo/one-shot/config.json5 \
-    -p examples/rmp_demo/one-shot/plugin_config.yaml
+    -c examples/rmp_demo/one-shot/config.json5
 ```
 
 ## Files
@@ -37,8 +34,6 @@ pixi run --manifest-path pixi.toml \
 |------|-------------|
 | `jurisdictions.csv` | List of jurisdictions (County, State) to process |
 | `one-shot/config.json5` | Main COMPASS run configuration |
-| `one-shot/plugin_config.yaml` | One-shot extraction plugin settings (keywords, prompts, schema ref) |
-| `one-shot/rmp_schema.json` | JSON schema defining the geothermal restriction output structure |
 | `one-shot/local_docs.json5` | Template for pointing COMPASS at local RMP PDF files |
 
 ## Using Local PDFs
