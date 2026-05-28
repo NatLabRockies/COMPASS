@@ -1,10 +1,10 @@
-"""Tests for compass.scripts.search_only"""
+"""Tests for compass.scripts.search"""
 
 from pathlib import Path
 
 import pytest
 
-import compass.scripts.search_only as search_only_module
+import compass.scripts.search as search_module
 from compass.exceptions import COMPASSValueError
 from compass.utilities.base import WebSearchParams
 
@@ -13,9 +13,9 @@ def test_resolve_search_engines_uses_defaults_when_not_configured():
     """Use module defaults when search engines are not configured"""
     wsp = WebSearchParams(search_engines=None)
 
-    se_names, init_kwargs = search_only_module._resolve_search_engines(wsp)
+    se_names, init_kwargs = search_module._resolve_search_engines(wsp)
 
-    assert se_names == list(search_only_module._DEFAULT_SEARCH_ENGINES)
+    assert se_names == list(search_module._DEFAULT_SEARCH_ENGINES)
     assert set(init_kwargs) == set(se_names)
 
 
@@ -34,7 +34,7 @@ def test_resolve_search_engines_uses_custom_order_and_kwargs():
         ]
     )
 
-    se_names, init_kwargs = search_only_module._resolve_search_engines(wsp)
+    se_names, init_kwargs = search_module._resolve_search_engines(wsp)
 
     assert se_names == [
         "DuxDistributedGlobalSearch",
@@ -69,7 +69,7 @@ def test_apply_blacklist_filters_is_case_insensitive():
         },
     ]
 
-    search_only_module._apply_blacklist_filters(results, ["wikipedia.org"])
+    search_module._apply_blacklist_filters(results, ["wikipedia.org"])
 
     assert results[0]["filtered_reason"] == "blacklist:wikipedia.org"
     assert results[1]["filtered_reason"] is None
@@ -100,7 +100,7 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
         },
     ]
 
-    search_only_module._apply_duplicate_filters(results)
+    search_module._apply_duplicate_filters(results)
 
     winner = results[1]
     loser = results[0]
@@ -152,7 +152,7 @@ def test_apply_top_n_filters_assigns_overall_rank_and_beyond_top_n():
         },
     ]
 
-    search_only_module._apply_top_n_filters(results, num_urls=2)
+    search_module._apply_top_n_filters(results, num_urls=2)
 
     assert results[0]["overall_rank"] == 1
     assert results[1]["overall_rank"] == 2
@@ -195,8 +195,8 @@ def test_apply_top_n_filters_prioritizes_more_duplicates_on_tie():
         },
     ]
 
-    search_only_module._apply_duplicate_filters(results)
-    search_only_module._apply_top_n_filters(results, num_urls=1)
+    search_module._apply_duplicate_filters(results)
+    search_module._apply_top_n_filters(results, num_urls=1)
 
     assert results[0]["overall_rank"] == 1
     assert len(results[0]["duplicates"]) == 1
@@ -245,7 +245,7 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
         },
     ]
 
-    output = search_only_module._apply_filters(
+    output = search_module._apply_filters(
         results,
         blacklist=["WIKI"],
         num_urls=1,
@@ -304,7 +304,7 @@ def test_summary_keeps_only_unfiltered_and_sorted():
         ],
     }
 
-    output = search_only_module.summary(report)
+    output = search_module.summary(report)
 
     first_rank = output.index("[1]")
     second_rank = output.index("[2]")
@@ -326,7 +326,7 @@ async def test_get_query_templates_raises_compass_value_error():
             return []
 
     with pytest.raises(COMPASSValueError):
-        await search_only_module._get_query_templates(_PluginWithNoTemplates)
+        await search_module._get_query_templates(_PluginWithNoTemplates)
 
 
 if __name__ == "__main__":

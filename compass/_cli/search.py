@@ -1,4 +1,4 @@
-"""COMPASS CLI search-only subcommand"""
+"""COMPASS CLI search subcommand"""
 
 import asyncio
 from pathlib import Path
@@ -9,15 +9,15 @@ from rich.theme import Theme
 
 from compass._cli.common import setup_cli_logging
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.search_only import (
-    run_search_only,
+from compass.scripts.search import (
+    run_search,
     summary,
-    write_search_only_report,
+    write_search_report,
 )
 from compass.utilities.io import load_config
 
 
-@click.command(name="search-only")
+@click.command(name="search")
 @click.option(
     "--config",
     "-c",
@@ -69,7 +69,7 @@ from compass.utilities.io import load_config
     default=None,
     help="One-shot plugin configuration to register before searching",
 )
-def search_only(config, n_top_urls, output, output_format, verbose, plugin):
+def search(config, n_top_urls, output, output_format, verbose, plugin):
     """Run only the search step and emit ranked URL results"""
     config_path = config
     config = load_config(config)
@@ -92,10 +92,10 @@ def search_only(config, n_top_urls, output, output_format, verbose, plugin):
     asyncio.set_event_loop(loop)
 
     report = loop.run_until_complete(
-        run_search_only(config_path=config_path, **config)
+        run_search(config_path=config_path, **config)
     )
     if output_format == "json":
-        write_search_only_report(report, out_path=output)
+        write_search_report(report, out_path=output)
         return
 
     text_report = summary(report)

@@ -1,4 +1,4 @@
-"""Tests for compass._cli.search_only"""
+"""Tests for compass._cli.search"""
 
 import asyncio
 import json
@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 from click.testing import CliRunner
 
-import compass._cli.search_only as cli_module
+import compass._cli.search as cli_module
 
 
 @pytest.fixture
@@ -24,7 +24,7 @@ def runner():
     return CliRunner()
 
 
-def test_search_only_json_stdout(runner, cfg_file, monkeypatch):
+def test_search_json_stdout(runner, cfg_file, monkeypatch):
     """Emit JSON report to stdout by default"""
 
     def _write_json_stdout(report, out_path=None):
@@ -39,17 +39,17 @@ def test_search_only_json_stdout(runner, cfg_file, monkeypatch):
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
         cli_module,
-        "run_search_only",
+        "run_search",
         _async_returns({"tech": "wind", "jurisdictions": []}),
     )
     monkeypatch.setattr(
         cli_module,
-        "write_search_only_report",
+        "write_search_report",
         _write_json_stdout,
     )
 
     result = runner.invoke(
-        cli_module.search_only,
+        cli_module.search,
         ["-c", str(cfg_file)],
     )
 
@@ -58,7 +58,7 @@ def test_search_only_json_stdout(runner, cfg_file, monkeypatch):
     assert payload["tech"] == "wind"
 
 
-def test_search_only_summary_stdout(runner, cfg_file, monkeypatch):
+def test_search_summary_stdout(runner, cfg_file, monkeypatch):
     """Emit summary report to stdout when requested"""
 
     monkeypatch.setattr(
@@ -69,7 +69,7 @@ def test_search_only_summary_stdout(runner, cfg_file, monkeypatch):
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
         cli_module,
-        "run_search_only",
+        "run_search",
         _async_returns({"tech": "wind", "jurisdictions": []}),
     )
     monkeypatch.setattr(
@@ -79,7 +79,7 @@ def test_search_only_summary_stdout(runner, cfg_file, monkeypatch):
     )
 
     result = runner.invoke(
-        cli_module.search_only,
+        cli_module.search,
         ["-c", str(cfg_file), "--output-format", "summary"],
     )
 
@@ -87,7 +87,7 @@ def test_search_only_summary_stdout(runner, cfg_file, monkeypatch):
     assert result.output.strip() == "summary report"
 
 
-def test_search_only_summary_file_output(
+def test_search_summary_file_output(
     runner, cfg_file, monkeypatch, tmp_path
 ):
     """Write summary report to output file"""
@@ -101,7 +101,7 @@ def test_search_only_summary_file_output(
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
         cli_module,
-        "run_search_only",
+        "run_search",
         _async_returns({"tech": "wind", "jurisdictions": []}),
     )
     monkeypatch.setattr(
@@ -111,7 +111,7 @@ def test_search_only_summary_file_output(
     )
 
     result = runner.invoke(
-        cli_module.search_only,
+        cli_module.search,
         [
             "-c",
             str(cfg_file),
@@ -126,7 +126,7 @@ def test_search_only_summary_file_output(
     assert out_fp.read_text(encoding="utf-8") == "summary report\n"
 
 
-def test_search_only_n_top_urls_overrides_config(
+def test_search_n_top_urls_overrides_config(
     runner, cfg_file, monkeypatch
 ):
     """Override configured top URL count with CLI option"""
@@ -144,17 +144,17 @@ def test_search_only_n_top_urls_overrides_config(
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
         cli_module,
-        "run_search_only",
+        "run_search",
         _capture_async_kwargs(captured),
     )
     monkeypatch.setattr(
         cli_module,
-        "write_search_only_report",
+        "write_search_report",
         lambda *_args, **_kwargs: None,
     )
 
     result = runner.invoke(
-        cli_module.search_only,
+        cli_module.search,
         ["-c", str(cfg_file), "-n", "12"],
     )
 
@@ -162,7 +162,7 @@ def test_search_only_n_top_urls_overrides_config(
     assert captured["num_urls_to_check_per_jurisdiction"] == 12
 
 
-def test_search_only_plugin_registers_one_shot(runner, cfg_file, monkeypatch):
+def test_search_plugin_registers_one_shot(runner, cfg_file, monkeypatch):
     """Register one-shot plugin when plugin option is supplied"""
     calls = []
 
@@ -174,12 +174,12 @@ def test_search_only_plugin_registers_one_shot(runner, cfg_file, monkeypatch):
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
         cli_module,
-        "run_search_only",
+        "run_search",
         _async_returns({"tech": "wind", "jurisdictions": []}),
     )
     monkeypatch.setattr(
         cli_module,
-        "write_search_only_report",
+        "write_search_report",
         lambda *_args, **_kwargs: None,
     )
     monkeypatch.setattr(
@@ -189,7 +189,7 @@ def test_search_only_plugin_registers_one_shot(runner, cfg_file, monkeypatch):
     )
 
     result = runner.invoke(
-        cli_module.search_only,
+        cli_module.search,
         ["-c", str(cfg_file), "-p", "plugin.json5"],
     )
 

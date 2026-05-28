@@ -37,7 +37,7 @@ _DEFAULT_SEARCH_ENGINES = (
 )
 
 
-async def run_search_only(
+async def run_search(
     tech,
     jurisdiction_fp,
     num_urls_to_check_per_jurisdiction=5,
@@ -387,13 +387,13 @@ def _active_results_sorted(results):
     return active_results
 
 
-def write_search_only_report(report, out_path=None):
+def write_search_report(report, out_path=None):
     """Write or print a search-only report as JSON
 
     Parameters
     ----------
     report : dict
-        Report returned by :func:`run_search_only`.
+        Report returned by :func:`run_search`.
     out_path : path-like, optional
         Destination file path. If ``None``, the report is written to
         stdout. By default, ``None``.
@@ -414,7 +414,7 @@ def summary(report):
     Parameters
     ----------
     report : dict
-        Dictionary produced by :func:`run_search_only`.
+        Dictionary produced by :func:`run_search`.
 
     Returns
     -------
