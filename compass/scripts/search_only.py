@@ -422,7 +422,7 @@ def summary(report):
             "COMPASS search-only summary",
             f"tech: {report.get('tech')}",
             f"timestamp: {report.get('timestamp')}",
-            (f"requested top urls: {report.get('num_urls_requested')}"),
+            f"requested top urls: {report.get('num_urls_requested')}",
             "",
         )
     )
