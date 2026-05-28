@@ -200,6 +200,14 @@ class OpenAIConfig(LLMConfig):
             for key, env_var in arg_env_pairs:
                 if self._client_kwargs.get(key) is None:
                     self._client_kwargs[key] = os.environ.get(env_var)
+        elif self.client_type == "openai":
+            arg_env_pairs = [
+                ("api_key", "OPENAI_API_KEY"),
+                ("base_url", "OPENAI_BASE_URL"),
+            ]
+            for key, env_var in arg_env_pairs:
+                if self._client_kwargs.get(key) is None:
+                    self._client_kwargs[key] = os.environ.get(env_var)
 
         return self._client_kwargs
 

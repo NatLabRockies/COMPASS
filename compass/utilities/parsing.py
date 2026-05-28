@@ -39,16 +39,18 @@ def llm_response_as_json(content):
 
     Returns
     -------
-    dict
+    object
         Parsed JSON structure. When parsing fails, the function returns
         an empty dictionary.
 
     Notes
     -----
     The parser strips Markdown code fences, coerces Python-style
-    booleans to lowercase JSON literals, and logs the raw response on
-    decode failure. The logging includes guidance for increasing token
-    limits or updating prompts.
+    booleans to lowercase JSON literals, and first attempts strict JSON
+    decoding. If strict decoding fails, the parser attempts to recover
+    the first valid JSON object or array embedded in the response. If
+    recovery also fails, the raw response is logged with guidance for
+    prompt/token adjustments.
     """
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
@@ -56,6 +58,10 @@ def llm_response_as_json(content):
     try:
         content = json.loads(content)
     except json.decoder.JSONDecodeError:
+        parsed_content = _parse_first_json_payload(content)
+        if parsed_content is not None:
+            return parsed_content
+
         logger.exception(
             "LLM returned improperly formatted JSON. "
             "This is likely due to the completion running out of tokens. "
@@ -66,6 +72,41 @@ def llm_response_as_json(content):
         )
         content = {}
     return content
+
+
+def _parse_first_json_payload(content):
+    """[NOT PUBLIC API] Parse first valid JSON payload embedded in text
+
+    Parameters
+    ----------
+    content : str
+        Text that may contain one or more JSON payloads mixed with
+        additional non-JSON prose.
+
+    Returns
+    -------
+    object or None
+        Parsed JSON payload from the first decodable object/array in
+        the string. Returns ``None`` if no decodable payload exists.
+
+    Notes
+    -----
+    This helper scans for ``"{"`` and ``"["`` markers and attempts
+    ``json.JSONDecoder().raw_decode`` from each candidate position
+    until successful.
+    """
+    decoder = json.JSONDecoder()
+    for start_char in ("{", "["):
+        start_ind = content.find(start_char)
+        while start_ind != -1:
+            try:
+                parsed_content, __ = decoder.raw_decode(content[start_ind:])
+            except json.decoder.JSONDecodeError:
+                start_ind = content.find(start_char, start_ind + 1)
+            else:
+                return parsed_content
+
+    return None
 
 
 def merge_overlapping_texts(text_chunks, n=300):
