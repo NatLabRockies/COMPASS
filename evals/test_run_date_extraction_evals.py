@@ -1,5 +1,6 @@
 """Date Extraction Evals"""
 
+import asyncio
 import logging
 import time
 from pathlib import Path
@@ -20,6 +21,11 @@ from compass.services.cpu import FileLoader, OCRPDFLoader
 from compass.services.threaded import HTMLFileLoader
 from compass.scripts.process import build_local_file_loader_kwargs
 from compass.utilities.jurisdictions import Jurisdiction
+from compass.utilities.logs import (
+    LocationFileLog,
+    LogListener,
+    setup_logging_levels,
+)
 from compass.web.file_loader import COMPASSLocalFileLoader
 
 from utilities import Result, classify, report_evals
@@ -117,8 +123,20 @@ def _model_config():
     return OpenAIConfig(name=model)
 
 
-async def _run_case(case, model_config, *, log_detail):
-    """Extract the date for one case and record the result"""
+@pytest.fixture(scope="session")
+def _log_listener():
+    """Run a COMPASS LogListener so per-case logs can be captured"""
+    setup_logging_levels()
+    with LogListener(["compass", "elm"], level="DEBUG") as listener:
+        yield listener
+
+
+async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
+    """Extract the date for one case and record the result
+
+    Each case's ``compass``/``elm`` logs (production detail) are written
+    to ``<log_dir>/<jurisdiction>.log`` via :class:`LocationFileLog`.
+    """
     label = Jurisdiction(
         subdivision_type=case["jurisdiction_type"],
         state=case["state"],
@@ -130,19 +148,28 @@ async def _run_case(case, model_config, *, log_detail):
         doc_attrs={"source": case["source"]},
     )
     usage_tracker = UsageTracker(label, usage_from_response)
-    start = time.perf_counter()
-    async with RunningAsyncServices(
-        [
-            model_config.llm_service,
-            FileLoader(),
-            HTMLFileLoader(),
-            OCRPDFLoader(max_workers=1),  # pytesseract locks up w/ >1 proc
-        ]
-    ):
+
+    async def _load_and_extract():
         doc = await loader.fetch(case["fp"])
-        doc = await extract_date(
+        return await extract_date(
             doc, model_config, usage_tracker=usage_tracker
         )
+
+    start = time.perf_counter()
+    async with (
+        LocationFileLog(log_listener, log_dir, location=label, level="DEBUG"),
+        RunningAsyncServices(
+            [
+                model_config.llm_service,
+                FileLoader(),
+                HTMLFileLoader(),
+                OCRPDFLoader(max_workers=1),  # pytesseract locks up w/ >1 proc
+            ]
+        ),
+    ):
+        # Run in a task named after the jurisdiction so COMPASS's
+        # location-aware logging routes records to this case's log file.
+        doc = await asyncio.create_task(_load_and_extract(), name=label)
     elapsed = time.perf_counter() - start
 
     year, _month, _day = doc.attrs["date"]
@@ -176,8 +203,16 @@ async def _run_case(case, model_config, *, log_detail):
 
 
 @pytest.mark.evals
-async def test_date_year_accuracy(case, _model_config, request):
+async def test_date_year_accuracy(case, _model_config, _log_listener, request):
     """Run date extraction on each document in the active dataset"""
     held_out = request.config.getoption("--held-out")
+    eval_subdir = "held_out" if held_out else "dev"
+    log_dir = RESULTS_DIR / eval_subdir / "logs"
     # held-out per-case detail hidden to prevent tuning against it
-    await _run_case(case, _model_config, log_detail=not held_out)
+    await _run_case(
+        case,
+        _model_config,
+        _log_listener,
+        log_dir,
+        log_detail=not held_out,
+    )
