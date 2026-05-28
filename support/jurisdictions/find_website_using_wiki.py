@@ -99,11 +99,15 @@ async def _main(start_ind, end_ind):
         asyncio.create_task(_run_one_jurisdiction(jur, sem))
         for jur in jurisdictions_from_df(jurisdiction_info=subset)
     ]
-    results = await asyncio.gather(*tasks)
-    for fips, website in results:
+    completed = 0
+    for task in asyncio.as_completed(tasks):
+        fips, website = await task
         if not website:
             continue
+        completed += 1
         existing.loc[existing["FIPS"] == fips, "Website"] = website
+        if completed % 100 == 0:
+            existing.to_csv("jurisdictions.csv", index=False)
 
     time_elapsed = datetime.now(UTC) - start_time
     msg = _elapsed_time_as_str(time_elapsed.seconds)
