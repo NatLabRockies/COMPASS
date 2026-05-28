@@ -1,6 +1,6 @@
 {
     out_dir: "./outputs",
-    tech: "geothermal_rmps",
+    tech: "geo_rmp",
     jurisdiction_fp: "../jurisdictions.csv",
     // Point this at your local_docs.json5 to use pre-downloaded RMP PDFs.
     // Remove or set to null to let COMPASS search the web instead.
