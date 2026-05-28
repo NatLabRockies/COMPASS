@@ -6,8 +6,6 @@ name: Docker
 # documentation.
 
 on:
-  push:
-    branches: [ "main" ]
   release:
     types: [published]
   workflow_dispatch:
