@@ -36,6 +36,6 @@
         "max_workers": 1,  // Prevent concurrent subprocess race on browserforge model files
     },
     "td_kwargs": {
-        "dir": "<path to temp directory>",
+        "dir": "./",
     },
 }
