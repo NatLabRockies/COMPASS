@@ -1,6 +1,6 @@
 .. include:: ../../../README.rst
    :start-after: inclusion-intro
-   :end-before: Read more about the tool in the documentation.
+   :end-before: Read more about the tool
 
 
 Which local codes and ordinances does INFRA-COMPASS support?

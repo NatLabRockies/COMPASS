@@ -62,7 +62,7 @@ architecture around the LLM call:
   jurisdictions.
 
 
-Read more about the tool in the documentation.
+Read more about the tool in the `documentation <https://natlabrockies.github.io/COMPASS/misc/about.html>`_.
 
 
 Where is the extracted ordinance data?

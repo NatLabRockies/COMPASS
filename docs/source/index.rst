@@ -18,6 +18,6 @@ INFRA-COMPASS documentation
 
 .. include:: ../../README.rst
    :start-after: inclusion-intro
-   :end-before: Read more about the tool in the documentation.
+   :end-before: Read more about the tool
 
 :ref:`genindex` | :ref:`modindex` | :ref:`glossary`
