@@ -1,6 +1,14 @@
-*******************************************************************************************
-Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INFRA-COMPASS)
-*******************************************************************************************
+.. raw:: html
+
+    <p align="center">
+        <img src="docs/source/_static/logo_horiz.png" />
+    </p>
+
+---------
+
+.. *******************************************************************************************
+.. Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INFRA-COMPASS)
+.. *******************************************************************************************
 
 |License| |Zenodo| |PythonV| |PyPi| |Ruff| |Pixi| |SWR|
 
