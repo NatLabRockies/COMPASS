@@ -53,6 +53,9 @@ jobs:
         cache-write: ${{ github.ref == 'refs/heads/main' }}
         environments: pbuild
 
+    - name: Clean README
+      run: pixi run -e pbuild python support/clean_readme.py README.rst
+
     - name: Build
       run: pixi run -e pbuild build-wheels
 
