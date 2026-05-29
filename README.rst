@@ -1,12 +1,7 @@
-.. table::
-        :align: center
-
-        +--------------------------------------------------------------+
-        | .. image:: https://raw.githubusercontent.com/NatLabRockies/  |
-        |    COMPASS/main/docs/source/_static/logo_horiz.png           |
-        |    :alt: INFRA-COMPASS logo                                  |
-        |    :height: 250                                              |
-        +--------------------------------------------------------------+
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png
+    :alt: INFRA-COMPASS logo
+    :align: center
+    :height: 250
 
 ---------
 
