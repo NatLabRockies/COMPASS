@@ -1,5 +1,7 @@
-.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/tree/pp/fix_docs/docs/source/_static/logo_horiz.png
     :alt: INFRA-COMPASS logo
+    :align: center
+    :height: 250
 
 ---------
 
@@ -26,9 +28,6 @@
 .. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.17173409.svg
     :target: https://doi.org/10.5281/zenodo.17173409
 
-.. inclusion-intro
-
-
 What is COMPASS?
 ================
 COMPASS (formally the Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems, or "INFRA-COMPASS")
@@ -41,8 +40,10 @@ documents for each jurisdiction you ask about, and then *extracts* structured da
 those documents into a versioned database that downstream users can query as a CSV, Excel
 workbook, or GeoPackage.
 
-.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png
-    :alt: High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval and ordinance extraction, producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage.
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/tree/pp/fix_docs/docs/source/_static/overview.png
+    :alt: High-level overview of the INFRA-COMPASS pipeline
+    :align: center
+    :width: 100%
 
 What makes COMPASS different from simply asking ChatGPT for ordinance data is the
 architecture around the LLM call:
