@@ -34,7 +34,7 @@
 
 What is COMPASS?
 ================
-COMPASS (formally the **Infra**structure **C**ontinuous **O**rdinance **M**apping for **P**lanning **a**nd **S**iting **S**ystems)
+COMPASS (formally the Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems, or "INFRA-COMPASS")
 is an innovative software tool that harnesses the power of Large Language
 Models (LLMs) to automate the compilation and continued maintenance of an inventory of
 state and local codes and ordinances pertaining to energy infrastructure.
@@ -47,6 +47,7 @@ workbook, or GeoPackage.
 .. raw:: html
 
    <p align="center"><img
+     height="300"
      src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png"
      alt="High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval (web search, document validation) and ordinance extraction (text extraction, value extraction), producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage."
    /></p>
