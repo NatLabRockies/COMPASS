@@ -18,7 +18,7 @@ from pathlib import Path
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass.exceptions import COMPASSValueError
-from compass.plugin import PLUGIN_REGISTRY
+from compass.plugin.registry import resolve_plugin
 from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.jurisdictions import (
     jurisdictions_from_df,
@@ -105,7 +105,7 @@ async def run_search(
 
     se_names, init_kwargs_by_se = _resolve_search_engines(wsp)
 
-    plugin_cls = _resolve_plugin(tech)
+    plugin_cls = resolve_plugin(tech)
     query_templates = await _get_query_templates(plugin_cls)
 
     jurisdictions = list(
@@ -160,18 +160,6 @@ def _resolve_search_engines(wsp):
         init_kwargs_by_se[se_name] = init_kwargs
 
     return se_names, init_kwargs_by_se
-
-
-def _resolve_plugin(tech):
-    """Look up the registered plugin class for a technology"""
-    plugin_cls = PLUGIN_REGISTRY.get(tech.casefold())
-    if plugin_cls is None:
-        msg = (
-            f"No plugin registered for tech={tech!r}. Available: "
-            f"{sorted(PLUGIN_REGISTRY)}"
-        )
-        raise KeyError(msg)
-    return plugin_cls
 
 
 async def _get_query_templates(plugin_cls):
@@ -389,7 +377,7 @@ def _active_results_sorted(results):
 
 
 def write_search_report(report, out_path):
-    """Write or print a search-only report as JSON
+    """Write a search-only report as JSON
 
     Parameters
     ----------

@@ -6,7 +6,7 @@ from copy import deepcopy
 from functools import cached_property
 from contextlib import AsyncExitStack
 
-from compass.plugin import PLUGIN_REGISTRY
+from compass.plugin.registry import resolve_plugin
 from compass.exceptions import COMPASSValueError
 from compass.services.cpu import (
     FileLoader,
@@ -95,10 +95,7 @@ class PipelineRuntime:
     @cached_property
     def extractor_class(self):
         """Return the extractor class for the configured tech"""
-        if self.tech.casefold() not in PLUGIN_REGISTRY:
-            msg = f"Unknown tech input: {self.tech}"
-            raise COMPASSValueError(msg)
-        return PLUGIN_REGISTRY[self.tech.casefold()]
+        return resolve_plugin(self.tech)
 
     @cached_property
     def browser_semaphore(self):
