@@ -5,8 +5,8 @@
    About <misc/about>
    Installation <misc/installation>
    Examples <examples/index>
-   API reference <_autosummary/compass>
    CLI reference <_cli/cli>
+   API reference <_autosummary/compass>
    Validation <val/validation>
    Development <dev/index>
    Glossary <glossary>
