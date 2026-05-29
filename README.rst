@@ -1,14 +1,10 @@
 .. raw:: html
 
     <p align="center">
-        <img height="180" src="docs/source/_static/logo_horiz.png" />
+        <img height="200" src="docs/source/_static/logo_horiz.png" />
     </p>
 
 ---------
-
-.. *******************************************************************************************
-.. Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems (INFRA-COMPASS)
-.. *******************************************************************************************
 
 |License| |Zenodo| |PythonV| |PyPi| |Ruff| |Pixi| |SWR|
 
@@ -36,13 +32,14 @@
 .. inclusion-intro
 
 
-What is INFRA-COMPASS?
-======================
-INFRA-COMPASS is an innovative software tool that harnesses the power of Large Language
+What is COMPASS?
+================
+COMPASS (formally the Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems)
+is an innovative software tool that harnesses the power of Large Language
 Models (LLMs) to automate the compilation and continued maintenance of an inventory of
 state and local codes and ordinances pertaining to energy infrastructure.
 
-At a high level, INFRA-COMPASS does two things: it *retrieves* the right ordinance
+At a high level, COMPASS does two things: it *retrieves* the right ordinance
 documents for each jurisdiction you ask about, and then *extracts* structured data from
 those documents into a versioned database that downstream users can query as a CSV, Excel
 workbook, or GeoPackage.
@@ -54,7 +51,7 @@ workbook, or GeoPackage.
      alt="High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval (web search, document validation) and ordinance extraction (text extraction, value extraction), producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage."
    /></p>
 
-What makes INFRA-COMPASS different from simply asking ChatGPT for ordinance data is the
+What makes COMPASS different from simply asking ChatGPT for ordinance data is the
 architecture around the LLM call:
 
 - **Structured, downstream-ready output** — consistent CSV rows with stable column
@@ -83,15 +80,15 @@ are available here:
 - Wind: https://data.openei.org/submissions/8602
 
 
-Installing INFRA-COMPASS
-========================
-The quickest way to install INFRA-COMPASS for users is from PyPi:
+Installing COMPASS
+==================
+The quickest way to install COMPASS for users is from PyPi:
 
 .. code-block:: bash
 
     pip install infra-compass
 
-If you would like to install and run INFRA-COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
+If you would like to install and run COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
 
 .. code-block:: bash
 
@@ -103,14 +100,14 @@ For detailed instructions and troubleshooting, see the `installation documentati
 
 Quickstart
 ==========
-To run a quick INFRA-COMPASS demo, set up a personal OpenAI API key and run:
+To run a quick COMPASS demo, set up a personal OpenAI API key and run:
 
 .. code-block:: shell
 
     pixi run openai-solar-demo <your API key>
 
 This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.45).
-For more information on configuring an INFRA-COMPASS run, see the
+For more information on configuring an COMPASS run, see the
 `execution basics example <https://natlabrockies.github.io/COMPASS/examples/execution_basics/README.html>`_.
 
 
