@@ -2,6 +2,7 @@
    :hidden:
 
    Home page <self>
+   About <misc/about>
    Installation <misc/installation>
    Examples <examples/index>
    API reference <_autosummary/compass>
@@ -17,6 +18,6 @@ INFRA-COMPASS documentation
 
 .. include:: ../../README.rst
    :start-after: inclusion-intro
-   :end-before: Installing INFRA-COMPASS
+   :end-before: Read more about the tool in the documentation.
 
 :ref:`genindex` | :ref:`modindex` | :ref:`glossary`
