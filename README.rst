@@ -47,7 +47,7 @@ workbook, or GeoPackage.
 .. raw:: html
 
    <p align="center"><img
-     height="300"
+     height="500"
      src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png"
      alt="High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval (web search, document validation) and ordinance extraction (text extraction, value extraction), producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage."
    /></p>
