@@ -1,8 +1,5 @@
-.. raw:: html
-
-    <p align="center">
-        <img height="250"  src="docs/source/_static/logo_horiz.png" />
-    </p>
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png
+    :alt: INFRA-COMPASS logo
 
 ---------
 
@@ -44,13 +41,8 @@ documents for each jurisdiction you ask about, and then *extracts* structured da
 those documents into a versioned database that downstream users can query as a CSV, Excel
 workbook, or GeoPackage.
 
-.. raw:: html
-
-   <p align="center"><img
-     width="100%"
-     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png"
-     alt="High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval (web search, document validation) and ordinance extraction (text extraction, value extraction), producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage."
-   /></p>
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png
+    :alt: High-level overview of the INFRA-COMPASS pipeline: a user defines jurisdictions, INFRA-COMPASS performs document retrieval and ordinance extraction, producing a versioned ordinance database that users can consume as CSV, XLSX, or GeoPackage.
 
 What makes COMPASS different from simply asking ChatGPT for ordinance data is the
 architecture around the LLM call:
