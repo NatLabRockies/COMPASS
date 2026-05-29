@@ -42,7 +42,7 @@ Info
 Results
 ^^^^^^^
 
-.. image:: geothermal_electricity_web_scraping_may_2026.png
+.. image:: wind_web_scraping_september_2025.png
 
 
 Solar Validation (August 2025)
