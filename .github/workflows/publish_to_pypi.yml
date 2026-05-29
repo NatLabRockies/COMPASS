@@ -50,8 +50,8 @@ jobs:
       with:
         pixi-version: v0.68.1
         locked: true
-        cache: true
-        cache-write: ${{ github.event_name != 'release' && github.ref == 'refs/heads/main' }}
+        cache: false  # Don;t use cache because we want the newest version of the tool to be built and distributed (specifically the new version tag)
+        cache-write: false
         environments: pbuild
 
     - name: Clean README
