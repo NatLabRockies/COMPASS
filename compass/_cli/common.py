@@ -57,7 +57,7 @@ def run_async_command(
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
-    _setup_cli_logging(
+    setup_cli_logging(
         console, verbose, log_level=config.get("log_level", "INFO")
     )
 
@@ -92,8 +92,8 @@ def run_async_command(
     COMPASS_PB.console = None
 
 
-def _setup_cli_logging(console, verbosity_level, log_level="INFO"):
-    """Setup logging for CLI"""
+def setup_cli_logging(console, verbosity_level, log_level="INFO"):
+    """[NOT PUBLIC API] Setup logging for CLI"""
     libs = []
     if verbosity_level >= 1:
         libs.append("compass")

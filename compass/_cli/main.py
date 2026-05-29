@@ -7,6 +7,7 @@ from compass._cli.collect import collect
 from compass._cli.extract import extract
 from compass._cli.process import process
 from compass._cli.finalize import finalize
+from compass._cli.search import search
 
 
 @click.group()
@@ -21,6 +22,7 @@ main.add_command(collect)
 main.add_command(extract)
 main.add_command(process)
 main.add_command(finalize)
+main.add_command(search)
 
 
 if __name__ == "__main__":
