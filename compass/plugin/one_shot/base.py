@@ -145,28 +145,6 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
                   most once.
 
               By default, ``"single doc"``.
-            - `extra_output_columns`: A list of additional output
-              columns to include in the output CSV, beyond the default
-              columns defined by the plugin. Each entry should be a
-              dictionary that can be used to construct an
-              :class:`compass.plugin.interface.OutputColumn` instance.
-              Do **not** include the default columns:
-
-                - ``county``
-                - ``state``
-                - ``subdivision``
-                - ``jurisdiction_type``
-                - ``FIPS``
-                - ``feature``
-                - ``value``
-                - ``units``
-                - ``summary``
-                - ``year``
-                - ``section``
-                - ``source``
-                - ``qualitative``
-
-              By default, no extra output columns are included.
 
     tech : str
         Technology identifier to use for the plugin (e.g., "wind",
@@ -557,30 +535,42 @@ def _out_cols_from_config(config):
         OutputColumn("subdivision"),
         OutputColumn("jurisdiction_type"),
         OutputColumn("FIPS"),
-        OutputColumn("feature"),
-        OutputColumn("value", include_in_qual_output=False),
-        OutputColumn("units", include_in_qual_output=False),
     ]
+
     try:
-        cols += [
-            OutputColumn(**col)
-            for col in config.get("extra_output_columns", [])
+        schema_props = config["schema"]["properties"]["outputs"]["items"][
+            "required"
         ]
     except Exception as e:
-        msg = f"Error parsing extra output columns: {e}"
+        msg = f"Error parsing output columns from schema: {e}"
         raise COMPASSPluginConfigurationError(msg) from e
 
-    cols += [
-        OutputColumn("summary"),
-        OutputColumn("year"),
-        OutputColumn("section"),
-        OutputColumn("source"),
+    cols.extend(
+        OutputColumn(
+            name,
+            include_in_qual_output=name not in {"value", "units"},
+        )
+        for name in schema_props
+        if name != "explanation"
+    )
+
+    source_col_ind = next(
+        (ind for ind, col in enumerate(cols) if col.name == "source"),
+        None,
+    )
+    year_col = OutputColumn("year")
+    if source_col_ind is None:
+        cols.append(year_col)
+    else:
+        cols.insert(source_col_ind, year_col)
+
+    cols.append(
         OutputColumn(
             "quantitative",
             include_in_quant_output=False,
             include_in_qual_output=False,
         ),
-    ]
+    )
     return cols
 
 

@@ -81,9 +81,3 @@ cache_llm_generated_content: true
 # Allows a single jurisdiction entry to span multiple PDF documents,
 # which is typical for RMPs that are split across many files.
 doc_selection_method: multi-doc-all
-
-# Extra columns to include in the output CSV
-extra_output_columns:
-  - name: location
-  - name: restriction_type
-  - name: geothermal_applicability
