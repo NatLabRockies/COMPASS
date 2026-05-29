@@ -1,16 +1,16 @@
-.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png
+.. figure:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png
     :alt: INFRA-COMPASS logo
     :align: center
     :height: 250
 
 ---------
 
-|License| |Zenodo| |PythonV| |PyPi| |Ruff| |Pixi| |SWR|
+|License| |Zenodo| |PythonV| |PyPI| |Ruff| |Pixi| |SWR|
 
 .. |PythonV| image:: https://badge.fury.io/py/INFRA-COMPASS.svg
     :target: https://pypi.org/project/INFRA-COMPASS/
 
-.. |PyPi| image:: https://img.shields.io/pypi/pyversions/INFRA-COMPASS.svg
+.. |PyPI| image:: https://img.shields.io/pypi/pyversions/INFRA-COMPASS.svg
     :target: https://pypi.org/project/INFRA-COMPASS/
 
 .. |Ruff| image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
@@ -78,7 +78,7 @@ are available here:
 
 Installing COMPASS
 ==================
-The quickest way to install COMPASS for users is from PyPi:
+The quickest way to install COMPASS for users is from PyPI:
 
 .. code-block:: bash
 
@@ -103,7 +103,7 @@ To run a quick COMPASS demo, set up a personal OpenAI API key and run:
     pixi run openai-solar-demo <your API key>
 
 This will run a full extraction pipeline for two counties using ``gpt-4o-mini`` (costs ~$0.45).
-For more information on configuring an COMPASS run, see the
+For more information on configuring a COMPASS run, see the
 `execution basics example <https://natlabrockies.github.io/COMPASS/examples/execution_basics/README.html>`_.
 
 
