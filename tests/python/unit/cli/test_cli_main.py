@@ -3,7 +3,6 @@
 from pathlib import Path
 
 import pytest
-from click.testing import CliRunner
 
 from compass._cli.main import main
 
@@ -12,10 +11,9 @@ from compass._cli.main import main
     "command_name",
     ["collect", "extract", "process", "finalize"],
 )
-def test_main_help_lists_expected_commands(command_name):
+def test_main_help_lists_expected_commands(command_name, cli_runner):
     """Ensure the main CLI exposes the expected subcommands"""
-    runner = CliRunner()
-    result = runner.invoke(main, ["--help"])
+    result = cli_runner.invoke(main, ["--help"])
 
     assert result.exit_code == 0
     assert command_name in result.output

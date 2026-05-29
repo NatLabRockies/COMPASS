@@ -5,6 +5,7 @@ import asyncio
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 from openai.types import Completion, CompletionUsage, CompletionChoice
 from openai.types.chat import ChatCompletionMessage
 
@@ -12,6 +13,12 @@ from compass.services.base import Service
 
 
 LOGGING_META_FILES = {"exceptions.py"}
+
+
+@pytest.fixture(scope="session")
+def cli_runner():
+    """Return a Click CLI runner"""
+    return CliRunner()
 
 
 @pytest.fixture

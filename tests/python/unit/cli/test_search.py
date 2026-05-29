@@ -6,7 +6,7 @@ import pytest
 
 import compass.scripts.search as search_module
 from compass.exceptions import COMPASSValueError
-from compass.utilities.base import WebSearchParams
+from compass.pipeline.data_classes import WebSearchParams
 
 
 def test_resolve_search_engines_uses_defaults_when_not_configured():
@@ -40,12 +40,8 @@ def test_resolve_search_engines_uses_custom_order_and_kwargs():
         "DuxDistributedGlobalSearch",
         "PlaywrightGoogleLinkSearch",
     ]
-    assert init_kwargs["DuxDistributedGlobalSearch"] == {
-        "region": "us-en"
-    }
-    assert init_kwargs["PlaywrightGoogleLinkSearch"] == {
-        "headless": True
-    }
+    assert init_kwargs["DuxDistributedGlobalSearch"] == {"region": "us-en"}
+    assert init_kwargs["PlaywrightGoogleLinkSearch"] == {"headless": True}
 
 
 def test_apply_blacklist_filters_is_case_insensitive():

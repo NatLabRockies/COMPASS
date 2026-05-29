@@ -19,7 +19,7 @@ from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass.exceptions import COMPASSValueError
 from compass.plugin import PLUGIN_REGISTRY
-from compass.utilities.base import WebSearchParams
+from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.jurisdictions import (
     jurisdictions_from_df,
     load_jurisdictions_from_fp,
@@ -78,8 +78,9 @@ async def run_search(
         By default, ``None``.
     search_engines : list of dict, optional
         Ordered search engine configurations (see
-        :class:`~compass.utilities.base.WebSearchParams`). If omitted,
-        the elm default fallback chain is used. By default, ``None``.
+        :class:`~compass.pipeline.data_classes.WebSearchParams`). If
+        omitted, the elm default fallback chain is used.
+        By default, ``None``.
     config_path : path-like, optional
         Absolute path of the originating config file, embedded in the
         returned report for traceability. By default, ``None``.
@@ -387,22 +388,18 @@ def _active_results_sorted(results):
     return active_results
 
 
-def write_search_report(report, out_path=None):
+def write_search_report(report, out_path):
     """Write or print a search-only report as JSON
 
     Parameters
     ----------
     report : dict
         Report returned by :func:`run_search`.
-    out_path : path-like, optional
+    out_path : path-like
         Destination file path. If ``None``, the report is written to
         stdout. By default, ``None``.
     """
     payload = json.dumps(report, indent=2, ensure_ascii=False)
-    if out_path is None:
-        print(payload)
-        return
-
     out_path = Path(out_path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(payload, encoding="utf-8")
