@@ -33,38 +33,7 @@ on:
 
 jobs:
   build:
-    name: Build and check wheels
-    if: github.event_name != 'release'
-    permissions:
-      contents: read
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-      with:
-        fetch-depth: 0
-        fetch-tags: true
-
-    - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
-      with:
-        pixi-version: v0.68.1
-        locked: true
-        cache: true
-        cache-write: ${{ github.ref == 'refs/heads/main' }}
-        environments: pbuild
-
-    - name: Clean README
-      run: pixi run -e pbuild python support/clean_readme.py README.rst
-
-    - name: Build
-      run: pixi run -e pbuild build-wheels
-
-    - name: Validate package metadata
-      run: pixi run -e pbuild twine check --strict dist/*
-
-  publish:
-    name: Build, check, and upload wheels
-    if: github.event_name == 'release'
+    name: Build, check, and optionally upload wheels
     permissions:
       # IMPORTANT: write permission is mandatory for Trusted Publishing
       id-token: write
@@ -82,8 +51,11 @@ jobs:
         pixi-version: v0.68.1
         locked: true
         cache: true
-        cache-write: false
+        cache-write: ${{ github.event_name != 'release' && github.ref == 'refs/heads/main' }}
         environments: pbuild
+
+    - name: Clean README
+      run: pixi run -e pbuild python support/clean_readme.py README.rst
 
     - name: Build
       run: pixi run -e pbuild build-wheels
@@ -92,5 +64,6 @@ jobs:
       run: pixi run -e pbuild twine check --strict dist/*
 
     - name: Publish package distributions to PyPI
+      if: github.event_name == 'release'
       uses: pypa/gh-action-pypi-publish@cef221092ed1bacb1cc03d23a2d87d1d172e277b # v1.14.0
 
