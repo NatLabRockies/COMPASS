@@ -1,4 +1,4 @@
-.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/tree/pp/fix_docs/docs/source/_static/logo_horiz.png
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png
     :alt: INFRA-COMPASS logo
     :align: center
     :height: 250
@@ -40,7 +40,7 @@ documents for each jurisdiction you ask about, and then *extracts* structured da
 those documents into a versioned database that downstream users can query as a CSV, Excel
 workbook, or GeoPackage.
 
-.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/tree/pp/fix_docs/docs/source/_static/overview.png
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png
     :alt: High-level overview of the INFRA-COMPASS pipeline
     :align: center
     :width: 100%
