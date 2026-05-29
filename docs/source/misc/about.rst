@@ -68,13 +68,10 @@ from several possible sources, then uses an LLM-driven filter to keep only those
 legally binding, pertain to the correct jurisdiction, and contain the relevant technology
 regulations.
 
-.. raw:: html
-
-   <p align="center"><img
-     width="100%"
-     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_retrieval.png"
-     alt="Document retrieval flow. From a user-supplied jurisdiction (e.g. 'Jefferson County, Colorado'), Step 1 web-scrapes via search engine or website crawl; Step 2 downloads the document collection; Step 3 runs an LLM filter as a series of decision-tree questions ('Is the document a legal ordinance?', 'Does it pertain to the correct jurisdiction?', 'Does it contain relevant technology regulations?') to produce a confirmed ordinance document."
-   /></p>
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_retrieval.png
+    :alt: Document retrieval flow. From a user-supplied jurisdiction (e.g. 'Jefferson County, Colorado'), Step 1 web-scrapes via search engine or website crawl; Step 2 downloads the document collection; Step 3 runs an LLM filter as a series of decision-tree questions ('Is the document a legal ordinance?', 'Does it pertain to the correct jurisdiction?', 'Does it contain relevant technology regulations?') to produce a confirmed ordinance document.
+    :align: center
+    :width: 100%
 
 In practice, INFRA-COMPASS can find source documents in four different ways:
 
@@ -94,13 +91,11 @@ Once a candidate document is in hand, INFRA-COMPASS reduces it to just the passa
 actually pertain to the target technology, and then walks a small decision tree per
 ordinance feature to read structured values out of those passages.
 
-.. raw:: html
+.. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_extraction.png
+    :alt: Document extraction flow. Step 1 (Ordinance Text Extraction) takes an ordinance document, splits it into text chunks, runs each chunk through an LLM content filter, and concatenates the relevant chunks into a single cleaned 'ordinance text.' Step 2 (Ordinance Value Extraction) feeds that cleaned text to a separate decision tree for each ordinance feature (e.g. Max Shadow Flicker, Property Line Setback, Road Setback, Structure Setback), producing structured ordinance data.
+    :align: center
+    :width: 100%
 
-   <p align="center"><img
-     width="100%"
-     src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_extraction.png"
-     alt="Document extraction flow. Step 1 (Ordinance Text Extraction) takes an ordinance document, splits it into text chunks, runs each chunk through an LLM content filter, and concatenates the relevant chunks into a single cleaned 'ordinance text.' Step 2 (Ordinance Value Extraction) feeds that cleaned text to a separate decision tree for each ordinance feature (e.g. Max Shadow Flicker, Property Line Setback, Road Setback, Structure Setback), producing structured ordinance data."
-   /></p>
 
 The full pipeline is designed to keep cost down and hallucinations out:
 

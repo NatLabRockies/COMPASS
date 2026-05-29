@@ -28,6 +28,8 @@
 .. |Zenodo| image:: https://zenodo.org/badge/DOI/10.5281/zenodo.17173409.svg
     :target: https://doi.org/10.5281/zenodo.17173409
 
+.. inclusion-intro
+
 What is COMPASS?
 ================
 COMPASS (formally the Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems, or "INFRA-COMPASS")
