@@ -15,9 +15,6 @@ INFRA-COMPASS documentation
 ***************************
 
 
-What is INFRA-COMPASS?
-======================
-
 .. include:: ../../README.rst
    :start-after: inclusion-intro
    :end-before: Installing INFRA-COMPASS
