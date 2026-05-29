@@ -1,11 +1,7 @@
 .. raw:: html
 
         <p align="center">
-            <img
-                src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png"
-                alt="INFRA-COMPASS logo"
-                height="250"
-            />
+            <img height="250" src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/logo_horiz.png"/>
         </p>
 
 ---------
