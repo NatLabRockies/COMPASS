@@ -34,7 +34,7 @@
 
 What is COMPASS?
 ================
-COMPASS (formally the Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems)
+COMPASS (formally the **Infra**structure **C**ontinuous **O**rdinance **M**apping for **P**lanning **a**nd **S**iting **S**ystems)
 is an innovative software tool that harnesses the power of Large Language
 Models (LLMs) to automate the compilation and continued maintenance of an inventory of
 state and local codes and ordinances pertaining to energy infrastructure.
