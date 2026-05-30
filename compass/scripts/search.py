@@ -14,9 +14,7 @@ from datetime import datetime, UTC
 from pathlib import Path
 
 from compass.web.search import search_single_jurisdiction
-from compass.exceptions import COMPASSValueError
-from compass.plugin.registry import resolve_plugin
-from compass.pipeline.data_classes import WebSearchParams
+from compass.pipeline.runtime import PipelineRuntime
 from compass.utilities.jurisdictions import (
     jurisdictions_from_df,
     load_jurisdictions_from_fp,
@@ -26,17 +24,7 @@ from compass.utilities.jurisdictions import (
 logger = logging.getLogger(__name__)
 
 
-async def run_search(
-    tech,
-    jurisdiction_fp,
-    num_urls_to_check_per_jurisdiction=5,
-    max_num_concurrent_browsers=10,
-    max_num_concurrent_website_searches=None,
-    url_ignore_substrings=None,
-    search_engines=None,
-    config_path=None,
-    **__,
-):
+async def run_search(request, config_path=None):
     """Run search-engine queries for every jurisdiction in a config
 
     The function loads jurisdictions, fetches query templates from the
@@ -48,28 +36,15 @@ async def run_search(
 
     Parameters
     ----------
-    tech : str
-        Technology identifier used to look up the registered plugin in
-        :data:`compass.plugin.registry.PLUGIN_REGISTRY`.
-    jurisdiction_fp : path-like
-        Path to a CSV describing the jurisdictions to search.
-    num_urls_to_check_per_jurisdiction : int, optional
-        Number of top URLs to retain (per jurisdiction) before marking
-        the remainder as filtered. By default, ``5``.
-    max_num_concurrent_browsers : int, optional
-        Maximum number of Playwright browser instances allowed to run
-        concurrently across all jurisdictions. By default, ``10``.
-    max_num_concurrent_website_searches : int, optional
-        Unused; accepted for parity with the full pipeline config.
-        By default, ``None``.
-    url_ignore_substrings : list of str, optional
-        Substrings used to mark matching URLs as filtered.
-        By default, ``None``.
-    search_engines : list of dict, optional
-        Ordered search engine configurations (see
-        :class:`~compass.pipeline.data_classes.WebSearchParams`). If
-        omitted, the elm default fallback chain is used.
-        By default, ``None``.
+    request : compass.pipeline.data_classes.BaseRequest
+        The request object containing all user-specified settings and
+        configurations for the pipeline run. This should be an instance
+        of one of the specific request types (e.g., ProcessRequest,
+        CollectionRequest, ExtractionRequest) that inherit from
+        BaseRequest, and should include all necessary information such
+        as the mode to run in, output directories, jurisdiction
+        information, model configurations, and any other relevant
+        settings.
     config_path : path-like, optional
         Absolute path of the originating config file, embedded in the
         returned report for traceability. By default, ``None``.
@@ -80,68 +55,41 @@ async def run_search(
         JSON-serializable report containing per-jurisdiction ranked
         URLs and filtering reasons.
     """
-    wsp = WebSearchParams(
-        num_urls_to_check_per_jurisdiction=(
-            num_urls_to_check_per_jurisdiction
-        ),
-        max_num_concurrent_browsers=max_num_concurrent_browsers,
-        max_num_concurrent_website_searches=(
-            max_num_concurrent_website_searches
-        ),
-        url_ignore_substrings=url_ignore_substrings,
-        search_engines=search_engines,
-    )
 
-    plugin_cls = resolve_plugin(tech)
-    query_templates = await _get_query_templates(plugin_cls)
+    runtime = PipelineRuntime(request)
 
-    jurisdictions = load_jurisdictions_from_fp(jurisdiction_fp)
-
-    browser_semaphore = asyncio.Semaphore(max_num_concurrent_browsers)
-
-    se_kwargs = wsp.se_kwargs
+    qt = await runtime.extractor_class(None, None).get_query_templates()
+    jurisdictions_df = load_jurisdictions_from_fp(request.jurisdiction_fp)
+    se_kwargs = runtime.search_params.se_kwargs
+    num_urls = runtime.search_params.num_urls_to_check_per_jurisdiction
 
     tasks = [
         search_single_jurisdiction(
-            query_templates,
+            qt,
             jur,
-            wsp.num_urls_to_check_per_jurisdiction,
-            browser_semaphore,
-            url_ignore_substrings,
+            num_urls,
+            runtime.search_engine_semaphore,
+            runtime.search_params.url_ignore_substrings,
             simple=False,  # TODO: This should be user-configurable
             **se_kwargs,
         )
-        for jur in jurisdictions_from_df(jurisdictions)
+        for jur in jurisdictions_from_df(jurisdictions_df)
     ]
     jur_results = await asyncio.gather(*tasks)
 
+    timestamp = (
+        datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
+    )
+    config_path = str(Path(config_path).resolve()) if config_path else None
     return {
-        "timestamp": datetime.now(UTC)
-        .isoformat(timespec="seconds")
-        .replace("+00:00", "Z"),
-        "config_path": str(Path(config_path).resolve())
-        if config_path
-        else None,
-        "tech": tech,
-        "num_urls_requested": wsp.num_urls_to_check_per_jurisdiction,
+        "timestamp": timestamp,
+        "config_path": config_path,
+        "tech": runtime.tech,
+        "num_urls_requested": num_urls,
         "search_engines": list(se_kwargs["search_engines"]),
-        "query_templates": list(query_templates),
+        "query_templates": list(qt),
         "jurisdictions": jur_results,
     }
-
-
-async def _get_query_templates(plugin_cls):
-    """Pull query templates from a plugin without LLM model configs"""
-    plugin = plugin_cls(None, None)
-    templates = await plugin.get_query_templates()
-    if not templates:
-        msg = (
-            f"Plugin {plugin_cls.__name__} returned no query templates. "
-            "Pre-generate templates or provide them in the config before "
-            "running search-only."
-        )
-        raise COMPASSValueError(msg)
-    return list(templates)
 
 
 def write_search_report(report, out_path):

@@ -8,6 +8,7 @@ from rich.console import Console
 from rich.theme import Theme
 
 from compass._cli.common import setup_cli_logging
+from compass.pipeline import ProcessRequest
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.search import run_search, summary, write_search_report
 from compass.utilities.io import load_config
@@ -87,8 +88,10 @@ def search(config, n_top_urls, output, output_format, verbose, plugin):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
+    request = ProcessRequest(**config)
+
     report = loop.run_until_complete(
-        run_search(config_path=config_path, **config)
+        run_search(request, config_path=config_path)
     )
     if output_format == "json":
         if output is None:
