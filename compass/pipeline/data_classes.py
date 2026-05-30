@@ -20,6 +20,7 @@ class SearchSettings:
         max_num_concurrent_website_searches=10,
         url_ignore_substrings=None,
         search_engines=None,
+        simple_se_result_sort=True,
         pytesseract_exe_fp=None,
     ):
         """
@@ -50,6 +51,11 @@ class SearchSettings:
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
+        simple_se_result_sort : bool, default=True
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``True``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -64,6 +70,7 @@ class SearchSettings:
         )
         self.url_ignore_substrings = url_ignore_substrings
         self.search_engines = search_engines
+        self.simple_se_result_sort = simple_se_result_sort
         self.pytesseract_exe_fp = pytesseract_exe_fp
 
 
@@ -345,6 +352,7 @@ class BaseRequest:
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
+        simple_se_result_sort=True,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -470,6 +478,11 @@ class BaseRequest:
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
+        simple_se_result_sort : bool, default=True
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``True``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -565,6 +578,7 @@ class BaseRequest:
             ),
             url_ignore_substrings=url_ignore_substrings,
             search_engines=search_engines,
+            simple_se_result_sort=simple_se_result_sort,
             pytesseract_exe_fp=pytesseract_exe_fp,
         )
         self.runtime_settings = RuntimeSettings(
