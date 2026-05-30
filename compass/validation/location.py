@@ -269,10 +269,16 @@ class JurisdictionValidator:
 
     async def _check(self, doc, jurisdiction):
         """Check if the document belongs to the county"""
+        url = doc.attrs.get("source")
         if self.text_splitter is not None:
             doc.text_splitter = self.text_splitter
+            logger.debug(
+                "Document from %r: has %d raw page(s) after text splitter "
+                "was set",
+                url or "Unknown",
+                len(doc.raw_pages),
+            )
 
-        url = doc.attrs.get("source")
         if url:
             logger.debug("Checking URL (%s) for jurisdiction name...", url)
             url_validator = DTreeURLJurisdictionValidator(
