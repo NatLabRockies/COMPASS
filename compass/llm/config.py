@@ -14,6 +14,19 @@ from compass.utilities import RTS_SEPARATORS
 from compass.exceptions import COMPASSValueError
 
 
+class _PrintableRecursiveCharacterTextSplitter(RecursiveCharacterTextSplitter):
+    """RecursiveCharacterTextSplitter with __strs__ method"""
+
+    def __str__(self):
+        return (
+            f"RecursiveCharacterTextSplitter with"
+            f"\n\t-num_separators={len(self._separators):,d}, "
+            f"\n\t-chunk_size={self._chunk_size:,d}, "
+            f"\n\t-chunk_overlap={self._chunk_overlap:,d}, "
+            f"\n\t-is_separator_regex={self._is_separator_regex}"
+        )
+
+
 class LLMConfig(ABC):
     """Abstract base class representing a single LLM configuration"""
 
@@ -69,7 +82,7 @@ class LLMConfig(ABC):
     @cached_property
     def text_splitter(self):
         """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # noqa: W505, E501
-        return RecursiveCharacterTextSplitter(
+        return _PrintableRecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
             chunk_overlap=self.text_splitter_chunk_overlap,
