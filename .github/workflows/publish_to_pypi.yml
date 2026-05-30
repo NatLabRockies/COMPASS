@@ -48,21 +48,17 @@ jobs:
 
     - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
       with:
-        pixi-version: v0.68.1
+        pixi-version: v0.69.0
         locked: true
         # Don't use cache on release because we want the newest version of the tool to be built and distributed (specifically the new version tag)
         cache: ${{ github.event_name != 'release' }}
         cache-write: ${{ github.event_name != 'release' && github.ref == 'refs/heads/main' }}
         environments: pbuild
 
-    - name: Clean README
-      run: pixi run -e pbuild python support/clean_readme.py README.rst
-
-    - name: Build
-      run: pixi run -e pbuild build-wheels
-
-    - name: Validate package metadata
-      run: pixi run -e pbuild twine check --strict dist/*
+    - name: Clean README, build, and validate package metadata
+      run: |
+        VERSION=$(git describe --tags --match 'v*[0-9]*' --abbrev=0 | sed 's/^v//')
+        SETUPTOOLS_SCM_PRETEND_VERSION_FOR_INFRA_COMPASS="$VERSION" pixi run -e pbuild check-wheels
 
     - name: Publish package distributions to PyPI
       if: github.event_name == 'release'
