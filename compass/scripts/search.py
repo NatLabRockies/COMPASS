@@ -70,7 +70,7 @@ async def run_search(request, config_path=None):
             num_urls,
             runtime.search_engine_semaphore,
             runtime.search_params.url_ignore_substrings,
-            simple=False,  # TODO: This should be user-configurable
+            simple=False,
             **se_kwargs,
         )
         for jur in jurisdictions_from_df(jurisdictions_df)
