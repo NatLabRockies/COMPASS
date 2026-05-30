@@ -10,12 +10,10 @@ quality before invoking the full pipeline.
 import asyncio
 import json
 import logging
-
 from datetime import datetime, UTC
 from pathlib import Path
 
-from elm.web.search.run import search_all_se
-
+from compass.web.search import search_single_jurisdiction
 from compass.exceptions import COMPASSValueError
 from compass.plugin.registry import resolve_plugin
 from compass.pipeline.data_classes import WebSearchParams
@@ -100,18 +98,18 @@ async def run_search(
     jurisdictions = load_jurisdictions_from_fp(jurisdiction_fp)
 
     browser_semaphore = asyncio.Semaphore(max_num_concurrent_browsers)
-    blacklist = list(url_ignore_substrings or [])
 
     se_kwargs = wsp.se_kwargs
 
     tasks = [
-        _search_one_jurisdiction(
-            jur,
+        search_single_jurisdiction(
             query_templates,
-            browser_semaphore,
-            blacklist,
+            jur,
             wsp.num_urls_to_check_per_jurisdiction,
-            se_kwargs,
+            browser_semaphore,
+            url_ignore_substrings,
+            simple=False,  # TODO: This should be user-configurable
+            **se_kwargs,
         )
         for jur in jurisdictions_from_df(jurisdictions)
     ]
@@ -144,158 +142,6 @@ async def _get_query_templates(plugin_cls):
         )
         raise COMPASSValueError(msg)
     return list(templates)
-
-
-async def _search_one_jurisdiction(
-    jurisdiction,
-    query_templates,
-    browser_semaphore,
-    blacklist,
-    num_urls,
-    se_kwargs,
-):
-    """Search every query/engine combo for a single jurisdiction"""
-    queries = [
-        template.format(jurisdiction=jurisdiction.full_name)
-        for template in query_templates
-    ]
-
-    base = {
-        "jurisdiction": jurisdiction.full_name,
-        "state": jurisdiction.state,
-        "county": jurisdiction.county,
-        "subdivision": jurisdiction.subdivision_name,
-        "queries": queries,
-        "results": [],
-        "error": None,
-    }
-
-    try:
-        out = await search_all_se(
-            queries,
-            num_urls=num_urls,
-            ignore_url_parts=None,  # custom filters applied later
-            browser_semaphore=browser_semaphore,
-            task_name=jurisdiction.full_name,
-            **se_kwargs,
-        )
-    except Exception as exc:
-        logger.exception("Search failed for %s", jurisdiction.full_name)
-        base["error"] = f"{type(exc).__name__}: {exc}"
-        return base
-
-    base["results"] = _apply_filters(out, blacklist, num_urls)
-    return base
-
-
-def _apply_filters(results, blacklist, num_urls):
-    """Mark blacklisted URLs, duplicates, and beyond top-N entries"""
-
-    results = _flatten_results(results)
-    _apply_blacklist_filters(results, blacklist)
-    _apply_duplicate_filters(results)
-    _apply_top_n_filters(results, num_urls)
-
-    for entry in results:
-        entry.pop("_order", None)
-        entry.pop("query_index", None)
-        entry.pop("se_order", None)
-
-    return results
-
-
-def _flatten_results(results):
-    """Flatten results from nested structure to a single list"""
-    flat = []
-    result_order = 1
-    for se_ind, se_results in enumerate(results, start=1):
-        for query_ind, single_query_results in enumerate(se_results, start=1):
-            for link_info in single_query_results:
-                link_info["filtered_reason"] = None
-                link_info["overall_rank"] = None
-                link_info["query_index"] = query_ind
-                link_info["se_order"] = se_ind
-                link_info["_order"] = result_order
-                flat.append(link_info)
-                result_order += 1
-    return flat
-
-
-def _apply_blacklist_filters(results, blacklist):
-    """Mark rows that match any blacklist substring"""
-    blacklist_terms = [sub for sub in blacklist if sub]
-    blacklist_terms_cf = [sub.casefold() for sub in blacklist_terms]
-    for entry in results:
-        url_cf = entry["url"].casefold()
-        match_index = next(
-            (
-                i
-                for i, sub_cf in enumerate(blacklist_terms_cf)
-                if sub_cf in url_cf
-            ),
-            None,
-        )
-        if match_index is None:
-            continue
-        entry["filtered_reason"] = f"blacklist:{blacklist_terms[match_index]}"
-
-
-def _apply_duplicate_filters(results):
-    """Mark duplicate rows per search engine and URL"""
-    winners = {}
-    for entry in _active_results_sorted(results):
-        key = (entry["search_engine"], entry["url"])
-        winner = winners.get(key)
-        if winner is None:
-            winners[key] = entry
-            continue
-
-        winner.setdefault("duplicates", []).append(
-            {
-                "url": entry["url"],
-                "query": entry["query"],
-                "search_engine": entry["search_engine"],
-                "query_rank": entry["query_rank"],
-            }
-        )
-
-        entry["filtered_reason"] = "duplicate"
-
-
-def _apply_top_n_filters(results, num_urls):
-    """Mark entries past top-N after filtering"""
-    for overall_rank, entry in enumerate(
-        _active_results_sorted(results), start=1
-    ):
-        entry["overall_rank"] = overall_rank
-        if overall_rank <= num_urls:
-            continue
-        entry["filtered_reason"] = "beyond_top_n"
-
-
-def _active_results_sorted(results):
-    """Return filtered-in rows sorted by ranking priority"""
-    active_results = [
-        entry for entry in results if entry["filtered_reason"] is None
-    ]
-
-    active_results.sort(key=_link_sort_key)
-    return active_results
-
-
-def _link_sort_key(entry):
-    """Get a sort key for a search result entry
-
-    Lower values indicate more confidence in result
-    """
-    duplicate_count = len(entry.get("duplicates", []))
-    return (  # lower is better
-        entry["query_rank"],
-        -duplicate_count,
-        entry["se_order"],
-        entry["query_index"],
-        entry["_order"],
-    )
 
 
 def write_search_report(report, out_path):
