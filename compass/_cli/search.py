@@ -91,7 +91,10 @@ def search(config, n_top_urls, output, output_format, verbose, plugin):
         run_search(config_path=config_path, **config)
     )
     if output_format == "json":
-        write_search_report(report, out_path=output)
+        if output is None:
+            console.print_json(data=report)
+        else:
+            write_search_report(report, output)
         return
 
     text_report = summary(report)
