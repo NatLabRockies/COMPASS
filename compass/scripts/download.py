@@ -13,6 +13,7 @@ from elm.web.website_crawl import (
 )
 from elm.web.utilities import filter_documents
 
+from compass.web.search import search_single_jurisdiction
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.validation.location import (
@@ -522,6 +523,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     query_templates,
     jurisdiction,
     num_urls=5,
+    simple_se_result_sort=True,
     file_loader_kwargs=None,
     search_semaphore=None,
     browser_semaphore=None,
@@ -540,6 +542,11 @@ async def download_jurisdiction_ordinance_using_search_engine(
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
+    simple_se_result_sort : bool, optional
+        Flag indicating whether to use a simple top-n sort from the
+        first search engine that gives results (``True``) or to apply a
+        holistic link sorting based on all results from all search
+        engines (``False``). By default, ``True``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword-argument pairs to initialize
         :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,
@@ -592,7 +599,8 @@ async def download_jurisdiction_ordinance_using_search_engine(
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
             ignore_url_parts=url_ignore_substrings,
-            jurisdiction_full_name=jurisdiction.full_name,
+            jurisdiction=jurisdiction,
+            simple_se_result_sort=simple_se_result_sort,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -729,28 +737,32 @@ async def _docs_from_web_search(
     search_semaphore,
     browser_semaphore,
     ignore_url_parts,
-    jurisdiction_full_name,
+    jurisdiction,
+    simple_se_result_sort,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    queries = [
-        query.format(jurisdiction=jurisdiction_full_name)
-        for query in query_templates
-    ]
-    urls = await search_with_fallback(
-        queries,
-        num_urls=num_urls,
-        ignore_url_parts=ignore_url_parts,
-        browser_semaphore=search_semaphore,
-        task_name=jurisdiction_full_name,
+    out = await search_single_jurisdiction(
+        query_templates,
+        jurisdiction,
+        num_urls,
+        search_semaphore,
+        ignore_url_parts,
+        simple=simple_se_result_sort,
         **kwargs,
     )
+    unfiltered_results = [
+        res.get("url")
+        for res in out["results"]
+        if res.get("filtered_reason", None) is None
+    ]
+    urls = list(filter(None, unfiltered_results))
     if not urls:
         return []
 
     return await _docs_from_urls(
-        urls, jurisdiction_full_name, browser_semaphore, **kwargs
+        urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
 
 

@@ -202,6 +202,9 @@ class SearchEngineDocumentsStep(CollectionStep):
                 num_urls=(
                     workflow.runtime.search_params.num_urls_to_check_per_jurisdiction
                 ),
+                simple_se_result_sort=(
+                    workflow.runtime.search_params.simple_se_result_sort
+                ),
                 file_loader_kwargs=workflow.runtime.file_loader_kwargs,
                 search_semaphore=workflow.runtime.search_engine_semaphore,
                 browser_semaphore=workflow.runtime.browser_semaphore,
