@@ -641,12 +641,15 @@ class BaseRequest:
             known_local_docs=known_local_docs,
             known_doc_urls=known_doc_urls,
         )
-        self.models = (
-            _build_models(model)
-            if model and self.MODE != COMPASSRunMode.COLLECT
-            else {}
-        )
+        self.user_model_input = model
         self.llm_costs = llm_costs
+
+    @cached_property
+    def models(self):
+        """dict: Mapping of LLM task to OpenAIConfig for this request"""
+        if not self.user_model_input or self.MODE == COMPASSRunMode.COLLECT:
+            return {}
+        return _build_models(self.user_model_input)
 
 
 class ProcessRequest(BaseRequest):

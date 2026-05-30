@@ -9,6 +9,7 @@ import pandas as pd
 import pytest
 
 import compass.pipeline.coordinator as coordinator_module
+import compass.pipeline.data_classes as data_classes_module
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.pipeline import (
     CollectionRequest,
@@ -74,8 +75,8 @@ def patched_workflow(monkeypatch):
             return f"processed {self.runtime.mode}"
 
     monkeypatch.setattr(
-        coordinator_module,
-        "_build_model_registry",
+        data_classes_module,
+        "_build_models",
         lambda __: {},
     )
     monkeypatch.setattr(
@@ -245,15 +246,11 @@ def registered_roundtrip_plugin():
 def patched_model_configs(monkeypatch):
     """Replace pipeline model config setup with a deterministic stub"""
 
-    def _dummy_build_model_registry(request):
-        if request.MODE == coordinator_module.COMPASSRunMode.COLLECT:
-            return {}
+    def _dummy_build_models(request):
         return {LLMTasks.DEFAULT: _DummyModelConfig()}
 
     monkeypatch.setattr(
-        coordinator_module,
-        "_build_model_registry",
-        _dummy_build_model_registry,
+        data_classes_module, "_build_models", _dummy_build_models
     )
 
 
@@ -532,8 +529,8 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
         _load_single_jurisdiction,
     )
     monkeypatch.setattr(
-        coordinator_module,
-        "_build_model_registry",
+        data_classes_module,
+        "_build_models",
         lambda __: {},
     )
     monkeypatch.setattr(

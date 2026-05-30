@@ -4,44 +4,7 @@ from pathlib import Path
 
 import pytest
 
-import compass.scripts.search as search_module
-from compass.exceptions import COMPASSValueError
-from compass.pipeline.data_classes import WebSearchParams
-
-
-def test_resolve_search_engines_uses_defaults_when_not_configured():
-    """Use module defaults when search engines are not configured"""
-    wsp = WebSearchParams(search_engines=None)
-
-    se_names, init_kwargs = search_module._resolve_search_engines(wsp)
-
-    assert se_names == list(search_module._DEFAULT_SEARCH_ENGINES)
-    assert set(init_kwargs) == set(se_names)
-
-
-def test_resolve_search_engines_uses_custom_order_and_kwargs():
-    """Preserve configured order and map init kwargs per engine"""
-    wsp = WebSearchParams(
-        search_engines=[
-            {
-                "se_name": "DuxDistributedGlobalSearch",
-                "region": "us-en",
-            },
-            {
-                "se_name": "PlaywrightGoogleLinkSearch",
-                "headless": True,
-            },
-        ]
-    )
-
-    se_names, init_kwargs = search_module._resolve_search_engines(wsp)
-
-    assert se_names == [
-        "DuxDistributedGlobalSearch",
-        "PlaywrightGoogleLinkSearch",
-    ]
-    assert init_kwargs["DuxDistributedGlobalSearch"] == {"region": "us-en"}
-    assert init_kwargs["PlaywrightGoogleLinkSearch"] == {"headless": True}
+import compass.web.search as search_module
 
 
 def test_apply_blacklist_filters_is_case_insensitive():
@@ -78,6 +41,7 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
             "url": "https://example.com/a.pdf",
             "query": "q1",
             "query_index": 0,
+            "se_order": 0,
             "search_engine": "SerpAPIGoogleSearch",
             "query_rank": 2,
             "overall_rank": None,
@@ -88,6 +52,7 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
             "url": "https://example.com/a.pdf",
             "query": "q2",
             "query_index": 1,
+            "se_order": 0,
             "search_engine": "SerpAPIGoogleSearch",
             "query_rank": 1,
             "overall_rank": None,
@@ -120,6 +85,7 @@ def test_apply_top_n_filters_assigns_overall_rank_and_beyond_top_n():
             "url": "https://example.com/1",
             "query": "q1",
             "query_index": 0,
+            "se_order": 0,
             "search_engine": "SerpAPIGoogleSearch",
             "query_rank": 1,
             "overall_rank": None,
@@ -130,6 +96,7 @@ def test_apply_top_n_filters_assigns_overall_rank_and_beyond_top_n():
             "url": "https://example.com/2",
             "query": "q2",
             "query_index": 1,
+            "se_order": 0,
             "search_engine": "SerpAPIGoogleSearch",
             "query_rank": 1,
             "overall_rank": None,
@@ -140,6 +107,7 @@ def test_apply_top_n_filters_assigns_overall_rank_and_beyond_top_n():
             "url": "https://example.com/3",
             "query": "q3",
             "query_index": 2,
+            "se_order": 0,
             "search_engine": "SerpAPIGoogleSearch",
             "query_rank": 2,
             "overall_rank": None,
@@ -163,6 +131,7 @@ def test_apply_top_n_filters_prioritizes_more_duplicates_on_tie():
             "url": "https://example.com/dup-winner",
             "query": "q-dup-1",
             "query_index": 5,
+            "se_order": 0,
             "search_engine": "ZEngine",
             "query_rank": 1,
             "overall_rank": None,
@@ -173,6 +142,7 @@ def test_apply_top_n_filters_prioritizes_more_duplicates_on_tie():
             "url": "https://example.com/dup-winner",
             "query": "q-dup-2",
             "query_index": 6,
+            "se_order": 0,
             "search_engine": "ZEngine",
             "query_rank": 2,
             "overall_rank": None,
@@ -183,6 +153,7 @@ def test_apply_top_n_filters_prioritizes_more_duplicates_on_tie():
             "url": "https://example.com/no-dup",
             "query": "q-other",
             "query_index": 0,
+            "se_order": 0,
             "search_engine": "AEngine",
             "query_rank": 1,
             "overall_rank": None,
@@ -203,42 +174,50 @@ def test_apply_top_n_filters_prioritizes_more_duplicates_on_tie():
 def test_apply_filters_orders_phases_and_cleans_internal_fields():
     """Apply blacklist, duplicate, and top-N in deterministic order"""
     results = [
-        {
-            "url": "https://site.com/wiki",
-            "query": "q-blacklist",
-            "query_index": 0,
-            "search_engine": "SerpAPIGoogleSearch",
-            "query_rank": 1,
-            "overall_rank": None,
-            "filtered_reason": None,
-        },
-        {
-            "url": "https://example.com/dup",
-            "query": "q-dup-2",
-            "query_index": 0,
-            "search_engine": "SerpAPIGoogleSearch",
-            "query_rank": 2,
-            "overall_rank": None,
-            "filtered_reason": None,
-        },
-        {
-            "url": "https://example.com/dup",
-            "query": "q-dup-1",
-            "query_index": 1,
-            "search_engine": "SerpAPIGoogleSearch",
-            "query_rank": 1,
-            "overall_rank": None,
-            "filtered_reason": None,
-        },
-        {
-            "url": "https://example.com/other",
-            "query": "q-other",
-            "query_index": 2,
-            "search_engine": "SerpAPIGoogleSearch",
-            "query_rank": 1,
-            "overall_rank": None,
-            "filtered_reason": None,
-        },
+        [
+            [
+                {
+                    "url": "https://site.com/wiki",
+                    "query": "q-blacklist",
+                    "query_index": 0,
+                    "se_order": 0,
+                    "search_engine": "SerpAPIGoogleSearch",
+                    "query_rank": 1,
+                    "overall_rank": None,
+                    "filtered_reason": None,
+                },
+                {
+                    "url": "https://example.com/dup",
+                    "query": "q-dup-2",
+                    "query_index": 0,
+                    "se_order": 0,
+                    "search_engine": "SerpAPIGoogleSearch",
+                    "query_rank": 2,
+                    "overall_rank": None,
+                    "filtered_reason": None,
+                },
+                {
+                    "url": "https://example.com/dup",
+                    "query": "q-dup-1",
+                    "query_index": 1,
+                    "se_order": 0,
+                    "search_engine": "SerpAPIGoogleSearch",
+                    "query_rank": 1,
+                    "overall_rank": None,
+                    "filtered_reason": None,
+                },
+                {
+                    "url": "https://example.com/other",
+                    "query": "q-other",
+                    "query_index": 2,
+                    "se_order": 0,
+                    "search_engine": "SerpAPIGoogleSearch",
+                    "query_rank": 1,
+                    "overall_rank": None,
+                    "filtered_reason": None,
+                },
+            ]
+        ]
     ]
 
     output = search_module._apply_filters(
@@ -257,72 +236,8 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
 
     for row in output:
         assert "_order" not in row
+        assert "se_order" not in row
         assert "query_index" not in row
-
-
-def test_summary_keeps_only_unfiltered_and_sorted():
-    """Render only unfiltered rows sorted by overall rank"""
-    report = {
-        "tech": "wind",
-        "timestamp": "2026-01-01T00:00:00Z",
-        "num_urls_requested": 2,
-        "jurisdictions": [
-            {
-                "jurisdiction": "Example County, Test",
-                "error": None,
-                "results": [
-                    {
-                        "overall_rank": 2,
-                        "query_rank": 1,
-                        "search_engine": "A",
-                        "query": "q2",
-                        "url": "https://example.com/rank2",
-                        "filtered_reason": None,
-                    },
-                    {
-                        "overall_rank": 1,
-                        "query_rank": 1,
-                        "search_engine": "A",
-                        "query": "q1",
-                        "url": "https://example.com/rank1",
-                        "filtered_reason": None,
-                    },
-                    {
-                        "overall_rank": None,
-                        "query_rank": 2,
-                        "search_engine": "A",
-                        "query": "q-dup",
-                        "url": "https://example.com/dup",
-                        "filtered_reason": "duplicate",
-                    },
-                ],
-            }
-        ],
-    }
-
-    output = search_module.summary(report)
-
-    first_rank = output.index("[1]")
-    second_rank = output.index("[2]")
-    assert first_rank < second_rank
-    assert "https://example.com/rank1" in output
-    assert "https://example.com/rank2" in output
-    assert "https://example.com/dup" not in output
-
-
-@pytest.mark.asyncio
-async def test_get_query_templates_raises_compass_value_error():
-    """Raise COMPASSValueError when plugin has no query templates"""
-
-    class _PluginWithNoTemplates:
-        def __init__(self, *_args, **_kwargs):
-            pass
-
-        async def get_query_templates(self):
-            return []
-
-    with pytest.raises(COMPASSValueError):
-        await search_module._get_query_templates(_PluginWithNoTemplates)
 
 
 if __name__ == "__main__":

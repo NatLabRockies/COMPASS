@@ -17,7 +17,7 @@ def cfg_file(tmp_path):
     return fp
 
 
-def test_search_json_stdout(cli_runner, cfg_file, monkeypatch):
+def test_search_json_stdout(cli_runner, cfg_file, monkeypatch, tmp_path):
     """Emit JSON report to stdout by default"""
 
     def _write_json_stdout(report, out_path=None):
@@ -27,7 +27,11 @@ def test_search_json_stdout(cli_runner, cfg_file, monkeypatch):
     monkeypatch.setattr(
         cli_module,
         "load_config",
-        lambda *_: {"tech": "wind", "jurisdiction_fp": "dummy.csv"},
+        lambda *_: {
+            "tech": "wind",
+            "jurisdiction_fp": "dummy.csv",
+            "out_dir": str(tmp_path),
+        },
     )
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
@@ -51,13 +55,17 @@ def test_search_json_stdout(cli_runner, cfg_file, monkeypatch):
     assert payload["tech"] == "wind"
 
 
-def test_search_summary_stdout(cli_runner, cfg_file, monkeypatch):
+def test_search_summary_stdout(cli_runner, cfg_file, monkeypatch, tmp_path):
     """Emit summary report to stdout when requested"""
 
     monkeypatch.setattr(
         cli_module,
         "load_config",
-        lambda *_: {"tech": "wind", "jurisdiction_fp": "dummy.csv"},
+        lambda *_: {
+            "tech": "wind",
+            "jurisdiction_fp": "dummy.csv",
+            "out_dir": str(tmp_path),
+        },
     )
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
@@ -89,7 +97,11 @@ def test_search_summary_file_output(
     monkeypatch.setattr(
         cli_module,
         "load_config",
-        lambda *_: {"tech": "wind", "jurisdiction_fp": "dummy.csv"},
+        lambda *_: {
+            "tech": "wind",
+            "jurisdiction_fp": "dummy.csv",
+            "out_dir": str(tmp_path),
+        },
     )
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
@@ -119,7 +131,9 @@ def test_search_summary_file_output(
     assert out_fp.read_text(encoding="utf-8") == "summary report\n"
 
 
-def test_search_n_top_urls_overrides_config(cli_runner, cfg_file, monkeypatch):
+def test_search_n_top_urls_overrides_config(
+    cli_runner, cfg_file, monkeypatch, tmp_path
+):
     """Override configured top URL count with CLI option"""
     captured = {}
 
@@ -130,6 +144,7 @@ def test_search_n_top_urls_overrides_config(cli_runner, cfg_file, monkeypatch):
             "tech": "wind",
             "jurisdiction_fp": "dummy.csv",
             "num_urls_to_check_per_jurisdiction": 5,
+            "out_dir": str(tmp_path),
         },
     )
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
@@ -153,14 +168,20 @@ def test_search_n_top_urls_overrides_config(cli_runner, cfg_file, monkeypatch):
     assert captured["num_urls_to_check_per_jurisdiction"] == 12
 
 
-def test_search_plugin_registers_one_shot(cli_runner, cfg_file, monkeypatch):
+def test_search_plugin_registers_one_shot(
+    cli_runner, cfg_file, monkeypatch, tmp_path
+):
     """Register one-shot plugin when plugin option is supplied"""
     calls = []
 
     monkeypatch.setattr(
         cli_module,
         "load_config",
-        lambda *_: {"tech": "wind", "jurisdiction_fp": "dummy.csv"},
+        lambda *_: {
+            "tech": "wind",
+            "jurisdiction_fp": "dummy.csv",
+            "out_dir": str(tmp_path),
+        },
     )
     monkeypatch.setattr(cli_module, "setup_cli_logging", lambda *_, **__: None)
     monkeypatch.setattr(
@@ -197,9 +218,15 @@ def _async_returns(value):
 
 
 def _capture_async_kwargs(out_dict):
-    async def _inner(*_args, **kwargs):
+    async def _inner(request, *__, **___):
         await asyncio.sleep(0)
-        out_dict.update(kwargs)
+        out_dict.update(
+            {
+                "num_urls_to_check_per_jurisdiction": (
+                    request.search_settings.num_urls_to_check_per_jurisdiction
+                )
+            }
+        )
         return {"tech": "wind", "jurisdictions": []}
 
     return _inner

@@ -406,7 +406,7 @@ def _request_to_log_args(request):
         "runtime_settings": request.runtime_settings.__dict__,
         "output_settings": request.output_settings.__dict__,
         "known_sources": request.known_sources.__dict__,
-        "models": request.models,
+        "model": request.user_model_input,
         "llm_costs": request.llm_costs,
     }
 
