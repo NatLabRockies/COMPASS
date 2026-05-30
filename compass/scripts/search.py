@@ -10,12 +10,11 @@ quality before invoking the full pipeline.
 import asyncio
 import json
 import logging
-import random
-from warnings import warn
+
 from datetime import datetime, UTC
 from pathlib import Path
 
-from elm.web.search.run import SEARCH_ENGINE_OPTIONS
+from elm.web.search.run import search_all_se
 
 from compass.exceptions import COMPASSValueError
 from compass.plugin.registry import resolve_plugin
@@ -24,17 +23,9 @@ from compass.utilities.jurisdictions import (
     jurisdictions_from_df,
     load_jurisdictions_from_fp,
 )
-from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
-
-
-_DEFAULT_SEARCH_ENGINES = (
-    "PlaywrightGoogleLinkSearch",
-    "PlaywrightDuckDuckGoLinkSearch",
-    "DuxDistributedGlobalSearch",
-)
 
 
 async def run_search(
@@ -103,29 +94,26 @@ async def run_search(
         search_engines=search_engines,
     )
 
-    se_names, init_kwargs_by_se = _resolve_search_engines(wsp)
-
     plugin_cls = resolve_plugin(tech)
     query_templates = await _get_query_templates(plugin_cls)
 
-    jurisdictions = list(
-        jurisdictions_from_df(load_jurisdictions_from_fp(jurisdiction_fp))
-    )
+    jurisdictions = load_jurisdictions_from_fp(jurisdiction_fp)
 
     browser_semaphore = asyncio.Semaphore(max_num_concurrent_browsers)
     blacklist = list(url_ignore_substrings or [])
+
+    se_kwargs = wsp.se_kwargs
 
     tasks = [
         _search_one_jurisdiction(
             jur,
             query_templates,
-            se_names,
-            init_kwargs_by_se,
             browser_semaphore,
             blacklist,
             wsp.num_urls_to_check_per_jurisdiction,
+            se_kwargs,
         )
-        for jur in jurisdictions
+        for jur in jurisdictions_from_df(jurisdictions)
     ]
     jur_results = await asyncio.gather(*tasks)
 
@@ -138,28 +126,10 @@ async def run_search(
         else None,
         "tech": tech,
         "num_urls_requested": wsp.num_urls_to_check_per_jurisdiction,
-        "search_engines": list(se_names),
+        "search_engines": list(se_kwargs["search_engines"]),
         "query_templates": list(query_templates),
         "jurisdictions": jur_results,
     }
-
-
-def _resolve_search_engines(wsp):
-    """Return ordered engine names and per-engine init kwargs"""
-    se_kwargs = dict(wsp.se_kwargs)
-    se_names = se_kwargs.pop("search_engines", None) or list(
-        _DEFAULT_SEARCH_ENGINES
-    )
-    pw_launch_kwargs = se_kwargs.get("pw_launch_kwargs", {})
-
-    init_kwargs_by_se = {}
-    for se_name in se_names:
-        opt = SEARCH_ENGINE_OPTIONS[se_name]
-        init_kwargs = dict(pw_launch_kwargs) if opt.uses_browser else {}
-        init_kwargs.update(se_kwargs.get(opt.kwg_key_name, {}))
-        init_kwargs_by_se[se_name] = init_kwargs
-
-    return se_names, init_kwargs_by_se
 
 
 async def _get_query_templates(plugin_cls):
@@ -179,11 +149,10 @@ async def _get_query_templates(plugin_cls):
 async def _search_one_jurisdiction(
     jurisdiction,
     query_templates,
-    se_names,
-    init_kwargs_by_se,
     browser_semaphore,
     blacklist,
     num_urls,
+    se_kwargs,
 ):
     """Search every query/engine combo for a single jurisdiction"""
     queries = [
@@ -202,97 +171,27 @@ async def _search_one_jurisdiction(
     }
 
     try:
-        per_query = await asyncio.gather(
-            *[
-                _search_one_query(
-                    query,
-                    query_index,
-                    se_names,
-                    init_kwargs_by_se,
-                    browser_semaphore,
-                    jurisdiction.full_name,
-                )
-                for query_index, query in enumerate(queries)
-            ]
+        out = await search_all_se(
+            queries,
+            num_urls=num_urls,
+            ignore_url_parts=None,  # custom filters applied later
+            browser_semaphore=browser_semaphore,
+            task_name=jurisdiction.full_name,
+            **se_kwargs,
         )
     except Exception as exc:
         logger.exception("Search failed for %s", jurisdiction.full_name)
         base["error"] = f"{type(exc).__name__}: {exc}"
         return base
 
-    flat = [entry for entries in per_query for entry in entries]
-    base["results"] = _apply_filters(flat, blacklist, num_urls)
+    base["results"] = _apply_filters(out, blacklist, num_urls)
     return base
-
-
-async def _search_one_query(
-    query,
-    query_index,
-    se_names,
-    init_kwargs_by_se,
-    browser_semaphore,
-    location,
-):
-    """Run a single query through the engine fallback chain"""
-    for se_name in se_names:
-        opt = SEARCH_ENGINE_OPTIONS[se_name]
-        try:
-            engine = opt.se_class(**init_kwargs_by_se[se_name])
-        except Exception as exc:  # noqa: BLE001
-            msg = f"[{location}] could not instantiate {se_name}: {exc}"
-            warn(msg, COMPASSWarning)
-            continue
-
-        try:
-            raw = await _run_query_with_engine(
-                engine,
-                query,
-                uses_browser=opt.uses_browser,
-                browser_semaphore=browser_semaphore,
-            )
-        except Exception as exc:  # noqa: BLE001
-            msg = f"[{location}] {se_name} search failed for {query!r}: {exc}"
-            warn(msg, COMPASSWarning)
-            continue
-
-        urls = raw[0] if raw else []
-        if not urls:
-            continue
-
-        return [
-            {
-                "url": url,
-                "query": query,
-                "query_index": query_index,
-                "search_engine": se_name,
-                "query_rank": rank,
-                "overall_rank": None,
-                "filtered_reason": None,
-            }
-            for rank, url in enumerate(urls, start=1)
-        ]
-
-    return []
-
-
-async def _run_query_with_engine(
-    engine, query, uses_browser, browser_semaphore
-):
-    """Execute one query for a pre-initialized engine"""
-    if uses_browser:
-        await asyncio.sleep(random.uniform(1, 10))  # noqa: S311
-        async with browser_semaphore:
-            return await engine.results(query, num_results=10)
-
-    return await engine.results(query, num_results=10)
 
 
 def _apply_filters(results, blacklist, num_urls):
     """Mark blacklisted URLs, duplicates, and beyond top-N entries"""
-    for order, entry in enumerate(results):
-        entry["_order"] = order
-        entry["overall_rank"] = None
 
+    results = _flatten_results(results)
     _apply_blacklist_filters(results, blacklist)
     _apply_duplicate_filters(results)
     _apply_top_n_filters(results, num_urls)
@@ -300,8 +199,26 @@ def _apply_filters(results, blacklist, num_urls):
     for entry in results:
         entry.pop("_order", None)
         entry.pop("query_index", None)
+        entry.pop("se_order", None)
 
     return results
+
+
+def _flatten_results(results):
+    """Flatten results from nested structure to a single list"""
+    flat = []
+    result_order = 1
+    for se_ind, se_results in enumerate(results, start=1):
+        for query_ind, single_query_results in enumerate(se_results, start=1):
+            for link_info in single_query_results:
+                link_info["filtered_reason"] = None
+                link_info["overall_rank"] = None
+                link_info["query_index"] = query_ind
+                link_info["se_order"] = se_ind
+                link_info["_order"] = result_order
+                flat.append(link_info)
+                result_order += 1
+    return flat
 
 
 def _apply_blacklist_filters(results, blacklist):
@@ -362,18 +279,23 @@ def _active_results_sorted(results):
         entry for entry in results if entry["filtered_reason"] is None
     ]
 
-    def _sort_key(entry):
-        duplicate_count = len(entry.get("duplicates", []))
-        return (
-            entry["query_rank"],
-            -duplicate_count,
-            entry["search_engine"],
-            entry["query_index"],
-            entry["_order"],
-        )
-
-    active_results.sort(key=_sort_key)
+    active_results.sort(key=_link_sort_key)
     return active_results
+
+
+def _link_sort_key(entry):
+    """Get a sort key for a search result entry
+
+    Lower values indicate more confidence in result
+    """
+    duplicate_count = len(entry.get("duplicates", []))
+    return (  # lower is better
+        entry["query_rank"],
+        -duplicate_count,
+        entry["se_order"],
+        entry["query_index"],
+        entry["_order"],
+    )
 
 
 def write_search_report(report, out_path):
