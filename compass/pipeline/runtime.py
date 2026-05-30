@@ -44,7 +44,7 @@ MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 10
 class PipelineRuntime:
     """Context Object for runtime dependencies in one pipeline run"""
 
-    def __init__(self, request, models):
+    def __init__(self, request):
         """
 
         Parameters
@@ -52,24 +52,15 @@ class PipelineRuntime:
         request : compass.pipeline.data_classes.BaseRequest
             Request object containing all user inputs and settings for
             this run.
-        models : dict
-            Dictionary of model configurations used in this run, keyed
-            by model name.
         """
         self.request = request
         self.mode = request.MODE
         self.tech = request.tech
-        self.models = models
+        self.models = request.models
         self.log_level = _normalize_log_level(
             request.runtime_settings.log_level
         )
         self.keep_async_logs = request.runtime_settings.keep_async_logs
-        self.search_params = _build_search_params(request)
-        self.tpe_kwargs = _build_tpe_kwargs(request.runtime_settings)
-        self.dirs = _setup_folders(
-            request.output_settings,
-            collect_only=(self.mode == self.mode.COLLECT),
-        )
         self.log_listener = LogListener(
             ["compass", "elm"], level=self.log_level
         )
@@ -77,7 +68,7 @@ class PipelineRuntime:
             request.known_sources
         )
         self._pytesseract_was_set_up = False
-        LLM_COST_REGISTRY.update(request.model_selection.llm_costs or {})
+        LLM_COST_REGISTRY.update(request.llm_costs or {})
 
     async def __aenter__(self):
         self._listener_ctx = self.log_listener
@@ -91,6 +82,24 @@ class PipelineRuntime:
     async def __aexit__(self, exc_type, exc, tb):
         await self._running_services.__aexit__(exc_type, exc, tb)
         await self._listener_ctx.__aexit__(exc_type, exc, tb)
+
+    @cached_property
+    def dirs(self):
+        """Directories object for this run"""
+        return _setup_folders(
+            self.request.output_settings,
+            collect_only=(self.mode == self.mode.COLLECT),
+        )
+
+    @cached_property
+    def search_params(self):
+        """Web search parameters for this run"""
+        return _build_search_params(self.request)
+
+    @cached_property
+    def tpe_kwargs(self):
+        """Thread pool kwargs for this run"""
+        return _build_tpe_kwargs(self.request.runtime_settings)
 
     @cached_property
     def extractor_class(self):

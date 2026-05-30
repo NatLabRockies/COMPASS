@@ -5,7 +5,9 @@ from functools import cached_property
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
-from compass.utilities.enums import COMPASSRunMode
+from compass.llm import OpenAIConfig
+from compass.utilities.enums import COMPASSRunMode, LLMTasks
+from compass.exceptions import COMPASSValueError
 
 
 class SearchSettings:
@@ -208,53 +210,6 @@ class KnownSourcesInput:
         """
         self.known_local_docs = known_local_docs
         self.known_doc_urls = known_doc_urls
-
-
-class ModelSelection:
-    """Value Object for model selection and cost settings"""
-
-    def __init__(self, model="gpt-4o-mini", llm_costs=None):
-        """
-
-        Parameters
-        ----------
-        model : str or list of dict, default="gpt-4o-mini"
-            Optional model configuration used only for collection-side
-            LLM tasks, such as validating a user-supplied jurisdiction
-            website. If provided as a string, it is treated as the
-            default model name. If provided as a list, each entry
-            should contain keyword arguments used to initialize
-            :class:`~compass.llm.config.OpenAIConfig`, along with a
-            ``tasks`` key describing which LLM tasks that configuration
-            should handle. By default, ``None``.
-        llm_costs : dict, optional
-            Dictionary mapping model names to their token costs, used to
-            track the estimated total cost of LLM usage during the run.
-            The structure should be::
-
-                {"model_name": {"prompt": float, "response": float}}
-
-            Costs are specified in dollars per million tokens.
-            For example::
-
-                "llm_costs": {"my_gpt": {"prompt": 1.5, "response": 3}}
-
-            registers a model named `"my_gpt"` with a cost of $1.5 per
-            million input (prompt) tokens and $3 per million output
-            (response) tokens for the current processing run.
-
-            .. NOTE::
-
-                The displayed total cost does not track cached tokens,
-                so treat it like an estimate. Your final API costs may
-                vary.
-
-            If set to ``None``, no custom model costs are recorded, and
-            cost tracking may be unavailable in the progress bar.
-            By default, ``None``.
-        """
-        self.model = model
-        self.llm_costs = llm_costs
 
 
 class WebSearchParams:
@@ -634,7 +589,12 @@ class BaseRequest:
             known_local_docs=known_local_docs,
             known_doc_urls=known_doc_urls,
         )
-        self.model_selection = ModelSelection(model=model, llm_costs=llm_costs)
+        self.models = (
+            _build_models(model)
+            if model and self.MODE != COMPASSRunMode.COLLECT
+            else {}
+        )
+        self.llm_costs = llm_costs
 
 
 class ProcessRequest(BaseRequest):
@@ -756,3 +716,41 @@ class JurisdictionResult:
 
     def __bool__(self):
         return self.ord_db_fp is not None
+
+
+def _build_models(user_input, *, allow_empty=False):
+    """Build configured model registry"""
+    if user_input is None:
+        return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
+
+    if isinstance(user_input, str):
+        return {LLMTasks.DEFAULT: OpenAIConfig(name=user_input)}
+
+    caller_instances = {}
+    for raw_kwargs in user_input:
+        kwargs = dict(raw_kwargs)
+        tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
+        if isinstance(tasks, str):
+            tasks = [tasks]
+
+        model_config = OpenAIConfig(**kwargs)
+        for task in tasks:
+            if task in caller_instances:
+                msg = (
+                    f"Found duplicated task: {task!r}. Please ensure "
+                    "each LLM caller definition has uniquely-assigned "
+                    "tasks."
+                )
+                raise COMPASSValueError(msg)
+            caller_instances[task] = model_config
+
+    if not allow_empty and LLMTasks.DEFAULT not in caller_instances:
+        msg = (
+            "No 'default' LLM caller defined in the `model` portion "
+            "of the input config! Please ensure exactly one of the "
+            "model definitions has 'tasks' set to 'default' or left "
+            f"unspecified. Found tasks: {list(caller_instances)}"
+        )
+        raise COMPASSValueError(msg)
+
+    return caller_instances

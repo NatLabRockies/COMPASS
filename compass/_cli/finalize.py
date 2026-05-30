@@ -10,7 +10,7 @@ from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
-from compass.pipeline.coordinator import _build_models
+from compass.pipeline import _build_models
 
 
 @click.command

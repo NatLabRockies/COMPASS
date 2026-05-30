@@ -5,10 +5,10 @@ from compass.pipeline.data_classes import (
     CollectionRequest,
     ExtractionRequest,
     KnownSourcesInput,
-    ModelSelection,
     OutputSettings,
     ProcessRequest,
     RuntimeSettings,
     SearchSettings,
     JurisdictionResult,
+    _build_models,
 )

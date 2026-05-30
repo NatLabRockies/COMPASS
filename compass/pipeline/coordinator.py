@@ -6,7 +6,6 @@ import logging
 from datetime import datetime, UTC
 from abc import ABC, abstractmethod
 
-from compass.llm import OpenAIConfig
 from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.exceptions import COMPASSError, COMPASSValueError
@@ -19,7 +18,7 @@ from compass.utilities import (
     save_run_meta,
 )
 from compass.services.threaded import UsageUpdater
-from compass.utilities.enums import COMPASSRunMode, LLMTasks
+from compass.utilities.enums import COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
@@ -82,8 +81,7 @@ async def run_compass(request):
             perform_website_search=request.perform_website_search,
         )
 
-    models = _build_model_registry(request)
-    runtime = PipelineRuntime(request, models)
+    runtime = PipelineRuntime(request)
 
     _log_execution_info(request, steps)
     jurisdictions_df = _load_jurisdictions_to_process(request.jurisdiction_fp)
@@ -366,53 +364,6 @@ def _load_jurisdictions_to_process(jurisdiction_fp):
     return load_jurisdictions_from_fp(jurisdiction_fp)
 
 
-def _build_model_registry(request):
-    """Build configured models for the run"""
-    if request.MODE == COMPASSRunMode.COLLECT:
-        return {}
-    if request.model_selection.model is None:
-        return {}
-    return _build_models(request.model_selection.model)
-
-
-def _build_models(user_input, *, allow_empty=False):
-    """Build configured model registry"""
-    if user_input is None:
-        return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
-
-    if isinstance(user_input, str):
-        return {LLMTasks.DEFAULT: OpenAIConfig(name=user_input)}
-
-    caller_instances = {}
-    for raw_kwargs in user_input:
-        kwargs = dict(raw_kwargs)
-        tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
-        if isinstance(tasks, str):
-            tasks = [tasks]
-
-        model_config = OpenAIConfig(**kwargs)
-        for task in tasks:
-            if task in caller_instances:
-                msg = (
-                    f"Found duplicated task: {task!r}. Please ensure "
-                    "each LLM caller definition has uniquely-assigned "
-                    "tasks."
-                )
-                raise COMPASSValueError(msg)
-            caller_instances[task] = model_config
-
-    if not allow_empty and LLMTasks.DEFAULT not in caller_instances:
-        msg = (
-            "No 'default' LLM caller defined in the `model` portion "
-            "of the input config! Please ensure exactly one of the "
-            "model definitions has 'tasks' set to 'default' or left "
-            f"unspecified. Found tasks: {list(caller_instances)}"
-        )
-        raise COMPASSValueError(msg)
-
-    return caller_instances
-
-
 def _select_workflow(runtime):
     """Select the concrete mode workflow"""
     if runtime.mode == COMPASSRunMode.COLLECT:
@@ -455,7 +406,8 @@ def _request_to_log_args(request):
         "runtime_settings": request.runtime_settings.__dict__,
         "output_settings": request.output_settings.__dict__,
         "known_sources": request.known_sources.__dict__,
-        "model_selection": request.model_selection.__dict__,
+        "models": request.models,
+        "llm_costs": request.llm_costs,
     }
 
 
