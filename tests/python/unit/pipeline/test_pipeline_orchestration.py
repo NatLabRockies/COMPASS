@@ -175,9 +175,7 @@ class _RoundtripTestPlugin(BaseExtractionPlugin):
 
         return _KeepEverything()
 
-    async def filter_docs(
-        self, extraction_context, needs_jurisdiction_verification=True
-    ):
+    async def filter_docs(self, extraction_context):
         """Keep all docs for deterministic round-trip tests"""
         if not extraction_context:
             return None
