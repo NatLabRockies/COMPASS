@@ -75,18 +75,12 @@ class DocumentCollection:
             self.de_duplicator.add_docs(
                 docs,
                 step_name=str(step.STEP_NAME),
-                needs_jurisdiction_verification=(
-                    step.NEEDS_JURISDICTION_VERIFICATION
-                ),
                 jurisdiction_name=self.workflow.jurisdiction.full_name,
             )
             if eager_extract:
                 context = (
                     await self.workflow.extraction_workflow.extract_from_docs(
-                        docs,
-                        needs_jurisdiction_verification=(
-                            step.NEEDS_JURISDICTION_VERIFICATION
-                        ),
+                        docs
                     )
                 )
                 if context is not None:

@@ -624,7 +624,6 @@ async def filter_ordinance_docs(
     tech,
     text_collectors,
     usage_tracker=None,
-    check_for_correct_jurisdiction=True,
 ):
     """Filter a list of documents to only those that contain ordinances
 
@@ -653,9 +652,6 @@ async def filter_ordinance_docs(
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
-    check_for_correct_jurisdiction : bool, default=True
-        If ``True`` run jurisdiction validation before, content checks.
-        By default, ``True``.
 
     Returns
     -------
@@ -677,29 +673,27 @@ async def filter_ordinance_docs(
         ),
     )
 
-    if check_for_correct_jurisdiction:
-        COMPASS_PB.update_jurisdiction_task(
-            jurisdiction.full_name,
-            description="Checking files for correct jurisdiction...",
-        )
-        docs = await _down_select_docs_correct_jurisdiction(
-            docs,
-            jurisdiction=jurisdiction,
-            usage_tracker=usage_tracker,
-            model_config=model_configs.get(
-                LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
-                model_configs[LLMTasks.DEFAULT],
-            ),
-        )
-        logger.info(
-            "%d document(s) remaining after jurisdiction filter for %s"
-            "\n\t- %s",
-            len(docs),
-            jurisdiction.full_name,
-            "\n\t- ".join(
-                [doc.attrs.get("source", "Unknown source") for doc in docs]
-            ),
-        )
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction.full_name,
+        description="Checking files for correct jurisdiction...",
+    )
+    docs = await _down_select_docs_correct_jurisdiction(
+        docs,
+        jurisdiction=jurisdiction,
+        usage_tracker=usage_tracker,
+        model_config=model_configs.get(
+            LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
+            model_configs[LLMTasks.DEFAULT],
+        ),
+    )
+    logger.info(
+        "%d document(s) remaining after jurisdiction filter for %s\n\t- %s",
+        len(docs),
+        jurisdiction.full_name,
+        "\n\t- ".join(
+            [doc.attrs.get("source", "Unknown source") for doc in docs]
+        ),
+    )
 
     COMPASS_PB.update_jurisdiction_task(
         jurisdiction.full_name, description="Checking files for legal text..."

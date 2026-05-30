@@ -30,12 +30,6 @@ class CollectionStep(ABC):
         """Identifier for step (e.g. "known_local_docs")"""
         raise NotImplementedError
 
-    @property
-    @abstractmethod
-    def NEEDS_JURISDICTION_VERIFICATION(self):  # noqa: N802
-        """bool: Option enabling jurisdiction verification"""
-        raise NotImplementedError
-
     @abstractmethod
     async def collect(self, workflow):
         """Collect documents for one step"""
@@ -47,9 +41,6 @@ class KnownLocalDocumentsStep(CollectionStep):
 
     STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_LOCAL_DOCS
     """Identifier for step"""
-
-    NEEDS_JURISDICTION_VERIFICATION = False
-    """bool: Option disabling jurisdiction verification"""
 
     async def collect(self, workflow):  # noqa: PLR6301
         """Collect known local documents for this jurisdiction
@@ -105,9 +96,6 @@ class KnownUrlDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_DOC_URLS
     """Identifier for step"""
 
-    NEEDS_JURISDICTION_VERIFICATION = False
-    """bool: Option disabling jurisdiction verification"""
-
     async def collect(self, workflow):  # noqa: PLR6301
         """Collect documents from known URL's for this jurisdiction
 
@@ -162,9 +150,6 @@ class SearchEngineDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_ENGINE
     """Identifier for step"""
 
-    NEEDS_JURISDICTION_VERIFICATION = True
-    """bool: Option enabling jurisdiction verification"""
-
     async def collect(self, workflow):  # noqa: PLR6301
         """Collect documents based on a search engine search
 
@@ -196,7 +181,7 @@ class SearchEngineDocumentsStep(CollectionStep):
         )
         try:
             query_templates = await workflow.extractor.get_query_templates()
-            return await download_jurisdiction_ordinance_using_search_engine(
+            docs = await download_jurisdiction_ordinance_using_search_engine(
                 query_templates,
                 workflow.jurisdiction,
                 num_urls=(
@@ -220,15 +205,17 @@ class SearchEngineDocumentsStep(CollectionStep):
             )
             return []
 
+        for doc in docs:
+            doc.attrs["compass_crawl"] = False
+            doc.attrs["check_correct_jurisdiction"] = True
+        return docs
+
 
 class ElmWebsiteCrawlStep(CollectionStep):
     """Concrete Strategy for ELM-based website crawling"""
 
     STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_ELM
     """Identifier for step"""
-
-    NEEDS_JURISDICTION_VERIFICATION = True
-    """bool: Option enabling jurisdiction verification"""
 
     async def collect(self, workflow):  # noqa: PLR6301
         """Collect documents based on an ELM website crawl
@@ -303,6 +290,9 @@ class ElmWebsiteCrawlStep(CollectionStep):
 
         docs, scrape_results = out
         workflow.last_scrape_results = scrape_results
+        for doc in docs:
+            doc.attrs["compass_crawl"] = False
+            doc.attrs["check_correct_jurisdiction"] = True
         return docs
 
 
@@ -311,9 +301,6 @@ class CompassWebsiteCrawlStep(CollectionStep):
 
     STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_COMPASS
     """Identifier for step"""
-
-    NEEDS_JURISDICTION_VERIFICATION = True
-    """bool: Option enabling jurisdiction verification"""
 
     async def collect(self, workflow):  # noqa: PLR6301
         """Collect documents based on a COMPASS website crawl
@@ -386,6 +373,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
 
         for doc in docs:
             doc.attrs["compass_crawl"] = True
+            doc.attrs["check_correct_jurisdiction"] = True
         return docs
 
 
@@ -469,6 +457,7 @@ async def _find_jurisdiction_website_for_workflow(workflow):
 def _add_known_doc_attrs_to_all_docs(docs, doc_infos, key):
     """Add user-defined document attrs to loaded docs"""
     for doc in docs:
+        doc.attrs["check_correct_jurisdiction"] = False
         source_fp = doc.attrs.get(key)
         if not source_fp:
             continue

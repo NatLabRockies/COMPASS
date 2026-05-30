@@ -299,14 +299,11 @@ def _serialize_collection_doc_info(doc, from_steps):
     serialized = dict(doc.attrs)
     serialized.pop("cache_fn", None)
     serialized.pop("cleaned_fps", None)
+    serialized.setdefault("check_correct_jurisdiction", True)
     serialized.update(
         {
             "is_pdf": doc.attrs.get("is_pdf", isinstance(doc, PDFDocument)),
             "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
-            "check_correct_jurisdiction": doc.attrs.get(
-                "check_correct_jurisdiction",
-                True,
-            ),
             "from_steps": from_steps,
         }
     )
