@@ -393,14 +393,52 @@ class BaseRequest:
             be a string identifying the type of subdivision (e.g.,
             "City", "Township", etc.)
         model : str or list of dict, default="gpt-4o-mini"
-            Optional model configuration used only for collection-side
-            LLM tasks, such as validating a user-supplied jurisdiction
-            website. If provided as a string, it is treated as the
-            default model name. If provided as a list, each entry
-            should contain keyword arguments used to initialize
-            :class:`~compass.llm.config.OpenAIConfig`, along with a
-            ``tasks`` key describing which LLM tasks that configuration
-            should handle. By default, ``None``.
+            LLM model(s) to use for scraping and parsing ordinance
+            documents. If a string is provided, it is assumed to be the
+            name of the default model (e.g., "gpt-4o"), and environment
+            variables are used for authentication.
+
+            If a list is provided, it should contain dictionaries of
+            arguments that can initialize instances of
+            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
+            can specify the model name, client type, and initialization
+            arguments.
+
+            Each dictionary must also include a ``tasks`` key, which
+            maps to a string or list of strings indicating the tasks
+            that instance should handle. Exactly one of the instances
+            **must** include "default" as a task, which will be used
+            when no specific task is matched. For example::
+
+                "model": [
+                    {
+                        "model": "gpt-4o-mini",
+                        "llm_call_kwargs": {
+                            "temperature": 0,
+                            "timeout": 300,
+                        },
+                        "client_kwargs": {
+                            "api_key": "<your_api_key>",
+                            "api_version": "<your_api_version>",
+                            "azure_endpoint": "<your_azure_endpoint>",
+                        },
+                        "tasks": ["default", "date_extraction"],
+                    },
+                    {
+                        "model": "gpt-4o",
+                        "client_type": "openai",
+                        "tasks": ["ordinance_text_extraction"],
+                    }
+                ]
+
+            .. IMPORTANT::
+                You will need to ensure that the model name used here
+                matches your deployment if you are using Azure OpenAI.
+                For example, if you deployed the GPT-4o-mini model under
+                the name ``"gpt-4o-mini-2025-04-11"``, you would want to
+                set ``"model": "gpt-4o-mini-2025-04-11"``.
+
+            By default, ``"gpt-4o-mini"``.
         llm_costs : dict, optional
             Dictionary mapping model names to their token costs, used to
             track the estimated total cost of LLM usage during the run.
@@ -541,7 +579,7 @@ class BaseRequest:
             helpful for sharing the manifest or for ensuring that it can
             be loaded correctly on a different machine. If ``False``,
             absolute paths are used in the manifest.
-            By default, ``True``.
+            By default, ``False``.
         log_level : str, default="INFO"
             Logging level for ordinance scraping and parsing (e.g.,
             "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
@@ -624,7 +662,38 @@ class CollectionRequest(BaseRequest):
     MODE = COMPASSRunMode.COLLECT
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(self, out_dir, tech, jurisdiction_fp, **kwargs):
+    def __init__(  # noqa: PLR0913
+        self,
+        out_dir,
+        tech,
+        jurisdiction_fp,
+        *,
+        model=None,
+        num_urls_to_check_per_jurisdiction=5,
+        max_num_concurrent_browsers=10,
+        max_num_concurrent_website_searches=10,
+        max_num_concurrent_jurisdictions=25,
+        url_ignore_substrings=None,
+        known_local_docs=None,
+        known_doc_urls=None,
+        file_loader_kwargs=None,
+        search_engines=None,
+        simple_se_result_sort=True,
+        pytesseract_exe_fp=None,
+        td_kwargs=None,
+        tpe_kwargs=None,
+        ppe_kwargs=None,
+        log_dir=None,
+        source_file_dir=None,
+        parsed_file_dir=None,
+        shard_dir=None,
+        perform_se_search=True,
+        perform_website_search=True,
+        make_paths_relative=True,
+        llm_costs=None,
+        log_level="INFO",
+        keep_async_logs=False,
+    ):
         """
 
         Parameters
@@ -649,14 +718,202 @@ class CollectionRequest(BaseRequest):
             name of the subdivision, and the "Jurisdiction Type" should
             be a string identifying the type of subdivision (e.g.,
             "City", "Township", etc.)
-        **kwargs : dict
-            Additional keyword arguments forwarded to
-            :class:`BaseRequest`. If not supplied, collection mode sets
-            `model` to ``None`` and `make_paths_relative` to ``True``.
+        model : str or list of dict, optional
+            Optional model configuration used only for collection-side
+            LLM tasks, such as validating a user-supplied jurisdiction
+            website. If provided as a string, it is treated as the
+            default model name. If provided as a list, each entry
+            should contain keyword arguments used to initialize
+            :class:`~compass.llm.config.OpenAIConfig`, along with a
+            ``tasks`` key describing which LLM tasks that configuration
+            should handle. By default, ``None``.
+        num_urls_to_check_per_jurisdiction : int, default=5
+            Number of unique Google search result URLs to check for each
+            jurisdiction when attempting to locate ordinance documents.
+            By default, ``5``.
+        max_num_concurrent_browsers : int, default=10
+            Maximum number of browser instances to launch concurrently
+            for retrieving information from the web. Increasing this
+            value too much may lead to timeouts or performance issues on
+            machines with limited resources. By default, ``10``.
+        max_num_concurrent_website_searches : int, default=10
+            Maximum number of website searches allowed to run
+            simultaneously. Increasing this value can speed up searches,
+            but may lead to timeouts or performance issues on machines
+            with limited resources. By default, ``10``.
+        max_num_concurrent_jurisdictions : int, default=25
+            Maximum number of jurisdictions to process concurrently.
+            Limiting this can help manage memory usage when dealing with
+            a large number of documents. By default, ``25``.
+        url_ignore_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be excluded from consideration. This can be used
+            to specify particular websites or entire domains to ignore.
+            By default, ``None``.
+        known_local_docs : dict or path-like, optional
+            A dictionary where keys are the jurisdiction codes (as
+            strings) and values are lists of dictionaries containing
+            information about each local document. Each document
+            dictionary should contain at least the key ``"source_fp"``
+            pointing to the full local document path. Additional keys
+            are copied onto the loaded document as attributes. This
+            input can also be a path to a JSON file containing the same
+            mapping. By default, ``None``.
+        known_doc_urls : dict or path-like, optional
+            A dictionary where keys are the jurisdiction codes (as
+            strings) and values are lists of dictionaries containing
+            information about each known URL to check. Each document
+            dictionary should contain at least the key ``"source"``
+            representing the known document URL. Additional keys are
+            copied onto the loaded document as attributes. This input
+            can also be a path to a JSON file containing the same
+            mapping. By default, ``None``.
+        file_loader_kwargs : dict, optional
+            Dictionary of keyword argument pairs to initialize
+            :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
+            the ``"pw_launch_kwargs"`` key in these will also be used to
+            initialize the Playwright-backed Google search used for
+            search engine retrieval. By default, ``None``.
+        search_engines : list, optional
+            A list of dictionaries describing the search engine classes
+            and keyword arguments to use for search engine retrieval. If
+            ``None``, the default search engine configurations and
+            fallback order are used. By default, ``None``.
+        simple_se_result_sort : bool, default=True
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``True``.
+        pytesseract_exe_fp : path-like, optional
+            Path to the `pytesseract` executable. If specified, OCR will
+            be used to extract text from scanned PDFs using Google's
+            Tesseract. By default, ``None``.
+        td_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`tempfile.TemporaryDirectory`. The temporary
+            directory is used to store documents which have not yet been
+            confirmed to contain relevant information.
+            By default, ``None``.
+        tpe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ThreadPoolExecutor`, used for
+            I/O-bound tasks such as logging and file writes.
+            By default, ``None``.
+        ppe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ProcessPoolExecutor`, used for
+            CPU-bound tasks such as PDF loading and parsing.
+            By default, ``None``.
+        log_dir : path-like, optional
+            Path to the directory for storing log files. If not
+            provided, a ``logs`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        source_file_dir : path-like, optional
+            Path to the directory where collected source ordinance files
+            (PDFs or HTML) are stored. If not provided, an
+            ``ordinance_files`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        parsed_file_dir : path-like, optional
+            Path to the directory where parsed document text files are
+            stored. If not provided, a ``cleaned_text`` subdirectory
+            will be created inside `out_dir`. By default, ``None``.
+        shard_dir : path-like, optional
+            Path to the directory for storing per-jurisdiction
+            collection manifest shards. If not provided, a
+            ``manifest_shards`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        perform_se_search : bool, default=True
+            Option to perform a search engine-based search for ordinance
+            documents. This is the standard way to collect ordinance
+            documents, and it is recommended to leave this set to
+            ``True`` unless you are re-processing local documents. If
+            ``True``, the search engine approach is used to locate
+            ordinance documents
+            before falling back to a website crawl-based search (if that
+            has been selected). By default, ``True``.
+        perform_website_search : bool, default=True
+            Option to fallback to a jurisdiction website crawl-based
+            search for ordinance documents if the search engine approach
+            fails to recover any relevant documents.
+            By default, ``True``.
+        make_paths_relative : bool, default=True
+            Option to make all file paths in the saved collection
+            manifest relative to the output directory. This can be
+            helpful for sharing the manifest or for ensuring that it can
+            be loaded correctly on a different machine. If ``False``,
+            absolute paths are used in the manifest.
+            By default, ``True``.
+        llm_costs : dict, optional
+            Dictionary mapping model names to their token costs, used to
+            track the estimated total cost of LLM usage during the run.
+            The structure should be::
+
+                {"model_name": {"prompt": float, "response": float}}
+
+            Costs are specified in dollars per million tokens.
+            For example::
+
+                "llm_costs": {"my_gpt": {"prompt": 1.5, "response": 3}}
+
+            registers a model named `"my_gpt"` with a cost of $1.5 per
+            million input (prompt) tokens and $3 per million output
+            (response) tokens for the current processing run.
+
+            .. NOTE::
+
+                The displayed total cost does not track cached tokens,
+                so treat it like an estimate. Your final API costs may
+                vary.
+
+            If set to ``None``, no custom model costs are recorded, and
+            cost tracking may be unavailable in the progress bar.
+            By default, ``None``.
+        log_level : str, default="INFO"
+            Logging level for ordinance scraping and parsing (e.g.,
+            "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
+            By default, ``"INFO"``.
+        keep_async_logs : bool, default=False
+            Option to store the full asynchronous log record to a file.
+            This is only useful if you intend to monitor overall
+            processing progress from a file instead of from the
+            terminal. If ``True``, all of the unordered records are
+            written to a "all.log" file in the `log_dir` directory.
+            By default, ``False``.
         """
-        kwargs.setdefault("model", None)
-        kwargs.setdefault("make_paths_relative", True)
-        super().__init__(out_dir, tech, jurisdiction_fp, **kwargs)
+        super().__init__(
+            out_dir=out_dir,
+            tech=tech,
+            jurisdiction_fp=jurisdiction_fp,
+            model=model,
+            llm_costs=llm_costs,
+            num_urls_to_check_per_jurisdiction=(
+                num_urls_to_check_per_jurisdiction
+            ),
+            max_num_concurrent_browsers=max_num_concurrent_browsers,
+            max_num_concurrent_website_searches=(
+                max_num_concurrent_website_searches
+            ),
+            max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
+            url_ignore_substrings=url_ignore_substrings,
+            known_local_docs=known_local_docs,
+            known_doc_urls=known_doc_urls,
+            file_loader_kwargs=file_loader_kwargs,
+            search_engines=search_engines,
+            simple_se_result_sort=simple_se_result_sort,
+            pytesseract_exe_fp=pytesseract_exe_fp,
+            td_kwargs=td_kwargs,
+            tpe_kwargs=tpe_kwargs,
+            ppe_kwargs=ppe_kwargs,
+            log_dir=log_dir,
+            clean_dir=parsed_file_dir,
+            ordinance_file_dir=source_file_dir,
+            jurisdiction_dbs_dir=shard_dir,
+            perform_se_search=perform_se_search,
+            perform_website_search=perform_website_search,
+            make_paths_relative=make_paths_relative,
+            log_level=log_level,
+            keep_async_logs=keep_async_logs,
+        )
 
 
 class ExtractionRequest(BaseRequest):
@@ -665,8 +922,26 @@ class ExtractionRequest(BaseRequest):
     MODE = COMPASSRunMode.EXTRACT
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(
-        self, out_dir, tech, jurisdiction_fp, collection_manifest_fp, **kwargs
+    def __init__(  # noqa: PLR0913
+        self,
+        out_dir,
+        tech,
+        jurisdiction_fp,
+        collection_manifest_fp,
+        *,
+        model="gpt-4o-mini",
+        max_num_concurrent_jurisdictions=25,
+        file_loader_kwargs=None,
+        td_kwargs=None,
+        tpe_kwargs=None,
+        ppe_kwargs=None,
+        log_dir=None,
+        clean_dir=None,
+        ordinance_file_dir=None,
+        jurisdiction_dbs_dir=None,
+        llm_costs=None,
+        log_level="INFO",
+        keep_async_logs=False,
     ):
         """
 
@@ -697,16 +972,153 @@ class ExtractionRequest(BaseRequest):
             collection step. The manifest must contain the persisted
             document information needed to reload each collected
             document for extraction.
-        **kwargs : dict
-            Additional keyword arguments forwarded to
-            :class:`BaseRequest`.
+        model : str or list of dict, default="gpt-4o-mini"
+            LLM model(s) to use for scraping and parsing ordinance
+            documents. If a string is provided, it is assumed to be the
+            name of the default model (e.g., "gpt-4o"), and environment
+            variables are used for authentication.
+
+            If a list is provided, it should contain dictionaries of
+            arguments that can initialize instances of
+            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
+            can specify the model name, client type, and initialization
+            arguments.
+
+            Each dictionary must also include a ``tasks`` key, which
+            maps to a string or list of strings indicating the tasks
+            that instance should handle. Exactly one of the instances
+            **must** include "default" as a task, which will be used
+            when no specific task is matched. For example::
+
+                "model": [
+                    {
+                        "model": "gpt-4o-mini",
+                        "llm_call_kwargs": {
+                            "temperature": 0,
+                            "timeout": 300,
+                        },
+                        "client_kwargs": {
+                            "api_key": "<your_api_key>",
+                            "api_version": "<your_api_version>",
+                            "azure_endpoint": "<your_azure_endpoint>",
+                        },
+                        "tasks": ["default", "date_extraction"],
+                    },
+                    {
+                        "model": "gpt-4o",
+                        "client_type": "openai",
+                        "tasks": ["ordinance_text_extraction"],
+                    }
+                ]
+
+            .. IMPORTANT::
+                You will need to ensure that the model name used here
+                matches your deployment if you are using Azure OpenAI.
+                For example, if you deployed the GPT-4o-mini model under
+                the name ``"gpt-4o-mini-2025-04-11"``, you would want to
+                set ``"model": "gpt-4o-mini-2025-04-11"``.
+
+            By default, ``"gpt-4o-mini"``.
+        max_num_concurrent_jurisdictions : int, default=25
+            Maximum number of jurisdictions to process concurrently.
+            Limiting this can help manage memory usage when dealing with
+            a large number of documents. By default, ``25``.
+        file_loader_kwargs : dict, optional
+            Dictionary of keyword argument pairs to initialize
+            :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
+            the ``"pw_launch_kwargs"`` key in these will also be used to
+            initialize the Playwright-backed Google search used for
+            search engine retrieval. By default, ``None``.
+        td_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`tempfile.TemporaryDirectory`. The temporary
+            directory is used to store documents which have not yet been
+            confirmed to contain relevant information.
+            By default, ``None``.
+        tpe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ThreadPoolExecutor`, used for
+            I/O-bound tasks such as logging and file writes.
+            By default, ``None``.
+        ppe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ProcessPoolExecutor`, used for
+            CPU-bound tasks such as PDF loading and parsing.
+            By default, ``None``.
+        log_dir : path-like, optional
+            Path to the directory for storing log files. If not
+            provided, a ``logs`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        clean_dir : path-like, optional
+            Path to the directory for storing cleaned ordinance text
+            output. If not provided, a ``cleaned_text`` subdirectory
+            will be created inside `out_dir`. By default, ``None``.
+        ordinance_file_dir : path-like, optional
+            Path to the directory where downloaded ordinance files (PDFs
+            or HTML) for each jurisdiction are stored. If not provided,
+            a ``ordinance_files`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        jurisdiction_dbs_dir : path-like, optional
+            Path to the directory where parsed ordinance database files
+            are stored for each jurisdiction. If not provided, a
+            ``jurisdiction_dbs`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        llm_costs : dict, optional
+            Dictionary mapping model names to their token costs, used to
+            track the estimated total cost of LLM usage during the run.
+            The structure should be::
+
+                {"model_name": {"prompt": float, "response": float}}
+
+            Costs are specified in dollars per million tokens.
+            For example::
+
+                "llm_costs": {"my_gpt": {"prompt": 1.5, "response": 3}}
+
+            registers a model named `"my_gpt"` with a cost of $1.5 per
+            million input (prompt) tokens and $3 per million output
+            (response) tokens for the current processing run.
+
+            .. NOTE::
+
+                The displayed total cost does not track cached tokens,
+                so treat it like an estimate. Your final API costs may
+                vary.
+
+            If set to ``None``, no custom model costs are recorded, and
+            cost tracking may be unavailable in the progress bar.
+            By default, ``None``.
+        log_level : str, default="INFO"
+            Logging level for ordinance scraping and parsing (e.g.,
+            "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
+            By default, ``"INFO"``.
+        keep_async_logs : bool, default=False
+            Option to store the full asynchronous log record to a file.
+            This is only useful if you intend to monitor overall
+            processing progress from a file instead of from the
+            terminal. If ``True``, all of the unordered records are
+            written to a "all.log" file in the `log_dir` directory.
+            By default, ``False``.
         """
+
         super().__init__(
-            out_dir,
-            tech,
-            jurisdiction_fp,
+            out_dir=out_dir,
+            tech=tech,
+            jurisdiction_fp=jurisdiction_fp,
+            model=model,
+            max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
+            file_loader_kwargs=file_loader_kwargs,
+            td_kwargs=td_kwargs,
+            tpe_kwargs=tpe_kwargs,
+            ppe_kwargs=ppe_kwargs,
+            log_dir=log_dir,
+            clean_dir=clean_dir,
+            ordinance_file_dir=ordinance_file_dir,
+            jurisdiction_dbs_dir=jurisdiction_dbs_dir,
+            log_level=log_level,
+            keep_async_logs=keep_async_logs,
             collection_manifest_fp=collection_manifest_fp,
-            **kwargs,
+            llm_costs=llm_costs,
         )
 
 
