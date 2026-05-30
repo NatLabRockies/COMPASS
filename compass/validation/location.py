@@ -445,13 +445,23 @@ def _weighted_vote(out, doc):
         return 0
 
     total = weights = 0
+    messages = [
+        (
+            "Validator weighted vote breakdown for doc from "
+            f"{doc.attrs.get('source', 'Unknown')!r} "
+            f"({len(doc.raw_pages)} raw pages):"
+        )
+    ]
     for verdict, text in zip(out, doc.raw_pages, strict=True):
         if verdict is None:
             continue
         weight = len(text)
-        logger.debug("Weight=%d, Verdict=%d", weight, int(verdict))
+        messages.append(f"\t- Weight={weight:,d}, Verdict={int(verdict)}")
         weights += weight
         total += verdict * weight
+
+    if len(messages) > 1:
+        logger.debug("\n".join(messages))
 
     weights = max(weights, 1)
     return total / weights
