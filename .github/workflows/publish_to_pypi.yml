@@ -55,11 +55,10 @@ jobs:
         cache-write: ${{ github.event_name != 'release' && github.ref == 'refs/heads/main' }}
         environments: pbuild
 
-    - name: Build
-      run: pixi run -e pbuild build-wheels
-
-    - name: Validate package metadata
-      run: pixi run -e pbuild twine check --strict dist/*
+    - name: Clean README, build, and validate package metadata
+      run: |
+        VERSION=$(git describe --tags --match 'v*[0-9]*' --abbrev=0 | sed 's/^v//')
+        SETUPTOOLS_SCM_PRETEND_VERSION_FOR_INFRA_COMPASS="$VERSION" pixi run -e pbuild check-wheels
 
     - name: Publish package distributions to PyPI
       if: github.event_name == 'release'
