@@ -18,7 +18,8 @@ from compass.pipeline import (
 from compass.pipeline.collection.persistence import (
     COLLECTION_MANIFEST_FILENAME,
 )
-from compass.pipeline.coordinator import _build_models, run_compass
+from compass.pipeline import _build_models
+from compass.pipeline.coordinator import run_compass
 from compass.pipeline.runtime import PipelineRuntime
 from compass.plugin.base import BaseExtractionPlugin
 from compass.plugin.registry import PLUGIN_REGISTRY, register_plugin
@@ -100,7 +101,7 @@ def test_known_local_docs_missing_file(tmp_path):
     with pytest.raises(
         COMPASSFileNotFoundError, match="Configuration file does not exist"
     ):
-        PipelineRuntime(request, {})
+        PipelineRuntime(request)
 
 
 def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
@@ -118,7 +119,7 @@ def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
     with pytest.raises(
         COMPASSFileNotFoundError, match="Configuration file does not exist"
     ):
-        PipelineRuntime(request, {})
+        PipelineRuntime(request)
 
     assert testing_log_file.exists()
     assert "Configuration file does not exist" in testing_log_file.read_text(
