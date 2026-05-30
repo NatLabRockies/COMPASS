@@ -10,70 +10,6 @@ from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.exceptions import COMPASSValueError
 
 
-class SearchSettings:
-    """Value Object for search and crawl settings"""
-
-    def __init__(
-        self,
-        num_urls_to_check_per_jurisdiction=5,
-        max_num_concurrent_browsers=10,
-        max_num_concurrent_website_searches=10,
-        url_ignore_substrings=None,
-        search_engines=None,
-        simple_se_result_sort=True,
-        pytesseract_exe_fp=None,
-    ):
-        """
-
-        Parameters
-        ----------
-        num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
-            jurisdiction when attempting to locate ordinance documents.
-            By default, ``5``.
-        max_num_concurrent_browsers : int, default=10
-            Maximum number of browser instances to launch concurrently
-            for retrieving information from the web. Increasing this
-            value too much may lead to timeouts or performance issues on
-            machines with limited resources. By default, ``10``.
-        max_num_concurrent_website_searches : int, default=10
-            Maximum number of website searches allowed to run
-            simultaneously. Increasing this value can speed up searches,
-            but may lead to timeouts or performance issues on machines
-            with limited resources. By default, ``10``.
-        url_ignore_substrings : list of str, optional
-            A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            By default, ``None``.
-        search_engines : list, optional
-            A list of dictionaries describing the search engine classes
-            and keyword arguments to use for search engine retrieval. If
-            ``None``, the default search engine configurations and
-            fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
-            Flag indicating whether to use a simple top-n sort from the
-            first search engine that gives results (``True``) or to
-            apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
-        pytesseract_exe_fp : path-like, optional
-            Path to the `pytesseract` executable. If specified, OCR will
-            be used to extract text from scanned PDFs using Google's
-            Tesseract. By default, ``None``.
-        """
-        self.num_urls_to_check_per_jurisdiction = (
-            num_urls_to_check_per_jurisdiction
-        )
-        self.max_num_concurrent_browsers = max_num_concurrent_browsers
-        self.max_num_concurrent_website_searches = (
-            max_num_concurrent_website_searches
-        )
-        self.url_ignore_substrings = url_ignore_substrings
-        self.search_engines = search_engines
-        self.simple_se_result_sort = simple_se_result_sort
-        self.pytesseract_exe_fp = pytesseract_exe_fp
-
-
 class RuntimeSettings:
     """Value Object for runtime and execution settings"""
 
@@ -239,8 +175,9 @@ class WebSearchParams:
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=None,
         url_ignore_substrings=None,
-        pytesseract_exe_fp=None,
         search_engines=None,
+        simple_se_result_sort=True,
+        pytesseract_exe_fp=None,
     ):
         """
 
@@ -277,10 +214,6 @@ class WebSearchParams:
             file located at
             `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
             By default, ``None``.
-        pytesseract_exe_fp : path-like, optional
-            Path to the `pytesseract` executable. If specified, OCR will
-            be used to extract text from scanned PDFs using Google's
-            Tesseract. By default ``None``.
         search_engines : list, optional
             A list of dictionaries, where each dictionary contains
             information about a search engine class that should be used
@@ -299,6 +232,15 @@ class WebSearchParams:
             fallback (in order that they appear). If ``None``, then all
             default configurations for the search engines (along with
             the fallback order) are used. By default, ``None``.
+        simple_se_result_sort : bool, default=True
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``True``.
+        pytesseract_exe_fp : path-like, optional
+            Path to the `pytesseract` executable. If specified, OCR will
+            be used to extract text from scanned PDFs using Google's
+            Tesseract. By default ``None``.
         """
         self.num_urls_to_check_per_jurisdiction = (
             num_urls_to_check_per_jurisdiction
@@ -308,8 +250,9 @@ class WebSearchParams:
             max_num_concurrent_website_searches
         )
         self.url_ignore_substrings = url_ignore_substrings
-        self.pytesseract_exe_fp = pytesseract_exe_fp
         self._search_engines_input = search_engines
+        self.simple_se_result_sort = simple_se_result_sort
+        self.pytesseract_exe_fp = pytesseract_exe_fp
 
     @cached_property
     def se_kwargs(self):
@@ -606,7 +549,7 @@ class BaseRequest:
         self.collection_manifest_fp = collection_manifest_fp
         self.file_loader_kwargs = file_loader_kwargs
 
-        self.search_settings = SearchSettings(
+        self.search_settings = WebSearchParams(
             num_urls_to_check_per_jurisdiction=(
                 num_urls_to_check_per_jurisdiction
             ),

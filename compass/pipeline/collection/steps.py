@@ -181,22 +181,23 @@ class SearchEngineDocumentsStep(CollectionStep):
         )
         try:
             query_templates = await workflow.extractor.get_query_templates()
+            runtime = workflow.runtime
             docs = await download_jurisdiction_ordinance_using_search_engine(
                 query_templates,
                 workflow.jurisdiction,
                 num_urls=(
-                    workflow.runtime.search_params.num_urls_to_check_per_jurisdiction
+                    runtime.search_params.num_urls_to_check_per_jurisdiction
                 ),
                 simple_se_result_sort=(
-                    workflow.runtime.search_params.simple_se_result_sort
+                    runtime.search_params.simple_se_result_sort
                 ),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                search_semaphore=workflow.runtime.search_engine_semaphore,
-                browser_semaphore=workflow.runtime.browser_semaphore,
+                file_loader_kwargs=runtime.file_loader_kwargs,
+                search_semaphore=runtime.search_engine_semaphore,
+                browser_semaphore=runtime.browser_semaphore,
                 url_ignore_substrings=(
-                    workflow.runtime.search_params.url_ignore_substrings
+                    runtime.search_params.url_ignore_substrings
                 ),
-                **workflow.runtime.search_params.se_kwargs,
+                **runtime.search_params.se_kwargs,
             )
         except Exception:
             logger.exception(

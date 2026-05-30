@@ -32,7 +32,6 @@ from compass.services.threaded import (
     read_html_file,
 )
 from compass.utilities import LLM_COST_REGISTRY, Directories
-from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.io import load_config
 from compass.utilities.logs import NoLocationFilter, LogListener
 
@@ -57,6 +56,7 @@ class PipelineRuntime:
         self.mode = request.MODE
         self.tech = request.tech
         self.models = request.models
+        self.search_params = request.search_settings
         self.log_level = _normalize_log_level(
             request.runtime_settings.log_level
         )
@@ -90,11 +90,6 @@ class PipelineRuntime:
             self.request.output_settings,
             collect_only=(self.mode == self.mode.COLLECT),
         )
-
-    @cached_property
-    def search_params(self):
-        """Web search parameters for this run"""
-        return _build_search_params(self.request)
 
     @cached_property
     def tpe_kwargs(self):
@@ -282,19 +277,6 @@ def _normalize_log_level(log_level):
     if log_level == "DEBUG":
         return "DEBUG_TO_FILE"
     return log_level
-
-
-def _build_search_params(request):
-    """Build web search params from a request"""
-    search = request.search_settings
-    return WebSearchParams(
-        search.num_urls_to_check_per_jurisdiction,
-        search.max_num_concurrent_browsers,
-        search.max_num_concurrent_website_searches,
-        search.url_ignore_substrings,
-        search.pytesseract_exe_fp,
-        search.search_engines,
-    )
 
 
 def _build_tpe_kwargs(runtime_settings):
