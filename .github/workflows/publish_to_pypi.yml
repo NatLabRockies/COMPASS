@@ -54,13 +54,12 @@ jobs:
         cache: ${{ github.event_name != 'release' }}
         cache-write: ${{ github.event_name != 'release' && github.ref == 'refs/heads/main' }}
         environments: pbuild
-        activate-environment: true
 
-    - name: Clean README, build, and validate package metadata
-      run: |
-        python support/clean_readme.py README.rst
-        uv build --sdist --wheel --out-dir dist/ .
-        twine check --strict dist/*
+    - name: Build
+      run: pixi run -e pbuild build-wheels
+
+    - name: Validate package metadata
+      run: pixi run -e pbuild twine check --strict dist/*
 
     - name: Publish package distributions to PyPI
       if: github.event_name == 'release'
