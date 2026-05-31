@@ -153,7 +153,7 @@ def _apply_filters(results, blacklist, num_urls):
         entry.pop("query_index", None)
         entry.pop("se_order", None)
 
-    return results
+    return sorted(results, key=_overall_sort_key)
 
 
 def _flatten_results(results):
@@ -248,4 +248,12 @@ def _link_sort_key(entry):
         entry["se_order"],
         entry["query_index"],
         entry["_order"],
+    )
+
+
+def _overall_sort_key(result):
+    """Get overall sort key for a search result item"""
+    return (
+        result.get("overall_rank") or float("inf"),
+        result.get("filtered_reason") or "",
     )
