@@ -226,13 +226,13 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
         num_urls=1,
     )
 
-    assert output[0]["filtered_reason"].startswith("blacklist:")
-    assert output[1]["filtered_reason"] == "duplicate"
-    assert output[2]["filtered_reason"] is None
-    assert output[2]["overall_rank"] == 1
-    assert output[2]["duplicates"][0]["query"] == "q-dup-2"
-    assert output[3]["filtered_reason"] == "beyond_top_n"
-    assert output[3]["overall_rank"] == 2
+    assert output[2]["filtered_reason"].startswith("blacklist:")
+    assert output[3]["filtered_reason"] == "duplicate"
+    assert output[0]["filtered_reason"] is None
+    assert output[0]["overall_rank"] == 1
+    assert output[0]["duplicates"][0]["query"] == "q-dup-2"
+    assert output[1]["filtered_reason"] == "beyond_top_n"
+    assert output[1]["overall_rank"] == 2
 
     for row in output:
         assert "_order" not in row
