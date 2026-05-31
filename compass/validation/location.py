@@ -14,6 +14,7 @@ from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,
 )
+from compass.validation.utilities import step_based_threshold
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import raw_pages_from_doc
@@ -200,15 +201,16 @@ class JurisdictionValidator:
     without reconfiguration.
     """
 
-    def __init__(self, score_thresh=0.8, text_splitter=None, **kwargs):
+    def __init__(self, score_thresh=None, text_splitter=None, **kwargs):
         """
 
         Parameters
         ----------
         score_thresh : float, optional
             Threshold applied to the weighted page vote. Documents at or
-            above the threshold are considered jurisdiction matches.
-            Default is ``0.8``.
+            above the threshold are considered jurisdiction matches. If
+            ``None``, uses a custom threshold that caps at 0.8 for
+            documents with a lot of content. Default is ``None``.
         text_splitter : LCTextSplitter, optional
             Optional splitter attached to documents lacking a
             ``text_splitter`` attribute so validators can iterate page
@@ -218,7 +220,7 @@ class JurisdictionValidator:
             :class:`~compass.llm.calling.BaseLLMCaller` and reused when
             instantiating subordinate validators.
         """
-        self.score_thresh = score_thresh
+        self.user_input_score_threshold = score_thresh
         self.text_splitter = text_splitter
         self.kwargs = kwargs
 
@@ -275,7 +277,7 @@ class JurisdictionValidator:
         return await _validator_check_for_doc(
             validator=jurisdiction_validator,
             doc=doc,
-            score_thresh=self.score_thresh,
+            score_thresh=self.user_input_score_threshold,
             text_splitter=self.text_splitter,
         )
 
@@ -403,7 +405,7 @@ class JurisdictionWebsiteValidator:
 
 
 async def _validator_check_for_doc(
-    validator, doc, score_thresh=0.9, text_splitter=None, **kwargs
+    validator, doc, score_thresh, text_splitter=None, **kwargs
 ):
     """Apply a validator check to a doc's raw pages"""
     outer_task_name = asyncio.current_task().get_name()
@@ -415,7 +417,12 @@ async def _validator_check_for_doc(
         for text in raw_pages
     ]
     out = await asyncio.gather(*validation_checks)
-    score = _weighted_vote(out, raw_pages, doc.attrs.get("source", "Unknown"))
+    score, num_verdicts = _weighted_vote(
+        out, raw_pages, doc.attrs.get("source", "Unknown")
+    )
+    if score_thresh is None:
+        score_thresh = step_based_threshold(num_verdicts)
+
     doc.attrs[validator.META_SCORE_KEY] = score
     logger.debug(
         "%s is %.2f for doc from source %s (Pass: %s; threshold: %.2f)",
@@ -437,6 +444,7 @@ def _weighted_vote(out, raw_pages, doc_source):
     messages = [
         f"Validator weighted vote breakdown for doc from {doc_source} :"
     ]
+    num_verdicts = 0
     for verdict, text in zip(out, raw_pages, strict=True):
         if verdict is None:
             continue
@@ -444,9 +452,10 @@ def _weighted_vote(out, raw_pages, doc_source):
         messages.append(f"\t- Weight={weight:,d}, Verdict={int(verdict)}")
         weights += weight
         total += verdict * weight
+        num_verdicts += 1
 
     if len(messages) > 1:
         logger.debug("\n".join(messages))
 
     weights = max(weights, 1)
-    return total / weights
+    return total / weights, num_verdicts
