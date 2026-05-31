@@ -16,6 +16,7 @@ from compass.validation.graphs import (
 )
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.parsing import raw_pages_from_doc
 
 
 logger = logging.getLogger(__name__)
@@ -227,9 +228,7 @@ class JurisdictionValidator:
         Parameters
         ----------
         doc : BaseDocument
-            Document to evaluate. The validator expects
-            ``doc.raw_pages`` and, when available, a
-            ``doc.attrs['source']`` URL for supplemental URL validation.
+            Document to evaluate.
         jurisdiction : Jurisdiction
             Target jurisdiction descriptor capturing the required
             location attributes.
@@ -258,27 +257,7 @@ class JurisdictionValidator:
         >>> await validator.check(document, jurisdiction)
         True
         """
-        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
-            old_splitter = doc.text_splitter
-            doc.text_splitter = self.text_splitter
-            out = await self._check(doc, jurisdiction)
-            doc.text_splitter = old_splitter
-            return out
-
-        return await self._check(doc, jurisdiction)
-
-    async def _check(self, doc, jurisdiction):
-        """Check if the document belongs to the county"""
         url = doc.attrs.get("source")
-        if self.text_splitter is not None:
-            doc.text_splitter = self.text_splitter
-            logger.debug(
-                "Document from %r: has %d raw page(s) after text splitter "
-                "was set",
-                url or "Unknown",
-                len(doc.raw_pages),
-            )
-
         if url:
             logger.debug("Checking URL (%s) for jurisdiction name...", url)
             url_validator = DTreeURLJurisdictionValidator(
@@ -297,6 +276,7 @@ class JurisdictionValidator:
             validator=jurisdiction_validator,
             doc=doc,
             score_thresh=self.score_thresh,
+            text_splitter=self.text_splitter,
         )
 
 
@@ -422,17 +402,20 @@ class JurisdictionWebsiteValidator:
         return out.casefold().startswith("yes")
 
 
-async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):
+async def _validator_check_for_doc(
+    validator, doc, score_thresh=0.9, text_splitter=None, **kwargs
+):
     """Apply a validator check to a doc's raw pages"""
     outer_task_name = asyncio.current_task().get_name()
+    raw_pages = raw_pages_from_doc(doc, text_splitter)
     validation_checks = [
         asyncio.create_task(
             validator.check(text, **kwargs), name=outer_task_name
         )
-        for text in doc.raw_pages
+        for text in raw_pages
     ]
     out = await asyncio.gather(*validation_checks)
-    score = _weighted_vote(out, doc)
+    score = _weighted_vote(out, raw_pages, doc.attrs.get("source", "Unknown"))
     doc.attrs[validator.META_SCORE_KEY] = score
     logger.debug(
         "%s is %.2f for doc from source %s (Pass: %s; threshold: %.2f)",
@@ -445,20 +428,16 @@ async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):
     return score >= score_thresh
 
 
-def _weighted_vote(out, doc):
+def _weighted_vote(out, raw_pages, doc_source):
     """Compute weighted average of responses based on text length"""
-    if not doc.raw_pages:
+    if not raw_pages:
         return 0
 
     total = weights = 0
     messages = [
-        (
-            "Validator weighted vote breakdown for doc from "
-            f"{doc.attrs.get('source', 'Unknown')!r} "
-            f"({len(doc.raw_pages)} raw pages):"
-        )
+        f"Validator weighted vote breakdown for doc from {doc_source} :"
     ]
-    for verdict, text in zip(out, doc.raw_pages, strict=True):
+    for verdict, text in zip(out, raw_pages, strict=True):
         if verdict is None:
             continue
         weight = len(text)

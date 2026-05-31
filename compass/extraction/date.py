@@ -1,10 +1,12 @@
 """Ordinance date extraction logic"""
 
 import logging
+import asyncio
 from datetime import datetime
 from collections import Counter
 
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.parsing import raw_pages_from_doc
 
 
 logger = logging.getLogger(__name__)
@@ -59,7 +61,7 @@ class DateExtractor:
         Parameters
         ----------
         doc : BaseDocument
-            Document with a `raw_pages` attribute.
+            Document to parse.
 
         Returns
         -------
@@ -67,17 +69,6 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
-        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
-            old_splitter = doc.text_splitter
-            doc.text_splitter = self.text_splitter
-            out = await self._parse(doc)
-            doc.text_splitter = old_splitter
-            return out
-
-        return await self._parse(doc)
-
-    async def _parse(self, doc):
-        """Extract date (year, month, day) from doc"""
         url = doc.attrs.get("source")
         can_check_url_for_date = url and not any(
             sub_str in url for sub_str in _BANNED_DATE_DOMAINS
@@ -97,24 +88,27 @@ class DateExtractor:
                 logger.debug("Parsed date from URL: %s", date)
                 return date
 
-        if not doc.raw_pages:
+        raw_pages = raw_pages_from_doc(doc, self.text_splitter)
+        if raw_pages:
             return None, None, None
 
-        all_years = []
-        for text in doc.raw_pages:
-            if not text:
-                continue
-
-            response = await self.jlc.call(
-                sys_msg=self.SYSTEM_MESSAGE,
-                content=f"Please extract the date for this ordinance:\n{text}",
-                usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
+        outer_task_name = asyncio.current_task().get_name()
+        date_extractions = [
+            asyncio.create_task(
+                self.jlc.call(
+                    sys_msg=self.SYSTEM_MESSAGE,
+                    content=(
+                        f"Please extract the date for this ordinance:\n{text}"
+                    ),
+                    usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
+                ),
+                name=outer_task_name,
             )
-            if not response:
-                continue
-            all_years.append(response)
-
-        return _parse_date(all_years)
+            for text in raw_pages
+            if text
+        ]
+        all_years = await asyncio.gather(*date_extractions)
+        return _parse_date([y for y in all_years if y])
 
 
 def _parse_date(json_list):
