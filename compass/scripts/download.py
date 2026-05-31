@@ -33,6 +33,7 @@ from compass.pb import COMPASS_PB
 
 logger = logging.getLogger(__name__)
 _NEG_INF = -1 * float("infinity")
+_COLLECTION_SCORE_KEY = "collection_step_rank"
 
 
 async def download_known_urls(
@@ -746,18 +747,23 @@ async def _docs_from_web_search(
         simple=simple_se_result_sort,
         **kwargs,
     )
-    unfiltered_results = [
-        res.get("url")
+    ranked_results = {
+        res.get("url"): res.get("overall_rank") or 1
         for res in out["results"]
-        if res.get("filtered_reason", None) is None
-    ]
-    urls = list(filter(None, unfiltered_results))
+        if res.get("filtered_reason") is None and res.get("url") is not None
+    }
+    urls = sorted(ranked_results, key=ranked_results.get)
     if not urls:
         return []
 
-    return await _docs_from_urls(
+    docs = await _docs_from_urls(
         urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
+    for doc in docs:
+        doc.attrs[_COLLECTION_SCORE_KEY] = ranked_results.get(
+            doc.attrs.get("source")
+        )
+    return docs
 
 
 async def _docs_from_urls(
@@ -870,8 +876,9 @@ def _ord_doc_sorting_key(doc):
     Documents with larger scores will be prioritized.
     """
     from_steps = doc.attrs.get("from_steps") or []
-    num_steps_found_doc = len(from_steps)
+    num_collection_steps_found_doc = len(from_steps)
     best_step = _best_step(from_steps)
+    most_confident_collection = -(doc.attrs.get(_COLLECTION_SCORE_KEY) or 0)
     no_date = (_NEG_INF, _NEG_INF, _NEG_INF)
     latest_year, latest_month, latest_day = doc.attrs.get("date") or no_date
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
@@ -884,8 +891,9 @@ def _ord_doc_sorting_key(doc):
     )
     shortest_text_length = -1 * len(doc.text)
     return (
-        num_steps_found_doc,
+        num_collection_steps_found_doc,
         best_step,
+        most_confident_collection,
         best_docs_from_website,
         latest_year or _NEG_INF,
         prefer_pdf_files,
