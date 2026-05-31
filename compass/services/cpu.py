@@ -208,7 +208,7 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     )
 
 
-async def read_docling_web_file(doc_bytes, url, **kwargs):
+async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
     """Read a web file using Docling in a Process Pool
 
     Parameters
@@ -216,7 +216,11 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
     doc_bytes : bytes
         Raw document payload forwarded to the Docling parser.
     url : str
-        URL of the file to read.
+        Filename or URL of the file to read.
+    source_uri : str, optional
+        Original remote URL for the file. If specified, this is used
+        as the HTML base URI while ``url`` is still used as the stream
+        name for Docling format inference. By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
         :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
@@ -228,7 +232,11 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
         Parsed document.
     """
     return await FileLoader.call(
-        _read_docling, doc_bytes, file_source=url, **kwargs
+        _read_docling,
+        doc_bytes,
+        file_source=url,
+        source_uri=source_uri,
+        **kwargs,
     )
 
 
@@ -291,11 +299,17 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
 
 
 def _read_docling(
-    doc_bytes, file_source, headers=None, pytesseract_exe_fp=None, **kwargs
+    doc_bytes,
+    file_source,
+    headers=None,
+    pytesseract_exe_fp=None,
+    source_uri=None,
+    **kwargs,
 ):
     """Utility func to read documents using Docling"""
 
     file_source = str(file_source)
+    source_uri = file_source if source_uri is None else str(source_uri)
     if headers is not None:
         headers = dict(headers)
 
@@ -312,7 +326,7 @@ def _read_docling(
             tesseract_cmd=pytesseract_exe_fp
         )
 
-    html_backend_options = HTMLBackendOptions(source_uri=file_source)
+    html_backend_options = HTMLBackendOptions(source_uri=source_uri)
 
     doc_converter = DocumentConverter(
         format_options={

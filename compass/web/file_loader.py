@@ -236,11 +236,13 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         logger.debug("Got content from %r", url)
         raw_content, __, __, headers = out
+        resolved_filename = resolve_remote_filename(
+            http_url=AnyHttpUrl(url), response_headers=dict(headers)
+        )
         doc = await read_docling_web_file(
             raw_content,
-            url=resolve_remote_filename(
-                http_url=AnyHttpUrl(url), response_headers=dict(headers)
-            ),
+            url=resolved_filename,
+            source_uri=url,
             headers=dict(headers),
             pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
@@ -321,7 +323,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
         return doc, raw_content
 
 
-if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
+if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "docling") == "docling":
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
