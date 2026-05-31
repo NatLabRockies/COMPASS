@@ -477,7 +477,7 @@ def test_weighted_vote(test_case):
     """Test that the _weighted_vote function computes score properly"""
     pages, verdict, expected_score = test_case
     assert (
-        _weighted_vote(verdict, PDFDocument(pages).raw_pages, "test")
+        _weighted_vote(verdict, PDFDocument(pages).raw_pages, "test")[0]
         == expected_score
     )
 
