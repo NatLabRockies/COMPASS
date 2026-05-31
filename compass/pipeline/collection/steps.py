@@ -450,7 +450,9 @@ async def _find_jurisdiction_website_for_workflow(workflow):
         browser_semaphore=workflow.runtime.browser_semaphore,
         usage_tracker=workflow.usage_tracker,
         validate=workflow.validate_user_website_input,
-        url_ignore_substrings=workflow.runtime.search_params.url_ignore_substrings,
+        url_ignore_substrings=(
+            workflow.runtime.search_params.url_ignore_substrings
+        ),
         **workflow.runtime.search_params.se_kwargs,
     )
 
