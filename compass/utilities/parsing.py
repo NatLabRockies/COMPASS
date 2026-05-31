@@ -6,6 +6,7 @@ import logging
 from pathlib import Path
 
 import numpy as np
+from elm.web.document import PDFDocument
 
 
 logger = logging.getLogger(__name__)
@@ -193,6 +194,52 @@ def ordinances_bool_index(data):
 
     found_features = (~data[check_cols].isna()).to_numpy().sum(axis=1)
     return found_features > 0
+
+
+def raw_pages_from_doc(
+    doc,
+    text_splitter=None,
+    percent_raw_pages_to_keep=25,
+    max_raw_pages=18,
+    num_end_pages_to_keep=2,
+):
+    """[NOT PUBLIC API] Get raw pages from an input doc"""
+    if isinstance(doc, PDFDocument):
+        raw_pages = doc.raw_pages
+        logger.debug(
+            "PDF Document from %s has %d raw pages",
+            doc.attrs.get("source", "unknown source"),
+            len(raw_pages),
+        )
+        return doc.raw_pages
+
+    if text_splitter is None:
+        logger.debug(
+            "Cannot split out raw pages for document from %s because no "
+            "text splitter provided",
+            doc.attrs.get("source", "unknown source"),
+        )
+        return [doc.text]
+
+    pages = text_splitter.split_text("\n\n".join(doc.pages))
+    num_to_keep = percent_raw_pages_to_keep / 100 * len(pages)
+    num_raw_pages_to_keep = min(max_raw_pages, max(1, int(num_to_keep)))
+
+    neg_num_extra_pages = num_raw_pages_to_keep - len(pages)
+    neg_num_last_pages = max(-num_end_pages_to_keep, neg_num_extra_pages)
+    last_page_index = min(0, neg_num_last_pages)
+
+    raw_pages = pages[:num_raw_pages_to_keep]
+    if last_page_index:
+        raw_pages += pages[last_page_index:]
+
+    logger.debug(
+        "Document from %s has %d raw %s after splitting and trimming",
+        doc.attrs.get("source", "unknown source"),
+        len(raw_pages),
+        "page" if len(raw_pages) == 1 else "pages",
+    )
+    return raw_pages
 
 
 def convert_paths_to_strings(obj):
