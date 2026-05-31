@@ -131,7 +131,7 @@ async def _run_holistic_sort_search(
     """Run search with all search engines and apply holistic sorting"""
     out = await search_all_se(
         queries,
-        num_urls=num_urls,
+        num_urls=10,  # Need as many results as possible for holistic sort
         ignore_url_parts=None,  # custom filters applied later
         browser_semaphore=browser_semaphore,
         task_name=jurisdiction_full_name,
