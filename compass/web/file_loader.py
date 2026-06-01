@@ -247,6 +247,8 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
         )
+        if doc.empty:
+            logger.info("Docling could not parse content from %s", url)
 
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
@@ -306,6 +308,8 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
         )
+        if doc.empty:
+            logger.info("Docling could not parse content from %s", source)
 
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
