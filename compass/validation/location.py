@@ -438,7 +438,7 @@ async def _validator_check_for_doc(
 def _weighted_vote(out, raw_pages, doc_source):
     """Compute weighted average of responses based on text length"""
     if not raw_pages:
-        return 0
+        return 0, 0
 
     total = weights = 0
     messages = [
