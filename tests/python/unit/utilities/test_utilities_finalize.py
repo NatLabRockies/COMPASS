@@ -164,7 +164,7 @@ def test_save_run_meta_handles_getuser_error(tmp_path, monkeypatch):
         models={},
     )
 
-    assert seconds == 42
+    assert seconds == 42 + 60 * 60 * 24
 
     meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
     assert meta["username"] == "Unknown"

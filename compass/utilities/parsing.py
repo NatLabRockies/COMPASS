@@ -1,14 +1,45 @@
 """COMPASS ordinance parsing utilities"""
 
+import os
 import json
 import logging
 from pathlib import Path
 
 import numpy as np
+from elm.web.document import PDFDocument
 
 
 logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "summary"]
+
+
+def is_pdf_doc(doc):
+    """Determine whether a document is a PDF based on type or attributes
+
+    This function first checks if the document is an instance of
+    PDFDocument. If not, it looks for a "doc_type" attribute in the
+    document's attributes and checks if it is a string that
+    case-insensitively matches "pdf". If neither condition is met, the
+    function returns ``False``.
+
+    Parameters
+    ----------
+    doc : elm.web.document.Document
+        Document instance to check for PDF characteristics. The function
+        first checks if the document is an instance of PDFDocument. If
+        not, it looks for a "doc_type" attribute in the document's
+        attributes and checks if it is a string that case-insensitively
+        matches "pdf". If neither condition is met, the function returns
+        ``False``.
+
+    Returns
+    -------
+    bool
+        ``True`` when a document represents a PDF file, ``False``
+        otherwise.
+    """
+    doc_type = doc.attrs.get("doc_type") or ""
+    return isinstance(doc, PDFDocument) or doc_type.casefold() == "pdf"
 
 
 def clean_backticks_from_llm_response(content):
@@ -194,11 +225,64 @@ def ordinances_bool_index(data):
     return found_features > 0
 
 
+def raw_pages_from_doc(
+    doc,
+    text_splitter=None,
+    percent_raw_pages_to_keep=25,
+    max_raw_pages=18,
+    num_end_pages_to_keep=2,
+):
+    """[NOT PUBLIC API] Get raw pages from an input doc"""
+    if is_pdf_doc(doc) and hasattr(doc, "raw_pages"):
+        raw_pages = doc.raw_pages
+        logger.debug(
+            "PDF Document from %s has %d raw pages",
+            doc.attrs.get("source", "unknown source"),
+            len(raw_pages),
+        )
+        return doc.raw_pages
+
+    if text_splitter is None:
+        logger.debug(
+            "Cannot split out raw pages for document from %s because no "
+            "text splitter provided",
+            doc.attrs.get("source", "unknown source"),
+        )
+        return [doc.text]
+
+    text = "\n\n".join(doc.pages)
+    if not text:
+        return []
+
+    pages = text_splitter.split_text(text)
+    num_to_keep = percent_raw_pages_to_keep / 100 * len(pages)
+    num_raw_pages_to_keep = min(max_raw_pages, max(1, int(num_to_keep)))
+
+    neg_num_extra_pages = num_raw_pages_to_keep - len(pages)
+    neg_num_last_pages = max(-num_end_pages_to_keep, neg_num_extra_pages)
+    last_page_index = min(0, neg_num_last_pages)
+
+    raw_pages = pages[:num_raw_pages_to_keep]
+    if last_page_index:
+        raw_pages += pages[last_page_index:]
+
+    logger.debug(
+        "Document from %s has %d raw %s after splitting and trimming",
+        doc.attrs.get("source", "unknown source"),
+        len(raw_pages),
+        "page" if len(raw_pages) == 1 else "pages",
+    )
+    return raw_pages
+
+
 def convert_paths_to_strings(obj):
     """[NOT PUBLIC API] Convert all Path instances to strings"""
     logger.trace("Converting paths to strings in object: %s", obj)
     if isinstance(obj, Path):
-        return str(obj)
+        out = os.fspath(obj)
+        if not obj.is_absolute():
+            out = os.path.join(".", out)  # noqa PTH118
+        return out
     if isinstance(obj, dict):
         return {
             convert_paths_to_strings(key): convert_paths_to_strings(value)

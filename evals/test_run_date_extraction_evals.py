@@ -17,12 +17,14 @@ from compass.utilities.enums import LLMTasks
 from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
-from compass.services.cpu import FileLoader, OCRPDFLoader
-from compass.services.threaded import HTMLFileLoader
-from compass.scripts.process import (
-    _initialize_model_params,
-    build_local_file_loader_kwargs,
+from compass.services.cpu import (
+    FileLoader,
+    OCRPDFLoader,
+    read_pdf_file,
+    read_pdf_file_ocr,
 )
+from compass.services.threaded import HTMLFileLoader, read_html_file
+from compass.pipeline.data_classes import _build_models
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.logs import (
     LocationFileLog,
@@ -51,6 +53,41 @@ RESULTS = []
 # aggregate accuracy flat -- the breakdown CSV always shows the swap,
 # this gate just makes a large enough swap surface as a test failure.
 REGRESSION_TOL = 2
+
+
+def _setup_pytesseract(exe_fp):
+    """Set the pytesseract command"""
+    import pytesseract  # noqa: PLC0415
+
+    pytesseract.pytesseract.tesseract_cmd = exe_fp
+
+
+def build_local_file_loader_kwargs(
+    pytesseract_exe_fp=None, pdf_read_kwargs=None, html_read_kwargs=None
+):
+    """Build keyword arguments for ``COMPASSLocalFileLoader``
+
+    Mirrors the file-loader-kwargs logic that lives in production at
+    ``compass.pipeline.runtime.PipelineRuntime.local_file_loader_kwargs``
+    (a cached_property on the runtime object). Inlined here so the eval
+    stays decoupled from that runtime; the duplication is intentional
+    until evals migrate to the production call path.
+    """
+    file_loader_kwargs = {
+        "pdf_read_coroutine": read_pdf_file,
+        "html_read_coroutine": read_html_file,
+        "pdf_read_kwargs": pdf_read_kwargs,
+        "html_read_kwargs": html_read_kwargs,
+    }
+    if pytesseract_exe_fp is not None:
+        _setup_pytesseract(pytesseract_exe_fp)
+        file_loader_kwargs.update(
+            {
+                "pdf_ocr_read_coroutine": read_pdf_file_ocr,
+                "pytesseract_exe_fp": pytesseract_exe_fp,
+            }
+        )
+    return file_loader_kwargs
 
 
 def pytest_generate_tests(metafunc):
@@ -122,7 +159,7 @@ def _report(request):
 def _model_config():
     config = load_config(Path(__file__).parent / "config.json5")
     LLM_COST_REGISTRY.update(config.get("llm_costs") or {})
-    return _initialize_model_params(config["model"])[LLMTasks.DEFAULT]
+    return _build_models(config["model"])[LLMTasks.DEFAULT]
 
 
 @pytest.fixture(scope="session")

@@ -96,6 +96,29 @@ def test_resolve_all_paths():
     )
 
 
+@pytest.mark.parametrize(
+    "input_,expected",
+    [
+        (r".\test", lambda base_dir: (base_dir / "test").as_posix()),
+        (
+            r"..\test_file.json",
+            lambda base_dir: (base_dir.parent / "test_file.json").as_posix(),
+        ),
+        (
+            r"test_dir\..\\test_file.json",
+            lambda _base_dir: (
+                Path("test_dir/../test_file.json").resolve().as_posix()
+            ),
+        ),
+    ],
+)
+def test_resolve_all_paths_windows_style_relative_paths(input_, expected):
+    """Test resolving Windows-style relative paths on any host"""
+
+    base_dir = Path.home()
+    assert resolve_all_paths(input_, base_dir) == expected(base_dir)
+
+
 def test_resolve_all_paths_list():
     """Test resolving all paths in a list"""
     base_dir = Path.home()
