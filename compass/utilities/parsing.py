@@ -38,10 +38,8 @@ def is_pdf_doc(doc):
         ``True`` when a document represents a PDF file, ``False``
         otherwise.
     """
-    doc_type = doc.attrs.get("doc_type")
-    return isinstance(doc, PDFDocument) or (
-        isinstance(doc_type, str) and doc_type.casefold() == "pdf"
-    )
+    doc_type = doc.attrs.get("doc_type") or ""
+    return isinstance(doc, PDFDocument) or doc_type.casefold() == "pdf"
 
 
 def clean_backticks_from_llm_response(content):
