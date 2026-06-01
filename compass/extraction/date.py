@@ -89,7 +89,7 @@ class DateExtractor:
                 return date
 
         raw_pages = raw_pages_from_doc(doc, self.text_splitter)
-        if raw_pages:
+        if not raw_pages:
             return None, None, None
 
         outer_task_name = asyncio.current_task().get_name()
