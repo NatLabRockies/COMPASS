@@ -13,6 +13,37 @@ logger = logging.getLogger(__name__)
 _ORD_CHECK_COLS = ["value", "summary"]
 
 
+def is_pdf_doc(doc):
+    """Determine whether a document is a PDF based on type or attributes
+
+    This function first checks if the document is an instance of
+    PDFDocument. If not, it looks for a "doc_type" attribute in the
+    document's attributes and checks if it is a string that
+    case-insensitively matches "pdf". If neither condition is met, the
+    function returns ``False``.
+
+    Parameters
+    ----------
+    doc : elm.web.document.Document
+        Document instance to check for PDF characteristics. The function
+        first checks if the document is an instance of PDFDocument. If
+        not, it looks for a "doc_type" attribute in the document's
+        attributes and checks if it is a string that case-insensitively
+        matches "pdf". If neither condition is met, the function returns
+        ``False``.
+
+    Returns
+    -------
+    bool
+        ``True`` when a document represents a PDF file, ``False``
+        otherwise.
+    """
+    doc_type = doc.attrs.get("doc_type")
+    return isinstance(doc, PDFDocument) or (
+        isinstance(doc_type, str) and doc_type.casefold() == "pdf"
+    )
+
+
 def clean_backticks_from_llm_response(content):
     """Remove markdown-style backticks from an LLM response
 
@@ -204,7 +235,7 @@ def raw_pages_from_doc(
     num_end_pages_to_keep=2,
 ):
     """[NOT PUBLIC API] Get raw pages from an input doc"""
-    if isinstance(doc, PDFDocument):
+    if is_pdf_doc(doc) and hasattr(doc, "raw_pages"):
         raw_pages = doc.raw_pages
         logger.debug(
             "PDF Document from %s has %d raw pages",
