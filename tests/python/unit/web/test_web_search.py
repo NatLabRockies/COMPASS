@@ -28,7 +28,7 @@ def test_apply_blacklist_filters_is_case_insensitive():
         },
     ]
 
-    search_module._apply_blacklist_filters(results, ["wikipedia.org"])
+    search_module._apply_blacklist_filters(results, ["wikipedia.org"], None)
 
     assert results[0]["filtered_reason"] == "blacklist:wikipedia.org"
     assert results[1]["filtered_reason"] is None
@@ -222,7 +222,8 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
 
     output = search_module._apply_filters(
         results,
-        blacklist=["WIKI"],
+        url_blacklist=["WIKI"],
+        url_whitelist=None,
         num_urls=1,
     )
 
