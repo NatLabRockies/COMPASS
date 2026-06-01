@@ -1346,8 +1346,7 @@ def build_local_file_loader_kwargs(
     Returns
     -------
     dict
-        Keyword arguments to pass to
-        :class:`~compass.web.file_loader.COMPASSLocalFileLoader`.
+        Keyword arguments to pass to ``COMPASSLocalFileLoader``.
     """
     file_loader_kwargs = {
         "pdf_read_coroutine": read_pdf_file,
