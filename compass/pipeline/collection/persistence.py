@@ -6,8 +6,6 @@ from pathlib import Path
 from warnings import warn
 from datetime import datetime, UTC
 
-from elm.web.document import PDFDocument
-
 from compass.services.threaded import (
     FileMover,
     ParsedFileWriter,
@@ -17,7 +15,7 @@ from compass.services.threaded import (
 from compass.services.cpu import read_docling_local_file
 from compass.utilities.io import load_config
 from compass.utilities.io import resolve_all_paths
-from compass.utilities.parsing import convert_paths_to_strings
+from compass.utilities.parsing import convert_paths_to_strings, is_pdf_doc
 from compass.warn import COMPASSWarning
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 
@@ -302,7 +300,7 @@ def _serialize_collection_doc_info(doc, from_steps):
     serialized.setdefault("check_correct_jurisdiction", True)
     serialized.update(
         {
-            "is_pdf": doc.attrs.get("is_pdf", isinstance(doc, PDFDocument)),
+            "is_pdf": doc.attrs.get("is_pdf", is_pdf_doc(doc)),
             "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
             "from_steps": from_steps,
         }
