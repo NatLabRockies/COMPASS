@@ -103,7 +103,7 @@ def save_run_meta(
         "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date.isoformat(),
         "time_end_utc": end_date.isoformat(),
-        "total_time": time_elapsed.seconds,
+        "total_time": time_elapsed.total_seconds(),
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
@@ -132,7 +132,7 @@ def save_run_meta(
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
 
-    return time_elapsed.seconds
+    return time_elapsed.total_seconds()
 
 
 def doc_infos_to_db(doc_infos):

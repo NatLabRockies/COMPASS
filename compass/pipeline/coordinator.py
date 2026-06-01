@@ -277,7 +277,7 @@ class COMPASSCollection(BaseRunMode):
         collection_msg = compile_collection_summary_message(
             manifest_fp,
             manifest,
-            total_seconds=time_elapsed.seconds,
+            total_seconds=time_elapsed.total_seconds(),
         )
         for sub_msg in collection_msg.split("\n"):
             logger.info(sub_msg)
