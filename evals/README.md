@@ -1,5 +1,3 @@
-![Greg Brockman: "evals are surprisingly often all you need"](image.png)
-
 # Evals
 
 Accuracy/quality evaluations of COMPASS extraction against real ordinance
