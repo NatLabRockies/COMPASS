@@ -49,7 +49,16 @@ from compass.utilities.io import load_config
     " or fails when running non-interactively (e.g. CI).",
 )
 def collect(config, verbose, no_progress, plugin, out_dir_exists):
-    """Collect ordinance documents for a list of jurisdictions"""
+    """Collect ordinance documents for a list of jurisdictions
+
+    This command runs the "first half" (i.e. the collection portion) of
+    the COMPASS pipeline on for a set of jurisdictions. It finds and
+    parses the documents but does not do any filtering or validation. As
+    such, it does not require an LLM endpoint and thus can be
+    parallelized and scaled without worrying about rate limits. The
+    output is a manifest of parsed documents that can be passed to the
+    extraction command.
+    """
     config = load_config(config)
 
     if plugin is not None:

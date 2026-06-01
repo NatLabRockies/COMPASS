@@ -49,7 +49,13 @@ from compass.utilities.io import load_config
     " or fails when running non-interactively (e.g. CI).",
 )
 def extract(config, verbose, no_progress, plugin, out_dir_exists):
-    """Extract structured data from a saved collection manifest"""
+    """Extract structured data from a saved collection manifest
+
+    This command runs the "second half" (i.e. the extraction portion) of
+    the COMPASS pipeline on a previously saved collection manifest. It
+    will perform document validation and filtering as necessary and will
+    extract ordinances from the remaining documents.
+    """
     config = load_config(config)
 
     if plugin is not None:
