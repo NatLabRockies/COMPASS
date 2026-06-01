@@ -4,7 +4,6 @@ import pprint
 import logging
 from contextlib import AsyncExitStack
 
-from elm.web.document import PDFDocument
 from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
     _SCORE_KEY,  # noqa: PLC2701
@@ -28,6 +27,7 @@ from compass.web.file_loader import (
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.web.url_utils import sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
 
 
@@ -882,7 +882,7 @@ def _ord_doc_sorting_key(doc):
     no_date = (_NEG_INF, _NEG_INF, _NEG_INF)
     latest_year, latest_month, latest_day = doc.attrs.get("date") or no_date
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
-    prefer_pdf_files = isinstance(doc, PDFDocument)
+    prefer_pdf_files = is_pdf_doc(doc)
     highest_jurisdiction_score = doc.attrs.get(
         # If not present, URL check passed with confidence so we set
         # score to 1
