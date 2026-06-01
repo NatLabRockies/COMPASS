@@ -279,7 +279,7 @@ class ElmWebsiteCrawlStep(CollectionStep):
                 keyword_points=(
                     await workflow.extractor.get_website_keywords()
                 ),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs_no_ocr,
+                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
                 crawl_semaphore=workflow.runtime.crawl_semaphore,
                 pb_jurisdiction_name=workflow.jurisdiction.full_name,
                 return_c4ai_results=True,
@@ -363,7 +363,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
                 workflow.jurisdiction_website,
                 heuristic=await workflow.extractor.get_heuristic(),
                 keyword_points=await workflow.extractor.get_website_keywords(),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs_no_ocr,
+                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
                 already_visited=checked_urls,
                 crawl_semaphore=workflow.runtime.crawl_semaphore,
                 pb_jurisdiction_name=workflow.jurisdiction.full_name,
