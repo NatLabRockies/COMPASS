@@ -12,6 +12,7 @@
         "zoneomics.com",
         "carolinas-dash.org",
         "findlaw.com",
+        "encodeplus.com",
     ],
     "whitelist": [
         // If any of these substrings are in the URL, it is always included regardless of blacklist status
