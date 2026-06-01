@@ -137,10 +137,10 @@ def sample_openai_response():
 
 @pytest.fixture
 def patched_clock(monkeypatch):
-    """Fixture to patch time.monotonic with a deterministic clock"""
+    """Fixture to patch time.perf_counter with a deterministic clock"""
 
     class FakeClock:
-        """Deterministic replacement for ``time.monotonic`` in tests"""
+        """Deterministic replacement for ``time.perf_counter`` in tests"""
 
         def __init__(self, start=0.0):
             self._now = start
@@ -153,6 +153,6 @@ def patched_clock(monkeypatch):
             return self._now
 
     fake_clock = FakeClock()
-    monkeypatch.setattr(time, "monotonic", fake_clock)
+    monkeypatch.setattr(time, "perf_counter", fake_clock)
 
     return fake_clock

@@ -96,7 +96,7 @@ class SingleJurisdictionRun:
             The result of running the jurisdiction, including any
             structured data found and related information.
         """
-        start_time = time.monotonic()
+        start_time = time.perf_counter()
         extraction_context = None
         logger.info(
             "Kicking off processing for jurisdiction: %s (%s)",
@@ -186,7 +186,7 @@ class SingleJurisdictionRun:
             The result of running the jurisdiction, including any
             structured data found and related information.
         """
-        start_time = time.monotonic()
+        start_time = time.perf_counter()
         extraction_context = None
         logger.info(
             "Kicking off extraction for jurisdiction: %s",
@@ -319,7 +319,7 @@ async def _record_jurisdiction_info(
 ):
     """Record final jurisdiction info"""
 
-    seconds_elapsed = time.monotonic() - start_time
+    seconds_elapsed = time.perf_counter() - start_time
     await JurisdictionUpdater.call(
         jurisdiction, extraction_context, seconds_elapsed, usage_tracker
     )

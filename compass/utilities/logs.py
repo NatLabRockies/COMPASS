@@ -391,10 +391,10 @@ class LocationFileLog:
         self.__enter__()
 
     async def __aexit__(self, exc_type, exc, tb):
-        start_time = time.monotonic()
+        start_time = time.perf_counter()
         while (
             not LQ.QUEUE.empty()
-            and (time.monotonic() - start_time) < self.max_teardown_time
+            and (time.perf_counter() - start_time) < self.max_teardown_time
         ):
             await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)
         await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)  # Final recording

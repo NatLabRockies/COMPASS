@@ -339,10 +339,10 @@ def _read_docling(
         }
     )
 
-    start_time = time.monotonic()
+    start_time = time.perf_counter()
     stream = DocumentStream(name=file_source, stream=BytesIO(doc_bytes))
     conv_result = doc_converter.convert(stream, headers=headers)
-    conversion_time_seconds = time.monotonic() - start_time
+    conversion_time_seconds = time.perf_counter() - start_time
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
