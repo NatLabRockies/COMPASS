@@ -82,6 +82,7 @@ class PipelineRuntime:
     async def __aexit__(self, exc_type, exc, tb):
         await self._running_services.__aexit__(exc_type, exc, tb)
         await self._listener_ctx.__aexit__(exc_type, exc, tb)
+        (self.dirs.logs / "all.log").unlink(missing_ok=True)
 
     @cached_property
     def dirs(self):
