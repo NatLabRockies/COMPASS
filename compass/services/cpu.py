@@ -318,7 +318,7 @@ def _read_docling_catch_error(
             **kwargs,
         )
     except ConversionError:
-        return MDDocument(pages=[])
+        return MDDocument(pages=[], attrs={"doc_type": "unknown"})
 
 
 def _read_docling(
