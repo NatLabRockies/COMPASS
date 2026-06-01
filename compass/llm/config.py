@@ -15,7 +15,7 @@ from compass.exceptions import COMPASSValueError
 
 
 class _PrintableRecursiveCharacterTextSplitter(RecursiveCharacterTextSplitter):
-    """RecursiveCharacterTextSplitter with __strs__ method"""
+    """RecursiveCharacterTextSplitter with __str__ method"""
 
     def __str__(self):
         return (

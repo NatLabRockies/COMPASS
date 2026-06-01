@@ -432,7 +432,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
 
     if jurisdiction.subdivision_name:
         # TODO: check known jurisdictions to see if duplicate names
-        # exist in the same state. If not, don;t include county name in
+        # exist in the same state. If not, don't include county name in
         # phrase
         G.add_edge(
             node_to_connect,

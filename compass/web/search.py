@@ -123,7 +123,7 @@ async def _run_simple_sort_search(
         msg = (
             "url_keep_substrings is not currently implemented for simple"
             "search result sorting. Consider using holistic sorting to "
-            "apply the utl whitelist."
+            "apply the url whitelist."
         )
         warn(msg, COMPASSWarning)
 
