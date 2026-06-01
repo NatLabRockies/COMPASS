@@ -29,6 +29,7 @@ from docling.datamodel.pipeline_options import (
     TableStructureOptions,
     TesseractCliOcrOptions,
 )
+from docling.exceptions import ConversionError
 
 from compass.services.base import Service
 from compass.utilities.logs import AddLocationFilter, LQ
@@ -232,7 +233,7 @@ async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
         Parsed document.
     """
     return await FileLoader.call(
-        _read_docling,
+        _read_docling_catch_error,
         doc_bytes,
         file_source=url,
         source_uri=source_uri,
@@ -296,6 +297,28 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True
     return doc, pdf_bytes
+
+
+def _read_docling_catch_error(
+    doc_bytes,
+    file_source,
+    headers=None,
+    pytesseract_exe_fp=None,
+    source_uri=None,
+    **kwargs,
+):
+    """Utility to return empty docs on Docling conversion errors"""
+    try:
+        return _read_docling(
+            doc_bytes=doc_bytes,
+            file_source=file_source,
+            headers=headers,
+            pytesseract_exe_fp=pytesseract_exe_fp,
+            source_uri=source_uri,
+            **kwargs,
+        )
+    except ConversionError:
+        return MDDocument(pages=[])
 
 
 def _read_docling(
@@ -371,7 +394,7 @@ def _read_file_docling(fp, **kwargs):
 
     fp = Path(fp)
     doc_bytes = fp.read_bytes()
-    doc = _read_docling(
+    doc = _read_docling_catch_error(
         doc_bytes, str(fp).replace(".txt", ".md"), headers=None, **kwargs
     )
     return doc, doc_bytes
