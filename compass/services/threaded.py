@@ -13,10 +13,11 @@ from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
-from elm.web.document import PDFDocument, HTMLDocument
+from elm.web.document import HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
 from compass.services.base import Service
+from compass.utilities.parsing import is_pdf_doc
 from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
 
@@ -650,7 +651,7 @@ def _compile_doc_info(doc):
         "ord_filename": Path(out_fp or "unknown").name,
         "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),
-        "is_pdf": isinstance(doc, PDFDocument),
+        "is_pdf": is_pdf_doc(doc),
         "from_ocr": doc.attrs.get("from_ocr", False),
         "relevant_text_ngram_score": doc.attrs.get(
             "relevant_text_ngram_score"
