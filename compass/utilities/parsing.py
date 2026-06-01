@@ -250,7 +250,11 @@ def raw_pages_from_doc(
         )
         return [doc.text]
 
-    pages = text_splitter.split_text("\n\n".join(doc.pages))
+    text = "\n\n".join(doc.pages)
+    if not text:
+        return []
+
+    pages = text_splitter.split_text(text)
     num_to_keep = percent_raw_pages_to_keep / 100 * len(pages)
     num_raw_pages_to_keep = min(max_raw_pages, max(1, int(num_to_keep)))
 
