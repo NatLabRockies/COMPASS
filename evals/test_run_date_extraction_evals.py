@@ -7,19 +7,22 @@ from pathlib import Path
 
 import pytest
 
-from compass.llm.config import OpenAIConfig
 from compass.extraction.apply import extract_date
 from compass.utilities.io import load_config
 from compass.utilities.costs import (
     LLM_COST_REGISTRY,
     compute_total_cost_and_token_from_totals,
 )
+from compass.utilities.enums import LLMTasks
 from compass.services.openai import usage_from_response
 from compass.services.usage import UsageTracker
 from compass.services.provider import RunningAsyncServices
 from compass.services.cpu import FileLoader, OCRPDFLoader
 from compass.services.threaded import HTMLFileLoader
-from compass.scripts.process import build_local_file_loader_kwargs
+from compass.scripts.process import (
+    _initialize_model_params,
+    build_local_file_loader_kwargs,
+)
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.logs import (
     LocationFileLog,
@@ -117,12 +120,9 @@ def _report(request):
 
 @pytest.fixture(scope="module")
 def _model_config():
-    model = "compassop-gpt-5.4"
-    LLM_COST_REGISTRY.setdefault(
-        model,
-        {"prompt": 1.25, "response": 7.5},  # $/M tokens
-    )
-    return OpenAIConfig(name=model)
+    config = load_config(Path(__file__).parent / "config.json5")
+    LLM_COST_REGISTRY.update(config.get("llm_costs") or {})
+    return _initialize_model_params(config["model"])[LLMTasks.DEFAULT]
 
 
 @pytest.fixture(scope="session")
