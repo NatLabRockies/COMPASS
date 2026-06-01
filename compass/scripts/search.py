@@ -101,8 +101,7 @@ def write_search_report(report, out_path):
     report : dict
         Report returned by :func:`run_search`.
     out_path : path-like
-        Destination file path. If ``None``, the report is written to
-        stdout. By default, ``None``.
+        Destination file path.
     """
     payload = json.dumps(report, indent=2, ensure_ascii=False)
     out_path = Path(out_path)
