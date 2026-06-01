@@ -1,4 +1,4 @@
-"""Tests for compass._cli.process"""
+"""Tests for compass._cli.common"""
 
 from pathlib import Path
 
@@ -6,8 +6,8 @@ import pytest
 
 from click import ClickException
 
-import compass._cli.process as process_module
-from compass._cli.process import (
+import compass._cli.common as common_module
+from compass._cli.common import (
     _next_versioned_directory,
     _resolve_out_dir_conflict,
 )
@@ -51,8 +51,8 @@ def test_resolve_out_dir_conflict_prompt_increment(tmp_path, monkeypatch):
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
-    monkeypatch.setattr(process_module.sys, "stdin", _Tty())
-    monkeypatch.setattr(process_module.click, "confirm", lambda *_, **__: True)
+    monkeypatch.setattr(common_module.sys, "stdin", _Tty())
+    monkeypatch.setattr(common_module.click, "confirm", lambda *_, **__: True)
 
     result = _resolve_out_dir_conflict(out_dir, "prompt")
 
@@ -65,10 +65,10 @@ def test_resolve_out_dir_conflict_prompt_overwrite(tmp_path, monkeypatch):
     out_dir.mkdir()
     (out_dir / "temp.txt").write_text("x", encoding="utf-8")
 
-    monkeypatch.setattr(process_module.sys, "stdin", _Tty())
+    monkeypatch.setattr(common_module.sys, "stdin", _Tty())
     answers = iter([False, True])
     monkeypatch.setattr(
-        process_module.click,
+        common_module.click,
         "confirm",
         lambda *_, **__: next(answers),
     )
@@ -84,10 +84,10 @@ def test_resolve_out_dir_conflict_prompt_cancel(tmp_path, monkeypatch):
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
-    monkeypatch.setattr(process_module.sys, "stdin", _Tty())
+    monkeypatch.setattr(common_module.sys, "stdin", _Tty())
     answers = iter([False, False])
     monkeypatch.setattr(
-        process_module.click,
+        common_module.click,
         "confirm",
         lambda *_, **__: next(answers),
     )
@@ -113,7 +113,7 @@ def test_resolve_out_dir_conflict_prompt_non_interactive(
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
-    monkeypatch.setattr(process_module.sys, "stdin", _NoTty())
+    monkeypatch.setattr(common_module.sys, "stdin", _NoTty())
 
     with pytest.raises(ClickException, match="non-interactive"):
         _ = _resolve_out_dir_conflict(out_dir, "prompt")
@@ -134,48 +134,40 @@ def test_process_uses_prompt_policy_in_interactive_terminal(
     tmp_path, monkeypatch
 ):
     """Auto-select prompt policy when stdin is a TTY"""
-    monkeypatch.setattr(process_module.sys, "stdin", _Tty())
+    monkeypatch.setattr(common_module.sys, "stdin", _Tty())
 
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
     confirmed = []
     monkeypatch.setattr(
-        process_module.click,
+        common_module.click,
         "confirm",
         lambda *_, **__: confirmed.append(True) or True,
     )
 
-    result = (
-        process_module._resolve_out_dir_conflict.__wrapped__
-        if hasattr(process_module._resolve_out_dir_conflict, "__wrapped__")
-        else None
-    )
-
-    policy = "prompt" if process_module.sys.stdin.isatty() else "fail"
+    policy = "prompt" if common_module.sys.stdin.isatty() else "fail"
     assert policy == "prompt"
 
 
 def test_process_uses_fail_policy_in_non_interactive_terminal(monkeypatch):
     """Auto-select fail policy when stdin is not a TTY"""
-    monkeypatch.setattr(process_module.sys, "stdin", _NoTty())
+    monkeypatch.setattr(common_module.sys, "stdin", _NoTty())
 
-    policy = "prompt" if process_module.sys.stdin.isatty() else "fail"
+    policy = "prompt" if common_module.sys.stdin.isatty() else "fail"
     assert policy == "fail"
 
 
 def test_process_flag_overrides_tty_detection(tmp_path, monkeypatch):
     """Explicit --out_dir_exists flag overrides auto-TTY detection"""
-    monkeypatch.setattr(process_module.sys, "stdin", _Tty())
+    monkeypatch.setattr(common_module.sys, "stdin", _Tty())
 
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
     explicit_flag = "increment"
-    policy = (
-        explicit_flag
-        if explicit_flag
-        else ("prompt" if process_module.sys.stdin.isatty() else "fail")
+    policy = explicit_flag or (
+        "prompt" if common_module.sys.stdin.isatty() else "fail"
     )
     result = _resolve_out_dir_conflict(out_dir, policy)
     assert result == tmp_path / "outputs_v2"

@@ -3,6 +3,10 @@
 from urllib.parse import quote, urlsplit, urlunsplit
 
 
+_PATH_SAFE_CHARS = "/:@-._~!$&'()*+,;=%"
+_QUERY_SAFE_CHARS = "=&;%:@-._~!$&'()*+,;/?"
+
+
 def sanitize_url(url):
     """Encode unsafe URL characters while preserving URL semantics
 
@@ -17,7 +21,7 @@ def sanitize_url(url):
         URL with path, query, and fragment percent-encoded.
     """
     parsed = urlsplit(url)
-    path = quote(parsed.path, safe="/:@-._~!$&'()*+,;=")
-    query = quote(parsed.query, safe="=&;%:@-._~!$&'()*+,;/?:")
+    path = quote(parsed.path, safe=_PATH_SAFE_CHARS)
+    query = quote(parsed.query, safe=_QUERY_SAFE_CHARS)
     fragment = quote(parsed.fragment, safe="")
     return urlunsplit((parsed.scheme, parsed.netloc, path, query, fragment))

@@ -84,7 +84,7 @@ async def test_openai_query(
     monkeypatch.setattr(retry_module.random, "random", lambda: 0.0)
 
     async def _test_response(*args, **kwargs):  # noqa: RUF029
-        time_elapsed = time.monotonic() - start_time
+        time_elapsed = time.perf_counter() - start_time
         elapsed_times.append(time_elapsed)
         if time_elapsed < time_limit:
             response = httpx.Response(404)
@@ -117,7 +117,7 @@ async def test_openai_query(
 
     usage_tracker = UsageTracker("my_county", usage_from_response)
     async with RunningAsyncServices([openai_service]):
-        start_time = time.monotonic()
+        start_time = time.perf_counter()
         message = await openai_service.call(usage_tracker=usage_tracker)
         patched_clock.advance(time_limit * 3)
         message2 = await openai_service.call()
@@ -143,7 +143,7 @@ async def test_openai_query(
         patched_clock.advance(time_limit * sleep_mult)
         assert openai_service.rate_tracker.total == 0
 
-        start_time = time.monotonic() - time_limit - 1
+        start_time = time.perf_counter() - time_limit - 1
         await openai_service.call()
         patched_clock.advance(time_limit * sleep_mult * 0.8 + 0.01)
         await openai_service.call()
@@ -154,7 +154,7 @@ async def test_openai_query(
         )
 
         patched_clock.advance(time_limit * sleep_mult)
-        start_time = time.monotonic() - time_limit - 1
+        start_time = time.perf_counter() - time_limit - 1
         assert openai_service.rate_tracker.total == 0
 
         with pytest.raises(openai.NotFoundError):

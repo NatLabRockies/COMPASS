@@ -5,6 +5,7 @@ import asyncio
 from pathlib import Path
 
 import pytest
+from click.testing import CliRunner
 from openai.types import Completion, CompletionUsage, CompletionChoice
 from openai.types.chat import ChatCompletionMessage
 
@@ -14,13 +15,19 @@ from compass.services.base import Service
 LOGGING_META_FILES = {"exceptions.py"}
 
 
+@pytest.fixture(scope="session")
+def cli_runner():
+    """Return a Click CLI runner"""
+    return CliRunner()
+
+
 @pytest.fixture
 def assert_message_was_logged(caplog):
-    """Assert that a particular (partial) message was logged."""
+    """Assert that a particular (partial) message was logged"""
     caplog.clear()
 
     def assert_message(msg, log_level=None, clear_records=False):
-        """Assert that a message was logged."""
+        """Assert that a message was logged"""
         assert caplog.records
 
         for record in caplog.records:
@@ -67,23 +74,23 @@ def service_base_class():
     job_order = []
 
     class TestService(Service):
-        """Basic service implementation for testing."""
+        """Basic service implementation for testing"""
 
         NUMBER = 0
         LEN_SLEEP = 0
         STAGGER = 0
 
         def __init__(self):
-            """Initialize service."""
+            """Initialize service"""
             self.running_jobs = set()
 
         @property
         def can_process(self):
-            """True if number of running jobs less that the class number."""
+            """True if number of running jobs less that the class number"""
             return len(self.running_jobs) < self.NUMBER
 
         async def process(self, job_id):
-            """Mock processing of input."""
+            """Mock processing of input"""
             self.running_jobs.add(job_id)
             job_order.append((self.NUMBER, job_id))
             await asyncio.sleep(self.LEN_SLEEP + self.STAGGER * job_id * 0.5)
@@ -130,10 +137,10 @@ def sample_openai_response():
 
 @pytest.fixture
 def patched_clock(monkeypatch):
-    """Fixture to patch time.monotonic with a deterministic clock"""
+    """Fixture to patch time.perf_counter with a deterministic clock"""
 
     class FakeClock:
-        """Deterministic replacement for ``time.monotonic`` in tests"""
+        """Deterministic replacement for ``time.perf_counter`` in tests"""
 
         def __init__(self, start=0.0):
             self._now = start
@@ -146,6 +153,6 @@ def patched_clock(monkeypatch):
             return self._now
 
     fake_clock = FakeClock()
-    monkeypatch.setattr(time, "monotonic", fake_clock)
+    monkeypatch.setattr(time, "perf_counter", fake_clock)
 
     return fake_clock

@@ -70,7 +70,7 @@ async def test_file_move_service(tmp_path):
     doc.attrs["cache_fn"] = out_fp
 
     date = datetime.now().strftime("%Y_%m_%d")
-    expected_moved_fp = tmp_path / f"{out_fp.stem}_downloaded_{date}.txt"
+    expected_moved_fp = tmp_path / f"{out_fp.stem}_processed_{date}.txt"
     assert not expected_moved_fp.exists()
     mover = FileMover(tmp_path)
     mover.acquire_resources()
@@ -168,7 +168,7 @@ def test_move_file_uses_jurisdiction_name(tmp_path):
     date = datetime.now().strftime("%Y_%m_%d")
     moved_fp = threaded._move_file(doc, out_dir, out_fn="Test County, ST")
 
-    expected_name = f"Test_County_ST_downloaded_{date}.pdf"
+    expected_name = f"Test_County_ST_processed_{date}.pdf"
     assert moved_fp.name == expected_name
     assert moved_fp.read_text(encoding="utf-8") == "content"
     assert not cached_fp.exists()
@@ -191,7 +191,7 @@ def test_move_file_handles_extensionless_cached_file(tmp_path):
     date = datetime.now().strftime("%Y_%m_%d")
     moved_fp = threaded._move_file(doc, out_dir)
 
-    assert moved_fp.name == f"{cached_fp.stem}_downloaded_{date}"
+    assert moved_fp.name == f"{cached_fp.stem}_processed_{date}"
     assert moved_fp.read_text(encoding="utf-8") == "content"
 
 
@@ -489,7 +489,6 @@ async def test_jurisdiction_updater_process(tmp_path):
         doc,
         attrs={
             "jurisdiction_website": "http://jurisdiction.gov",
-            "compass_crawl": True,
         },
     )
     context.data_docs = [doc]
@@ -520,7 +519,6 @@ async def test_jurisdiction_updater_process(tmp_path):
     second = data["jurisdictions"][1]
     assert second["found"] is True
     assert second["jurisdiction_website"] == "http://jurisdiction.gov"
-    assert second["compass_crawl"] is True
     assert pytest.approx(second["cost"]) == 22.5
     assert second["documents"][0]["ord_filename"] == "doc.pdf"
     assert second["documents"][0]["effective_year"] == 2023
