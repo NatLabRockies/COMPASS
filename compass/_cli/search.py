@@ -22,7 +22,7 @@ from compass.utilities.io import load_config
     type=click.Path(exists=True),
     help="Path to ordinance configuration JSON or JSON5 file. Only the "
     "search-related keys (``tech``, ``jurisdiction_fp``, "
-    "``search_engines``, ``url_ignore_substrings``, "
+    "``search_engines``, ``url_ignore_substrings``, ``url_keep_substrings``, "
     "``num_urls_to_check_per_jurisdiction``, "
     "``max_num_concurrent_browsers``) are read.",
 )

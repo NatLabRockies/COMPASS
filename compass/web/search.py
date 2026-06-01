@@ -1,8 +1,11 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
+from warnings import warn
 
 from elm.web.search.run import search_with_fallback, search_all_se
+
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -14,6 +17,7 @@ async def search_single_jurisdiction(
     num_urls=5,
     browser_semaphore=None,
     url_ignore_substrings=None,
+    url_keep_substrings=None,
     simple=True,
     **se_kwargs,
 ):
@@ -38,6 +42,10 @@ async def search_single_jurisdiction(
     url_ignore_substrings : list of str, optional
         URL substrings that should be excluded from search results.
         Substrings are applied case-insensitively. By default, ``None``.
+    url_keep_substrings : list of str, optional
+        URL substrings that should be included in search results even if
+        they match an ignore substring. Substrings are applied
+        case-insensitively. By default, ``None``.
     simple : bool, optional
         Flag indicating whether to use a simple top-n sort from the
         first search engine that gives results (``True``) or to apply a
@@ -86,6 +94,7 @@ async def search_single_jurisdiction(
             queries,
             num_urls,
             url_ignore_substrings,
+            url_keep_substrings,
             browser_semaphore,
             jurisdiction.full_name,
             **se_kwargs,
@@ -104,11 +113,20 @@ async def _run_simple_sort_search(
     queries,
     num_urls,
     ignore_url_parts,
+    url_keep_substrings,
     search_semaphore,
     jurisdiction_full_name,
     **se_kwargs,
 ):
     """Run search with fallback search engines, applying simple sort"""
+    if url_keep_substrings:
+        msg = (
+            "url_keep_substrings is not currently implemented for simple"
+            "search result sorting. Consider using holistic sorting to "
+            "apply the utl whitelist."
+        )
+        warn(msg, COMPASSWarning)
+
     urls = await search_with_fallback(
         queries,
         num_urls=num_urls,
@@ -123,7 +141,8 @@ async def _run_simple_sort_search(
 async def _run_holistic_sort_search(
     queries,
     num_urls,
-    ignore_url_parts,
+    url_blacklist,
+    url_whitelist,
     browser_semaphore,
     jurisdiction_full_name,
     **se_kwargs,
@@ -137,14 +156,14 @@ async def _run_holistic_sort_search(
         task_name=jurisdiction_full_name,
         **se_kwargs,
     )
-    return _apply_filters(out, ignore_url_parts, num_urls)
+    return _apply_filters(out, url_blacklist, url_whitelist, num_urls)
 
 
-def _apply_filters(results, blacklist, num_urls):
+def _apply_filters(results, url_blacklist, url_whitelist, num_urls):
     """Mark blacklisted URLs, duplicates, and beyond top-N entries"""
 
     results = _flatten_results(results)
-    _apply_blacklist_filters(results, blacklist)
+    _apply_blacklist_filters(results, url_blacklist, url_whitelist)
     _apply_duplicate_filters(results)
     _apply_top_n_filters(results, num_urls)
 
@@ -173,17 +192,19 @@ def _flatten_results(results):
     return flat
 
 
-def _apply_blacklist_filters(results, blacklist):
+def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
     """Mark rows that match any blacklist substring"""
-    blacklist = blacklist or []
-    blacklist_terms = [sub for sub in blacklist if sub]
-    blacklist_terms_cf = [sub.casefold() for sub in blacklist_terms]
+    blacklist_terms = [sub.casefold() for sub in url_blacklist or [] if sub]
+    whitelist_terms = [sub.casefold() for sub in url_whitelist or [] if sub]
     for entry in results:
         url_cf = entry["url"].casefold()
+        if any(sub in url_cf for sub in whitelist_terms):
+            continue
+
         match_index = next(
             (
                 i
-                for i, sub_cf in enumerate(blacklist_terms_cf)
+                for i, sub_cf in enumerate(blacklist_terms)
                 if sub_cf in url_cf
             ),
             None,

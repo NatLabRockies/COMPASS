@@ -182,6 +182,7 @@ class WebSearchParams:
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=None,
         url_ignore_substrings=None,
+        url_keep_substrings=None,
         search_engines=None,
         simple_se_result_sort=True,
         pytesseract_exe_fp=None,
@@ -224,6 +225,19 @@ class WebSearchParams:
             https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
             so you will need to whitelist any domains in that list that
             you want to allow. By default, ``None``.
+        url_keep_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be kept (regardless of the default blacklist or
+            the `url_ignore_substrings` input) in search results.
+            For example::
+
+                url_keep_substrings = [
+                    "my_ordinance_collection.edu",
+                ]
+
+            The above configuration would keep all url results from
+            "my_ordinance_collection.edu" despite the fact that ``.edu``
+            urls are blacklisted by default. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries, where each dictionary contains
             information about a search engine class that should be used
@@ -261,6 +275,8 @@ class WebSearchParams:
         )
         self.url_ignore_substrings = _DOMAINS["blacklist"]
         self.url_ignore_substrings += url_ignore_substrings or []
+        self.url_keep_substrings = _DOMAINS["whitelist"]
+        self.url_keep_substrings += url_keep_substrings or []
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
         self.pytesseract_exe_fp = pytesseract_exe_fp
@@ -302,6 +318,7 @@ class BaseRequest:
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
         url_ignore_substrings=None,
+        url_keep_substrings=None,
         known_local_docs=None,
         known_doc_urls=None,
         file_loader_kwargs=None,
@@ -456,6 +473,19 @@ class BaseRequest:
             https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
             so you will need to whitelist any domains in that list that
             you want to allow. By default, ``None``.
+        url_keep_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be kept (regardless of the default blacklist or
+            the `url_ignore_substrings` input) in search results.
+            For example::
+
+                url_keep_substrings = [
+                    "my_ordinance_collection.edu",
+                ]
+
+            The above configuration would keep all url results from
+            "my_ordinance_collection.edu" despite the fact that ``.edu``
+            urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
             A dictionary where keys are the jurisdiction codes (as
             strings) and values are lists of dictionaries containing
@@ -584,6 +614,7 @@ class BaseRequest:
                 max_num_concurrent_website_searches
             ),
             url_ignore_substrings=url_ignore_substrings,
+            url_keep_substrings=url_keep_substrings,
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
             pytesseract_exe_fp=pytesseract_exe_fp,
@@ -646,6 +677,7 @@ class CollectionRequest(BaseRequest):
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
         url_ignore_substrings=None,
+        url_keep_substrings=None,
         known_local_docs=None,
         known_doc_urls=None,
         file_loader_kwargs=None,
@@ -737,6 +769,19 @@ class CollectionRequest(BaseRequest):
             https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
             so you will need to whitelist any domains in that list that
             you want to allow. By default, ``None``.
+        url_keep_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be kept (regardless of the default blacklist or
+            the `url_ignore_substrings` input) in search results.
+            For example::
+
+                url_keep_substrings = [
+                    "my_ordinance_collection.edu",
+                ]
+
+            The above configuration would keep all url results from
+            "my_ordinance_collection.edu" despite the fact that ``.edu``
+            urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
             A dictionary where keys are the jurisdiction codes (as
             strings) and values are lists of dictionaries containing
@@ -882,6 +927,7 @@ class CollectionRequest(BaseRequest):
             ),
             max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
             url_ignore_substrings=url_ignore_substrings,
+            url_keep_substrings=url_keep_substrings,
             known_local_docs=known_local_docs,
             known_doc_urls=known_doc_urls,
             file_loader_kwargs=file_loader_kwargs,

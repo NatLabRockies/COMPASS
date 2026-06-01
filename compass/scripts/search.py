@@ -70,6 +70,7 @@ async def run_search(request, config_path=None):
             num_urls,
             runtime.search_engine_semaphore,
             runtime.search_params.url_ignore_substrings,
+            runtime.search_params.url_keep_substrings,
             simple=False,
             **se_kwargs,
         )

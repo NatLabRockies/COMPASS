@@ -197,6 +197,9 @@ class SearchEngineDocumentsStep(CollectionStep):
                 url_ignore_substrings=(
                     runtime.search_params.url_ignore_substrings
                 ),
+                url_keep_substrings=(
+                    runtime.search_params.url_keep_substrings
+                ),
                 **runtime.search_params.se_kwargs,
             )
         except Exception:
