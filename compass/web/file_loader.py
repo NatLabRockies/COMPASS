@@ -249,6 +249,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         )
         if doc.empty:
             logger.info("Docling could not parse content from %s", url)
+            return doc, None
 
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
@@ -310,6 +311,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
         )
         if doc.empty:
             logger.info("Docling could not parse content from %s", source)
+            return doc, None
 
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
