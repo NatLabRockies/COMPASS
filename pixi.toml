@@ -34,7 +34,9 @@ evals = { cmd = "pytest -rapP -vv -m evals --log-cli-level=INFO evals/test_run_{
 python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
 
 [feature.python-build.tasks]
-build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ ." }
+clean-readme = { cmd = "python support/clean_readme.py README.rst" }
+build-wheels = { cmd = "uv build --sdist --wheel --out-dir dist/ .", depends-on = ["clean-readme"]  }
+check-wheels = { cmd = "twine check --strict dist/*", depends-on = ["build-wheels"] }
 
 [dependencies]
 poppler = ">=24.8.0,<25"
@@ -120,10 +122,10 @@ transformers = "==4.46.3"
 [feature.python-default.target.win-64.pypi-dependencies]
 docling = "==2.90.0"
 
-[feature.python-default.target.osx-arm64.dependencies]
-docling-parse = ">=5.11.0,<6"
-docling = ">=2.91.0,<3"
-docling-core = ">=2.75.0,<3"
+[feature.python-default.target.osx.dependencies]
+docling = ">=2.90.0,<3"
+docling-core = ">=2.73.0,<3.0.0"
+docling-parse = ">=5.3.2,<6.0.0"
 
 # ELM dependencies explicitly enumerated
 # We should remove this once ELM better defines its dependencies
@@ -180,4 +182,5 @@ boto3 = ">=1.35.71,<2"
 [feature.python-build.dependencies]
 python-build = ">=1.2.2,<2"
 pkginfo = ">=1.12.1.2,<2"
+twine = ">=6.2,<7"
 uv = ">=0.8.4,<0.9"
