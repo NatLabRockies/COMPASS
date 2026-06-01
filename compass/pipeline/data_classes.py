@@ -1,13 +1,20 @@
 """Data classes used for the COMPASS pipeline"""
 
 from copy import deepcopy
+import importlib.resources
 from functools import cached_property
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass.llm import OpenAIConfig
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
+from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
+
+
+_DOMAINS = load_config(
+    importlib.resources.files("compass") / "data" / "domains.json5",
+)
 
 
 class RuntimeSettings:
@@ -213,7 +220,10 @@ class WebSearchParams:
             articles, all websites on the NLR domain, and the specific
             file located at
             `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
-            By default, ``None``.
+            This input will include all of the blacklisted domains from
+            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
+            so you will need to whitelist any domains in that list that
+            you want to allow. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries, where each dictionary contains
             information about a search engine class that should be used
@@ -249,7 +259,8 @@ class WebSearchParams:
         self.max_num_concurrent_website_searches = (
             max_num_concurrent_website_searches
         )
-        self.url_ignore_substrings = url_ignore_substrings
+        self.url_ignore_substrings = _DOMAINS["blacklist"]
+        self.url_ignore_substrings += url_ignore_substrings or []
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
         self.pytesseract_exe_fp = pytesseract_exe_fp
@@ -429,7 +440,22 @@ class BaseRequest:
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
             to specify particular websites or entire domains to ignore.
-            By default, ``None``.
+            For example::
+
+                url_ignore_substrings = [
+                    "wikipedia",
+                    "nlr.gov",
+                    "www.co.delaware.in.us/documents/1649699794_0382.pdf",
+                ]
+
+            The above configuration would ignore all `wikipedia`
+            articles, all websites on the NLR domain, and the specific
+            file located at
+            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
+            This input will include all of the blacklisted domains from
+            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
+            so you will need to whitelist any domains in that list that
+            you want to allow. By default, ``None``.
         known_local_docs : dict or path-like, optional
             A dictionary where keys are the jurisdiction codes (as
             strings) and values are lists of dictionaries containing
@@ -695,7 +721,22 @@ class CollectionRequest(BaseRequest):
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
             to specify particular websites or entire domains to ignore.
-            By default, ``None``.
+            For example::
+
+                url_ignore_substrings = [
+                    "wikipedia",
+                    "nlr.gov",
+                    "www.co.delaware.in.us/documents/1649699794_0382.pdf",
+                ]
+
+            The above configuration would ignore all `wikipedia`
+            articles, all websites on the NLR domain, and the specific
+            file located at
+            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
+            This input will include all of the blacklisted domains from
+            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
+            so you will need to whitelist any domains in that list that
+            you want to allow. By default, ``None``.
         known_local_docs : dict or path-like, optional
             A dictionary where keys are the jurisdiction codes (as
             strings) and values are lists of dictionaries containing
