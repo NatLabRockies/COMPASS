@@ -268,16 +268,16 @@ class COMPASSCollection(BaseRunMode):
 
         collection_infos = await asyncio.gather(*tasks)
         manifest = build_collection_manifest(
-            self.runtime.tech, collection_infos
+            self.runtime.tech,
+            list(filter(None, collection_infos)),
+            start_date,
+            len(jurisdictions_df),
         )
         manifest_fp = await write_collection_manifest(
             self.runtime.dirs.out, manifest
         )
-        time_elapsed = datetime.now(UTC) - start_date
         collection_msg = compile_collection_summary_message(
-            manifest_fp,
-            manifest,
-            total_seconds=time_elapsed.total_seconds(),
+            manifest_fp, manifest
         )
         for sub_msg in collection_msg.split("\n"):
             logger.info(sub_msg)

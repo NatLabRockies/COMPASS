@@ -23,7 +23,9 @@ from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 COLLECTION_MANIFEST_FILENAME = "collection_manifest.json"
 
 
-def build_collection_manifest(tech, jurisdictions):
+def build_collection_manifest(
+    tech, jurisdictions, time_start_utc, num_jurisdictions_searched
+):
     """Build the serialized collection manifest payload
 
     Parameters
@@ -35,6 +37,12 @@ def build_collection_manifest(tech, jurisdictions):
         Dictionary mapping jurisdiction full names to serialized
         collection metadata for each jurisdiction, including
         jurisdiction identifiers and the persisted document records.
+    time_start_utc : datetime.datetime
+        UTC datetime when the collection process started, used to
+        calculate elapsed time for the manifest metadata.
+    num_jurisdictions_searched : int
+        Number of jurisdictions that were searched during the collection
+        process, included in the manifest for informational purposes.
 
     Returns
     -------
@@ -42,9 +50,16 @@ def build_collection_manifest(tech, jurisdictions):
         Collection manifest as a dictionary, ready to be serialized and
         written to disk.
     """
+    time_end_utc = datetime.now(UTC)
+    time_elapsed = time_end_utc - time_start_utc
     return {
         "tech": tech,
-        "created_at": datetime.now(UTC).isoformat(),
+        "time_start_utc": time_start_utc.isoformat(),
+        "time_end_utc": time_end_utc.isoformat(),
+        "total_time": time_elapsed.total_seconds(),
+        "total_time_string": str(time_elapsed),
+        "num_jurisdictions_searched": num_jurisdictions_searched,
+        "num_jurisdictions_found": len(jurisdictions),
         "jurisdictions": jurisdictions,
     }
 

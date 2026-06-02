@@ -333,9 +333,7 @@ def compile_run_summary_message(
     )
 
 
-def compile_collection_summary_message(
-    manifest_fp, collection_manifest, total_seconds
-):
+def compile_collection_summary_message(manifest_fp, collection_manifest):
     """Compile a short collection summary message
 
     Parameters
@@ -363,7 +361,7 @@ def compile_collection_summary_message(
         len((info or {}).get("documents") or [])
         for info in collection_manifest.get("jurisdictions", [])
     )
-    runtime = _elapsed_time_as_str(total_seconds)
+    runtime = _elapsed_time_as_str(collection_manifest["total_time"])
     locs = "jurisdiction" if num_jurisdictions == 1 else "jurisdictions"
     docs = "document" if num_documents == 1 else "documents"
     return (
