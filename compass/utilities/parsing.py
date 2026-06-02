@@ -78,7 +78,7 @@ def _parse_first_json_payload(content):
     """Parse first valid JSON payload embedded in text"""
     decoder = json.JSONDecoder()
     for start_ind, start_char in enumerate(content):
-        if start_char not in ("{", "["):
+        if start_char not in {"{", "["}:
             continue
         try:
             parsed_content, __ = decoder.raw_decode(content[start_ind:])
