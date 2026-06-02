@@ -359,4 +359,6 @@ def _load_collection_manifest_from_shards(manifest_fp, expected_tech):
         )
         jurisdictions.append(resolve_all_paths(collection_info, manifest_dir))
 
-    return build_collection_manifest(expected_tech, jurisdictions)
+    return build_collection_manifest(
+        expected_tech, jurisdictions, datetime.now(UTC), len(jurisdictions)
+    )
