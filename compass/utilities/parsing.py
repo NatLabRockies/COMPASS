@@ -75,26 +75,7 @@ def llm_response_as_json(content):
 
 
 def _parse_first_json_payload(content):
-    """[NOT PUBLIC API] Parse first valid JSON payload embedded in text
-
-    Parameters
-    ----------
-    content : str
-        Text that may contain one or more JSON payloads mixed with
-        additional non-JSON prose.
-
-    Returns
-    -------
-    object or None
-        Parsed JSON payload from the first decodable object/array in
-        the string. Returns ``None`` if no decodable payload exists.
-
-    Notes
-    -----
-    This helper scans for ``"{"`` and ``"["`` markers and attempts
-    ``json.JSONDecoder().raw_decode`` from each candidate position
-    until successful.
-    """
+    """Parse first valid JSON payload embedded in text"""
     decoder = json.JSONDecoder()
     for start_ind, start_char in enumerate(content):
         if start_char not in ("{", "["):
