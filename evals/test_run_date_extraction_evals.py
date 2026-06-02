@@ -100,6 +100,10 @@ def pytest_generate_tests(metafunc):
         else _DEV_DATASET_DIR
     )
     cases = load_config(dataset_dir / "manifest.json5")
+    # Date extraction is only meaningful for enacted (Final) ordinances;
+    # drafts/proposals have no adoption date by definition. Missing
+    # document_type defaults to Final so legacy manifests aren't excluded.
+    cases = [c for c in cases if c.get("document_type", "Final") == "Final"]
     metafunc.parametrize(
         "case",
         [(case, dataset_dir) for case in cases],
