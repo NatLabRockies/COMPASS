@@ -96,15 +96,15 @@ def _parse_first_json_payload(content):
     until successful.
     """
     decoder = json.JSONDecoder()
-    for start_char in ("{", "["):
-        start_ind = content.find(start_char)
-        while start_ind != -1:
-            try:
-                parsed_content, __ = decoder.raw_decode(content[start_ind:])
-            except json.decoder.JSONDecodeError:
-                start_ind = content.find(start_char, start_ind + 1)
-            else:
-                return parsed_content
+    for start_ind, start_char in enumerate(content):
+        if start_char not in ("{", "["):
+            continue
+        try:
+            parsed_content, __ = decoder.raw_decode(content[start_ind:])
+        except json.decoder.JSONDecodeError:
+            continue
+        else:
+            return parsed_content
 
     return None
 
