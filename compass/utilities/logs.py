@@ -574,7 +574,11 @@ def _prepare_mp_queue_safe_record(record, formatter):
     if prepared.exc_info:
         exc_type, exc_value, __ = prepared.exc_info
         prepared.exc_type = getattr(exc_type, "__name__", None)
-        prepared.exc_message = getattr(exc_value, "args", [None])[0]
+        msg = getattr(exc_value, "args", [None])
+        if len(msg) > 0:
+            prepared.exc_message = msg[0]
+        else:
+            prepared.exc_message = ""
         prepared.exc_text = formatter.formatException(prepared.exc_info)
         prepared.exc_info = None
 
