@@ -97,11 +97,16 @@ async def test_legal_text_validation(
 ):
     """Test using `LegalTextValidator` instance on documents"""
 
+    doc = doc_loader(file_name)
     legal_text_validator = LegalTextValidator(
-        llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+        tech="wind",
+        doc=doc,
+        llm_service=oai_llm_service,
+        temperature=0,
+        seed=42,
+        timeout=30,
     )
 
-    doc = doc_loader(file_name)
     chunks = text_splitter.split_text(doc.text)
     chunk_parser = ParseChunksWithMemory(chunks, num_to_recall=2)
 
@@ -134,8 +139,15 @@ async def test_legal_text_validation_ocr(
         pages = read_pdf_ocr(fh.read())
         doc = PDFDocument(pages)
 
+    doc.attrs["from_ocr"] = True
+
     legal_text_validator = LegalTextValidator(
-        llm_service=oai_llm_service, temperature=0, seed=42, timeout=30
+        tech="wind",
+        doc=doc,
+        llm_service=oai_llm_service,
+        temperature=0,
+        seed=42,
+        timeout=30,
     )
 
     chunks = text_splitter.split_text(doc.text)
