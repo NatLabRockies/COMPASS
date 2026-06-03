@@ -324,6 +324,12 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         """set: **Lowercase** feature names of qualitative features"""
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def POSSIBLE_OUT_COLS(self):  # noqa: N802
+        """list: List of possible output column names"""
+        raise NotImplementedError
+
     async def parse(self, text):
         """Parse text and extract structured data
 
@@ -403,17 +409,18 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         full_df = full_df.merge(df, on="feature", how="left")
 
-        possible_out_cols = [
-            "location",
-            "restriction_type",
-            "geothermal_applicability",
-            "value",
-            "units",
-            "ammendment",
-            "summary",
-            "year",
-            "section",
-            "source",
+        ignore_cols = {
+            "county",
+            "state",
+            "subdivision",
+            "jurisdiction_type",
+            "FIPS",
+            "feature",
+            "quantitative",
+        }
+        out_cols = [
+            col.name
+            for col in self.POSSIBLE_OUT_COLS
+            if col.name in full_df.columns and col.name not in ignore_cols
         ]
-        out_cols = [col for col in possible_out_cols if col in full_df.columns]
         return full_df[["feature", *out_cols, "quantitative"]]

@@ -11,6 +11,8 @@ from .apply import (
 # Temporarily import to register plugins
 # Can drop once plugins register themselves
 from .ghp import COMPASSGeoHeatPumpExtractor
+from .geothermal_electricity import COMPASSGeoElectricityExtractor
+from .rmp import COMPASSGeoRMPExtractor
 from .small_wind import COMPASSSmallWindExtractor
 from .solar import COMPASSSolarExtractor
 from .water import TexasWaterRightsExtractor

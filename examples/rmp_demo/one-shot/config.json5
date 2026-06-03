@@ -1,6 +1,6 @@
 {
     out_dir: "./outputs",
-    tech: "geothermal_rmps",
+    tech: "geo_rmp",
     jurisdiction_fp: "../jurisdictions.csv",
     // Point this at your local_docs.json5 to use pre-downloaded RMP PDFs.
     // Remove or set to null to let COMPASS search the web instead.
@@ -36,6 +36,6 @@
         "max_workers": 1,  // Prevent concurrent subprocess race on browserforge model files
     },
     "td_kwargs": {
-        "dir": "<path to temp directory>",
+        "dir": "./",
     },
 }
