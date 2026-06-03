@@ -44,7 +44,7 @@ those documents into a versioned database that downstream users can query as a C
 workbook, or GeoPackage.
 
 .. image:: https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png
-    :alt: High-level overview of the INFRA-COMPASS pipeline
+    :alt: High-level overview of the COMPASS pipeline
     :align: center
     :width: 100%
 
@@ -64,17 +64,18 @@ architecture around the LLM call:
   jurisdictions.
 
 
-Read more about the tool in the `documentation <https://natlabrockies.github.io/COMPASS/misc/about.html>`_.
+Read more about the tool in the `documentation <https://natlabrockies.github.io/COMPASS/misc/about.html>`_,
+or check out summaries of the validation results in the `validation report <https://natlabrockies.github.io/COMPASS/val/validation.html>`_.
 
 
 Where is the extracted ordinance data?
 ======================================
-The National Laboratories of the Rockies (NLR) typically runs the INFRA-COMPASS pipeline
+The National Laboratories of the Rockies (NLR) typically runs the COMPASS pipeline
 annually and publishes refreshed datasets to OpenEI. The latest published ordinance datasets
 are available here:
 
-- Solar: https://data.openei.org/submissions/8519
-- Wind: https://data.openei.org/submissions/8602
+- Solar: https://data.openei.org/submissions/8602
+- Wind: https://data.openei.org/submissions/8519
 
 
 Installing COMPASS

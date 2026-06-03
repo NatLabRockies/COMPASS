@@ -162,3 +162,7 @@ See the development guides for full details:
 `plugin development <https://natlabrockies.github.io/COMPASS/dev/plugin_development.html>`_
 and
 `advanced plugin development <https://natlabrockies.github.io/COMPASS/dev/advanced_plugin_development.html>`_.
+
+Validation
+==========
+Take a look at some high-level validation results in the `validation report <https://natlabrockies.github.io/COMPASS/val/validation.html>`_.
