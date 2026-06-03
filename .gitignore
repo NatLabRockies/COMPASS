@@ -18,6 +18,9 @@ venv.bak/
 # Scratch files
 *scratch*
 
+# Per-case eval run logs (debug artifacts, not committed)
+evals/results/*/logs/
+
 # Documentation
 docs/_build/
 docs/source/_autosummary/

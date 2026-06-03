@@ -23,7 +23,7 @@ BASIC_ERROR_MESSAGE = "An error message"
 
 
 def test_exceptions_log_error(caplog, assert_message_was_logged):
-    """Test that a raised exception logs message, if any."""
+    """Test that a raised exception logs message, if any"""
 
     try:
         raise COMPASSError
@@ -42,7 +42,7 @@ def test_exceptions_log_error(caplog, assert_message_was_logged):
 
 
 def test_exceptions_log_uncaught_error(assert_message_was_logged):
-    """Test that a raised exception logs message if uncaught."""
+    """Test that a raised exception logs message if uncaught"""
 
     with pytest.raises(COMPASSError):
         raise COMPASSError(BASIC_ERROR_MESSAGE)
@@ -88,7 +88,7 @@ def test_exceptions_log_uncaught_error(assert_message_was_logged):
 def test_catching_error_by_type(
     raise_type, catch_types, assert_message_was_logged
 ):
-    """Test that gaps exceptions are caught correctly."""
+    """Test that gaps exceptions are caught correctly"""
     for catch_type in catch_types:
         with pytest.raises(catch_type) as exc_info:
             raise raise_type(BASIC_ERROR_MESSAGE)

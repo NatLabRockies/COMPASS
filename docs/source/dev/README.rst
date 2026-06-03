@@ -191,8 +191,8 @@ As such, please adhere to these guidelines:
     list of available COMPASS intersphinx mappings:
 
         * COMPASS: ``compass``
-            For example, use ``:func:`~compass.scripts.process.process_jurisdictions_with_openai```,
-            which renders as :func:`~compass.scripts.process.process_jurisdictions_with_openai`
+            For example, use ``:func:`~compass.pipeline.coordinator.run_compass```,
+            which renders as :func:`~compass.pipeline.coordinator.run_compass`
         * Pandas: ``pandas``
             For example, use ``:obj:`~numpy.array```, which renders as :obj:`~numpy.array`
         * MatplotLib: ``matplotlib``

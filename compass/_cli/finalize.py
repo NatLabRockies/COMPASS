@@ -10,7 +10,7 @@ from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
-from compass.scripts.process import _initialize_model_params
+from compass.pipeline import _build_models
 
 
 @click.command
@@ -21,7 +21,7 @@ from compass.scripts.process import _initialize_model_params
     type=click.Path(exists=True),
     help="Path to COMPASS run configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":func:`compass.scripts.process.process_jurisdictions_with_openai`. "
+    ":class:`~compass.pipeline.data_classes.ProcessRequest`. "
     "The output directory that this config points to will be finalized.",
 )
 def finalize(config):
@@ -57,7 +57,7 @@ def finalize(config):
     console = Console(theme=custom_theme)
     console.print(f"Finalizing COMPASS run in {dirs.out!s}...")
 
-    models = _initialize_model_params(config.get("model", "gpt-4o-mini"))
+    models = _build_models(config.get("model", "gpt-4o-mini"))
     start_datetime = datetime.fromtimestamp(dirs.out.stat().st_ctime)
     end_datetime = datetime.fromtimestamp(jurisdictions_fp.stat().st_mtime)
 

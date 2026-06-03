@@ -29,6 +29,7 @@ from docling.datamodel.pipeline_options import (
     TableStructureOptions,
     TesseractCliOcrOptions,
 )
+from docling.exceptions import ConversionError
 
 from compass.services.base import Service
 from compass.utilities.logs import AddLocationFilter, LQ
@@ -208,7 +209,7 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     )
 
 
-async def read_docling_web_file(doc_bytes, url, **kwargs):
+async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
     """Read a web file using Docling in a Process Pool
 
     Parameters
@@ -216,7 +217,11 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
     doc_bytes : bytes
         Raw document payload forwarded to the Docling parser.
     url : str
-        URL of the file to read.
+        Filename or URL of the file to read.
+    source_uri : str, optional
+        Original remote URL for the file. If specified, this is used
+        as the HTML base URI while ``url`` is still used as the stream
+        name for Docling format inference. By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
         :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
@@ -228,7 +233,11 @@ async def read_docling_web_file(doc_bytes, url, **kwargs):
         Parsed document.
     """
     return await FileLoader.call(
-        _read_docling, doc_bytes, file_source=url, **kwargs
+        _read_docling_catch_error,
+        doc_bytes,
+        file_source=url,
+        source_uri=source_uri,
+        **kwargs,
     )
 
 
@@ -290,12 +299,40 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     return doc, pdf_bytes
 
 
+def _read_docling_catch_error(
+    doc_bytes,
+    file_source,
+    headers=None,
+    pytesseract_exe_fp=None,
+    source_uri=None,
+    **kwargs,
+):
+    """Utility to return empty docs on Docling conversion errors"""
+    try:
+        return _read_docling(
+            doc_bytes=doc_bytes,
+            file_source=file_source,
+            headers=headers,
+            pytesseract_exe_fp=pytesseract_exe_fp,
+            source_uri=source_uri,
+            **kwargs,
+        )
+    except ConversionError:
+        return MDDocument(pages=[], attrs={"doc_type": "unknown"})
+
+
 def _read_docling(
-    doc_bytes, file_source, headers=None, pytesseract_exe_fp=None, **kwargs
+    doc_bytes,
+    file_source,
+    headers=None,
+    pytesseract_exe_fp=None,
+    source_uri=None,
+    **kwargs,
 ):
     """Utility func to read documents using Docling"""
 
     file_source = str(file_source)
+    source_uri = file_source if source_uri is None else str(source_uri)
     if headers is not None:
         headers = dict(headers)
 
@@ -312,7 +349,7 @@ def _read_docling(
             tesseract_cmd=pytesseract_exe_fp
         )
 
-    html_backend_options = HTMLBackendOptions(source_uri=file_source)
+    html_backend_options = HTMLBackendOptions(source_uri=source_uri)
 
     doc_converter = DocumentConverter(
         format_options={
@@ -325,10 +362,10 @@ def _read_docling(
         }
     )
 
-    start_time = time.monotonic()
+    start_time = time.perf_counter()
     stream = DocumentStream(name=file_source, stream=BytesIO(doc_bytes))
     conv_result = doc_converter.convert(stream, headers=headers)
-    conversion_time_seconds = time.monotonic() - start_time
+    conversion_time_seconds = time.perf_counter() - start_time
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
@@ -357,7 +394,7 @@ def _read_file_docling(fp, **kwargs):
 
     fp = Path(fp)
     doc_bytes = fp.read_bytes()
-    doc = _read_docling(
+    doc = _read_docling_catch_error(
         doc_bytes, str(fp).replace(".txt", ".md"), headers=None, **kwargs
     )
     return doc, doc_bytes
