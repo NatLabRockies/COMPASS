@@ -59,7 +59,7 @@ def llm_response_as_json(content):
         content = json.loads(content)
     except json.decoder.JSONDecodeError:
         parsed_content = _parse_first_json_payload(content)
-        if isinstance(parsed_content, dict):
+        if isinstance(parsed_content, dict):
             return parsed_content
 
         logger.exception(
