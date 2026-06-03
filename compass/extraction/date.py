@@ -1,9 +1,7 @@
 """Ordinance date extraction logic"""
 
 import logging
-import asyncio
 from datetime import datetime
-from collections import Counter
 
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import raw_pages_from_doc
@@ -11,31 +9,45 @@ from compass.utilities.parsing import raw_pages_from_doc
 
 logger = logging.getLogger(__name__)
 
-# These domains contain the collection date in URL, not enactment date
-_BANNED_DATE_DOMAINS = ["https://energyzoning.org"]
-
 
 class DateExtractor:
     """Helper class to extract date info from document"""
 
     SYSTEM_MESSAGE = (
         "You are a legal scholar that reads ordinance text and extracts "
-        "structured date information. "
-        "Return your answer as a dictionary in JSON format (not markdown). "
-        "Your JSON file must include exactly four keys. The first "
-        "key is 'explanation', which contains a short summary of the most "
-        "relevant date information you found in the text. The second key is "
-        "'year', which should contain an integer value that represents the "
-        "latest year this ordinance was enacted/updated, or null if that "
-        "information cannot be found in the text. The third key is 'month', "
-        "which should contain an integer value that represents the latest "
-        "month of the year this ordinance was enacted/updated, or null if "
-        "that information cannot be found in the text. The fourth key is "
-        "'day', which should contain an integer value that represents the "
-        "latest day of the month this ordinance was enacted/updated, or null "
-        "if that information cannot be found in the text. Only provide values "
-        "if you are confident that they represent the latest date this "
-        "ordinance was enacted/updated"
+        "the date the ordinance most recently took legal effect. "
+        "Ordinances are often adopted once and then amended or updated "
+        "over time. Report the LATEST date on which the ordinance was "
+        "adopted, enacted, passed, amended, revised, updated, or became "
+        "effective. For example, if the text says it was adopted in one "
+        "year but 'updated through' or 'last updated' a later year, "
+        "report the later year. "
+        "Look for this date in the title, preamble, signature/adoption "
+        "block, an 'Ordinance No.' line, amendment history, or a "
+        "'last updated' / 'updated through' note. "
+        "Do NOT report any of the following, even if they are the most "
+        "prominent dates in the text: meeting, agenda, or public hearing "
+        "dates; draft dates; or the date the file was uploaded, "
+        "downloaded, scanned, or collected from a website. If a date "
+        "appears only in a page header or footer and looks like a "
+        "file-collection or publication stamp (rather than a stated "
+        "adoption or update date), do not report it. "
+        "A URL for the document may be provided as a hint, but the "
+        "document text is the source of truth: only use the URL to "
+        "corroborate a date you can support from the text. "
+        "Return your answer as a dictionary in JSON format (not "
+        "markdown). Your JSON file must include exactly four keys. The "
+        "first key is 'explanation', which contains a short summary of "
+        "the date information you found, including the exact text the "
+        "date is based on. The second key is 'year', which should "
+        "contain an integer value for the latest year the ordinance took "
+        "effect, or null if that cannot be confidently determined from "
+        "the text. The third key is 'month', which should contain an "
+        "integer value for the corresponding month, or null. The fourth "
+        "key is 'day', which should contain an integer value for the "
+        "corresponding day of the month, or null. Only provide a value "
+        "if you are confident it represents the latest date this "
+        "ordinance took effect; otherwise use null."
     )
     """System message for date extraction LLM calls"""
 
@@ -58,6 +70,10 @@ class DateExtractor:
     async def parse(self, doc):
         """Extract date (year, month, day) from doc
 
+        The full document text is read in a single LLM call. The
+        document's ``source`` URL, if any, is passed along as a hint,
+        but the document text is the source of truth.
+
         Parameters
         ----------
         doc : BaseDocument
@@ -69,85 +85,62 @@ class DateExtractor:
             3-tuple containing year, month, day, or ``None`` if any of
             those are not found.
         """
-        url = doc.attrs.get("source")
-        can_check_url_for_date = url and not any(
-            sub_str in url for sub_str in _BANNED_DATE_DOMAINS
-        )
-        if can_check_url_for_date:
-            logger.debug("Checking URL for date: %s", url)
-            response = await self.jlc.call(
-                sys_msg=self.SYSTEM_MESSAGE,
-                content=(
-                    "Please extract the date from the URL for this "
-                    f"ordinance, if possible:\n{url}"
-                ),
-                usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
-            )
-            if response:
-                date = _parse_date([response])
-                logger.debug("Parsed date from URL: %s", date)
-                return date
-
         raw_pages = raw_pages_from_doc(doc, self.text_splitter)
-        if not raw_pages:
+        text = "\n\n".join(page for page in raw_pages if page)
+        if not text:
             return None, None, None
 
-        outer_task_name = asyncio.current_task().get_name()
-        date_extractions = [
-            asyncio.create_task(
-                self.jlc.call(
-                    sys_msg=self.SYSTEM_MESSAGE,
-                    content=(
-                        f"Please extract the date for this ordinance:\n{text}"
-                    ),
-                    usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
-                ),
-                name=outer_task_name,
+        content = "Please extract the enactment date for this ordinance."
+        url = doc.attrs.get("source")
+        if url:
+            content += f"\nThe document was downloaded from this URL: {url}"
+        content += f"\n\nOrdinance text:\n{text}"
+
+        response = await self.jlc.call(
+            sys_msg=self.SYSTEM_MESSAGE,
+            content=content,
+            usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
+        )
+        if response:
+            logger.debug(
+                "Date extraction explanation: %s",
+                response.get("explanation"),
             )
-            for text in raw_pages
-            if text
-        ]
-        all_years = await asyncio.gather(*date_extractions)
-        return _parse_date([y for y in all_years if y])
+        date = _parse_date(response)
+        logger.debug("Parsed date: %s", date)
+        return date
 
 
-def _parse_date(json_list):
-    """Parse all date elements
-
-    True date is determined to be the most frequent date. In the case of
-    a tie, the latest date is chosen.
-    """
-    if not json_list:
+def _parse_date(date_info):
+    """Validate and return the (year, month, day) from a response"""
+    if not date_info:
         return None, None, None
 
-    years = _parse_date_element(
-        json_list,
-        key="year",
-        max_len=4,
-        min_val=2000,
-        max_val=datetime.now().year,
+    year = _validated_element(
+        date_info, key="year", min_val=2000, max_val=datetime.now().year
     )
-    months = _parse_date_element(
-        json_list, key="month", max_len=2, min_val=1, max_val=12
+    month = _validated_element(
+        date_info, key="month", min_val=1, max_val=12
     )
-    days = _parse_date_element(
-        json_list, key="day", max_len=2, min_val=1, max_val=31
-    )
-
-    date_elements = Counter(zip(years, months, days, strict=False))
-    date = max(date_elements, key=lambda date: (date_elements[date], date))
-    return tuple(None if d < 0 else d for d in date)
+    day = _validated_element(date_info, key="day", min_val=1, max_val=31)
+    return year, month, day
 
 
-def _parse_date_element(json_list, key, max_len, min_val, max_val):
-    """Parse out a single date element"""
-    date_elements = [info.get(key) for info in json_list]
-    logger.debug("key=%r, date_elements=%r", key, date_elements)
-    return [
-        int(y)
-        if y is not None
-        and len(str(y)) <= max_len
-        and (min_val <= int(y) <= max_val)
-        else -1 * float("inf")
-        for y in date_elements
-    ]
+def _validated_element(date_info, key, min_val, max_val):
+    """Return a single date element if it falls within the valid range
+
+    Acts as a cheap safety net against an out-of-range or malformed
+    value in the model response. Coerces the value to an int (so a
+    numeric string like "2020" or a float like 2020.0 is accepted) and
+    returns ``None`` if the value is missing, non-numeric, or outside
+    ``[min_val, max_val]``.
+    """
+    value = date_info.get(key)
+    logger.debug("key=%r, value=%r", key, value)
+    if value is None:
+        return None
+    try:
+        value = int(float(value))
+    except (TypeError, ValueError):
+        return None
+    return value if min_val <= value <= max_val else None
