@@ -25,7 +25,7 @@ Results
 .. image:: geothermal_electricity_web_scraping_may_2026.png
 
 
-Wind Document Collection Validation (September 2026)
+Wind Document Collection Validation (September 2025)
 ----------------------------------------------------
 This validation was for the document collection portion only.
 
