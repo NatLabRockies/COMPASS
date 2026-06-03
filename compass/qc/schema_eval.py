@@ -52,13 +52,13 @@ KEY_COLS = ["county", "state", "subdivision", "feature"]
 class C:
     """Tiny ANSI colour helpers"""
 
-    GREEN  = "\033[92m"
-    RED    = "\033[91m"
+    GREEN = "\033[92m"
+    RED = "\033[91m"
     YELLOW = "\033[93m"
-    CYAN   = "\033[96m"
-    BOLD   = "\033[1m"
-    DIM    = "\033[2m"
-    RESET  = "\033[0m"
+    CYAN = "\033[96m"
+    BOLD = "\033[1m"
+    DIM = "\033[2m"
+    RESET = "\033[0m"
 
     @staticmethod
     def ok(s: str)   -> str: return f"{C.GREEN}{s}{C.RESET}"
@@ -149,9 +149,9 @@ def cmd_compare(
     label_a = Path(run_a_path).stem
     label_b = Path(run_b_path).stem
 
-    print(C.bold(f"\n{'='*70}"))
+    print(C.bold(f"\n{'=' * 70}"))
     print(C.bold(f"  Comparison: {label_a}  vs  {label_b}"))
-    print(C.bold(f"{'='*70}\n"))
+    print(C.bold(f"{'=' * 70}\n"))
 
     # Build key sets — tuples of (county, state, subdivision, feature)
     def key_set(df: pl.DataFrame) -> set[tuple]:
@@ -250,9 +250,9 @@ def cmd_compare(
             n_unchanged += 1
 
     # ── Comparison summary ───────────────────────────────────────
-    print(C.bold(f"\n{'─'*70}"))
+    print(C.bold(f"\n{'─' * 70}"))
     print(C.bold("  Comparison summary"))
-    print(f"{'─'*70}")
+    print(f"{'─' * 70}")
     print(f"  Rows only in {label_a}: {len(only_a)}")
     print(f"  Rows only in {label_b}: {len(only_b)}")
     print(f"  Shared rows, changed : {C.warn(str(n_changed))}")
@@ -270,9 +270,9 @@ def _print_ref_scoring(ref_path, df_a, df_b, label_a, label_b):
     """Score both runs against reference and show divergences"""
     ref = load_reference(ref_path)
 
-    print(C.bold(f"{'─'*70}"))
+    print(C.bold(f"{'─' * 70}"))
     print(C.bold("  Reference scoring"))
-    print(f"{'─'*70}\n")
+    print(f"{'─' * 70}\n")
 
     for label, df in [(label_a, df_a), (label_b, df_b)]:
         passed, total = score_run(ref, df.lazy())
@@ -355,11 +355,11 @@ def cmd_init(run_path: str, output_path: str):
 
     grouped: dict[str, dict[str, Any]] = {}
     for row in df.iter_rows(named=True):
-        county  = row["county"] or "unknown"
-        state   = row["state"]  or "unknown"
-        subdiv  = row.get("subdivision")
+        county = row["county"] or "unknown"
+        state = row["state"] or "unknown"
+        subdiv = row.get("subdivision")
         feature = row["feature"] or "unknown"
-        fips    = row.get("FIPS", "")
+        fips = row.get("FIPS", "")
 
         loc_key = location_label({
             "county": county, "state": state,
@@ -380,7 +380,7 @@ def cmd_init(run_path: str, output_path: str):
                 feat_entry[fld] = "not_null"
 
         grouped[loc_key]["features"][feature] = (
-            feat_entry if feat_entry else None
+            feat_entry or None
         )
 
     out = Path(output_path)
