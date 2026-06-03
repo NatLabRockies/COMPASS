@@ -108,7 +108,7 @@ async def test_services_provider_staggered_jobs(service_base_class):
 async def test_services_provider_no_submissions_allowed_at_start(
     service_base_class,
 ):
-    """Test that services provider works even when service is not ready."""
+    """Test that services provider works even when service is not ready"""
 
     job_order, TestService = service_base_class
 
@@ -141,7 +141,7 @@ async def test_services_provider_no_submissions_allowed_at_start(
 
 @pytest.mark.asyncio
 async def test_services_provider_raises_error():
-    """Test that services provider raises error if service does."""
+    """Test that services provider raises error if service does"""
 
     class BadService(Service):
         @property
@@ -161,7 +161,7 @@ async def test_services_provider_raises_error():
 
 @pytest.mark.asyncio
 async def test_services_provider_submits_as_long_as_needed(monkeypatch):
-    """Test that services provider continues to submit jobs while it can."""
+    """Test that services provider continues to submit jobs while it can"""
 
     call_cache = []
 
@@ -203,7 +203,7 @@ async def test_services_provider_submits_as_long_as_needed(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_services_provider_not_exceed_max_jobs(monkeypatch):
-    """Test that services provider doesn't exceed max concurrent job count."""
+    """Test that services provider doesn't exceed max concurrent job count"""
 
     call_cache = []
 
@@ -247,7 +247,7 @@ async def test_services_provider_not_exceed_max_jobs(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_services_provider_acquire_and_release_service_resources():
-    """Test that services provider doesn't exceed max concurrent job count."""
+    """Test that services provider doesn't exceed max concurrent job count"""
 
     call_cache = []
 

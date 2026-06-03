@@ -201,6 +201,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             for source in sources
         ]
         docs = await asyncio.gather(*fetches)
+        docs = [doc for doc in docs if doc is not None and not doc.empty]
         if docs:
             logger.debug(
                 "Got the following doc types from initial fetch:\n\t- %s",
@@ -235,15 +236,20 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         logger.debug("Got content from %r", url)
         raw_content, __, __, headers = out
+        resolved_filename = resolve_remote_filename(
+            http_url=AnyHttpUrl(url), response_headers=dict(headers)
+        )
         doc = await read_docling_web_file(
             raw_content,
-            url=resolve_remote_filename(
-                http_url=AnyHttpUrl(url), response_headers=dict(headers)
-            ),
+            url=resolved_filename,
+            source_uri=url,
             headers=dict(headers),
             pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
         )
+        if doc.empty:
+            logger.info("Docling could not parse content from %s", url)
+            return doc, None
 
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
@@ -303,6 +309,9 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             pytesseract_exe_fp=self.pytesseract_exe_fp,
             **self.to_md_kwargs,
         )
+        if doc.empty:
+            logger.info("Docling could not parse content from %s", source)
+            return doc, None
 
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
@@ -322,7 +331,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
-    COMPASSLocalFileLoader = AsyncLocalFileLoader
+    COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
     COMPASSWebFileLoader = AsyncWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalFileLoader

@@ -2,10 +2,11 @@
    :hidden:
 
    Home page <self>
+   About <misc/about>
    Installation <misc/installation>
    Examples <examples/index>
+   CLI reference <cli>
    API reference <_autosummary/compass>
-   CLI reference <_cli/cli>
    Validation <val/validation>
    Development <dev/index>
    Glossary <glossary>
@@ -15,11 +16,8 @@ INFRA-COMPASS documentation
 ***************************
 
 
-What is INFRA-COMPASS?
-======================
-
 .. include:: ../../README.rst
    :start-after: inclusion-intro
-   :end-before: Installing INFRA-COMPASS
+   :end-before: Read more about the tool
 
 :ref:`genindex` | :ref:`modindex` | :ref:`glossary`

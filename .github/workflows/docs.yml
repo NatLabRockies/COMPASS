@@ -3,11 +3,16 @@ name: Release Documentation
 permissions:
   contents: write
 
+concurrency:
+  group: docs-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 on:
   pull_request:
     paths:
       - compass/**
       - docs/**
+      - README.rst
       - .github/workflows/docs.yml
       - pyproject.toml
       - pixi.lock
@@ -16,6 +21,7 @@ on:
     paths:
       - compass/**
       - docs/**
+      - README.rst
       - .github/workflows/docs.yml
       - pyproject.toml
       - pixi.lock
@@ -37,7 +43,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           locked: true
           cache: false  # Don't use cache because we use the ``pdoc`` environment
           environments: pdoc

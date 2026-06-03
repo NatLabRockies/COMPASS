@@ -7,7 +7,9 @@ import pytest
 from compass.utilities.costs import (
     LLM_COST_REGISTRY,
     compute_cost_from_totals,
+    compute_total_cost_and_token_from_totals,
     compute_total_cost_from_usage,
+    compute_total_tokens_from_totals,
     cost_for_model,
 )
 
@@ -514,6 +516,93 @@ def test_compute_jurisdiction_cost_uses_registry():
         }
     }
     assert compute_total_cost_from_usage(tracker_unknown) == 0
+
+
+@pytest.mark.parametrize(
+    "totals,expected",
+    [
+        (
+            {"gpt-4o": {"prompt_tokens": 1_000, "response_tokens": 500}},
+            {"prompt_tokens": 1_000, "response_tokens": 500},
+        ),
+        (
+            {
+                "gpt-4o": {"prompt_tokens": 1_000, "response_tokens": 500},
+                "gpt-4o-mini": {
+                    "prompt_tokens": 2_000,
+                    "response_tokens": 1_000,
+                },
+            },
+            {"prompt_tokens": 3_000, "response_tokens": 1_500},
+        ),
+        ({}, {"prompt_tokens": 0, "response_tokens": 0}),
+        ({"gpt-4o": {}}, {"prompt_tokens": 0, "response_tokens": 0}),
+        (
+            {"gpt-4o": {"prompt_tokens": 1_000}},
+            {"prompt_tokens": 1_000, "response_tokens": 0},
+        ),
+        (
+            {"gpt-4o": {"response_tokens": 500}},
+            {"prompt_tokens": 0, "response_tokens": 500},
+        ),
+    ],
+)
+def test_compute_total_tokens_from_totals(totals, expected):
+    """Test `compute_total_tokens_from_totals` sums tokens across models"""
+    assert compute_total_tokens_from_totals(totals) == expected
+
+
+def test_compute_total_tokens_from_totals_with_extra_keys():
+    """Test `compute_total_tokens_from_totals` ignores extra keys"""
+    totals = {
+        "gpt-4o": {
+            "prompt_tokens": 1_000,
+            "response_tokens": 500,
+            "extra_key": "ignored",
+            "another_key": 999,
+        }
+    }
+    assert compute_total_tokens_from_totals(totals) == {
+        "prompt_tokens": 1_000,
+        "response_tokens": 500,
+    }
+
+
+def test_compute_total_cost_and_token_from_totals_basic():
+    """Test `compute_total_cost_and_token_from_totals` returns all 3 numbers"""
+    totals = {
+        "gpt-4o": {"prompt_tokens": 1_000_000, "response_tokens": 500_000}
+    }
+    result = compute_total_cost_and_token_from_totals(totals)
+    assert set(result) == {"cost", "prompt_tokens", "response_tokens"}
+    assert result["cost"] == pytest.approx(7.5)
+    assert result["prompt_tokens"] == 1_000_000
+    assert result["response_tokens"] == 500_000
+
+
+def test_compute_total_cost_and_token_from_totals_empty():
+    """Test `compute_total_cost_and_token_from_totals` with empty totals"""
+    assert compute_total_cost_and_token_from_totals({}) == {
+        "cost": 0.0,
+        "prompt_tokens": 0,
+        "response_tokens": 0,
+    }
+
+
+def test_compute_total_cost_and_token_from_totals_matches_parts():
+    """Composition equals its parts (cost + tokens computed separately)"""
+    totals = {
+        "gpt-4o": {"prompt_tokens": 1_000_000, "response_tokens": 500_000},
+        "gpt-4o-mini": {
+            "prompt_tokens": 2_000_000,
+            "response_tokens": 1_000_000,
+        },
+    }
+    combined = compute_total_cost_and_token_from_totals(totals)
+    assert combined["cost"] == pytest.approx(compute_cost_from_totals(totals))
+    tokens = compute_total_tokens_from_totals(totals)
+    assert combined["prompt_tokens"] == tokens["prompt_tokens"]
+    assert combined["response_tokens"] == tokens["response_tokens"]
 
 
 if __name__ == "__main__":

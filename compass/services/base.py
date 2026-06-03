@@ -41,7 +41,7 @@ class Service(ABC):
     """
 
     MAX_CONCURRENT_JOBS = 10_000
-    """Max number of concurrent job submissions."""
+    """Max number of concurrent job submissions"""
 
     @classmethod
     def _queue(cls):

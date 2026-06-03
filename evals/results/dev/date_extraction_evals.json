@@ -1,0 +1,22 @@
+[
+  {
+    "feature": "year",
+    "n_cases": 48,
+    "true_positive": 23,
+    "true_negative": 3,
+    "false_positive": 2,
+    "false_negative": 22,
+    "failing_cases": 22,
+    "accuracy": 0.5417,
+    "precision": 0.92,
+    "recall": 0.5111,
+    "f1": 0.6571,
+    "accuracy_95_percent_confidence_interval": "0.4029 - 0.6742",
+    "precision_95_percent_confidence_interval": "0.7503 - 0.9778",
+    "recall_95_percent_confidence_interval": "0.3700 - 0.6504",
+    "total_prompt_tokens": 35325,
+    "total_response_tokens": 4667,
+    "total_time_taken_s": 796.13,
+    "total_cost_usd": 0.0792
+  }
+]

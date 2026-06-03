@@ -5,6 +5,8 @@ Parsing Existing Docs via the CLI
 If you already have documents that you want to run data extraction on,
 you can skip web search and run COMPASS directly against local files.
 This example shows the minimal CLI setup for processing local documents.
+It also covers the split ``collect`` and ``extract`` workflow for cases where
+you want to persist a local corpus and rerun extraction later.
 
 Prerequisites
 =============
@@ -41,7 +43,7 @@ steps that a document retrieved via search would go through, including
 legal text validation and date extraction. To skip some or all of these
 steps, you can include additional metadata fields in the document dicts
 as described in the
-`COMPASS documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.scripts.process.process_jurisdictions_with_openai.html#compass.scripts.process.process_jurisdictions_with_openai>`_.
+`COMPASS documentation <https://natlabrockies.github.io/COMPASS/_autosummary/compass.pipeline.data_classes.ProcessRequest.html#compass.pipeline.data_classes.ProcessRequest>`_.
 Below is an example of a more fully specified document mapping that
 includes multiple documents, each with additional metadata fields to
 skip certain processing steps:
@@ -78,6 +80,31 @@ In this way, you can build up a corpus of local docs, point your config to the
 document mapping, and only ever process the jurisdiction(s) you are interested in.
 
 
+Choosing the CLI Flow
+=====================
+If your local document set is ready and you want the original one-command
+workflow, you can still use ``compass process``. That remains the simplest
+option for local files and does not require any web retrieval when
+``perform_se_search`` and ``perform_website_search`` are disabled.
+
+If you want to separate deterministic document collection from LLM-backed
+extraction, run the two phases independently:
+
+.. code-block:: shell
+
+    compass collect -c config.json5
+    compass extract -c extract_config.json5
+
+The collection step writes ``collection_manifest.json`` into the configured
+``out_dir``. For local documents, that manifest records the jurisdiction
+metadata plus the persisted parsed text and source-file artifacts needed to
+reconstruct the extraction inputs. The extraction config can then point to the
+saved manifest with ``collection_manifest_fp``.
+
+Because the documents are already known in this workflow, collection can stay
+fully deterministic and does not require any LLM calls.
+
+
 Running COMPASS
 ===============
 Once everything is configured, you can execute a model run as described in the
@@ -92,5 +119,12 @@ If you are using ``pixi``:
 .. code-block:: shell
 
     pixi run compass process -c config.json5
+
+To run the split workflow with ``pixi``:
+
+.. code-block:: shell
+
+    pixi run compass collect -c config.json5
+    pixi run compass extract -c extract_config.json5
 
 Outputs are written under ``./outputs`` by default.

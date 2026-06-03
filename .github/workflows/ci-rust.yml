@@ -1,5 +1,9 @@
 name: Rust Checks
 
+concurrency:
+  group: rust-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 on:
   push:
     branches: [main]
@@ -34,7 +38,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -60,7 +64,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -94,7 +98,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -126,7 +130,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -156,7 +160,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev
@@ -184,7 +188,7 @@ jobs:
 
       - uses: prefix-dev/setup-pixi@5185adfbffb4bd703da3010310260805d89ebb11 # v0.9.6
         with:
-          pixi-version: v0.68.1
+          pixi-version: v0.69.0
           cache: true
           cache-write: ${{ github.ref == 'refs/heads/main' }}
           environments: rdev

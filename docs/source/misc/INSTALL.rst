@@ -97,6 +97,8 @@ drivers that will be used to control this process. To do so, in your active cond
 .. code-block:: shell
 
     playwright install
+    rebrowser_playwright install
+    patchright install
 
 This will download all required browser drivers. You only need to perform this step once
 (i.e. during initial installation). If you see any warning messages about missing libraries,

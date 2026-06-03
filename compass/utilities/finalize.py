@@ -80,7 +80,7 @@ def save_run_meta(
         "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date.isoformat(),
         "time_end_utc": end_date.isoformat(),
-        "total_time": time_elapsed.seconds,
+        "total_time": time_elapsed.total_seconds(),
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
@@ -109,7 +109,7 @@ def save_run_meta(
     with (dirs.out / "meta.json").open("w", encoding="utf-8") as fh:
         json.dump(meta_data, fh, indent=4)
 
-    return time_elapsed.seconds
+    return time_elapsed.total_seconds()
 
 
 def doc_infos_to_db(doc_infos, output_columns):
@@ -329,6 +329,47 @@ def compile_run_summary_message(
         f"✅ Scraping complete!\nOutput Directory: {out_dir}\n"
         f"Total runtime: {runtime} {total_cost}\n"
         f"Number of jurisdictions with extracted data: {document_count}"
+    )
+
+
+def compile_collection_summary_message(
+    manifest_fp, collection_manifest, total_seconds
+):
+    """Compile a short collection summary message
+
+    Parameters
+    ----------
+    manifest_fp : path-like
+        File path where the collection manifest was written. The value
+        is embedded in the summary text.
+    collection_manifest : dict
+        Dictionary describing the collection results, including a list
+        of jurisdictions and their associated documents. The function
+        extracts jurisdiction and document counts from the manifest for
+        inclusion in the summary.
+    total_seconds : float or int
+        Duration of the collection phase in seconds, used to report
+        total runtime in the summary.
+
+    Returns
+    -------
+    str
+        Summary string formatted for CLI presentation with ``rich``
+        markup.
+    """
+    num_jurisdictions = len(collection_manifest.get("jurisdictions", []))
+    num_documents = sum(
+        len((info or {}).get("documents") or [])
+        for info in collection_manifest.get("jurisdictions", [])
+    )
+    runtime = _elapsed_time_as_str(total_seconds)
+    locs = "jurisdiction" if num_jurisdictions == 1 else "jurisdictions"
+    docs = "document" if num_documents == 1 else "documents"
+    return (
+        f"✅ Collection complete!\nCollection manifest: {manifest_fp}\n"
+        f"Total runtime: {runtime}\n"
+        f"{num_documents:,d} {docs} collected for "
+        f"{num_jurisdictions:,d} {locs}"
     )
 
 

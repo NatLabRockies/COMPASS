@@ -1,0 +1,20 @@
+{
+    "blacklist": [
+        // If any of these substrings are in the URL, it is ignored by default
+        ".edu/",
+        "wiki",
+        "nlr.gov",
+        "openei.org",
+        "windexchange.energy.gov",
+        "egovlink.com",
+        "centerforlocalpolicy.org",
+        "energyzoning.org",
+        "zoneomics.com",
+        "carolinas-dash.org",
+        "findlaw.com",
+        "encodeplus.com",
+    ],
+    "whitelist": [
+        // If any of these substrings are in the URL, it is always included regardless of blacklist status
+    ]
+}

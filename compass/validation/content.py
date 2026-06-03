@@ -11,6 +11,7 @@ from warnings import warn
 
 from compass.llm.calling import ChatLLMCaller, JSONFromTextLLMCaller
 from compass.validation.graphs import setup_graph_correct_document_type
+from compass.validation.utilities import step_based_threshold
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.ngrams import convert_text_to_sentence_ngrams
@@ -94,11 +95,22 @@ class ParseChunksWithMemory:
             self._inverted_mem(ind), self._inverted_text(ind), strict=False
         )
         for step, (mem, text) in enumerate(mem_text):
-            logger.debug("Mem at ind %d is %s", step, mem)
+            logger.debug(
+                "Mem at ind %d while checking key %r is %s",
+                ind - step,
+                key,
+                mem,
+            )
             check = mem.get(key)
             if check is None:
                 check = mem[key] = await llm_call_callback(
                     key, text, *args, **kwargs
+                )
+                logger.trace(
+                    "New mem at ind %d while checking key %r is %s",
+                    ind - step,
+                    key,
+                    mem,
                 )
             if check:
                 return check
@@ -304,7 +316,12 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
     """System message for legal text validation LLM calls"""
 
     def __init__(
-        self, tech, *args, score_threshold=0.8, doc_is_from_ocr=False, **kwargs
+        self,
+        tech,
+        *args,
+        score_threshold=None,
+        doc_is_from_ocr=False,
+        **kwargs,
     ):
         """
 
@@ -316,13 +333,14 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
         score_threshold : float, optional
             Minimum fraction of text chunks that have to pass the legal
             check for the whole document to be considered legal text.
-            By default, ``0.8``.
+            If ``None``, uses a custom threshold that caps at 0.8 for
+            documents with a lot of content. By default, ``None``.
         *args, **kwargs
             Parameters to pass to the JSONFromTextLLMCaller initializer.
         """
         super().__init__(*args, **kwargs)
         self.tech = tech
-        self.score_threshold = score_threshold
+        self._user_input_score_threshold = score_threshold
         self._legal_text_mem = []
         self.doc_is_from_ocr = doc_is_from_ocr
 
@@ -333,6 +351,13 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
             return False
         score = sum(self._legal_text_mem) / len(self._legal_text_mem)
         return score >= self.score_threshold
+
+    @property
+    def score_threshold(self):
+        """float: Threshold for validation check"""
+        if self._user_input_score_threshold is not None:
+            return self._user_input_score_threshold
+        return step_based_threshold(len(self._legal_text_mem))
 
     async def check_chunk(self, chunk_parser, ind):
         """Check a chunk at a given ind to see if it contains legal text
@@ -389,7 +414,7 @@ async def parse_by_chunks(
     heuristic,
     text_kind_validator=None,
     callbacks=None,
-    min_chunks_to_process=3,
+    min_chunks_to_process=5,
 ):
     """Stream text chunks through heuristic and legal validators
 
@@ -421,7 +446,7 @@ async def parse_by_chunks(
         which does not use any callbacks.
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
-        not being legal. By default, ``3``.
+        not being legal. By default, ``5``.
 
     Notes
     -----
