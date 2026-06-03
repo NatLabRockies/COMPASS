@@ -56,12 +56,6 @@
           "summary": {
             "type": "string",
             "description": "A short summary of the relevant ordinance requiremets."
-            /*
-            Byron's
-            "description": "A short summary with direct ordinance excerpts or quotes whenever possible. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should contain direct ordinance language. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
-            */
-            // "description": "A short summary of the relevant ordinance requirement using direct text excerpts and quotes as much as possible. If multiple options exist and a selection was made, list all other options and their conditions in the summary. For qualitative restrictions, this is the primary output field containing the full extracted text. Can be null if no requirement found."
-            //"description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders (for example, 'No explicit ... found'); omit the feature instead when no requirement is present."
           },
           "explanation": {
             "type": "string",
