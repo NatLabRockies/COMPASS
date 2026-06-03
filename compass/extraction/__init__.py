@@ -16,5 +16,6 @@ from .natural_gas_pipelines import COMPASSNaturalGasPipelinesExtractor
 from .rmp import COMPASSGeoRMPExtractor
 from .small_wind import COMPASSSmallWindExtractor
 from .solar import COMPASSSolarExtractor
+from .transmission import COMPASSTransmissionExtractor
 from .water import TexasWaterRightsExtractor
 from .wind import COMPASSWindExtractor
