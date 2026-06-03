@@ -102,7 +102,7 @@ def pytest_generate_tests(metafunc):
     cases = load_config(dataset_dir / "manifest.json5")
     # Date extraction is only meaningful for enacted (Final) ordinances
     # since drafts/proposals have no "adoption date"
-    cases = [c for c in cases if c["document_type"].strip().lower() == "final"]
+    cases = [c for c in cases if c["document_satus"].strip().lower() == "final"]
     metafunc.parametrize(
         "case",
         [(case, dataset_dir) for case in cases],
