@@ -20,7 +20,7 @@
         "source": "https://ecode360.com/34134372",
         "document_satus": "Final",
         "expected": {
-            "year": 2025
+            "year": 2018
         }
     },
     {
@@ -32,7 +32,7 @@
         "source": "https://jasper.county.codes/JCC/20.50.950",
         "document_satus": "Final",
         "expected": {
-            "year": 2025
+            "year": 2021
         }
     },
     {
@@ -104,7 +104,7 @@
         "source": "https://www.ancramny.org/ws/wp-content/uploads/2021/04/Abstract-of-Local-Law-1-of-2021-Solar-Law.pdf",
         "document_satus": "Final",
         "expected": {
-            "year": 2022
+            "year": 2021
         }
     },
     {
