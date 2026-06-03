@@ -61,13 +61,20 @@ class C:
     RESET = "\033[0m"
 
     @staticmethod
-    def ok(s: str)   -> str: return f"{C.GREEN}{s}{C.RESET}"
+    def ok(s: str) -> str:
+        return f"{C.GREEN}{s}{C.RESET}"
+
     @staticmethod
-    def fail(s: str) -> str: return f"{C.RED}{s}{C.RESET}"
+    def fail(s: str) -> str:
+        return f"{C.RED}{s}{C.RESET}"
+
     @staticmethod
-    def warn(s: str) -> str: return f"{C.YELLOW}{s}{C.RESET}"
+    def warn(s: str) -> str:
+        return f"{C.YELLOW}{s}{C.RESET}"
+
     @staticmethod
-    def bold(s: str) -> str: return f"{C.BOLD}{s}{C.RESET}"
+    def bold(s: str) -> str:
+        return f"{C.BOLD}{s}{C.RESET}"
 
 
 # ── Formatting helpers ───────────────────────────────────────────────
@@ -168,20 +175,14 @@ def cmd_compare(
     if only_a or only_b:
         print(C.bold("  Row presence changes:"))
         if only_a:
-            print(
-                f"\n  {C.fail(f'Removed in {label_b}')}"
-                f" ({len(only_a)}):"
-            )
+            print(f"\n  {C.fail(f'Removed in {label_b}')} ({len(only_a)}):")
             for c, s, sd, f in sorted(only_a, key=_sortable_key):
                 loc = location_label(
                     {"county": c, "state": s, "subdivision": sd}
                 )
                 print(f"    − {loc} → {f}")
         if only_b:
-            print(
-                f"\n  {C.ok(f'Added in {label_b}')}"
-                f" ({len(only_b)}):"
-            )
+            print(f"\n  {C.ok(f'Added in {label_b}')} ({len(only_b)}):")
             for c, s, sd, f in sorted(only_b, key=_sortable_key):
                 loc = location_label(
                     {"county": c, "state": s, "subdivision": sd}
@@ -191,8 +192,7 @@ def cmd_compare(
 
     # ── Field-level diff on shared rows ──────────────────────────
     compare_fields = [
-        f for f in ALL_CHECK_FIELDS
-        if f in df_a.columns and f in df_b.columns
+        f for f in ALL_CHECK_FIELDS if f in df_a.columns and f in df_b.columns
     ]
     n_changed = 0
     n_unchanged = 0
@@ -212,12 +212,12 @@ def cmd_compare(
                 mask &= pl.col("subdivision").is_null()
             return df.filter(mask)
 
-        row_a = _filter(
-            df_a, county, state, subdiv, feature
-        ).row(0, named=True)
-        row_b = _filter(
-            df_b, county, state, subdiv, feature
-        ).row(0, named=True)
+        row_a = _filter(df_a, county, state, subdiv, feature).row(
+            0, named=True
+        )
+        row_b = _filter(df_b, county, state, subdiv, feature).row(
+            0, named=True
+        )
 
         diffs: list[tuple[str, str | None, str | None]] = []
         for fld in compare_fields:
@@ -262,7 +262,11 @@ def cmd_compare(
     # ── Optional: score both against reference ───────────────────
     if ref_path:
         _print_ref_scoring(
-            ref_path, df_a, df_b, label_a, label_b,
+            ref_path,
+            df_a,
+            df_b,
+            label_a,
+            label_b,
         )
 
 
@@ -289,10 +293,7 @@ def _print_ref_scoring(ref_path, df_a, df_b, label_a, label_b):
             print(f"    {d['location']}  ·  {d['field']}")
             sa = C.ok("✓") if d["a_pass"] else C.fail("✗")
             sb = C.ok("✓") if d["b_pass"] else C.fail("✗")
-            print(
-                f"      {label_a}: {sa}  {label_b}: {sb}"
-                f"  — {d['detail']}"
-            )
+            print(f"      {label_a}: {sa}  {label_b}: {sb}  — {d['detail']}")
         print()
 
 
@@ -319,30 +320,46 @@ def _find_divergences(
 
             for fld, check in checks.items():
                 res_a = (
-                    run_checks(row_a, {fld: check}) if row_a
-                    else [CheckResult(
-                        fld, check["mode"], False,
-                        "", "(missing)", "row missing",
-                    )]
+                    run_checks(row_a, {fld: check})
+                    if row_a
+                    else [
+                        CheckResult(
+                            fld,
+                            check["mode"],
+                            False,
+                            "",
+                            "(missing)",
+                            "row missing",
+                        )
+                    ]
                 )
                 res_b = (
-                    run_checks(row_b, {fld: check}) if row_b
-                    else [CheckResult(
-                        fld, check["mode"], False,
-                        "", "(missing)", "row missing",
-                    )]
+                    run_checks(row_b, {fld: check})
+                    if row_b
+                    else [
+                        CheckResult(
+                            fld,
+                            check["mode"],
+                            False,
+                            "",
+                            "(missing)",
+                            "row missing",
+                        )
+                    ]
                 )
                 if res_a[0].passed != res_b[0].passed:
-                    divs.append({
-                        "location": feat_label,
-                        "field": fld,
-                        "a_pass": res_a[0].passed,
-                        "b_pass": res_b[0].passed,
-                        "detail": (
-                            f"A: {res_a[0].actual[:50]}"
-                            f"  B: {res_b[0].actual[:50]}"
-                        ),
-                    })
+                    divs.append(
+                        {
+                            "location": feat_label,
+                            "field": fld,
+                            "a_pass": res_a[0].passed,
+                            "b_pass": res_b[0].passed,
+                            "detail": (
+                                f"A: {res_a[0].actual[:50]}"
+                                f"  B: {res_b[0].actual[:50]}"
+                            ),
+                        }
+                    )
     return divs
 
 
@@ -361,10 +378,13 @@ def cmd_init(run_path: str, output_path: str):
         feature = row["feature"] or "unknown"
         fips = row.get("FIPS", "")
 
-        loc_key = location_label({
-            "county": county, "state": state,
-            "subdivision": subdiv,
-        })
+        loc_key = location_label(
+            {
+                "county": county,
+                "state": state,
+                "subdivision": subdiv,
+            }
+        )
 
         if loc_key not in grouped:
             grouped[loc_key] = {"FIPS": fips, "features": {}}
@@ -379,14 +399,11 @@ def cmd_init(run_path: str, output_path: str):
             if v:
                 feat_entry[fld] = "not_null"
 
-        grouped[loc_key]["features"][feature] = (
-            feat_entry or None
-        )
+        grouped[loc_key]["features"][feature] = feat_entry or None
 
     out = Path(output_path)
     lines = [
-        "# Reference template — generated from: "
-        + Path(run_path).name,
+        "# Reference template — generated from: " + Path(run_path).name,
         "# Review each entry and adjust match modes:",
         '#   exact value  →  value: "1500"',
         "#   keywords     →  summary:",
