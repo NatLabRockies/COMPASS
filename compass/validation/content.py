@@ -323,7 +323,7 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
         tech : str
             Technology of interest (e.g. "solar", "wind", etc). This is
             used to set up some document validation decision trees.
-        doc : Document
+        doc : BaseDocument
             The document being validated. This is used to set up some
             document validation decision trees and should contain
             metadata about the document (e.g. whether or not it was
