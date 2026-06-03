@@ -164,7 +164,7 @@
         "source": "https://garrardcountyky.gov/wp-content/uploads/2024/01/Solar-Ordinance-Second-Reading-Signed.pdf",
         "document_satus": "Final",
         "expected": {
-            "year": 2024
+            "year": 2023
         }
     },
     {
@@ -368,7 +368,7 @@
         "source": "https://www.townofglenville.org/home/files/gecc-solar-attachments",
         "document_satus": "Final",
         "expected": {
-            "year": 2024
+            "year": 2021
         }
     },
     {
@@ -404,7 +404,7 @@
         "source": "https://townoflivingston.org/wp-content/uploads/2022/06/Local-Law-2-of-2021.pdf",
         "document_satus": "Final",
         "expected": {
-            "year": 2022
+            "year": 2021
         }
     },
     {
