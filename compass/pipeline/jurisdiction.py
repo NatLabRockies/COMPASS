@@ -154,14 +154,13 @@ class SingleJurisdictionRun:
         collection_info = await self.collection_workflow.execute(
             eager_extract=False, relative_to=relative_to
         )
-        shard_fp = await write_collection_manifest_shard(
-            self.runtime.dirs.jurisdiction_dbs, collection_info
-        )
-        logger.info(
-            "Collection manifest shard for %s stored here: '%s'",
+
+        await _safe_shard_write(
+            self.runtime.dirs.jurisdiction_dbs,
+            collection_info,
             self.jurisdiction.full_name,
-            shard_fp,
         )
+
         logger.info(
             "Completed collection for jurisdiction: %s",
             self.jurisdiction.full_name,
@@ -323,3 +322,20 @@ async def _record_jurisdiction_info(
     await JurisdictionUpdater.call(
         jurisdiction, extraction_context, seconds_elapsed, usage_tracker
     )
+
+
+async def _safe_shard_write(shard_dir, collection_info, jur_name):
+    """Safely write a collection manifest shard"""
+    try:
+        shard_fp = await write_collection_manifest_shard(
+            shard_dir, collection_info
+        )
+        logger.info(
+            "Collection manifest shard for %s stored here: '%s'",
+            jur_name,
+            shard_fp,
+        )
+    except Exception:
+        logger.exception(
+            "Failed to write collection manifest shard for %s", jur_name
+        )

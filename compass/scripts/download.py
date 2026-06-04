@@ -837,14 +837,26 @@ async def _contains_relevant_text(
         usage_tracker=usage_tracker,
         **kwargs,
     )
+    doc.attrs["found_any_extraction_text"] = found_text
     if found_text:
-        logger.debug("Detected relevant text; parsing date...")
+        logger.info(
+            "Detected some relevant extraction text for document from "
+            "source: %s ; parsing date...",
+            doc.attrs.get("source", "Unknown"),
+        )
         date_model_config = model_configs.get(
             LLMTasks.DATE_EXTRACTION, model_configs[LLMTasks.DEFAULT]
         )
         doc = await extract_date(
             doc, date_model_config, usage_tracker=usage_tracker
         )
+    else:
+        logger.info(
+            "Did not detect relevant extraction text for document from "
+            "source: %s",
+            doc.attrs.get("source", "Unknown"),
+        )
+
     return found_text
 
 

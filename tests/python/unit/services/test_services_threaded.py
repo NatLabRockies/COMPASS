@@ -56,6 +56,33 @@ async def test_temp_file_cache_service():
 
 
 @pytest.mark.asyncio
+async def test_temp_file_cache_uses_unique_names_for_same_source():
+    """Repeated downloads from one source should not share a temp path"""
+
+    first_doc = HTMLDocument(["first"])
+    first_doc.attrs["source"] = "http://www.example.com/shared"
+
+    second_doc = HTMLDocument(["second"])
+    second_doc.attrs["source"] = "http://www.example.com/shared"
+
+    cache = TempFileCache()
+    cache.acquire_resources()
+
+    first_fp = await cache.process(first_doc, first_doc.text)
+    second_fp = await cache.process(second_doc, second_doc.text)
+
+    assert first_fp != second_fp
+    assert first_fp.exists()
+    assert second_fp.exists()
+    assert first_fp.read_text().startswith("first")
+    assert second_fp.read_text().startswith("second")
+
+    cache.release_resources()
+    assert not first_fp.exists()
+    assert not second_fp.exists()
+
+
+@pytest.mark.asyncio
 async def test_file_move_service(tmp_path):
     """Test base implementation of `FileMover` class"""
 
@@ -216,7 +243,7 @@ def test_write_cleaned_file_with_debug(tmp_path):
     }
 
     CLEANED_FP_REGISTRY["cleaned_file_test"] = fp_names
-    try:
+    try:  # noqa
         outputs = threaded._write_cleaned_file(
             doc,
             tmp_path,

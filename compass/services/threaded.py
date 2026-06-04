@@ -197,7 +197,7 @@ class TempFileCache(ThreadedService):
         self._td.cleanup()
         super().release_resources()
 
-    async def process(self, doc, file_content, make_name_unique=False):
+    async def process(self, doc, file_content, make_name_unique=True):
         """Write URL doc to file asynchronously
 
         Parameters
@@ -212,7 +212,7 @@ class TempFileCache(ThreadedService):
             for PDF file.
         make_name_unique : bool, optional
             Option to make file name unique by adding a UUID at the end
-            of the file name. By default, ``False``.
+            of the file name. By default, ``True``.
 
         Returns
         -------
@@ -237,7 +237,7 @@ class TempFileCache(ThreadedService):
 class TempFileCachePB(TempFileCache):
     """Service that locally caches files downloaded from the internet"""
 
-    async def process(self, doc, file_content, make_name_unique=False):
+    async def process(self, doc, file_content, make_name_unique=True):
         """Write URL doc to file asynchronously
 
         Parameters
@@ -252,7 +252,7 @@ class TempFileCachePB(TempFileCache):
             for PDF file.
         make_name_unique : bool, optional
             Option to make file name unique by adding a UUID at the end
-            of the file name. By default, ``False``.
+            of the file name. By default, ``True``.
 
         Returns
         -------
