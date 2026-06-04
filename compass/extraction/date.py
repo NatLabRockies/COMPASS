@@ -9,6 +9,12 @@ from compass.utilities.parsing import raw_pages_from_doc
 
 logger = logging.getLogger(__name__)
 
+# Cap the text sent in a single date-extraction call. Enactment dates
+# live in the preamble (front) and signature/adoption block (back), so
+# keep the first and last pages and drop the middle for long documents.
+_MAX_HEAD_PAGES = 20
+_MAX_TAIL_PAGES = 10
+
 
 class DateExtractor:
     """Helper class to extract date info from document"""
@@ -97,11 +103,16 @@ class DateExtractor:
         Returns
         -------
         tuple
-            3-tuple containing year, month, day, or ``None`` if any of
-            those are not found.
+            3-tuple of (year, month, day). Any element that cannot be
+            determined is ``None``.
         """
-        raw_pages = raw_pages_from_doc(doc, self.text_splitter)
-        text = "\n\n".join(page for page in raw_pages if page)
+        raw_pages = [
+            page
+            for page in raw_pages_from_doc(doc, self.text_splitter)
+            if page
+        ]
+        raw_pages = _trim_pages(raw_pages)
+        text = "\n\n".join(raw_pages)
         if not text:
             return None, None, None
 
@@ -126,17 +137,22 @@ class DateExtractor:
         return date
 
 
+def _trim_pages(pages):
+    """Keep the head and tail pages, dropping the middle if too long"""
+    if len(pages) <= _MAX_HEAD_PAGES + _MAX_TAIL_PAGES:
+        return pages
+    return pages[:_MAX_HEAD_PAGES] + pages[-_MAX_TAIL_PAGES:]
+
+
 def _parse_date(date_info):
     """Validate and return the (year, month, day) from a response"""
     if not date_info:
         return None, None, None
 
     year = _validated_element(
-        date_info, key="year", min_val=2000, max_val=datetime.now().year
+        date_info, key="year", min_val=1950, max_val=datetime.now().year + 1
     )
-    month = _validated_element(
-        date_info, key="month", min_val=1, max_val=12
-    )
+    month = _validated_element(date_info, key="month", min_val=1, max_val=12)
     day = _validated_element(date_info, key="day", min_val=1, max_val=31)
     return year, month, day
 
@@ -145,10 +161,7 @@ def _validated_element(date_info, key, min_val, max_val):
     """Return a single date element if it falls within the valid range
 
     Acts as a cheap safety net against an out-of-range or malformed
-    value in the model response. Coerces the value to an int (so a
-    numeric string like "2020" or a float like 2020.0 is accepted) and
-    returns ``None`` if the value is missing, non-numeric, or outside
-    ``[min_val, max_val]``.
+    value in the model response.
     """
     value = date_info.get(key)
     logger.debug("key=%r, value=%r", key, value)
