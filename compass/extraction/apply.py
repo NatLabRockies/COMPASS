@@ -81,9 +81,9 @@ async def check_for_relevant_text(
     legal_text_validator = (
         LegalTextValidator(
             tech=tech,
+            doc=doc,
             llm_service=model_config.llm_service,
             usage_tracker=usage_tracker,
-            doc_is_from_ocr=doc.attrs.get("from_ocr", False),
             **model_config.llm_call_kwargs,
         )
         if doc.attrs.get("check_if_legal_doc", True)
