@@ -388,7 +388,7 @@ def _format_jurisdiction_df_for_output(df):
         "FIPS",
         "Website",
     ]
-    df["FIPS"] = df["FIPS"].astype(int)
+    # df["FIPS"] = df["FIPS"].astype(int)
     return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
 
 

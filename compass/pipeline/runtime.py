@@ -347,6 +347,8 @@ def _load_known_sources(known_sources):
         known_doc_urls = load_config(known_doc_urls)
 
     return (
-        {int(key): val for key, val in known_local_docs.items()},
-        {int(key): val for key, val in known_doc_urls.items()},
+        # {int(key): val for key, val in known_local_docs.items()},
+        {key: val for key, val in known_local_docs.items()},
+        # {int(key): val for key, val in known_doc_urls.items()},
+        {key: val for key, val in known_doc_urls.items()}
     )

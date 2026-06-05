@@ -69,7 +69,8 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
     JURISDICTION_DATA_FP = (
         importlib.resources.files("compass")
         / "data"
-        / "tx_water_districts.csv"
+        # / "tx_water_districts.csv"
+        / "nv_groundwater_basins.csv"
     )
     """:term:`path-like <path-like object>`: Path to Texas GCW names"""
 
