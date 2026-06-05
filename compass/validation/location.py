@@ -6,9 +6,10 @@ particular location.
 
 import asyncio
 import logging
-
+from urllib.parse import urlsplit
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
+from compass.utilities.jurisdictions import jurisdiction_websites
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
@@ -85,6 +86,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         """
         if not url:
             return False
+
+        if _url_matches_known_jurisdiction_website(url, self.jurisdiction):
+            logger.debug(
+                "Skipping URL jurisdiction LLM check for %s because its "
+                "domain matches the canonical website for %s",
+                url,
+                self.jurisdiction,
+            )
+            return True
 
         chat_llm_caller = ChatLLMCaller(
             llm_service=self.llm_service,
@@ -459,3 +469,34 @@ def _weighted_vote(out, raw_pages, doc_source):
 
     weights = max(weights, 1)
     return total / weights, num_verdicts
+
+
+def _url_matches_known_jurisdiction_website(url, jurisdiction):
+    """Return whether URL domain matches canonical website"""
+    known_website = _known_jurisdiction_website(jurisdiction)
+    if not known_website:
+        return False
+
+    url_domain = _normalize_domain(url)
+    known_domain = _normalize_domain(known_website)
+    if not url_domain or not known_domain:
+        return False
+
+    return url_domain == known_domain or url_domain.endswith(
+        f".{known_domain}"
+    )
+
+
+def _known_jurisdiction_website(jurisdiction):
+    """Return a canonical website URL for a jurisdiction if available"""
+    if jurisdiction.website_url:
+        return jurisdiction.website_url
+    return jurisdiction_websites().get(jurisdiction.code)
+
+
+def _normalize_domain(url):
+    """Return a comparable domain string for a URL or empty string"""
+    domain = urlsplit(url).netloc.partition(":")[0].casefold().strip()
+    if domain.startswith("www."):
+        return domain[4:]
+    return domain
