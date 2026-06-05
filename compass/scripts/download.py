@@ -687,13 +687,14 @@ async def filter_ordinance_docs(
             model_configs[LLMTasks.DEFAULT],
         ),
     )
+    sources_as_str = "\n\t- ".join(
+        [doc.attrs.get("source", "Unknown source") for doc in docs]
+    )
     logger.info(
-        "%d document(s) remaining after jurisdiction filter for %s\n\t- %s",
+        "%d document(s) remaining after jurisdiction filter for %s %s",
         len(docs),
         jurisdiction.full_name,
-        "\n\t- ".join(
-            [doc.attrs.get("source", "Unknown source") for doc in docs]
-        ),
+        f"\n\t- {sources_as_str}" if sources_as_str else "",
     )
 
     COMPASS_PB.update_jurisdiction_task(
