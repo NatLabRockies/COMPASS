@@ -216,6 +216,44 @@ def test_setup_graph_correct_jurisdiction_from_url_city():
 
     assert set(graph.nodes) == {
         "init",
+        "mentions_city",
+        "final",
+    }
+    assert list(graph.edges) == [
+        ("init", "mentions_city"),
+        ("mentions_city", "final"),
+    ]
+
+    assert f"{loc.state} state" in graph.nodes["init"]["prompt"]
+
+    assert (
+        f"the {loc.full_subdivision_phrase}"
+        in graph.nodes["mentions_city"]["prompt"]
+    )
+
+    assert "correct_state" in graph.nodes["final"]["prompt"]
+    assert f"{loc.state} state" in graph.nodes["final"]["prompt"]
+
+    assert "correct_county" not in graph.nodes["final"]["prompt"]
+    assert loc.full_county_phrase not in graph.nodes["final"]["prompt"]
+
+    assert "correct_city" in graph.nodes["final"]["prompt"]
+    assert loc.full_subdivision_phrase in graph.nodes["final"]["prompt"]
+
+
+def test_setup_graph_correct_duplicate_jurisdiction_from_url_city():
+    """Test setting up URL jurisdiction validation graph for city"""
+
+    loc = Jurisdiction(
+        "borough",
+        state="Pennsylvania",
+        county="Columbia",
+        subdivision_name="Ashland",  # multiple of these in PA
+    )
+    graph = setup_graph_correct_jurisdiction_from_url(loc)
+
+    assert set(graph.nodes) == {
+        "init",
         "mentions_county",
         "mentions_city",
         "final",
@@ -245,7 +283,7 @@ def test_setup_graph_correct_jurisdiction_from_url_city():
     assert "correct_county" in graph.nodes["final"]["prompt"]
     assert loc.full_county_phrase in graph.nodes["final"]["prompt"]
 
-    assert "correct_city" in graph.nodes["final"]["prompt"]
+    assert "correct_borough" in graph.nodes["final"]["prompt"]
     assert loc.full_subdivision_phrase in graph.nodes["final"]["prompt"]
 
 
