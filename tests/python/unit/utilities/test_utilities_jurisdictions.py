@@ -9,6 +9,7 @@ import pandas as pd
 from compass.utilities.jurisdictions import (
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
+    load_jurisdictions_from_subdivision_names,
     jurisdiction_websites,
     jurisdictions_from_df,
     Jurisdiction,
@@ -64,6 +65,82 @@ def test_jurisdiction_websites():
     assert 18031 in websites  # Decatur Indiana
     assert 8041 in websites  # El Paso, Colorado
     assert 49003 in websites  # Box Elder, Utah
+
+
+def test_load_jurisdictions_from_subdivision_names_safe_matching():
+    """Test subdivision lookup with normalization across symbols/spaces"""
+
+    jurisdiction_info = pd.DataFrame(
+        {
+            "County": ["Apache", "Weld", "Rio Arriba", None, None],
+            "State": [
+                "Arizona",
+                "Colorado",
+                "New Mexico",
+                "Texas",
+                "Texas",
+            ],
+            "Subdivision": [
+                "St. Johns",
+                "St Johns",
+                "St-Johns",
+                "Barton Springs/Edwards",
+                None,
+            ],
+            "Jurisdiction Type": [
+                "city",
+                "town",
+                "village",
+                "Aquifer Conservation District",
+                "county",
+            ],
+            "FIPS": [4001, 8001, 35039, 2, 48453],
+            "Website": [
+                "https://stjohnsaz.gov",
+                "https://stjohnsco.gov",
+                "https://stjohnsnm.gov",
+                "https://www.bseacd.org",
+                "https://traviscountytx.gov",
+            ],
+        }
+    )
+
+    jurisdictions = load_jurisdictions_from_subdivision_names(
+        [" st johns ", "barton_springs edwards"],
+        jurisdiction_info=jurisdiction_info,
+    )
+
+    assert set(jurisdictions["FIPS"]) == {4001, 8001, 35039, 2}
+    assert None not in set(jurisdictions["Subdivision"])
+
+
+def test_load_jurisdictions_from_subdivision_names_state_filter():
+    """Test subdivision lookup can be narrowed to a normalized state"""
+
+    jurisdiction_info = pd.DataFrame(
+        {
+            "County": ["Apache", "Weld", "Rio Arriba"],
+            "State": ["Arizona", "Colorado", "New Mexico"],
+            "Subdivision": ["St. Johns", "St Johns", "St-Johns"],
+            "Jurisdiction Type": ["city", "town", "village"],
+            "FIPS": [4001, 8001, 35039],
+            "Website": [
+                "https://stjohnsaz.gov",
+                "https://stjohnsco.gov",
+                "https://stjohnsnm.gov",
+            ],
+        }
+    )
+
+    jurisdictions = load_jurisdictions_from_subdivision_names(
+        "st johns",
+        state="new-mexico",
+        jurisdiction_info=jurisdiction_info,
+    )
+
+    assert len(jurisdictions) == 1
+    assert jurisdictions.iloc[0]["State"] == "New Mexico"
+    assert jurisdictions.iloc[0]["FIPS"] == 35039
 
 
 def test_load_jurisdictions_from_fp(tmp_path):

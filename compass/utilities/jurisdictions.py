@@ -4,6 +4,7 @@ import logging
 from warnings import warn
 import importlib.resources
 from functools import cached_property, lru_cache
+import unicodedata
 
 import numpy as np
 import pandas as pd
@@ -228,6 +229,60 @@ def jurisdiction_websites(jurisdiction_info=None):
     }
 
 
+def load_jurisdictions_from_subdivision_names(
+    subdivision_names, state=None, jurisdiction_info=None
+):
+    """Load known jurisdictions matching subdivision names
+
+    Parameters
+    ----------
+    subdivision_names : str or iterable of str
+        One or more subdivision names to match against the canonical
+        jurisdiction data.
+    state : str, optional
+        Optional state name used to filter matching jurisdictions.
+        Matching uses the same normalized comparison applied to the
+        subdivision names. By default, ``None``.
+    jurisdiction_info : pandas.DataFrame, optional
+        DataFrame containing jurisdiction info. If ``None``, this info
+        is loaded using :func:`load_all_jurisdiction_info`. By default,
+        ``None``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Rows from the canonical jurisdiction data whose subdivision
+        names match the requested names.
+    """
+    if jurisdiction_info is None:
+        jurisdiction_info = load_all_jurisdiction_info()
+
+    if isinstance(subdivision_names, str):
+        subdivision_names = [subdivision_names]
+
+    normalized_names = {
+        normalized_name
+        for name in subdivision_names
+        if (normalized_name := _normalize_jurisdiction_name(name))
+    }
+    if not normalized_names:
+        return jurisdiction_info.iloc[0:0].copy()  # empty df
+
+    subdivision_mask = (
+        jurisdiction_info["Subdivision"]
+        .map(_normalize_jurisdiction_name)
+        .isin(normalized_names)
+    )
+    if state is not None:
+        normalized_state = _normalize_jurisdiction_name(state)
+        subdivision_mask &= (
+            jurisdiction_info["State"].map(_normalize_jurisdiction_name)
+            == normalized_state
+        )
+
+    return jurisdiction_info[subdivision_mask].reset_index(drop=True)
+
+
 def load_jurisdictions_from_fp(jurisdiction_fp):
     """Load jurisdiction metadata for entries listed in a CSV file
 
@@ -396,3 +451,12 @@ def _format_jurisdiction_df_for_output(df):
 def _build_merge_col(row, merge_cols):
     """Build column to merge jurisdiction DataFrames on"""
     return " ".join(str(row[c]).casefold() for c in merge_cols)
+
+
+def _normalize_jurisdiction_name(name):
+    """Normalize jurisdiction names for resilient comparisons"""
+    if name is None or pd.isna(name):
+        return ""
+
+    normalized_name = unicodedata.normalize("NFKD", str(name).casefold())
+    return "".join(char for char in normalized_name if char.isalnum())
