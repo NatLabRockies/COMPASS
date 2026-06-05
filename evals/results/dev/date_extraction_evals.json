@@ -2,21 +2,21 @@
   {
     "feature": "year",
     "n_cases": 35,
-    "true_positive": 30,
-    "true_negative": 3,
+    "true_positive": 31,
+    "true_negative": 2,
     "false_positive": 2,
-    "false_negative": 2,
+    "false_negative": 1,
     "failing_cases": 2,
     "accuracy": 0.9429,
-    "precision": 0.9375,
-    "recall": 0.9375,
-    "f1": 0.9375,
+    "precision": 0.9394,
+    "recall": 0.9688,
+    "f1": 0.9538,
     "accuracy_95_percent_confidence_interval": "0.8139 - 0.9842",
-    "precision_95_percent_confidence_interval": "0.7985 - 0.9827",
-    "recall_95_percent_confidence_interval": "0.7985 - 0.9827",
-    "total_prompt_tokens": 203505,
-    "total_response_tokens": 3577,
-    "total_time_taken_s": 758.85,
-    "total_cost_usd": 0.2812
+    "precision_95_percent_confidence_interval": "0.8039 - 0.9832",
+    "recall_95_percent_confidence_interval": "0.8426 - 0.9945",
+    "total_prompt_tokens": 186110,
+    "total_response_tokens": 3573,
+    "total_time_taken_s": 873.75,
+    "total_cost_usd": 0.2594
   }
 ]

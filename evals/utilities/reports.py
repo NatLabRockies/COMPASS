@@ -8,14 +8,48 @@ from .base import RESULT_FIELDS, SUCCESS, Result
 from .metrics import compute_metrics
 
 
+class _PrintReporter:
+    """Fallback reporter used when running outside pytest
+
+    Exposes the ``section``/``write_line`` surface that ``report_evals``
+    needs, so the standalone async runner can reuse the exact same
+    reporting code path the pytest suite uses -- just printing to stdout
+    instead of routing through pytest's terminal reporter.
+    """
+
+    def section(self, title):
+        bar = "=" * 27
+        print(f"\n{bar} {title} {bar}")
+
+    def write_line(self, line, **_kwargs):
+        print(line)
+
+
+def _resolve_reporter(request):
+    """Return pytest's terminal reporter, or a stdout fallback
+
+    ``request`` is a pytest ``FixtureRequest`` when called from the test
+    suite (we pull its terminal reporter); pass ``None`` from a plain
+    script to get the stdout-printing fallback.
+    """
+    if request is None:
+        return _PrintReporter()
+    reporter = request.config.pluginmanager.get_plugin("terminalreporter")
+    return reporter if reporter is not None else _PrintReporter()
+
+
 def report_evals(
     request, eval_name, results, results_dir, *, write_breakdown=True
 ):
-    """Calculate the evals metrics and write the reports to results/"""
+    """Calculate the evals metrics and write the reports to results/
+
+    Pass ``request=None`` when calling outside pytest (e.g. from the
+    async runner); a stdout reporter is used instead of pytest's.
+    """
     if not results:
         return None
 
-    tr = request.config.pluginmanager.get_plugin("terminalreporter")
+    tr = _resolve_reporter(request)
     results_dir.mkdir(parents=True, exist_ok=True)
     metrics_fp = results_dir / f"{eval_name}_evals.json"
     breakdown_fp = results_dir / f"{eval_name}_evals_breakdown.csv"
@@ -55,6 +89,46 @@ def report_evals(
         "prev_nfail": baseline_failing,
         "regressed_jurs": regressed,
     }
+
+
+# Default tolerance: allow up to this many rows to flip correct ->
+# failing before the gate trips. The eval can otherwise pass while two
+# flaky cases trade places (one correct becomes wrong, another wrong
+# becomes correct), keeping aggregate accuracy flat -- the breakdown CSV
+# always shows the swap, this gate just makes a large enough swap surface
+# as a failure.
+DEFAULT_REGRESSION_TOL = 2
+
+
+def gate_failures(evals_data, *, regression_tol=DEFAULT_REGRESSION_TOL):
+    """Regression-gate messages for an ``evals_data`` dict
+
+    ``evals_data`` is the dict returned by :func:`report_evals`. Returns a
+    list of human-readable failure messages; an empty list means the gate
+    passed. Shared by the pytest suite and the standalone async runner so
+    the gate logic lives in exactly one place.
+    """
+    if not evals_data:
+        return []
+
+    failures = []
+    if (
+        evals_data["prev_nfail"] is not None
+        and evals_data["current_nfail"] > evals_data["prev_nfail"]
+    ):
+        failures.append(
+            f"aggregate regression: {evals_data['current_nfail']} failing"
+            f" > previous {evals_data['prev_nfail']}"
+        )
+    if (
+        evals_data["regressed_jurs"]
+        and len(evals_data["regressed_jurs"]) > regression_tol
+    ):
+        failures.append(
+            f"{len(evals_data['regressed_jurs'])} rows regressed "
+            f"(tol {regression_tol}): {evals_data['regressed_jurs']}"
+        )
+    return failures
 
 
 def _get_failing_count(results):

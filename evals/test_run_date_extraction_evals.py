@@ -1,8 +1,10 @@
 """Date Extraction Evals"""
 
 import asyncio
+import json
 import logging
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -33,7 +35,7 @@ from compass.utilities.logs import (
 )
 from compass.web.file_loader import COMPASSLocalFileLoader
 
-from utilities import Result, classify, report_evals
+from utilities import Result, classify, report_evals, gate_failures
 
 
 logger = logging.getLogger(__name__)
@@ -45,7 +47,131 @@ _DEV_DATASET_DIR = _DATA_DIR / "dev" / "solar"
 _HELD_OUT_DATASET_DIR = _DATA_DIR / "held-out" / "solar"
 RESULTS_DIR = Path(__file__).parent / "results"
 
-RESULTS = []
+# Each case writes its own result to ``per_jurisdiction/<label>.json``,
+# a first-class run artifact that mirrors the per-jurisdiction ``logs/``
+# directory (same ``<jurisdiction full name>`` stem). This makes the
+# eval work under pytest-xdist: each xdist worker is a separate process
+# with its own module globals, so a module-level results list would be
+# invisible to the controller that runs the report hook. Writing one
+# file per case sidesteps that -- every case owns a unique path (no
+# cross-process write races, idempotent on rerun), and the controller's
+# ``pytest_sessionfinish`` hook (in conftest.py) globs the directory to
+# rebuild the full results list. See ``per_jurisdiction_dir`` /
+# ``write_result`` / ``load_results`` below.
+_PER_JURISDICTION_SUBDIR = "per_jurisdiction"
+
+
+def _dataset_results_dir(held_out):
+    """Top-level results directory for the active dataset"""
+    return RESULTS_DIR / ("held_out" if held_out else "dev")
+
+
+def per_jurisdiction_dir(held_out):
+    """Directory holding one result file per jurisdiction for a dataset"""
+    return _dataset_results_dir(held_out) / _PER_JURISDICTION_SUBDIR
+
+
+def logs_dir(held_out):
+    """Directory holding one ``<jurisdiction>.log`` per case"""
+    return _dataset_results_dir(held_out) / "logs"
+
+
+def write_result(result, label, held_out):
+    """Write one case's ``Result`` to ``per_jurisdiction/<label>.json``
+
+    ``label`` is the jurisdiction full name (same stem used for the
+    per-jurisdiction log file). One file per case means concurrent
+    writes from different xdist workers never collide, and a rerun of a
+    single case overwrites just its own file.
+
+    This file is a pure ``Result`` carrier across the xdist process
+    boundary; the LLM's date ``explanation`` is not stored here but is
+    recovered at assembly time from the per-jurisdiction log (see
+    ``explanations_by_label``).
+    """
+    out_dir = per_jurisdiction_dir(held_out)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    result_fp = out_dir / f"{label}.json"
+    with result_fp.open("w", encoding="utf-8") as fh:
+        json.dump(asdict(result), fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+
+
+def load_results(held_out):
+    """Read every per-jurisdiction result file into a list of ``Result``
+
+    Called from the controller-side ``pytest_sessionfinish`` hook after
+    all workers finish. Returns ``[]`` if nothing was written (e.g. zero
+    cases selected).
+    """
+    out_dir = per_jurisdiction_dir(held_out)
+    if not out_dir.exists():
+        return []
+    results = []
+    for result_fp in sorted(out_dir.glob("*.json")):
+        with result_fp.open(encoding="utf-8") as fh:
+            results.append(Result(**json.load(fh)))
+    return results
+
+
+def clear_results(held_out):
+    """Delete stale per-jurisdiction files before a new run starts
+
+    Ensures a run reflects exactly the current dataset -- files for
+    jurisdictions no longer in the manifest don't leak into aggregation.
+    """
+    out_dir = per_jurisdiction_dir(held_out)
+    if not out_dir.exists():
+        return
+    for result_fp in out_dir.glob("*.json"):
+        result_fp.unlink()
+
+
+def clear_logs(held_out):
+    """Delete stale per-jurisdiction logs before a new run starts
+
+    ``LocationFileLog`` opens log files in append mode, so without this a
+    re-run would mix old and new records -- and logs for jurisdictions no
+    longer in the run would linger and confuse the controller's
+    explanation read. Clears every file (``<jur>.log`` and
+    ``<jur> exceptions.json``) so the logs dir reflects only this run.
+    """
+    out_dir = logs_dir(held_out)
+    if not out_dir.exists():
+        return
+    for log_fp in out_dir.iterdir():
+        if log_fp.is_file():
+            log_fp.unlink()
+
+
+# DateExtractor logs the LLM's justification at DEBUG as
+# "Date extraction explanation: <text>" but discards it from its return
+# value. Rather than modify production date.py, the controller recovers
+# it from each jurisdiction's DEBUG log at assembly time (dev only --
+# held-out hides per-case detail). Brittle by design (depends on the log
+# message format); a missing line yields ``None``.
+_EXPLANATION_MARKER = "Date extraction explanation: "
+
+
+def _read_explanation_from_log(log_dir, label):
+    """Return the date explanation from a jurisdiction's log, or ``None``
+
+    Reads ``<log_dir>/<label>.log`` (written by ``LocationFileLog``) and
+    returns the text following the last ``_EXPLANATION_MARKER`` line.
+    Called on the controller in ``pytest_sessionfinish``, well after all
+    log handlers have flushed.
+    """
+    log_fp = Path(log_dir) / f"{label}.log"
+    if not log_fp.exists():
+        return None
+    explanation = None
+    with log_fp.open(encoding="utf-8") as fh:
+        for line in fh:
+            idx = line.find(_EXPLANATION_MARKER)
+            if idx != -1:
+                explanation = line[idx + len(_EXPLANATION_MARKER) :].strip()
+    return explanation
+
 
 # Allow up to 2 rows to flip correct -> failing before failing the gate.
 # The eval can otherwise pass while two flaky cases trade places (one
@@ -121,41 +247,59 @@ def case(request):
     return case
 
 
-@pytest.fixture(scope="module", autouse=True)
-def _report(request):
-    """Write CSVs/JSON, print summary, and (dev evals only) enforce the gate"""
-    yield  # The code below runs after the test module finishes
-    held_out = request.config.getoption("--held-out")
+def _write_breakdown_json(results, held_out):
+    """Write a JSON twin of the breakdown CSV, enriched with explanations
+
+    Mirrors ``date_extraction_evals_breakdown.csv`` row-for-row (same
+    state/county/subdivision sort order) but as JSON, and adds the LLM's
+    free-text ``explanation`` per row -- recovered from each
+    jurisdiction's log on the controller. Dev only: held-out hides
+    per-case detail, so this is never written for held-out runs.
+    """
+    log_dir = logs_dir(held_out)
+    ordered = sorted(
+        results, key=lambda r: (r.state, r.county or "", r.subdivision or "")
+    )
+    rows = []
+    for r in ordered:
+        row = asdict(r)
+        row["explanation"] = _read_explanation_from_log(
+            log_dir, r.jurisdiction.full_name
+        )
+        rows.append(row)
+
+    out_fp = (
+        _dataset_results_dir(held_out)
+        / f"{EVAL_NAME}_evals_breakdown.json"
+    )
+    with out_fp.open("w", encoding="utf-8") as fh:
+        # ensure_ascii=False keeps explanation punctuation/accents readable
+        json.dump(rows, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+
+
+def report_and_gate(request, results, held_out):
+    """Write CSVs/JSON, print the summary, and enforce the regression gate
+
+    Pulled out of the old module-scoped ``_report`` fixture so it can run
+    from the controller-side ``pytest_sessionfinish`` hook (which sees the
+    aggregated results from every xdist worker) instead of inside a worker
+    process. Returns the list of gate-failure messages (empty if it
+    passed); the caller decides how to surface them.
+    """
     eval_subdir = "held_out" if held_out else "dev"
     evals_data = report_evals(
         request,
         EVAL_NAME,
-        RESULTS,
+        results,
         RESULTS_DIR / eval_subdir,
         write_breakdown=not held_out,
     )
-    if not evals_data or held_out:
-        return  # held-out evals aren't compared against stored values
+    if held_out:
+        return []  # held-out evals aren't compared against stored values
 
-    failures = []
-    if (
-        evals_data["prev_nfail"] is not None
-        and evals_data["current_nfail"] > evals_data["prev_nfail"]
-    ):
-        failures.append(
-            f"aggregate regression: {evals_data['current_nfail']} failing"
-            f" > previous {evals_data['prev_nfail']}"
-        )
-    if (
-        evals_data["regressed_jurs"]
-        and len(evals_data["regressed_jurs"]) > REGRESSION_TOL
-    ):
-        failures.append(
-            f"{len(evals_data['regressed_jurs'])} rows regressed "
-            f"(tol {REGRESSION_TOL}): {evals_data['regressed_jurs']}"
-        )
-    if failures:
-        pytest.fail("Eval regression gate:\n  " + "\n  ".join(failures))
+    _write_breakdown_json(results, held_out)
+    return gate_failures(evals_data, regression_tol=REGRESSION_TOL)
 
 
 @pytest.fixture(scope="module")
@@ -173,7 +317,15 @@ def _log_listener():
         yield listener
 
 
-async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
+async def _run_case(
+    case,
+    model_config,
+    log_listener,
+    log_dir,
+    *,
+    held_out,
+    log_detail,
+):
     """Extract the date for one case and record the result
 
     Each case's ``compass``/``elm`` logs (production detail) are written
@@ -218,22 +370,21 @@ async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
     expected = case["expected"]["year"]
     usage = compute_total_cost_and_token_from_totals(usage_tracker.totals)
 
-    RESULTS.append(
-        Result(
-            state=case["state"],
-            county=case["county"],
-            subdivision=case["subdivision"],
-            jurisdiction_type=case["jurisdiction_type"],
-            file=case["file"],
-            source=case["source"],
-            feature="year",
-            expected=expected,
-            extracted=year,
-            comparison_result=classify(expected, year),
-            time_taken_s=round(elapsed, 3),
-            **usage,
-        )
+    result = Result(
+        state=case["state"],
+        county=case["county"],
+        subdivision=case["subdivision"],
+        jurisdiction_type=case["jurisdiction_type"],
+        file=case["file"],
+        source=case["source"],
+        feature="year",
+        expected=expected,
+        extracted=year,
+        comparison_result=classify(expected, year),
+        time_taken_s=round(elapsed, 3),
+        **usage,
     )
+    write_result(result, label, held_out)
     if log_detail:
         logger.info(
             "%s: expected=%s extracted=%s cost=$%.4f",
@@ -248,13 +399,12 @@ async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
 async def test_date_year_accuracy(case, _model_config, _log_listener, request):
     """Run date extraction on each document in the active dataset"""
     held_out = request.config.getoption("--held-out")
-    eval_subdir = "held_out" if held_out else "dev"
-    log_dir = RESULTS_DIR / eval_subdir / "logs"
     # held-out per-case detail hidden to prevent tuning against it
     await _run_case(
         case,
         _model_config,
         _log_listener,
-        log_dir,
+        logs_dir(held_out),
+        held_out=held_out,
         log_detail=not held_out,
     )
