@@ -193,6 +193,10 @@ def setup_graph_correct_document_type(**kwargs):
         "(e.g., 'Appendix,' 'Form,' or 'Application Template') as indicators "
         "of an unfinished draft. Many finalized ordinances and regulations "
         "include such templates for public or administrative use.\n"
+        "* Do **not** treat blank fields, sequences of underscores, blank "
+        "lines, or other similar placeholders for **dates** or **signatures** "
+        "as the sole indicator of draft status. Other signals must be present "
+        "in order to treat the document as a draft.\n"
         "\nFocus instead on signs of incompleteness or active "
         "editing, such as (but not limited to):\n"
         '* explicit labels: "DRAFT", "DRAFT VERSION", "NOT FINAL", "FOR '
