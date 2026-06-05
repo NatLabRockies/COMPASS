@@ -200,7 +200,6 @@ class Jurisdiction:
         return hash(self.full_name.casefold())
 
 
-@lru_cache(maxsize=1)
 def load_all_jurisdiction_info():
     """Load canonical jurisdiction metadata for the continental US
 
@@ -213,8 +212,16 @@ def load_all_jurisdiction_info():
     Notes
     -----
     Missing values are normalized to ``None`` to simplify downstream
-    serialization.
+    serialization. A shallow copy is returned on each call so callers
+    can safely mutate their local view without affecting the cached
+    source data.
     """
+    return _load_all_jurisdiction_info_cached().copy()
+
+
+@lru_cache(maxsize=1)
+def _load_all_jurisdiction_info_cached():
+    """Load and cache canonical jurisdiction metadata"""
     return pd.concat(
         pd.read_csv(fp).replace({np.nan: None})
         for fp in KNOWN_JURISDICTIONS_REGISTRY
@@ -279,7 +286,9 @@ def load_jurisdictions_from_subdivision_names(
     if jurisdiction_info is None:
         jurisdiction_info = load_all_jurisdiction_info()
 
-    if isinstance(subdivision_names, str):
+    if subdivision_names is None:
+        subdivision_names = []
+    elif isinstance(subdivision_names, str):
         subdivision_names = [subdivision_names]
 
     normalized_names = {

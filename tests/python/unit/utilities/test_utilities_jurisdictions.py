@@ -54,6 +54,21 @@ def test_load_all_jurisdictions():
     assert "Rhode Island" in set(jurisdiction_info["State"])
 
 
+def test_load_all_jurisdictions_returns_shallow_copy():
+    """Test cached jurisdiction info is returned as a caller-safe copy"""
+
+    jurisdiction_info = load_all_jurisdiction_info()
+    county_col = jurisdiction_info.columns.get_loc("County")
+    original_county = jurisdiction_info.iat[0, county_col]
+
+    jurisdiction_info.iat[0, county_col] = "Modified County"
+
+    fresh_jurisdiction_info = load_all_jurisdiction_info()
+
+    assert fresh_jurisdiction_info is not jurisdiction_info
+    assert fresh_jurisdiction_info.iat[0, county_col] == original_county
+
+
 def test_jurisdiction_websites():
     """Test the `jurisdiction_websites` function"""
 
