@@ -3,7 +3,7 @@
 import logging
 from warnings import warn
 import importlib.resources
-from functools import cached_property
+from functools import cached_property, lru_cache
 
 import numpy as np
 import pandas as pd
@@ -177,6 +177,7 @@ class Jurisdiction:
         return hash(self.full_name.casefold())
 
 
+@lru_cache(maxsize=1)
 def load_all_jurisdiction_info():
     """Load canonical jurisdiction metadata for the continental US
 
