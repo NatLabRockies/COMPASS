@@ -490,6 +490,36 @@ def test_short_name_with_state_property():
     assert city.short_name_with_state == "City of Golden, Colorado"
 
 
+def test_short_name_with_state_the_prefixed_property():
+    """Test ``Jurisdiction.short_name_with_state_the_prefixed`` property"""
+
+    state = Jurisdiction("state", state="Colorado")
+    assert state.short_name_with_state_the_prefixed == "Colorado"
+
+    county = Jurisdiction("county", state="Colorado", county="Jefferson")
+    assert county.short_name_with_state_the_prefixed == (
+        "Jefferson County, Colorado"
+    )
+
+    city = Jurisdiction(
+        "city", state="Colorado", county="Jefferson", subdivision_name="Golden"
+    )
+    assert (
+        city.short_name_with_state_the_prefixed
+        == "the City of Golden, Colorado"
+    )
+
+    parish = Jurisdiction(
+        "parish",
+        state="Louisiana",
+        county="Assumption",
+        subdivision_name="Napoleonville",
+    )
+    assert parish.short_name_with_state_the_prefixed == (
+        "Napoleonville Parish, Louisiana"
+    )
+
+
 def test_full_subdivision_phrase_the_prefixed_property():
     """Test ``Jurisdiction.full_subdivision_phrase_the_prefixed`` property"""
 

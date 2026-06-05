@@ -138,15 +138,15 @@ class Jurisdiction:
         return ", ".join(filter(None, name_parts))
 
     @cached_property
-    def full_name_the_prefixed(self):
-        """str: Full location name prefixed with ``the`` as needed"""
-        if self.type.casefold() == "state":
-            return f"the state of {self.state}"
+    def short_name_with_state_the_prefixed(self):
+        """str: Short jurisdiction name maybe prefixed with ``the``"""
+        if not self.subdivision_name:
+            return self.short_name_with_state
 
         if self.type.casefold() in _JURISDICTION_TYPES_AS_PREFIXES:
-            return f"the {self.full_name}"
+            return f"the {self.short_name_with_state}"
 
-        return self.full_name
+        return self.short_name_with_state
 
     @cached_property
     def full_subdivision_phrase(self):
