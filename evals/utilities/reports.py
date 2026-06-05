@@ -1,6 +1,7 @@
 """Evals reporting helpers"""
 
 import json
+from pathlib import Path
 from dataclasses import asdict
 import pandas as pd
 
@@ -9,13 +10,7 @@ from .metrics import compute_metrics
 
 
 class _PrintReporter:
-    """Fallback reporter used when running outside pytest
-
-    Exposes the ``section``/``write_line`` surface that ``report_evals``
-    needs, so the standalone async runner can reuse the exact same
-    reporting code path the pytest suite uses -- just printing to stdout
-    instead of routing through pytest's terminal reporter.
-    """
+    """Stdout reporter used when there's no pytest terminal reporter"""
 
     def section(self, title):
         bar = "=" * 27
@@ -26,12 +21,6 @@ class _PrintReporter:
 
 
 def _resolve_reporter(request):
-    """Return pytest's terminal reporter, or a stdout fallback
-
-    ``request`` is a pytest ``FixtureRequest`` when called from the test
-    suite (we pull its terminal reporter); pass ``None`` from a plain
-    script to get the stdout-printing fallback.
-    """
     if request is None:
         return _PrintReporter()
     reporter = request.config.pluginmanager.get_plugin("terminalreporter")
@@ -43,8 +32,7 @@ def report_evals(
 ):
     """Calculate the evals metrics and write the reports to results/
 
-    Pass ``request=None`` when calling outside pytest (e.g. from the
-    async runner); a stdout reporter is used instead of pytest's.
+    Pass ``request=None`` to report outside pytest (uses a stdout reporter).
     """
     if not results:
         return None
@@ -105,8 +93,7 @@ def gate_failures(evals_data, *, regression_tol=DEFAULT_REGRESSION_TOL):
 
     ``evals_data`` is the dict returned by :func:`report_evals`. Returns a
     list of human-readable failure messages; an empty list means the gate
-    passed. Shared by the pytest suite and the standalone async runner so
-    the gate logic lives in exactly one place.
+    passed.
     """
     if not evals_data:
         return []
@@ -129,6 +116,43 @@ def gate_failures(evals_data, *, regression_tol=DEFAULT_REGRESSION_TOL):
             f"(tol {regression_tol}): {evals_data['regressed_jurs']}"
         )
     return failures
+
+
+class PerJurisdictionResults:
+    """One ``Result`` JSON file per jurisdiction in a directory
+
+    A simple sharded store that lets pytest-xdist workers each write their
+    own cases (one file per jurisdiction, so concurrent writes never
+    collide) while the controller reads them all back at session end. The
+    directory is the only state -- nothing eval-specific lives here.
+    """
+
+    def __init__(self, results_dir):
+        self.dir = Path(results_dir)
+
+    def write(self, result, label):
+        """Write one ``Result`` to ``<label>.json``"""
+        self.dir.mkdir(parents=True, exist_ok=True)
+        with (self.dir / f"{label}.json").open("w", encoding="utf-8") as fh:
+            json.dump(asdict(result), fh, indent=2, ensure_ascii=False)
+            fh.write("\n")
+
+    def load(self):
+        """Read every ``<label>.json`` back into a list of ``Result``"""
+        if not self.dir.exists():
+            return []
+        results = []
+        for fp in sorted(self.dir.glob("*.json")):
+            with fp.open(encoding="utf-8") as fh:
+                results.append(Result(**json.load(fh)))
+        return results
+
+    def clear(self):
+        """Delete all result files (stale shards from a previous run)"""
+        if not self.dir.exists():
+            return
+        for fp in self.dir.glob("*.json"):
+            fp.unlink()
 
 
 def _get_failing_count(results):

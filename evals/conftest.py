@@ -15,64 +15,60 @@ def pytest_addoption(parser):
 
 
 def _is_controller(config):
-    """True on the controller process (or when xdist is not in use)
-
-    pytest-xdist sets ``config.workerinput`` only on worker processes, so
-    its absence marks the controller -- the one process that outlives all
-    workers and is the right place to aggregate per-jurisdiction results.
-    """
+    # xdist sets ``workerinput`` only on workers; its absence is the
+    # controller, which outlives all workers and aggregates their results.
     return not hasattr(config, "workerinput")
 
 
-def pytest_sessionstart(session):
-    """Clear stale per-jurisdiction results and logs before a run begins
+def _date_eval():
+    """Import the date eval module, or ``None`` if it isn't this run
 
-    Only the controller clears, so workers (which start afterward) don't
-    race to delete each other's freshly written files. Logs are cleared
-    too: they're opened in append mode and the controller later reads
-    them for explanations, so stale logs would cause confusion.
+    The session hooks need a few eval-specific entry points
+    (``per_jurisdiction_results``, ``clear_logs``, ``report_and_gate``);
+    the generic results I/O lives in ``utilities.PerJurisdictionResults``.
     """
+    try:
+        import test_run_date_extraction_evals as module  # noqa: PLC0415
+    except ImportError:
+        return None
+    return module
+
+
+def pytest_sessionstart(session):
+    """Clear stale results and logs before a run (controller only)"""
     config = session.config
     if not _is_controller(config):
         return
-    try:
-        from test_run_date_extraction_evals import clear_logs, clear_results
-    except ImportError:
-        return  # the date eval module isn't part of this selection
+    module = _date_eval()
+    if module is None:
+        return
     held_out = config.getoption("--held-out")
-    clear_results(held_out)
-    clear_logs(held_out)
+    module.per_jurisdiction_results(held_out).clear()
+    module.clear_logs(held_out)
 
 
 def pytest_sessionfinish(session, exitstatus):
-    """Aggregate per-jurisdiction results, write reports, and run the gate
+    """Aggregate per-jurisdiction results, write reports, run the gate
 
-    Runs on the controller only, after every worker has finished. Under
-    pytest-xdist the per-case results are scattered across worker
-    processes; reading the per-jurisdiction files here gives the full
-    result set regardless of how many workers ran.
+    Controller only: under xdist the per-case results are scattered across
+    workers, so reading the per-jurisdiction files here gives the full set.
     """
     config = session.config
     if not _is_controller(config):
         return
-    try:
-        from test_run_date_extraction_evals import (
-            load_results,
-            report_and_gate,
-        )
-    except ImportError:
-        return  # the date eval module isn't part of this selection
+    module = _date_eval()
+    if module is None:
+        return
 
     held_out = config.getoption("--held-out")
-    results = load_results(held_out)
+    results = module.per_jurisdiction_results(held_out).load()
     if not results:
         return
 
-    failures = report_and_gate(session, results, held_out)
+    failures = module.report_and_gate(session, results, held_out)
     if failures:
-        # Surface the gate failure with a non-zero exit code so CI fails.
-        # ``pytest.fail`` would be swallowed here since there is no test
-        # item to attach the failure to.
+        # ``pytest.fail`` is swallowed in a session hook (no test item to
+        # attach to), so fail the run via the exit code instead.
         session.exitstatus = pytest.ExitCode.TESTS_FAILED
         reporter = config.pluginmanager.get_plugin("terminalreporter")
         if reporter is not None:
