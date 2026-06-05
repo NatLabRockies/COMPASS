@@ -315,14 +315,7 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
     )
     """System message for legal text validation LLM calls"""
 
-    def __init__(
-        self,
-        tech,
-        *args,
-        score_threshold=None,
-        doc_is_from_ocr=False,
-        **kwargs,
-    ):
+    def __init__(self, tech, doc, *args, score_threshold=None, **kwargs):
         """
 
         Parameters
@@ -330,6 +323,11 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
         tech : str
             Technology of interest (e.g. "solar", "wind", etc). This is
             used to set up some document validation decision trees.
+        doc : BaseDocument
+            The document being validated. This is used to set up some
+            document validation decision trees and should contain
+            metadata about the document (e.g. whether or not it was
+            extracted from OCR).
         score_threshold : float, optional
             Minimum fraction of text chunks that have to pass the legal
             check for the whole document to be considered legal text.
@@ -340,9 +338,10 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
         """
         super().__init__(*args, **kwargs)
         self.tech = tech
+        self.doc = doc
         self._user_input_score_threshold = score_threshold
         self._legal_text_mem = []
-        self.doc_is_from_ocr = doc_is_from_ocr
+        self._doc_is_from_ocr = doc.attrs.get("from_ocr", False)
 
     @property
     def is_correct_kind_of_text(self):
@@ -350,7 +349,20 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
         if not self._legal_text_mem:
             return False
         score = sum(self._legal_text_mem) / len(self._legal_text_mem)
-        return score >= self.score_threshold
+        is_legal_text = score >= self.score_threshold
+
+        logger.info(
+            "Document %s legal text check (score %.2f; threshold %.2f "
+            "source: %s)",
+            "passed" if is_legal_text else "failed",
+            score,
+            self.score_threshold,
+            self.doc.attrs.get("source", "Unknown"),
+        )
+        self.doc.attrs["legal_text_score"] = score
+        self.doc.attrs["is_legal_text"] = is_legal_text
+
+        return is_legal_text
 
     @property
     def score_threshold(self):
@@ -402,7 +414,7 @@ class LegalTextValidator(TextKindValidator, JSONFromTextLLMCaller):
             key=key,
             text=text_chunk,
             chat_llm_caller=chat_llm_caller,
-            doc_is_from_ocr=self.doc_is_from_ocr,
+            doc_is_from_ocr=self._doc_is_from_ocr,
         )
         out = await run_async_tree(tree, response_as_json=True)
         logger.debug("LLM response: %s", out)
