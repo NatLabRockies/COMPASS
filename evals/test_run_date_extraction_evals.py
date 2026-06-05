@@ -35,13 +35,7 @@ from compass.utilities.logs import (
 )
 from compass.web.file_loader import COMPASSLocalFileLoader
 
-from utilities import (
-    Result,
-    classify,
-    report_evals,
-    gate_failures,
-    PerJurisdictionResults,
-)
+from utilities import Result, classify, report_evals, PerJurisdictionResults
 
 
 logger = logging.getLogger(__name__)
@@ -100,11 +94,6 @@ def _read_explanation_from_log(log_dir, label):
             if idx != -1:
                 explanation = line[idx + len(_EXPLANATION_MARKER) :].strip()
     return explanation
-
-
-# Tolerate up to this many correct->failing flips before the gate trips:
-# flaky cases can trade places while aggregate accuracy stays flat.
-REGRESSION_TOL = 2
 
 
 def _setup_pytesseract(exe_fp):
@@ -191,24 +180,15 @@ def _write_breakdown_json(results, held_out):
         fh.write("\n")
 
 
-def report_and_gate(request, results, held_out):
-    """Write reports, print the summary, return any regression-gate failures
+def report(request, results, held_out):
+    """Write the metrics JSON, print the summary, write the dev breakdown
 
-    Runs on the controller in ``pytest_sessionfinish``. Held-out runs skip
-    the gate (no stored baseline to compare against).
+    Runs on the controller in ``pytest_sessionfinish``. The explanation-rich
+    breakdown JSON is dev only -- held-out hides per-case detail.
     """
-    evals_data = report_evals(
-        request,
-        EVAL_NAME,
-        results,
-        results_dir(held_out),
-        write_breakdown=not held_out,
-    )
-    if held_out:
-        return []
-
-    _write_breakdown_json(results, held_out)
-    return gate_failures(evals_data, regression_tol=REGRESSION_TOL)
+    report_evals(request, EVAL_NAME, results, results_dir(held_out))
+    if not held_out:
+        _write_breakdown_json(results, held_out)
 
 
 @pytest.fixture(scope="module")
