@@ -561,15 +561,15 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
     node_to_connect = "init"
     keys_to_collect = {"correct_state": f"{jurisdiction.state} state"}
 
-    num_other_jurisdictions_with_same_name = len(
-        load_jurisdictions_from_subdivision_names(
-            jurisdiction.subdivision_name, state=jurisdiction.state
+    should_check_county = bool(jurisdiction.county)
+    if should_check_county and jurisdiction.subdivision_name:
+        num_other_jurisdictions_with_same_name = len(
+            load_jurisdictions_from_subdivision_names(
+                jurisdiction.subdivision_name, state=jurisdiction.state
+            )
         )
-    )
-    should_check_county = jurisdiction.county and (
-        not jurisdiction.subdivision_name
-        or num_other_jurisdictions_with_same_name > 1
-    )
+        should_check_county &= num_other_jurisdictions_with_same_name > 1
+
     if should_check_county:
         G.add_edge(
             node_to_connect,
