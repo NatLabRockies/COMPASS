@@ -200,7 +200,7 @@
         "source": "https://codelibrary.amlegal.com/codes/medina/latest/medina_oh/0-0-0-29637",
         "document_satus": "Final",
         "expected": {
-            "year": 2024
+            "year": 2014
         }
     },
     {
@@ -416,7 +416,7 @@
         "source": "https://ecode360.com/38054462",
         "document_satus": "Final",
         "expected": {
-            "year": 2023
+            "year": 2022
         }
     },
     {
@@ -440,7 +440,7 @@
         "source": "https://ecode360.com/43529091#43529410",
         "document_satus": "Proposal",
         "expected": {
-            "year": 2021
+            "year": 2025
         }
     },
     {
@@ -452,7 +452,7 @@
         "source": "https://ecode360.com/5125460",
         "document_satus": "Final",
         "expected": {
-            "year": 2025
+            "year": 2022
         }
     },
     {
@@ -488,7 +488,7 @@
         "source": "https://ecode360.com/33936687#33936687",
         "document_satus": "Draft",
         "expected": {
-            "year": 2018
+            "year": 2025
         }
     },
     {
@@ -560,7 +560,7 @@
         "source": "https://woodford-county.org/AgendaCenter/ViewFile/Agenda/_02152023-1370",
         "document_satus": "Draft",
         "expected": {
-            "year": 2023
+            "year": 2018
         }
     },
     {
