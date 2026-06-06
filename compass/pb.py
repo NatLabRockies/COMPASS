@@ -2,6 +2,7 @@
 
 import asyncio
 import logging
+import contextlib
 from datetime import timedelta
 from contextlib import asynccontextmanager, contextmanager
 
@@ -129,13 +130,44 @@ class _COMPASSProgressBars:
         """rich.console.Group: Group of renderable progress bars"""
         return self._group
 
-    def create_main_task(self, num_jurisdictions):
+    def reset(self):
+        """Reset progress-bar state for a new run"""
+        if self._main_task is not None:
+            self._main.remove_task(self._main_task)
+            self._main_task = None
+
+        for pb_map in (
+            self._jd_pbs,
+            self._dl_pbs,
+            self._wc_pbs,
+            self._cwc_pbs,
+        ):
+            for pb in pb_map.values():
+                with contextlib.suppress(ValueError):
+                    self._group.renderables.remove(pb)
+
+        self._total_cost = 0
+        self._jd_pbs = {}
+        self._jd_tasks = {}
+        self._dl_pbs = {}
+        self._dl_tasks = {}
+        self._wc_pbs = {}
+        self._wc_tasks = {}
+        self._wc_docs_found = {}
+        self._cwc_pbs = {}
+        self._cwc_tasks = {}
+        self._cwc_docs_found = {}
+
+    def create_main_task(self, num_jurisdictions, action="Searching"):
         """Set up main task to track number of jurisdictions processed
 
         Parameters
         ----------
         num_jurisdictions : int
             Number of jurisdictions that are being processed.
+        action : str, optional
+            Action being performed, e.g. "Collecting" or "Processing".
+            By default, ``"Searching"``.
 
         Raises
         ------
@@ -151,9 +183,9 @@ class _COMPASSProgressBars:
             num_jurisdictions,
         )
         if num_jurisdictions == 1:
-            text = "[bold cyan]Searching 1 Jurisdiction"
+            text = f"[bold cyan]{action} 1 Jurisdiction"
         else:
-            text = f"[bold cyan]Searching {num_jurisdictions:,} Jurisdictions"
+            text = f"[bold cyan]{action} {num_jurisdictions:,} Jurisdictions"
 
         self._main_task = self._main.add_task(
             f"{text:<40}", total=num_jurisdictions

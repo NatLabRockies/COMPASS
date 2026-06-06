@@ -43,7 +43,7 @@ dependencies = [
   "langchain-text-splitters>=1.0.0,<2",
   "networkx>=3.4.2,<4",
   "nltk>=3.9.1,<4",
-  "nlr-elm>=0.0.40,<1",
+  "nlr-elm>=0.0.41,<1",
   "numpy>=2.4.3,<3",
   "openai>=2.34.0",
   "pandas>=2.2.3,<3",
@@ -75,6 +75,7 @@ test = [
   "pytest-profiling>=1.8.1,<2",
   "pytest-xdist>=3.8.0,<4",
   "snakeviz>=2.2.2,<3",
+  "statsmodels>=0.14,<0.15",  # Wilson CI for eval metrics
   "tox>=4.52.1,<5",
 ]
 doc = [
@@ -194,7 +195,7 @@ convention = "numpy"
 "__init__.py" = [
   "F401", # unused-import
 ]
-"tests/**.py" = [
+"{tests,evals}/**.py" = [
   "ARG001", # unused-function-argument
   "ARG002", # unused-method-argument
   "D101", # undocumented-public-class
@@ -269,9 +270,12 @@ omit = [
 
 
 [tool.pytest.ini_options]
-addopts = "--disable-warnings"
+addopts = '--disable-warnings -m "not evals"'
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
+markers = [
+  "evals: accuracy/quality evals (live billable LLM calls). Deselected by default. Run with `pixi run evals <name>` (dev dataset) or `pixi run evals <name> --held-out` (held-out dataset).",
+]
 testpaths = [
   "tests/python/unit",
   "tests/python/integration",

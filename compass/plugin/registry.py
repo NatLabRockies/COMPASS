@@ -2,7 +2,10 @@
 
 from compass.utilities.jurisdictions import KNOWN_JURISDICTIONS_REGISTRY
 from compass.plugin.base import BaseExtractionPlugin
-from compass.exceptions import COMPASSPluginConfigurationError
+from compass.exceptions import (
+    COMPASSPluginConfigurationError,
+    COMPASSValueError,
+)
 
 
 PLUGIN_REGISTRY = {}
@@ -46,3 +49,32 @@ def register_plugin(plugin_class):
     if plugin_class.JURISDICTION_DATA_FP is not None:
         KNOWN_JURISDICTIONS_REGISTRY.add(plugin_class.JURISDICTION_DATA_FP)
     PLUGIN_REGISTRY[plugin_id] = plugin_class
+
+
+def resolve_plugin(tech):
+    """Look up the registered plugin class for a technology
+
+    Parameters
+    ----------
+    tech : str
+        Technology name to look up. The lookup is case-insensitive and
+        based on the plugin class's ``IDENTIFIER`` attribute.
+
+    Returns
+    -------
+    type
+        The plugin class registered for the given technology.
+
+    Raises
+    ------
+    COMPASSValueError
+        If no plugin is registered for the given technology.
+    """
+    if (plugin_cls := PLUGIN_REGISTRY.get(tech.casefold())) is not None:
+        return plugin_cls
+
+    msg = (
+        f"No plugin registered for tech={tech!r}. Available: "
+        f"{sorted(PLUGIN_REGISTRY)}"
+    )
+    raise COMPASSValueError(msg)

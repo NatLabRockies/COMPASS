@@ -476,7 +476,10 @@ async def test_doc_matches_jurisdiction(
 def test_weighted_vote(test_case):
     """Test that the _weighted_vote function computes score properly"""
     pages, verdict, expected_score = test_case
-    assert _weighted_vote(verdict, PDFDocument(pages)) == expected_score
+    assert (
+        _weighted_vote(verdict, PDFDocument(pages).raw_pages, "test")[0]
+        == expected_score
+    )
 
 
 if __name__ == "__main__":

@@ -26,7 +26,7 @@ async def check_for_relevant_text(
     tech,
     text_collectors,
     usage_tracker=None,
-    min_chunks_to_process=3,
+    min_chunks_to_process=5,
 ):
     """Parse a single document for relevant text (e.g. ordinances)
 
@@ -64,7 +64,7 @@ async def check_for_relevant_text(
     min_chunks_to_process : int, optional
         Minimum number of chunks to process before aborting due to text
         failing the heuristic or deemed not legal (if applicable).
-        By default, ``3``.
+        By default, ``5``.
 
     Returns
     -------
@@ -81,9 +81,9 @@ async def check_for_relevant_text(
     legal_text_validator = (
         LegalTextValidator(
             tech=tech,
+            doc=doc,
             llm_service=model_config.llm_service,
             usage_tracker=usage_tracker,
-            doc_is_from_ocr=doc.attrs.get("from_ocr", False),
             **model_config.llm_call_kwargs,
         )
         if doc.attrs.get("check_if_legal_doc", True)
@@ -331,7 +331,7 @@ async def _extract_with_ngram_check(
     ngram_fraction_threshold=0.9,
     ngram_ocr_fraction_threshold=0.75,
 ):
-    """Extract ordinance info from doc and validate using ngrams."""
+    """Extract ordinance info from doc and validate using ngrams"""
 
     source = doc.attrs.get("source", "Unknown")
     doc_is_from_ocr = doc.attrs.get("from_ocr", False)

@@ -2,15 +2,18 @@
 
 import logging
 from datetime import datetime
-from collections import Counter
 
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.parsing import raw_pages_from_doc
 
 
 logger = logging.getLogger(__name__)
 
-# These domains contain the collection date in URL, not enactment date
-_BANNED_DATE_DOMAINS = ["https://energyzoning.org"]
+# Cap the text sent in a single date-extraction call. Enactment dates
+# live in the preamble (front) and signature/adoption block (back), so
+# keep the first and last pages and drop the middle for long documents.
+_MAX_HEAD_PAGES = 20
+_MAX_TAIL_PAGES = 10
 
 
 class DateExtractor:
@@ -18,22 +21,14 @@ class DateExtractor:
 
     SYSTEM_MESSAGE = (
         "You are a legal scholar that reads ordinance text and extracts "
-        "structured date information. "
-        "Return your answer as a dictionary in JSON format (not markdown). "
-        "Your JSON file must include exactly four keys. The first "
-        "key is 'explanation', which contains a short summary of the most "
-        "relevant date information you found in the text. The second key is "
-        "'year', which should contain an integer value that represents the "
-        "latest year this ordinance was enacted/updated, or null if that "
-        "information cannot be found in the text. The third key is 'month', "
-        "which should contain an integer value that represents the latest "
-        "month of the year this ordinance was enacted/updated, or null if "
-        "that information cannot be found in the text. The fourth key is "
-        "'day', which should contain an integer value that represents the "
-        "latest day of the month this ordinance was enacted/updated, or null "
-        "if that information cannot be found in the text. Only provide values "
-        "if you are confident that they represent the latest date this "
-        "ordinance was enacted/updated"
+        "a single date. The date you report is the latest year the "
+        "ordinance was enacted or ammended or became effective. If no such "
+        "date is available return null."
+        "Return your answer in JSON format like this: "
+        '{"explanation": TEXT, "year": YY, "month": MM, "day": DD}'
+        "Where explanation contains a short summary/explanation of "
+        "the date information you found, including the exact text the "
+        "date is based on."
     )
     """System message for date extraction LLM calls"""
 
@@ -56,104 +51,84 @@ class DateExtractor:
     async def parse(self, doc):
         """Extract date (year, month, day) from doc
 
+        The full document text is read in a single LLM call. The
+        document's ``source`` URL, if any, is passed along as a hint,
+        but the document text is the source of truth.
+
         Parameters
         ----------
         doc : BaseDocument
-            Document with a `raw_pages` attribute.
+            Document to parse.
 
         Returns
         -------
         tuple
-            3-tuple containing year, month, day, or ``None`` if any of
-            those are not found.
+            3-tuple of (year, month, day). Any element that cannot be
+            determined is ``None``.
         """
-        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
-            old_splitter = doc.text_splitter
-            doc.text_splitter = self.text_splitter
-            out = await self._parse(doc)
-            doc.text_splitter = old_splitter
-            return out
-
-        return await self._parse(doc)
-
-    async def _parse(self, doc):
-        """Extract date (year, month, day) from doc"""
-        url = doc.attrs.get("source")
-        can_check_url_for_date = url and not any(
-            sub_str in url for sub_str in _BANNED_DATE_DOMAINS
-        )
-        if can_check_url_for_date:
-            logger.debug("Checking URL for date: %s", url)
-            response = await self.jlc.call(
-                sys_msg=self.SYSTEM_MESSAGE,
-                content=(
-                    "Please extract the date from the URL for this "
-                    f"ordinance, if possible:\n{url}"
-                ),
-                usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
-            )
-            if response:
-                date = _parse_date([response])
-                logger.debug("Parsed date from URL: %s", date)
-                return date
-
-        if not doc.raw_pages:
+        raw_pages = [
+            page
+            for page in raw_pages_from_doc(doc, self.text_splitter)
+            if page
+        ]
+        raw_pages = _trim_pages(raw_pages)
+        text = "\n\n".join(raw_pages)
+        if not text:
             return None, None, None
 
-        all_years = []
-        for text in doc.raw_pages:
-            if not text:
-                continue
+        content = "Please extract the enactment date for this ordinance."
+        url = doc.attrs.get("source")
+        if url:
+            content += f"\nThe document was downloaded from this URL: {url}"
+        content += f"\n\nOrdinance text:\n{text}"
 
-            response = await self.jlc.call(
-                sys_msg=self.SYSTEM_MESSAGE,
-                content=f"Please extract the date for this ordinance:\n{text}",
-                usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
+        response = await self.jlc.call(
+            sys_msg=self.SYSTEM_MESSAGE,
+            content=content,
+            usage_sub_label=LLMUsageCategory.DATE_EXTRACTION,
+        )
+        if response:
+            logger.debug(
+                "Date extraction explanation: %s",
+                response.get("explanation"),
             )
-            if not response:
-                continue
-            all_years.append(response)
-
-        return _parse_date(all_years)
+        date = _parse_date(response)
+        logger.debug("Parsed date: %s", date)
+        return date
 
 
-def _parse_date(json_list):
-    """Parse all date elements
+def _trim_pages(pages):
+    """Keep the head and tail pages, dropping the middle if too long"""
+    if len(pages) <= _MAX_HEAD_PAGES + _MAX_TAIL_PAGES:
+        return pages
+    return pages[:_MAX_HEAD_PAGES] + pages[-_MAX_TAIL_PAGES:]
 
-    True date is determined to be the most frequent date. In the case of
-    a tie, the latest date is chosen.
-    """
-    if not json_list:
+
+def _parse_date(date_info):
+    """Validate and return the (year, month, day) from a response"""
+    if not date_info:
         return None, None, None
 
-    years = _parse_date_element(
-        json_list,
-        key="year",
-        max_len=4,
-        min_val=2000,
-        max_val=datetime.now().year,
+    year = _validated_element(
+        date_info, key="year", min_val=1950, max_val=datetime.now().year + 1
     )
-    months = _parse_date_element(
-        json_list, key="month", max_len=2, min_val=1, max_val=12
-    )
-    days = _parse_date_element(
-        json_list, key="day", max_len=2, min_val=1, max_val=31
-    )
-
-    date_elements = Counter(zip(years, months, days, strict=False))
-    date = max(date_elements, key=lambda date: (date_elements[date], date))
-    return tuple(None if d < 0 else d for d in date)
+    month = _validated_element(date_info, key="month", min_val=1, max_val=12)
+    day = _validated_element(date_info, key="day", min_val=1, max_val=31)
+    return year, month, day
 
 
-def _parse_date_element(json_list, key, max_len, min_val, max_val):
-    """Parse out a single date element"""
-    date_elements = [info.get(key) for info in json_list]
-    logger.debug("key=%r, date_elements=%r", key, date_elements)
-    return [
-        int(y)
-        if y is not None
-        and len(str(y)) <= max_len
-        and (min_val <= int(y) <= max_val)
-        else -1 * float("inf")
-        for y in date_elements
-    ]
+def _validated_element(date_info, key, min_val, max_val):
+    """Return a single date element if it falls within the valid range
+
+    Acts as a cheap safety net against an out-of-range or malformed
+    value in the model response.
+    """
+    value = date_info.get(key)
+    logger.debug("key=%r, value=%r", key, value)
+    if value is None:
+        return None
+    try:
+        value = int(float(value))
+    except (TypeError, ValueError):
+        return None
+    return value if min_val <= value <= max_val else None
