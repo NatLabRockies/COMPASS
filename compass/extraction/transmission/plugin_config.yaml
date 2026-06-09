@@ -39,6 +39,22 @@ heuristic_keywords:
     - "ehv"
     - "uhv"
     - "cpcn"
+  good_tech_phrases:
+    - "high voltage"
+    - "high-voltage"
+    - "extra high voltage"
+    - "extra-high voltage"
+    - "bulk transmission"
+    - "electric transmission"
+    - "69 kv"
+    - "115 kv"
+    - "138 kv"
+    - "161 kv"
+    - "230 kv"
+    - "345 kv"
+    - "500 kv"
+    - "765 kv"
+
 
 collection_prompts: true
 
