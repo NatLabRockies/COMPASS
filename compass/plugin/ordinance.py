@@ -177,7 +177,7 @@ class BaseParser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def parse(self, text):
+    async def parse(self, text, jurisdiction):
         """Parse text and extract structured data
 
         Parameters
@@ -185,6 +185,11 @@ class BaseParser(ABC):
         text : str
             Text which may or may not contain information relevant to
             the current extraction.
+        jurisdiction : Jurisdiction
+            Jurisdiction object corresponding to the document being
+            parsed. This is passed in case the system prompt needs any
+            information about the jurisdiction to successfully extract
+            values from the text.
 
         Returns
         -------
@@ -728,6 +733,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             parser,
             text_key=parser_class.IN_LABEL,
             out_key=parser_class.OUT_LABEL,
+            jurisdiction=self.jurisdiction,
         )
 
     @classmethod
