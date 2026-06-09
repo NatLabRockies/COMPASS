@@ -410,7 +410,9 @@ async def _extract_with_ngram_check(
     return doc
 
 
-async def extract_ordinance_values(doc, parser, text_key, out_key):
+async def extract_ordinance_values(
+    doc, parser, text_key, out_key, jurisdiction
+):
     """Extract ordinance values for a single document
 
     Document must be known to contain ordinance text.
@@ -434,6 +436,11 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
     out_key : str
         Name of the key under which extracted ordinances should be
         stored.
+    jurisdiction : Jurisdiction
+        Jurisdiction object corresponding to the document being parsed.
+        This is passed to the parser in case the system prompt needs any
+        information about the jurisdiction to successfully extract
+        values from the text.
 
     Returns
     -------
@@ -455,7 +462,9 @@ async def extract_ordinance_values(doc, parser, text_key, out_key):
         warn(msg, COMPASSWarning)
         return doc
 
-    doc.attrs[out_key] = await parser.parse(doc.attrs[text_key])
+    doc.attrs[out_key] = await parser.parse(
+        doc.attrs[text_key], jurisdiction=jurisdiction
+    )
     return doc
 
 
