@@ -231,7 +231,7 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
             Number of keywords that must match for the text to pass this
             heuristic check. Count must be greater than or equal to this
             value. By default, ``None``, which uses
-            :obj:`KeywordBasedHeuristic.MIN_DEFAULT_MATCHES`.
+            :attr:`compass.plugin.ordinance.KeywordBasedHeuristic.MIN_DEFAULT_MATCHES`.
 
         Returns
         -------
