@@ -32,6 +32,13 @@ website_keywords:
   government: 180
 
 heuristic_keywords: true
+heuristic_keywords:
+  good_tech_acronyms:
+    - "kv"
+    - "hvdc"
+    - "ehv"
+    - "uhv"
+    - "cpcn"
 
 collection_prompts: true
 
