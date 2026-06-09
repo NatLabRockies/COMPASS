@@ -361,17 +361,22 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             todays_date=todays_date,
             jur_type=jurisdiction.type,
             jur_state=jurisdiction.state,
-            jur_county=jurisdiction.county,
-            jur_subdivision_name=jurisdiction.subdivision_name,
-            jur_code=jurisdiction.code,
-            jur_website_url=jurisdiction.website_url,
+            jur_county=jurisdiction.county or "Unknown",
+            jur_subdivision_name=jurisdiction.subdivision_name or "Unknown",
+            jur_code=jurisdiction.code or "unknown",
+            jur_website_url=jurisdiction.website_url or "unknown",
             jur_full_name=jurisdiction.full_name,
             jur_full_name_the_prefixed=jurisdiction.full_name_the_prefixed,
-            jur_full_subdivision_phrase=jurisdiction.full_subdivision_phrase,
+            jur_full_subdivision_phrase=(
+                jurisdiction.full_subdivision_phrase or "unknown subdivision"
+            ),
             jur_full_subdivision_phrase_the_prefixed=(
                 jurisdiction.full_subdivision_phrase_the_prefixed
+                or "the unknown subdivision"
             ),
-            jur_full_county_phrase=jurisdiction.full_county_phrase,
+            jur_full_county_phrase=(
+                jurisdiction.full_county_phrase or "Unknown County"
+            ),
         )
 
         main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)
