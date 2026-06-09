@@ -237,7 +237,7 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
         -------
         bool
             ``True`` if the number of keywords/acronyms/phrases detected
-            exceeds the `match_count_threshold`.
+            meets or exceeds the `match_count_threshold`.
         """
         heuristics_text = self._convert_to_heuristics_text(text)
         total_keyword_matches = self._count_single_keyword_matches(
@@ -245,9 +245,8 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
         )
         total_keyword_matches += self._count_acronym_matches(heuristics_text)
         total_keyword_matches += self._count_phrase_matches(heuristics_text)
-        match_count_threshold = (
-            match_count_threshold or self.MIN_DEFAULT_MATCHES
-        )
+        if match_count_threshold is None:
+            match_count_threshold = self.MIN_DEFAULT_MATCHES
         return total_keyword_matches >= match_count_threshold
 
     def _convert_to_heuristics_text(self, text):
