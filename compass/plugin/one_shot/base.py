@@ -4,6 +4,7 @@ import logging
 import importlib.resources
 from asyncio import Semaphore
 from enum import StrEnum, auto
+from warnings import warn
 
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.plugin import (
@@ -32,6 +33,7 @@ from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.utilities.io import load_config
 from compass.utilities.enums import LLMTasks
 from compass.exceptions import COMPASSPluginConfigurationError
+from compass.warn import COMPASSPluginConfigurationWarning
 
 
 logger = logging.getLogger(__name__)
@@ -579,6 +581,30 @@ def _normalize_heuristic_keywords(raw):
     if empty:
         msg = f"Heuristic keyword lists must not be empty: {sorted(empty)}"
         raise COMPASSPluginConfigurationError(msg)
+
+    num_good_kw = sum(
+        len(kw_list)
+        for key, kw_list in normalized.items()
+        if key != "NOT_TECH_WORDS"
+    )
+    if num_good_kw < KeywordBasedHeuristic.MIN_DEFAULT_MATCHES:
+        msg = (
+            "Must provide at least "
+            f'{KeywordBasedHeuristic.MIN_DEFAULT_MATCHES} "Good" '
+            "heuristic values across the GOOD_TECH_KEYWORDS, "
+            "GOOD_TECH_ACRONYMS, and GOOD_TECH_PHRASES lists to ensure "
+            "an effective heuristic."
+        )
+        raise COMPASSPluginConfigurationError(msg)
+
+    if num_good_kw < 10:  # noqa: PLR2004
+        msg = (
+            'It is recommended to provide at least 10 total "Good" '
+            "heuristic values across the GOOD_TECH_KEYWORDS, "
+            "GOOD_TECH_ACRONYMS, and GOOD_TECH_PHRASES lists for a "
+            "more effective heuristic."
+        )
+        warn(msg, COMPASSPluginConfigurationWarning)
 
     return normalized
 
