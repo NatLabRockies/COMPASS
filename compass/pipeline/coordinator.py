@@ -311,6 +311,10 @@ class COMPASSExtraction(BaseRunMode):
             content of the message may vary depending on the results of
             the processing.
         """
+        logger.info("Loading collection manifest...")
+        logger.debug(
+            "Manifest path(s): %s", self.runtime.request.collection_manifest_fp
+        )
         manifest = await load_collection_manifest(
             self.runtime.request.collection_manifest_fp, self.runtime.tech
         )
