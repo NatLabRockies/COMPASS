@@ -5,9 +5,9 @@ data_type_short_desc: geothermal ground source heat pump ordinance
 query_templates:
     - "{jurisdiction} geothermal ground source heat pump code"
     - "filetype:pdf {jurisdiction} geothermal heat pump ordinance"
-    - "{jurisdiction} geothermal energy system ordinance"
+    - "{jurisdiction} private geothermal energy system ordinance"
     - "Where can I find the legal text for geothermal heat pump zoning ordinances in {jurisdiction}?"
-    - "What is the specific legal information regarding zoning ordinances for geothermal heat pumps in {jurisdiction}?"
+    - "What is the specific legal information regarding zoning ordinances for private heat exchange wells in {jurisdiction}?"
 
 website_keywords:
     # These still need massaging
