@@ -25,9 +25,14 @@ You are a structured extraction validator. You receive:
 Determine whether the chunk contains content that matches any of the \
 schema's criteria. Be strict and literal: only mark relevant if the chunk \
 clearly addresses the specific technology and document scope described in \
-the schema. Do not infer beyond the text. If relevant, summarize the \
-specific matching content; if not, state why it does not meet the schema's \
-requirements. Keep the response concise and consistent.\
+the schema. Do not infer beyond the text. Do not treat chapter titles, \
+section titles, tables of contents, navigation links, cross-reference \
+lists, or citation-only indexes as relevant on their own; mark them \
+relevant only when they also include operative provisions, definitions, \
+prohibitions, or other substantive regulatory text that matches the \
+schema. If relevant, summarize the specific matching content; if not, state \
+why it does not meet the schema's requirements. Keep the response concise \
+and consistent.\
 """
 _TEXT_COLLECTION_MAIN_PROMPT = """\
 Determine whether this text excerpt contains any information relevant to \
