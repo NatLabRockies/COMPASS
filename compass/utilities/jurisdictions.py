@@ -89,7 +89,7 @@ class Jurisdiction:
             .. IMPORTANT:: Make sure this input is capitalized properly!
 
             By default, ``None``.
-        code : int or str, optional
+        code : str, optional
             Optional jurisdiction code (typically FIPS or similar).
             By default, ``None``.
         website_url : str, optional
@@ -388,7 +388,7 @@ def _format_jurisdiction_df_for_output(df):
         "FIPS",
         "Website",
     ]
-    df["FIPS"] = df["FIPS"].astype(int)
+    df["FIPS"] = df["FIPS"].astype(str)
     return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
 
 
