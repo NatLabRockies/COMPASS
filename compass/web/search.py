@@ -264,8 +264,8 @@ def _link_sort_key(entry):
     """
     duplicate_count = len(entry.get("duplicates", []))
     return (  # lower is better
-        -duplicate_count,
         entry["query_rank"],
+        -duplicate_count,
         entry["query_index"],
         entry["search_engine"],
         entry["_order"],
