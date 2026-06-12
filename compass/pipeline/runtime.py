@@ -32,6 +32,7 @@ from compass.services.threaded import (
     read_html_file,
 )
 from compass.utilities import LLM_COST_REGISTRY, Directories
+from compass.utilities.jurisdictions import fips_to_str
 from compass.utilities.io import load_config
 from compass.utilities.logs import NoLocationFilter, LogListener
 
@@ -344,4 +345,4 @@ def _load_known_source(known_source):
     known_source = known_source or {}
     if isinstance(known_source, str):
         known_source = load_config(known_source)
-    return known_source
+    return {fips_to_str(k): v for k, v in known_source.items()}
