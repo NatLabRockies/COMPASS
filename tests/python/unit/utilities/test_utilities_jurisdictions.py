@@ -91,7 +91,7 @@ def test_load_jurisdictions_from_fp(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_from_fp_bad_input(tmp_path):
@@ -126,7 +126,7 @@ def test_load_jurisdictions_from_fp_single_county(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_no_repeated_counties(tmp_path):
@@ -149,7 +149,7 @@ def test_load_jurisdictions_no_repeated_counties(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_no_repeated_townships(tmp_path):
@@ -173,7 +173,7 @@ def test_load_jurisdictions_no_repeated_townships(tmp_path):
     assert set(jurisdictions["State"]) == {"Maine"}
     assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield"}
     assert set(jurisdictions["Jurisdiction Type"]) == {"town"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_no_repeated_townships_and_counties(tmp_path):
@@ -197,7 +197,7 @@ def test_load_jurisdictions_no_repeated_townships_and_counties(tmp_path):
     assert set(jurisdictions["State"]) == {"Maine"}
     assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield", None}
     assert set(jurisdictions["Jurisdiction Type"]) == {"town", "county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_basic_state_properties():

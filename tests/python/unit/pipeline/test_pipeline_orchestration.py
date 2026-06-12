@@ -366,17 +366,17 @@ async def test_collect_then_extract_round_trip_from_manifest(
         for shard_fp in shard_fps
     ]
     assert {shard_payload["FIPS"] for shard_payload in shard_payloads} == {
-        53073,
-        3600312243,
+        "53073",
+        "3600312243",
     }
 
     whatcom = next(
-        info for info in manifest["jurisdictions"] if info["FIPS"] == 53073
+        info for info in manifest["jurisdictions"] if info["FIPS"] == "53073"
     )
     caneadea = next(
         info
         for info in manifest["jurisdictions"]
-        if info["FIPS"] == 3600312243
+        if info["FIPS"] == "3600312243"
     )
 
     assert whatcom["documents"][0]["source_fp"] is not None
