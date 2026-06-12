@@ -448,7 +448,7 @@ def test_jurisdictions_from_df_basic():
     assert state_jur.state == "Colorado"
     assert state_jur.county is None
     assert state_jur.subdivision_name is None
-    assert state_jur.code == 8
+    assert state_jur.code == "8"
     assert state_jur.website_url == "https://colorado.gov"
     assert state_jur.full_name == "Colorado"
 
@@ -457,7 +457,7 @@ def test_jurisdictions_from_df_basic():
     assert county_jur.state == "Utah"
     assert county_jur.county == "Box Elder"
     assert county_jur.subdivision_name is None
-    assert county_jur.code == 49003
+    assert county_jur.code == "49003"
     assert county_jur.website_url == "https://boxeldercounty.org"
     assert county_jur.full_name == "Box Elder County, Utah"
 
@@ -466,7 +466,7 @@ def test_jurisdictions_from_df_basic():
     assert city_jur.state == "Texas"
     assert city_jur.county == "Travis"
     assert city_jur.subdivision_name == "Austin"
-    assert city_jur.code == 48453
+    assert city_jur.code == "48453"
     assert city_jur.website_url == "https://austintexas.gov"
     assert city_jur.full_name == "City of Austin, Travis County, Texas"
 
@@ -493,7 +493,7 @@ def test_jurisdictions_from_df_with_none_values():
     assert jur.state == "Indiana"
     assert jur.county == "Decatur"
     assert jur.subdivision_name is None
-    assert jur.code == 18031
+    assert jur.code == "18031"
     assert jur.website_url is None
 
 
@@ -529,7 +529,7 @@ def test_jurisdictions_from_df_texas_water_districts():
     assert district1.state == "Texas"
     assert district1.county is None
     assert district1.subdivision_name == "Bandera County River"
-    assert district1.code == 1
+    assert district1.code == "1"
     assert (
         district1.full_name
         == "Bandera County River Authority & Groundwater District, Texas"
@@ -540,7 +540,7 @@ def test_jurisdictions_from_df_texas_water_districts():
     assert district2.state == "Texas"
     assert district2.county is None
     assert district2.subdivision_name == "Barton Springs/Edwards"
-    assert district2.code == 2
+    assert district2.code == "2"
     assert (
         district2.full_name
         == "Barton Springs/Edwards Aquifer Conservation District, Texas"
