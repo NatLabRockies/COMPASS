@@ -15,6 +15,7 @@ from concurrent.futures import ProcessPoolExecutor
 from logging.handlers import QueueHandler
 
 import numpy as np
+import pandas as pd
 from elm.web.document import PDFDocument, MDDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
 from docling.datamodel.backend_options import HTMLBackendOptions
@@ -369,8 +370,10 @@ def _read_docling(
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
-        mean_confidence = conv_result.confidence.mean_score
-        low_score_confidence = conv_result.confidence.low_score
+        mean_confidence = _none_if_missing(conv_result.confidence.mean_score)
+        low_score_confidence = _none_if_missing(
+            conv_result.confidence.low_score
+        )
 
     attrs = {
         "doc_filename": conv_result.input.file.stem,
@@ -405,6 +408,11 @@ def _configure_pytesseract(tesseract_cmd):
     import pytesseract  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+
+
+def _none_if_missing(value):
+    """Return ``None`` when a scalar confidence value is missing"""
+    return None if pd.isna(value) else value
 
 
 def _try_decode_ocr_pages(pages):

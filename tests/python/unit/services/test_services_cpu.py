@@ -4,10 +4,13 @@ import logging
 import sys
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
+import pandas as pd
 import pytest
 
-from compass.services.cpu import ProcessPoolService
+from compass.services.cpu import ProcessPoolService, _read_docling
 from compass.services.provider import RunningAsyncServices
 from compass.utilities.logs import LocationFileLog, LogListener
 
@@ -114,6 +117,41 @@ async def test_process_streams_are_forwarded_to_logs(capfd):
     assert any(
         record.message == "PROCESS STDERR" for record in captured_records
     )
+
+
+def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
+    """Test that missing Docling confidence values are normalized"""
+
+    class FakeDocumentConverter:
+        def __init__(self, format_options):
+            self.format_options = format_options
+
+        def convert(self, stream, headers=None):
+            return SimpleNamespace(
+                confidence=SimpleNamespace(
+                    mean_score=np.nan,
+                    low_score=pd.NA,
+                    pages={0: SimpleNamespace(ocr_score=np.nan)},
+                ),
+                input=SimpleNamespace(
+                    file=Path("sample.html"),
+                    format=SimpleNamespace(value="html"),
+                ),
+                pages=["page 1"],
+                document=SimpleNamespace(
+                    export_to_markdown=lambda **kwargs: "markdown body"
+                ),
+            )
+
+    monkeypatch.setattr(
+        "compass.services.cpu.DocumentConverter", FakeDocumentConverter
+    )
+
+    doc = _read_docling(b"<html></html>", "sample.html")
+
+    assert doc.pages == ["markdown body"]
+    assert doc.attrs["mean_confidence"] is None
+    assert doc.attrs["low_score_confidence"] is None
 
 
 if __name__ == "__main__":
