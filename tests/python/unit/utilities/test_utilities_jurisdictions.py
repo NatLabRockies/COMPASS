@@ -10,6 +10,7 @@ from compass.utilities.jurisdictions import (
     jurisdictions_from_df,
     Jurisdiction,
     _JURISDICTION_TYPES_AS_PREFIXES,
+    _format_jurisdiction_df_for_output,
 )
 
 
@@ -455,6 +456,26 @@ def test_jurisdiction_websites_custom_dataframe():
     assert len(websites) == 2
     assert websites[99001] == "https://test.gov"
     assert websites[99002] == "https://another.gov"
+
+
+def test_format_jurisdiction_df_for_output_normalizes_float_fips():
+    """Test float FIPS values are rendered without a decimal suffix"""
+
+    jurisdiction_df = pd.DataFrame(
+        {
+            "County": ["Decatur"],
+            "State": ["Indiana"],
+            "Subdivision": [None],
+            "Jurisdiction Type": ["county"],
+            "FIPS": [18031.0],
+            "Website": [None],
+        }
+    )
+
+    out = _format_jurisdiction_df_for_output(jurisdiction_df)
+
+    assert out.loc[0, "FIPS"] == "18031"
+    assert isinstance(out.loc[0, "FIPS"], str)
 
 
 if __name__ == "__main__":

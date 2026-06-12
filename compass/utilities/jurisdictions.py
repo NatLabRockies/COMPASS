@@ -1,8 +1,9 @@
 """Ordinance jurisdiction info"""
 
 import logging
-from warnings import warn
 import importlib.resources
+from contextlib import suppress
+from warnings import warn
 from functools import cached_property
 
 import numpy as np
@@ -388,10 +389,17 @@ def _format_jurisdiction_df_for_output(df):
         "FIPS",
         "Website",
     ]
-    df["FIPS"] = df["FIPS"].astype(str)
+    df["FIPS"] = df["FIPS"].apply(fips_to_str)
     return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
 
 
 def _build_merge_col(row, merge_cols):
     """Build column to merge jurisdiction DataFrames on"""
     return " ".join(str(row[c]).casefold() for c in merge_cols)
+
+
+def fips_to_str(value):
+    """[NOT PUBLIC API] Convert FIPS code to string"""
+    with suppress(ValueError):
+        value = int(value)
+    return str(value)
