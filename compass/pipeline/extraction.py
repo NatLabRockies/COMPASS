@@ -35,7 +35,8 @@ class DocumentExtraction:
 
         extraction_context = ExtractionContext(documents=docs)
         extraction_context = await self.workflow.extractor.filter_docs(
-            extraction_context
+            extraction_context,
+            self.workflow.parsing_settings.max_num_docs_per_jurisdiction,
         )
         if not extraction_context:
             return None

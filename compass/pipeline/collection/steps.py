@@ -76,7 +76,9 @@ class KnownLocalDocumentsStep(CollectionStep):
             docs = await load_known_docs(
                 workflow.jurisdiction,
                 [info["source_fp"] for info in workflow.known_local_docs],
-                local_file_loader_kwargs=workflow.runtime.local_file_loader_kwargs,
+                local_file_loader_kwargs=(
+                    workflow.runtime.local_file_loader_kwargs
+                ),
             )
         except Exception:
             logger.exception(

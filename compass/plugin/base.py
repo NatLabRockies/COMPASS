@@ -103,7 +103,7 @@ class BaseExtractionPlugin(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, max_num_docs=None):
         """Filter down candidate documents before parsing
 
         Parameters
@@ -112,6 +112,10 @@ class BaseExtractionPlugin(ABC):
             Context containing candidate documents to be filtered.
             Set the ``.documents`` attribute of this object to be the
             iterable of documents that should be kept for parsing.
+        max_num_docs : int, optional
+            Maximum number of documents to parse (regardless of the
+            collection method). If ``None``, all collected documents are
+            parsed. By default, ``None``.
 
         Returns
         -------
