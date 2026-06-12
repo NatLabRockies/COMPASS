@@ -100,7 +100,7 @@ class Jurisdiction:
         self.state = state.title()
         self.county = county
         self.subdivision_name = subdivision_name
-        self.code = code
+        self.code = None if code is None else str(code)
         self.website_url = website_url
 
     @cached_property
