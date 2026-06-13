@@ -25,7 +25,7 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.web.url_utils import sanitize_url
+from compass.web.url_utils import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
@@ -242,6 +242,9 @@ async def find_jurisdiction_website(
         browser_semaphore=search_semaphore,
         task_name=jurisdiction.full_name,
         **kwargs,
+    )
+    potential_website_links = _normalize_website_candidates(
+        potential_website_links
     )
 
     if not potential_website_links:
@@ -724,6 +727,20 @@ async def filter_ordinance_docs(
         "\n\t- ".join([str(doc) for doc in docs]),
     )
     return docs
+
+
+def _normalize_website_candidates(urls):
+    """Normalize website candidates to canonical root URLs"""
+    seen = set()
+    normalized_urls = []
+    for url in urls:
+        normalized_url = base_website_url(url)
+        url_key = normalized_url.casefold()
+        if url_key in seen:
+            continue
+        seen.add(url_key)
+        normalized_urls.append(normalized_url)
+    return normalized_urls
 
 
 async def _docs_from_web_search(
