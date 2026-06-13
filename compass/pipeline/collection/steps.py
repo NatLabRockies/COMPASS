@@ -16,6 +16,7 @@ from compass.scripts.download import (
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.pb import COMPASS_PB
+from compass.web.url_utils import base_website_url
 
 
 logger = logging.getLogger(__name__)
@@ -398,8 +399,8 @@ async def try_set_website_from_jurisdiction(workflow):
         if workflow.validate_user_website_input:
             await _validate_jurisdiction_website(workflow)
         else:
-            workflow.jurisdiction_website = await get_redirected_url(
-                workflow.jurisdiction_website, timeout=30
+            workflow.jurisdiction_website = await _get_base_website(
+                workflow.jurisdiction_website
             )
 
     if not workflow.jurisdiction_website:
@@ -413,8 +414,8 @@ async def _validate_jurisdiction_website(workflow):
     if workflow.jurisdiction_website is None:
         return
 
-    workflow.jurisdiction_website = await get_redirected_url(
-        workflow.jurisdiction_website, timeout=30
+    workflow.jurisdiction_website = await _get_base_website(
+        workflow.jurisdiction_website,
     )
     COMPASS_PB.update_jurisdiction_task(
         workflow.jurisdiction.full_name,
@@ -439,6 +440,12 @@ async def _validate_jurisdiction_website(workflow):
     )
     if not is_website_correct:
         workflow.jurisdiction_website = None
+
+
+async def _get_base_website(website):
+    """Get the base URL for a website, following redirects if needed"""
+    website = await get_redirected_url(website, timeout=30)
+    return base_website_url(website)
 
 
 async def _find_jurisdiction_website_for_workflow(workflow):
