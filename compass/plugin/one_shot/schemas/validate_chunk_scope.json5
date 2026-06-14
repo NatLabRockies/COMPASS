@@ -1,0 +1,16 @@
+{
+    "type": "object",
+    "description": "Response indicating whether the text chunk is within the scope of the extraction schema.",
+    "additionalProperties": false,
+    "required": ["matches_scope", "explanation"],
+    "properties": {
+        "matches_scope": {
+            "type": "boolean",
+            "description": "Flag indicating whether the chunk clearly matches the schema's intended domain and scope.",
+        },
+        "explanation": {
+            "type": "string",
+            "description": "Short explanation describing why the chunk is in scope or out of scope for the extraction schema.",
+        },
+    },
+}
