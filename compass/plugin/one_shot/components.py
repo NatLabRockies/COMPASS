@@ -26,8 +26,11 @@ Determine whether the chunk is in scope for the schema. Focus first on any \
 explicit scope limitations in the schema, including technology, document \
 type, regulatory subject, exclusions, and similar boundaries. Be strict and \
 literal: only mark the chunk in scope when the text clearly pertains to the \
-schema's intended domain. Do not infer beyond the text. If the scope match is \
-unclear, return false. Keep the response concise and consistent.\
+schema's intended domain. Note that a broader ordinance can still be in scope \
+when the excerpt contains an explicit definition, permit, prohibition, or \
+requirement for the target technology. Honor any exceptions that may be given \
+within the schema. Do not infer beyond the text. If the scope match is \
+unclear, return true. Keep the response concise and consistent.\
 """
 _TEXT_SCOPE_MAIN_PROMPT = """\
 Determine whether this text excerpt is within the scope of the following \
