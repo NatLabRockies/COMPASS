@@ -1,6 +1,6 @@
 {
   "title": "Geothermal Heat Pump Ordinance Extraction Schema",
-  "description": "Single-shot structured extraction schema for geothermal heat pump (GHP) and ground source heat pump ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
+  "description": "Single-shot structured extraction schema for geothermal heat pumps (GHPs), ground source heat pumps, geothermal heat exchange systems, exchange wells/loops, or similar heating/cooling exchange system ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
   "version": "1.0.0",
   "type": "object",
   "required": ["outputs"],
@@ -91,7 +91,7 @@
   },
   "$core_principles": {
     "scope_context": {
-      "description": "Only extract requirements that apply to geothermal heat pump / ground source heat pump / geothermal heat exchange systems (or equivalent terms), including closed-loop and open-loop systems where relevant. If the text uses generic terms like 'geothermal well' or 'geothermal system', treat it as GHP only when section context clearly indicates heating/cooling or heat-pump exchange wells/loops. Do NOT consider rules for geothermal temperature gradient exploration/development/test wells, geothermal well field gathering systems, geothermal power generation systems, or any other geothermal electricity generation system rules unless the text **explicitly** also governs geothermal heat exchange wells/loops. Do not extract proposed, future, draft, or contingent requirements that are not currently effective as written."
+      "description": "Only extract requirements that apply to geothermal heat pumps, ground source heat pumps, geothermal heat exchange systems, exchange wells/loops, or similar heating/cooling exchange systems, including closed-loop and open-loop systems where relevant. If the text uses generic terms like 'geothermal well' or 'geothermal system', treat it as GHP only when section context clearly indicates heating/cooling or heat-pump exchange wells/loops. Exception for definition features only: you may extract 'well definition', 'geothermal definition', or 'ghp definition' from an otherwise generic geothermal/well definition when the definition text itself mentions heat pumps, ground source heat pumps, geothermal heat exchange systems, exchange wells/loops, or similar heating/cooling exchange use in any way. This exception applies only to definition features; all other extraction must satisfy the narrower GHP scope above. Do NOT consider rules for geothermal temperature gradient exploration/development/test wells, geothermal well field gathering systems, geothermal power generation systems, or any other geothermal electricity generation system rules unless the text **explicitly** also governs geothermal heat exchange wells/loops. Do not extract proposed, future, draft, or contingent requirements that are not currently effective as written."
     },
     "strict_evidence_gate": {
       "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. Chapter titles, section titles, tables of contents, navigation lists, and cross-reference lists are not valid evidence by themselves unless they also quote or restate the operative requirement, definition, or prohibition. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
@@ -184,10 +184,10 @@
       "description": "Definitions of certain terms as direct excerpts whose primary purpose is to state term meaning. Apply the definition-vs-rule routing test in $core_principles before classifying a clause as a definition.",
       "properties": {
         "well definition": {
-          "description": "Extract the ordinance definition text for 'Geothermal Well' (or equivalent term) only when the excerpt's primary purpose is to define the term's meaning."
+          "description": "Extract the ordinance definition text for 'Geothermal Well' (or equivalent term) only when the excerpt's primary purpose is to define the term's meaning. This definition is in scope if the definition text mentions heat pumps, ground source heat pumps, geothermal heat exchange systems, exchange wells/loops, or similar heating/cooling exchange use in any way, even when the defined term itself is generic."
         },
         "geothermal definition": {
-          "description": "Extract the ordinance definition text for 'Geothermal' only when the excerpt's primary purpose is to define the term's meaning."
+          "description": "Extract the ordinance definition text for 'Geothermal' only when the excerpt's primary purpose is to define the term's meaning. This definition is in scope if the definition text mentions heat pumps, ground source heat pumps, geothermal heat exchange systems, exchange wells/loops, or similar heating/cooling exchange use in any way, even when the defined term itself is generic."
         },
         "ghp definition": {
           "description": "Extract the ordinance definition text for 'ground source heat pump system', 'geothermal heat pump system', or equivalent term only when the excerpt's primary purpose is to define the term's meaning."
@@ -293,6 +293,7 @@
     "definitions": [
       "Definitions are qualitative text extractions; set value and units to null and place definition text directly in summary.",
       "If a requested definition is not present, omit that feature entirely; do not emit placeholder text.",
+      "For 'well definition' and 'geothermal definition', a definition is in scope when the definition text itself mentions heat pumps, ground source heat pumps, geothermal heat exchange systems, exchange wells/loops, or similar heating/cooling exchange use in any way, even if the defined term is otherwise generic. Do not apply this broader definition exception to non-definition features.",
       "Apply the definition-vs-rule routing test in $core_principles before classifying a row as a definition feature.",
       "When a clause both references a term label and imposes a requirement, classify it under the relevant operational/prohibition feature if applicable; do not classify it as a definition.",
       "Counterexample for definition features: a sentence like 'X, referred to as Y, shall be subject to development standards' is not a definition because its primary purpose is obligation, not term meaning.",
