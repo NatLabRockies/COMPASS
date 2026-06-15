@@ -321,7 +321,7 @@ class COMPASSExtraction(BaseRunMode):
         jurisdictions = manifest.get("jurisdictions", [])
         logger.info(
             "Extracting structured data for %d jurisdiction(s)",
-            len(jurisdictions),
+            len(jurisdictions_df),
         )
 
         tasks = []
