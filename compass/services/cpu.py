@@ -8,6 +8,7 @@ import asyncio
 import logging
 import contextlib
 import warnings
+import multiprocessing
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -42,6 +43,7 @@ logger = logging.getLogger(__name__)
 class ProcessPoolService(Service):
     """Service that contains a ProcessPoolExecutor instance"""
 
+    _DEFAULT_MAX_TASKS_PER_CHILD = 100
     _SHUTDOWN_TIMEOUT = 5
     _FORCE_SHUTDOWN_TIMEOUT = 1
 
@@ -62,11 +64,22 @@ class ProcessPoolService(Service):
         """Open thread pool and temp directory"""
         os.environ.setdefault("OMP_NUM_THREADS", "1")
         ppe_kwargs = dict(self._ppe_kwargs)
+        # ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
         user_initializer = ppe_kwargs.pop("initializer", None)
         initargs = tuple(ppe_kwargs.pop("initargs", ()))
         ppe_kwargs["initializer"] = _configure_subprocess_logging
         ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
         self.pool = ProcessPoolExecutor(**ppe_kwargs)
+
+    def _set_tasks_per_child(self, ppe_kwargs):
+        """Set default ``max_tasks_per_child``"""
+        ppe_kwargs.setdefault(
+            "max_tasks_per_child", self._DEFAULT_MAX_TASKS_PER_CHILD
+        )
+        ppe_kwargs.setdefault(
+            "mp_context", multiprocessing.get_context("spawn")
+        )
+        return ppe_kwargs
 
     def release_resources(self):
         """Shutdown thread pool and cleanup temp directory"""

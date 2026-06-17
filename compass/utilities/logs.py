@@ -29,6 +29,7 @@ class _LQ:
 
     def __get__(self, __, lq_class=None):
         lq_class.QUEUE = multiprocessing.get_context().Queue()
+        # lq_class.QUEUE = multiprocessing.get_context("spawn").Queue()
         return lq_class.QUEUE
 
 
@@ -41,7 +42,8 @@ class LQ:
     default on unix systems, which causes issues when the process pool
     executor is launched. By loading lazily, we can ensure that the
     multiprocessing context is set to "spawn" in the CLI before the
-    queue is loaded.
+    queue is loaded. We intentionally use the ``spawn`` context so it
+    matches COMPASS process pools, which recycle worker processes.
     """
 
     QUEUE = _LQ()
