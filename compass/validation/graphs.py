@@ -321,7 +321,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         ),
     )
 
-    jur_name = jurisdiction.full_name_the_prefixed
+    jur_name = jurisdiction.short_name_with_state_the_prefixed
     names_we_want = _jurisdiction_names_to_extract(jurisdiction)
 
     G.add_edge("init", "has_name", condition=llm_response_starts_with_yes)
@@ -477,7 +477,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             )
         )
         if num_other_jurisdictions_with_same_name > 1:
-            jur_name = jurisdiction.short_name_with_state_the_prefixed
+            jur_name = jurisdiction.full_name_the_prefixed
 
         G.add_node(
             "has_subdivision_name",
