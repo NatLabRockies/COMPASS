@@ -56,6 +56,8 @@ heuristic_keywords:
     - "765 kv"
   not_tech_words:
     - "transmission fluid"
+    - "radio tower"
+    - "gas transmission"
 
 
 collection_prompts: true
