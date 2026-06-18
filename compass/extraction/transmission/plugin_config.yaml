@@ -54,6 +54,8 @@ heuristic_keywords:
     - "345 kv"
     - "500 kv"
     - "765 kv"
+  not_tech_words:
+    - "transmission fluid"
 
 
 collection_prompts: true
