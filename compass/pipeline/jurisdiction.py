@@ -14,6 +14,7 @@ from compass.pipeline.collection.persistence import (
 )
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pb import COMPASS_PB
+from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
@@ -248,6 +249,8 @@ class SingleJurisdictionRun:
                             error_action,
                             self.jurisdiction.full_name,
                         )
+                        if isinstance(error, COMPASSPluginConfigurationError):
+                            raise
                         return fallback
 
     async def run_process_with_logging(self):

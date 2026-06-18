@@ -1,10 +1,11 @@
 """Ordinance jurisdiction info"""
 
 import logging
-from warnings import warn
 import importlib.resources
-from functools import cached_property, lru_cache
 import unicodedata
+from warnings import warn
+from contextlib import suppress
+from functools import cached_property, lru_cache
 
 import numpy as np
 import pandas as pd
@@ -90,7 +91,7 @@ class Jurisdiction:
             .. IMPORTANT:: Make sure this input is capitalized properly!
 
             By default, ``None``.
-        code : int or str, optional
+        code : str, optional
             Optional jurisdiction code (typically FIPS or similar).
             By default, ``None``.
         website_url : str, optional
@@ -101,7 +102,7 @@ class Jurisdiction:
         self.state = state.title()
         self.county = county
         self.subdivision_name = subdivision_name
-        self.code = code
+        self.code = None if code is None else str(code)
         self.website_url = website_url
 
     @cached_property
@@ -475,7 +476,7 @@ def _format_jurisdiction_df_for_output(df):
         "FIPS",
         "Website",
     ]
-    df["FIPS"] = df["FIPS"].astype(int)
+    df["FIPS"] = df["FIPS"].apply(fips_to_str)
     return df[out_cols].replace({np.nan: None}).reset_index(drop=True)
 
 
@@ -491,3 +492,10 @@ def _normalize_jurisdiction_name(name):
 
     normalized_name = unicodedata.normalize("NFKD", str(name).casefold())
     return "".join(char for char in normalized_name if char.isalnum())
+
+
+def fips_to_str(value):
+    """[NOT PUBLIC API] Convert FIPS code to string"""
+    with suppress(ValueError):
+        value = int(value)
+    return str(value)
