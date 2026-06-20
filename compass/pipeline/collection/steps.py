@@ -417,6 +417,9 @@ async def _validate_jurisdiction_website(workflow):
     workflow.jurisdiction_website = await _get_base_website(
         workflow.jurisdiction_website,
     )
+    if workflow.jurisdiction_website is None:
+        return
+
     COMPASS_PB.update_jurisdiction_task(
         workflow.jurisdiction.full_name,
         description=(
@@ -444,7 +447,11 @@ async def _validate_jurisdiction_website(workflow):
 
 async def _get_base_website(website):
     """Get the base URL for a website, following redirects if needed"""
-    website = await get_redirected_url(website, timeout=30)
+    try:
+        website = await get_redirected_url(website, timeout=30)
+    except Exception:
+        logger.exception("Error getting redirected URL for %s", website)
+        return None
     return base_website_url(website)
 
 
