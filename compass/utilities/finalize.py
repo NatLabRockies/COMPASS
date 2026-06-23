@@ -30,6 +30,7 @@ _PARSED_COLS = [
     "min_dist",
     "max_dist",
     "summary",
+    "ord_text",
     "year",
     "section",
     "source",
@@ -37,7 +38,7 @@ _PARSED_COLS = [
 ]
 QUANT_OUT_COLS = _PARSED_COLS[:-1]
 """Output columns in quantitative ordinance file"""
-QUAL_OUT_COLS = _PARSED_COLS[:6] + _PARSED_COLS[-5:-1]
+QUAL_OUT_COLS = _PARSED_COLS[:6] + _PARSED_COLS[-6:-1]
 """Output columns in qualitative ordinance file"""
 
 

@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "section", "summary", "source"],
+        "required": ["feature", "value", "units", "section", "summary", "ord_text", "source"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -69,6 +69,10 @@
             "type": ["string", "null"],
             "description": "Short requirement summary using direct excerpts/quotes whenever possible. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
             "default": null
+          },
+          "ord_text": {
+            "type": "string",
+            "description": "Copy-and-paste directly from the source document the first sentence corresponding to the requirement being extracted. For quantitative features, this is the full sentence from the source that contains the value being extracted; for qualitative features, this is the first full sentence of the source text that relates to the requirement being extracted. Unlike summary, reproduce this single contiguous sentence verbatim from the source, with no paraphrasing, normalization, ellipses, added context, or commentary. Must be a non-null, non-empty string."
           },
           "source": {
             "type": ["number", "null"],
@@ -175,34 +179,39 @@
       "value": true,
       "units": null,
       "section": "Rule 3.2 - Permit Required",
-      "summary": "'No person may drill a non-exempt well without first obtaining a permit from the District.' Exempt domestic wells are listed separately under Rule 3.5."
+      "summary": "'No person may drill a non-exempt well without first obtaining a permit from the District.' Exempt domestic wells are listed separately under Rule 3.5.",
+      "ord_text": "No person may drill a non-exempt well without first obtaining a permit from the District."
     },
     {
       "feature": "annual extraction limits",
       "value": 2,
       "units": "acre-feet/year",
       "section": "Rule 8.1 - Production Limits",
-      "summary": "The district sets an explicit annual production cap of '2 acre-feet per acre per year' for this permit class; text also notes permit-specific adjustments by aquifer conditions."
+      "summary": "The district sets an explicit annual production cap of '2 acre-feet per acre per year' for this permit class; text also notes permit-specific adjustments by aquifer conditions.",
+      "ord_text": "Each non-exempt permit is limited to an annual production of 2 acre-feet per acre per year."
     },
     {
       "feature": "well spacing",
       "value": 500,
       "units": "feet",
       "section": "Rule 8.4 - Well Spacing",
-      "summary": "'A new non-exempt well must be at least 500 feet from any existing non-exempt well.' Reduced spacing may be allowed for low-capacity wells below stated gpm threshold."
+      "summary": "'A new non-exempt well must be at least 500 feet from any existing non-exempt well.' Reduced spacing may be allowed for low-capacity wells below stated gpm threshold.",
+      "ord_text": "A new non-exempt well must be at least 500 feet from any existing non-exempt well."
     },
     {
       "feature": "production cost",
       "value": "permit specific",
       "units": "dollars/acre-foot",
       "section": "Fee Schedule - Production Fees",
-      "summary": "Production fees are assessed by permit class and use category rather than one universal rate; schedule provides tiered dollar-per-acre-foot charges."
+      "summary": "Production fees are assessed by permit class and use category rather than one universal rate; schedule provides tiered dollar-per-acre-foot charges.",
+      "ord_text": "Production fees shall be assessed in accordance with the tiered dollar-per-acre-foot rates set out in the Fee Schedule for each permit class and use category."
     }
   ],
   "$instructions": {
     "general": [
       "Extract only enacted district requirements, not proposed language or general background text.",
       "Use direct excerpts/quotes in summary whenever possible.",
+      "Whenever a feature row is emitted, ord_text must be the first full sentence from the source document corresponding to the requirement being extracted, copied verbatim: for quantitative features the full source sentence containing the extracted value, and for qualitative features the first full source sentence relating to the requirement. Unlike summary, ord_text must be a single contiguous sentence reproduced exactly as written, with no paraphrasing, normalization, ellipses, added context, or commentary. If a feature has no requirement, omit the feature row entirely rather than emitting a row with an empty ord_text.",
       "If a feature has no requirement, set value, units, section, and summary to null or omit the feature row.",
       "When multiple values exist for one feature, choose the value applicable to the primary general rule and describe alternatives/conditions in summary.",
       "Preserve distinctions between drilling permits, extraction permits, transfer permits, and reporting obligations.",
