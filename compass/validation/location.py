@@ -6,7 +6,6 @@ particular location.
 
 import asyncio
 import logging
-from urllib.parse import urlsplit
 
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
 from compass.utilities.jurisdictions import jurisdiction_websites
@@ -17,6 +16,7 @@ from compass.validation.graphs import (
 )
 from compass.validation.utilities import step_based_threshold
 from compass.web.file_loader import COMPASSWebFileLoader
+from compass.utilities.url import normalize_domain
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import raw_pages_from_doc
 
@@ -477,8 +477,8 @@ def _url_matches_known_jurisdiction_website(url, jurisdiction):
     if not known_website:
         return False
 
-    url_domain = _normalize_domain(url)
-    known_domain = _normalize_domain(known_website)
+    url_domain = normalize_domain(url)
+    known_domain = normalize_domain(known_website)
     if not url_domain or not known_domain:
         return False
 
@@ -492,11 +492,3 @@ def _known_jurisdiction_website(jurisdiction):
     if jurisdiction.website_url:
         return jurisdiction.website_url
     return jurisdiction_websites().get(jurisdiction.code)
-
-
-def _normalize_domain(url):
-    """Return a comparable domain string for a URL or empty string"""
-    domain = urlsplit(url).netloc.partition(":")[0].casefold().strip()
-    if domain.startswith("www."):
-        return domain[4:]
-    return domain
