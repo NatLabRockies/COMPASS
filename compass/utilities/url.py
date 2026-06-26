@@ -40,7 +40,10 @@ def normalize_domain(url):
     str
         Normalized domain string, lowercased and without www prefix.
     """
-    domain = urlsplit(url).netloc.partition(":")[0].casefold().strip()
+    parsed = urlsplit(url.strip())
+    domain = parsed.netloc or parsed.path.partition("/")[0]
+    domain = domain.partition("@")[2] or domain
+    domain = domain.partition(":")[0].casefold().strip()
     if domain.startswith("www."):
         return domain[4:]
     return domain

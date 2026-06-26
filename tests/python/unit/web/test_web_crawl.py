@@ -10,7 +10,7 @@ import pytest
 from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
-from compass.utilities.url import sanitize_url
+from compass.utilities.url import normalize_domain, sanitize_url
 from compass.web.website_crawl import (
     COMPASSCrawler,
     COMPASSLinkScorer,
@@ -252,6 +252,26 @@ def test_sanitize_url_preserves_existing_percent_encoding():
     )
     assert "%7Babc-123%7D" in sanitized
     assert "%257B" not in sanitized
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("codelibrary.amlegal.com", "codelibrary.amlegal.com"),
+        (
+            "www.codelibrary.amlegal.com",
+            "codelibrary.amlegal.com",
+        ),
+        (
+            "https://www.codelibrary.amlegal.com/codes/example",
+            "codelibrary.amlegal.com",
+        ),
+    ],
+)
+def test_normalize_domain_handles_bare_hostnames(url, expected):
+    """Bare hostnames should normalize the same as full URLs"""
+
+    assert normalize_domain(url) == expected
 
 
 def test_extract_links_from_html_filters_blacklist():
