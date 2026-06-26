@@ -10,6 +10,7 @@ from compass.validation import (
     LegalTextValidator,
     parse_by_chunks,
 )
+from compass.utilities.url import normalize_domain
 from compass.utilities.ngrams import sentence_ngram_containment
 from compass.warn import COMPASSWarning
 
@@ -17,6 +18,14 @@ from compass.warn import COMPASSWarning
 logger = logging.getLogger(__name__)
 # Multiplier used to consider text output from LLM to be hallucination
 _TEXT_OUT_CHAR_BUFFER = 1.05
+_KNOWN_LEGAL_DB_DOMAINS = {
+    "codelibrary.amlegal.com",
+    "library.municode.com",
+    "dsireusa.org",
+    "windaction.org",
+    "codepublishing.com",
+    "ecode360.com",
+}
 
 
 async def check_for_relevant_text(
@@ -87,6 +96,7 @@ async def check_for_relevant_text(
             **model_config.llm_call_kwargs,
         )
         if doc.attrs.get("check_if_legal_doc", True)
+        and not _url_matches_known_legal_databases(doc)
         else None
     )
 
@@ -496,3 +506,26 @@ async def _parse_if_input_text_not_empty(
         "Extracted text for %r is:\n%s", next_text_name, extracted_text
     )
     return extracted_text
+
+
+def _url_matches_known_legal_databases(doc):
+    """Return whether URL domain matches known legal database"""
+    url = doc.attrs.get("source")
+    if not url:
+        return False
+
+    url_domain = normalize_domain(url)
+    if not url_domain:
+        return False
+
+    found_match = any(
+        url_domain == known_domain or url_domain.endswith(f".{known_domain}")
+        for known_domain in _KNOWN_LEGAL_DB_DOMAINS
+    )
+    if found_match:
+        logger.debug(
+            "Document source %r matches known legal database domain %r",
+            url,
+            url_domain,
+        )
+    return found_match
