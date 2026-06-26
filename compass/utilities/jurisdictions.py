@@ -225,7 +225,7 @@ def load_all_jurisdiction_info():
 def _load_all_jurisdiction_info_cached():
     """Load and cache canonical jurisdiction metadata"""
     return pd.concat(
-        pd.read_csv(fp).replace({np.nan: None})
+        pd.read_csv(fp, dtype=str).replace({np.nan: None})
         for fp in KNOWN_JURISDICTIONS_REGISTRY
     )
 
@@ -344,7 +344,9 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     -----
     Missing jurisdictions trigger warnings with a tabular summary.
     """
-    jurisdictions = pd.read_csv(jurisdiction_fp).replace({np.nan: None})
+    jurisdictions = pd.read_csv(jurisdiction_fp, dtype=str).replace(
+        {np.nan: None}
+    )
     jurisdictions = _validate_jurisdiction_input(jurisdictions)
 
     all_jurisdiction_info = load_all_jurisdiction_info()
