@@ -33,6 +33,7 @@ _JURISDICTION_TYPES_AS_PREFIXES = {
     "borough",
     "village",
     "unorganized territory",
+    "location",
 }
 
 
