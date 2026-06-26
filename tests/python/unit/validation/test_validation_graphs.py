@@ -157,7 +157,8 @@ def test_setup_graph_correct_jurisdiction_type_city():
         in graph.nodes["is_subdivision"]["prompt"]
     )
 
-    assert loc.full_name in graph.nodes["final"]["prompt"]
+    assert loc.full_name not in graph.nodes["final"]["prompt"]
+    assert loc.short_name_with_state in graph.nodes["final"]["prompt"]
 
 
 def test_setup_graph_correct_jurisdiction_from_url_state():
