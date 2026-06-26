@@ -650,7 +650,6 @@ Alabama,,Minor,CDP,0149072,
 Alabama,,Moores Mill,CDP,0151216,
 Alabama,,Morris,city,0151456,
 Alabama,,Morrison Crossroads,CDP,0151469,
-Alabama,,Mount Olive,CDP,0152320,
 Alabama,,Mount Olive,CDP,0152344,
 Alabama,,Mountain Brook,city,0151696,https://www.mtnbrook.org/
 Alabama,,Movico,CDP,0152680,
@@ -878,7 +877,6 @@ Alaska,,Bear Creek,CDP,0205585,
 Alaska,,Beaver,CDP,0205750,
 Alaska,,Beluga,CDP,0206245,
 Alaska,,Bethel,city,02050,https://www.cityofbethel.org/
-Alaska,,Bethel,city,0206520,https://www.cityofbethel.org/
 Alaska,,Bettles,city,0206630,
 Alaska,,Big Delta,CDP,0206850,
 Alaska,,Big Lake,CDP,0207070,
@@ -1554,7 +1552,6 @@ Arizona,,Rainbow City,CDP,0458620,
 Arizona,,Rancho Mesa Verde,CDP,0458870,
 Arizona,,Red Lake,CDP,0459372,
 Arizona,,Red Mesa,CDP,0459550,
-Arizona,,Red Rock,CDP,0459690,
 Arizona,,Red Rock,CDP,0459760,
 Arizona,,Rillito,CDP,0459900,
 Arizona,,Rincon Valley,CDP,0460120,
@@ -3874,7 +3871,6 @@ California,,Alondra Park,CDP,0601150,
 California,,Alpaugh,CDP,0601164,
 California,,Alpine Village,CDP,0601228,
 California,,Alta,CDP,0601276,
-California,,Alta Sierra,CDP,0601358,
 California,,Alta Sierra,CDP,0601360,
 California,,Altadena,CDP,0601290,
 California,,Alto,CDP,0601416,
@@ -3922,13 +3918,11 @@ California,,Bangor,CDP,0603792,
 California,,Banning,city,0603820,https://banningca.gov/
 California,,Bass Lake,CDP,0604198,
 California,,Bay Point,CDP,0604415,
-California,,Bayview,CDP,0604470,
 California,,Bayview,CDP,0604478,
 California,,Baywood Park,CDP,0604549,
 California,,Beale AFB,CDP,0604576,
 California,,Bear Creek,CDP,0604632,
 California,,Bear Valley,CDP,0604716,
-California,,Bear Valley,CDP,0604730,
 California,,Bear Valley Springs,CDP,0604734,
 California,,Beaumont,city,0604758,https://www.beaumontca.gov/
 California,,Beckwourth,CDP,0604772,
@@ -4073,7 +4067,6 @@ California,,Cedar Ridge,CDP,0612300,
 California,,Cedar Slope,CDP,0612314,
 California,,Cedarville,CDP,0612328,
 California,,Centerville,CDP,0612412,
-California,,Centerville,CDP,0612415,
 California,,Ceres,city,0612524,https://www.ceres.gov/
 California,,Cerritos,city,0612552,https://www.cerritos.gov/
 California,,Chalfant,CDP,0612594,
@@ -4110,7 +4103,6 @@ California,,Coachella,city,0614260,https://www.coachella.org/
 California,,Coarsegold,CDP,0614288,
 California,,Coffee Creek,CDP,0614406,
 California,,Cohasset,CDP,0614442,
-California,,Cold Springs,CDP,0614450,
 California,,Cold Springs,CDP,0614454,
 California,,Coleville,CDP,0614484,
 California,,Colfax,city,0614498,https://colfax-ca.gov/
@@ -4134,7 +4126,6 @@ California,,Corte Madera,town,0616462,https://www.cortemadera.gov/
 California,,Costa Mesa,city,0616532,https://www.costamesaca.gov/
 California,,Cotati,city,0616560,https://www.cotaticity.gov/
 California,,Coto de Caza,CDP,0616580,
-California,,Cottonwood,CDP,0616623,
 California,,Cottonwood,CDP,0616630,
 California,,Country Club,CDP,0616651,
 California,,Courtland,CDP,0616714,
@@ -4253,7 +4244,6 @@ California,,El Portal,CDP,0622328,
 California,,El Rancho,CDP,0622360,
 California,,El Rio,CDP,0622370,
 California,,El Segundo,city,0622412,https://www.elsegundo.gov/
-California,,El Sobrante,CDP,0622454,
 California,,El Sobrante,CDP,0622457,
 California,,El Verano,CDP,0622510,
 California,,Eldridge,CDP,0621894,
@@ -4307,7 +4297,6 @@ California,,Fort Irwin,CDP,0625114,
 California,,Fort Washington,CDP,0625300,
 California,,Foster City,city,0625338,https://www.fostercity.org/
 California,,Fountain Valley,city,0625380,https://www.fountainvalley.gov/
-California,,Franklin,CDP,0625488,
 California,,Franklin,CDP,0625506,https://www.franklin.k12.ca.us/
 California,,Frazier Park,CDP,0625534,
 California,,Freedom,CDP,0625576,
@@ -4357,7 +4346,6 @@ California,,Grayson,CDP,0630882,https://grayson.patterson.k12.ca.us/
 California,,Greeley Hill,CDP,0630900,
 California,,Green Acres,CDP,0630944,
 California,,Green Valley,CDP,0631092,
-California,,Green Valley,CDP,0631099,
 California,,Greenacres,CDP,0630938,
 California,,Greenfield,CDP,0630987,https://www.greenfield.k12.ca.us/
 California,,Greenhorn,CDP,0631029,
@@ -4514,7 +4502,6 @@ California,,Lake of the Pines,CDP,0639690,
 California,,Lake of the Woods,CDP,0639696,
 California,,Lakehead,CDP,0639514,
 California,,Lakeland Village,CDP,0639598,
-California,,Lakeside,CDP,0639759,
 California,,Lakeside,CDP,0639766,
 California,,Lakeview,CDP,0639836,
 California,,Lakewood,city,0639892,https://www.lakewoodca.gov/
@@ -4524,7 +4511,6 @@ California,,Lancaster,city,0640130,https://www.cityoflancasterca.org/
 California,,Larkfield-Wikiup,CDP,0640426,
 California,,Larkspur,city,0640438,https://www.cityoflarkspur.org/
 California,,Las Flores,CDP,0640526,
-California,,Las Flores,CDP,0640536,
 California,,Las Lomas,CDP,0640592,
 California,,Lathrop,city,0640704,https://www.ci.lathrop.ca.us/
 California,,Lawndale,city,0640886,https://www.lawndale.ca.gov/
@@ -4554,7 +4540,6 @@ California,,Littlerock,CDP,0641880,
 California,,Live Oak,CDP,0641922,
 California,,Livermore,city,0641992,https://www.livermoreca.gov/
 California,,Livingston,city,0642006,https://www.cityoflivingston.org/
-California,,Lockwood,CDP,0642142,
 California,,Lockwood,CDP,0642146,
 California,,Lodoga,CDP,0642230,
 California,,Loleta,CDP,0642328,
@@ -4942,7 +4927,6 @@ California,,San Lucas,CDP,0668140,
 California,,San Marcos,city,0668196,https://www.sanmarcosca.gov/
 California,,San Marino,city,0668224,https://sanmarinoca.gov/
 California,,San Martin,CDP,0668238,
-California,,San Miguel,CDP,0668263,https://www.sanmiguelcsd.org/
 California,,San Miguel,CDP,0668266,https://www.sanmiguelcsd.org/
 California,,San Pablo,city,0668294,https://www.sanpabloca.gov/
 California,,San Pasqual,CDP,0668308,
@@ -5022,7 +5006,6 @@ California,,South Whittier,CDP,0673430,
 California,,Spaulding,CDP,0673554,
 California,,Spreckels,CDP,0673612,
 California,,Spring Garden,CDP,0673654,
-California,,Spring Valley,CDP,0673690,
 California,,Spring Valley,CDP,0673696,
 California,,Spring Valley Lake,CDP,0673700,
 California,,Springville,CDP,0673710,
@@ -5039,7 +5022,6 @@ California,,Stirling City,CDP,0674186,
 California,,Stones Landing,CDP,0675122,
 California,,Stonyford,CDP,0675154,
 California,,Strawberry,CDP,0675315,
-California,,Strawberry,CDP,0675322,
 California,,Sugarloaf Saw Mill,CDP,0675592,
 California,,Sugarloaf Village,CDP,0675596,
 California,,Suisun City,city,0675630,https://www.suisun.com/
@@ -5108,7 +5090,6 @@ California,,Twain,CDP,0680952,
 California,,Twain Harte,CDP,0680966,
 California,,Twentynine Palms,city,0680994,https://www.ci.twentynine-palms.ca.us/
 California,,Twin Lakes,CDP,0681048,
-California,,Twin Lakes,CDP,0681050,
 California,,Union City,city,0681204,https://www.unioncityca.gov/
 California,,University of California-Davis,CDP,0681302,
 California,,University of California-Merced,CDP,0681312,
@@ -5793,7 +5774,6 @@ Colorado,,Todd Creek,CDP,0877757,
 Colorado,,Towaoc,CDP,0878280,https://www.utemountainutetribe.com/
 Colorado,,Towner,CDP,0878335,
 Colorado,,Trail Side,CDP,0878345,
-Colorado,,Twin Lakes,CDP,0879100,
 Colorado,,Twin Lakes,CDP,0879105,
 Colorado,,Two Buttes,town,0879270,
 Colorado,,Upper Bear Creek,CDP,0879785,
@@ -6069,7 +6049,6 @@ Connecticut,,Lakes West,CDP,0941736,
 Connecticut,,Lakeside Woods,CDP,0941714,
 Connecticut,,Lakeville,CDP,0941830,
 Connecticut,,Long Hill,CDP,0943580,
-Connecticut,,Long Hill,CDP,0943790,
 Connecticut,,Lordship,CDP,0944000,https://www.lordshipct.org/
 Connecticut,,Madison Center,CDP,0944630,
 Connecticut,,Mamanasco Lake,CDP,0944660,
@@ -7167,7 +7146,6 @@ Florida,,Pine Lakes,CDP,1256865,
 Florida,,Pine Level,CDP,1256955,
 Florida,,Pine Manor,CDP,1257025,
 Florida,,Pine Ridge,CDP,1257058,
-Florida,,Pine Ridge,CDP,1257066,
 Florida,,Pinecraft,CDP,1256525,
 Florida,,Pinecrest,village,1256625,https://www.pinecrest-fl.gov/
 Florida,,Pineland,CDP,1256875,
@@ -7318,7 +7296,6 @@ Florida,,Trilby,CDP,1272425,
 Florida,,Trinity,CDP,1272442,
 Florida,,Tropical Park,CDP,1272521,
 Florida,,Tyndall AFB,CDP,1272875,https://www.tyndall.af.mil/
-Florida,,University,CDP,1273163,
 Florida,,University,CDP,1273172,
 Florida,,Upper Grand Lagoon,CDP,1273312,
 Florida,,Valparaiso,city,1273675,http://www.valp.org/
@@ -7376,7 +7353,6 @@ Florida,,Westville,town,1276975,
 Florida,,Westwood Lakes,CDP,1277075,
 Florida,,Whiskey Creek,CDP,1277137,
 Florida,,White City,CDP,1277275,
-Florida,,Whitfield,CDP,1277467,
 Florida,,Whitfield,CDP,1277470,
 Florida,,Williamsburg,CDP,1277735,
 Florida,,Williston,city,1277825,https://www.willistonfl.org/
@@ -8518,7 +8494,6 @@ Hawaii,,Kahaluu,CDP,1521200,
 Hawaii,,Kahaluu-Keauhou,CDP,1521230,
 Hawaii,,Kahuku,CDP,1522250,
 Hawaii,,Kailua,CDP,1523000,
-Hawaii,,Kailua,CDP,1523150,
 Hawaii,,Kaiminani,CDP,1523675,
 Hawaii,,Kalaeloa,CDP,1524850,
 Hawaii,,Kalaheo,CDP,1524950,
@@ -8613,7 +8588,6 @@ Hawaii,,Waimalu,CDP,1577750,
 Hawaii,,Waimanalo,CDP,1578050,
 Hawaii,,Waimanalo Beach,CDP,1578200,
 Hawaii,,Waimea,CDP,1578500,
-Hawaii,,Waimea,CDP,1578800,
 Hawaii,,Wainaku,CDP,1578950,
 Hawaii,,Wainiha,CDP,1579250,
 Hawaii,,Waiohinu,CDP,1579550,
@@ -21667,7 +21641,6 @@ Maryland,,Williston,CDP,2485175,
 Maryland,,Wilson-Conococheague,CDP,2485395,
 Maryland,,Woodland,CDP,2486275,
 Maryland,,Woodlawn,CDP,2486475,
-Maryland,,Woodlawn,CDP,2486525,
 Maryland,,Woodmore,CDP,2486710,
 Maryland,,Woodsboro,town,2486750,https://woodsboro.org/
 Maryland,,Worton,CDP,2487000,
@@ -27063,7 +27036,6 @@ Mississippi,,Biloxi,city,2806220,http://www.biloxi.ms.us/
 Mississippi,,Blue Mountain,town,2807060,
 Mississippi,,Blue Springs,village,2807100,https://www.townofbluespringsms.com/
 Mississippi,,Bobo,CDP,2807220,
-Mississippi,,Bogue Chitto,CDP,2807322,
 Mississippi,,Bogue Chitto,CDP,2807330,
 Mississippi,,Bolivar,CDP,2807460,https://www.co.bolivar.ms.us/
 Mississippi,,Bolton,town,2807540,https://townofboltonms.com/
@@ -33423,8 +33395,6 @@ New Jersey,,Sheppards Mill,CDP,3466970,
 New Jersey,,Short Hills,CDP,3467320,
 New Jersey,,Sicklerville,CDP,3467470,
 New Jersey,,Silver Lake,CDP,3467583,
-New Jersey,,Silver Lake,CDP,3467590,
-New Jersey,,Silver Lake,CDP,3467650,
 New Jersey,,Silver Ridge,CDP,3467665,
 New Jersey,,Singac,CDP,3467770,
 New Jersey,,Six Mile Run,CDP,3467820,
@@ -33829,14 +33799,12 @@ New Mexico,,Kirtland AFB,CDP,3536300,
 New Mexico,,La Bajada,CDP,3536555,
 New Mexico,,La Boca,CDP,3536567,
 New Mexico,,La Cienega,CDP,3536720,
-New Mexico,,La Cueva,CDP,3536880,
 New Mexico,,La Cueva,CDP,3536930,
 New Mexico,,La Hacienda,CDP,3537407,
 New Mexico,,La Huerta,CDP,3537420,
 New Mexico,,La Jara,CDP,3537490,
 New Mexico,,La Joya,CDP,3537700,
 New Mexico,,La Luz,CDP,3538330,
-New Mexico,,La Madera,CDP,3538470,
 New Mexico,,La Madera,CDP,3538540,
 New Mexico,,La Mesa,CDP,3538680,
 New Mexico,,La Mesilla,CDP,3538820,
@@ -33905,7 +33873,6 @@ New Mexico,,Morningside,CDP,3550195,
 New Mexico,,Mosquero,village,3550300,https://www.villageofmosquero.com/
 New Mexico,,Mount Taylor,CDP,3550615,
 New Mexico,,Mountain View,CDP,3550512,
-New Mexico,,Mountain View,CDP,3550515,
 New Mexico,,Mountainair,town,3550370,https://mountainairnm.gov/
 New Mexico,,Nadine,CDP,3550720,
 New Mexico,,Nageezi,CDP,3550790,https://nageezi.navajochapters.org/
@@ -33949,7 +33916,6 @@ New Mexico,,Pinedale,CDP,3557160,
 New Mexico,,Pinehaven,CDP,3557175,
 New Mexico,,Pinehill,CDP,3557190,
 New Mexico,,Pinon,CDP,3557440,
-New Mexico,,Placitas,CDP,3557990,
 New Mexico,,Placitas,CDP,3558070,
 New Mexico,,Playas,CDP,3558210,https://playasworkfornewmexico.com/
 New Mexico,,Pleasanton,CDP,3558420,
@@ -33996,13 +33962,11 @@ New Mexico,,Salem,CDP,3565840,
 New Mexico,,San Acacia,CDP,3565910,
 New Mexico,,San Antonio,CDP,3566120,
 New Mexico,,San Antonito,CDP,3566330,
-New Mexico,,San Antonito,CDP,3566400,
 New Mexico,,San Cristobal,CDP,3566540,
 New Mexico,,San Felipe Pueblo,CDP,3567450,https://sfpueblo.com/
 New Mexico,,San Fidel,CDP,3567520,
 New Mexico,,San Ildefonso Pueblo,CDP,3568010,https://sanipueblo.org/
 New Mexico,,San Jose,CDP,3568430,
-New Mexico,,San Jose,CDP,3568500,
 New Mexico,,San Lorenzo,CDP,3568920,
 New Mexico,,San Luis,CDP,3569060,
 New Mexico,,San Mateo,CDP,3569270,
@@ -34060,7 +34024,6 @@ New Mexico,,Timberon,CDP,3577950,
 New Mexico,,Tohatchi,CDP,3578440,https://tohatchi.navajochapters.org/
 New Mexico,,Tome,CDP,3578650,
 New Mexico,,Torreon,CDP,3579070,
-New Mexico,,Torreon,CDP,3579140,
 New Mexico,,Tortugas,CDP,3579210,
 New Mexico,,Totah Vista,CDP,3579264,
 New Mexico,,Tres Arroyos,CDP,3579500,
@@ -34076,7 +34039,6 @@ New Mexico,,Upper Fruitland,CDP,3581177,
 New Mexico,,Ute Park,CDP,3581450,
 New Mexico,,Vadito,CDP,3581520,
 New Mexico,,Vado,CDP,3581590,
-New Mexico,,Valencia,CDP,3581775,
 New Mexico,,Valencia,CDP,3581800,
 New Mexico,,Valle Vista,CDP,3582332,
 New Mexico,,Vanderwagen,CDP,3582430,
@@ -35388,7 +35350,6 @@ New York,,Fair Haven,village,3624988,
 New York,,Fairmount,CDP,3625043,
 New York,,Fairport,village,3625076,https://www.fairportny.com/
 New York,,Fairview,CDP,3625109,
-New York,,Fairview,CDP,3625120,
 New York,,Falconer,village,3625164,https://www.falconerny.gov/
 New York,,Farmingdale,village,3625384,https://farmingdalevillage.gov/
 New York,,Farmingville,CDP,3625417,
@@ -36039,7 +36000,6 @@ New York,,Weston Mills,CDP,3680632,
 New York,,Westvale,CDP,3681127,
 New York,,Wheatley Heights,CDP,3681419,
 New York,,White Lake,CDP,3681644,
-New York,,White Lake,CDP,3681655,
 New York,,Whitesboro,village,3681710,https://www.whitesboro.us/
 New York,,Whitney Point,village,3681831,http://www.whitneypoint.org/
 New York,,Williamsville,village,3682084,https://williamsvilleny.gov/
@@ -41807,7 +41767,6 @@ Ohio,,Russells Point,village,3969302,https://www.russellspoint-oh.gov/
 Ohio,,Russellville,village,3969316,
 Ohio,,Russia,village,3969344,https://russiaoh.com/
 Ohio,,Sabina,village,3969400,https://www.villageofsabina.gov/
-Ohio,,Salem Heights,CDP,3970044,
 Ohio,,Salem Heights,CDP,3970050,
 Ohio,,Salesville,CDP,3970072,
 Ohio,,Salineville,village,3970100,https://www.salinevilleoh.gov/
@@ -42906,7 +42865,6 @@ Oklahoma,,Seminole,city,4066350,https://www.seminole-oklahoma.net/
 Oklahoma,,Sentinel,town,4066400,https://www.sentinel.k12.ok.us/
 Oklahoma,,Sequoyah,CDP,4066450,
 Oklahoma,,Seward,CDP,4066500,
-Oklahoma,,Shady Grove,CDP,4066510,
 Oklahoma,,Shady Grove,CDP,4066520,
 Oklahoma,,Shady Point,town,4066550,
 Oklahoma,,Shamrock,town,4066600,
@@ -46091,7 +46049,6 @@ Pennsylvania,York,York Haven,borough,4213387080,https://yorkhavenborough.org/
 Pennsylvania,York,Yorkana,borough,4213387064,https://yorkana-borough.com/
 Pennsylvania,York,,county,42133,https://yorkcountypa.gov/
 Pennsylvania,,Aaronsburg,CDP,4200100,
-Pennsylvania,,Aaronsburg,CDP,4200104,
 Pennsylvania,,Ackermanville,CDP,4200244,
 Pennsylvania,,Acosta,CDP,4200276,
 Pennsylvania,,Adamstown,borough,4200364,https://adamstownborough.org/
@@ -46232,7 +46189,6 @@ Pennsylvania,,Clarence,CDP,4213768,
 Pennsylvania,,Claysburg,CDP,4213992,
 Pennsylvania,,Clearville,CDP,4214152,
 Pennsylvania,,Clinton,CDP,4214296,
-Pennsylvania,,Clinton,CDP,4214312,
 Pennsylvania,,Clintondale,CDP,4214368,
 Pennsylvania,,Coburn,CDP,4214760,
 Pennsylvania,,Cochranville,CDP,4214808,
@@ -46285,7 +46241,6 @@ Pennsylvania,,Eagle,CDP,4220600,
 Pennsylvania,,Eagle Creek,CDP,4220604,
 Pennsylvania,,Eagle Lake,CDP,4220634,
 Pennsylvania,,Eagleview,CDP,4220662,
-Pennsylvania,,Eagleville,CDP,4220664,
 Pennsylvania,,Eagleville,CDP,4220672,
 Pennsylvania,,Earlston,CDP,4220704,
 Pennsylvania,,East Altoona,CDP,4220752,
@@ -46354,7 +46309,6 @@ Pennsylvania,,Folsom,CDP,4226432,
 Pennsylvania,,Foot of Ten,CDP,4226488,
 Pennsylvania,,Force,CDP,4226504,https://dced.pa.gov/
 Pennsylvania,,Forestville,CDP,4226688,
-Pennsylvania,,Forestville,CDP,4226704,
 Pennsylvania,,Fort Fetter,CDP,4226776,
 Pennsylvania,,Fort Indiantown Gap,CDP,4226812,https://www.ftig.ng.mil/
 Pennsylvania,,Fort Loudon,CDP,4226824,
@@ -46366,8 +46320,6 @@ Pennsylvania,,Fountain Springs,CDP,4227024,
 Pennsylvania,,Fox Chase,CDP,4227130,
 Pennsylvania,,Franklin Forge,CDP,4227517,
 Pennsylvania,,Frazer,CDP,4227616,
-Pennsylvania,,Fredericksburg,CDP,4227641,
-Pennsylvania,,Fredericksburg,CDP,4227648,
 Pennsylvania,,Fredericksburg,CDP,4227656,
 Pennsylvania,,Fredericktown,CDP,4227672,
 Pennsylvania,,Frenchville,CDP,4227872,
@@ -46386,7 +46338,6 @@ Pennsylvania,,Gastonville,CDP,4228600,
 Pennsylvania,,Geeseytown,CDP,4228696,
 Pennsylvania,,Geneva,CDP,4228768,
 Pennsylvania,,Georgetown,CDP,4228828,
-Pennsylvania,,Georgetown,CDP,4228832,
 Pennsylvania,,Gibraltar,CDP,4229000,
 Pennsylvania,,Gibsonia,CDP,4229040,
 Pennsylvania,,Gilbertsville,CDP,4229096,
@@ -46405,7 +46356,6 @@ Pennsylvania,,Graceton,CDP,4230224,
 Pennsylvania,,Grantley,CDP,4230435,
 Pennsylvania,,Grapeville,CDP,4230512,
 Pennsylvania,,Grassflat,CDP,4230528,
-Pennsylvania,,Gray,CDP,4230628,
 Pennsylvania,,Gray,CDP,4230648,
 Pennsylvania,,Grazierville,CDP,4230704,
 Pennsylvania,,Greenfields,CDP,4231038,
@@ -46476,7 +46426,6 @@ Pennsylvania,,Inkerman,CDP,4237008,
 Pennsylvania,,Intercourse,CDP,4237016,
 Pennsylvania,,Iola,CDP,4237024,
 Pennsylvania,,Ironville,CDP,4237136,
-Pennsylvania,,Jacksonville,CDP,4237544,
 Pennsylvania,,Jacksonville,CDP,4237552,
 Pennsylvania,,Jacksonwald,CDP,4237584,
 Pennsylvania,,James City,CDP,4237656,
@@ -46579,7 +46528,6 @@ Pennsylvania,,Marianne,CDP,4247404,
 Pennsylvania,,Marienville,CDP,4247416,
 Pennsylvania,,Marion,CDP,4247464,
 Pennsylvania,,Marlin,CDP,4247600,
-Pennsylvania,,Marshallton,CDP,4247728,
 Pennsylvania,,Marshallton,CDP,4247736,
 Pennsylvania,,Martins Creek,CDP,4247896,
 Pennsylvania,,Martinsburg Junction,CDP,4247880,
@@ -46692,7 +46640,6 @@ Pennsylvania,,Nuremberg,CDP,4255808,
 Pennsylvania,,Oak Hills,CDP,4255969,
 Pennsylvania,,Oak Lane,CDP,4256048,
 Pennsylvania,,Oakland,CDP,4255996,
-Pennsylvania,,Oakland,CDP,4256000,
 Pennsylvania,,Oaks,CDP,4256160,https://www.oakspennsylvania.com/
 Pennsylvania,,Oakwood,CDP,4256232,
 Pennsylvania,,Oberlin,CDP,4256264,
@@ -46959,18 +46906,14 @@ Pennsylvania,,Tylersburg,CDP,4278120,
 Pennsylvania,,Tylersville,CDP,4278144,
 Pennsylvania,,Tyrone Forge,CDP,4278186,
 Pennsylvania,,Union Deposit,CDP,4278472,
-Pennsylvania,,Unionville,CDP,4278584,
 Pennsylvania,,Unionville,CDP,4278608,
-Pennsylvania,,Unionville,CDP,4278624,
 Pennsylvania,,University of Pittsburgh Bradford,CDP,4278698,
 Pennsylvania,,University of Pittsburgh Johnstown,CDP,4278700,
 Pennsylvania,,Upper Exeter,CDP,4279016,
 Pennsylvania,,Vail,CDP,4279496,
 Pennsylvania,,Valley Green,CDP,4279640,
 Pennsylvania,,Valley View,CDP,4279680,
-Pennsylvania,,Valley View,CDP,4279682,
 Pennsylvania,,Van Voorhis,CDP,4279872,
-Pennsylvania,,Vicksburg,CDP,4280136,
 Pennsylvania,,Vicksburg,CDP,4280144,
 Pennsylvania,,Village Green-Green Ridge,CDP,4280218,
 Pennsylvania,,Village Shires,CDP,4280229,
@@ -47012,7 +46955,6 @@ Pennsylvania,,West Wyomissing,CDP,4284280,
 Pennsylvania,,Westland,CDP,4283272,
 Pennsylvania,,Weston,CDP,4283720,
 Pennsylvania,,Westwood,CDP,4284240,
-Pennsylvania,,Westwood,CDP,4284248,
 Pennsylvania,,Wheatland,borough,4284376,
 Pennsylvania,,White Mills,CDP,4284696,
 Pennsylvania,,Whitfield,CDP,4284856,
@@ -50434,7 +50376,6 @@ Tennessee,,Nolensville,town,4753460,https://nolensvilletn.municipalonlinepayment
 Tennessee,,Norene,CDP,4753520,
 Tennessee,,Normandy,town,4753580,
 Tennessee,,Norris,city,4753600,
-Tennessee,,Oak Grove,CDP,4754640,
 Tennessee,,Oak Grove,CDP,4754700,
 Tennessee,,Oak Hill,city,4754780,https://www.oakhilltn.us/
 Tennessee,,Oak Ridge,city,4755120,https://www.oakridgetn.gov/
@@ -50574,7 +50515,6 @@ Tennessee,,Vonore,town,4777480,https://www.town-of-vonore.com/
 Tennessee,,Walden,town,4777540,https://www.waldentn.gov/
 Tennessee,,Walland,CDP,4777700,
 Tennessee,,Walnut Grove,CDP,4777760,
-Tennessee,,Walnut Grove,CDP,4777820,
 Tennessee,,Walnut Hill,CDP,4777900,
 Tennessee,,Walterhill,CDP,4777980,
 Tennessee,,Wartburg,city,4778100,
@@ -51904,9 +51844,7 @@ Texas,,China Grove,town,4814716,https://www.cityofchinagrovetx.gov/
 Texas,,Chireno,city,4814776,https://chireno.com/
 Texas,,Christine,town,4814860,
 Texas,,Christoval,CDP,4814872,
-Texas,,Chula Vista,CDP,4814880,
 Texas,,Chula Vista,CDP,4814881,
-Texas,,Chula Vista,CDP,4814882,
 Texas,,Cibolo,city,4814920,https://www.cibolotx.gov/
 Texas,,Cienegas Terrace,CDP,4814927,
 Texas,,Cinco Ranch,CDP,4814929,
@@ -52168,7 +52106,6 @@ Texas,,Hill Country Village,city,4833968,https://hcv.org/
 Texas,,Hillcrest Village,city,4834018,https://www.hillcrestvillagetx.gov/
 Texas,,Hillside Acres,CDP,4834105,
 Texas,,Hilltop,CDP,4834130,
-Texas,,Hilltop,CDP,4834133,
 Texas,,Hilltop Lakes,CDP,4834136,
 Texas,,Hilshire Village,city,4834148,https://www.hilshirevillagetexas.com/
 Texas,,Hitchcock,city,4834220,https://www.cityofhitchcock.org/
@@ -52307,7 +52244,6 @@ Texas,,Lake View,CDP,4840966,
 Texas,,Lake Worth,city,4841056,https://www.lakeworthtx.org/
 Texas,,Lakehills,CDP,4840576,
 Texas,,Lakeshore Gardens-Hidden Acres,CDP,4840714,
-Texas,,Lakeside,town,4840738,https://lakesidetexas.us/
 Texas,,Lakeside,town,4840744,https://lakesidetexas.us/
 Texas,,Lakeside City,town,4840756,https://www.lakesidecitytx.org/
 Texas,,Lakeway,city,4840984,https://www.lakeway-tx.gov/
@@ -52362,7 +52298,6 @@ Texas,,Lolita,CDP,4843432,
 Texas,,Loma Grande,CDP,4843458,
 Texas,,Loma Linda,CDP,4843460,
 Texas,,Loma Linda East,CDP,4843462,
-Texas,,Loma Linda East,CDP,4843463,
 Texas,,Loma Linda West,CDP,4843465,
 Texas,,Loma Vista,CDP,4843474,
 Texas,,Lone Star,city,4843684,https://www.lonestartx.net/
@@ -52380,7 +52315,6 @@ Texas,,Los Barreras,CDP,4844076,
 Texas,,Los Centenarios,CDP,4844077,
 Texas,,Los Corralitos,CDP,4844079,
 Texas,,Los Ebanos,CDP,4844104,
-Texas,,Los Ebanos,CDP,4844110,
 Texas,,Los Fresnos,city,4844116,https://cityoflosfresnos.com/
 Texas,,Los Fresnos,CDP,4844120,https://cityoflosfresnos.com/
 Texas,,Los Huisaches,CDP,4844123,
@@ -52519,7 +52453,6 @@ Texas,,Oak Grove,town,4852902,https://oakgrovetxwsc.myruralwater.com/
 Texas,,Oak Island,CDP,4853004,
 Texas,,Oak Leaf,city,4853115,https://www.oakleaftexas.org/
 Texas,,Oak Point,city,4853130,https://www.oakpointtexas.com/
-Texas,,Oak Ridge,town,4853154,
 Texas,,Oak Ridge,town,4853160,https://www.cityofoakridgetx.com/
 Texas,,Oak Ridge North,city,4853190,https://www.oakridgenorth.com/
 Texas,,Oak Trail Shores,CDP,4853212,
@@ -52672,7 +52605,6 @@ Texas,,Reid Hope King,CDP,4861466,
 Texas,,Reklaw,city,4861508,
 Texas,,Relampago,CDP,4861532,
 Texas,,Rendon,CDP,4861568,
-Texas,,Reno,city,4861592,https://www.renotx.gov/
 Texas,,Reno,city,4861604,https://www.renotx.gov/
 Texas,,Retreat,town,4861616,https://www.retreatattexascity.com/
 Texas,,Rhome,city,4861700,https://www.cityofrhome.com/
@@ -52846,7 +52778,6 @@ Texas,,Sunnyvale,town,4871156,https://www.townofsunnyvale.org/
 Texas,,Sunrise Beach Village,city,4871228,https://sunrisebeachtx.gov/
 Texas,,Sunrise Shores,CDP,4871236,
 Texas,,Sunset,CDP,4871264,
-Texas,,Sunset,CDP,4871274,
 Texas,,Sunset Acres,CDP,4871289,
 Texas,,Sunset Valley,city,4871324,https://www.sunsetvalley.gov/
 Texas,,Surfside Beach,city,4871384,https://www.visitsurfsidebeachtx.org/
@@ -54500,7 +54431,6 @@ Virginia,,Brucetown,CDP,5110568,
 Virginia,,Buckhall,CDP,5110776,
 Virginia,,Buckingham Courthouse,CDP,5110856,
 Virginia,,Bull Run,CDP,5111224,
-Virginia,,Bull Run,CDP,5111230,
 Virginia,,Bull Run Mountain Estates,CDP,5111245,
 Virginia,,Burke,CDP,5111464,
 Virginia,,Burke Centre,CDP,5111470,
@@ -54626,7 +54556,6 @@ Virginia,,Fort Belvoir,CDP,5129008,
 Virginia,,Fort Hunt,CDP,5129136,
 Virginia,,Fort Lee,CDP,5129152,
 Virginia,,Franklin,city,5129600,https://franklinva.gov/
-Virginia,,Franklin,city,51620,https://franklinva.gov/
 Virginia,,Franklin Farm,CDP,5129628,
 Virginia,,Franktown,CDP,5129712,
 Virginia,,Free Union,CDP,5129840,
@@ -54881,7 +54810,6 @@ Virginia,,Roanoke,city,51770,https://www.roanokeva.gov/
 Virginia,,Rockwood,CDP,5168470,
 Virginia,,Rocky Gap,CDP,5168480,
 Virginia,,Rose Hill,CDP,5168880,
-Virginia,,Rose Hill,CDP,5168885,
 Virginia,,Round Hill,town,5169168,https://www.roundhillva.gov/
 Virginia,,Rural Retreat,town,5169456,https://www.townofruralretreat.com/
 Virginia,,Rushmere,CDP,5169472,
@@ -54993,7 +54921,6 @@ Virginia,,Wolf Trap,CDP,5187240,
 Virginia,,Woodburn,CDP,5187333,
 Virginia,,Woodlake,CDP,5187380,https://woodlakeva.org/
 Virginia,,Woodlawn,CDP,5187408,
-Virginia,,Woodlawn,CDP,5187410,
 Virginia,,Woodstock,town,5187712,https://www.woodstockva.gov/
 Virginia,,Wyndham,CDP,5187960,
 Virginia,,Wytheville,town,5188000,
@@ -55431,7 +55358,6 @@ Washington,,Everson,city,5322745,https://www.ci.everson.wa.us/
 Washington,,Fairchild AFB,CDP,5322955,https://www.fairchild.af.mil/
 Washington,,Fairfield,town,5322990,https://fairfieldwa.com/
 Washington,,Fairwood,CDP,5323160,
-Washington,,Fairwood,CDP,5323165,
 Washington,,Fall City,CDP,5323200,
 Washington,,Farmington,town,5323340,https://farmingtonwa.com/
 Washington,,Federal Way,city,5323515,https://www.federalwaywa.gov/
