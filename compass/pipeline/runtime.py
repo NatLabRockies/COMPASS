@@ -103,7 +103,7 @@ class PipelineRuntime:
 
     @cached_property
     def extractor_class(self):
-        """Return the extractor class for the configured tech"""
+        """Extractor class for the configured tech"""
         return resolve_plugin(self.tech)
 
     @cached_property
