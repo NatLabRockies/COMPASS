@@ -78,6 +78,50 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
     assert loser["filtered_reason"] == "duplicate"
 
 
+def test_apply_duplicate_filters_collapses_across_search_engines():
+    """Same URL from different engines should be marked duplicate"""
+    results = [
+        {
+            "url": "https://example.com/a.pdf",
+            "query": "q1",
+            "query_index": 0,
+            "se_order": 0,
+            "search_engine": "SerpAPIGoogleSearch",
+            "query_rank": 1,
+            "overall_rank": None,
+            "filtered_reason": None,
+            "_order": 0,
+        },
+        {
+            "url": "https://example.com/a.pdf",
+            "query": "q1",
+            "query_index": 0,
+            "se_order": 1,
+            "search_engine": "TavilySearch",
+            "query_rank": 2,
+            "overall_rank": None,
+            "filtered_reason": None,
+            "_order": 1,
+        },
+    ]
+
+    search_module._apply_duplicate_filters(results)
+
+    winner = results[0]
+    loser = results[1]
+
+    assert winner["filtered_reason"] is None
+    assert winner["duplicates"] == [
+        {
+            "url": "https://example.com/a.pdf",
+            "query": "q1",
+            "search_engine": "TavilySearch",
+            "query_rank": 2,
+        }
+    ]
+    assert loser["filtered_reason"] == "duplicate"
+
+
 def test_apply_top_n_filters_assigns_overall_rank_and_beyond_top_n():
     """Assign overall rank and mark entries beyond requested top-N"""
     results = [

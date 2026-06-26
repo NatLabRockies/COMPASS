@@ -215,10 +215,10 @@ def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
 
 
 def _apply_duplicate_filters(results):
-    """Mark duplicate rows per search engine and URL"""
+    """Mark duplicate rows by URL, across all search engines"""
     winners = {}
     for entry in _active_results_sorted(results):
-        key = (entry["search_engine"], entry["url"])
+        key = entry["url"]
         winner = winners.get(key)
         if winner is None:
             winners[key] = entry
