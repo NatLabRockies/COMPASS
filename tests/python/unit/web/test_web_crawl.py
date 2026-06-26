@@ -10,7 +10,7 @@ import pytest
 from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
-from compass.web.url_utils import sanitize_url
+from compass.utilities.url import sanitize_url
 from compass.web.website_crawl import (
     COMPASSCrawler,
     COMPASSLinkScorer,

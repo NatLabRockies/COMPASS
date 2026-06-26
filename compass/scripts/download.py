@@ -25,7 +25,7 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.web.url_utils import sanitize_url
+from compass.utilities.url import sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB

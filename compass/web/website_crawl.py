@@ -19,7 +19,7 @@ from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
 from elm.web.document import HTMLDocument
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
-from compass.web.url_utils import sanitize_url
+from compass.utilities.url import sanitize_url
 
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
