@@ -7,8 +7,8 @@ particular location.
 import asyncio
 import logging
 
-
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
+from compass.utilities.jurisdictions import jurisdiction_websites
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
@@ -16,6 +16,7 @@ from compass.validation.graphs import (
 )
 from compass.validation.utilities import step_based_threshold
 from compass.web.file_loader import COMPASSWebFileLoader
+from compass.utilities.url import normalize_domain
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import raw_pages_from_doc
 
@@ -85,6 +86,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         """
         if not url:
             return False
+
+        if _url_matches_known_jurisdiction_website(url, self.jurisdiction):
+            logger.debug(
+                "Skipping URL jurisdiction LLM check for %s because its "
+                "domain matches the canonical website for %s",
+                url,
+                self.jurisdiction,
+            )
+            return True
 
         chat_llm_caller = ChatLLMCaller(
             llm_service=self.llm_service,
@@ -459,3 +469,26 @@ def _weighted_vote(out, raw_pages, doc_source):
 
     weights = max(weights, 1)
     return total / weights, num_verdicts
+
+
+def _url_matches_known_jurisdiction_website(url, jurisdiction):
+    """Return whether URL domain matches canonical website"""
+    known_website = _known_jurisdiction_website(jurisdiction)
+    if not known_website:
+        return False
+
+    url_domain = normalize_domain(url)
+    known_domain = normalize_domain(known_website)
+    if not url_domain or not known_domain:
+        return False
+
+    return url_domain == known_domain or url_domain.endswith(
+        f".{known_domain}"
+    )
+
+
+def _known_jurisdiction_website(jurisdiction):
+    """Return a canonical website URL for a jurisdiction if available"""
+    if jurisdiction.website_url:
+        return jurisdiction.website_url
+    return jurisdiction_websites().get(jurisdiction.code)

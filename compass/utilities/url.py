@@ -25,3 +25,25 @@ def sanitize_url(url):
     query = quote(parsed.query, safe=_QUERY_SAFE_CHARS)
     fragment = quote(parsed.fragment, safe="")
     return urlunsplit((parsed.scheme, parsed.netloc, path, query, fragment))
+
+
+def normalize_domain(url):
+    """Return a comparable domain string for a URL or empty string
+
+    Parameters
+    ----------
+    url : str
+        URL string to extract the domain from.
+
+    Returns
+    -------
+    str
+        Normalized domain string, lowercased and without www prefix.
+    """
+    parsed = urlsplit(url.strip())
+    domain = parsed.netloc or parsed.path.partition("/")[0]
+    domain = domain.partition("@")[2] or domain
+    domain = domain.partition(":")[0].casefold().strip()
+    if domain.startswith("www."):
+        return domain[4:]
+    return domain
