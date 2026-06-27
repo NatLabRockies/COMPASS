@@ -79,14 +79,19 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
 
 
 def test_apply_duplicate_filters_collapses_across_search_engines():
-    """Same URL from different engines should be marked duplicate"""
+    """Same URL from different engines should be marked duplicate
+
+    When ``query_rank`` and ``query_index`` tie, the entry from the
+    search engine listed first in the config (lower ``se_order``)
+    wins.
+    """
     results = [
         {
             "url": "https://example.com/a.pdf",
             "query": "q1",
             "query_index": 0,
-            "se_order": 0,
-            "search_engine": "SerpAPIGoogleSearch",
+            "se_order": 1,
+            "search_engine": "TavilySearch",
             "query_rank": 1,
             "overall_rank": None,
             "filtered_reason": None,
@@ -96,9 +101,9 @@ def test_apply_duplicate_filters_collapses_across_search_engines():
             "url": "https://example.com/a.pdf",
             "query": "q1",
             "query_index": 0,
-            "se_order": 1,
-            "search_engine": "TavilySearch",
-            "query_rank": 2,
+            "se_order": 0,
+            "search_engine": "SerpAPIGoogleSearch",
+            "query_rank": 1,
             "overall_rank": None,
             "filtered_reason": None,
             "_order": 1,
@@ -107,16 +112,17 @@ def test_apply_duplicate_filters_collapses_across_search_engines():
 
     search_module._apply_duplicate_filters(results)
 
-    winner = results[0]
-    loser = results[1]
+    winner = results[1]
+    loser = results[0]
 
     assert winner["filtered_reason"] is None
+    assert winner["search_engine"] == "SerpAPIGoogleSearch"
     assert winner["duplicates"] == [
         {
             "url": "https://example.com/a.pdf",
             "query": "q1",
             "search_engine": "TavilySearch",
-            "query_rank": 2,
+            "query_rank": 1,
         }
     ]
     assert loser["filtered_reason"] == "duplicate"

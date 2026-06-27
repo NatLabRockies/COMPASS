@@ -215,7 +215,13 @@ def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
 
 
 def _apply_duplicate_filters(results):
-    """Mark duplicate rows by URL, across all search engines"""
+    """Mark duplicate rows by URL, across all search engines
+
+    Winner selection follows the priority encoded in
+    :func:`_link_sort_key`, so the engine listed first in the user
+    config only wins among entries that are otherwise tied (same
+    ``query_rank`` and ``query_index``).
+    """
     winners = {}
     for entry in _active_results_sorted(results):
         key = entry["url"]
@@ -267,7 +273,7 @@ def _link_sort_key(entry):
         entry["query_rank"],
         -duplicate_count,
         entry["query_index"],
-        entry["search_engine"],
+        entry["se_order"],
         entry["_order"],
     )
 
