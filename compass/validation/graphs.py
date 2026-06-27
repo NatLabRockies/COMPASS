@@ -5,6 +5,9 @@ from compass.common import (
     llm_response_starts_with_yes,
     llm_response_starts_with_no,
 )
+from compass.utilities.jurisdictions import (
+    load_jurisdictions_from_subdivision_names,
+)
 
 
 def setup_graph_correct_document_type(**kwargs):
@@ -213,6 +216,10 @@ def setup_graph_correct_document_type(**kwargs):
         "(e.g., 'Appendix,' 'Form,' or 'Application Template') as indicators "
         "of an unfinished draft. Many finalized ordinances and regulations "
         "include such templates for public or administrative use.\n"
+        "* Do **not** treat blank fields, sequences of underscores, blank "
+        "lines, or other similar placeholders for **dates** or **signatures** "
+        "as the sole indicator of draft status. Other signals must be present "
+        "in order to treat the document as a draft.\n"
         "\nFocus instead on signs of incompleteness or active "
         "editing, such as (but not limited to):\n"
         '* explicit labels: "DRAFT", "DRAFT VERSION", "NOT FINAL", "FOR '
@@ -336,6 +343,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
         ),
     )
 
+    jur_name = jurisdiction.short_name_with_state_the_prefixed
     names_we_want = _jurisdiction_names_to_extract(jurisdiction)
 
     G.add_edge("init", "has_name", condition=llm_response_starts_with_yes)
@@ -377,15 +385,14 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             prompt=(
                 "Based on the legal text, is there clear and specific "
                 "evidence that the ordinance applies specifically to "
-                f"**{jurisdiction.full_name_the_prefixed}**? This could "
+                f"**{jur_name}**? This could "
                 f"include a direct mention of **{jurisdiction.state}**, a "
                 "title, heading, or citation indicating it's an ordinance for "
                 f"{jurisdiction.state} state, or other language that "
                 f"reasonably ties the text to {jurisdiction.full_name} "
                 "specifically. Generic references such as 'the state' or "
                 "'State Zoning Administrator' are not sufficient on their own "
-                "unless clearly linked to "
-                f"{jurisdiction.full_name_the_prefixed}. "
+                f"unless clearly linked to {jur_name}. "
                 "{YES_NO_PROMPT}"
             ),
         )
@@ -431,7 +438,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                 prompt=(
                     "Based on the legal text, is there clear and specific "
                     "evidence that the ordinance applies specifically to "
-                    f"**{jurisdiction.full_name_the_prefixed}**? This could "
+                    f"**{jur_name}**? This could "
                     f"include a direct mention of **{jurisdiction.county}**, "
                     "a title, heading, or citation indicating it's an "
                     f"ordinance for {jurisdiction.county} "
@@ -441,7 +448,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
                     f"{jurisdiction.type.casefold()}' or "
                     f"'{jurisdiction.type} Zoning Administrator' are not "
                     "sufficient on their own unless clearly linked to "
-                    f"{jurisdiction.full_name_the_prefixed}. "
+                    f"{jur_name}. "
                     "{YES_NO_PROMPT}"
                 ),
             )
@@ -453,9 +460,6 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             node_to_connect = "is_county"
 
     if jurisdiction.subdivision_name:
-        # TODO: check known jurisdictions to see if duplicate names
-        # exist in the same state. If not, don't include county name in
-        # phrase
         G.add_edge(
             node_to_connect,
             "is_subdivision",
@@ -488,23 +492,30 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "has_subdivision_name",
             condition=llm_response_starts_with_yes,
         )
+
+        num_other_jurisdictions_with_same_name = len(
+            load_jurisdictions_from_subdivision_names(
+                jurisdiction.subdivision_name, state=jurisdiction.state
+            )
+        )
+        if num_other_jurisdictions_with_same_name > 1:
+            jur_name = jurisdiction.full_name_the_prefixed
+
         G.add_node(
             "has_subdivision_name",
             prompt=(
                 "Based on the legal text, is there clear and specific "
                 "evidence that the ordinance applies specifically to "
-                f"**{jurisdiction.full_name_the_prefixed}**? This could "
-                "include a direct mention of "
+                f"**{jur_name}**? This could include a direct mention of "
                 f"**{jurisdiction.subdivision_name}**, "
                 "a title, heading, or citation indicating it's an ordinance "
                 f"for {jurisdiction.full_subdivision_phrase_the_prefixed}, "
                 "or other language that reasonably ties the text to "
-                f"{jurisdiction.full_name_the_prefixed} specifically. "
-                "Generic references such as 'the "
+                f"{jur_name} specifically. Generic references such as 'the "
                 f"{jurisdiction.type.casefold()}' or "
                 f"'{jurisdiction.type} Zoning Administrator' are not "
                 "sufficient on their own unless clearly linked to "
-                f"{jurisdiction.full_name_the_prefixed}. "
+                f"{jur_name}. "
                 "{YES_NO_PROMPT}"
             ),
         )
@@ -520,8 +531,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
             "'correct_jurisdiction' key should be a boolean that is set to "
             "`true` **only if** it is reasonable to conclude that the "
             "provisions within apply to the entire area (i.e. "
-            f"{jurisdiction.type.casefold()}-wide) governed by "
-            f"**{jurisdiction.full_name_the_prefixed}** "
+            f"{jurisdiction.type.casefold()}-wide) governed by **{jur_name}** "
             "(`false` otherwise). The value of the 'explanation' key should "
             "be a string containing a brief explanation for your choice. "
         ),
@@ -573,7 +583,16 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
     node_to_connect = "init"
     keys_to_collect = {"correct_state": f"{jurisdiction.state} state"}
 
-    if jurisdiction.county:
+    should_check_county = bool(jurisdiction.county)
+    if should_check_county and jurisdiction.subdivision_name:
+        num_other_jurisdictions_with_same_name = len(
+            load_jurisdictions_from_subdivision_names(
+                jurisdiction.subdivision_name, state=jurisdiction.state
+            )
+        )
+        should_check_county &= num_other_jurisdictions_with_same_name > 1
+
+    if should_check_county:
         G.add_edge(
             node_to_connect,
             "mentions_county",

@@ -2,9 +2,10 @@
 
 import logging
 import importlib.resources
-from contextlib import suppress
+import unicodedata
 from warnings import warn
-from functools import cached_property
+from contextlib import suppress
+from functools import cached_property, lru_cache
 
 import numpy as np
 import pandas as pd
@@ -128,6 +129,28 @@ class Jurisdiction:
         return self.full_name
 
     @cached_property
+    def short_name_with_state(self):
+        """str: Comma-separated short jurisdiction name"""
+        if self.subdivision_name:
+            name_parts = [self.full_subdivision_phrase]
+        else:
+            name_parts = [self.full_county_phrase]
+
+        name_parts.append(self.state)
+        return ", ".join(filter(None, name_parts))
+
+    @cached_property
+    def short_name_with_state_the_prefixed(self):
+        """str: Short jurisdiction name maybe prefixed with ``the``"""
+        if not self.subdivision_name:
+            return self.short_name_with_state
+
+        if self.type.casefold() in _JURISDICTION_TYPES_AS_PREFIXES:
+            return f"the {self.short_name_with_state}"
+
+        return self.short_name_with_state
+
+    @cached_property
     def full_subdivision_phrase(self):
         """str: Subdivision phrase for the jurisdiction or empty str"""
         if not self.subdivision_name:
@@ -191,10 +214,18 @@ def load_all_jurisdiction_info():
     Notes
     -----
     Missing values are normalized to ``None`` to simplify downstream
-    serialization.
+    serialization. A shallow copy is returned on each call so callers
+    can safely mutate their local view without affecting the cached
+    source data.
     """
+    return _load_all_jurisdiction_info_cached().copy()
+
+
+@lru_cache(maxsize=1)
+def _load_all_jurisdiction_info_cached():
+    """Load and cache canonical jurisdiction metadata"""
     return pd.concat(
-        pd.read_csv(fp).replace({np.nan: None})
+        pd.read_csv(fp, dtype=str).replace({np.nan: None})
         for fp in KNOWN_JURISDICTIONS_REGISTRY
     )
 
@@ -229,6 +260,62 @@ def jurisdiction_websites(jurisdiction_info=None):
     }
 
 
+def load_jurisdictions_from_subdivision_names(
+    subdivision_names, state=None, jurisdiction_info=None
+):
+    """Load known jurisdictions matching subdivision names
+
+    Parameters
+    ----------
+    subdivision_names : str or iterable of str
+        One or more subdivision names to match against the canonical
+        jurisdiction data.
+    state : str, optional
+        Optional state name used to filter matching jurisdictions.
+        Matching uses the same normalized comparison applied to the
+        subdivision names. By default, ``None``.
+    jurisdiction_info : pandas.DataFrame, optional
+        DataFrame containing jurisdiction info. If ``None``, this info
+        is loaded using :func:`load_all_jurisdiction_info`. By default,
+        ``None``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Rows from the canonical jurisdiction data whose subdivision
+        names match the requested names.
+    """
+    if jurisdiction_info is None:
+        jurisdiction_info = load_all_jurisdiction_info()
+
+    if subdivision_names is None:
+        subdivision_names = []
+    elif isinstance(subdivision_names, str):
+        subdivision_names = [subdivision_names]
+
+    normalized_names = {
+        normalized_name
+        for name in subdivision_names
+        if (normalized_name := _normalize_jurisdiction_name(name))
+    }
+    if not normalized_names:
+        return jurisdiction_info.iloc[0:0].copy()  # empty df
+
+    subdivision_mask = (
+        jurisdiction_info["Subdivision"]
+        .map(_normalize_jurisdiction_name)
+        .isin(normalized_names)
+    )
+    if state is not None:
+        normalized_state = _normalize_jurisdiction_name(state)
+        subdivision_mask &= (
+            jurisdiction_info["State"].map(_normalize_jurisdiction_name)
+            == normalized_state
+        )
+
+    return jurisdiction_info[subdivision_mask].reset_index(drop=True)
+
+
 def load_jurisdictions_from_fp(jurisdiction_fp):
     """Load jurisdiction metadata for entries listed in a CSV file
 
@@ -257,7 +344,9 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     -----
     Missing jurisdictions trigger warnings with a tabular summary.
     """
-    jurisdictions = pd.read_csv(jurisdiction_fp).replace({np.nan: None})
+    jurisdictions = pd.read_csv(jurisdiction_fp, dtype=str).replace(
+        {np.nan: None}
+    )
     jurisdictions = _validate_jurisdiction_input(jurisdictions)
 
     all_jurisdiction_info = load_all_jurisdiction_info()
@@ -397,6 +486,15 @@ def _format_jurisdiction_df_for_output(df):
 def _build_merge_col(row, merge_cols):
     """Build column to merge jurisdiction DataFrames on"""
     return " ".join(str(row[c]).casefold() for c in merge_cols)
+
+
+def _normalize_jurisdiction_name(name):
+    """Normalize jurisdiction names for resilient comparisons"""
+    if name is None or pd.isna(name):
+        return ""
+
+    normalized_name = unicodedata.normalize("NFKD", str(name).casefold())
+    return "".join(char for char in normalized_name if char.isalnum())
 
 
 def fips_to_str(value):
