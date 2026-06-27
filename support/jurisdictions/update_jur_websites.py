@@ -44,8 +44,8 @@ from compass.utilities.enums import LLMTasks
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.logs import AddLocationFilter, log_versions
+from compass.utilities.url import base_website_url
 from compass.web.file_loader import COMPASSWebFileLoader
-from compass.web.url_utils import base_website_url
 from compass.validation.location import JurisdictionWebsiteValidator
 
 

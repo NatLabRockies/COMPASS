@@ -15,8 +15,8 @@ from compass.scripts.download import (
 )
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
-from compass.web.url_utils import base_website_url
 
 
 logger = logging.getLogger(__name__)
