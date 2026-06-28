@@ -7,7 +7,7 @@ COMPASS validation is an ongoing effort, and we will update this page as new res
 
 
 Geothermal Heat Pump Document Collection Validation (June 2026)
-------------------------------------------------------------
+---------------------------------------------------------------
 This validation was for the document collection portion only.
 
 Info
