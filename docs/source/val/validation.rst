@@ -5,6 +5,47 @@ Here we give a brief overview of the results of known COMPASS validation efforts
 
 COMPASS validation is an ongoing effort, and we will update this page as new results become available.
 
+
+Geothermal Heat Pump Document Collection Validation (June 2026)
+---------------------------------------------------------------
+This validation was for the document collection portion only.
+
+Info
+^^^^
+
+- **COMPASS Version**: `v0.22.0 <https://github.com/NatLabRockies/COMPASS/releases/tag/v0.22.0>`_
+- **Number of Documents**: 50  (Assuming 10,000 jurisdictions, there is a 95% chance that the metrics are within ±13.83% of the reported value)
+- **Features**: None
+- **Procedure Validated**: Document collection from web
+- **LLM(s) used**: OpenAI GPT-4.1-mini, GPT-5-mini, OpenAI GPT-5.4
+
+
+Results
+^^^^^^^
+
+.. image:: geothermal_heat_pump_web_scraping_june_2026.png
+
+
+Transmission Line Document Collection Validation (June 2026)
+------------------------------------------------------------
+This validation was for the document collection portion only.
+
+Info
+^^^^
+
+- **COMPASS Version**: `v0.18.1 <https://github.com/NatLabRockies/COMPASS/releases/tag/v0.18.1>`_
+- **Number of Documents**: 50  (Assuming 10,000 jurisdictions, there is a 95% chance that the metrics are within ±13.83% of the reported value)
+- **Features**: None
+- **Procedure Validated**: Document collection from web
+- **LLM(s) used**: OpenAI GPT-4.1-mini, OpenAI GPT-5
+
+
+Results
+^^^^^^^
+
+.. image:: transmission_web_scraping_june_2026.png
+
+
 Geothermal Electricity Document Collection Validation (May 2026)
 ----------------------------------------------------------------
 This validation was for the document collection portion only.
