@@ -91,7 +91,7 @@ def test_apply_duplicate_filters_collapses_across_search_engines():
             "query": "q1",
             "query_index": 0,
             "se_order": 1,
-            "search_engine": "TavilySearch",
+            "search_engine": "TestSearch",
             "query_rank": 1,
             "overall_rank": None,
             "filtered_reason": None,
@@ -121,7 +121,7 @@ def test_apply_duplicate_filters_collapses_across_search_engines():
         {
             "url": "https://example.com/a.pdf",
             "query": "q1",
-            "search_engine": "TavilySearch",
+            "search_engine": "TestSearch",
             "query_rank": 1,
         }
     ]
