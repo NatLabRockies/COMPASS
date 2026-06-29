@@ -459,6 +459,7 @@ def test_save_db_writes_csvs(tmp_path):
             "value": 100,
             "units": "ft",
             "summary": "Maximum height",
+            "ord_text": "Buildings shall not exceed 100 ft.",
             "year": 2020,
             "source": "http://source",
             "quantitative": True,
@@ -470,6 +471,7 @@ def test_save_db_writes_csvs(tmp_path):
         {
             "feature": "Setback",
             "summary": "Setback distance",
+            "ord_text": "Turbines shall be set back from property lines.",
             "quantitative": False,
         }
     )
@@ -490,6 +492,11 @@ def test_save_db_writes_csvs(tmp_path):
     assert len(qual) == 1
     assert quant.iloc[0]["feature"] == "Height"
     assert qual.iloc[0]["feature"] == "Setback"
+    assert quant.iloc[0]["ord_text"] == "Buildings shall not exceed 100 ft."
+    assert (
+        qual.iloc[0]["ord_text"]
+        == "Turbines shall be set back from property lines."
+    )
 
 
 def test_save_db_with_empty_df(tmp_path):
