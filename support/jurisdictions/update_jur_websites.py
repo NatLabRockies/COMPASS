@@ -96,7 +96,7 @@ def _parse_args():
     parser.add_argument(
         "--log-level",
         default="DEBUG",
-        help="Logging level for terminal output. By default, INFO.",
+        help="Logging level for terminal output. By default, DEBUG.",
     )
     parser.add_argument(
         "-v",
@@ -266,7 +266,8 @@ def _load_runtime_inputs(config_fp):
     model_configs = _build_models(raw_config["model"])
 
     search_params = WebSearchParams(
-        search_engines=raw_config["search_engines"]
+        search_engines=raw_config["search_engines"],
+        url_ignore_substrings=[".k12.", ".edu/"],
     )
 
     file_loader_kwargs = raw_config.get("file_loader_kwargs") or {}
