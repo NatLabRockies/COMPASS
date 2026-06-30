@@ -17,28 +17,25 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 logger = logging.getLogger(__name__)
 _TEXT_SCOPE_SYSTEM_PROMPT = """\
-You are a structured extraction scope validator. You receive:
-1) A text chunk.
-2) An extraction schema that defines the exact domain and scope of the \
-requested extraction.
-
-Determine whether the chunk is in scope for the schema. Focus first on any \
-explicit scope limitations in the schema, including technology, document \
+You are a structured extraction scope validator. Given a text chunk, \
+determine whether the chunk is within the given extraction scope. \
+Focus on any explicit scope limitations, including technology, document \
 type, regulatory subject, exclusions, and similar boundaries. Be strict and \
 literal: only mark the chunk in scope when the text clearly pertains to the \
-schema's intended domain. Note that a broader ordinance can still be in scope \
+intended domain. Note that a broader ordinance can still be in scope \
 when the excerpt contains an explicit definition, permit, prohibition, or \
-requirement for the target technology. Honor any exceptions that may be given \
-within the schema. Do not infer beyond the text. If the scope match is \
-unclear, return true. Keep the response concise and consistent.\
+requirement for the target technology. Do not infer beyond the text. \
+If the scope match is unclear, return ``true``. Keep the response concise \
+and consistent.\
 """
 _TEXT_SCOPE_MAIN_PROMPT = """\
-Determine whether this text excerpt is within the scope of the following \
-extraction schema. Only decide whether the chunk matches the schema's domain \
-and scope. Do not decide yet whether it contains enough substantive context \
-for extraction.
+Determine whether this text excerpt is within the following extraction \
+scope. Only decide whether the chunk matches the scope. Do not decide yet \
+whether it contains enough substantive context for extraction.\
 
-{schema}
+SCOPE:
+
+{scope}
 
 TEXT:
 
@@ -204,20 +201,23 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             Boolean flag indicating whether or not the text in the chunk
             contains large wind energy conversion system ordinance text.
         """
-        passed_scope = await chunk_parser.parse_from_ind(
-            ind,
-            key="matches_scope",
-            llm_call_callback=self._check_chunk_scope_with_prompt,
-        )
-
-        if not passed_scope:
-            logger.debug(
-                "Text at ind %d did not pass collection step: scope match",
+        if "$scope" in self.SCHEMA:
+            passed_scope = await chunk_parser.parse_from_ind(
                 ind,
+                key="matches_scope",
+                llm_call_callback=self._check_chunk_scope_with_prompt,
             )
-            return False
 
-        logger.debug("Text at ind %d passed collection step: scope match", ind)
+            if not passed_scope:
+                logger.debug(
+                    "Text at ind %d did not pass collection step: scope match",
+                    ind,
+                )
+                return False
+
+            logger.debug(
+                "Text at ind %d passed collection step: scope match", ind
+            )
 
         passed_filter = await chunk_parser.parse_from_ind(
             ind,
@@ -243,8 +243,17 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     async def _check_chunk_scope_with_prompt(self, key, text_chunk):
         """Call LLM on a chunk of text to check schema scope"""
+        scope = self.SCHEMA.get("$scope")
+        if not scope:
+            logger.debug(
+                "No $scope defined in schema; skipping scope check for "
+                "text chunk: %s",
+                text_chunk,
+            )
+            return True
+
         main_prompt = _TEXT_SCOPE_MAIN_PROMPT.format(
-            schema=self.SCHEMA, text=text_chunk
+            schema=self.SCHEMA, scope=scope, text=text_chunk
         )
         logger.debug("Checking text chunk scope with LLM: %s", text_chunk)
         logger.debug_to_file(

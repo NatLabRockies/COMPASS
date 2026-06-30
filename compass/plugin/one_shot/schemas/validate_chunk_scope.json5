@@ -6,11 +6,11 @@
     "properties": {
         "matches_scope": {
             "type": "boolean",
-            "description": "Flag indicating whether the chunk clearly matches the schema's intended domain and scope.",
+            "description": "Flag indicating whether the chunk clearly matches the intended domain and scope.",
         },
         "explanation": {
             "type": "string",
-            "description": "Short explanation describing why the chunk is in scope or out of scope for the extraction schema.",
+            "description": "Short explanation describing why the chunk is in scope or out of scope for the extraction.",
         },
     },
 }
