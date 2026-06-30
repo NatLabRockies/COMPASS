@@ -582,6 +582,9 @@ def _process_all_jurisdictions(
 
         jobs.append(asyncio.create_task(_run_row(), name=location_label))
 
+    logger.info(
+        "Submitted %d jurisdiction row tasks for processing", len(jobs)
+    )
     return jobs
 
 
