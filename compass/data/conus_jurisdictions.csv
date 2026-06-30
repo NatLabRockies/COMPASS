@@ -35004,7 +35004,7 @@ New York,Ulster,Lloyd,town,3611142994,https://www.townoflloyd.gov/
 New York,Ulster,Marbletown,town,3611145458,https://www.marbletown.gov/
 New York,Ulster,Marlborough,town,3611145722,https://www.townofmarlboroughny.gov/
 New York,Ulster,New Paltz,town,3611150562,
-New York,Ulster,Olive,town,3611154749,
+New York,Ulster,Olive,town,3611154749,https://townofoliveny.gov/
 New York,Ulster,Plattekill,town,3611158552,https://townofplattekill.gov/
 New York,Ulster,Rochester,town,3611163011,https://www.townofrochester.ny.gov/
 New York,Ulster,Rosendale,town,3611163737,https://www.townofrosendaleny.gov/
@@ -35030,7 +35030,7 @@ New York,Warren,Warrensburg,town,3611378300,https://warrensburgny.gov/
 New York,Warren,,county,36113,https://www.warrencountyny.gov/
 New York,Washington,Argyle,town,3611502561,https://www.townofargyleny.com/
 New York,Washington,Cambridge,town,3611511836,https://v3.cambridgeny.gov/
-New York,Washington,Dresden,town,3611520885,
+New York,Washington,Dresden,town,3611520885,http://townofdresdenny.com/
 New York,Washington,Easton,town,3611522656,https://www.eastonny.gov/
 New York,Washington,Fort Ann,town,3611526715,https://www.townoffortannny.gov/
 New York,Washington,Fort Edward,town,3611526781,https://fortedward.net/
@@ -35064,12 +35064,12 @@ New York,Wayne,Wolcott,town,3611782689,https://www.townofwolcottny.gov/
 New York,Wayne,,county,36117,https://www.waynecountyny.gov/
 New York,Westchester,Bedford,town,3611905320,https://bedfordny.gov/
 New York,Westchester,Cortlandt,town,3611918410,https://www.townofcortlandtny.gov/
-New York,Westchester,Eastchester,town,3611921820,
+New York,Westchester,Eastchester,town,3611921820,https://www.eastchester.gov/
 New York,Westchester,Greenburgh,town,3611930367,https://www.greenburghny.com/
 New York,Westchester,Harrison,town,3611932413,https://www.harrison-ny.gov/
 New York,Westchester,Lewisboro,town,3611942136,https://www.lewisborony.gov/
 New York,Westchester,Mamaroneck,town,3611944842,https://www.townofmamaroneckny.gov/
-New York,Westchester,Mount Kisco,town,3611948895,
+New York,Westchester,Mount Kisco,town,3611948895,https://www.mountkiscony.gov/
 New York,Westchester,Mount Pleasant,town,3611949011,https://www.mtpleasantny.gov/
 New York,Westchester,Mount Vernon,city,3611949121,https://www.mountvernonny.gov/
 New York,Westchester,New Castle,town,3611950078,https://www.mynewcastleny.gov/
@@ -35101,7 +35101,7 @@ New York,Wyoming,Orangeville,town,3612155222,https://townoforangeville.gov/
 New York,Wyoming,Perry,town,3612157254,https://www.villageofperryny.gov/
 New York,Wyoming,Pike,town,3612157826,
 New York,Wyoming,Sheldon,town,3612166773,https://townofsheldonny.gov/
-New York,Wyoming,Warsaw,town,3612178344,
+New York,Wyoming,Warsaw,town,3612178344,https://www.townofwarsawny.gov/
 New York,Wyoming,Wethersfield,town,3612181325,
 New York,Wyoming,,county,36121,http://www.wyomingcountyny.gov/
 New York,Yates,Barrington,town,3612304594,https://www.townofbarrington.org/
@@ -35196,7 +35196,7 @@ New York,,Brightwaters,village,3608323,https://www.villageofbrightwaters.com/
 New York,,Brinckerhoff,CDP,3608334,
 New York,,Brockport,village,3608466,https://brockportny.gov/
 New York,,Brocton,village,3608488,https://www.brocton.org/
-New York,,Bronxville,village,3608532,
+New York,,Bronxville,village,3608532,https://www.villageofbronxville.gov/
 New York,,Brooktondale,CDP,3610077,
 New York,,Brookville,village,3610132,https://www.villageofbrookville.gov/
 New York,,Brushton,village,3610286,
@@ -35403,7 +35403,7 @@ New York,,Glens Falls North,CDP,3629338,
 New York,,Glenwood Landing,CDP,3629421,
 New York,,Golden's Bridge,CDP,3629476,
 New York,,Gordon Heights,CDP,3629509,
-New York,,Gowanda,village,3629630,
+New York,,Gowanda,village,3629630,https://www.gowanda.gov/
 New York,,Grahamsville,CDP,3629707,
 New York,,Grand View-on-Hudson,village,3629872,https://www.gvoh-ny.gov/
 New York,,Grandyle Village,CDP,3629894,
@@ -35414,7 +35414,7 @@ New York,,Great Neck Gardens,CDP,3630202,
 New York,,Great Neck Plaza,village,3630213,https://greatneckplaza.net/
 New York,,Great River,CDP,3630235,
 New York,,Greenlawn,CDP,3630543,
-New York,,Greenport,village,3630576,
+New York,,Greenport,village,3630576,https://villageofgreenport.gov/
 New York,,Greenport West,CDP,3630581,
 New York,,Greenvale,CDP,3630598,
 New York,,Greenville,CDP,3630642,
@@ -35717,7 +35717,7 @@ New York,,Pearl River,CDP,3656902,https://pearlriverny.org/
 New York,,Peconic,CDP,3656968,
 New York,,Pelham Manor,village,3657023,https://www.pelhamny.gov/
 New York,,Penn Yan,village,3657177,https://www.villageofpennyan.gov/
-New York,,Philmont,village,3657639,
+New York,,Philmont,village,3657639,https://philmont.org/
 New York,,Phoenicia,CDP,3657650,https://phoeniciany.com/
 New York,,Phoenix,village,3657661,https://www.villageofphoenix-ny.gov/
 New York,,Piermont,village,3657749,https://www.piermont-ny.gov/
@@ -36047,7 +36047,7 @@ North Carolina,Alexander,Sharpes,township,3700392908,
 North Carolina,Alexander,Sugar Loaf,township,3700393168,
 North Carolina,Alexander,Taylorsville,town,3766960,https://taylorsvillenc.com/
 North Carolina,Alexander,Wittenburg,township,3700394086,
-North Carolina,Alexander,,county,37003,
+North Carolina,Alexander,,county,37003,https://alexandercountync.gov/
 North Carolina,Alleghany,Cherry Lane,township,3700590640,
 North Carolina,Alleghany,Cranberry,township,3700590808,
 North Carolina,Alleghany,Gap Civil,township,3700591204,
@@ -36121,7 +36121,7 @@ North Carolina,Bertie,Snakebite,township,3701593008,
 North Carolina,Bertie,Whites,township,3701593988,
 North Carolina,Bertie,Windsor,town,3774680,https://windsornc.com/
 North Carolina,Bertie,Woodville,township,3701594104,
-North Carolina,Bertie,,county,37015,
+North Carolina,Bertie,,county,37015,http://www.co.bertie.nc.us/
 North Carolina,Bladen,Abbotts,township,3701790004,
 North Carolina,Bladen,Bethel,township,3701790244,
 North Carolina,Bladen,Bladenboro,town,3706240,https://bladenboronc.org/
@@ -36137,7 +36137,7 @@ North Carolina,Bladen,Lake Creek,township,3701791720,
 North Carolina,Bladen,Turnbull,township,3701793784,
 North Carolina,Bladen,White Oak,township,3701793964,
 North Carolina,Bladen,Whites Creek,township,3701793992,
-North Carolina,Bladen,,county,37017,
+North Carolina,Bladen,,county,37017,https://bladennc.govoffice3.com/
 North Carolina,Brunswick,Lockwoods Folly,township,3701991884,
 North Carolina,Brunswick,Northwest,city,3747860,https://www.cityofnorthwest.com/
 North Carolina,Brunswick,Shallotte,town,3760800,https://www.townofshallotte.org/
@@ -36174,7 +36174,7 @@ North Carolina,Burke,Silver Creek,township,3702392952,
 North Carolina,Burke,Smoky Creek,township,3702392996,
 North Carolina,Burke,Upper Creek,township,3702393832,
 North Carolina,Burke,Upper Fork,township,3702393836,
-North Carolina,Burke,,county,37023,
+North Carolina,Burke,,county,37023,https://www.burkenc.org/
 North Carolina,Cabarrus,"1, Harrisburg",township,3702593284,
 North Carolina,Cabarrus,"10, Midland",township,3702593688,
 North Carolina,Cabarrus,"11, Central Cabarrus",township,3702593696,
@@ -36187,7 +36187,7 @@ North Carolina,Cabarrus,"6, Rimertown",township,3702593532,
 North Carolina,Cabarrus,"7, Gold Hill",township,3702593572,
 North Carolina,Cabarrus,"8, Mount Pleasant",township,3702593604,https://mtpleasantnc.gov/
 North Carolina,Cabarrus,"9, Georgeville",township,3702593644,
-North Carolina,Cabarrus,,county,37025,
+North Carolina,Cabarrus,,county,37025,https://www.cabarruscounty.us/
 North Carolina,Caldwell,Globe,township,3702791244,
 North Carolina,Caldwell,Hudson,town,3732980,https://www.townofhudsonnc.com/
 North Carolina,Caldwell,Johns River,township,3702791672,
@@ -36343,7 +36343,7 @@ North Carolina,Davidson,Silver Hill,township,3705792956,
 North Carolina,Davidson,Thomasville,city,3767420,https://www.thomasville-nc.gov/
 North Carolina,Davidson,Tyro,township,3705793796,
 North Carolina,Davidson,Yadkin College,township,3705794112,
-North Carolina,Davidson,,county,37057,
+North Carolina,Davidson,,county,37057,https://www.co.davidson.nc.us/
 North Carolina,Davie,Calahaln,township,3705990472,
 North Carolina,Davie,Clarksville,township,3705990668,
 North Carolina,Davie,Farmington,township,3705991080,
@@ -36390,7 +36390,7 @@ North Carolina,Edgecombe,"9, Otter Creek",township,3706593652,
 North Carolina,Edgecombe,,county,37065,https://www.edgecombecountync.gov/
 North Carolina,Forsyth,Abbotts Creek,township,3706790012,
 North Carolina,Forsyth,Belews Creek,township,3706790216,
-North Carolina,Forsyth,Bethania,town,3705340,
+North Carolina,Forsyth,Bethania,town,3705340,https://townofbethania.org/
 North Carolina,Forsyth,Broadbay,township,3706790376,
 North Carolina,Forsyth,Clemmonsville,township,3706790684,
 North Carolina,Forsyth,Kernersville,town,3735600,https://toknc.com/
@@ -36418,11 +36418,11 @@ North Carolina,Franklin,,county,37069,https://www.franklincountync.gov/
 North Carolina,Gaston,Cherryville,city,3712340,https://www.cityofcherryville.com/
 North Carolina,Gaston,Crowders Mountain,township,3707190844,
 North Carolina,Gaston,Dallas,town,3716180,https://www.dallasnc.net/
-North Carolina,Gaston,Gastonia,city,3725580,
+North Carolina,Gaston,Gastonia,city,3725580,https://www.cityofgastonia.com/
 North Carolina,Gaston,Riverbend,township,3707192692,
 North Carolina,Gaston,South Point,township,3707193048,
 North Carolina,Gaston,,county,37071,https://www.gastongov.com/
-North Carolina,Gates,Gatesville,town,3725680,
+North Carolina,Gates,Gatesville,town,3725680,https://gatesville.org/
 North Carolina,Gates,Hall,township,3707391376,
 North Carolina,Gates,Haslett,township,3707391420,
 North Carolina,Gates,Holly Grove,township,3707391520,
@@ -36529,14 +36529,14 @@ North Carolina,Hertford,Maneys Neck,township,3709191968,
 North Carolina,Hertford,Murfreesboro,town,3745640,https://townofmurfreesboro.com/
 North Carolina,Hertford,St. Johns,township,3709192784,
 North Carolina,Hertford,Winton,town,3775080,
-North Carolina,Hertford,,county,37091,
+North Carolina,Hertford,,county,37091,https://www.hertfordcountync.gov/
 North Carolina,Hoke,Allendale,township,3709390036,
 North Carolina,Hoke,Antioch,township,3709390068,
 North Carolina,Hoke,Blue Springs,township,3709390312,
 North Carolina,Hoke,Fort Bragg Military Reservation,township,3709391148,
 North Carolina,Hoke,McLauchlin,township,3709391948,
 North Carolina,Hoke,Quewhiffle,township,3709392600,
-North Carolina,Hoke,Raeford,city,3754580,
+North Carolina,Hoke,Raeford,city,3754580,https://raefordcity.org/
 North Carolina,Hoke,Stonewall,township,3709393136,
 North Carolina,Hoke,,county,37093,https://www.hokecounty.net/
 North Carolina,Hyde,Currituck,township,3709590856,
@@ -36568,7 +36568,7 @@ North Carolina,Jackson,Canada,township,3709990484,
 North Carolina,Jackson,Caney Fork,township,3709990500,
 North Carolina,Jackson,Cashiers,township,3709990540,http://cashiers-nc.org/
 North Carolina,Jackson,Cullowhee,township,3709990848,
-North Carolina,Jackson,Dillsboro,town,3717180,
+North Carolina,Jackson,Dillsboro,town,3717180,https://www.dillsboronc.info/
 North Carolina,Jackson,Greens Creek,township,3709991320,
 North Carolina,Jackson,Hamburg,township,3709991384,
 North Carolina,Jackson,Mountain,township,3709992148,
@@ -36667,7 +36667,7 @@ North Carolina,Martin,Poplar Point,township,3711792556,
 North Carolina,Martin,Robersonville,town,3757100,https://www.robersonville.org/
 North Carolina,Martin,Williams,township,3711794024,
 North Carolina,Martin,Williamston,town,3774220,https://www.townofwilliamston.com/
-North Carolina,Martin,,county,37117,
+North Carolina,Martin,,county,37117,https://www.martincountync.gov/
 North Carolina,McDowell,Brackett,township,3711190348,
 North Carolina,McDowell,Crooked Creek,township,3711190828,
 North Carolina,McDowell,Dysartsville,township,3711190940,
@@ -36758,7 +36758,7 @@ North Carolina,Northampton,Rich Square,town,3756440,https://www.richsquarenc.org
 North Carolina,Northampton,Roanoke,township,3713192696,
 North Carolina,Northampton,Seaboard,town,3759980,https://www.townofseaboardnc.org/
 North Carolina,Northampton,Wiccacanee,township,3713194004,
-North Carolina,Northampton,,county,37131,
+North Carolina,Northampton,,county,37131,https://www.northamptonnc.com/
 North Carolina,Onslow,Camp Lejeune,unorganized territory,3713390482,
 North Carolina,Onslow,Hofmann Forest,unorganized territory,3713391502,
 North Carolina,Onslow,Jacksonville,city,3734200,https://jacksonvillenc.gov/
@@ -36866,7 +36866,7 @@ North Carolina,Richmond,Mineral Springs,township,3715392084,
 North Carolina,Richmond,Rockingham,city,3757260,https://gorockingham.com/
 North Carolina,Richmond,Steeles,township,3715393116,
 North Carolina,Richmond,Wolf Pit,township,3715394088,
-North Carolina,Richmond,,county,37153,
+North Carolina,Richmond,,county,37153,https://www.richmondnc.com/
 North Carolina,Robeson,Alfordsville,township,3715590028,
 North Carolina,Robeson,Back Swamp,township,3715590120,
 North Carolina,Robeson,Britts,township,3715590372,
@@ -36896,7 +36896,7 @@ North Carolina,Robeson,Union,township,3715593812,
 North Carolina,Robeson,West Howellsville,township,3715593952,
 North Carolina,Robeson,Whitehouse,township,3715593962,
 North Carolina,Robeson,Wisharts,township,3715594080,
-North Carolina,Robeson,,county,37155,
+North Carolina,Robeson,,county,37155,https://www.robesoncountync.gov/
 North Carolina,Rockingham,Huntsville,township,3715791564,
 North Carolina,Rockingham,Leaksville,township,3715791752,
 North Carolina,Rockingham,Madison,town,3740560,https://www.townofmadison.org/
@@ -36925,7 +36925,7 @@ North Carolina,Rowan,Steele,township,3715993112,
 North Carolina,Rowan,Unity,township,3715993828,
 North Carolina,Rowan,,county,37159,https://www.rowancountync.gov/
 North Carolina,Rutherford,Camp Creek,township,3716190480,
-North Carolina,Rutherford,Chimney Rock,township,3716190656,
+North Carolina,Rutherford,Chimney Rock,township,3716190656,https://www.chimneyrockvillagenc.gov/
 North Carolina,Rutherford,Colfax,township,3716190720,
 North Carolina,Rutherford,Cool Spring,township,3716190768,
 North Carolina,Rutherford,Duncans Creek,township,3716190924,
@@ -37000,11 +37000,11 @@ North Carolina,Surry,Siloam,township,3717192948,
 North Carolina,Surry,South Westfield,township,3717193064,
 North Carolina,Surry,Stewarts Creek,township,3717193128,
 North Carolina,Surry,Westfield,township,3717193948,
-North Carolina,Surry,,county,37171,
+North Carolina,Surry,,county,37171,https://www.co.surry.nc.us/
 North Carolina,Swain,Charleston,township,3717390624,
 North Carolina,Swain,Forneys Creek,unorganized territory,3717391144,
 North Carolina,Swain,Nantahala,township,3717392208,
-North Carolina,Swain,,county,37173,
+North Carolina,Swain,,county,37173,https://www.swaincountync.gov/
 North Carolina,Transylvania,Boyd,township,3717590344,
 North Carolina,Transylvania,Brevard,city,3707720,https://www.cityofbrevard.com/
 North Carolina,Transylvania,Catheys Creek,township,3717590564,
@@ -37019,12 +37019,12 @@ North Carolina,Tyrrell,Columbia,town,3713940,https://www.townofcolumbianc.com/
 North Carolina,Tyrrell,Gum Neck,township,3717791360,
 North Carolina,Tyrrell,Scuppernong,township,3717792872,
 North Carolina,Tyrrell,South Fork,township,3717793040,
-North Carolina,Tyrrell,,county,37177,
+North Carolina,Tyrrell,,county,37177,http://tyrrellcounty.org/
 North Carolina,Union,Buford,township,3717990432,
 North Carolina,Union,Goose Creek,township,3717991264,
 North Carolina,Union,Jackson,township,3717991624,
 North Carolina,Union,Lanes Creek,township,3717991736,
-North Carolina,Union,Marshville,town,3741640,
+North Carolina,Union,Marshville,town,3741640,https://www.marshville.org/
 North Carolina,Union,Monroe,city,3743920,https://www.monroenc.org/
 North Carolina,Union,New Salem,township,3717992280,
 North Carolina,Union,Sandy Ridge,township,3717992836,
@@ -37227,7 +37227,7 @@ North Carolina,,Bridgeton,town,3707860,https://www.townofbridgeton.org/
 North Carolina,,Broad Creek,CDP,3708040,
 North Carolina,,Broadway,town,3708080,https://www.broadwaync.com/
 North Carolina,,Brookford,town,3708140,
-North Carolina,,Brunswick,town,3708420,
+North Carolina,,Brunswick,town,3708420,https://townofbrunswicknc.gov/
 North Carolina,,Bryson City,town,3708480,https://www.brysoncitync.gov/
 North Carolina,,Buies Creek,CDP,3708760,
 North Carolina,,Bunn,town,3708860,https://townofbunn.org/
@@ -37267,7 +37267,7 @@ North Carolina,,Claremont,city,3712720,https://www.cityofclaremont.org/
 North Carolina,,Clarkton,town,3712780,https://townofclarkton.com/
 North Carolina,,Clemmons,village,3712960,https://www.clemmons.org/
 North Carolina,,Cliffside,CDP,3713100,
-North Carolina,,Clinton,city,3713240,
+North Carolina,,Clinton,city,3713240,https://www.cityofclintonnc.com/
 North Carolina,,Coats,town,3713360,http://coatsnc.org/
 North Carolina,,Cofield,village,3713460,
 North Carolina,,Coinjock,CDP,3713500,
@@ -37296,7 +37296,7 @@ North Carolina,,Dellview,town,3716820,
 North Carolina,,Delway,CDP,3716860,
 North Carolina,,Denton,town,3716980,https://www.townofdenton.com/
 North Carolina,,Denver,CDP,3717000,
-North Carolina,,Dobbins Heights,town,3717325,
+North Carolina,,Dobbins Heights,town,3717325,https://www.dobbinsheights.com/
 North Carolina,,Dortches,town,3717520,https://dortchesnc.govoffice2.com/
 North Carolina,,Dover,town,3717660,
 North Carolina,,Dublin,town,3718040,
@@ -37358,7 +37358,7 @@ North Carolina,,Germanton,CDP,3725880,
 North Carolina,,Gerton,CDP,3725900,
 North Carolina,,Gibson,town,3725940,https://gibsonnc.com/
 North Carolina,,Gibsonville,town,3725980,https://www.gibsonvillenc.org/
-North Carolina,,Glen Alpine,town,3726200,
+North Carolina,,Glen Alpine,town,3726200,https://www.townofglenalpine.org/
 North Carolina,,Glen Raven,CDP,3726460,
 North Carolina,,Glenville,CDP,3726520,
 North Carolina,,Gloucester,CDP,3726680,
@@ -37442,7 +37442,7 @@ North Carolina,,Lansing,town,3736960,https://www.lansingnc.us/
 North Carolina,,Lasker,town,3737000,
 North Carolina,,Lattimore,town,3737040,https://lattimorenc.gov/
 North Carolina,,Laurel Park,town,3737160,https://www.laurelpark.org/
-North Carolina,,Laurinburg,city,3737220,
+North Carolina,,Laurinburg,city,3737220,https://www.laurinburg.org/
 North Carolina,,Lawndale,town,3737260,https://townoflawndalenc.com/
 North Carolina,,Leggett,town,3737640,
 North Carolina,,Leland,town,3737680,https://www.townofleland.com/
@@ -37578,7 +37578,7 @@ North Carolina,,Salem,CDP,3758740,
 North Carolina,,Salemburg,town,3758840,https://www.salemburg-nc.com/
 North Carolina,,Salvo,CDP,3758940,
 North Carolina,,Sandy Creek,town,3759090,
-North Carolina,,Sandyfield,town,3759135,
+North Carolina,,Sandyfield,town,3759135,https://townofsandyfield.org/
 North Carolina,,Sanford,city,3759280,https://www.sanfordnc.net/
 North Carolina,,Sawmills,town,3759540,https://www.townofsawmills.com/
 North Carolina,,Saxapahaw,CDP,3759580,https://www.saxapahawnc.com/
@@ -37658,7 +37658,7 @@ North Carolina,,Vanceboro,town,3769680,https://www.vanceboronc.com/
 North Carolina,,Vandemere,town,3769720,https://www.vandemerenc.com/
 North Carolina,,Vander,CDP,3769740,
 North Carolina,,Vann Crossroads,CDP,3769755,
-North Carolina,,Varnamtown,town,3769795,
+North Carolina,,Varnamtown,town,3769795,https://www.townofvarnamtown.gov/
 North Carolina,,Vass,town,3769840,https://www.townofvassnc.gov/
 North Carolina,,Waco,town,3770320,http://www.townofwaco.com/
 North Carolina,,Wade,town,3770340,https://wadenc.com/
@@ -37970,7 +37970,7 @@ North Dakota,Burleigh,Lyman,unorganized territory,3801548620,
 North Dakota,Burleigh,McKenzie,township,3801549380,
 North Dakota,Burleigh,Menoken,township,3801552220,
 North Dakota,Burleigh,Missouri,township,3801553620,
-North Dakota,Burleigh,Morton,township,3801554460,
+North Dakota,Burleigh,Morton,township,3801554460,https://www.mortonnd.gov/
 North Dakota,Burleigh,Naughton,township,3801555540,
 North Dakota,Burleigh,Painted Woods,township,3801560580,
 North Dakota,Burleigh,Phoenix,unorganized territory,3801562160,
@@ -37990,9 +37990,9 @@ North Dakota,Burleigh,Wing,city,3801586780,https://cityofwingnd.com/
 North Dakota,Burleigh,,county,38015,https://www.burleigh.gov/
 North Dakota,Cass,Addison,township,3801700500,
 North Dakota,Cass,Alice,city,3801420,
-North Dakota,Cass,Amenia,city,3801701940,
+North Dakota,Cass,Amenia,city,3801701940,https://www.ameniand.com/
 North Dakota,Cass,Argusville,city,3801703020,https://argusvillend.govoffice3.com/
-North Dakota,Cass,Arthur,city,3801703300,
+North Dakota,Cass,Arthur,city,3801703300,https://www.cityofarthur.com/
 North Dakota,Cass,Ayr,city,3801704020,
 North Dakota,Cass,Barnes,township,3801704900,
 North Dakota,Cass,Bell,township,3801705900,
@@ -38031,7 +38031,7 @@ North Dakota,Cass,Noble,township,3801757020,
 North Dakota,Cass,Normanna,township,3801757620,
 North Dakota,Cass,North River,city,3801758120,https://northrivernd.com/
 North Dakota,Cass,Oxbow,city,3801760480,https://oxbownd.com/
-North Dakota,Cass,Page,city,3801760500,
+North Dakota,Cass,Page,city,3801760500,https://pagend.com/
 North Dakota,Cass,Pleasant,township,3801763100,
 North Dakota,Cass,Pontiac,township,3801763580,
 North Dakota,Cass,Prairie Rose,city,3801764320,
@@ -38379,7 +38379,7 @@ North Dakota,Kidder,Dawson,city,3804318260,
 North Dakota,Kidder,Excelsior,township,3804325100,
 North Dakota,Kidder,Frettim,township,3804328620,
 North Dakota,Kidder,Graf,township,3804331780,
-North Dakota,Kidder,Haynes,township,3804336580,
+North Dakota,Kidder,Haynes,township,3804336580,https://haynestwp.com/
 North Dakota,Kidder,Kickapoo,unorganized territory,3804342580,
 North Dakota,Kidder,Lake Williams,township,3804344180,
 North Dakota,Kidder,Liberty,unorganized territory,3804346320,
@@ -38477,7 +38477,7 @@ North Dakota,McHenry,East McHenry,unorganized territory,3804921679,
 North Dakota,McHenry,Egg Creek,township,3804922580,
 North Dakota,McHenry,Falsen,township,3804925620,
 North Dakota,McHenry,Gilmore,township,3804930300,
-North Dakota,McHenry,Granville,city,3804932660,
+North Dakota,McHenry,Granville,city,3804932660,https://www.granvillend.net/
 North Dakota,McHenry,Grilley,township,3804933700,
 North Dakota,McHenry,Hendrickson,township,3804937260,
 North Dakota,McHenry,Karlsruhe,city,3804941380,
@@ -38644,7 +38644,7 @@ North Dakota,Mountrail,Oakland,township,3806158820,
 North Dakota,Mountrail,Osborn,township,3806159940,
 North Dakota,Mountrail,Osloe,township,3806160060,
 North Dakota,Mountrail,Palermo,city,3806160620,
-North Dakota,Mountrail,Parshall,city,3806160940,
+North Dakota,Mountrail,Parshall,city,3806160940,https://www.parshallnd.com/
 North Dakota,Mountrail,Plaza,city,3806162980,
 North Dakota,Mountrail,Powers,township,3806164100,
 North Dakota,Mountrail,Powers Lake,township,3806164180,
@@ -38889,7 +38889,7 @@ North Dakota,Richland,Sheyenne,township,3807772620,
 North Dakota,Richland,Summit,township,3807776940,
 North Dakota,Richland,Viking,township,3807782140,
 North Dakota,Richland,Wahpeton,city,3807782660,https://www.wahpeton.com/
-North Dakota,Richland,Walcott,city,3807782780,
+North Dakota,Richland,Walcott,city,3807782780,https://www.cityofwalcott.org/
 North Dakota,Richland,Waldo,township,3807782900,
 North Dakota,Richland,West End,township,3807784700,
 North Dakota,Richland,Wyndmere,city,3807787740,https://cityofwyndmere.com/
@@ -39410,7 +39410,7 @@ North Dakota,,Wilton,city,3801586580,https://wiltonnd.org/
 North Dakota,,,state,38000,https://www.nd.gov/
 Ohio,Adams,Bratton,township,3900108350,
 Ohio,Adams,Brush Creek,township,3900109722,
-Ohio,Adams,Franklin,township,3900128196,
+Ohio,Adams,Franklin,township,3900128196,https://franklin-townshipohio.gov/
 Ohio,Adams,Green,township,3900131668,
 Ohio,Adams,Jefferson,township,3900138486,
 Ohio,Adams,Liberty,township,3900143036,
@@ -39420,7 +39420,7 @@ Ohio,Adams,Monroe,township,3900151268,
 Ohio,Adams,Oliver,township,3900158366,
 Ohio,Adams,Scott,township,3900171052,
 Ohio,Adams,Sprigg,township,3900174069,
-Ohio,Adams,Tiffin,township,3900176768,
+Ohio,Adams,Tiffin,township,3900176768,https://tiffintwpadams.us/
 Ohio,Adams,Wayne,township,3900182012,
 Ohio,Adams,Winchester,village,3985876,https://winchesterohvillage.weebly.com/
 Ohio,Adams,,county,39001,https://adamscountyoh.gov/
@@ -39440,7 +39440,7 @@ Ohio,Allen,Sugar Creek,township,3900375199,
 Ohio,Allen,,county,39003,https://allencountyohio.com/
 Ohio,Ashland,Ashland,city,3900502568,https://www.ashland-ohio.com/
 Ohio,Ashland,Clear Creek,township,3900515672,
-Ohio,Ashland,Green,township,3900531682,
+Ohio,Ashland,Green,township,3900531682,https://greentwp.us/
 Ohio,Ashland,Hanover,township,3900533236,
 Ohio,Ashland,Jackson,township,3900537660,https://jacksontwpohio.com/
 Ohio,Ashland,Lake,township,3900541272,
@@ -39535,12 +39535,12 @@ Ohio,Brown,Byrd,township,3901510758,
 Ohio,Brown,Clark,township,3901515224,
 Ohio,Brown,Eagle,township,3901523072,
 Ohio,Brown,Franklin,township,3901528210,https://franklin-townshipohio.gov/
-Ohio,Brown,Green,township,3901531696,
+Ohio,Brown,Green,township,3901531696,https://www.greentwp.org/
 Ohio,Brown,Huntington,township,3901536834,https://huntingtontwp.org/
 Ohio,Brown,Jackson,township,3901537688,
 Ohio,Brown,Jefferson,township,3901538528,
 Ohio,Brown,Lewis,township,3901542910,
-Ohio,Brown,Perry,township,3901561770,
+Ohio,Brown,Perry,township,3901561770,https://www.perrytownshipbrown.com/
 Ohio,Brown,Pike,township,3901562596,
 Ohio,Brown,Pleasant,township,3901563212,
 Ohio,Brown,Scott,township,3901571066,
@@ -39577,7 +39577,7 @@ Ohio,Carroll,Orange,township,3901958576,https://www.orangetwp.org/
 Ohio,Carroll,Perry,township,3901961784,
 Ohio,Carroll,Rose,township,3901968420,https://rosetownshipohio.com/
 Ohio,Carroll,Union,township,3901978260,
-Ohio,Carroll,Washington,township,3901981116,
+Ohio,Carroll,Washington,township,3901981116,https://www.washingtontwp.org/
 Ohio,Carroll,,county,39019,http://www.carrollcountyohio.us/
 Ohio,Champaign,Adams,township,3902100212,
 Ohio,Champaign,Concord,township,3902118126,
@@ -39594,7 +39594,7 @@ Ohio,Champaign,Wayne,township,3902182096,https://www.waynetownship-champaigncoun
 Ohio,Champaign,,county,39021,https://www.co.champaign.oh.us/
 Ohio,Clark,Bethel,township,3902306054,https://www.betheltownshipclark.org/
 Ohio,Clark,German,township,3902329862,https://www.germanclarkoh.gov/
-Ohio,Clark,Green,township,3902331703,
+Ohio,Clark,Green,township,3902331703,https://www.greentwp.org/
 Ohio,Clark,Harmony,township,3902333586,
 Ohio,Clark,Mad River,township,3902346788,https://madrivertownship.org/
 Ohio,Clark,Madison,township,3902346354,https://www.madisontownshipoh.net/
@@ -39613,7 +39613,7 @@ Ohio,Clermont,Ohio,township,3902557960,https://www.ohiotownshipclermontcounty.or
 Ohio,Clermont,Pierce,township,3902562540,https://piercetownship.org/
 Ohio,Clermont,Stonelick,township,3902574825,https://www.stonelicktwp.org/
 Ohio,Clermont,Tate,township,3902576155,
-Ohio,Clermont,Union,township,3902578288,
+Ohio,Clermont,Union,township,3902578288,https://www.utclermont.gov/
 Ohio,Clermont,Washington,township,3902581130,https://washingtontwpclermont.org/
 Ohio,Clermont,Wayne,township,3902582110,https://wayne-township.org/
 Ohio,Clermont,Williamsburg,village,3985288,https://williamsburgohio.org/
@@ -39628,7 +39628,7 @@ Ohio,Clinton,Marion,township,3902747670,
 Ohio,Clinton,Richland,township,3902766642,
 Ohio,Clinton,Union,township,3902778302,
 Ohio,Clinton,Vernon,township,3902779772,
-Ohio,Clinton,Washington,township,3902781144,
+Ohio,Clinton,Washington,township,3902781144,https://www.washingtontwp.org/
 Ohio,Clinton,Wayne,township,3902782124,
 Ohio,Clinton,Wilmington,city,3902785792,https://wilmingtonohio.gov/
 Ohio,Clinton,Wilson,township,3902785820,
@@ -39644,7 +39644,7 @@ Ohio,Columbiana,Knox,township,3902940824,https://knoxtownship.org/
 Ohio,Columbiana,Liverpool,township,3902944226,https://liverpooltownship.com/
 Ohio,Columbiana,Madison,township,3902946368,
 Ohio,Columbiana,Middleton,township,3902949784,
-Ohio,Columbiana,Perry,township,3902961798,
+Ohio,Columbiana,Perry,township,3902961798,https://www.perrytownshipsalemoh.org/
 Ohio,Columbiana,Salem,city,3969834,
 Ohio,Columbiana,St. Clair,township,3902969512,https://www.stclairtwp.com/
 Ohio,Columbiana,Unity,township,3902978890,
@@ -39740,7 +39740,7 @@ Ohio,Cuyahoga,Olmsted Falls,city,3903558422,https://www.olmstedfalls.org/
 Ohio,Cuyahoga,Orange,village,3903558604,https://www.orangevillage.com/
 Ohio,Cuyahoga,Parma,city,3903561000,https://www.cityofparma-oh.gov/
 Ohio,Cuyahoga,Parma Heights,city,3903561028,https://parmaheightsoh.gov/
-Ohio,Cuyahoga,Pepper Pike,city,3903561686,
+Ohio,Cuyahoga,Pepper Pike,city,3903561686,https://www.pepperpike.org/
 Ohio,Cuyahoga,Richmond Heights,city,3903566894,https://richmondheightsohio.org/
 Ohio,Cuyahoga,Rocky River,city,3903568056,https://www.rockyriverohio.gov/
 Ohio,Cuyahoga,Seven Hills,city,3903571416,https://www.sevenhillsohio.org/
@@ -39751,15 +39751,15 @@ Ohio,Cuyahoga,Strongsville,city,3903575098,https://www.strongsville.org/
 Ohio,Cuyahoga,University Heights,city,3903578932,https://universityheightsoh.gov/
 Ohio,Cuyahoga,Valley View,village,3903579268,https://www.valleyview.net/
 Ohio,Cuyahoga,Walton Hills,village,3903580738,https://waltonhillsohio.gov/
-Ohio,Cuyahoga,Warrensville Heights,city,3903580990,
+Ohio,Cuyahoga,Warrensville Heights,city,3903580990,https://www.cityofwarrensville.com/
 Ohio,Cuyahoga,Westlake,city,3903583622,https://www.cityofwestlake.org/
 Ohio,Cuyahoga,Woodmere,village,3903586394,https://woodmerevillage.com/
 Ohio,Cuyahoga,,county,39035,https://cuyahogacounty.gov/
 Ohio,Darke,Adams,township,3903700254,
 Ohio,Darke,Allen,township,3903701294,
 Ohio,Darke,Brown,township,3903709414,
-Ohio,Darke,Butler,township,3903710576,
-Ohio,Darke,Franklin,township,3903728266,
+Ohio,Darke,Butler,township,3903710576,https://butler-twp.net/
+Ohio,Darke,Franklin,township,3903728266,https://franklin-townshipohio.gov/
 Ohio,Darke,Greenville,city,3932340,
 Ohio,Darke,Harrison,township,3903733810,https://www.harrisontwpdarke.com/
 Ohio,Darke,Jackson,township,3903737758,
@@ -39778,7 +39778,7 @@ Ohio,Darke,York,township,3903787010,
 Ohio,Darke,,county,39037,https://www.mydarkecounty.com/
 Ohio,Defiance,Adams,township,3903900268,
 Ohio,Defiance,Defiance,city,3921308,https://cityofdefiance.com/
-Ohio,Defiance,Delaware,township,3903921420,
+Ohio,Defiance,Delaware,township,3903921420,https://www.delawaretownshipohio.org/
 Ohio,Defiance,Farmer,township,3903926614,
 Ohio,Defiance,Hicksville,village,3935098,https://villageofhicksville.com/
 Ohio,Defiance,Highland,township,3903935196,
@@ -39806,13 +39806,13 @@ Ohio,Delaware,Orange,township,3904158618,https://www.orangetwp.org/
 Ohio,Delaware,Oxford,township,3904159262,
 Ohio,Delaware,Porter,township,3904164178,https://portertwp.org/
 Ohio,Delaware,Radnor,township,3904165312,http://www.radnortwp.org/
-Ohio,Delaware,Scioto,township,3904170842,
+Ohio,Delaware,Scioto,township,3904170842,https://www.sciototownshipohio.com/
 Ohio,Delaware,Shawnee Hills,village,3904171976,https://shawneehillsoh.org/
 Ohio,Delaware,Sunbury Village,township,3904175620,
 Ohio,Delaware,Thompson,township,3904176617,
 Ohio,Delaware,Trenton,township,3904177336,https://www.trentontwp.com/
 Ohio,Delaware,Troy,township,3904177560,https://troytwpdelawareoh.gov/
-Ohio,Delaware,Washington,township,3904181242,
+Ohio,Delaware,Washington,township,3904181242,https://wtwpdublinoh.gov/
 Ohio,Delaware,Westerville City,township,3904183349,
 Ohio,Delaware,,county,39041,https://co.delaware.oh.us/
 Ohio,Erie,Berlin,township,3904305802,https://www.berlintwpohio.com/
@@ -39838,7 +39838,7 @@ Ohio,Fairfield,Liberty,township,3904543120,
 Ohio,Fairfield,Madison,township,3904546382,
 Ohio,Fairfield,Pleasant,township,3904563240,https://pleasanttownship.org/
 Ohio,Fairfield,Richland,township,3904566684,
-Ohio,Fairfield,Rush Creek,township,3904569120,
+Ohio,Fairfield,Rush Creek,township,3904569120,https://www.rushcreektwp.org/
 Ohio,Fairfield,Violet,township,3904580206,https://www.violet.oh.us/
 Ohio,Fairfield,Walnut,township,3904580570,https://walnuttownship.com/
 Ohio,Fairfield,,county,39045,https://www.co.fairfield.oh.us/
@@ -39857,7 +39857,7 @@ Ohio,Fayette,,county,39047,http://www.fayette-co-oh.com/
 Ohio,Franklin,Bexley,city,3904906278,https://bexley.org/
 Ohio,Franklin,Blendon,township,3904906922,https://www.blendontwp.org/
 Ohio,Franklin,Brown,township,3904909442,https://www.browntwp.org/
-Ohio,Franklin,Clinton,township,3904916112,
+Ohio,Franklin,Clinton,township,3904916112,https://www.clintontownship.org/
 Ohio,Franklin,Franklin,township,3904928280,https://franklin-townshipohio.gov/
 Ohio,Franklin,Grandview Heights,city,3904931304,https://www.grandviewheights.gov/
 Ohio,Franklin,Hamilton,township,3904933026,https://www.hamtwpfcoh.gov/
@@ -39870,7 +39870,7 @@ Ohio,Franklin,Norwich,township,3904957344,
 Ohio,Franklin,Perry,township,3904961840,
 Ohio,Franklin,Plain,township,3904962974,https://plaintownship.org/
 Ohio,Franklin,Pleasant,township,3904963254,http://www.pleasanttownship.com/
-Ohio,Franklin,Prairie,township,3904964570,
+Ohio,Franklin,Prairie,township,3904964570,https://www.prairietownship.org/
 Ohio,Franklin,Sharon,township,3904971787,https://www.sharontwp.us/
 Ohio,Franklin,Truro,township,3904977714,https://trurotwp.org/
 Ohio,Franklin,Upper Arlington,city,3904979002,https://www.upperarlingtonoh.gov/
@@ -39899,7 +39899,7 @@ Ohio,Gallia,Green,township,3905331738,
 Ohio,Gallia,Greenfield,township,3905332074,
 Ohio,Gallia,Guyan,township,3905332760,
 Ohio,Gallia,Harrison,township,3905333824,
-Ohio,Gallia,Huntington,township,3905336848,
+Ohio,Gallia,Huntington,township,3905336848,https://huntingtontwp.org/
 Ohio,Gallia,Morgan,township,3905352094,
 Ohio,Gallia,Ohio,township,3905357974,
 Ohio,Gallia,Perry,township,3905361854,
@@ -39920,7 +39920,7 @@ Ohio,Geauga,Montville,township,3905551842,https://montvillegeauga.com/
 Ohio,Geauga,Munson,township,3905553340,https://www.munsontwpoh.gov/
 Ohio,Geauga,Newbury,township,3905554292,https://www.newburyohio.com/
 Ohio,Geauga,Parkman,township,3905559948,https://parkman.geauga.oh.gov/
-Ohio,Geauga,Russell,township,3905569232,
+Ohio,Geauga,Russell,township,3905569232,https://russelltownship.us/
 Ohio,Geauga,South Russell,village,3905573684,https://southrussell.com/
 Ohio,Geauga,Thompson,township,3905576628,
 Ohio,Geauga,Troy,township,3905577574,https://www.troytwpgeauga.com/
@@ -39931,7 +39931,7 @@ Ohio,Greene,Bellbrook,city,3905102,https://www.bellbrook.gov/
 Ohio,Greene,Caesarscreek,township,3905710856,https://caesarscreektwp.com/
 Ohio,Greene,Cedarville,village,3912784,https://www.cedarville.us/
 Ohio,Greene,Jefferson,township,3905738626,https://www.jeffersontwpgreene.us/
-Ohio,Greene,Miami,township,3905749336,
+Ohio,Greene,Miami,township,3905749336,https://miamitownshipgcoh.gov/
 Ohio,Greene,New Jasper,township,3905754810,https://www.newjaspertownship.com/
 Ohio,Greene,Ross,township,3905768630,https://www.rosstwpgreene.us/
 Ohio,Greene,Silvercreek,township,3905772473,
@@ -39953,7 +39953,7 @@ Ohio,Guernsey,Monroe,township,3905951380,
 Ohio,Guernsey,Oxford,township,3905959290,
 Ohio,Guernsey,Richland,township,3905966698,
 Ohio,Guernsey,Spencer,township,3905973986,
-Ohio,Guernsey,Valley,township,3905979156,
+Ohio,Guernsey,Valley,township,3905979156,https://www.valleytownship.us/
 Ohio,Guernsey,Washington,township,3905981256,
 Ohio,Guernsey,Westland,township,3905983664,
 Ohio,Guernsey,Wheeling,township,3905984616,
@@ -39983,7 +39983,7 @@ Ohio,Hamilton,Lockland,village,3906144366,https://www.locklandoh.org/
 Ohio,Hamilton,Madeira,city,3906146312,https://www.madeiracity.com/
 Ohio,Hamilton,Mariemont,village,3906147600,https://mariemont.org/
 Ohio,Hamilton,Miami,township,3906149364,https://www.miamitownship.org/
-Ohio,Hamilton,Montgomery,city,3906151716,
+Ohio,Hamilton,Montgomery,city,3906151716,https://www.montgomeryohio.gov/
 Ohio,Hamilton,Mount Healthy,city,3906152752,https://www.mthealthy.org/
 Ohio,Hamilton,Newtown,village,3906155678,https://newtownohio.gov/
 Ohio,Hamilton,North College Hill,city,3906156322,https://oh-northcollegehill.civicplus.com/
@@ -39995,7 +39995,7 @@ Ohio,Hamilton,Springdale,city,3906174104,https://www.springdaleohio.gov/
 Ohio,Hamilton,Springfield,township,3906174121,https://www.springfieldtwp.org/
 Ohio,Hamilton,St. Bernard,village,3906169470,https://www.stbernard-oh.gov/
 Ohio,Hamilton,Sycamore,township,3906175973,https://sycamoretownship.org/
-Ohio,Hamilton,Symmes,township,3906176028,
+Ohio,Hamilton,Symmes,township,3906176028,https://www.symmestownship.org/
 Ohio,Hamilton,Terrace Park,village,3906176428,https://www.terracepark.org/
 Ohio,Hamilton,The Village of Indian Hill,city,3906176582,https://oldsite.voih.cloud/
 Ohio,Hamilton,Whitewater,township,3906184938,https://www.whitewatertwp.org/
@@ -40004,7 +40004,7 @@ Ohio,Hamilton,Wyoming,city,3906186730,https://wyomingohio.gov/
 Ohio,Hamilton,,county,39061,https://www.hamiltoncountyohio.gov/
 Ohio,Hancock,Allen,township,3906301308,https://allentownship.com/
 Ohio,Hancock,Amanda,township,3906301644,
-Ohio,Hancock,Arlington,village,3902400,
+Ohio,Hancock,Arlington,village,3902400,https://villageofarlington.com/
 Ohio,Hancock,Biglick,township,3906306362,
 Ohio,Hancock,Blanchard,township,3906306838,
 Ohio,Hancock,Cass,township,3906312392,
@@ -40031,7 +40031,7 @@ Ohio,Hardin,Hale,township,3906532837,
 Ohio,Hardin,Jackson,township,3906537814,
 Ohio,Hardin,Liberty,township,3906543162,
 Ohio,Hardin,Lynn,township,3906545598,
-Ohio,Hardin,Marion,township,3906547712,
+Ohio,Hardin,Marion,township,3906547712,https://mariontwp.org/
 Ohio,Hardin,McDonald,township,3906545920,
 Ohio,Hardin,Pleasant,township,3906563282,https://www.pleasant-township.org/
 Ohio,Hardin,Roundhead,township,3906568784,
@@ -40069,10 +40069,10 @@ Ohio,Henry,Ridgeville,township,3906967062,
 Ohio,Henry,Washington,township,3906981326,https://washtwphenry.com/
 Ohio,Henry,,county,39069,https://www.henrycountyohio.gov/
 Ohio,Highland,Brushcreek,township,3907109736,
-Ohio,Highland,Clay,township,3907115476,
+Ohio,Highland,Clay,township,3907115476,https://www.claytownshipoffices.com/
 Ohio,Highland,Concord,township,3907118168,
 Ohio,Highland,Dodson,township,3907122204,
-Ohio,Highland,Fairfield,township,3907126026,
+Ohio,Highland,Fairfield,township,3907126026,https://www.fairfieldtwp.org/
 Ohio,Highland,Hamer,township,3907132970,
 Ohio,Highland,Jackson,township,3907137828,
 Ohio,Highland,Liberty,township,3907143190,
@@ -40161,10 +40161,10 @@ Ohio,Jefferson,Smithfield,township,3908172767,
 Ohio,Jefferson,Springfield,township,3908174122,
 Ohio,Jefferson,Steubenville,city,3908174608,https://www.cityofsteubenville.us/
 Ohio,Jefferson,Warren,township,3908180878,
-Ohio,Jefferson,Wayne,township,3908182180,
+Ohio,Jefferson,Wayne,township,3908182180,https://www.waynetownship.us/
 Ohio,Jefferson,Wells,township,3908182698,https://www.wellstownshipohio.com/
 Ohio,Jefferson,,county,39081,https://jeffersoncountyoh.com/
-Ohio,Knox,Berlin,township,3908305844,
+Ohio,Knox,Berlin,township,3908305844,https://www.berlintwp.us/
 Ohio,Knox,Brown,township,3908309470,
 Ohio,Knox,Butler,township,3908310590,
 Ohio,Knox,Clay,township,3908315504,
@@ -40195,7 +40195,7 @@ Ohio,Lake,Kirtland,city,3908540642,https://kirtlandohio.com/
 Ohio,Lake,Kirtland Hills,village,3908540670,https://www.kirtlandhills.org/
 Ohio,Lake,Lakeline,village,3908541398,
 Ohio,Lake,Leroy,township,3908542812,https://leroyohio.com/
-Ohio,Lake,Madison,village,3946480,
+Ohio,Lake,Madison,village,3946480,https://madisonvillage.org/
 Ohio,Lake,Mentor,city,3908549056,https://cityofmentor.com/
 Ohio,Lake,Mentor-on-the-Lake,city,3908549098,https://mentoronthelake.gov/
 Ohio,Lake,Painesville,city,3908559416,https://www.painesville.com/
@@ -40219,7 +40219,7 @@ Ohio,Lawrence,Rome,township,3908768280,
 Ohio,Lawrence,Symmes,township,3908776031,
 Ohio,Lawrence,Union,township,3908778372,https://uniontownshiplawrencecounty.com/
 Ohio,Lawrence,Upper,township,3908778974,
-Ohio,Lawrence,Washington,township,3908781396,
+Ohio,Lawrence,Washington,township,3908781396,https://www.washingtontwp.org/
 Ohio,Lawrence,Windsor,township,3908786002,
 Ohio,Lawrence,,county,39087,
 Ohio,Licking,Bennington,township,3908905494,https://benningtontownshiplc.org/
@@ -40236,7 +40236,7 @@ Ohio,Licking,Hartford,township,3908934188,
 Ohio,Licking,Heath,city,3908934748,https://www.heathohio.gov/
 Ohio,Licking,Hopewell,township,3908936316,
 Ohio,Licking,Jersey,township,3908939102,https://www.jerseytownship.us/
-Ohio,Licking,Liberty,township,3908943232,
+Ohio,Licking,Liberty,township,3908943232,https://libertytwplickingco.com/
 Ohio,Licking,Licking,township,3908943456,https://www.lickingtwplc.gov/
 Ohio,Licking,Madison,township,3908946508,http://www.madisontwplc.net/
 Ohio,Licking,Mary Ann,township,3908948132,https://www.maryanntownship.us/
@@ -40248,7 +40248,7 @@ Ohio,Licking,Pataskala,city,3908961112,https://www.cityofpataskalaohio.gov/
 Ohio,Licking,Perry,township,3908961924,
 Ohio,Licking,Reynoldsburg City,township,3908966396,
 Ohio,Licking,St. Albans,township,3908969456,https://www.stalbanstwp.org/
-Ohio,Licking,Union,township,3908978400,
+Ohio,Licking,Union,township,3908978400,https://www.uniontownship-licking.com/
 Ohio,Licking,Washington,township,3908981410,https://washingtontwplicking.com/
 Ohio,Licking,,county,39089,https://lickingcounty.gov/
 Ohio,Logan,Bloomfield,township,3909107118,
@@ -40297,7 +40297,7 @@ Ohio,Lorain,,county,39093,https://www.loraincountyohio.gov/
 Ohio,Lucas,Harbor View,village,3909533376,
 Ohio,Lucas,Harding,township,3909533418,
 Ohio,Lucas,Jerusalem,township,3909539116,https://twp.jerusalem.oh.us/
-Ohio,Lucas,Maumee,city,3909548342,
+Ohio,Lucas,Maumee,city,3909548342,https://maumee.org/
 Ohio,Lucas,Monclova,township,3909551156,https://monclovatwp.org/
 Ohio,Lucas,Oregon,city,3909558730,https://oregonohio.org/
 Ohio,Lucas,Ottawa Hills,village,3909559010,https://ottawahills.org/
@@ -40332,7 +40332,7 @@ Ohio,Mahoning,Austintown,township,3909903198,https://www.austintowntwp.com/
 Ohio,Mahoning,Beaver,township,3909904668,https://www.beavertwp-oh.gov/
 Ohio,Mahoning,Berlin,township,3909905858,
 Ohio,Mahoning,Boardman,township,3909907468,https://www.boardmantwp.com/
-Ohio,Mahoning,Campbell,city,3909911066,
+Ohio,Mahoning,Campbell,city,3909911066,https://cityofcampbellohio.org/
 Ohio,Mahoning,Canfield,city,3911360,
 Ohio,Mahoning,Coitsville,township,3909916476,https://coitsvilletwp.org/
 Ohio,Mahoning,Ellsworth,township,3909925088,http://www.ellsworthohio.com/
@@ -40398,7 +40398,7 @@ Ohio,Meigs,Columbia,township,3910516924,
 Ohio,Meigs,Lebanon,township,3910542336,
 Ohio,Meigs,Letart,township,3910542868,
 Ohio,Meigs,Olive,township,3910558282,
-Ohio,Meigs,Orange,township,3910558646,
+Ohio,Meigs,Orange,township,3910558646,https://www.orangetwp.org/
 Ohio,Meigs,Rutland,village,3969358,
 Ohio,Meigs,Salem,township,3910569904,
 Ohio,Meigs,Salisbury,township,3910570114,
@@ -40411,7 +40411,7 @@ Ohio,Mercer,Center,township,3910712952,
 Ohio,Mercer,Dublin,township,3910722708,
 Ohio,Mercer,Franklin,township,3910728350,https://franklintownship-mercercounty.org/
 Ohio,Mercer,Gibson,township,3910730058,
-Ohio,Mercer,Granville,township,3910731430,
+Ohio,Mercer,Granville,township,3910731430,https://www.granvilletownship.org/
 Ohio,Mercer,Hopewell,township,3910736344,
 Ohio,Mercer,Jefferson,township,3910738724,https://jeffersontwp.mercercountyoh.org/
 Ohio,Mercer,Liberty,township,3910743260,
@@ -40446,7 +40446,7 @@ Ohio,Monroe,Jackson,township,3911137898,
 Ohio,Monroe,Lee,township,3911142448,https://leetownshipohio.org/
 Ohio,Monroe,Malaga,township,3911146928,
 Ohio,Monroe,Ohio,township,3911157988,
-Ohio,Monroe,Perry,township,3911161952,
+Ohio,Monroe,Perry,township,3911161952,https://www.perrytwp.org/
 Ohio,Monroe,Salem,township,3911169918,
 Ohio,Monroe,Seneca,township,3911171349,
 Ohio,Monroe,Summit,township,3911175497,
@@ -40499,7 +40499,7 @@ Ohio,Morrow,Franklin,township,3911728378,https://www.franklin-township.net/
 Ohio,Morrow,Galion,city,3911729162,https://www.galion.city/
 Ohio,Morrow,Gilead,township,3911730128,
 Ohio,Morrow,Harmony,township,3911733600,
-Ohio,Morrow,Lincoln,township,3911743680,
+Ohio,Morrow,Lincoln,township,3911743680,https://www.lincolntwp.us/
 Ohio,Morrow,North Bloomfield,township,3911756224,https://northbloomfield.org/
 Ohio,Morrow,Perry,township,3911761980,
 Ohio,Morrow,Peru,township,3911762260,https://perutownshipohio.org/
@@ -40517,7 +40517,7 @@ Ohio,Muskingum,Falls,township,3911926502,https://www.fallstownship.org/
 Ohio,Muskingum,Harrison,township,3911933936,
 Ohio,Muskingum,Highland,township,3911935238,
 Ohio,Muskingum,Hopewell,township,3911936372,
-Ohio,Muskingum,Jackson,township,3911937926,
+Ohio,Muskingum,Jackson,township,3911937926,https://www.jacksontownshipohio.org/
 Ohio,Muskingum,Jefferson,township,3911938752,
 Ohio,Muskingum,Licking,township,3911943470,https://www.lickingtwplc.gov/
 Ohio,Muskingum,Madison,township,3911946536,
@@ -40535,7 +40535,7 @@ Ohio,Muskingum,Washington,township,3911981522,
 Ohio,Muskingum,Wayne,township,3911982236,http://waynetownship-oh.org/
 Ohio,Muskingum,Zanesville,city,3911988084,https://www.coz.org/
 Ohio,Muskingum,,county,39119,https://www.muskingumcountyoh.gov/
-Ohio,Noble,Beaver,township,3912104682,
+Ohio,Noble,Beaver,township,3912104682,https://www.beavertwp-oh.gov/
 Ohio,Noble,Brookfield,township,3912109162,
 Ohio,Noble,Buffalo,township,3912110142,
 Ohio,Noble,Center,township,3912112994,
@@ -40569,7 +40569,7 @@ Ohio,Paulding,Auglaize,township,3912503002,https://www.auglaizetwp.us/
 Ohio,Paulding,Benton,township,3912505634,
 Ohio,Paulding,Blue Creek,township,3912507370,
 Ohio,Paulding,Brown,township,3912509512,
-Ohio,Paulding,Carryall,township,3912512308,
+Ohio,Paulding,Carryall,township,3912512308,https://carryalltownshippauldingcounty.com/
 Ohio,Paulding,Crane,township,3912519176,https://www.cranetwppcohio.gov/
 Ohio,Paulding,Emerald,township,3912525298,
 Ohio,Paulding,Harrison,township,3912533950,
@@ -40583,7 +40583,7 @@ Ohio,Perry,Clayton,township,3912715658,
 Ohio,Perry,Coal,township,3912716350,
 Ohio,Perry,Harrison,township,3912733964,
 Ohio,Perry,Hopewell,township,3912736386,https://hopewelltownship.net/
-Ohio,Perry,Jackson,township,3912737968,
+Ohio,Perry,Jackson,township,3912737968,https://www.jacksontwpoh.com/
 Ohio,Perry,Madison,township,3912746550,
 Ohio,Perry,Monday Creek,township,3912751198,
 Ohio,Perry,Monroe,township,3912751520,
@@ -40599,7 +40599,7 @@ Ohio,Pickaway,Deercreek,township,3912921168,https://deercreektownship.com/
 Ohio,Pickaway,Harrison,township,3912933978,https://harrisonpickaway.com/
 Ohio,Pickaway,Jackson,township,3912937982,
 Ohio,Pickaway,Madison,township,3912946564,https://www.madisonpickaway.org/
-Ohio,Pickaway,Monroe,township,3912951534,
+Ohio,Pickaway,Monroe,township,3912951534,https://www.monroetownshipohio.com/
 Ohio,Pickaway,Muhlenberg,township,3912953256,https://muhlenbergtownshipoh.gov/
 Ohio,Pickaway,Perry,township,3912962008,
 Ohio,Pickaway,Pickaway,township,3912962484,
@@ -40673,7 +40673,7 @@ Ohio,Putnam,Ottawa,village,3958982,https://www.ottawaohio.us/
 Ohio,Putnam,Palmer,township,3913759612,
 Ohio,Putnam,Perry,township,3913762036,
 Ohio,Putnam,Pleasant,township,3913763380,
-Ohio,Putnam,Riley,township,3913767174,
+Ohio,Putnam,Riley,township,3913767174,https://www.rileytwpputnam.com/
 Ohio,Putnam,Sugar Creek,township,3913775206,
 Ohio,Putnam,Union,township,3913778526,
 Ohio,Putnam,Van Buren,township,3913779450,
@@ -40681,7 +40681,7 @@ Ohio,Putnam,,county,39137,http://www.putnamcountyohio.gov/
 Ohio,Richland,Bloominggrove,township,3913907230,
 Ohio,Richland,Butler,township,3913910646,
 Ohio,Richland,Cass,township,3913912420,
-Ohio,Richland,Franklin,township,3913928406,
+Ohio,Richland,Franklin,township,3913928406,https://franklin-townshipohio.gov/
 Ohio,Richland,Jackson,township,3913938038,
 Ohio,Richland,Jefferson,township,3913938794,
 Ohio,Richland,Madison,township,3913946578,https://madisontwp.us/
@@ -40691,18 +40691,18 @@ Ohio,Richland,Monroe,township,3913951576,
 Ohio,Richland,Perry,township,3913962050,
 Ohio,Richland,Plymouth,village,3963800,https://www.plymouthoh.org/
 Ohio,Richland,Sandusky,township,3913970394,
-Ohio,Richland,Sharon,township,3913971830,
+Ohio,Richland,Sharon,township,3913971830,https://sharontwp.org/
 Ohio,Richland,Springfield,township,3913974128,https://springfieldtwprc.org/
 Ohio,Richland,Troy,township,3913977616,https://troyrichlandohio.org/
 Ohio,Richland,Washington,township,3913981578,https://washingtontwp.us/
-Ohio,Richland,Weller,township,3913982628,
+Ohio,Richland,Weller,township,3913982628,https://www.wellertownship.org/
 Ohio,Richland,Worthington,township,3913986618,
 Ohio,Richland,,county,39139,https://www.richlandcountyoh.gov/
 Ohio,Ross,Buckskin,township,3914110016,https://buckskintwp.org/
 Ohio,Ross,Colerain,township,3914116630,
 Ohio,Ross,Concord,township,3914118238,https://www.concordross.org/
 Ohio,Ross,Deerfield,township,3914121224,
-Ohio,Ross,Franklin,township,3914128420,
+Ohio,Ross,Franklin,township,3914128420,https://franklin-townshipohio.gov/
 Ohio,Ross,Green,township,3914131822,
 Ohio,Ross,Harrison,township,3914134006,
 Ohio,Ross,Huntington,township,3914136890,http://www.huntingtontownshipohio.com/
@@ -40766,7 +40766,7 @@ Ohio,Seneca,Thompson,township,3914776632,
 Ohio,Seneca,Tiffin,city,3914776778,https://www.tiffinohio.gov/
 Ohio,Seneca,Venice,township,3914779674,
 Ohio,Seneca,,county,39147,https://senecacountyohio.gov/
-Ohio,Shelby,Clinton,township,3914916168,
+Ohio,Shelby,Clinton,township,3914916168,https://twpclintonshelbyoh.gov/
 Ohio,Shelby,Cynthian,township,3914919834,
 Ohio,Shelby,Dinsmore,township,3914922050,
 Ohio,Shelby,Franklin,township,3914928434,
@@ -40775,9 +40775,9 @@ Ohio,Shelby,Jackson,township,3914938080,
 Ohio,Shelby,Loramie,township,3914944884,
 Ohio,Shelby,McLean,township,3914946172,
 Ohio,Shelby,Orange,township,3914958660,https://www.orangetwp.org/
-Ohio,Shelby,Perry,township,3914962064,
+Ohio,Shelby,Perry,township,3914962064,https://www.perrytwp.org/
 Ohio,Shelby,Salem,township,3914969960,
-Ohio,Shelby,Turtle Creek,township,3914977854,
+Ohio,Shelby,Turtle Creek,township,3914977854,https://www.turtlecreektownship.org/
 Ohio,Shelby,Van Buren,township,3914979464,
 Ohio,Shelby,Washington,township,3914981620,
 Ohio,Shelby,,county,39149,https://co.shelby.oh.us/
@@ -40798,7 +40798,7 @@ Ohio,Stark,Perry,township,3915162078,https://www.perrytwp.com/
 Ohio,Stark,Pike,township,3915162694,https://piketownship.net/
 Ohio,Stark,Plain,township,3915162988,https://www.plaintownshipstarkoh.gov/
 Ohio,Stark,Sandy,township,3915170436,https://sandytwp.com/
-Ohio,Stark,Sugarcreek,township,3915175208,
+Ohio,Stark,Sugarcreek,township,3915175208,http://sugarcreektwpstark.com/
 Ohio,Stark,Tuscarawas,township,3915177910,https://tuscarawastownship.org/
 Ohio,Stark,Washington,township,3915181634,https://www.wash-twp-stark-oh.us/
 Ohio,Stark,,county,39151,https://www.starkjfs.org/
@@ -40813,7 +40813,7 @@ Ohio,Summit,Coventry,township,3915319036,https://www.coventrytownship.com/
 Ohio,Summit,Cuyahoga Falls,city,3915319778,https://www.cityofcf.com/
 Ohio,Summit,Fairlawn,city,3915326166,https://www.fairlawn.us/
 Ohio,Summit,Green,city,3915331860,https://www.cityofgreen.org/
-Ohio,Summit,Hudson,city,3915336651,
+Ohio,Summit,Hudson,city,3915336651,https://www.hudson.oh.us/
 Ohio,Summit,Lakemore,village,3915341454,https://lakemoreohio.org/
 Ohio,Summit,Macedonia,city,3915345976,https://www.macedonia.oh.us/
 Ohio,Summit,Munroe Falls,city,3915353312,https://www.munroefalls.com/
@@ -40835,8 +40835,8 @@ Ohio,Trumbull,Bristol,township,3915508938,https://www.bristoltownshipohio.gov/
 Ohio,Trumbull,Brookfield,township,3915509190,https://brookfieldtwp.org/
 Ohio,Trumbull,Champion,township,3915513470,https://www.championtownship.org/
 Ohio,Trumbull,Cortland,city,3915518812,https://www.cortlandoh.gov/
-Ohio,Trumbull,Farmington,township,3915526684,
-Ohio,Trumbull,Fowler,township,3915528098,
+Ohio,Trumbull,Farmington,township,3915526684,https://www.farmingtontownship.com/
+Ohio,Trumbull,Fowler,township,3915528098,https://www.fowlertownship.org/
 Ohio,Trumbull,Greene,township,3915532046,
 Ohio,Trumbull,Gustavus,township,3915532732,
 Ohio,Trumbull,Hartford,township,3915534230,https://www.hartfordtwp.org/
@@ -40855,7 +40855,7 @@ Ohio,Trumbull,Southington,township,3915573397,https://southingtontownship.org/
 Ohio,Trumbull,Vernon,township,3915579856,
 Ohio,Trumbull,Vienna,township,3915580052,https://www.viennatownship.com/
 Ohio,Trumbull,Warren,city,3915580892,https://www.warren.org/
-Ohio,Trumbull,Weathersfield,township,3915582446,
+Ohio,Trumbull,Weathersfield,township,3915582446,https://weathersfieldtwp.org/
 Ohio,Trumbull,,county,39155,http://www.co.trumbull.oh.us/
 Ohio,Tuscarawas,Auburn,township,3915702918,
 Ohio,Tuscarawas,Bucks,township,3915709988,
@@ -40892,7 +40892,7 @@ Ohio,Union,Liberty,township,3915943358,https://www.libertytownshipunionco.com/
 Ohio,Union,Millcreek,township,3915950288,https://millcreektwpohio.us/
 Ohio,Union,Paris,township,3915959864,
 Ohio,Union,Taylor,township,3915976194,
-Ohio,Union,Union,township,3915978582,
+Ohio,Union,Union,township,3915978582,https://www.utclermont.gov/
 Ohio,Union,Washington,township,3915981662,
 Ohio,Union,York,township,3915987122,
 Ohio,Union,,county,39159,http://www.unioncountyohio.gov/
@@ -40922,7 +40922,7 @@ Ohio,Vinton,Swan,township,3916375854,
 Ohio,Vinton,Vinton,township,3916380192,
 Ohio,Vinton,Wilkesville,village,3985190,
 Ohio,Vinton,,county,39163,http://www.vintoncounty.com/
-Ohio,Warren,Clear Creek,township,3916515700,
+Ohio,Warren,Clear Creek,township,3916515700,https://www.clearcreektownship.com/
 Ohio,Warren,Deerfield,township,3916521238,https://www.choosedeerfield.com/
 Ohio,Warren,Franklin,city,3928476,https://www.franklinohio.org/
 Ohio,Warren,Hamilton,township,3916533068,https://www.hamilton-township.org/
@@ -40970,10 +40970,10 @@ Ohio,Wayne,Franklin,township,3916928504,https://franklintwp-wayne.com/
 Ohio,Wayne,Green,township,3916931878,
 Ohio,Wayne,Milton,township,3916950666,
 Ohio,Wayne,Paint,township,3916959556,
-Ohio,Wayne,Plain,township,3916962995,
+Ohio,Wayne,Plain,township,3916962995,https://plaintownshipstarkoh.gov/
 Ohio,Wayne,Salt Creek,township,3916970198,
 Ohio,Wayne,Sugar Creek,township,3916975231,https://www.sugarcreekwayne.com/
-Ohio,Wayne,Wayne,township,3916982320,
+Ohio,Wayne,Wayne,township,3916982320,https://www.waynetownship.us/
 Ohio,Wayne,Wooster,city,3916986548,https://www.woosteroh.com/
 Ohio,Wayne,,county,39169,https://www.wayneohio.org/
 Ohio,Williams,Brady,township,3917108140,
@@ -41068,7 +41068,7 @@ Ohio,,Barnhill,village,3903940,
 Ohio,,Bascom,CDP,3904094,
 Ohio,,Bass Lake,CDP,3904136,
 Ohio,,Batesville,village,3904192,
-Ohio,,Bay View,village,3904402,
+Ohio,,Bay View,village,3904402,https://villageofbayview.com/
 Ohio,,Beach City,village,3904458,https://beachcityohio.org/
 Ohio,,Beallsville,village,3904542,
 Ohio,,Beaverdam,village,3904752,https://www.beaverdamoh.com/
@@ -41080,7 +41080,7 @@ Ohio,,Belle Valley,village,3905158,https://visitbellevalleyohio.com/
 Ohio,,Bellefontaine,city,3905130,https://www.ci.bellefontaine.oh.us/
 Ohio,,Bellevue,city,3904305228,https://www.bellevueohio.gov/
 Ohio,,Bellville,village,3905284,https://villageofbellville.com/
-Ohio,,Belmont,village,3905312,
+Ohio,,Belmont,village,3905312,https://villageofbelmont.org/
 Ohio,,Belmore,village,3905396,
 Ohio,,Beloit,village,3905410,https://villageofbeloitohio.com/
 Ohio,,Benton Ridge,village,3905662,
@@ -41090,7 +41090,7 @@ Ohio,,Berkey,village,3905732,
 Ohio,,Berlin Heights,village,3905900,http://www.villageofberlinheights.com/
 Ohio,,Bethel,village,3906068,https://bethel-oh.gov/
 Ohio,,Bethesda,village,3906138,https://www.bethesdaohio.org/
-Ohio,,Bettsville,village,3906194,
+Ohio,,Bettsville,village,3906194,https://villageofbettsville.com/
 Ohio,,Beulah Beach,CDP,3906208,
 Ohio,,Beverly,village,3906222,https://www.beverly-oh.com/
 Ohio,,Bidwell,CDP,3906320,
@@ -41143,7 +41143,7 @@ Ohio,,Burlington,CDP,3910352,
 Ohio,,Butler,village,3910632,
 Ohio,,Butlerville,village,3910674,
 Ohio,,Byesville,village,3910716,http://byesvilleoh.gov/
-Ohio,,Cairo,village,3910884,
+Ohio,,Cairo,village,3910884,https://cairooh.org/
 Ohio,,Calcutta,CDP,3910926,
 Ohio,,Caldwell,village,3910940,https://caldwellohio.org/
 Ohio,,Caledonia,village,3910954,https://www.caledoniaoh.gov/
@@ -41173,7 +41173,7 @@ Ohio,,Chauncey,village,3913778,https://villageofchauncey.com/
 Ohio,,Cherry Fork,CDP,3913834,
 Ohio,,Cherry Grove,CDP,3913848,
 Ohio,,Chesapeake,village,3913904,http://www.villageofchesapeake.com/
-Ohio,,Chesterhill,village,3914086,
+Ohio,,Chesterhill,village,3914086,https://chesterhillohio.com/
 Ohio,,Chesterland,CDP,3914100,
 Ohio,,Chesterville,village,3914114,http://www.thevillageofchesterville.com/
 Ohio,,Chickasaw,village,3914156,
@@ -41239,7 +41239,7 @@ Ohio,,Delhi Hills,CDP,3921518,
 Ohio,,Dellroy,village,3921560,https://villageofdellroy.org/
 Ohio,,Delphos,city,3921602,https://delphosoh.authoritypay.com/
 Ohio,,Delshire,CDP,3921610,
-Ohio,,Delta,village,3921616,
+Ohio,,Delta,village,3921616,https://www.villageofdelta.org/
 Ohio,,Dennison,village,3921714,https://villageofdennison.org/
 Ohio,,Dent,CDP,3921742,
 Ohio,,Derby,CDP,3921784,
@@ -41281,7 +41281,7 @@ Ohio,,Elizabethtown,CDP,3924850,
 Ohio,,Elmore,village,3925144,https://villageofelmoreohio.wordpress.com/
 Ohio,,Empire,village,3925368,https://www.villageofempire.org/
 Ohio,,Enon,village,3925452,https://www.enon-oh.gov/
-Ohio,,Fairborn,city,3925914,
+Ohio,,Fairborn,city,3925914,https://www.fairbornoh.gov/
 Ohio,,Fairfield,city,3901725970,https://www.fairfield-city.org/
 Ohio,,Fairfield Beach,CDP,3926110,
 Ohio,,Fairport Harbor,village,3926306,https://fairportharbor.org/
@@ -41304,7 +41304,7 @@ Ohio,,Fort Seneca,CDP,3927930,
 Ohio,,Fort Shawnee,CDP,3927944,
 Ohio,,Fostoria,city,3914728014,https://fostoriaohio.gov/
 Ohio,,Four Bridges,CDP,3928058,
-Ohio,,Frankfort,village,3928182,
+Ohio,,Frankfort,village,3928182,https://frankfortohio.com/
 Ohio,,Franklin Furnace,CDP,3928532,
 Ohio,,Frazeysburg,village,3928574,https://frazeysburg.gov/
 Ohio,,Fredericksburg,village,3928616,https://fredericksburgohio.org/
@@ -41316,7 +41316,7 @@ Ohio,,Fultonham,village,3929064,
 Ohio,,Gahanna,city,3929106,https://www.gahanna.gov/
 Ohio,,Galena,village,3929148,https://galenaohio.gov/
 Ohio,,Gambier,village,3929246,https://villageofgambier.org/
-Ohio,,Gann (Brinkhaven),village,3929288,
+Ohio,,Gann (Brinkhaven),village,3929288,https://www.brinkhaven.gov/
 Ohio,,Geneva-on-the-Lake,village,3929652,https://genevaonthelakeoh.gov/
 Ohio,,Genoa,village,3929722,https://genoaohio.org/
 Ohio,,Georgetown,village,3929778,https://georgetownohio.gov/
@@ -41346,7 +41346,7 @@ Ohio,,Greenfield,village,3932088,https://www.greenfieldohio.net/
 Ohio,,Greentown,CDP,3932298,
 Ohio,,Groesbeck,CDP,3932536,
 Ohio,,Grove City,city,3932592,https://www.grovecityohio.gov/
-Ohio,,Groveport,city,3932606,
+Ohio,,Groveport,city,3932606,https://www.groveport.org/
 Ohio,,Grover Hill,village,3932620,
 Ohio,,Guilford Lake,CDP,3932680,
 Ohio,,Hamburg,CDP,3932928,
@@ -41416,7 +41416,7 @@ Ohio,,Jeffersonville,village,3938920,https://jeffersonvilleoh.gov/
 Ohio,,Jenera,village,3938948,
 Ohio,,Jeromesville,village,3939060,https://jeromesville.nationbuilder.com/
 Ohio,,Jerry City,village,3939074,
-Ohio,,Jerusalem,village,3939130,
+Ohio,,Jerusalem,village,3939130,https://twp.jerusalem.oh.us/
 Ohio,,Jewett,village,3939172,
 Ohio,,Johnstown,city,3939340,https://johnstownohio.org/
 Ohio,,Junction City,village,3939508,https://www.junctioncityohio.gov/
@@ -41469,7 +41469,7 @@ Ohio,,Lewisburg,village,3942938,https://www.lewisburg.net/
 Ohio,,Lewistown,CDP,3942966,
 Ohio,,Lewisville,village,3942980,
 Ohio,,Lexington,village,3942994,https://lexingtonohio.us/
-Ohio,,Liberty Center,village,3943414,
+Ohio,,Liberty Center,village,3943414,https://libertycenteroh.gov/
 Ohio,,Limaville,CDP,3943596,
 Ohio,,Lincoln Heights,CDP,3943764,
 Ohio,,Lincoln Village,CDP,3943792,
@@ -41599,7 +41599,7 @@ Ohio,,Nellie,village,3953816,
 Ohio,,Nelsonville,city,3953886,https://cityofnelsonville.com/
 Ohio,,Nettle Lake,CDP,3953914,
 Ohio,,Nevada,village,3953942,https://www.villageofnevadaoh.com/
-Ohio,,Neville,village,3953956,
+Ohio,,Neville,village,3953956,https://www.villageofneville.com/
 Ohio,,New Albany,city,3953970,https://newalbanyohio.org/
 Ohio,,New Alexandria,village,3954012,
 Ohio,,New Athens,village,3954068,
@@ -41652,7 +41652,7 @@ Ohio,,North Zanesville,CDP,3957218,
 Ohio,,Northbrook,CDP,3956280,
 Ohio,,Northgate,CDP,3956553,
 Ohio,,Northridge,CDP,3956938,
-Ohio,,Norton,city,3915357260,
+Ohio,,Norton,city,3915357260,https://cityofnorton.org/
 Ohio,,Norwich,village,3957372,
 Ohio,,Oak Harbor,village,3957582,https://www.oakharbor.oh.us/
 Ohio,,Oak Hill,village,3957596,http://www.oakhillvillage.net/
@@ -41801,7 +41801,7 @@ Ohio,,Sinking Spring,village,3972578,
 Ohio,,Sixteen Mile Stand,CDP,3972620,
 Ohio,,Skyline Acres,CDP,3972648,
 Ohio,,Smithville,village,3972788,https://thevillageofsmithville.com/
-Ohio,,Somerset,village,3972977,
+Ohio,,Somerset,village,3972977,https://www.somersetohio.org/
 Ohio,,Somerville,CDP,3972998,
 Ohio,,South Amherst,village,3973040,https://villageofsouthamherst.com/
 Ohio,,South Bloomfield,village,3973068,https://www.southbloomfieldoh.com/
@@ -41904,7 +41904,7 @@ Ohio,,West Hill,CDP,3983541,
 Ohio,,West Jefferson,village,3983580,https://www.westjeffersonohio.gov/
 Ohio,,West Lafayette,village,3983608,https://westlafayettevillage.com/
 Ohio,,West Leipsic,village,3983706,
-Ohio,,West Liberty,village,3983734,
+Ohio,,West Liberty,village,3983734,https://www.mywestliberty.com/
 Ohio,,West Logan,CDP,3983776,
 Ohio,,West Manchester,village,3983804,
 Ohio,,West Mansfield,village,3983818,https://westmansfield.net/
@@ -41938,7 +41938,7 @@ Ohio,,Woodsdale,CDP,3986422,
 Ohio,,Woodsfield,village,3986436,https://villageofwoodsfield.org/
 Ohio,,Woodstock,village,3986478,http://woodstockohio.org/
 Ohio,,Woodworth,CDP,3986534,
-Ohio,,Worthington,city,3986604,
+Ohio,,Worthington,city,3986604,https://www.worthington.org/
 Ohio,,Wren,village,3986632,
 Ohio,,Wright-Patterson AFB,CDP,3986660,https://www.wpafb.af.mil/
 Ohio,,Yankee Lake,village,3986856,
@@ -41948,7 +41948,7 @@ Ohio,,Yorkville,village,3987178,
 Ohio,,Youngstown,city,3909988000,https://youngstownohio.gov/
 Ohio,,Zaleski,village,3988028,
 Ohio,,Zanesfield,village,3988070,
-Ohio,,Zoar,village,3988168,
+Ohio,,Zoar,village,3988168,https://www.zoarohio.net/
 Ohio,,,state,39000,https://www.ohiosos.gov/
 Oklahoma,Adair,Stilwell East,city,4000193250,https://www.cityofstilwell.com/
 Oklahoma,Adair,Stilwell West,city,4000193263,https://www.cityofstilwell.com/
@@ -41960,7 +41960,7 @@ Oklahoma,Alfalfa,Cherokee,city,4013750,https://www.cherokee-ok.us/
 Oklahoma,Alfalfa,Helena,town,4033450,
 Oklahoma,Alfalfa,North Alfalfa,city,4000392015,
 Oklahoma,Alfalfa,,county,40003,https://alfalfa.okcounties.org/
-Oklahoma,Atoka,Central Atoka,city,4000590481,
+Oklahoma,Atoka,Central Atoka,city,4000590481,https://www.atokaok.org/
 Oklahoma,Atoka,North Atoka,city,4000592028,
 Oklahoma,Atoka,West Atoka,city,4000593666,
 Oklahoma,Atoka,,county,40005,
@@ -42006,7 +42006,7 @@ Oklahoma,Carter,,county,40019,http://cartercountyok.us/
 Oklahoma,Cherokee,East Cherokee,city,4002190845,
 Oklahoma,Cherokee,Hulbert,town,4036400,https://www.townofhulbertok.gov/
 Oklahoma,Cherokee,North Cherokee,city,4002192080,
-Oklahoma,Cherokee,South Cherokee,city,4002192899,
+Oklahoma,Cherokee,South Cherokee,city,4002192899,https://www.cherokee-ok.us/
 Oklahoma,Cherokee,Tahlequah,city,4072100,https://www.cityoftahlequah.com/
 Oklahoma,Cherokee,,county,40021,https://cherokee.okcounties.org/
 Oklahoma,Choctaw,Fort Towson,town,4027400,
@@ -42097,7 +42097,7 @@ Oklahoma,Harmon,Gould,town,4030400,
 Oklahoma,Harmon,Hollis,city,4035500,https://hollisok.org/
 Oklahoma,Harmon,,county,40057,
 Oklahoma,Harper,Buffalo,town,4009850,https://www.buffalooklahoma.com/
-Oklahoma,Harper,Laverne,town,4041700,
+Oklahoma,Harper,Laverne,town,4041700,https://laverneok.org/
 Oklahoma,Harper,,county,40059,
 Oklahoma,Haskell,Keota,town,4039500,
 Oklahoma,Haskell,McCurtain,town,4044950,https://mccurtain.okcounties.org/
@@ -42124,7 +42124,7 @@ Oklahoma,Johnston,,county,40069,http://www.johnstoncountyok.org/
 Oklahoma,Kay,Blackwell,city,4006600,https://www.blackwellok.gov/
 Oklahoma,Kay,Braman,town,4008450,
 Oklahoma,Kay,Kaw City,city,4038800,https://kawcityok.gov/
-Oklahoma,Kay,Newkirk,city,4051300,
+Oklahoma,Kay,Newkirk,city,4051300,https://www.cityofnewkirkok.gov/
 Oklahoma,Kay,Ponca City,city,4059850,https://www.poncacityok.gov/
 Oklahoma,Kay,Tonkawa,city,4074150,https://tonkawaok.gov/
 Oklahoma,Kay,,county,40071,https://www.courthouse.kay.ok.us/
@@ -42181,16 +42181,16 @@ Oklahoma,Mayes,Pryor Creek,city,4061000,
 Oklahoma,Mayes,,county,40097,http://mayes.okcounties.org/
 Oklahoma,McClain,East McClain,city,4008790929,
 Oklahoma,McClain,Newcastle-Blanchard,city,4008791946,https://newcastleok.gov/
-Oklahoma,McClain,Purcell,city,4061150,
+Oklahoma,McClain,Purcell,city,4061150,https://www.purcellok.gov/
 Oklahoma,McClain,,county,40087,http://mcclain-co-ok.us/
 Oklahoma,McCurtain,Broken Bow,city,4009100,https://cityofbrokenbow.com/
 Oklahoma,McCurtain,Idabel,city,4036750,https://www.idabel-ok.gov/
 Oklahoma,McCurtain,North McCurtain,city,4008992203,
 Oklahoma,McCurtain,Southeast McCurtain,city,4008992956,
-Oklahoma,McCurtain,Valliant,town,4076650,
+Oklahoma,McCurtain,Valliant,town,4076650,http://www.valliant.municipalgovt.org/
 Oklahoma,McCurtain,Wright City,town,4082200,
 Oklahoma,McCurtain,,county,40089,https://mccurtain.okcounties.org/
-Oklahoma,McIntosh,Checotah,city,4013650,
+Oklahoma,McIntosh,Checotah,city,4013650,https://www.cityofchecotah.com/
 Oklahoma,McIntosh,Eufaula,city,4024650,https://www.cityofeufaulaok.com/
 Oklahoma,McIntosh,Hanna,town,4032350,
 Oklahoma,McIntosh,Hitchita-Pierce,city,4009191352,
@@ -42279,7 +42279,7 @@ Oklahoma,Roger Mills,,county,40129,
 Oklahoma,Rogers,Catoosa,city,4012900,https://www.cityofcatoosa.org/
 Oklahoma,Rogers,Chelsea,town,4013700,
 Oklahoma,Rogers,Claremore,city,4014700,https://claremore.com/
-Oklahoma,Rogers,Inola,town,4037100,
+Oklahoma,Rogers,Inola,town,4037100,https://www.inolaok.com/
 Oklahoma,Rogers,Oologah-Talala,city,4013192444,
 Oklahoma,Rogers,,county,40131,http://www.rogerscounty.org/
 Oklahoma,Seminole,Konawa,city,4040200,
@@ -42288,7 +42288,7 @@ Oklahoma,Seminole,Seminole South,city,4013392795,https://www.seminole-oklahoma.n
 Oklahoma,Seminole,Wewoka,city,4080550,
 Oklahoma,Seminole,,county,40133,https://seminolecountyok.com/
 Oklahoma,Sequoyah,Muldrow,town,4049850,
-Oklahoma,Sequoyah,Roland,town,4063800,
+Oklahoma,Sequoyah,Roland,town,4063800,https://www.townofroland.net/
 Oklahoma,Sequoyah,Sallisaw,city,4065000,
 Oklahoma,Sequoyah,Sallisaw North,city,4013592730,
 Oklahoma,Sequoyah,Vian,town,4077250,
@@ -42305,7 +42305,7 @@ Oklahoma,Texas,West Texas,city,4013993783,
 Oklahoma,Texas,,county,40139,https://texas.okcounties.org/
 Oklahoma,Tillman,Davidson,town,4019400,
 Oklahoma,Tillman,East Tillman,city,4014191001,
-Oklahoma,Tillman,Frederick,city,4027800,
+Oklahoma,Tillman,Frederick,city,4027800,https://www.frederickok.org/
 Oklahoma,Tillman,Tipton,town,4073850,
 Oklahoma,Tillman,,county,40141,https://tillman.okcounties.org/
 Oklahoma,Tulsa,North Tulsa,city,4014392236,
@@ -42459,12 +42459,12 @@ Oklahoma,,Christie,CDP,4014350,
 Oklahoma,,Cimarron City,town,4014500,
 Oklahoma,,Clarita,CDP,4014750,
 Oklahoma,,Clarksville,CDP,4014800,
-Oklahoma,,Clayton,town,4014900,
+Oklahoma,,Clayton,town,4014900,https://cityofclaytonok.com/
 Oklahoma,,Clearview,town,4015050,
 Oklahoma,,Cleo Springs,town,4015300,
 Oklahoma,,Cleora,CDP,4015250,
 Oklahoma,,Cloud Creek,CDP,4015625,
-Oklahoma,,Coalgate,city,4015800,
+Oklahoma,,Coalgate,city,4015800,https://www.cityofcoalgate.com/
 Oklahoma,,Cole,town,4016200,
 Oklahoma,,Coleman,CDP,4016250,
 Oklahoma,,Collinsville,city,4016350,https://www.cityofcollinsville.com/
@@ -42500,7 +42500,7 @@ Oklahoma,,Devol,town,4020450,
 Oklahoma,,Dewar,town,4020500,
 Oklahoma,,Dewey,city,4020550,https://cityofdeweyok.municipalonlinepayments.com/
 Oklahoma,,Dibble,town,4020650,
-Oklahoma,,Dickson,town,4020700,
+Oklahoma,,Dickson,town,4020700,https://www.dicksonok.org/
 Oklahoma,,Dill City,town,4020850,
 Oklahoma,,Disney,town,4020900,https://www.disney-ok.com/
 Oklahoma,,Dixon,CDP,4021000,
@@ -42600,7 +42600,7 @@ Oklahoma,,Haileyville,city,4031900,https://haileyville.municipalimpact.com/
 Oklahoma,,Hallett,town,4032050,
 Oklahoma,,Hammon,town,4032250,
 Oklahoma,,Hanson,CDP,4032400,
-Oklahoma,,Hardesty,town,4032550,
+Oklahoma,,Hardesty,town,4032550,https://hardestyok.com/
 Oklahoma,,Harrah,city,4032750,https://cityofharrah.com/
 Oklahoma,,Hartshorne,city,4032850,https://cityofhartshorne.com/
 Oklahoma,,Hastings,town,4033000,
@@ -42629,7 +42629,7 @@ Oklahoma,,Howe,town,4036150,
 Oklahoma,,Hoyt,CDP,4036200,
 Oklahoma,,Hunter,town,4036600,
 Oklahoma,,IXL,town,4037410,
-Oklahoma,,Indiahoma,town,4036850,
+Oklahoma,,Indiahoma,town,4036850,https://www.indiahomaok.com/
 Oklahoma,,Indianola,CDP,4036945,
 Oklahoma,,Indianola,town,4036950,
 Oklahoma,,Ingalls,CDP,4037000,
@@ -42710,7 +42710,7 @@ Oklahoma,,Madill,city,4045750,https://cityofmadill.com/
 Oklahoma,,Mallard Bay,CDP,4045930,
 Oklahoma,,Manchester,town,4046000,
 Oklahoma,,Manitou,town,4046150,
-Oklahoma,,Mannford,town,4046200,
+Oklahoma,,Mannford,town,4046200,https://www.cityofmannford.com/
 Oklahoma,,Mannsville,town,4046300,
 Oklahoma,,Maramec,town,4046400,
 Oklahoma,,Marble City,town,4046450,
@@ -42762,9 +42762,9 @@ Oklahoma,,Newcastle,city,4051150,https://newcastleok.gov/
 Oklahoma,,Nichols Hills,city,4051800,https://www.nicholshills-ok.gov/
 Oklahoma,,Nicoma Park,city,4051850,https://nicomapark.org/
 Oklahoma,,Nicut,CDP,4051900,
-Oklahoma,,Ninnekah,town,4052100,
+Oklahoma,,Ninnekah,town,4052100,https://ninnekahok.gov/
 Oklahoma,,Norge,town,4052450,
-Oklahoma,,North Enid,town,4052600,
+Oklahoma,,North Enid,town,4052600,https://www.townofnorthenid.org/
 Oklahoma,,North Miami,town,4052700,
 Oklahoma,,Norwood,CDP,4052859,
 Oklahoma,,Notchietown,CDP,4052862,
@@ -42775,7 +42775,7 @@ Oklahoma,,Oakland,town,4053400,
 Oklahoma,,Oaks,town,4053550,
 Oklahoma,,Oakwood,town,4053600,
 Oklahoma,,Ochelata,town,4053700,
-Oklahoma,,Oilton,city,4054000,
+Oklahoma,,Oilton,city,4054000,https://www.cityofoilton.com/
 Oklahoma,,Okarche,town,4054050,
 Oklahoma,,Okay,town,4054100,
 Oklahoma,,Oklahoma City,city,4055000,https://www.okc.gov/
@@ -42784,7 +42784,7 @@ Oklahoma,,Old Eucha,CDP,4055275,
 Oklahoma,,Old Green,CDP,4055285,
 Oklahoma,,Olive,CDP,4055350,
 Oklahoma,,Olustee,town,4055450,
-Oklahoma,,Oologah,town,4055750,
+Oklahoma,,Oologah,town,4055750,https://www.townofoologah.org/
 Oklahoma,,Optima,town,4055850,
 Oklahoma,,Orlando,town,4056050,
 Oklahoma,,Osage,town,4056150,
@@ -42809,7 +42809,7 @@ Oklahoma,,Pin Oak Acres,CDP,4059175,
 Oklahoma,,Piney,CDP,4059100,
 Oklahoma,,Pinhook Corner,CDP,4059125,
 Oklahoma,,Pink,town,4059150,https://www.townofpink.com/
-Oklahoma,,Pittsburg,town,4059350,
+Oklahoma,,Pittsburg,town,4059350,https://pittsburg.okcounties.org/
 Oklahoma,,Platter,CDP,4059500,
 Oklahoma,,Pocasset,town,4059700,
 Oklahoma,,Pond Creek,city,4059950,https://www.pondcreekok.com/
@@ -42903,7 +42903,7 @@ Oklahoma,,Stoney Point,CDP,4070512,
 Oklahoma,,Strang,town,4070750,
 Oklahoma,,Stringtown,town,4070850,
 Oklahoma,,Strong City,town,4070950,
-Oklahoma,,Stroud,city,4071000,
+Oklahoma,,Stroud,city,4071000,https://cityofstroud.com/
 Oklahoma,,Stuart,town,4071050,
 Oklahoma,,Sugden,town,4071250,
 Oklahoma,,Sulphur,city,4071350,https://www.sulphurok.city/
@@ -43000,8 +43000,8 @@ Oregon,Baker,Baker City,city,4103650,
 Oregon,Baker,Eagle,valley,4100190969,
 Oregon,Baker,Halfway,city,4131650,https://www.halfwayoregon.org/
 Oregon,Baker,Hereford,city,4100191326,
-Oregon,Baker,Huntington,city,4135700,
-Oregon,Baker,Wingville-Haines,city,4100193555,
+Oregon,Baker,Huntington,city,4135700,https://www.cityofhuntingtonor.gov/
+Oregon,Baker,Wingville-Haines,city,4100193555,https://www.cityofhainesor.org/
 Oregon,Baker,,county,41001,http://www.bakercounty.org/
 Oregon,Benton,Corvallis,city,4115800,https://www.corvallisoregon.gov/
 Oregon,Benton,North Albany,city,4100392142,
@@ -43057,7 +43057,7 @@ Oregon,Deschutes,Redmond,city,4161200,https://www.redmondoregon.gov/
 Oregon,Deschutes,Sisters-Millican,city,4101792958,https://www.ci.sisters.or.us/
 Oregon,Deschutes,Tumalo,city,4101793247,
 Oregon,Deschutes,,county,41017,http://www.deschutes.org/
-Oregon,Douglas,Elkton-Drain,city,4101991054,
+Oregon,Douglas,Elkton-Drain,city,4101991054,https://elkton-oregon.com/
 Oregon,Douglas,Kellogg-Yoncalla,city,4101991547,
 Oregon,Douglas,Melrose,city,4101991853,
 Oregon,Douglas,Myrtle Creek-Riddle,city,4101992057,https://www.cityofmyrtlecreek.com/
@@ -43139,7 +43139,7 @@ Oregon,Lane,Upper Siuslaw River,city,4103993300,
 Oregon,Lane,,county,41039,https://www.lanecountyor.gov/
 Oregon,Lincoln,Depoe Bay,city,4118850,https://www.cityofdepoebay.org/
 Oregon,Lincoln,Eddyville,city,4104191020,
-Oregon,Lincoln,Lincoln City,city,4142600,
+Oregon,Lincoln,Lincoln City,city,4142600,https://www.lincolncityor.gov/
 Oregon,Lincoln,Newport,city,4152450,https://www.newportoregon.gov/
 Oregon,Lincoln,Siletz,city,4167500,https://cityofsiletz.org/
 Oregon,Lincoln,Toledo,city,4174000,https://www.cityoftoledo.org/
@@ -43210,11 +43210,11 @@ Oregon,Umatilla,Weston,city,4180350,https://www.cityofwestonoregon.com/
 Oregon,Umatilla,,county,41059,http://www.co.umatilla.or.us/
 Oregon,Union,Cove,city,4116250,https://coveoregon.org/
 Oregon,Union,Elgin,city,4122550,https://cityofelginor.org/
-Oregon,Union,La Grande,city,4140350,
+Oregon,Union,La Grande,city,4140350,https://www.cityoflagrande.org/
 Oregon,Union,Starkey,city,4106193111,
 Oregon,Union,Union,city,4175850,https://cityofunion.com/
 Oregon,Union,,county,41061,https://unioncountyor.gov/
-Oregon,Wallowa,Enterprise,city,4123500,
+Oregon,Wallowa,Enterprise,city,4123500,https://www.enterpriseoregon.gov/
 Oregon,Wallowa,Flora,city,4106391139,
 Oregon,Wallowa,Imnaha,city,4106391394,
 Oregon,Wallowa,Joseph,city,4137900,https://josephoregon.com/
@@ -43561,10 +43561,10 @@ Pennsylvania,Adams,Menallen,township,4200148608,
 Pennsylvania,Adams,Mount Joy,township,4200151640,https://www.mtjoytwp.org/
 Pennsylvania,Adams,Mount Pleasant,township,4200151776,https://mtpleasant.adamscountypa.gov/
 Pennsylvania,Adams,New Oxford,borough,4200153920,https://newoxfordborough.org/
-Pennsylvania,Adams,Oxford,township,4200157472,
+Pennsylvania,Adams,Oxford,township,4200157472,https://oxfordtwp.com/
 Pennsylvania,Adams,Reading,township,4200163616,http://www.readingtownship.net/
 Pennsylvania,Adams,Straban,township,4200174680,https://www.strabantownship.com/
-Pennsylvania,Adams,Tyrone,township,4200178160,
+Pennsylvania,Adams,Tyrone,township,4200178160,http://www.tyronetownship.net/
 Pennsylvania,Adams,Union,township,4200178264,
 Pennsylvania,Adams,York Springs,borough,4200187136,
 Pennsylvania,Adams,,county,42001,https://www.adamscountypa.gov/
@@ -43572,7 +43572,7 @@ Pennsylvania,Allegheny,Aleppo,township,4200300724,https://aleppotownship.com/
 Pennsylvania,Allegheny,Aspinwall,borough,4200303320,https://www.aspinwallpa.gov/
 Pennsylvania,Allegheny,Avalon,borough,4200303608,
 Pennsylvania,Allegheny,Baldwin,borough,4200303928,https://baldwinborough.org/
-Pennsylvania,Allegheny,Baldwin,township,4200303932,
+Pennsylvania,Allegheny,Baldwin,township,4200303932,https://baldwintownship.com/
 Pennsylvania,Allegheny,Bell Acres,borough,4200305216,http://bellacresborough.org/
 Pennsylvania,Allegheny,Bellevue,borough,4200305312,https://www.bellevuepa.org/
 Pennsylvania,Allegheny,Ben Avon,borough,4200305504,https://www.benavon.com/
@@ -43585,7 +43585,7 @@ Pennsylvania,Allegheny,Braddock Hills,borough,4200308008,https://braddockhillspa
 Pennsylvania,Allegheny,Bradford Woods,borough,4200308064,
 Pennsylvania,Allegheny,Brentwood,borough,4200308416,https://brentwoodpa.gov/
 Pennsylvania,Allegheny,Bridgeville,borough,4200308624,https://bridgevilleboro.com/
-Pennsylvania,Allegheny,Carnegie,borough,4200311336,
+Pennsylvania,Allegheny,Carnegie,borough,4200311336,https://www.carnegieborough.com/
 Pennsylvania,Allegheny,Castle Shannon,borough,4200311680,https://www.csboro.org/
 Pennsylvania,Allegheny,Chalfant,borough,4200312496,https://chalfantborough-pa.org/
 Pennsylvania,Allegheny,Cheswick,borough,4200313392,https://cheswick.us/
@@ -43599,7 +43599,7 @@ Pennsylvania,Allegheny,Dormont,borough,4200319576,https://boro.dormont.pa.us/
 Pennsylvania,Allegheny,Dravosburg,borough,4200319856,https://dravosburg.org/
 Pennsylvania,Allegheny,Duquesne,city,4200320432,https://www.duquesnepa.us/
 Pennsylvania,Allegheny,East Deer,township,4200321024,https://eastdeertownship.org/
-Pennsylvania,Allegheny,East McKeesport,borough,4200321444,
+Pennsylvania,Allegheny,East McKeesport,borough,4200321444,https://www.eastmckeesportboro.com/
 Pennsylvania,Allegheny,East Pittsburgh,borough,4200321712,http://eastpittsburghboro.com/
 Pennsylvania,Allegheny,Edgewood,borough,4200322520,https://edgewood.pgh.pa.us/
 Pennsylvania,Allegheny,Edgeworth,borough,4200322576,https://edgeworthborough.org/
@@ -43623,8 +43623,8 @@ Pennsylvania,Allegheny,Harrison,township,4200332832,https://harrisontwp.com/
 Pennsylvania,Allegheny,Haysville,borough,4200333312,https://haysvilleborough.org/
 Pennsylvania,Allegheny,Heidelberg,borough,4200333592,https://heidelbergborough.org/
 Pennsylvania,Allegheny,Homestead,borough,4200335424,https://westhomesteadpa.com/
-Pennsylvania,Allegheny,Indiana,township,4200336808,
-Pennsylvania,Allegheny,Ingram,borough,4200337000,
+Pennsylvania,Allegheny,Indiana,township,4200336808,https://indianatownship.com/
+Pennsylvania,Allegheny,Ingram,borough,4200337000,https://ingramborough.org/
 Pennsylvania,Allegheny,Jefferson Hills,borough,4200337955,https://www.boroughofjeffersonhills.org/
 Pennsylvania,Allegheny,Kennedy,township,4200339312,https://www.kennedytwp.com/
 Pennsylvania,Allegheny,Kilbuck,township,4200339624,https://www.kilbucktownship.org/
@@ -43680,14 +43680,14 @@ Pennsylvania,Allegheny,Tarentum,borough,4200376104,https://tarentumboro.com/
 Pennsylvania,Allegheny,Thornburg,borough,4200376560,https://thornburgborough.org/
 Pennsylvania,Allegheny,Turtle Creek,borough,4200377912,https://www.turtlecreekborough.us/
 Pennsylvania,Allegheny,Upper St. Clair,township,4200379274,https://www.twpusc.org/
-Pennsylvania,Allegheny,Verona,borough,4200380032,
+Pennsylvania,Allegheny,Verona,borough,4200380032,https://veronaborough.org/
 Pennsylvania,Allegheny,Versailles,borough,4200380040,
 Pennsylvania,Allegheny,Wall,borough,4200380600,https://www.wallborough.com/
 Pennsylvania,Allegheny,West Deer,township,4200382800,
 Pennsylvania,Allegheny,West Elizabeth,borough,4200382848,
 Pennsylvania,Allegheny,West Homestead,borough,4200383200,https://westhomesteadpa.com/
 Pennsylvania,Allegheny,West Mifflin,borough,4200383512,https://www.westmifflin.gov/
-Pennsylvania,Allegheny,West View,borough,4200384144,
+Pennsylvania,Allegheny,West View,borough,4200384144,https://wvboro.com/
 Pennsylvania,Allegheny,Whitaker,borough,4200384440,https://whitaker.gov/
 Pennsylvania,Allegheny,White Oak,borough,4200384704,https://www.whiteoakborough.online/
 Pennsylvania,Allegheny,Whitehall,borough,4200384512,https://whitehallboro.gov/
@@ -43715,7 +43715,7 @@ Pennsylvania,Armstrong,Hovey,township,4200535936,
 Pennsylvania,Armstrong,Kiskiminetas,township,4200539968,https://kiskitownship-pa.gov/
 Pennsylvania,Armstrong,Kittanning,borough,4200540040,https://kittanning-borough.com/
 Pennsylvania,Armstrong,Kittanning,township,4200540056,
-Pennsylvania,Armstrong,Leechburg,borough,4200542280,
+Pennsylvania,Armstrong,Leechburg,borough,4200542280,https://www.leechburgborough.org/
 Pennsylvania,Armstrong,Madison,township,4200546456,
 Pennsylvania,Armstrong,Mahoning,township,4200546632,
 Pennsylvania,Armstrong,Manor,township,4200546976,
@@ -43732,7 +43732,7 @@ Pennsylvania,Armstrong,Rural Valley,borough,4200566720,
 Pennsylvania,Armstrong,South Bend,township,4200571968,
 Pennsylvania,Armstrong,South Bethlehem,borough,4200571976,
 Pennsylvania,Armstrong,South Buffalo,township,4200572000,http://www.southbuffalotwp.com/
-Pennsylvania,Armstrong,Sugarcreek,township,4200574992,
+Pennsylvania,Armstrong,Sugarcreek,township,4200574992,https://sugarcreektwppa.com/
 Pennsylvania,Armstrong,Valley,township,4200579528,
 Pennsylvania,Armstrong,Washington,township,4200581176,https://washingtontwpacpa.gov/
 Pennsylvania,Armstrong,Wayne,township,4200581720,
@@ -43781,9 +43781,9 @@ Pennsylvania,Beaver,North Sewickley,township,4200755400,https://www.northsewickl
 Pennsylvania,Beaver,Ohioville,borough,4200756432,https://ohiovilleboro.org/
 Pennsylvania,Beaver,Patterson,township,4200758375,https://pattersontwp.com/
 Pennsylvania,Beaver,Patterson Heights,borough,4200758384,https://patterson-hgts.com/
-Pennsylvania,Beaver,Potter,township,4200762352,
+Pennsylvania,Beaver,Potter,township,4200762352,https://pottertwp-pa.gov/
 Pennsylvania,Beaver,Pulaski,township,4200762888,https://pulaskitwpbeavercounty.org/
-Pennsylvania,Beaver,Raccoon,township,4200763224,
+Pennsylvania,Beaver,Raccoon,township,4200763224,https://www.raccoontownship.org/
 Pennsylvania,Beaver,Rochester,borough,4200765392,https://www.rochesterpa.org/
 Pennsylvania,Beaver,Shippingport,borough,4200770376,https://shippingportpa.com/
 Pennsylvania,Beaver,South Beaver,township,4200771952,https://www.southbeavertwp.com/
@@ -43797,13 +43797,13 @@ Pennsylvania,Bedford,Bloomfield,township,4200907024,
 Pennsylvania,Bedford,Broad Top,township,4200908880,
 Pennsylvania,Bedford,Coaldale,borough,4200914584,https://coaldaleborough.org/
 Pennsylvania,Bedford,Colerain,township,4200915032,
-Pennsylvania,Bedford,Cumberland Valley,township,4200917664,
+Pennsylvania,Bedford,Cumberland Valley,township,4200917664,https://cumberlandvalleytwp.com/
 Pennsylvania,Bedford,East Providence,township,4200921736,
 Pennsylvania,Bedford,East St. Clair,township,4200921788,
 Pennsylvania,Bedford,Everett,borough,4200924304,https://everettboro.com/
 Pennsylvania,Bedford,Harrison,township,4200932840,
 Pennsylvania,Bedford,Hopewell,borough,4200935648,
-Pennsylvania,Bedford,Hyndman,borough,4200936640,
+Pennsylvania,Bedford,Hyndman,borough,4200936640,https://www.hyndmanboro.com/
 Pennsylvania,Bedford,Juniata,township,4200938576,
 Pennsylvania,Bedford,Kimmel,township,4200939658,
 Pennsylvania,Bedford,King,township,4200939720,
@@ -43816,7 +43816,7 @@ Pennsylvania,Bedford,Monroe,township,4200950424,
 Pennsylvania,Bedford,Napier,township,4200952648,
 Pennsylvania,Bedford,New Paris,borough,4200953928,
 Pennsylvania,Bedford,Pavia,township,4200958492,https://paviatwp.com/
-Pennsylvania,Bedford,Pleasantville,borough,4200961496,
+Pennsylvania,Bedford,Pleasantville,borough,4200961496,https://pleasantvilleboro.org/
 Pennsylvania,Bedford,Rainsburg,borough,4200963312,
 Pennsylvania,Bedford,Saxton,borough,4200968072,
 Pennsylvania,Bedford,Schellsburg,borough,4200968152,http://www.schellsburgpa.org/
@@ -43856,7 +43856,7 @@ Pennsylvania,Berks,Hereford,township,4201134016,https://www.herefordtownship.org
 Pennsylvania,Berks,Jefferson,township,4201137824,https://jeffersontwpbc.com/
 Pennsylvania,Berks,Kenhorst,borough,4201139256,https://www.kenhorstborough.com/
 Pennsylvania,Berks,Kutztown,borough,4201140656,https://www.kutztownboro.org/
-Pennsylvania,Berks,Laureldale,borough,4201141768,
+Pennsylvania,Berks,Laureldale,borough,4201141768,https://www.laureldaleboro.org/
 Pennsylvania,Berks,Leesport,borough,4201142352,http://leesport.org/
 Pennsylvania,Berks,Lenhartsville,borough,4201142688,https://lenhartsville.com/
 Pennsylvania,Berks,Longswamp,township,4201144584,https://www.longswamptownship.org/
@@ -43864,7 +43864,7 @@ Pennsylvania,Berks,Lower Alsace,township,4201144840,https://latownship.org/
 Pennsylvania,Berks,Lower Heidelberg,township,4201144928,https://lowerheidelbergtownship.org/
 Pennsylvania,Berks,Lyons,borough,4201145752,
 Pennsylvania,Berks,Maidencreek,township,4201146680,https://maidencreek.net/
-Pennsylvania,Berks,Marion,township,4201147440,
+Pennsylvania,Berks,Marion,township,4201147440,https://www.mariontwpberks.com/
 Pennsylvania,Berks,Maxatawny,township,4201148128,https://www.maxatawny.org/
 Pennsylvania,Berks,Mohnton,borough,4201150272,https://mohntonboro.org/
 Pennsylvania,Berks,Mount Penn,borough,4201151760,https://mtpennborough.com/
@@ -43908,7 +43908,7 @@ Pennsylvania,Blair,Bellwood,borough,4201305384,https://www.bellwoodborough.com/
 Pennsylvania,Blair,Blair,township,4201306872,https://blairtownship-pa.org/
 Pennsylvania,Blair,Catharine,township,4201311760,https://catharinetownship.org/
 Pennsylvania,Blair,Duncansville,borough,4201320248,https://duncansvillepa.gov/
-Pennsylvania,Blair,Frankstown,township,4201327600,
+Pennsylvania,Blair,Frankstown,township,4201327600,https://frankstowntownship.com/
 Pennsylvania,Blair,Freedom,township,4201327720,
 Pennsylvania,Blair,Greenfield,township,4201331000,https://www.greenfieldtownshippa.gov/
 Pennsylvania,Blair,Hollidaysburg,borough,4201335224,https://hollidaysburgpa.org/
@@ -44034,7 +44034,7 @@ Pennsylvania,Butler,Chicora,borough,4201913440,http://www.chicorapa.org/
 Pennsylvania,Butler,Clay,township,4201913936,https://claytwpbutler.com/
 Pennsylvania,Butler,Clearfield,township,4201914048,https://clearfieldtwpbutlerpa.com/
 Pennsylvania,Butler,Clinton,township,4201914320,https://myclintontwp.net/
-Pennsylvania,Butler,Concord,township,4201915480,
+Pennsylvania,Butler,Concord,township,4201915480,https://www.townshipofconcord.com/
 Pennsylvania,Butler,Connoquenessing,borough,4201915808,https://connoquenessingboro.com/
 Pennsylvania,Butler,Cranberry,township,4201916920,https://www.cranberrytownship.org/
 Pennsylvania,Butler,Donegal,township,4201919456,https://donegaltwpbutler.com/
@@ -44046,7 +44046,7 @@ Pennsylvania,Butler,Forward,township,4201926904,https://forwardtwpbutlerco.us/
 Pennsylvania,Butler,Franklin,township,4201927352,https://www.franklintownship.us/
 Pennsylvania,Butler,Harmony,borough,4201932688,https://harmony-pa.us/
 Pennsylvania,Butler,Harrisville,borough,4201932896,https://harrisvilleboroughpa.gov/
-Pennsylvania,Butler,Jackson,township,4201937344,
+Pennsylvania,Butler,Jackson,township,4201937344,https://www.jackson-township.com/
 Pennsylvania,Butler,Jefferson,township,4201937848,https://jeffersonbutler.com/
 Pennsylvania,Butler,Karns City,borough,4201938768,
 Pennsylvania,Butler,Lancaster,township,4201941208,https://www.twp.lancaster.pa.us/
@@ -44063,13 +44063,13 @@ Pennsylvania,Butler,Prospect,borough,4201962752,https://prospectborough.com/
 Pennsylvania,Butler,Saxonburg,borough,4201968056,https://www.saxonburgpa.com/
 Pennsylvania,Butler,Seven Fields,borough,4201969309,https://www.sevenfields.org/
 Pennsylvania,Butler,Slippery Rock,borough,4201971184,https://www.slipperyrockboroughpa.gov/
-Pennsylvania,Butler,Summit,township,4201975184,
+Pennsylvania,Butler,Summit,township,4201975184,https://summittwp.org/
 Pennsylvania,Butler,Valencia,borough,4201979504,https://valenciaboro.org/
 Pennsylvania,Butler,Venango,township,4201979904,
 Pennsylvania,Butler,Washington,township,4201981192,
 Pennsylvania,Butler,West Liberty,borough,4201983376,
 Pennsylvania,Butler,West Sunbury,borough,4201984064,
-Pennsylvania,Butler,Winfield,township,4201985784,
+Pennsylvania,Butler,Winfield,township,4201985784,https://www.winfieldpa.gov/
 Pennsylvania,Butler,Worth,township,4201986536,https://www.worthtwp.org/
 Pennsylvania,Butler,Zelienople,borough,4201987272,http://files.zelieboro.org/
 Pennsylvania,Butler,,county,42019,https://www.butlercountypa.gov/
@@ -44091,7 +44091,7 @@ Pennsylvania,Cambria,Croyle,township,4202117496,
 Pennsylvania,Cambria,Daisytown,borough,4202117976,
 Pennsylvania,Cambria,Dale,borough,4202118000,https://www.daleborough.org/
 Pennsylvania,Cambria,Dean,township,4202118432,
-Pennsylvania,Cambria,East Carroll,township,4202120952,
+Pennsylvania,Cambria,East Carroll,township,4202120952,https://eastcarrolltwp.com/
 Pennsylvania,Cambria,East Conemaugh,borough,4202120992,https://eastconemaughpa.com/
 Pennsylvania,Cambria,East Taylor,township,4202121896,
 Pennsylvania,Cambria,Ebensburg,borough,4202122144,https://ebensburgpa.com/
@@ -44105,7 +44105,7 @@ Pennsylvania,Cambria,Hastings,borough,4202133080,https://www.hastingsborough.com
 Pennsylvania,Cambria,Jackson,township,4202137352,https://jacksontwppa.com/
 Pennsylvania,Cambria,Johnstown,city,4202138288,https://www.visitjohnstownpa.com/
 Pennsylvania,Cambria,Lilly,borough,4202143248,https://lillyborough.net/
-Pennsylvania,Cambria,Lorain,borough,4202144664,
+Pennsylvania,Cambria,Lorain,borough,4202144664,https://www.lorainborough.com/
 Pennsylvania,Cambria,Loretto,borough,4202144704,
 Pennsylvania,Cambria,Lower Yoder,township,4202145160,https://lytownship.com/
 Pennsylvania,Cambria,Middle Taylor,township,4202149104,
@@ -44123,7 +44123,7 @@ Pennsylvania,Cambria,Southmont,borough,4202172344,https://www.southmontborough.c
 Pennsylvania,Cambria,Stonycreek,township,4202174432,https://www.stonycreekccpa.gov/
 Pennsylvania,Cambria,Summerhill,borough,4202175136,http://www.summerhillboro.com/
 Pennsylvania,Cambria,Summerhill,township,4202175144,
-Pennsylvania,Cambria,Susquehanna,township,4202175520,
+Pennsylvania,Cambria,Susquehanna,township,4202175520,https://susquehannacambriapa.com/
 Pennsylvania,Cambria,Upper Yoder,township,4202179360,https://www.upperyodertownship.org/
 Pennsylvania,Cambria,Vintondale,borough,4202180288,
 Pennsylvania,Cambria,Washington,township,4202181200,
@@ -44134,7 +44134,7 @@ Pennsylvania,Cambria,White,township,4202184448,
 Pennsylvania,Cambria,Wilmore,borough,4202185528,
 Pennsylvania,Cambria,,county,42021,https://www.cambriacountypa.gov/
 Pennsylvania,Cameron,Driftwood,borough,4202319976,
-Pennsylvania,Cameron,Emporium,borough,4202323600,
+Pennsylvania,Cameron,Emporium,borough,4202323600,https://www.emporiumborough.org/
 Pennsylvania,Cameron,Gibson,township,4202329008,https://gibsontwp.com/
 Pennsylvania,Cameron,Grove,township,4202331632,https://grove-township.com/
 Pennsylvania,Cameron,Lumber,township,4202345432,
@@ -44175,7 +44175,7 @@ Pennsylvania,Centre,Curtin,township,4202717800,
 Pennsylvania,Centre,Ferguson,township,4202725624,https://www.twp.ferguson.pa.us/
 Pennsylvania,Centre,Gregg,township,4202731472,https://greggtownship.org/
 Pennsylvania,Centre,Haines,township,4202731960,https://hainestwp.org/
-Pennsylvania,Centre,Halfmoon,township,4202731992,
+Pennsylvania,Centre,Halfmoon,township,4202731992,https://halfmoontwp.us/
 Pennsylvania,Centre,Harris,township,4202732792,https://www.harristownship.org/
 Pennsylvania,Centre,Howard,borough,4202735960,https://howardborough.com/
 Pennsylvania,Centre,Huston,township,4202736504,
@@ -44195,7 +44195,7 @@ Pennsylvania,Centre,Spring,township,4202772832,https://www.springtownship.org/
 Pennsylvania,Centre,State College,borough,4202773808,https://www.statecollegepa.us/
 Pennsylvania,Centre,Taylor,township,4202776168,
 Pennsylvania,Centre,Union,township,4202778288,https://uniontownship.org/
-Pennsylvania,Centre,Unionville,borough,4202778616,
+Pennsylvania,Centre,Unionville,borough,4202778616,https://unionvilleborough.com/
 Pennsylvania,Centre,Walker,township,4202780552,https://walkertownship.com/
 Pennsylvania,Centre,Worth,township,4202786544,
 Pennsylvania,Centre,,county,42027,http://centrecountypa.gov/
@@ -44207,7 +44207,7 @@ Pennsylvania,Chester,Charlestown,township,4202912744,
 Pennsylvania,Chester,Coatesville,city,4202914712,https://www.coatesville.org/
 Pennsylvania,Chester,Downingtown,borough,4202919752,https://www.downingtown.org/
 Pennsylvania,Chester,East Bradford,township,4202920824,https://www.eastbradford.org/
-Pennsylvania,Chester,East Brandywine,township,4202920864,
+Pennsylvania,Chester,East Brandywine,township,4202920864,https://www.ebrandywine.org/
 Pennsylvania,Chester,East Caln,township,4202920920,https://www.eastcalntownship.gov/
 Pennsylvania,Chester,East Coventry,township,4202921008,https://eastcoventry-pa.gov/
 Pennsylvania,Chester,East Fallowfield,township,4202921104,https://www.eastfallowfield.org/
@@ -44324,7 +44324,7 @@ Pennsylvania,Clearfield,Covington,township,4203316656,
 Pennsylvania,Clearfield,Curwensville,borough,4203317840,https://curwensvilleborough.com/
 Pennsylvania,Clearfield,Decatur,township,4203318456,
 Pennsylvania,Clearfield,DuBois,city,4203320136,https://duboispa.gov/
-Pennsylvania,Clearfield,Ferguson,township,4203325632,
+Pennsylvania,Clearfield,Ferguson,township,4203325632,https://www.twp.ferguson.pa.us/
 Pennsylvania,Clearfield,Girard,township,4203329224,
 Pennsylvania,Clearfield,Glen Hope,borough,4203329632,
 Pennsylvania,Clearfield,Goshen,township,4203330152,https://www.goshentwp.com/
@@ -44345,7 +44345,7 @@ Pennsylvania,Clearfield,New Washington,borough,4203354344,
 Pennsylvania,Clearfield,Newburg,borough,4203353336,
 Pennsylvania,Clearfield,Osceola Mills,borough,4203357232,
 Pennsylvania,Clearfield,Penn,township,4203358816,
-Pennsylvania,Clearfield,Pike,township,4203360192,
+Pennsylvania,Clearfield,Pike,township,4203360192,https://pike-township.org/
 Pennsylvania,Clearfield,Pine,township,4203360288,https://twp.pine.pa.us/
 Pennsylvania,Clearfield,Ramey,borough,4203363360,
 Pennsylvania,Clearfield,Sandy,township,4203367792,
@@ -44360,7 +44360,7 @@ Pennsylvania,Clinton,Avis,borough,4203503632,https://avisboro.org/
 Pennsylvania,Clinton,Bald Eagle,township,4203503912,https://baldeagletownship.com/
 Pennsylvania,Clinton,Beech Creek,borough,4203504984,
 Pennsylvania,Clinton,Castanea,township,4203511640,https://www.castaneatownshippa.gov/
-Pennsylvania,Clinton,Chapman,township,4203512640,
+Pennsylvania,Clinton,Chapman,township,4203512640,https://chapmantownship-pa.us/
 Pennsylvania,Clinton,Colebrook,township,4203514960,https://colebrooktwp.com/
 Pennsylvania,Clinton,Crawford,township,4203516976,
 Pennsylvania,Clinton,Dunnstable,township,4203520408,
@@ -44388,9 +44388,9 @@ Pennsylvania,Columbia,Beaver,township,4203704704,https://beavertwppa.com/
 Pennsylvania,Columbia,Benton,borough,4203705680,
 Pennsylvania,Columbia,Berwick,borough,4203705888,
 Pennsylvania,Columbia,Bloomsburg,town,4203707128,https://www.bloomsburgpa.org/
-Pennsylvania,Columbia,Briar Creek,borough,4203708472,
+Pennsylvania,Columbia,Briar Creek,borough,4203708472,https://www.briarcreekborough.org/
 Pennsylvania,Columbia,Catawissa,borough,4203711736,
-Pennsylvania,Columbia,Centralia,borough,4203712312,
+Pennsylvania,Columbia,Centralia,borough,4203712312,https://www.centraliapa.org/
 Pennsylvania,Columbia,Cleveland,township,4203714184,
 Pennsylvania,Columbia,Conyngham,township,4203715880,https://conytwpluzernepa.gov/
 Pennsylvania,Columbia,Fishing Creek,township,4203726056,https://fishingcreektownship.org/
@@ -44407,7 +44407,7 @@ Pennsylvania,Columbia,Montour,township,4203750704,https://montourtownship.org/
 Pennsylvania,Columbia,Mount Pleasant,township,4203751792,https://mtpleasantcolumbiapa.org/
 Pennsylvania,Columbia,North Centre,township,4203754880,https://northcentretownship.com/
 Pennsylvania,Columbia,Orange,township,4203756896,https://www.orangetwppa.org/
-Pennsylvania,Columbia,Orangeville,borough,4203756912,
+Pennsylvania,Columbia,Orangeville,borough,4203756912,https://www.orangevilleborough.com/
 Pennsylvania,Columbia,Pine,township,4203760304,https://twp.pine.pa.us/
 Pennsylvania,Columbia,Roaring Creek,township,4203765240,
 Pennsylvania,Columbia,Scott,township,4203768392,http://scott-township.com/
@@ -44438,7 +44438,7 @@ Pennsylvania,Crawford,Linesville,borough,4203943656,https://linesvilleboro.org/
 Pennsylvania,Crawford,Meadville,city,4203948360,https://www.cityofmeadville.org/
 Pennsylvania,Crawford,North Shenango,township,4203955408,https://northshenango.com/
 Pennsylvania,Crawford,Oil Creek,township,4203956464,
-Pennsylvania,Crawford,Pine,township,4203960312,
+Pennsylvania,Crawford,Pine,township,4203960312,https://www.twp.pine.pa.us/
 Pennsylvania,Crawford,Randolph,township,4203963400,
 Pennsylvania,Crawford,Richmond,township,4203964600,https://richmondtownshipcc.com/
 Pennsylvania,Crawford,Rockdale,township,4203965440,
@@ -44483,7 +44483,7 @@ Pennsylvania,Cumberland,Mount Holly Springs,borough,4204151592,https://mhsboro.o
 Pennsylvania,Cumberland,New Cumberland,borough,4204153464,https://newcumberlandpa.org/
 Pennsylvania,Cumberland,Newburg,borough,4204153344,https://www.newburgborough.com/
 Pennsylvania,Cumberland,Newville,borough,4204154320,https://www.newvilleborough.com/
-Pennsylvania,Cumberland,North Middleton,township,4204155216,
+Pennsylvania,Cumberland,North Middleton,township,4204155216,https://www.nmiddleton.com/
 Pennsylvania,Cumberland,North Newton,township,4204155248,https://northnewtontownship.com/
 Pennsylvania,Cumberland,Penn,township,4204158824,https://penntwpcc.org/
 Pennsylvania,Cumberland,Shiremanstown,borough,4204170384,
@@ -44534,7 +44534,7 @@ Pennsylvania,Dauphin,Washington,township,4204381216,https://www.wtwp.org/
 Pennsylvania,Dauphin,Wayne,township,4204381744,https://www.waynetwppa.org/
 Pennsylvania,Dauphin,West Hanover,township,4204383128,
 Pennsylvania,Dauphin,Wiconisco,township,4204384976,https://www.wiconiscotownship.com/
-Pennsylvania,Dauphin,Williams,township,4204385232,
+Pennsylvania,Dauphin,Williams,township,4204385232,https://wmstwp.org/
 Pennsylvania,Dauphin,Williamstown,borough,4204385320,https://www.williamstownborough.com/
 Pennsylvania,Dauphin,,county,42043,https://dauphinpa.devnetwedge.com/
 Pennsylvania,Delaware,Aldan,borough,4200676,https://www.aldanpa.gov/
@@ -44555,7 +44555,7 @@ Pennsylvania,Delaware,Eddystone,borough,4204522296,https://eddystoneborough.org/
 Pennsylvania,Delaware,Edgmont,township,4204522584,https://edgmont.org/
 Pennsylvania,Delaware,Folcroft,borough,4204526408,https://www.folcroftborough.com/
 Pennsylvania,Delaware,Glenolden,borough,4204529720,https://www.glenoldenborough.com/
-Pennsylvania,Delaware,Haverford,township,4204533144,
+Pennsylvania,Delaware,Haverford,township,4204533144,https://www.haverfordtownship.org/
 Pennsylvania,Delaware,Lansdowne,borough,4204541440,https://www.lansdowneborough.com/
 Pennsylvania,Delaware,Lower Chichester,township,4204544888,https://lowerchitwp.com/
 Pennsylvania,Delaware,Marcus Hook,borough,4204547344,https://marcushookboro.org/
@@ -44565,7 +44565,7 @@ Pennsylvania,Delaware,Middletown,township,4204549136,https://middletowndelcopa.g
 Pennsylvania,Delaware,Millbourne,borough,4204549504,https://www.millbourneborough.org/
 Pennsylvania,Delaware,Morton,borough,4204551176,https://www.mortonboropa.org/
 Pennsylvania,Delaware,Nether Providence,township,4204553104,https://netherprovidence.org/
-Pennsylvania,Delaware,Newtown,township,4204554224,
+Pennsylvania,Delaware,Newtown,township,4204554224,https://www.newtowntownship.org/
 Pennsylvania,Delaware,Norwood,borough,4204555664,https://www.norwood-boro.org/
 Pennsylvania,Delaware,Parkside,borough,4204558176,https://www.parksideborough.com/
 Pennsylvania,Delaware,Prospect Park,borough,4204562792,https://www.prospectparkboro.com/
@@ -44589,8 +44589,8 @@ Pennsylvania,Delaware,,county,42045,https://delcopa.gov/
 Pennsylvania,Elk,Benezette,township,4204705576,https://benezettetwp.com/
 Pennsylvania,Elk,Fox,township,4204727088,https://www.foxtownship.com/
 Pennsylvania,Elk,Highland,township,4204734464,
-Pennsylvania,Elk,Horton,township,4204735816,
-Pennsylvania,Elk,Jay,township,4204737760,
+Pennsylvania,Elk,Horton,township,4204735816,https://www.hortontownship.com/
+Pennsylvania,Elk,Jay,township,4204737760,http://jaytownship.com/
 Pennsylvania,Elk,Johnsonburg,borough,4204738248,http://www.johnsonburgpa.com/
 Pennsylvania,Elk,Jones,township,4204738368,https://jonestownship.com/
 Pennsylvania,Elk,Millstone,township,4204749888,
@@ -44622,13 +44622,13 @@ Pennsylvania,Erie,Millcreek,township,4204949548,https://www.millcreektownship.co
 Pennsylvania,Erie,North East,borough,4204954952,https://www.northeastborough.com/
 Pennsylvania,Erie,Platea,borough,4204961168,
 Pennsylvania,Erie,Springfield,township,4204973048,https://springfieldtownshippa.com/
-Pennsylvania,Erie,Summit,township,4204975208,
+Pennsylvania,Erie,Summit,township,4204975208,https://summittownship.com/
 Pennsylvania,Erie,Union,township,4204978312,
 Pennsylvania,Erie,Union City,borough,4204978448,https://unioncitypa.us/
 Pennsylvania,Erie,Venango,township,4204979928,https://venangotwp.com/
 Pennsylvania,Erie,Washington,township,4204981224,https://washington-township.info/
 Pennsylvania,Erie,Waterford,borough,4204981456,https://waterfordboro.net/
-Pennsylvania,Erie,Wattsburg,borough,4204981648,
+Pennsylvania,Erie,Wattsburg,borough,4204981648,https://wattsburgborough.org/
 Pennsylvania,Erie,Wayne,township,4204981760,https://waynetownshippa.org/
 Pennsylvania,Erie,Wesleyville,borough,4204982344,https://wesleyville.gov/
 Pennsylvania,Erie,,county,42049,https://public.eriecountypa.gov/
@@ -44683,9 +44683,9 @@ Pennsylvania,Forest,Tionesta,borough,4205376848,https://tionestaboro.org/
 Pennsylvania,Forest,,county,42053,https://www.co.forest.pa.us/
 Pennsylvania,Franklin,Antrim,township,4205502696,https://www.twp.antrim.pa.us/
 Pennsylvania,Franklin,Chambersburg,borough,4205512536,https://chambersburgpa.gov/
-Pennsylvania,Franklin,Fannett,township,4205525176,
+Pennsylvania,Franklin,Fannett,township,4205525176,https://fannetttwp.com/
 Pennsylvania,Franklin,Greencastle,borough,4205530896,https://greencastlepa.gov/
-Pennsylvania,Franklin,Greene,township,4205530944,
+Pennsylvania,Franklin,Greene,township,4205530944,https://greenetwp.org/
 Pennsylvania,Franklin,Guilford,township,4205531720,https://www.guilfordtwp.us/
 Pennsylvania,Franklin,Hamilton,township,4205532152,https://twphamiltonfranklinpa.org/
 Pennsylvania,Franklin,Letterkenny,township,4205542888,
@@ -44693,11 +44693,11 @@ Pennsylvania,Franklin,Lurgan,township,4205545496,https://www.lurgantownship.org/
 Pennsylvania,Franklin,Mercersburg,borough,4205548704,https://mercersburg.org/
 Pennsylvania,Franklin,Metal,township,4205548888,
 Pennsylvania,Franklin,Mont Alto,borough,4205550544,https://montaltoborough.com/
-Pennsylvania,Franklin,Montgomery,township,4205550616,
+Pennsylvania,Franklin,Montgomery,township,4205550616,https://www.montgomerytwp.org/
 Pennsylvania,Franklin,Orrstown,borough,4205557112,
-Pennsylvania,Franklin,Peters,township,4205559600,
+Pennsylvania,Franklin,Peters,township,4205559600,https://peterstownshipfcpa.gov/
 Pennsylvania,Franklin,Quincy,township,4205563200,https://www.quincytwp.org/
-Pennsylvania,Franklin,Southampton,township,4205571912,
+Pennsylvania,Franklin,Southampton,township,4205571912,https://www.southamptontownship.org/
 Pennsylvania,Franklin,St. Thomas,township,4205567400,
 Pennsylvania,Franklin,Warren,township,4205580992,https://warrentwpfranklin.com/
 Pennsylvania,Franklin,Washington,township,4205581240,https://www.washtwp-franklin.org/
@@ -44705,7 +44705,7 @@ Pennsylvania,Franklin,Waynesboro,borough,4205581824,https://waynesboropa.gov/
 Pennsylvania,Franklin,,county,42055,http://www.franklincountypa.gov/
 Pennsylvania,Fulton,Ayr,township,4205703704,
 Pennsylvania,Fulton,Belfast,township,4205705144,
-Pennsylvania,Fulton,Bethel,township,4205706032,
+Pennsylvania,Fulton,Bethel,township,4205706032,https://www.betheltwp.com/
 Pennsylvania,Fulton,Brush Creek,township,4205709568,
 Pennsylvania,Fulton,Dublin,township,4205720112,
 Pennsylvania,Fulton,Licking Creek,township,4205743200,https://lickingcreektownship.org/
@@ -44713,7 +44713,7 @@ Pennsylvania,Fulton,McConnellsburg,borough,4205746000,
 Pennsylvania,Fulton,Taylor,township,4205776176,
 Pennsylvania,Fulton,Thompson,township,4205776488,
 Pennsylvania,Fulton,Todd,township,4205776984,
-Pennsylvania,Fulton,Union,township,4205778320,
+Pennsylvania,Fulton,Union,township,4205778320,https://uniontwp.org/
 Pennsylvania,Fulton,Valley-Hi,borough,4205779644,
 Pennsylvania,Fulton,Wells,township,4205782152,
 Pennsylvania,Fulton,,county,42057,http://www.co.fulton.pa.us/
@@ -44760,7 +44760,7 @@ Pennsylvania,Huntingdon,Franklin,township,4206127416,https://franklintownship.or
 Pennsylvania,Huntingdon,Henderson,township,4206133808,
 Pennsylvania,Huntingdon,Hopewell,township,4206135688,https://hopewelltownshippa.org/
 Pennsylvania,Huntingdon,Huntingdon,borough,4206136368,https://huntingdonboro.com/
-Pennsylvania,Huntingdon,Jackson,township,4206137384,
+Pennsylvania,Huntingdon,Jackson,township,4206137384,https://jackson-township.org/
 Pennsylvania,Huntingdon,Juniata,township,4206138608,https://juniatatwp.com/
 Pennsylvania,Huntingdon,Lincoln,township,4206143424,
 Pennsylvania,Huntingdon,Logan,township,4206144344,
@@ -44847,7 +44847,7 @@ Pennsylvania,Jefferson,Knox,township,4206540304,
 Pennsylvania,Jefferson,McCalmont,township,4206545888,
 Pennsylvania,Jefferson,Oliver,township,4206556712,
 Pennsylvania,Jefferson,Perry,township,4206559480,
-Pennsylvania,Jefferson,Pine Creek,township,4206560368,
+Pennsylvania,Jefferson,Pine Creek,township,4206560368,https://pinecreektownship.com/
 Pennsylvania,Jefferson,Polk,township,4206561920,https://www.polktwp.com/
 Pennsylvania,Jefferson,Porter,township,4206562176,
 Pennsylvania,Jefferson,Punxsutawney,borough,4206562920,https://www.punxsutawneyboro.com/
@@ -44881,7 +44881,7 @@ Pennsylvania,Juniata,Susquehanna,township,4206775536,
 Pennsylvania,Juniata,Thompsontown,borough,4206776536,https://thompsontown.org/
 Pennsylvania,Juniata,Turbett,township,4206777824,
 Pennsylvania,Juniata,Tuscarora,township,4206777952,
-Pennsylvania,Juniata,Walker,township,4206780568,
+Pennsylvania,Juniata,Walker,township,4206780568,https://walkertownship.org/
 Pennsylvania,Juniata,,county,42067,https://www.juniataco.org/
 Pennsylvania,Lackawanna,Archbald,borough,4202832,https://www.archbaldpa.gov/
 Pennsylvania,Lackawanna,Benton,township,4206905696,https://bentontwppa.org/
@@ -44894,7 +44894,7 @@ Pennsylvania,Lackawanna,Covington,township,4206916664,https://covingtontwp.org/
 Pennsylvania,Lackawanna,Dalton,borough,4206918088,https://www.daltonboroughpa.gov/
 Pennsylvania,Lackawanna,Dickson City,borough,4206919160,https://www.dicksoncity-pa.gov/
 Pennsylvania,Lackawanna,Dunmore,borough,4206920352,https://dunmorepa.gov/
-Pennsylvania,Lackawanna,Elmhurst,township,4206923336,
+Pennsylvania,Lackawanna,Elmhurst,township,4206923336,https://elmhursttownship.org/
 Pennsylvania,Lackawanna,Fell,township,4206925560,
 Pennsylvania,Lackawanna,Glenburn,township,4206929504,https://glenburntownship.org/
 Pennsylvania,Lackawanna,Greenfield,township,4206931016,https://greenfieldtownshipsupervisors.org/
@@ -44953,7 +44953,7 @@ Pennsylvania,Lancaster,Leacock,township,4207142080,https://www.leacocktwp.com/
 Pennsylvania,Lancaster,Lititz,borough,4207143816,https://www.lititzborough.org/
 Pennsylvania,Lancaster,Little Britain,township,4207143832,https://www.littlebritain.org/
 Pennsylvania,Lancaster,Manheim,borough,4207146888,https://www.manheimboro.org/
-Pennsylvania,Lancaster,Manheim,township,4207146896,
+Pennsylvania,Lancaster,Manheim,township,4207146896,https://www.manheimtownship.org/
 Pennsylvania,Lancaster,Manor,township,4207146992,https://manortownship.net/
 Pennsylvania,Lancaster,Marietta,borough,4207147424,https://marietta-pa.com/
 Pennsylvania,Lancaster,Martic,township,4207147824,https://www.martictownship.com/
@@ -44986,10 +44986,10 @@ Pennsylvania,Lawrence,Hickory,township,4207334248,https://www.hickorytownship.co
 Pennsylvania,Lawrence,Little Beaver,township,4207343824,
 Pennsylvania,Lawrence,Mahoning,township,4207346648,https://mahoningtownship.net/
 Pennsylvania,Lawrence,Neshannock,township,4207353064,
-Pennsylvania,Lawrence,New Beaver,borough,4207353184,
+Pennsylvania,Lawrence,New Beaver,borough,4207353184,https://newbeaverborough.org/
 Pennsylvania,Lawrence,New Castle,city,4207353368,https://www.newcastlepa.org/
 Pennsylvania,Lawrence,New Wilmington,borough,4207354352,https://nwboro.com/
-Pennsylvania,Lawrence,North Beaver,township,4207354768,
+Pennsylvania,Lawrence,North Beaver,township,4207354768,https://northbeavertwp.org/
 Pennsylvania,Lawrence,Perry,township,4207359488,https://perrytownshiplawrencecountypa.com/
 Pennsylvania,Lawrence,Plain Grove,township,4207361104,https://plaingrovetwp.org/
 Pennsylvania,Lawrence,Pulaski,township,4207362904,https://pulaskitwplcpa.com/
