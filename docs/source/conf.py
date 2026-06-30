@@ -157,7 +157,12 @@ html_theme = "pydata_sphinx_theme"
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-html_theme_options = {"navigation_depth": 4, "collapse_navigation": False}
+html_theme_options = {
+    "navigation_depth": 4,
+    "collapse_navigation": False,
+    "logo": {"text": f"v{release}"},
+}
+html_title = f"{project} v{release}"
 html_css_file = ["custom.css"]
 
 html_context = {
@@ -183,6 +188,10 @@ html_static_path = ["_static"]
 # 'searchbox.html']``.
 #
 # html_sidebars = {}
+
+# Logo
+html_logo = "_static/logo_horiz.png"
+# html_logo = "_static/logo_stacked.png"
 
 
 # -- Options for HTMLHelp output ---------------------------------------------

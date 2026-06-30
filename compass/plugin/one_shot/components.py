@@ -324,7 +324,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         """set: **Lowercase** feature names of qualitative features"""
         raise NotImplementedError
 
-    async def parse(self, text):
+    async def parse(self, text, jurisdiction):
         """Parse text and extract structured data
 
         Parameters
@@ -332,6 +332,11 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         text : str
             Text which may or may not contain information relevant to
             the current extraction.
+        jurisdiction : Jurisdiction
+            Jurisdiction object corresponding to the document being
+            parsed. This is passed in case the system prompt needs any
+            information about the jurisdiction to successfully extract
+            values from the text.
 
         Returns
         -------
@@ -351,7 +356,27 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             f"{self.SYSTEM_PROMPT}\n\n{_DATA_PARSER_ADDITIONAL_CONTEXT}"
         )
         sys_prompt = sys_prompt.format(
-            desc=desc, schema=self.SCHEMA, todays_date=todays_date
+            desc=desc,
+            schema=self.SCHEMA,
+            todays_date=todays_date,
+            jur_type=jurisdiction.type,
+            jur_state=jurisdiction.state,
+            jur_county=jurisdiction.county or "Unknown",
+            jur_subdivision_name=jurisdiction.subdivision_name or "Unknown",
+            jur_code=jurisdiction.code or "unknown",
+            jur_website_url=jurisdiction.website_url or "unknown",
+            jur_full_name=jurisdiction.full_name,
+            jur_full_name_the_prefixed=jurisdiction.full_name_the_prefixed,
+            jur_full_subdivision_phrase=(
+                jurisdiction.full_subdivision_phrase or "unknown subdivision"
+            ),
+            jur_full_subdivision_phrase_the_prefixed=(
+                jurisdiction.full_subdivision_phrase_the_prefixed
+                or "the unknown subdivision"
+            ),
+            jur_full_county_phrase=(
+                jurisdiction.full_county_phrase or "Unknown County"
+            ),
         )
 
         main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)

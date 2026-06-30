@@ -17,11 +17,12 @@ from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
-from elm.web.document import PDFDocument, HTMLDocument
+from elm.web.document import HTMLDocument
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
-from compass.web.url_utils import sanitize_url
+from compass.utilities.url import sanitize_url
 
 from compass.web.file_loader import COMPASSWebFileLoader
+from compass.utilities.parsing import is_pdf_doc
 
 
 logger = logging.getLogger(__name__)
@@ -374,7 +375,7 @@ class COMPASSCrawler:
                 self._failed_external_domains.add(parsed.netloc.casefold())
             return False
 
-        if isinstance(doc, PDFDocument):
+        if is_pdf_doc(doc):
             logger.debug("    - Found PDF!")
             doc.attrs[_DEPTH_KEY] = depth
             doc.attrs[_SCORE_KEY] = score

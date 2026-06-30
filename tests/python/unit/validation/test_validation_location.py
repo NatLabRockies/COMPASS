@@ -1,5 +1,6 @@
 """Test COMPASS Ordinance location validation tests"""
 
+import asyncio
 import os
 from pathlib import Path
 
@@ -9,6 +10,8 @@ from elm.web.document import PDFDocument
 from elm.utilities.parse import read_pdf_ocr
 
 from compass.utilities.jurisdictions import Jurisdiction
+from compass.utilities.jurisdictions import jurisdictions_from_df
+from compass.utilities.jurisdictions import load_all_jurisdiction_info
 from compass.validation.location import (
     JurisdictionValidator,
     DTreeJurisdictionValidator,
@@ -84,6 +87,103 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
     )
     out = await url_validator.check(url)
     assert out == truth
+
+
+@pytest.mark.asyncio
+async def test_url_matches_known_jurisdiction_website_skips_llm(monkeypatch):
+    """Test URL validation passes when canonical website domain matches"""
+    jurisdiction_info = load_all_jurisdiction_info()
+    jurisdiction = next(
+        jur
+        for jur in jurisdictions_from_df(jurisdiction_info)
+        if jur.website_url
+    )
+    website_url = jurisdiction.website_url
+    jurisdiction = Jurisdiction(
+        jurisdiction.type,
+        state=jurisdiction.state,
+        county=jurisdiction.county,
+        subdivision_name=jurisdiction.subdivision_name,
+        code=jurisdiction.code,
+    )
+    url = f"{website_url.rstrip('/')}/ordinances/test.pdf"
+
+    async def _should_not_run(*args, **kwargs):
+        await asyncio.sleep(0)
+        raise AssertionError("LLM validation should have been skipped")
+
+    monkeypatch.setattr(
+        "compass.validation.location.run_async_tree",
+        _should_not_run,
+    )
+
+    url_validator = DTreeURLJurisdictionValidator(
+        jurisdiction, llm_service=object()
+    )
+    assert await url_validator.check(url)
+
+
+@pytest.mark.asyncio
+async def test_http_url_matches_known_jurisdiction_website_skips_llm(
+    monkeypatch,
+):
+    """Test URL validation passes when canonical website domain matches"""
+    jurisdiction = Jurisdiction(
+        "county",
+        state="Indiana",
+        county="Decatur",
+        website_url="https://www.decaturcounty.in.gov",
+    )
+    url = "https://www.decaturcounty.in.gov/ordinances/test.pdf"
+
+    async def _should_not_run(*args, **kwargs):
+        await asyncio.sleep(0)
+        raise AssertionError("LLM validation should have been skipped")
+
+    monkeypatch.setattr(
+        "compass.validation.location.run_async_tree",
+        _should_not_run,
+    )
+
+    url_validator = DTreeURLJurisdictionValidator(
+        jurisdiction, llm_service=object()
+    )
+    assert await url_validator.check(url)
+
+
+@pytest.mark.asyncio
+async def test_url_mismatch_falls_back_to_llm(monkeypatch):
+    """Test URL validation still uses the LLM when domains differ"""
+    jurisdiction = Jurisdiction(
+        "county",
+        state="Indiana",
+        county="Decatur",
+        website_url="https://www.decaturcounty.in.gov",
+    )
+    calls = {"count": 0}
+
+    def _fake_tree(*args, **kwargs):
+        return object()
+
+    async def _fake_run_async_tree(tree, response_as_json=True):
+        await asyncio.sleep(0)
+        calls["count"] += 1
+        return {"correct_jurisdiction": True}
+
+    monkeypatch.setattr(
+        "compass.validation.location.setup_async_decision_tree",
+        _fake_tree,
+    )
+    monkeypatch.setattr(
+        "compass.validation.location.run_async_tree",
+        _fake_run_async_tree,
+    )
+
+    url_validator = DTreeURLJurisdictionValidator(
+        jurisdiction, llm_service=object()
+    )
+    assert await url_validator.check("https://example.com/doc.pdf")
+    assert calls["count"] == 1
 
 
 @flaky(max_runs=3, min_passes=1)
@@ -476,7 +576,10 @@ async def test_doc_matches_jurisdiction(
 def test_weighted_vote(test_case):
     """Test that the _weighted_vote function computes score properly"""
     pages, verdict, expected_score = test_case
-    assert _weighted_vote(verdict, PDFDocument(pages)) == expected_score
+    assert (
+        _weighted_vote(verdict, PDFDocument(pages).raw_pages, "test")[0]
+        == expected_score
+    )
 
 
 if __name__ == "__main__":

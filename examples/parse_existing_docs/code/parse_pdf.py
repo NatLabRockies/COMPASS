@@ -25,6 +25,7 @@ from compass.extraction.apply import (
     check_for_relevant_text,
     extract_relevant_text_with_llm,
 )
+from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.logs import AddLocationFilter
 from compass.utilities.enums import LLMTasks
 
@@ -99,6 +100,9 @@ async def _extract_ordinances(doc, model_configs):
             ),
             text_key=ord_text_key,
             out_key=StructuredSolarOrdinanceParser.OUT_LABEL,
+            jurisdiction=Jurisdiction(
+                "county", county="Decatur", state="Indiana"
+            ),
         )
 
 

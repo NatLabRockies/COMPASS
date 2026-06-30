@@ -33,7 +33,7 @@ class _RunningProvider:
         self.jobs = set()
 
     async def run(self):
-        """Run the service."""
+        """Run the service"""
         while True:
             await self.submit_jobs()
             await self.collect_responses()
@@ -101,7 +101,7 @@ class _RunningProvider:
 
 
 class RunningAsyncServices:
-    """Async context manager for running services."""
+    """Async context manager for running services"""
 
     def __init__(self, services):
         """
@@ -117,7 +117,7 @@ class RunningAsyncServices:
         self._validate_services()
 
     def _validate_services(self):
-        """Validate input services."""
+        """Validate input services"""
         if len(self.services) < 1:
             msg = "Must provide at least one service to run!"
             raise COMPASSValueError(msg)
@@ -183,7 +183,7 @@ class RunningAsyncServices:
 
     @classmethod
     async def _run_coroutine(cls, services, coroutine):
-        """Run a coroutine under services."""
+        """Run a coroutine under services"""
         async with cls(services):
             return await coroutine
 

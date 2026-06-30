@@ -7,15 +7,18 @@ particular location.
 import asyncio
 import logging
 
-
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
+from compass.utilities.jurisdictions import jurisdiction_websites
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
     setup_graph_correct_jurisdiction_from_url,
 )
+from compass.validation.utilities import step_based_threshold
 from compass.web.file_loader import COMPASSWebFileLoader
+from compass.utilities.url import normalize_domain
 from compass.utilities.enums import LLMUsageCategory
+from compass.utilities.parsing import raw_pages_from_doc
 
 
 logger = logging.getLogger(__name__)
@@ -83,6 +86,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         """
         if not url:
             return False
+
+        if _url_matches_known_jurisdiction_website(url, self.jurisdiction):
+            logger.debug(
+                "Skipping URL jurisdiction LLM check for %s because its "
+                "domain matches the canonical website for %s",
+                url,
+                self.jurisdiction,
+            )
+            return True
 
         chat_llm_caller = ChatLLMCaller(
             llm_service=self.llm_service,
@@ -199,15 +211,16 @@ class JurisdictionValidator:
     without reconfiguration.
     """
 
-    def __init__(self, score_thresh=0.8, text_splitter=None, **kwargs):
+    def __init__(self, score_thresh=None, text_splitter=None, **kwargs):
         """
 
         Parameters
         ----------
         score_thresh : float, optional
             Threshold applied to the weighted page vote. Documents at or
-            above the threshold are considered jurisdiction matches.
-            Default is ``0.8``.
+            above the threshold are considered jurisdiction matches. If
+            ``None``, uses a custom threshold that caps at 0.8 for
+            documents with a lot of content. Default is ``None``.
         text_splitter : LCTextSplitter, optional
             Optional splitter attached to documents lacking a
             ``text_splitter`` attribute so validators can iterate page
@@ -217,7 +230,7 @@ class JurisdictionValidator:
             :class:`~compass.llm.calling.BaseLLMCaller` and reused when
             instantiating subordinate validators.
         """
-        self.score_thresh = score_thresh
+        self.user_input_score_threshold = score_thresh
         self.text_splitter = text_splitter
         self.kwargs = kwargs
 
@@ -227,9 +240,7 @@ class JurisdictionValidator:
         Parameters
         ----------
         doc : BaseDocument
-            Document to evaluate. The validator expects
-            ``doc.raw_pages`` and, when available, a
-            ``doc.attrs['source']`` URL for supplemental URL validation.
+            Document to evaluate.
         jurisdiction : Jurisdiction
             Target jurisdiction descriptor capturing the required
             location attributes.
@@ -258,20 +269,6 @@ class JurisdictionValidator:
         >>> await validator.check(document, jurisdiction)
         True
         """
-        if hasattr(doc, "text_splitter") and self.text_splitter is not None:
-            old_splitter = doc.text_splitter
-            doc.text_splitter = self.text_splitter
-            out = await self._check(doc, jurisdiction)
-            doc.text_splitter = old_splitter
-            return out
-
-        return await self._check(doc, jurisdiction)
-
-    async def _check(self, doc, jurisdiction):
-        """Check if the document belongs to the county"""
-        if self.text_splitter is not None:
-            doc.text_splitter = self.text_splitter
-
         url = doc.attrs.get("source")
         if url:
             logger.debug("Checking URL (%s) for jurisdiction name...", url)
@@ -290,7 +287,8 @@ class JurisdictionValidator:
         return await _validator_check_for_doc(
             validator=jurisdiction_validator,
             doc=doc,
-            score_thresh=self.score_thresh,
+            score_thresh=self.user_input_score_threshold,
+            text_splitter=self.text_splitter,
         )
 
 
@@ -416,17 +414,25 @@ class JurisdictionWebsiteValidator:
         return out.casefold().startswith("yes")
 
 
-async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):
+async def _validator_check_for_doc(
+    validator, doc, score_thresh, text_splitter=None, **kwargs
+):
     """Apply a validator check to a doc's raw pages"""
     outer_task_name = asyncio.current_task().get_name()
+    raw_pages = raw_pages_from_doc(doc, text_splitter)
     validation_checks = [
         asyncio.create_task(
             validator.check(text, **kwargs), name=outer_task_name
         )
-        for text in doc.raw_pages
+        for text in raw_pages
     ]
     out = await asyncio.gather(*validation_checks)
-    score = _weighted_vote(out, doc)
+    score, num_verdicts = _weighted_vote(
+        out, raw_pages, doc.attrs.get("source", "Unknown")
+    )
+    if score_thresh is None:
+        score_thresh = step_based_threshold(num_verdicts)
+
     doc.attrs[validator.META_SCORE_KEY] = score
     logger.debug(
         "%s is %.2f for doc from source %s (Pass: %s; threshold: %.2f)",
@@ -439,19 +445,50 @@ async def _validator_check_for_doc(validator, doc, score_thresh=0.9, **kwargs):
     return score >= score_thresh
 
 
-def _weighted_vote(out, doc):
+def _weighted_vote(out, raw_pages, doc_source):
     """Compute weighted average of responses based on text length"""
-    if not doc.raw_pages:
-        return 0
+    if not raw_pages:
+        return 0, 0
 
     total = weights = 0
-    for verdict, text in zip(out, doc.raw_pages, strict=True):
+    messages = [
+        f"Validator weighted vote breakdown for doc from {doc_source} :"
+    ]
+    num_verdicts = 0
+    for verdict, text in zip(out, raw_pages, strict=True):
         if verdict is None:
             continue
         weight = len(text)
-        logger.debug("Weight=%d, Verdict=%d", weight, int(verdict))
+        messages.append(f"\t- Weight={weight:,d}, Verdict={int(verdict)}")
         weights += weight
         total += verdict * weight
+        num_verdicts += 1
+
+    if len(messages) > 1:
+        logger.debug("\n".join(messages))
 
     weights = max(weights, 1)
-    return total / weights
+    return total / weights, num_verdicts
+
+
+def _url_matches_known_jurisdiction_website(url, jurisdiction):
+    """Return whether URL domain matches canonical website"""
+    known_website = _known_jurisdiction_website(jurisdiction)
+    if not known_website:
+        return False
+
+    url_domain = normalize_domain(url)
+    known_domain = normalize_domain(known_website)
+    if not url_domain or not known_domain:
+        return False
+
+    return url_domain == known_domain or url_domain.endswith(
+        f".{known_domain}"
+    )
+
+
+def _known_jurisdiction_website(jurisdiction):
+    """Return a canonical website URL for a jurisdiction if available"""
+    if jurisdiction.website_url:
+        return jurisdiction.website_url
+    return jurisdiction_websites().get(jurisdiction.code)

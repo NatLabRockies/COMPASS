@@ -49,7 +49,7 @@ class LQ:
 
 
 class NoLocationFilter(logging.Filter):
-    """Filter that catches all records without a location attribute."""
+    """Filter that catches all records without a location attribute"""
 
     def filter(self, record):  # noqa: PLR6301
         """Filter logging record.
@@ -391,10 +391,10 @@ class LocationFileLog:
         self.__enter__()
 
     async def __aexit__(self, exc_type, exc, tb):
-        start_time = time.monotonic()
+        start_time = time.perf_counter()
         while (
             not LQ.QUEUE.empty()
-            and (time.monotonic() - start_time) < self.max_teardown_time
+            and (time.perf_counter() - start_time) < self.max_teardown_time
         ):
             await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)
         await asyncio.sleep(self.ASYNC_EXIT_SLEEP_SECONDS)  # Final recording
@@ -574,7 +574,11 @@ def _prepare_mp_queue_safe_record(record, formatter):
     if prepared.exc_info:
         exc_type, exc_value, __ = prepared.exc_info
         prepared.exc_type = getattr(exc_type, "__name__", None)
-        prepared.exc_message = getattr(exc_value, "args", [None])[0]
+        msg = getattr(exc_value, "args", [None])
+        if len(msg) > 0:
+            prepared.exc_message = msg[0]
+        else:
+            prepared.exc_message = ""
         prepared.exc_text = formatter.formatException(prepared.exc_info)
         prepared.exc_info = None
 

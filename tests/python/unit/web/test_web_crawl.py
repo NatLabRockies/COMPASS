@@ -10,7 +10,7 @@ import pytest
 from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
-from compass.web.url_utils import sanitize_url
+from compass.utilities.url import normalize_domain, sanitize_url
 from compass.web.website_crawl import (
     COMPASSCrawler,
     COMPASSLinkScorer,
@@ -99,7 +99,8 @@ def crawler_setup(monkeypatch):
     class DummyPDFDocument:
         def __init__(self, text, attrs=None):
             self.text = text
-            self.attrs = attrs or {}
+            self.attrs = {"doc_type": "pdf"}
+            self.attrs.update(attrs or {})
             self.source = self.attrs.get("source", "pdf")
 
     class DummyHTMLDocument:
@@ -128,7 +129,6 @@ def crawler_setup(monkeypatch):
                 [f"<html>{url}</html>"], attrs={"source": url}
             )
 
-    monkeypatch.setattr(website_crawl, "PDFDocument", DummyPDFDocument)
     monkeypatch.setattr(website_crawl, "HTMLDocument", DummyHTMLDocument)
     monkeypatch.setattr(website_crawl, "COMPASSWebFileLoader", DummyLoader)
 
@@ -242,6 +242,36 @@ def test_sanitize_url_handles_spaces_and_queries():
     sanitized = sanitize_url("https://example.com/some path/?foo=bar baz")
     assert " " not in sanitized
     assert "%20" in sanitized
+
+
+def test_sanitize_url_preserves_existing_percent_encoding():
+    """Already-escaped path segments should not be escaped again"""
+
+    sanitized = sanitize_url(
+        "https://example.com/vertical/sites/%7Babc-123%7D/file.pdf"
+    )
+    assert "%7Babc-123%7D" in sanitized
+    assert "%257B" not in sanitized
+
+
+@pytest.mark.parametrize(
+    ("url", "expected"),
+    [
+        ("codelibrary.amlegal.com", "codelibrary.amlegal.com"),
+        (
+            "www.codelibrary.amlegal.com",
+            "codelibrary.amlegal.com",
+        ),
+        (
+            "https://www.codelibrary.amlegal.com/codes/example",
+            "codelibrary.amlegal.com",
+        ),
+    ],
+)
+def test_normalize_domain_handles_bare_hostnames(url, expected):
+    """Bare hostnames should normalize the same as full URLs"""
+
+    assert normalize_domain(url) == expected
 
 
 def test_extract_links_from_html_filters_blacklist():
@@ -415,6 +445,30 @@ async def test_website_link_is_doc_external_returns_false(crawler_setup):
         base_domain="https://example.com",
     )
     assert not await crawler._website_link_is_doc(link, 0, 0)
+
+
+@pytest.mark.asyncio
+async def test_website_link_is_pdf_accepts_docling_pdf(crawler_setup):
+    """Docling PDF docs should be treated as PDF candidates"""
+
+    crawler = crawler_setup["crawler"]
+
+    class DummyDoclingPDFDocument:
+        def __init__(self, source):
+            self.text = "docling pdf"
+            self.attrs = {"source": source, "doc_type": "pdf"}
+            self.pages = ["docling pdf"]
+
+    link = _Link(
+        title="Docling PDF",
+        href="https://example.com/doc.pdf",
+        base_domain="https://example.com",
+    )
+    crawler.afl.loader_docs[link.href] = DummyDoclingPDFDocument(link.href)
+
+    assert await crawler._website_link_is_pdf(link, 2, 88)
+    assert crawler._out_docs[-1].attrs[_DEPTH_KEY] == 2
+    assert crawler._out_docs[-1].attrs[_SCORE_KEY] == 88
 
 
 @pytest.mark.asyncio

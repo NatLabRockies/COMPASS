@@ -4,7 +4,6 @@ import pprint
 import logging
 from contextlib import AsyncExitStack
 
-from elm.web.document import PDFDocument
 from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
     _SCORE_KEY,  # noqa: PLC2701
@@ -13,6 +12,7 @@ from elm.web.website_crawl import (
 )
 from elm.web.utilities import filter_documents
 
+from compass.web.search import search_single_jurisdiction
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.validation.location import (
@@ -25,13 +25,15 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.web.url_utils import sanitize_url
-from compass.utilities.enums import LLMTasks
+from compass.utilities.url import sanitize_url
+from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
 _NEG_INF = -1 * float("infinity")
+_COLLECTION_SCORE_KEY = "collection_step_rank"
 
 
 async def download_known_urls(
@@ -171,6 +173,7 @@ async def find_jurisdiction_website(
     browser_semaphore=None,
     usage_tracker=None,
     url_ignore_substrings=None,
+    validate=True,
     **kwargs,
 ):
     """Search for the main landing page of a given jurisdiction
@@ -210,6 +213,12 @@ async def find_jurisdiction_website(
     url_ignore_substrings : list of str, optional
         URL substrings that should be excluded from search results.
         Substrings are applied case-insensitively. By default, ``None``.
+    validate : bool, default=True
+        If ``True``, each potential jurisdiction website will be checked
+        for validity using the
+        :class:`~compass.validation.location.JurisdictionWebsiteValidator`
+        before being returned. If ``False``, the first potential website
+        will be returned without validation. By default, ``True``.
     **kwargs
         Additional arguments forwarded to
         :func:`elm.web.search.run.search_with_fallback`.
@@ -237,6 +246,9 @@ async def find_jurisdiction_website(
 
     if not potential_website_links:
         return None
+
+    if not validate:
+        return potential_website_links.pop()
 
     model_config = model_configs.get(
         LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION,
@@ -512,6 +524,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     query_templates,
     jurisdiction,
     num_urls=5,
+    simple_se_result_sort=True,
     file_loader_kwargs=None,
     search_semaphore=None,
     browser_semaphore=None,
@@ -530,6 +543,11 @@ async def download_jurisdiction_ordinance_using_search_engine(
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
+    simple_se_result_sort : bool, optional
+        Flag indicating whether to use a simple top-n sort from the
+        first search engine that gives results (``True``) or to apply a
+        holistic link sorting based on all results from all search
+        engines (``False``). By default, ``True``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword-argument pairs to initialize
         :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,
@@ -582,7 +600,8 @@ async def download_jurisdiction_ordinance_using_search_engine(
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
             ignore_url_parts=url_ignore_substrings,
-            jurisdiction_full_name=jurisdiction.full_name,
+            jurisdiction=jurisdiction,
+            simple_se_result_sort=simple_se_result_sort,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -606,7 +625,6 @@ async def filter_ordinance_docs(
     tech,
     text_collectors,
     usage_tracker=None,
-    check_for_correct_jurisdiction=True,
 ):
     """Filter a list of documents to only those that contain ordinances
 
@@ -635,9 +653,6 @@ async def filter_ordinance_docs(
     usage_tracker : UsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
-    check_for_correct_jurisdiction : bool, default=True
-        If ``True`` run jurisdiction validation before, content checks.
-        By default, ``True``.
 
     Returns
     -------
@@ -659,29 +674,28 @@ async def filter_ordinance_docs(
         ),
     )
 
-    if check_for_correct_jurisdiction:
-        COMPASS_PB.update_jurisdiction_task(
-            jurisdiction.full_name,
-            description="Checking files for correct jurisdiction...",
-        )
-        docs = await _down_select_docs_correct_jurisdiction(
-            docs,
-            jurisdiction=jurisdiction,
-            usage_tracker=usage_tracker,
-            model_config=model_configs.get(
-                LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
-                model_configs[LLMTasks.DEFAULT],
-            ),
-        )
-        logger.info(
-            "%d document(s) remaining after jurisdiction filter for %s"
-            "\n\t- %s",
-            len(docs),
-            jurisdiction.full_name,
-            "\n\t- ".join(
-                [doc.attrs.get("source", "Unknown source") for doc in docs]
-            ),
-        )
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction.full_name,
+        description="Checking files for correct jurisdiction...",
+    )
+    docs = await _down_select_docs_correct_jurisdiction(
+        docs,
+        jurisdiction=jurisdiction,
+        usage_tracker=usage_tracker,
+        model_config=model_configs.get(
+            LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
+            model_configs[LLMTasks.DEFAULT],
+        ),
+    )
+    sources_as_str = "\n\t- ".join(
+        [doc.attrs.get("source", "Unknown source") for doc in docs]
+    )
+    logger.info(
+        "%d document(s) remaining after jurisdiction filter for %s %s",
+        len(docs),
+        jurisdiction.full_name,
+        f"\n\t- {sources_as_str}" if sources_as_str else "",
+    )
 
     COMPASS_PB.update_jurisdiction_task(
         jurisdiction.full_name, description="Checking files for legal text..."
@@ -705,7 +719,7 @@ async def filter_ordinance_docs(
 
     docs = _sort_final_ord_docs(docs)
     logger.info(
-        "Found %d potential ordinance documents for %s\n\t- %s",
+        "Found %d potential ordinance document(s) for %s\n\t- %s",
         len(docs),
         jurisdiction.full_name,
         "\n\t- ".join([str(doc) for doc in docs]),
@@ -719,29 +733,38 @@ async def _docs_from_web_search(
     search_semaphore,
     browser_semaphore,
     ignore_url_parts,
-    jurisdiction_full_name,
+    jurisdiction,
+    simple_se_result_sort,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    queries = [
-        query.format(jurisdiction=jurisdiction_full_name)
-        for query in query_templates
-    ]
-    urls = await search_with_fallback(
-        queries,
-        num_urls=num_urls,
-        ignore_url_parts=ignore_url_parts,
-        browser_semaphore=search_semaphore,
-        task_name=jurisdiction_full_name,
+    out = await search_single_jurisdiction(
+        query_templates,
+        jurisdiction,
+        num_urls,
+        search_semaphore,
+        ignore_url_parts,
+        simple=simple_se_result_sort,
         **kwargs,
     )
+    ranked_results = {
+        res.get("url"): res.get("overall_rank") or 1
+        for res in out["results"]
+        if res.get("filtered_reason") is None and res.get("url") is not None
+    }
+    urls = sorted(ranked_results, key=ranked_results.get)
     if not urls:
         return []
 
-    return await _docs_from_urls(
-        urls, jurisdiction_full_name, browser_semaphore, **kwargs
+    docs = await _docs_from_urls(
+        urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
+    for doc in docs:
+        doc.attrs[_COLLECTION_SCORE_KEY] = ranked_results.get(
+            doc.attrs.get("source")
+        )
+    return docs
 
 
 async def _docs_from_urls(
@@ -770,6 +793,16 @@ async def _down_select_docs_correct_jurisdiction(
     docs, jurisdiction, usage_tracker, model_config
 ):
     """Remove documents that do not match the target jurisdiction"""
+    exempt_docs, docs_to_check = [], []
+    for doc in docs:
+        if doc.attrs.get("check_correct_jurisdiction", True):
+            docs_to_check.append(doc)
+        else:
+            exempt_docs.append(doc)
+
+    if not docs_to_check:
+        return exempt_docs
+
     jurisdiction_validator = JurisdictionValidator(
         text_splitter=model_config.text_splitter,
         llm_service=model_config.llm_service,
@@ -777,12 +810,13 @@ async def _down_select_docs_correct_jurisdiction(
         **model_config.llm_call_kwargs,
     )
     logger.debug("Validating documents for %r", jurisdiction)
-    return await filter_documents(
-        docs,
+    checked_docs = await filter_documents(
+        docs_to_check,
         validation_coroutine=jurisdiction_validator.check,
         jurisdiction=jurisdiction,
         task_name=jurisdiction.full_name,
     )
+    return exempt_docs + checked_docs
 
 
 async def _contains_relevant_text(
@@ -803,14 +837,26 @@ async def _contains_relevant_text(
         usage_tracker=usage_tracker,
         **kwargs,
     )
+    doc.attrs["found_any_extraction_text"] = found_text
     if found_text:
-        logger.debug("Detected relevant text; parsing date...")
+        logger.info(
+            "Detected some relevant extraction text for document from "
+            "source: %s ; parsing date...",
+            doc.attrs.get("source", "Unknown"),
+        )
         date_model_config = model_configs.get(
             LLMTasks.DATE_EXTRACTION, model_configs[LLMTasks.DEFAULT]
         )
         doc = await extract_date(
             doc, date_model_config, usage_tracker=usage_tracker
         )
+    else:
+        logger.info(
+            "Did not detect relevant extraction text for document from "
+            "source: %s",
+            doc.attrs.get("source", "Unknown"),
+        )
+
     return found_text
 
 
@@ -838,11 +884,18 @@ def _sort_final_ord_docs(all_ord_docs):
 
 
 def _ord_doc_sorting_key(doc):
-    """Compute a composite sorting score for ordinance documents"""
+    """Compute a composite sorting score for ordinance documents
+
+    Documents with larger scores will be prioritized.
+    """
+    from_steps = doc.attrs.get("from_steps") or []
+    num_collection_steps_found_doc = len(from_steps)
+    best_step = _best_step(from_steps)
+    most_confident_collection = -(doc.attrs.get(_COLLECTION_SCORE_KEY) or 0)
     no_date = (_NEG_INF, _NEG_INF, _NEG_INF)
     latest_year, latest_month, latest_day = doc.attrs.get("date") or no_date
     best_docs_from_website = doc.attrs.get(_SCORE_KEY, 0)
-    prefer_pdf_files = isinstance(doc, PDFDocument)
+    prefer_pdf_files = is_pdf_doc(doc)
     highest_jurisdiction_score = doc.attrs.get(
         # If not present, URL check passed with confidence so we set
         # score to 1
@@ -851,6 +904,9 @@ def _ord_doc_sorting_key(doc):
     )
     shortest_text_length = -1 * len(doc.text)
     return (
+        num_collection_steps_found_doc,
+        best_step,
+        most_confident_collection,
         best_docs_from_website,
         latest_year or _NEG_INF,
         prefer_pdf_files,
@@ -858,4 +914,14 @@ def _ord_doc_sorting_key(doc):
         shortest_text_length,
         latest_month or _NEG_INF,
         latest_day or _NEG_INF,
+    )
+
+
+def _best_step(from_steps):
+    """Get the best step that led to finding a document"""
+    if not from_steps:
+        return 0
+
+    return max(
+        COMPASSDocumentCollectionStep(step).priority for step in from_steps
     )

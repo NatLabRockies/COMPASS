@@ -199,7 +199,9 @@ ConfigType = _ConfigType(
 """An enumeration of the parseable config types"""
 
 
-def load_config(config_filepath, resolve_paths=True):
+def load_config(
+    config_filepath, resolve_paths=True, file_name="Configuration"
+):
     """Load a config file
 
     Parameters
@@ -210,6 +212,9 @@ def load_config(config_filepath, resolve_paths=True):
         Option to (recursively) resolve file-paths in the dictionary
         w.r.t the config file directory.
         By default, ``True``.
+    file_name : str, optional
+        Name of the config file for error messages.
+        By default, "Configuration".
 
     Returns
     -------
@@ -224,13 +229,13 @@ def load_config(config_filepath, resolve_paths=True):
     config_filepath = Path(config_filepath).expanduser().resolve()
     if "." not in config_filepath.name:
         msg = (
-            f"Configuration file must have a file-ending. Got: "
+            f"{file_name} file must have a file-ending. Got: "
             f"{config_filepath.name}"
         )
         raise COMPASSValueError(msg)
 
     if not config_filepath.exists():
-        msg = f"Config file does not exist: {config_filepath}"
+        msg = f"{file_name} file does not exist: {config_filepath}"
         raise COMPASSFileNotFoundError(msg)
 
     try:
@@ -317,15 +322,20 @@ def resolve_path(path, base_dir):
         The resolved path.
     """
     base_dir = Path(base_dir)
+    normalized = path.replace("\\", "/")
 
-    if path.startswith("./"):
-        path = base_dir / Path(path[2:])
-    elif path.startswith(".."):
-        path = base_dir / Path(path)
-    elif "./" in path:  # this covers both './' and '../'
-        path = Path(path)
+    if normalized.startswith("./"):
+        path = base_dir / Path(normalized[2:])
+    elif normalized.startswith(".."):
+        path = base_dir / Path(normalized)
+    elif (
+        "/./" in normalized
+        or normalized.endswith("/.")
+        or ("/../" in normalized or normalized.endswith("/.."))
+    ):
+        path = Path(normalized)
 
-    with contextlib.suppress(AttributeError):  # `path` is still a `str`
+    with contextlib.suppress(AttributeError):
         path = path.expanduser().resolve().as_posix()
 
     return path

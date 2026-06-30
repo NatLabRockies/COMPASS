@@ -1,0 +1,11 @@
+{
+    model: [
+        {
+            name: "compassop-gpt-5.4",
+            llm_call_kwargs: {temperature: 0, timeout: 300},
+        },
+    ],
+    llm_costs: {
+        "compassop-gpt-5.4": {prompt: 1.25, response: 7.5},
+    },
+}

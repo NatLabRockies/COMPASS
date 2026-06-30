@@ -177,7 +177,7 @@ class BaseParser(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def parse(self, text):
+    async def parse(self, text, jurisdiction):
         """Parse text and extract structured data
 
         Parameters
@@ -185,6 +185,11 @@ class BaseParser(ABC):
         text : str
             Text which may or may not contain information relevant to
             the current extraction.
+        jurisdiction : Jurisdiction
+            Jurisdiction object corresponding to the document being
+            parsed. This is passed in case the system prompt needs any
+            information about the jurisdiction to successfully extract
+            values from the text.
 
         Returns
         -------
@@ -209,8 +214,10 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
         "({acronym} ",
         " {acronym})",
     ]
+    MIN_DEFAULT_MATCHES = 2
+    """int: Default number of keyword matches to pass heuristic check"""
 
-    def check(self, text, match_count_threshold=1):
+    def check(self, text, match_count_threshold=None):
         """Check for mention of a tech in text
 
         This check first strips the text of any tech "look-alike" words
@@ -227,14 +234,15 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
             interest.
         match_count_threshold : int, optional
             Number of keywords that must match for the text to pass this
-            heuristic check. Count must be strictly greater than this
-            value. By default, ``1``.
+            heuristic check. Count must be greater than or equal to this
+            value. By default, ``None``, which uses
+            :attr:`compass.plugin.ordinance.KeywordBasedHeuristic.MIN_DEFAULT_MATCHES`.
 
         Returns
         -------
         bool
             ``True`` if the number of keywords/acronyms/phrases detected
-            exceeds the `match_count_threshold`.
+            meets or exceeds the `match_count_threshold`.
         """
         heuristics_text = self._convert_to_heuristics_text(text)
         total_keyword_matches = self._count_single_keyword_matches(
@@ -242,7 +250,9 @@ class KeywordBasedHeuristic(BaseHeuristic, ABC):
         )
         total_keyword_matches += self._count_acronym_matches(heuristics_text)
         total_keyword_matches += self._count_phrase_matches(heuristics_text)
-        return total_keyword_matches > match_count_threshold
+        if match_count_threshold is None:
+            match_count_threshold = self.MIN_DEFAULT_MATCHES
+        return total_keyword_matches >= match_count_threshold
 
     def _convert_to_heuristics_text(self, text):
         """Convert text for heuristic content parsing"""
@@ -723,6 +733,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             parser,
             text_key=parser_class.IN_LABEL,
             out_key=parser_class.OUT_LABEL,
+            jurisdiction=self.jurisdiction,
         )
 
     @classmethod

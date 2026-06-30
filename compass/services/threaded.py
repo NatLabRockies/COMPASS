@@ -13,10 +13,11 @@ from tempfile import TemporaryDirectory
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 
-from elm.web.document import PDFDocument, HTMLDocument
+from elm.web.document import HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
 from compass.services.base import Service
+from compass.utilities.parsing import is_pdf_doc
 from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
 
@@ -50,7 +51,7 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir, out_fn=None):
+def _move_file(doc, out_dir, out_fn=None, verb="processed"):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -59,12 +60,13 @@ def _move_file(doc, out_dir, out_fn=None):
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
     out_fn = out_fn or cached_fp.stem
-    out_fn = out_fn.replace(",", "").replace(" ", "_")
-    out_fn = f"{out_fn}_downloaded_{date}"
-    if not out_fn.endswith(cached_fp.suffix):
-        out_fn = f"{out_fn}{cached_fp.suffix}"
-
+    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
+    out_fn = f"{out_fn}_{verb}_{date}"
     out_fp = Path(out_dir) / out_fn
+
+    if out_fp.suffix != cached_fp.suffix:
+        out_fp = out_fp.with_suffix(cached_fp.suffix)
+
     shutil.move(cached_fp, out_fp)
     return out_fp
 
@@ -90,6 +92,19 @@ def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
     return out_paths
 
 
+def _write_parsed_text(doc, out_dir, out_fn=None):
+    """Write parsed document text to directory"""
+    if not doc.text or out_fn is None:
+        return None
+
+    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
+    out_fp = Path(out_dir) / out_fn
+    if out_fp.suffix != ".txt":
+        out_fp = out_fp.with_suffix(".txt")
+    out_fp.write_text(doc.text, encoding="utf-8")
+    return out_fp
+
+
 def _write_ord_db(extraction_context, out_dir, out_fn=None):
     """Write parsed ordinance database to directory"""
     ord_db = extraction_context.attrs.get("structured_data")
@@ -102,9 +117,22 @@ def _write_ord_db(extraction_context, out_dir, out_fn=None):
     return out_fp
 
 
+def _copy_doc_source_to_temp(doc, out_dir):
+    """Copy a document from its current location to a temp directory"""
+    source_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
+    if source_fp is None:
+        return None
+
+    source_fp = Path(source_fp)
+    out_fp = Path(out_dir) / source_fp.name
+    shutil.copy2(source_fp, out_fp)
+    return out_fp
+
+
 _PROCESSING_FUNCTIONS = {
     "move": _move_file,
     "write_clean": _write_cleaned_file,
+    "write_parsed": _write_parsed_text,
     "write_db": _write_ord_db,
 }
 
@@ -169,7 +197,7 @@ class TempFileCache(ThreadedService):
         self._td.cleanup()
         super().release_resources()
 
-    async def process(self, doc, file_content, make_name_unique=False):
+    async def process(self, doc, file_content, make_name_unique=True):
         """Write URL doc to file asynchronously
 
         Parameters
@@ -184,7 +212,7 @@ class TempFileCache(ThreadedService):
             for PDF file.
         make_name_unique : bool, optional
             Option to make file name unique by adding a UUID at the end
-            of the file name. By default, ``False``.
+            of the file name. By default, ``True``.
 
         Returns
         -------
@@ -209,7 +237,44 @@ class TempFileCache(ThreadedService):
 class TempFileCachePB(TempFileCache):
     """Service that locally caches files downloaded from the internet"""
 
-    async def process(self, doc, file_content, make_name_unique=False):
+    async def process(self, doc, file_content, make_name_unique=True):
+        """Write URL doc to file asynchronously
+
+        Parameters
+        ----------
+        doc : BaseDocument
+            Document containing meta information about the file. Must
+            have a "source" key in the ``attrs`` dict containing the
+            URL, which will be converted to a file name using
+            :func:`elm.web.utilities.compute_fn_from_url`.
+        file_content : str or bytes
+            File content, typically string text for HTML files and bytes
+            for PDF file.
+        make_name_unique : bool, optional
+            Option to make file name unique by adding a UUID at the end
+            of the file name. By default, ``True``.
+
+        Returns
+        -------
+        Path
+            Path to output file.
+        """
+        out = await super().process(
+            doc=doc,
+            file_content=file_content,
+            make_name_unique=make_name_unique,
+        )
+        jurisdiction = asyncio.current_task().get_name()
+        with contextlib.suppress(KeyError):
+            COMPASS_PB.update_download_task(jurisdiction, advance=1)
+
+        return out
+
+
+class TempFileCacheCopier(TempFileCache):
+    """Service that locally caches files downloaded from the internet"""
+
+    async def process(self, doc):
         """Write URL doc to file asynchronously
 
         Parameters
@@ -231,16 +296,15 @@ class TempFileCachePB(TempFileCache):
         Path
             Path to output file.
         """
-        out = await super().process(
-            doc=doc,
-            file_content=file_content,
-            make_name_unique=make_name_unique,
+        loop = asyncio.get_running_loop()
+        cache_fp = await loop.run_in_executor(
+            self.pool,
+            _copy_doc_source_to_temp,
+            doc,
+            self._td.name,
         )
-        jurisdiction = asyncio.current_task().get_name()
-        with contextlib.suppress(KeyError):
-            COMPASS_PB.update_download_task(jurisdiction, advance=1)
-
-        return out
+        logger.debug("Cached doc from %s", doc.attrs.get("source", "Unknown"))
+        return cache_fp
 
 
 class StoreFileOnDisk(ThreadedService):
@@ -314,6 +378,12 @@ class CleanedFileWriter(StoreFileOnDisk):
     """Service that writes cleaned text to a file"""
 
     _PROCESS = "write_clean"
+
+
+class ParsedFileWriter(StoreFileOnDisk):
+    """Service that writes parsed document text to a file"""
+
+    _PROCESS = "write_parsed"
 
 
 class OrdDBFileWriter(StoreFileOnDisk):
@@ -475,6 +545,40 @@ class HTMLFileLoader(ThreadedService):
         )
 
 
+class GenericFuncRunner(ThreadedService):
+    """Abstract service that manages the storage of a file on disk
+
+    Storage can occur due to creation or a move of a file.
+    """
+
+    @property
+    def can_process(self):
+        """bool: Always ``True`` (limiting is handled by asyncio)"""
+        return True
+
+    async def process(self, func, *args):
+        """Store file in out directory
+
+        Parameters
+        ----------
+        doc : BaseDocument
+            Document containing meta information about the file. Must
+            have relevant processing keys in the ``attrs`` dict,
+            otherwise the file may not be stored in the output
+            directory.
+        args
+            Additional positional argument pairs to pass to the
+            processing function.
+
+        Returns
+        -------
+        Path or None
+            Path to output file, or `None` if no file was stored.
+        """
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(self.pool, func, *args)
+
+
 def _dump_usage(fp, tracker):
     """Dump usage to an existing file"""
     if not Path(fp).exists():
@@ -513,7 +617,6 @@ def _dump_jurisdiction_info(
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "jurisdiction_website": None,
-        "compass_crawl": False,
         "cost": None,
         "documents": None,
     }
@@ -529,9 +632,6 @@ def _dump_jurisdiction_info(
         ]
         new_info["jurisdiction_website"] = extraction_context.attrs.get(
             "jurisdiction_website"
-        )
-        new_info["compass_crawl"] = extraction_context.attrs.get(
-            "compass_crawl", False
         )
 
     jurisdiction_info["jurisdictions"].append(new_info)
@@ -551,7 +651,7 @@ def _compile_doc_info(doc):
         "ord_filename": Path(out_fp or "unknown").name,
         "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),
-        "is_pdf": isinstance(doc, PDFDocument),
+        "is_pdf": is_pdf_doc(doc),
         "from_ocr": doc.attrs.get("from_ocr", False),
         "relevant_text_ngram_score": doc.attrs.get(
             "relevant_text_ngram_score"

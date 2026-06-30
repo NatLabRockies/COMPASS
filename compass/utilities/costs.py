@@ -13,6 +13,10 @@ LLM_COST_REGISTRY = {
     "gpt-5-mini": {"prompt": 0.25, "response": 2},
     "gpt-5-nano": {"prompt": 0.05, "response": 0.4},
     "gpt-5-chat-latest": {"prompt": 1.25, "response": 10},
+    "gpt-5.4": {"prompt": 2.50, "response": 15},
+    "gpt-5.4-mini": {"prompt": 0.75, "response": 4.5},
+    "gpt-5.4-nano": {"prompt": 0.20, "response": 1.25},
+    "gpt-5.5": {"prompt": 5, "response": 30},
     "compassop-gpt-4o": {"prompt": 2.5, "response": 10},
     "compassop-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
     "compassop-gpt-4.1": {"prompt": 2, "response": 8},
@@ -22,6 +26,10 @@ LLM_COST_REGISTRY = {
     "compassop-gpt-5-mini": {"prompt": 0.25, "response": 2},
     "compassop-gpt-5-nano": {"prompt": 0.05, "response": 0.4},
     "compassop-gpt-5-chat-latest": {"prompt": 1.25, "response": 10},
+    "compassop-gpt-5.4": {"prompt": 2.50, "response": 15},
+    "compassop-gpt-5.4-mini": {"prompt": 0.75, "response": 4.5},
+    "compassop-gpt-5.4-nano": {"prompt": 0.20, "response": 1.25},
+    "compassop-gpt-5.5": {"prompt": 5, "response": 30},
     "egswaterord-gpt4.1-mini": {"prompt": 0.4, "response": 1.6},
     "wetosa-gpt-4o": {"prompt": 2.5, "response": 10},
     "wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
@@ -91,6 +99,46 @@ def compute_cost_from_totals(totals):
         )
         for model, usage in totals.items()
     )
+
+
+def compute_total_tokens_from_totals(totals):
+    """Compute total prompt/response token counts from tracked usage
+
+    Parameters
+    ----------
+    totals : dict
+        Same shape as :func:`compute_cost_from_totals`: maps model name
+        to a dict with ``"prompt_tokens"`` and ``"response_tokens"``.
+
+    Returns
+    -------
+    dict
+        ``{"prompt_tokens": int, "response_tokens": int}`` summed across
+        all models in ``totals``.
+    """
+    return {
+        "prompt_tokens": sum(
+            u.get("prompt_tokens", 0) for u in totals.values()
+        ),
+        "response_tokens": sum(
+            u.get("response_tokens", 0) for u in totals.values()
+        ),
+    }
+
+
+def compute_total_cost_and_token_from_totals(totals):
+    """Compute total cost and token counts together from tracked usage
+
+    Returns
+    -------
+    dict
+        Keys: ``"cost"`` (float), ``"prompt_tokens"`` (int),
+        ``"response_tokens"`` (int).
+    """
+    return {
+        "cost": compute_cost_from_totals(totals),
+        **compute_total_tokens_from_totals(totals),
+    }
 
 
 def compute_total_cost_from_usage(tracked_usage):
