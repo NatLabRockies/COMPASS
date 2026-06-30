@@ -39,18 +39,16 @@ def llm_response_as_json(content):
 
     Returns
     -------
-    object
+    dict
         Parsed JSON structure. When parsing fails, the function returns
         an empty dictionary.
 
     Notes
     -----
     The parser strips Markdown code fences, coerces Python-style
-    booleans to lowercase JSON literals, and first attempts strict JSON
-    decoding. If strict decoding fails, the parser attempts to recover
-    the first valid JSON object or array embedded in the response. If
-    recovery also fails, the raw response is logged with guidance for
-    prompt/token adjustments.
+    booleans to lowercase JSON literals, and logs the raw response on
+    decode failure. The logging includes guidance for increasing token
+    limits or updating prompts.
     """
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
@@ -58,10 +56,6 @@ def llm_response_as_json(content):
     try:
         content = json.loads(content)
     except json.decoder.JSONDecodeError:
-        parsed_content = _parse_first_json_payload(content)
-        if isinstance(parsed_content, dict):
-            return parsed_content
-
         logger.exception(
             "LLM returned improperly formatted JSON. "
             "This is likely due to the completion running out of tokens. "
@@ -72,22 +66,6 @@ def llm_response_as_json(content):
         )
         content = {}
     return content
-
-
-def _parse_first_json_payload(content):
-    """Parse first valid JSON payload embedded in text"""
-    decoder = json.JSONDecoder()
-    for start_ind, start_char in enumerate(content):
-        if start_char not in {"{", "["}:
-            continue
-        try:
-            parsed_content, __ = decoder.raw_decode(content[start_ind:])
-        except json.decoder.JSONDecodeError:
-            continue
-        else:
-            return parsed_content
-
-    return None
 
 
 def merge_overlapping_texts(text_chunks, n=300):

@@ -43,14 +43,6 @@ def test_clean_backticks_from_llm_response(in_str, expected):
         ('{"a": True', {}),
         ('json\n{"key": "value"}', {"key": "value"}),
         ('{"a": True, "b": False}', {"a": True, "b": False}),
-        (
-            (
-                "I can extract date information from the URL provided. "
-                "However, the URL does not contain date information.\n\n"
-                '{"year": null, "month": null, "day": null}'
-            ),
-            {"year": None, "month": None, "day": None},
-        ),
     ],
 )
 def test_llm_response_as_json(in_str, expected):
