@@ -22,6 +22,8 @@ heuristic_keywords:
     - "drilling"
     - "mineral"
     - "nso"
+    - "energy"
+    - "map"
   good_tech_acronyms:
     - "nso"
     - "rmp"
@@ -44,6 +46,14 @@ heuristic_keywords:
     - "geothermal resources"
     - "resource management plan"
     - "land withdrawal"
+    - "mineral rights"
+    - "energy development"
+    - "minerals and energy"
+    - "fluid mineral"
+    - "fluid minerals"
+    - "fluid mineral leasing"
+    - "fluid mineral development"
+    - "fluid leasable minerals"
   not_tech_words:
     - "grazing allotment"
     - "livestock"
@@ -75,6 +85,14 @@ extraction_system_prompt: |-
   drilling, or facility construction on BLM lands. Each distinct restriction should
   be its own row in the outputs array. Use direct text excerpts and quotes in the
   summary field wherever possible.
+  IMPORTANT: "Fluid minerals" is the BLM/Mineral Leasing Act regulatory term that
+  collectively covers oil, gas, AND geothermal resources. RMPs very frequently use
+  "fluid minerals" or "fluid mineral leasing/development" instead of spelling out
+  "oil, gas, and geothermal" — treat any restriction, closure, or stipulation on
+  fluid minerals as encompassing geothermal (geothermal_applicability = 'broad')
+  exactly as you would for an "oil, gas, and geothermal" or "mineral leasing" group
+  closure, unless the document explicitly excludes geothermal from the fluid
+  minerals category.
 
 cache_llm_generated_content: true
 
