@@ -6402,7 +6402,7 @@ Florida,Lake,Clermont,city,1212925,https://www.clermontfl.gov/
 Florida,Lake,Eustis,city,1221350,https://www.eustis.org/
 Florida,Lake,Fruitland Park-Lady Lake,region,1206991235,
 Florida,Lake,Groveland-Mascotte,city,1206991365,https://groveland-fl.gov/
-Florida,Lake,Howey-in-the-Hills-Okahumpka,city,1206991541,
+Florida,Lake,Howey-in-the-Hills-Okahumpka,city,1206991541,https://www.howey.org/
 Florida,Lake,Leesburg,city,1239875,https://www.leesburgflorida.gov/
 Florida,Lake,Leesburg East,city,1206991924,https://www.leesburgflorida.gov/
 Florida,Lake,Mount Dora,city,1247050,https://www.mountdora.gov/
@@ -6487,7 +6487,7 @@ Florida,Okaloosa,Crestview,city,1215475,https://www.cityofcrestview.org/
 Florida,Okaloosa,Eglin AFB,city,1209190962,
 Florida,Okaloosa,Fort Walton Beach,city,1224475,https://www.fwb.org/
 Florida,Okaloosa,Laurel Hill,city,1239650,
-Florida,Okaloosa,Niceville-Valparaiso,city,1209192353,
+Florida,Okaloosa,Niceville-Valparaiso,city,1209192353,https://cityofniceville.org/
 Florida,Okaloosa,,county,12091,http://www.co.okaloosa.fl.us/
 Florida,Okeechobee,North Okeechobee,city,1209392405,
 Florida,Okeechobee,Okeechobee,city,1251200,https://www.cityofokeechobee.com/
@@ -6682,7 +6682,7 @@ Florida,,Bloomingdale,CDP,1206875,
 Florida,,Bokeelia,CDP,1207375,
 Florida,,Boulevard Gardens,CDP,1207687,
 Florida,,Boynton Beach,city,1207875,https://www.boynton-beach.org/
-Florida,,Bradenton Beach,city,1207975,
+Florida,,Bradenton Beach,city,1207975,https://www.cityofbradentonbeach.com/
 Florida,,Bradfordville,CDP,1208075,
 Florida,,Bradley Junction,CDP,1208125,
 Florida,,Brent,CDP,1208300,
@@ -6916,7 +6916,7 @@ Florida,,Island Walk,CDP,1234185,
 Florida,,Istachatta,CDP,1234275,
 Florida,,Ives Estates,CDP,1234400,
 Florida,,Jacksonville,city,1235000,https://www.jacksonville.gov/
-Florida,,Jacksonville Beach,city,1235050,
+Florida,,Jacksonville Beach,city,1235050,https://www.jacksonvillebeach.org/
 Florida,,Jacob City,city,1235200,https://www.jacobcityfl.org/
 Florida,,Jan Phyl Village,CDP,1235300,
 Florida,,Jasmine Estates,CDP,1235350,
@@ -7124,7 +7124,7 @@ Florida,,Panacea,CDP,1254625,
 Florida,,Panama City Beach,city,1254725,https://www.pcbfl.gov/
 Florida,,Paradise Heights,CDP,1254912,
 Florida,,Parker,city,1255075,http://www.cityofparker.com/
-Florida,,Parkland,city,1255125,
+Florida,,Parkland,city,1255125,https://www.cityofparkland.org/
 Florida,,Pasadena Hills,CDP,1255305,
 Florida,,Patrick AFB,CDP,1255375,
 Florida,,Paxton,town,1255475,https://www.paxtonfl.net/
@@ -7269,7 +7269,7 @@ Florida,,Surfside,town,1270075,https://www.townofsurfsidefl.gov/
 Florida,,Sweetwater,city,1270345,http://www.cityofsweetwater.fl.gov/
 Florida,,Taft,CDP,1270525,
 Florida,,Tallahassee,city,1270600,https://www.talgov.com/
-Florida,,Tamarac,city,1270675,
+Florida,,Tamarac,city,1270675,http://city-of-tamarac.com/
 Florida,,Tamiami,CDP,1270700,
 Florida,,Tangelo Park,CDP,1271075,
 Florida,,Tangerine,CDP,1271100,
@@ -7408,10 +7408,10 @@ Georgia,Barrow,Auburn,city,1304140,https://www.cityofauburn-ga.org/
 Georgia,Barrow,Bethlehem,town,1307612,http://www.bethlehemga.org/
 Georgia,Barrow,Statham,city,1373312,https://www.cityofstatham.com/
 Georgia,Barrow,Winder,city,1383420,https://www.cityofwinder.com/
-Georgia,Barrow,,county,13013,
+Georgia,Barrow,,county,13013,https://www.barrowga.org/
 Georgia,Bartow,Adairsville,city,1300436,https://adairsvillega.net/
 Georgia,Bartow,Cartersville,city,1313688,https://www.cartersvillega.gov/
-Georgia,Bartow,Emerson,city,1327344,
+Georgia,Bartow,Emerson,city,1327344,https://www.cityofemer-son.org/
 Georgia,Bartow,Euharlee-Taylorsville,city,1301591104,
 Georgia,Bartow,Kingston,city,1343668,https://cityofkingstonga.org/
 Georgia,Bartow,White-Pine Log,city,1301593360,
@@ -7444,7 +7444,7 @@ Georgia,Brooks,Morven,city,1353032,
 Georgia,Brooks,Quitman,city,1363224,https://www.quitmanga.gov/
 Georgia,Brooks,,county,13027,https://www.brookscountyga.gov/
 Georgia,Bryan,Fort Stewart,city,1302991236,
-Georgia,Bryan,Pembroke,city,1360004,
+Georgia,Bryan,Pembroke,city,1360004,https://www.pembrokega.net/
 Georgia,Bryan,Richmond Hill,city,1365044,https://www.richmondhill-ga.gov/
 Georgia,Bryan,,county,13029,https://www.bryancountyga.gov/
 Georgia,Bulloch,Brooklet,city,1311000,https://cityofbrooklet.org/
@@ -7462,7 +7462,7 @@ Georgia,Burke,Vidette,city,1379416,
 Georgia,Burke,Waynesboro,city,1380984,https://www.waynesboroga.com/
 Georgia,Burke,,county,13033,http://www.burkecounty-ga.gov/
 Georgia,Butts,Flovilla,city,1330312,https://www.cityofflovilla.org/
-Georgia,Butts,Jackson,city,1341596,
+Georgia,Butts,Jackson,city,1341596,https://www.cityofjacksonga.com/
 Georgia,Butts,Jenkinsburg,city,1342156,
 Georgia,Butts,Southwest Butts,city,1303592822,
 Georgia,Butts,Worthville,city,1303593438,
@@ -7492,7 +7492,7 @@ Georgia,Catoosa,Boynton Ridge,city,1304790360,
 Georgia,Catoosa,Catoosa Springs,city,1304790582,
 Georgia,Catoosa,Fort Oglethorpe-Lakeview,city,1304791230,https://fortogov.com/
 Georgia,Catoosa,Ringgold,city,1365324,https://www.cityofringgoldga.gov/
-Georgia,Catoosa,,county,13047,
+Georgia,Catoosa,,county,13047,https://www.catoosacountyga.gov/
 Georgia,Charlton,Folkston,city,1330424,https://www.cityoffolkston-ga.gov/
 Georgia,Charlton,St. George,city,1304992646,
 Georgia,Charlton,,county,13049,https://ga-charltoncounty.civicplus.com/
@@ -7510,7 +7510,7 @@ Georgia,Chattooga,Lyerly,town,1348092,https://www.lyerlyga.com/
 Georgia,Chattooga,Menlo,city,1350848,
 Georgia,Chattooga,Summerville,city,1374376,https://www.summervillega.org/
 Georgia,Chattooga,Trion,town,1377540,https://www.townoftrion.net/
-Georgia,Chattooga,,county,13055,
+Georgia,Chattooga,,county,13055,https://chattooga-ga-sheriff.org/
 Georgia,Cherokee,Ball Ground,city,1305036,https://cityofballground.com/
 Georgia,Cherokee,Canton,city,1312988,https://www.cantonga.gov/
 Georgia,Cherokee,Holly Springs,city,1339524,https://www.hollyspringsga.us/
@@ -7519,8 +7519,8 @@ Georgia,Cherokee,Waleska,city,1379948,https://www.cityofwaleska.com/
 Georgia,Cherokee,Woodstock,city,1384176,https://www.woodstockga.gov/
 Georgia,Cherokee,,county,13057,https://www.cherokeecountyga.gov/
 Georgia,Clarke,Athens,city,1305990138,https://www.accgov.com/
-Georgia,Clarke,Winterville,city,1383728,
-Georgia,Clarke,,county,13059,
+Georgia,Clarke,Winterville,city,1383728,https://www.cityofwinterville.com/
+Georgia,Clarke,,county,13059,https://www.accgov.com/
 Georgia,Clay,Bluffton,town,1308956,
 Georgia,Clay,Fort Gaines,city,1330816,https://www.fortgainesga.org/
 Georgia,Clay,,county,13061,http://www.claycountyga.net/
@@ -7534,7 +7534,7 @@ Georgia,Clinch,,county,13065,https://clinchcountyga.gov/
 Georgia,Cobb,Acworth-Kennesaw,city,1306790018,https://acworth-ga.gov/
 Georgia,Cobb,Austell,city,1304252,https://www.austellga.gov/
 Georgia,Cobb,Fair Oaks,city,1306791140,
-Georgia,Cobb,Mableton,city,1348288,
+Georgia,Cobb,Mableton,city,1348288,http://www.mableton.gov/
 Georgia,Cobb,Marietta,city,1349756,https://www.mariettaga.gov/
 Georgia,Cobb,Northeast Cobb,city,1306792202,
 Georgia,Cobb,Powder Springs,city,1362524,https://www.powderspringsga.gov/
@@ -7572,14 +7572,14 @@ Georgia,Crisp,Arabi,town,1302564,
 Georgia,Crisp,Cordele,city,1319616,https://www.cityofcordele.com/
 Georgia,Crisp,,county,13081,http://www.crispcounty.com/
 Georgia,Dade,Sand Mountain,city,1308392682,
-Georgia,Dade,Trenton,city,1377372,
+Georgia,Dade,Trenton,city,1377372,https://www.trentonga.gov/
 Georgia,Dade,,county,13083,https://www.dadecounty-ga.gov/
 Georgia,Dawson,Blacks Mill,city,1308590284,
 Georgia,Dawson,Dawsonville,city,1321940,https://www.dawsonville-ga.gov/
 Georgia,Dawson,,county,13085,https://www.dawsoncountyga.gov/
 Georgia,DeKalb,Atlanta-Decatur,city,1308990150,
 Georgia,DeKalb,Chamblee-Doraville,city,1308990612,https://www.chambleega.com/
-Georgia,DeKalb,Lithonia,city,1346860,
+Georgia,DeKalb,Lithonia,city,1346860,https://www.lithoniacity.gov/
 Georgia,DeKalb,Stone Mountain,city,1373816,https://www.stonemountaincity.org/
 Georgia,DeKalb,Tucker,city,1377652,https://www.tuckerga.gov/
 Georgia,DeKalb,,county,13089,http://www.dekalbcountyga.gov/
@@ -7610,7 +7610,7 @@ Georgia,Douglas,,county,13097,https://www.douglascountyga.gov/
 Georgia,Early,Blakely,city,1308536,https://cityofblakely.net/
 Georgia,Early,Damascus,city,1321436,
 Georgia,Early,Jakin,city,1341792,
-Georgia,Early,,county,13099,
+Georgia,Early,,county,13099,https://www.earlycountyga.org/
 Georgia,Echols,East Echols,city,1310191008,
 Georgia,Echols,West Echols,city,1310193318,
 Georgia,Echols,,county,13101,http://echolscountyga.com/
@@ -7638,18 +7638,18 @@ Georgia,Fannin,Morganton,city,1352724,https://cityofmorgantonga.gov/
 Georgia,Fannin,,county,13111,https://fannincountyga.com/
 Georgia,Fayette,Brooks,town,1311056,https://www.brooksga.com/
 Georgia,Fayette,Fayetteville,city,1328968,https://www.fayetteville-ga.gov/
-Georgia,Fayette,Peachtree City-Tyrone,city,1311392331,
+Georgia,Fayette,Peachtree City-Tyrone,city,1311392331,https://www.tyronega.gov/
 Georgia,Fayette,,county,13113,https://www.fayettecountyga.gov/
 Georgia,Floyd,Armuchee,city,1311590126,
 Georgia,Floyd,Cave Spring,city,1314108,https://cavespring.ga.gov/
 Georgia,Floyd,Rome,city,1366668,https://www.romega.us/
 Georgia,Floyd,Shannon,city,1311592736,
 Georgia,Floyd,,county,13115,https://www.floydcountyga.gov/
-Georgia,Forsyth,Big Creek,region,1311790270,
+Georgia,Forsyth,Big Creek,region,1311790270,https://www.forsythco.com/
 Georgia,Forsyth,Chestatee,city,1311790642,
 Georgia,Forsyth,Cumming,city,1320932,https://www.cityofcumming.net/
 Georgia,Forsyth,Silver,city,1311792772,
-Georgia,Forsyth,,county,13117,
+Georgia,Forsyth,,county,13117,https://www.forsythco.com/
 Georgia,Franklin,Carnesville,city,1313352,
 Georgia,Franklin,Lavonia,city,1345460,https://www.lavoniaga.gov/
 Georgia,Franklin,Sandy Cross,city,1311992688,
@@ -7667,7 +7667,7 @@ Georgia,Gilmer,Rich Mountain,city,1312392517,
 Georgia,Gilmer,South Gilmer,city,1312392805,
 Georgia,Gilmer,,county,13123,http://www.gilmercounty-ga.gov/
 Georgia,Glascock,Gibson,city,1332748,
-Georgia,Glascock,Mitchell,town,1351968,
+Georgia,Glascock,Mitchell,town,1351968,https://mitchellgeorgia.com/
 Georgia,Glascock,,county,13125,https://www.glascockcountyga.com/
 Georgia,Glynn,Brunswick,city,1311560,https://www.brunswickga.org/
 Georgia,Glynn,Everett,city,1312791116,
@@ -7699,7 +7699,7 @@ Georgia,Gwinnett,Dacula-Rocky Creek,region,1313590846,
 Georgia,Gwinnett,Lawrenceville,city,1345488,https://www.downtownlawrencevillega.com/
 Georgia,Gwinnett,Lilburn,city,1346356,https://www.cityoflilburn.com/
 Georgia,Gwinnett,Norcross,city,1355776,https://www.norcrossga.net/
-Georgia,Gwinnett,Snellville-Grayson,city,1313592790,
+Georgia,Gwinnett,Snellville-Grayson,city,1313592790,https://www.snellville.gov/
 Georgia,Gwinnett,Suwanee-Duluth,city,1313592910,https://www.suwanee.com/
 Georgia,Gwinnett,,county,13135,http://www.gwinnettcounty.com/
 Georgia,Habersham,Clarkesville,city,1316460,https://www.clarkesvillega.com/
@@ -7729,7 +7729,7 @@ Georgia,Harris,Waverly Hall,town,1380844,https://www.waverlyhallga.gov/
 Georgia,Harris,,county,13145,http://www.harriscountyga.gov/
 Georgia,Hart,Bowersville,town,1309656,https://townofbowersville.com/
 Georgia,Hart,Hartwell,city,1337144,https://www.hartwellga.gov/
-Georgia,Hart,Reed Creek,region,1314792466,
+Georgia,Hart,Reed Creek,region,1314792466,https://hartcountyga.gov/
 Georgia,Hart,,county,13147,https://www.hartcountyga.gov/
 Georgia,Heard,Centralhatchee,town,1315026,https://www.townofcentralhatchee.com/
 Georgia,Heard,Franklin,city,1331292,https://www.franklingeorgia.com/
@@ -7794,8 +7794,8 @@ Georgia,Laurens,,county,13175,https://www.laurenscoga.org/
 Georgia,Lee,Leesburg,city,1345768,https://www.cityofleesburgga.com/
 Georgia,Lee,Philema,city,1317792358,
 Georgia,Lee,Smithville,city,1371464,https://cityofsmithvillegeorgia.org/
-Georgia,Lee,,county,13177,
-Georgia,Liberty,Hinesville,city,1338964,
+Georgia,Lee,,county,13177,https://www.leecountyga.gov/
+Georgia,Liberty,Hinesville,city,1338964,https://www.cityofhinesville.org/
 Georgia,Liberty,Midway,city,1351352,https://www.historicmidway.com/
 Georgia,Liberty,Riceboro,city,1364960,https://www.cityofriceboro.org/
 Georgia,Liberty,,county,13179,https://libertycountygatax.com/
@@ -7849,7 +7849,7 @@ Georgia,Mitchell,Baconton,city,1304840,https://cityofbacontonga.nexbillpayonline
 Georgia,Mitchell,Branchville,city,1320590366,
 Georgia,Mitchell,Camilla,city,1312624,https://www.camillaga.net/
 Georgia,Mitchell,Pelham,city,1359976,https://cityofpelhamga.com/
-Georgia,Mitchell,Sale City,city,1368096,
+Georgia,Mitchell,Sale City,city,1368096,https://salecityga.com/
 Georgia,Mitchell,,county,13205,http://www.mitchellcountyga.net/
 Georgia,Monroe,Culloden-Bolingbroke,city,1320790822,
 Georgia,Monroe,Forsyth,city,1330732,https://www.cityofforsyth.net/
@@ -7862,7 +7862,7 @@ Georgia,Morgan,Bostwick,city,1309488,https://bostwickga.com/
 Georgia,Morgan,Buckhead,town,1311672,https://townofbuckhead.org/
 Georgia,Morgan,Godfrey,city,1321191314,
 Georgia,Morgan,Madison,city,1349196,https://www.madisonga.com/
-Georgia,Morgan,Rutledge,city,1367760,
+Georgia,Morgan,Rutledge,city,1367760,https://www.rutledgega.us/
 Georgia,Morgan,,county,13211,https://www.morgancountyga.gov/
 Georgia,Murray,Casey Springs,city,1321390576,
 Georgia,Murray,Chatsworth,city,1315508,https://www.chatsworthga.gov/
@@ -7873,7 +7873,7 @@ Georgia,Muscogee,Columbus East,city,1321590751,https://columbusga.gov/
 Georgia,Muscogee,Columbus North,city,1321590752,https://columbusga.gov/
 Georgia,Muscogee,Columbus West,city,1321590753,https://columbusga.gov/
 Georgia,Muscogee,Fort Benning,city,1321591213,
-Georgia,Muscogee,,county,13215,
+Georgia,Muscogee,,county,13215,https://columbusga.gov/
 Georgia,Newton,Covington-Porterdale,city,1321790804,https://www.cityofcovington.org/
 Georgia,Newton,Mansfield,city,1349616,https://www.mansfieldga.gov/
 Georgia,Newton,South Newton,city,1321792810,
@@ -7884,7 +7884,7 @@ Georgia,Oconee,,county,13219,https://www.oconeecountyga.gov/
 Georgia,Oglethorpe,Crawford,city,1320288,
 Georgia,Oglethorpe,Maxeys,town,1350260,https://cityofmaxeys.com/
 Georgia,Oglethorpe,Vesta-Enterprise,city,1322193186,
-Georgia,Oglethorpe,,county,13221,
+Georgia,Oglethorpe,,county,13221,https://www.oglethorpecountyga.gov/
 Georgia,Paulding,Dallas,city,1321324,https://www.dallasga.gov/
 Georgia,Paulding,Hiram,city,1339076,https://www.cityofhiramga.gov/
 Georgia,Paulding,North Paulding,city,1322392210,
@@ -7902,7 +7902,7 @@ Georgia,Pierce,Blackshear,city,1308284,https://blackshearga.org/
 Georgia,Pierce,Bristol,city,1322990396,
 Georgia,Pierce,Patterson,city,1359500,https://cityofpattersonga.com/
 Georgia,Pierce,,county,13229,https://piercecountyga.gov/
-Georgia,Pike,Concord-Molena,city,1323190768,
+Georgia,Pike,Concord-Molena,city,1323190768,https://www.cityofconcordga.gov/
 Georgia,Pike,Meansville,city,1350596,
 Georgia,Pike,Williamson,city,1383084,https://cityofwilliamsonga.org/
 Georgia,Pike,Zebulon,city,1385128,https://cityofzebulonga.us/
@@ -8090,14 +8090,14 @@ Georgia,Wheeler,,county,13309,
 Georgia,White,Cleveland,city,1316824,https://www.clevelandga.org/
 Georgia,White,Helen,city,1337788,https://www.cityofhelen.org/
 Georgia,White,Mossy Creek,region,1331192094,
-Georgia,White,,county,13311,
+Georgia,White,,county,13311,https://www.whitecountyga.gov/
 Georgia,Whitfield,Dalton,city,1321380,https://www.daltonga.gov/
 Georgia,Whitfield,North Whitfield,city,1331392220,
 Georgia,Whitfield,West Whitfield,city,1331393350,
 Georgia,Whitfield,,county,13313,https://www.whitfieldcountyga.com/
 Georgia,Wilcox,Abbeville,city,1300184,https://cityofabbevillega.gov/
 Georgia,Wilcox,Pineview,town,1361320,
-Georgia,Wilcox,Pitts,city,1361544,
+Georgia,Wilcox,Pitts,city,1361544,https://pittsga.com/
 Georgia,Wilcox,Rochelle,city,1366024,
 Georgia,Wilcox,,county,13315,https://www.wilcoxcountygeorgia.com/
 Georgia,Wilkes,Rayle,town,1363756,
@@ -8316,7 +8316,7 @@ Georgia,,Nunez,city,1356644,
 Georgia,,Oconee,city,1357456,
 Georgia,,Offerman,city,1357568,
 Georgia,,Ohoopee,CDP,1357876,
-Georgia,,Oliver,city,1358100,
+Georgia,,Oliver,city,1358100,https://cityofoliverga.gov/
 Georgia,,Oxford,city,1358744,https://www.oxfordgeorgia.org/
 Georgia,,Panthersville,CDP,1359080,
 Georgia,,Pavo,city,1359556,
@@ -8645,7 +8645,7 @@ Idaho,Bonneville,Idaho Falls West,city,1601991679,https://idahofallsidaho.gov/
 Idaho,Bonneville,Swan Valley,city,1679120,
 Idaho,Bonneville,Ucon,city,1683350,https://www.cityofucon.us/
 Idaho,Bonneville,,county,16019,https://www.bonnevillecountyidaho.gov/
-Idaho,Boundary,Bonners Ferry,city,1609370,
+Idaho,Boundary,Bonners Ferry,city,1609370,https://www.bonnersferry.id.gov/
 Idaho,Boundary,Moyie Springs,city,1655270,
 Idaho,Boundary,South and West Boundary,city,1602193285,
 Idaho,Boundary,,county,16021,http://boundarycountyid.org/
@@ -8679,8 +8679,8 @@ Idaho,Clark,East Clark,city,1603390851,
 Idaho,Clark,West Clark,city,1603393772,
 Idaho,Clark,,county,16033,http://www.clark-co.id.gov/
 Idaho,Clearwater,Elk River,city,1625120,
-Idaho,Clearwater,Nez Perce,city,1603592530,
-Idaho,Clearwater,Pierce-Headquarters,city,1603592806,
+Idaho,Clearwater,Nez Perce,city,1603592530,https://www.cityofnezperce.gov/
+Idaho,Clearwater,Pierce-Headquarters,city,1603592806,https://www.cityofpierce.net/
 Idaho,Clearwater,Weippe,city,1686050,
 Idaho,Clearwater,,county,16035,http://www.clearwatercounty.org/
 Idaho,Custer,Challis,city,1613780,https://cityofchallis.com/
@@ -8698,7 +8698,7 @@ Idaho,Franklin,,county,16041,http://franklincountyidaho.org/
 Idaho,Fremont,Ashton,city,1603610,https://cityofashton.com/
 Idaho,Fremont,Island Park,city,1640600,https://islandparkid.govoffice2.com/
 Idaho,Fremont,St. Anthony,city,1671020,https://www.cityofstanthony.org/
-Idaho,Fremont,Teton-Newdale,city,1604393496,
+Idaho,Fremont,Teton-Newdale,city,1604393496,https://cityofnewdale.org/
 Idaho,Fremont,Yellowstone National Park,city,1604393910,
 Idaho,Fremont,,county,16043,http://co.fremont.id.us/
 Idaho,Gem,Emmett,valley,1604590966,http://www.cityofemmett.org/
@@ -8728,7 +8728,7 @@ Idaho,Jerome,Jerome,city,1641320,https://www.ci.jerome.id.us/
 Idaho,Jerome,,county,16053,https://www.jeromecountyid.us/
 Idaho,Kootenai,Coeur d'Alene,city,1616750,https://www.cdaid.org/
 Idaho,Kootenai,Harrison,city,1635200,https://cityofharrisonid.com/
-Idaho,Kootenai,Post Falls-Rathdrum,city,1605592875,
+Idaho,Kootenai,Post Falls-Rathdrum,city,1605592875,https://www.postfalls.gov/
 Idaho,Kootenai,Spirit Lake-Athol,city,1605593312,https://www.spiritlakeid.gov/
 Idaho,Kootenai,Worley,city,1688480,http://www.cityofworley.org/
 Idaho,Kootenai,,county,16055,https://id-kootenai.publicaccessnow.com/
@@ -8796,7 +8796,7 @@ Idaho,Teton,Victor,city,1684250,https://victoridaho.gov/
 Idaho,Teton,,county,16081,http://tetoncountyidaho.gov/
 Idaho,Twin Falls,Buhl,city,1610810,https://www.cityofbuhl.us/
 Idaho,Twin Falls,Filer,city,1627730,https://www.cityoffiler.net/
-Idaho,Twin Falls,Hollister,city,1638080,
+Idaho,Twin Falls,Hollister,city,1638080,https://hollisteridaho.com/
 Idaho,Twin Falls,Kimberly,city,1643570,https://www.cityofkimberly.org/
 Idaho,Twin Falls,Murtaugh,city,1655900,
 Idaho,Twin Falls,Twin Falls,city,1682810,https://www.tfid.org/
@@ -8888,7 +8888,7 @@ Idaho,,Mountain Home AFB,CDP,1654820,https://www.mountainhome.af.mil/
 Idaho,,Mud Lake,city,1655450,
 Idaho,,Newdale,city,1656800,https://cityofnewdale.org/
 Idaho,,Oldtown,city,1658600,
-Idaho,,Onaway,city,1658870,
+Idaho,,Onaway,city,1658870,https://www.onawaymi.com/
 Idaho,,Orofino,city,1659320,http://www.cityoforofino.org/
 Idaho,,Osburn,city,1659590,https://www.cityofosburn.org/
 Idaho,,Oxford,city,1660040,
@@ -9240,7 +9240,7 @@ Illinois,DeKalb,Shabbona,village,1768822,https://www.shabbona-il.com/
 Illinois,DeKalb,Somonauk,village,1770460,https://www.vil.somonauk.il.us/
 Illinois,DeKalb,South Grove,township,1703770837,https://southgrovetownship.org/
 Illinois,DeKalb,Squaw Grove,township,1703772182,https://www.squawgrovetownshipil.org/
-Illinois,DeKalb,Sycamore,city,1774223,
+Illinois,DeKalb,Sycamore,city,1774223,https://cityofsycamore.com/
 Illinois,DeKalb,Victor,township,1703777798,
 Illinois,DeKalb,,county,17037,http://www.dekalbcounty.org/
 Illinois,Douglas,Arcola,city,1701881,https://www.arcolaillinois.org/
@@ -9583,7 +9583,7 @@ Illinois,Jefferson,,county,17081,http://www.jeffersoncountyillinois.com/
 Illinois,Jersey,Elsah,village,1723776,
 Illinois,Jersey,English,township,1708324231,
 Illinois,Jersey,Fidelity,village,1725960,
-Illinois,Jersey,Jersey,township,1708338401,
+Illinois,Jersey,Jersey,township,1708338401,https://jerseyil.devnetwedge.com/
 Illinois,Jersey,Mississippi,township,1708349672,
 Illinois,Jersey,Otter Creek,township,1708356952,
 Illinois,Jersey,Piasa,township,1708359598,
@@ -9592,7 +9592,7 @@ Illinois,Jersey,Richwood,township,1708363745,
 Illinois,Jersey,Rosedale,township,1708365689,
 Illinois,Jersey,Ruyle,township,1708366482,
 Illinois,Jersey,,county,17083,http://www.jerseycounty-il.us/
-Illinois,Jo Daviess,Apple River,village,1701673,
+Illinois,Jo Daviess,Apple River,village,1701673,https://www.villageofappleriver.com/
 Illinois,Jo Daviess,Berreman,township,1708505495,
 Illinois,Jo Daviess,Council Hill,township,1708516639,
 Illinois,Jo Daviess,Derinda,township,1708519551,
@@ -9743,7 +9743,7 @@ Illinois,Lake,Antioch,village,1701595,https://www.antioch.il.gov/
 Illinois,Lake,Avon,township,1709703220,https://www.avonil.us/
 Illinois,Lake,Benton,township,1709705326,https://bentontownship.com/
 Illinois,Lake,Cuba,township,1709718004,https://cubatwpil.gov/
-Illinois,Lake,Ela,township,1709722853,
+Illinois,Lake,Ela,township,1709722853,https://elatownship.gov/
 Illinois,Lake,Fremont,township,1709727923,http://fremonttownship.com/
 Illinois,Lake,Grant,township,1709730952,https://granttownshipcenter.org/
 Illinois,Lake,Lake Villa,village,1741586,https://www.lake-villa.org/
@@ -9823,7 +9823,7 @@ Illinois,Livingston,Union,township,1710576680,
 Illinois,Livingston,Waldo,township,1710578409,
 Illinois,Livingston,,county,17105,http://www.livingstoncounty-il.org/
 Illinois,Logan,Aetna,township,1710700360,https://www.aetnatownshipil.com/
-Illinois,Logan,Atlanta,city,1702752,
+Illinois,Logan,Atlanta,city,1702752,https://www.cityofatlantail.gov/
 Illinois,Logan,Broadwell,village,1708472,
 Illinois,Logan,Chester,township,1710713126,
 Illinois,Logan,Corwin,township,1710716496,
@@ -9895,7 +9895,7 @@ Illinois,Madison,Godfrey,village,1711930094,https://godfreyil.org/
 Illinois,Madison,Granite City,city,1730926,https://www.granitecity.illinois.gov/
 Illinois,Madison,Hamel,village,1732408,https://www.villageofhamel.com/
 Illinois,Madison,Helvetia,township,1711933981,
-Illinois,Madison,Jarvis,township,1711938245,
+Illinois,Madison,Jarvis,township,1711938245,https://jarvistownship.com/
 Illinois,Madison,Leef,township,1711942652,
 Illinois,Madison,Marine,village,1746864,http://www.villageofmarine.net/
 Illinois,Madison,Moro,township,1711950465,
@@ -10070,7 +10070,7 @@ Illinois,Mercer,New Boston,city,1752220,https://cityofnewbostonil.com/
 Illinois,Mercer,North Henderson,village,1753793,https://villageofnorthhenderson.myruralwater.com/
 Illinois,Mercer,Ohio Grove,township,1713155405,
 Illinois,Mercer,Perryton,township,1713159182,
-Illinois,Mercer,Preemption,township,1713161795,
+Illinois,Mercer,Preemption,township,1713161795,https://preemptiontownship.com/
 Illinois,Mercer,Richland Grove,township,1713163628,
 Illinois,Mercer,Rivoli,township,1713164551,
 Illinois,Mercer,Suez,township,1713173339,
@@ -10135,7 +10135,7 @@ Illinois,Montgomery,,county,17135,https://montgomerycountyil.gov/
 Illinois,Morgan,Alexander,precinct,1713790054,
 Illinois,Morgan,Arcadia,precinct,1713790234,
 Illinois,Morgan,Chapin-Concord,precinct,1713790725,
-Illinois,Morgan,Franklin,village,1727663,
+Illinois,Morgan,Franklin,village,1727663,https://franklinillinois.net/
 Illinois,Morgan,Jacksonville No. 1,precinct,1713791711,
 Illinois,Morgan,Jacksonville No. 10,precinct,1713791720,
 Illinois,Morgan,Jacksonville No. 11,precinct,1713791721,
@@ -10347,7 +10347,7 @@ Illinois,Rock Island,Moline,city,1749867,https://www.moline.il.us/
 Illinois,Rock Island,Port Byron,village,1761223,https://www.portbyronil.com/
 Illinois,Rock Island,Rock Island,city,1765078,https://www.rigov.org/
 Illinois,Rock Island,Rural,township,1716166300,
-Illinois,Rock Island,South Moline,township,1716170993,
+Illinois,Rock Island,South Moline,township,1716170993,https://southmolinetownship.com/
 Illinois,Rock Island,South Rock Island,township,1716171201,https://www.sritownship.net/
 Illinois,Rock Island,Zuma,township,1716184246,
 Illinois,Rock Island,,county,17161,https://rockislandcountyil.gov/
@@ -10365,7 +10365,7 @@ Illinois,Saline,Rector,township,1716563030,
 Illinois,Saline,Tate,township,1716574509,
 Illinois,Saline,,county,17165,http://www.salinecounty.illinois.gov/
 Illinois,Sangamon,Auburn,city,1702921,https://auburnillinois.us/
-Illinois,Sangamon,Ball,township,1716703506,
+Illinois,Sangamon,Ball,township,1716703506,https://balltownship.org/
 Illinois,Sangamon,Buffalo Hart,township,1716709486,
 Illinois,Sangamon,Capital,township,1716711046,
 Illinois,Sangamon,Cartwright,township,1716711579,
@@ -10562,7 +10562,7 @@ Illinois,Wabash,Lick Prairie,precinct,1718591890,
 Illinois,Wabash,Mount Carmel,city,1750868,https://www.cityofmtcarmel.com/
 Illinois,Wabash,Wabash,precinct,1718593582,
 Illinois,Wabash,,county,17185,
-Illinois,Warren,Berwick,township,1718705560,
+Illinois,Warren,Berwick,township,1718705560,https://www.berwicktownship.org/
 Illinois,Warren,Coldbrook,township,1718715404,
 Illinois,Warren,Ellison,township,1718723516,
 Illinois,Warren,Floyd,township,1718726610,
@@ -10796,7 +10796,7 @@ Illinois,,Bluffs,village,1706899,
 Illinois,,Bluford,village,1706964,
 Illinois,,Bolingbrook,village,1707133,http://www.bolingbrook.com/
 Illinois,,Bondville,village,1707211,
-Illinois,,Bonfield,village,1707237,
+Illinois,,Bonfield,village,1707237,https://www.limestoneil.org/
 Illinois,,Bonnie,village,1707263,http://www.villageofbonnie.com/
 Illinois,,Bonnie Brae,CDP,1707276,
 Illinois,,Boody,CDP,1707315,
@@ -11049,7 +11049,7 @@ Illinois,,Grandview,village,1730835,https://villageofgrandview.gov/
 Illinois,,Grandwood Park,CDP,1730900,
 Illinois,,Grant Park,village,1730991,http://www.grantpark-il.org/
 Illinois,,Grantfork,village,1730978,
-Illinois,,Grayslake,village,1731121,
+Illinois,,Grayslake,village,1731121,https://www.villageofgrayslake.com/
 Illinois,,Grayville,city,1731165,https://grayville-il.gov/
 Illinois,,Green Oaks,village,1731446,http://www.greenoaks.org/
 Illinois,,Green Valley,village,1731563,
@@ -11253,7 +11253,7 @@ Illinois,,McLean,village,1745811,http://www.mclean-il.com/
 Illinois,,McNabb,village,1745850,http://www.villageofmcnabb.org/
 Illinois,,Medora,village,1748138,
 Illinois,,Melrose Park,village,1748242,http://melrosepark.org/
-Illinois,,Melvin,village,1748268,
+Illinois,,Melvin,village,1748268,https://www.melvinill.com/
 Illinois,,Merrionette Park,village,1748554,http://merrionettepark.org/
 Illinois,,Metcalf,village,1748632,
 Illinois,,Metropolis,city,1748645,https://www.metropolisil.gov/
@@ -11432,7 +11432,7 @@ Illinois,,Royal,village,1766157,https://villageofroyal.com/
 Illinois,,Royal Lakes,village,1766196,
 Illinois,,Royalton,village,1766209,http://www.royaltonillinois.com/
 Illinois,,Russellville,village,1766404,
-Illinois,,Rutland,village,1766443,
+Illinois,,Rutland,village,1766443,https://www.villageofrutland.com/
 Illinois,,Sailor Springs,village,1766599,
 Illinois,,Sammons Point,village,1767372,https://villageofsammonspoint.org/
 Illinois,,San Jose,village,1767613,http://www.sanjoseil.com/
@@ -11498,7 +11498,7 @@ Illinois,,Standard City,village,1772234,
 Illinois,,Stanford,village,1772260,https://stanford-il.org/
 Illinois,,Steger,village,1772520,http://villageofsteger.org/
 Illinois,,Steward,village,1772624,https://www.stewardil.com/
-Illinois,,Stewardson,village,1772650,
+Illinois,,Stewardson,village,1772650,https://www.stewardil.com/
 Illinois,,Stillman Valley,village,1772702,https://stillmanvalley.us/
 Illinois,,Stone Park,village,1772923,https://www.vosp.us/
 Illinois,,Stonefort,village,1772884,
@@ -11941,7 +11941,7 @@ Indiana,Fulton,Union,township,1804977282,
 Indiana,Fulton,Wayne,township,1804981692,
 Indiana,Fulton,,county,18049,http://www.co.fulton.in.us/
 Indiana,Gibson,Barton,township,1805103556,
-Indiana,Gibson,Center,township,1805111314,
+Indiana,Gibson,Center,township,1805111314,https://gibsoncentertwp-in.gov/
 Indiana,Gibson,Columbia,township,1805114662,
 Indiana,Gibson,Johnson,township,1805138682,
 Indiana,Gibson,Montgomery,township,1805150706,
@@ -12207,7 +12207,7 @@ Indiana,Lake,Cedar Creek,township,1808911026,
 Indiana,Lake,Center,township,1808911476,
 Indiana,Lake,Eagle Creek,township,1808919306,
 Indiana,Lake,Hanover,township,1808931252,
-Indiana,Lake,Hobart,city,1834114,
+Indiana,Lake,Hobart,city,1834114,http://www.cityofhobart.org/
 Indiana,Lake,North,township,1808954414,
 Indiana,Lake,Ross,township,1808966096,https://www.rosstownshipin.org/
 Indiana,Lake,St. John,town,1866852,https://stjohnin.gov/
@@ -12345,7 +12345,7 @@ Indiana,Noble,Swan,township,1811374474,
 Indiana,Noble,Washington,township,1811380882,
 Indiana,Noble,Wayne,township,1811381836,
 Indiana,Noble,York,township,1811385994,
-Indiana,Noble,,county,18113,
+Indiana,Noble,,county,18113,http://www.noblecounty57.us/
 Indiana,Ohio,Cass,township,1811510738,
 Indiana,Ohio,Pike,township,1811559760,
 Indiana,Ohio,Randolph,township,1811562928,
@@ -12356,7 +12356,7 @@ Indiana,Orange,Greenfield,township,1811729556,
 Indiana,Orange,Jackson,township,1811737260,
 Indiana,Orange,Northeast,township,1811754648,
 Indiana,Orange,Northwest,township,1811755152,
-Indiana,Orange,Orangeville,township,1811756826,
+Indiana,Orange,Orangeville,township,1811756826,https://www.orangevilletownship.org/
 Indiana,Orange,Orleans,town,1857024,https://town.orleans.in.us/
 Indiana,Orange,Paoli,town,1857780,
 Indiana,Orange,Southeast,township,1811771090,
@@ -12660,7 +12660,7 @@ Indiana,Warren,Washington,township,1817181098,
 Indiana,Warren,,county,18171,http://www.warrencounty.in.gov/
 Indiana,Warrick,Anderson,township,1817301540,
 Indiana,Warrick,Boon,township,1817306472,
-Indiana,Warrick,Campbell,township,1817309964,
+Indiana,Warrick,Campbell,township,1817309964,https://www.campbelltownship.org/
 Indiana,Warrick,Greer,township,1817329970,
 Indiana,Warrick,Hart,township,1817332188,
 Indiana,Warrick,Lane,township,1817342012,
@@ -12680,7 +12680,7 @@ Indiana,Washington,Monroe,township,1817550508,
 Indiana,Washington,Pierce,township,1817559580,
 Indiana,Washington,Polk,township,1817561002,
 Indiana,Washington,Posey,township,1817561398,
-Indiana,Washington,Vernon,township,1817578956,
+Indiana,Washington,Vernon,township,1817578956,https://vernontownship.us/
 Indiana,Washington,Washington,township,1817581116,
 Indiana,Washington,,county,18175,http://www.washingtoncounty.in.gov/
 Indiana,Wayne,Abington,township,1817700172,
@@ -12909,7 +12909,7 @@ Indiana,,Culver,town,1816300,
 Indiana,,Cumberland,town,1816336,http://www.town.cumberland.in.us/
 Indiana,,Cutler,CDP,1816480,
 Indiana,,Cynthiana,town,1816534,https://townofcynthiana.org/
-Indiana,,Dale,town,1816624,
+Indiana,,Dale,town,1816624,https://townofdale.org/
 Indiana,,Daleville,town,1816642,https://www.dalevilleindiana.org/
 Indiana,,Dana,town,1816732,https://dana.in.gov/
 Indiana,,Danville,town,1816804,http://www.danvilleindiana.org/
@@ -12919,7 +12919,7 @@ Indiana,,Dayton,town,1817002,https://dayton.in.gov/
 Indiana,,DeMotte,town,1817704,https://www.townofdemotte.com/
 Indiana,,Decatur,city,1817074,https://www.cityofdecatur.in.gov/
 Indiana,,Deer Creek,CDP,1817245,
-Indiana,,Delphi,city,1817614,
+Indiana,,Delphi,city,1817614,https://cityofdelphi.in.gov/
 Indiana,,Denver,town,1817776,
 Indiana,,Depauw,CDP,1817794,
 Indiana,,Deputy,CDP,1817812,
@@ -12963,7 +12963,7 @@ Indiana,,Emison,CDP,1821124,
 Indiana,,Enchanted Hills,CDP,1821178,
 Indiana,,English,town,1821214,
 Indiana,,Etna Green,town,1821502,https://etnagreenin.com/
-Indiana,,Evansville,city,1822000,
+Indiana,,Evansville,city,1822000,https://cityofevansvillein.munisselfservice.com/
 Indiana,,Everton,CDP,1822072,
 Indiana,,Fair Oaks,CDP,1822468,
 Indiana,,Fairland,town,1822396,http://fairlandin.org/
@@ -13212,7 +13212,7 @@ Indiana,,Mays,CDP,1847826,
 Indiana,,McCordsville,town,1845648,https://www.mccordsville.in.gov/
 Indiana,,Mecca,town,1848132,
 Indiana,,Medaryville,town,1848186,http://www.medaryville.net/
-Indiana,,Medora,town,1848240,
+Indiana,,Medora,town,1848240,https://www.townofmedora.com/
 Indiana,,Mellott,town,1848294,
 Indiana,,Melody Hill,CDP,1848330,
 Indiana,,Memphis,CDP,1848384,
@@ -13458,7 +13458,7 @@ Indiana,,Shepardsville,CDP,1869336,
 Indiana,,Shipshewana,town,1869480,https://shipshewana.gov/
 Indiana,,Shipshewana Lake,CDP,1869489,
 Indiana,,Shirley,town,1869516,
-Indiana,,Shoals,town,1869552,
+Indiana,,Shoals,town,1869552,https://www.townofshoals.org/
 Indiana,,Shorewood Forest,CDP,1869642,
 Indiana,,Sidney,town,1869678,
 Indiana,,Silver Lake,town,1869768,https://townofsilverlake.com/
@@ -13583,7 +13583,7 @@ Indiana,,West Lafayette,city,1882862,https://www.westlafayette.in.gov/
 Indiana,,West Lebanon,town,1882934,https://westlebanonindiana.com/
 Indiana,,West Middleton,CDP,1883042,
 Indiana,,West Point,CDP,1883222,
-Indiana,,West Terre Haute,town,1883384,
+Indiana,,West Terre Haute,town,1883384,https://www.townofwestterrehaute.com/
 Indiana,,Westfield,city,1882700,https://weconnect.westfield.in.gov/
 Indiana,,Westphalia,CDP,1883204,
 Indiana,,Westport,town,1883276,https://townofwestportindiana.com/
@@ -14127,7 +14127,7 @@ Iowa,Des Moines,Flint River,township,1905791347,
 Iowa,Des Moines,Franklin,township,1905791401,
 Iowa,Des Moines,Huron,township,1905792010,
 Iowa,Des Moines,Jackson,township,1905792112,
-Iowa,Des Moines,Mediapolis,city,1905792906,
+Iowa,Des Moines,Mediapolis,city,1905792906,https://www.mediapolisiowa.org/
 Iowa,Des Moines,Middletown,city,1905792924,
 Iowa,Des Moines,Pleasant Grove,township,1905793390,
 Iowa,Des Moines,Tama,township,1905794080,
@@ -14186,7 +14186,7 @@ Iowa,Fayette,Banks,township,1906590120,
 Iowa,Fayette,Bethel,township,1906590231,
 Iowa,Fayette,Center,township,1906590603,
 Iowa,Fayette,Clermont,city,1914250,https://clermontia.org/
-Iowa,Fayette,Dover,township,1906591071,
+Iowa,Fayette,Dover,township,1906591071,https://www.dovertownship.org/
 Iowa,Fayette,Eden,township,1906591143,
 Iowa,Fayette,Fairfield,township,1906591278,
 Iowa,Fayette,Fayette,city,1906591324,https://fayetteiowa.com/
@@ -14297,7 +14297,7 @@ Iowa,Guthrie,Orange,township,1907793192,
 Iowa,Guthrie,Penn,township,1907793279,
 Iowa,Guthrie,Richland,township,1907793591,
 Iowa,Guthrie,Seely,township,1907793807,
-Iowa,Guthrie,Stuart,city,1975990,
+Iowa,Guthrie,Stuart,city,1975990,https://stuartia.com/
 Iowa,Guthrie,Thompson,township,1907794110,
 Iowa,Guthrie,Union,township,1907794212,
 Iowa,Guthrie,Valley,township,1907794302,
@@ -14318,7 +14318,7 @@ Iowa,Hamilton,Marion,township,1907992850,
 Iowa,Hamilton,Rose Grove,township,1907993696,
 Iowa,Hamilton,Scott,township,1907993783,
 Iowa,Hamilton,Webster,township,1907994623,
-Iowa,Hamilton,Webster City,city,1907994633,
+Iowa,Hamilton,Webster City,city,1907994633,https://www.webstercity.com/
 Iowa,Hamilton,Williams,city,1985800,
 Iowa,Hamilton,,county,19079,https://www.hamiltoncounty.iowa.gov/
 Iowa,Hancock,Amsterdam,township,1908190069,
@@ -14502,7 +14502,7 @@ Iowa,Jefferson,Walnut,township,1910194401,
 Iowa,Jefferson,,county,19101,https://jeffersoncounty.iowa.gov/
 Iowa,Johnson,Big Grove,township,1910390240,
 Iowa,Johnson,Cedar,township,1910390543,
-Iowa,Johnson,Clear Creek,township,1910390714,
+Iowa,Johnson,Clear Creek,township,1910390714,https://clearcreektownshipia.gov/
 Iowa,Johnson,East Lucas,township,1910391119,
 Iowa,Johnson,Fremont,township,1910391479,
 Iowa,Johnson,Graham,township,1910391599,
@@ -14762,7 +14762,7 @@ Iowa,Mitchell,Douglas,township,1913191047,
 Iowa,Mitchell,East Lincoln,township,1913191116,
 Iowa,Mitchell,Jenkins,township,1913192268,
 Iowa,Mitchell,Liberty,township,1913192478,
-Iowa,Mitchell,Mitchell,city,1952905,
+Iowa,Mitchell,Mitchell,city,1952905,https://mitchell.iowaassessors.com/
 Iowa,Mitchell,Newburg,township,1913193075,
 Iowa,Mitchell,Osage,city,1959745,https://www.osageia.org/
 Iowa,Mitchell,Otranto,township,1913193225,
@@ -15351,7 +15351,7 @@ Iowa,Worth,Deer Creek,township,1919590939,
 Iowa,Worth,Fertile,city,1927390,http://fertileiowa.us/
 Iowa,Worth,Grove,township,1919591797,
 Iowa,Worth,Hartland,township,1919591881,
-Iowa,Worth,Kensett,city,1940665,
+Iowa,Worth,Kensett,city,1940665,http://www.kensettia.com/
 Iowa,Worth,Lincoln,township,1919592634,
 Iowa,Worth,Silver Lake,township,1919593909,
 Iowa,Worth,Union,township,1919594287,
@@ -15394,7 +15394,7 @@ Iowa,,Altoona,city,1901630,https://www.altoona-iowa.com/
 Iowa,,Alvord,city,1901675,https://cityofalvordiowa.com/
 Iowa,,Amana,CDP,1901720,
 Iowa,,Ames,city,1901855,https://www.cityofames.org/
-Iowa,,Anamosa,city,1901990,
+Iowa,,Anamosa,city,1901990,https://www.anamosa-iowa.org/
 Iowa,,Anderson,CDP,1902035,
 Iowa,,Andover,city,1902080,https://cityofandover.org/
 Iowa,,Andrew,city,1902125,https://andrewia.com/
@@ -15640,7 +15640,7 @@ Iowa,,Gilbert,city,1930630,https://www.cityofgilbertiowa.org/
 Iowa,,Gilbertville,city,1930675,https://www.gilbertvilleia.com/
 Iowa,,Gilman,city,1930900,https://gilman.ia.gov/
 Iowa,,Gilmore City,city,1930945,http://www.gilmorecityiowa.com/
-Iowa,,Gladbrook,city,1931035,
+Iowa,,Gladbrook,city,1931035,https://www.gladbrook.lib.ia.us/
 Iowa,,Goldfield,city,1931530,
 Iowa,,Goodell,city,1931575,
 Iowa,,Goose Lake,city,1931665,https://www.gooselakeiowa.org/
@@ -15668,12 +15668,12 @@ Iowa,,Guthrie Center,city,1933420,http://www.guthriecenter.com/
 Iowa,,Guttenberg,city,1933465,https://cityofguttenbergia.gov/
 Iowa,,Halbur,city,1933645,https://www.halburiowa.com/
 Iowa,,Hamilton,city,1933870,
-Iowa,,Hancock,city,1934005,
+Iowa,,Hancock,city,1934005,https://www.cityofhancock.com/
 Iowa,,Hanlontown,city,1934185,https://www.hanlontown.org/
 Iowa,,Hansell,city,1934365,
 Iowa,,Harcourt,city,1934410,
 Iowa,,Hardy,city,1934455,
-Iowa,,Harper,city,1934545,
+Iowa,,Harper,city,1934545,https://harpersferryiowa.com/
 Iowa,,Harpers Ferry,city,1934590,https://harpersferryiowa.com/
 Iowa,,Harris,city,1934635,
 Iowa,,Hartford,city,1934680,https://www.newhartfordia.org/
@@ -15703,14 +15703,14 @@ Iowa,,Hornick,city,1937200,https://www.hornickiowa.com/
 Iowa,,Hospers,city,1937290,https://hospersiowa.com/
 Iowa,,Houghton,city,1937335,
 Iowa,,Hubbard,city,1937425,http://www.hubbardiowa.com/
-Iowa,,Hudson,city,1937470,
+Iowa,,Hudson,city,1937470,https://cityofhudsonia.frontdeskgworks.com/
 Iowa,,Hull,city,1937515,http://cityofhull.org/
 Iowa,,Humeston,city,1937605,
 Iowa,,Hutchins,CDP,1937875,
 Iowa,,Huxley,city,1937920,http://www.huxleyiowa.org/
 Iowa,,Ida Grove,city,1938010,https://idagroveia.com/
 Iowa,,Imogene,city,1938055,https://imogeneiowa.weebly.com/
-Iowa,,Independence,city,1938100,
+Iowa,,Independence,city,1938100,https://www.independenceia.gov/
 Iowa,,Inwood,city,1938415,http://inwoodiowa.com/
 Iowa,,Ionia,city,1938460,
 Iowa,,Iowa Falls,city,1938640,http://www.cityofiowafalls.com/
@@ -15803,7 +15803,7 @@ Iowa,,Luther,city,1947280,https://www.lutheriowagov.com/
 Iowa,,Luxemburg,city,1947460,https://www.luxemburgiowa.com/
 Iowa,,Luzerne,city,1947505,
 Iowa,,Lynnville,city,1947595,https://www.lynnvilleiowa.com/
-Iowa,,Lytton,city,1947730,
+Iowa,,Lytton,city,1947730,https://www.lytton.lib.ia.us/
 Iowa,,Macksburg,city,1948180,
 Iowa,,Madrid,city,1948450,http://www.madridiowa.com/
 Iowa,,Maharishi Vedic City,city,1948500,https://maharishivediccity-iowa.gov/
@@ -15827,7 +15827,7 @@ Iowa,,Masonville,city,1950205,
 Iowa,,Matlock,city,1950385,
 Iowa,,Maurice,city,1950430,https://cityofmaurice.com/
 Iowa,,Maxwell,city,1950520,https://www.maxwelliowa.com/
-Iowa,,Maynard,city,1950610,
+Iowa,,Maynard,city,1950610,https://www.maynard.lib.ia.us/
 Iowa,,Maysville,city,1950655,
 Iowa,,McCallsburg,city,1947775,https://www.cityofmccallsburg.com/
 Iowa,,McCausland,city,1947820,https://cityofmccausland.com/
@@ -15938,7 +15938,7 @@ Iowa,,Paullina,city,1961905,https://cityofpaullina.com/
 Iowa,,Pella,city,1962040,https://www.cityofpella.com/
 Iowa,,Peosta,city,1962130,http://www.cityofpeosta.org/
 Iowa,,Percival,CDP,1962175,
-Iowa,,Perry,city,1962355,
+Iowa,,Perry,city,1962355,https://www.perryia.org/
 Iowa,,Persia,city,1962445,
 Iowa,,Pierson,city,1962760,https://www.piersonia.com/
 Iowa,,Pisgah,city,1963075,
@@ -15981,7 +15981,7 @@ Iowa,,Redfield,city,1966045,https://redfieldia.com/
 Iowa,,Reinbeck,city,1966315,https://reinbeck.org/
 Iowa,,Rembrandt,city,1966360,
 Iowa,,Renwick,city,1966450,
-Iowa,,Rhodes,city,1966540,
+Iowa,,Rhodes,city,1966540,https://rhodesforiowa.com/
 Iowa,,Riceville,city,1966585,https://riceville.govoffice2.com/
 Iowa,,Rickardsville,city,1966810,
 Iowa,,Ricketts,city,1966855,
@@ -16057,7 +16057,7 @@ Iowa,,St. Charles,city,1969915,https://stcharlesia.us/
 Iowa,,St. Donatus,city,1969960,
 Iowa,,St. Joseph,CDP,1970005,
 Iowa,,St. Lucas,city,1970050,https://www.stlucasia.com/
-Iowa,,St. Marys,city,1970095,
+Iowa,,St. Marys,city,1970095,https://www.saintmarysiowa.com/
 Iowa,,St. Olaf,city,1970140,
 Iowa,,St. Paul,city,1970185,
 Iowa,,Stanhope,city,1974910,http://www.stanhopeiowa.com/
@@ -16079,7 +16079,7 @@ Iowa,,Sun Valley Lake,CDP,1976415,
 Iowa,,Sutherland,city,1976485,http://www.sutherlandiowa.com/
 Iowa,,Swaledale,city,1976620,
 Iowa,,Swan,city,1976665,https://cityofswan.org/
-Iowa,,Swea City,city,1976755,
+Iowa,,Swea City,city,1976755,https://www.sweacity.lib.ia.us/
 Iowa,,Swedesburg,CDP,1976800,
 Iowa,,Swisher,city,1976890,https://swisheria.govoffice3.com/
 Iowa,,Templeton,city,1977340,https://templetoniowa.com/
@@ -16152,7 +16152,7 @@ Iowa,,Weston,CDP,1984495,
 Iowa,,Westwood,city,1984835,http://www.westwoodia.com/
 Iowa,,Wever,CDP,1984855,
 Iowa,,What Cheer,city,1984900,
-Iowa,,Wheatland,city,1984945,
+Iowa,,Wheatland,city,1984945,https://cityofwheatland.org/
 Iowa,,Whiting,city,1985215,
 Iowa,,Whitten,city,1985305,
 Iowa,,Willey,city,1985710,
@@ -16333,7 +16333,7 @@ Kansas,Chautauqua,Sedan,city,2063750,https://cityofsedan.com/
 Kansas,Chautauqua,Summit,township,2001969025,
 Kansas,Chautauqua,Washington,township,2001975550,
 Kansas,Chautauqua,,county,20019,https://www.chautauquacountyks.com/
-Kansas,Cherokee,Baxter Springs,city,2002104625,
+Kansas,Cherokee,Baxter Springs,city,2002104625,https://baxterspringsks.gov/
 Kansas,Cherokee,Cherokee,city,2012825,
 Kansas,Cherokee,Columbus,city,2002115075,https://columbusks.gov/
 Kansas,Cherokee,Crawford,township,2002116225,
@@ -16629,7 +16629,7 @@ Kansas,Franklin,Peoria,township,2005955425,
 Kansas,Franklin,Pomona,city,2057000,https://www.pomonaks.org/
 Kansas,Franklin,Pottawatomie,township,2005957225,
 Kansas,Franklin,Richmond,city,2059675,
-Kansas,Franklin,Williamsburg,city,2079300,
+Kansas,Franklin,Williamsburg,city,2079300,https://www.williamsburgks.us/
 Kansas,Franklin,,county,20059,http://www.franklincoks.org/
 Kansas,Geary,Blakely,township,2006107275,
 Kansas,Geary,Jackson,township,2006134775,
@@ -16678,7 +16678,7 @@ Kansas,Gray,Logan,township,2006941900,
 Kansas,Gray,Montezuma,city,2047875,
 Kansas,Gray,,county,20069,https://www.grayco.org/
 Kansas,Greeley,Tribune,city,2071450,
-Kansas,Greeley,,county,20071,
+Kansas,Greeley,,county,20071,https://greeleycountyks.gov/
 Kansas,Greenwood,Bachelor,township,2007303625,
 Kansas,Greenwood,Eureka,city,2007321800,https://www.eurekaks.org/
 Kansas,Greenwood,Fall River,township,2007322800,
@@ -16816,7 +16816,7 @@ Kansas,Johnson,Overland Park,city,2009153775,https://www.opkansas.gov/
 Kansas,Johnson,Oxford,township,2009153825,
 Kansas,Johnson,Prairie Village,city,2009157575,https://www.prairievillageks.gov/
 Kansas,Johnson,Roeland Park,city,2009160825,https://www.roelandpark.org/
-Kansas,Johnson,Shawnee,city,2009164500,
+Kansas,Johnson,Shawnee,city,2009164500,https://www.cityofshawnee.org/
 Kansas,Johnson,Westwood,city,2009177500,https://www.westwoodks.org/
 Kansas,Johnson,Westwood Hills,city,2009177525,https://www.westwoodhillsks.gov/
 Kansas,Johnson,,county,20091,https://www.jocogov.org/
@@ -16881,7 +16881,7 @@ Kansas,Lane,Wilson,township,2010179725,
 Kansas,Lane,,county,20101,http://www.lanecountyks.org/
 Kansas,Leavenworth,Alexandria,township,2010301100,
 Kansas,Leavenworth,Delaware,township,2010317450,
-Kansas,Leavenworth,Easton,city,2019600,
+Kansas,Leavenworth,Easton,city,2019600,https://eastonkansas.com/
 Kansas,Leavenworth,Fairmount,township,2010322325,https://fairmounttownshipks.fairmountfd.org/
 Kansas,Leavenworth,High Prairie,township,2010332125,
 Kansas,Leavenworth,Kickapoo,township,2010336700,
@@ -16917,7 +16917,7 @@ Kansas,Linn,Blue Mound,city,2007600,
 Kansas,Linn,Centerville,township,2010712350,
 Kansas,Linn,Liberty,township,2010740200,
 Kansas,Linn,Lincoln,township,2010740825,
-Kansas,Linn,Mound City,city,2048750,
+Kansas,Linn,Mound City,city,2048750,https://www.moundcity.org/
 Kansas,Linn,Paris,township,2010754375,
 Kansas,Linn,Potosi,township,2010757175,
 Kansas,Linn,Scott,township,2010763550,
@@ -17032,7 +17032,7 @@ Kansas,McPherson,Union,township,2011372225,
 Kansas,McPherson,,county,20113,https://www.mcphersoncountyks.us/
 Kansas,Meade,Cimarron,township,2011913325,
 Kansas,Meade,Crooked Creek,township,2011916450,
-Kansas,Meade,Fowler,city,2024175,
+Kansas,Meade,Fowler,city,2024175,https://fowler.krwa.net/
 Kansas,Meade,Logan,township,2011942000,
 Kansas,Meade,Meade Center,township,2011945350,
 Kansas,Meade,Mertilla,township,2011946025,
@@ -17040,13 +17040,13 @@ Kansas,Meade,Odee,township,2011952075,
 Kansas,Meade,Sand Creek,township,2011962925,
 Kansas,Meade,West Plains,township,2011977300,
 Kansas,Meade,,county,20119,http://ks-meade.manatron.com/
-Kansas,Miami,Louisburg,city,2012142875,
+Kansas,Miami,Louisburg,city,2012142875,https://louisburgkansas.gov/
 Kansas,Miami,Marysville,township,2012145100,
 Kansas,Miami,Miami,township,2012146100,
 Kansas,Miami,Middle Creek,township,2012146225,
 Kansas,Miami,Mound,township,2012148700,
 Kansas,Miami,Osage,township,2012153175,
-Kansas,Miami,Osawatomie,city,2012153225,
+Kansas,Miami,Osawatomie,city,2012153225,https://www.osawatomieks.org/
 Kansas,Miami,Paola,city,2012154250,https://cityofpaola.com/
 Kansas,Miami,Richland,township,2012159475,
 Kansas,Miami,Stanton,township,2012167925,
@@ -17181,7 +17181,7 @@ Kansas,Osage,Ridgeway,township,2013959825,
 Kansas,Osage,Scranton,city,2063675,https://scrantonks.com/
 Kansas,Osage,Superior,township,2013969500,
 Kansas,Osage,Valley Brook,township,2013973200,
-Kansas,Osage,,county,20139,
+Kansas,Osage,,county,20139,https://osage.kansasgov.com/
 Kansas,Osborne,Bethany,township,2014106425,
 Kansas,Osborne,Bloom,township,2014107400,
 Kansas,Osborne,Corinth,township,2014115625,
@@ -17266,7 +17266,7 @@ Kansas,Phillips,Kirwin,city,2037275,
 Kansas,Phillips,Logan,city,2042100,
 Kansas,Phillips,Long Island,city,2042600,
 Kansas,Phillips,Mound,township,2014748725,
-Kansas,Phillips,Phillipsburg,city,2014755675,
+Kansas,Phillips,Phillipsburg,city,2014755675,https://cityofphillipsburg.com/
 Kansas,Phillips,Plainview,township,2014756125,
 Kansas,Phillips,Plum,township,2014756775,
 Kansas,Phillips,Prairie View,city,2057525,
@@ -17311,7 +17311,7 @@ Kansas,Pratt,9,township,2015171238,
 Kansas,Pratt,Pratt,city,2015157625,https://cityofprattks.com/
 Kansas,Pratt,,county,20151,http://ks-prattcounty.civicplus.com/
 Kansas,Rawlins,Achilles,township,2015300175,
-Kansas,Rawlins,Atwood,city,2003150,
+Kansas,Rawlins,Atwood,city,2003150,https://www.cityofatwoodks.com/
 Kansas,Rawlins,Center,township,2015312037,
 Kansas,Rawlins,Driftwood,township,2015318675,
 Kansas,Rawlins,Herl,township,2015331462,
@@ -17353,13 +17353,13 @@ Kansas,Reno,Troy,township,2015571600,
 Kansas,Reno,Valley,township,2015573075,
 Kansas,Reno,Walnut,township,2015575100,
 Kansas,Reno,Westminster,township,2015577175,
-Kansas,Reno,Yoder,township,2015580775,
+Kansas,Reno,Yoder,township,2015580775,https://www.yoderkansas.com/
 Kansas,Reno,,county,20155,https://www.renogov.org/
 Kansas,Republic,Albion,township,2015700900,
 Kansas,Republic,Beaver,township,2015705150,
 Kansas,Republic,Belleville,city,2005600,https://www.cityofbellevillekansas.com/
 Kansas,Republic,Big Bend,township,2015706550,
-Kansas,Republic,Courtland,city,2016025,
+Kansas,Republic,Courtland,city,2016025,http://cityofcourtland.net/
 Kansas,Republic,Elk Creek,township,2015720275,
 Kansas,Republic,Fairview,township,2015722575,
 Kansas,Republic,Farmington,township,2015723200,
@@ -17486,7 +17486,7 @@ Kansas,Sedgwick,Bel Aire,city,2005337,https://www.belaireks.gov/
 Kansas,Sedgwick,Delano,township,2017317375,
 Kansas,Sedgwick,Eagle,township,2017319250,
 Kansas,Sedgwick,Erie,township,2017321550,
-Kansas,Sedgwick,Garden Plain,city,2025375,
+Kansas,Sedgwick,Garden Plain,city,2025375,https://gardenplain.com/
 Kansas,Sedgwick,Grand River,township,2017327300,
 Kansas,Sedgwick,Grant,township,2017328125,
 Kansas,Sedgwick,Greeley,township,2017328400,
@@ -17502,7 +17502,7 @@ Kansas,Sedgwick,Park,township,2017354425,
 Kansas,Sedgwick,Payne,township,2017355075,https://www.paynetownship.org/
 Kansas,Sedgwick,Riverside,township,2017360125,
 Kansas,Sedgwick,Rockford,township,2017360675,
-Kansas,Sedgwick,Salem,township,2017362675,
+Kansas,Sedgwick,Salem,township,2017362675,https://www.salemtownship.us/
 Kansas,Sedgwick,Sherman,township,2017365100,
 Kansas,Sedgwick,Union,township,2017372375,
 Kansas,Sedgwick,Valley Center,city,2073250,https://www.valleycenterks.gov/
@@ -17515,7 +17515,7 @@ Kansas,Seward,Liberal,city,2017539825,https://www.cityofliberal.org/
 Kansas,Seward,Seward,township,2017564075,
 Kansas,Seward,,county,20175,http://www.sewardcountyks.org/
 Kansas,Shawnee,Auburn,city,2003250,https://www.auburnks.com/
-Kansas,Shawnee,Dover,township,2017718475,
+Kansas,Shawnee,Dover,township,2017718475,https://www.dovertownship.org/
 Kansas,Shawnee,Grove,township,2017729075,
 Kansas,Shawnee,Menoken,township,2017745850,
 Kansas,Shawnee,Mission,township,2017747275,https://missiontownship.com/
@@ -17619,7 +17619,7 @@ Kansas,Stevens,,county,20189,https://stevenscoks.org/
 Kansas,Sumner,Avon,township,2019103575,
 Kansas,Sumner,Belle Plaine,city,2005500,https://www.bpks.org/
 Kansas,Sumner,Bluff,township,2019107750,
-Kansas,Sumner,Caldwell,city,2009900,
+Kansas,Sumner,Caldwell,city,2009900,https://www.cityofcaldwellks.com/
 Kansas,Sumner,Chikaskia,township,2019113150,
 Kansas,Sumner,Conway,township,2019115300,
 Kansas,Sumner,Creek,township,2019116300,
@@ -17685,7 +17685,7 @@ Kansas,Wallace,Sharon Springs,city,2064375,
 Kansas,Wallace,Wallace,city,2074750,
 Kansas,Wallace,Weskan,township,2019976700,
 Kansas,Wallace,,county,20199,https://wallacecountyks.gov/
-Kansas,Washington,Barnes,city,2004250,
+Kansas,Washington,Barnes,city,2004250,http://www.barnesks.net/
 Kansas,Washington,Brantford,township,2020108250,
 Kansas,Washington,Charleston,township,2020112625,
 Kansas,Washington,Clifton,city,2014200,
