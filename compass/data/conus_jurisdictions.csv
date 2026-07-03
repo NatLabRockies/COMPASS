@@ -7411,7 +7411,7 @@ Georgia,Barrow,Winder,city,1383420,https://www.cityofwinder.com/
 Georgia,Barrow,,county,13013,https://www.barrowga.org/
 Georgia,Bartow,Adairsville,city,1300436,https://adairsvillega.net/
 Georgia,Bartow,Cartersville,city,1313688,https://www.cartersvillega.gov/
-Georgia,Bartow,Emerson,city,1327344,https://www.cityofemer-son.org/
+Georgia,Bartow,Emerson,city,1327344,https://www.cityofemerson.org/
 Georgia,Bartow,Euharlee-Taylorsville,city,1301591104,
 Georgia,Bartow,Kingston,city,1343668,https://cityofkingstonga.org/
 Georgia,Bartow,White-Pine Log,city,1301593360,
@@ -20167,7 +20167,7 @@ Louisiana,,St. Francisville,town,2267215,https://stfrancisville.net/
 Louisiana,,St. Gabriel,city,2267250,https://cityofstgabriel.us/
 Louisiana,,St. James,CDP,2267355,
 Louisiana,,St. Joseph,town,2267495,https://www.stjoela.com/
-Louisiana,,St. Martinville,city,2267600,
+Louisiana,,St. Martinville,city,2267600,https://stmartinvillela.citizenactioncenter.com/
 Louisiana,,St. Maurice,CDP,2267635,
 Louisiana,,St. Rose,CDP,2267740,
 Louisiana,,Stanley,village,2272800,
@@ -20347,7 +20347,7 @@ Maine,Cumberland,Yarmouth,town,2300587845,https://yarmouth.me.us/
 Maine,Cumberland,,county,23005,https://cumberlandcountyme.gov/
 Maine,Franklin,Avon,town,2300702235,
 Maine,Franklin,Carrabassett Valley,town,2300710740,https://carrabassettvalley.gov/
-Maine,Franklin,Carthage,town,2300710915,
+Maine,Franklin,Carthage,town,2300710915,https://carthagemaine.org/
 Maine,Franklin,Chesterville,town,2300712595,https://www.townofchesterville.me/
 Maine,Franklin,Coplin,plantation,2300714205,https://www.coplinplantation.maine.gov/
 Maine,Franklin,Dallas,plantation,2300716165,http://dallasplantation.com/
@@ -20588,7 +20588,7 @@ Maine,Penobscot,Springfield,town,2301973250,https://springfieldmaine.weebly.com/
 Maine,Penobscot,Stacyville,town,2301973600,
 Maine,Penobscot,Stetson,town,2301974055,http://www.stetsonmaine.net/
 Maine,Penobscot,Twombly Ridge,unorganized territory,2301978015,
-Maine,Penobscot,Veazie,town,2301978780,
+Maine,Penobscot,Veazie,town,2301978780,https://www.veazie.net/
 Maine,Penobscot,Webster,plantation,2301981055,
 Maine,Penobscot,Whitney,unorganized territory,2301985230,
 Maine,Penobscot,Winn,town,2301986305,https://townofwinn.org/
@@ -20704,7 +20704,7 @@ Maine,Washington,Calais,city,2302909585,https://calaismaine.org/
 Maine,Washington,Charlotte,town,2302912175,https://charlotteme.org/
 Maine,Washington,Cherryfield,town,2302912455,https://www.cherryfieldmaine.us/
 Maine,Washington,Codyville,unorganized territory,2302913612,
-Maine,Washington,Columbia,town,2302913750,
+Maine,Washington,Columbia,town,2302913750,https://columbiafallsmaine.org/
 Maine,Washington,Columbia Falls,town,2302913820,https://columbiafallsmaine.org/
 Maine,Washington,Cooper,town,2302914100,http://www.coopermaine.com/
 Maine,Washington,Crawford,town,2302914940,
@@ -20724,11 +20724,11 @@ Maine,Washington,Machias,town,2302941960,https://machiasme.gov/
 Maine,Washington,Machiasport,town,2302942100,https://machiasport.org/
 Maine,Washington,Marshfield,town,2302943640,https://www.marshfieldmaine.gov/
 Maine,Washington,Meddybemps,town,2302944760,
-Maine,Washington,Milbridge,town,2302945600,
+Maine,Washington,Milbridge,town,2302945600,https://www.milbridgemaine.org/
 Maine,Washington,North Washington,unorganized territory,2302953500,https://wcut.maine.gov/
 Maine,Washington,Northfield,town,2302951375,https://www.northfieldme.com/
 Maine,Washington,Passamaquoddy Indian Township,reservation,2302957082,https://www.passamaquoddy.com/
-Maine,Washington,Passamaquoddy Pleasant Point,reservation,2302957090,
+Maine,Washington,Passamaquoddy Pleasant Point,reservation,2302957090,https://wabanaki.com/
 Maine,Washington,Pembroke,town,2302957780,http://www.pembrokemaine.org/
 Maine,Washington,Perry,town,2302958165,https://perrymaine.org/
 Maine,Washington,Princeton,town,2302961035,
@@ -20755,7 +20755,7 @@ Maine,York,Eliot,town,2303122955,https://www.eliotme.gov/
 Maine,York,Hollis,town,2303133665,https://www.hollismaine.org/
 Maine,York,Kennebunk,town,2303136535,https://www.kennebunkmaine.us/
 Maine,York,Kennebunkport,town,2303136745,https://www.kennebunkportme.gov/
-Maine,York,Kittery,town,2303137270,
+Maine,York,Kittery,town,2303137270,https://www.kitteryme.gov/
 Maine,York,Lebanon,town,2303138425,https://www.lebanon-me.org/
 Maine,York,Limerick,town,2303139195,https://limerickme.org/
 Maine,York,Limington,town,2303139405,https://limingtonmaine.gov/
@@ -20851,7 +20851,7 @@ Maryland,Baltimore,Baltimore,city,2404000,https://www.baltimorecity.gov/
 Maryland,Baltimore,,county,24005,https://www.baltimorecountymd.gov/
 Maryland,Calvert,"1, Solomons Island",district,2400990016,
 Maryland,Calvert,"2, Prince Frederick",district,2400990108,
-Maryland,Calvert,"3, Sunderland",district,2400990200,
+Maryland,Calvert,"3, Sunderland",district,2400990200,https://www.calvertcountymd.gov/
 Maryland,Calvert,,county,24009,https://www.calvertcountymd.gov/
 Maryland,Caroline,"1, Henderson",district,2401190020,
 Maryland,Caroline,"2, Greensboro",district,2401190112,
@@ -20891,7 +20891,7 @@ Maryland,Charles,"1, La Plata",district,2401790032,
 Maryland,Charles,"10, Marbury",district,2401790860,
 Maryland,Charles,"2, Hill Top",district,2401790124,
 Maryland,Charles,"3, Nanjemoy",district,2401790216,https://www.charlescountymd.gov/
-Maryland,Charles,"4, Allens Fresh",district,2401790308,
+Maryland,Charles,"4, Allens Fresh",district,2401790308,https://www.charlescountymd.gov/
 Maryland,Charles,"5, Thompkinsville",district,2401790400,
 Maryland,Charles,"6, Waldorf",district,2401790492,https://www.charlescountymd.gov/
 Maryland,Charles,"7, Pomonkey",district,2401790584,https://www.charlescountymd.gov/
@@ -20951,8 +20951,8 @@ Maryland,Garrett,"12, Bittinger",district,2402391052,
 Maryland,Garrett,"13, Kitzmiller",district,2402391144,https://www.garrettcountymd.gov/
 Maryland,Garrett,"14, West Oakland",district,2402391236,
 Maryland,Garrett,"15, Avilton",district,2402391328,
-Maryland,Garrett,"16, Mountain Lake Park",district,2402391420,
-Maryland,Garrett,"2, Friendsville",district,2402390136,
+Maryland,Garrett,"16, Mountain Lake Park",district,2402391420,http://mtnlakepark.org/
+Maryland,Garrett,"2, Friendsville",district,2402390136,https://www.friendsville.org/
 Maryland,Garrett,"3, Grantsville",district,2402390228,
 Maryland,Garrett,"4, Bloomington",district,2402390320,
 Maryland,Garrett,"5, Accident",district,2402390412,
@@ -20969,7 +20969,7 @@ Maryland,Harford,"5, Dublin",district,2402590416,
 Maryland,Harford,"6, Havre de Grace",district,2402590508,https://havredegracemd.gov/
 Maryland,Harford,,county,24025,https://www.harfordcountymd.gov/
 Maryland,Howard,"1, Elkridge",district,2402790052,
-Maryland,Howard,"2, Ellicott City",district,2402790144,
+Maryland,Howard,"2, Ellicott City",district,2402790144,https://www.howardcountymd.gov/
 Maryland,Howard,"3, West Friendship",district,2402790236,
 Maryland,Howard,"4, Lisbon",district,2402790328,https://www.howardcountymd.gov/
 Maryland,Howard,"5, Clarksville",district,2402790420,
@@ -20981,27 +20981,27 @@ Maryland,Kent,"3, Worton (Betterton)",district,2402990240,
 Maryland,Kent,"4, Chestertown",district,2402990332,
 Maryland,Kent,"5, Edesville",district,2402990424,
 Maryland,Kent,"6, Fairlee",district,2402990516,
-Maryland,Kent,"7, Pomona",district,2402990608,
+Maryland,Kent,"7, Pomona",district,2402990608,https://www.kentcounty.com/
 Maryland,Kent,,county,24029,https://kentcounty.com/
 Maryland,Montgomery,1,district,2403190060,https://www.montgomerycountymd.gov/
 Maryland,Montgomery,10,district,2403190888,
 Maryland,Montgomery,11,district,2403190976,
-Maryland,Montgomery,12,district,2403191068,
-Maryland,Montgomery,13,district,2403191160,
-Maryland,Montgomery,2,district,2403190152,
+Maryland,Montgomery,12,district,2403191068,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,13,district,2403191160,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,2,district,2403190152,https://www.montgomerycountymd.gov/
 Maryland,Montgomery,3,district,2403190244,
 Maryland,Montgomery,4,district,2403190336,
 Maryland,Montgomery,5,district,2403190428,
 Maryland,Montgomery,6,district,2403190520,
-Maryland,Montgomery,7,district,2403190612,
-Maryland,Montgomery,8,district,2403190704,
-Maryland,Montgomery,9,district,2403190796,
+Maryland,Montgomery,7,district,2403190612,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,8,district,2403190704,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,9,district,2403190796,https://www.montgomerycountymd.gov/
 Maryland,Montgomery,,county,24031,https://www.montgomerycountymd.gov/
 Maryland,Prince George's,"1, Vansville",district,2403390064,
 Maryland,Prince George's,"10, Laurel",district,2403390892,
-Maryland,Prince George's,"11, Brandywine",district,2403390980,
+Maryland,Prince George's,"11, Brandywine",district,2403390980,https://www.princegeorgescountymd.gov/
 Maryland,Prince George's,"12, Oxon Hill",district,2403391072,
-Maryland,Prince George's,"13, Kent",district,2403391164,
+Maryland,Prince George's,"13, Kent",district,2403391164,http://www.co.pg.md.us/
 Maryland,Prince George's,"14, Bowie",district,2403391256,
 Maryland,Prince George's,"15, Mellwood",district,2403391348,
 Maryland,Prince George's,"16, Hyattsville",district,2403391440,
@@ -21023,7 +21023,7 @@ Maryland,Queen Anne's,"1, Dixon",district,2403590068,
 Maryland,Queen Anne's,"2, Church Hill",district,2403590160,https://churchhillmd.com/
 Maryland,Queen Anne's,"3, Centreville",district,2403590252,
 Maryland,Queen Anne's,"4, Kent Island",district,2403590344,
-Maryland,Queen Anne's,"5, Queenstown",district,2403590436,
+Maryland,Queen Anne's,"5, Queenstown",district,2403590436,https://www.qac.org/
 Maryland,Queen Anne's,"6, Ruthsburg",district,2403590528,
 Maryland,Queen Anne's,"7, Crumpton",district,2403590620,
 Maryland,Queen Anne's,,county,24035,https://www.qac.org/
@@ -21045,7 +21045,7 @@ Maryland,Somerset,"9, Tangier",district,2403990812,
 Maryland,Somerset,,county,24039,http://www.somersetmd.us/
 Maryland,St. Mary's,"1, St. Inigoes",district,2403790072,
 Maryland,St. Mary's,"2, Valley Lee",district,2403790164,
-Maryland,St. Mary's,"3, Leonardtown",district,2403790256,
+Maryland,St. Mary's,"3, Leonardtown",district,2403790256,https://www.stmaryscountymd.gov/
 Maryland,St. Mary's,"4, Chaptico",district,2403790348,
 Maryland,St. Mary's,"5, Mechanicsville",district,2403790440,
 Maryland,St. Mary's,"6, Patuxent",district,2403790532,
@@ -21056,7 +21056,7 @@ Maryland,St. Mary's,,county,24037,https://www.stmaryscountymd.gov/
 Maryland,Talbot,"1, Easton",district,2404190080,https://talbotcountymd.gov/
 Maryland,Talbot,"2, St. Michaels",district,2404190172,
 Maryland,Talbot,"3, Trappe",district,2404190264,
-Maryland,Talbot,"4, Chapel",district,2404190356,
+Maryland,Talbot,"4, Chapel",district,2404190356,https://talbotcountymd.gov/
 Maryland,Talbot,"5, Bay Hundred",district,2404190448,
 Maryland,Talbot,,county,24041,https://www.talbotcountymd.gov/
 Maryland,Washington,"1, Sharpsburg",district,2404390084,
@@ -21064,10 +21064,10 @@ Maryland,Washington,"10, Funkstown",district,2404390912,
 Maryland,Washington,"11, Sandy Hook",district,2404391000,
 Maryland,Washington,"12, Fairplay",district,2404391092,
 Maryland,Washington,"13, Maugansville",district,2404391184,
-Maryland,Washington,"14, Ringgold",district,2404391276,
+Maryland,Washington,"14, Ringgold",district,2404391276,https://www.washco-md.net/
 Maryland,Washington,"15, Indian Spring",district,2404391368,
 Maryland,Washington,"16, Beaver Creek",district,2404391460,
-Maryland,Washington,"17, Hagerstown",district,2404391552,
+Maryland,Washington,"17, Hagerstown",district,2404391552,https://www.washco-md.net/
 Maryland,Washington,"18, Chewsville",district,2404391644,
 Maryland,Washington,"19, Keedysville",district,2404391736,
 Maryland,Washington,"2, Williamsport",district,2404390176,
@@ -21338,7 +21338,7 @@ Maryland,,Gilmore,CDP,2432175,
 Maryland,,Girdletree,CDP,2432250,
 Maryland,,Glassmanor,CDP,2432350,
 Maryland,,Glen Burnie,CDP,2432650,
-Maryland,,Glen Echo,town,2432900,
+Maryland,,Glen Echo,town,2432900,https://glenecho.gov/
 Maryland,,Glenarden,city,2432500,http://www.cityofglenarden.org/
 Maryland,,Glenmont,CDP,2433250,
 Maryland,,Glenn Dale,CDP,2433400,
@@ -21776,13 +21776,13 @@ Massachusetts,Franklin,Leverett,town,2501135180,http://www.leverett.ma.us/
 Massachusetts,Franklin,Leyden,town,2501135285,http://www.townofleyden.com/
 Massachusetts,Franklin,Monroe,town,2501142040,
 Massachusetts,Franklin,Montague,town,2501142285,https://montague-ma.gov/
-Massachusetts,Franklin,New Salem,town,2501145490,
+Massachusetts,Franklin,New Salem,town,2501145490,https://www.newsalemma.org/
 Massachusetts,Franklin,Northfield,town,2501147835,https://www.northfieldma.gov/
 Massachusetts,Franklin,Orange,town,2501151265,https://www.townoforange.org/
 Massachusetts,Franklin,Rowe,town,2501158335,http://www.rowe-ma.gov/
 Massachusetts,Franklin,Shelburne,town,2501161135,https://townofshelburnema.gov/
 Massachusetts,Franklin,Shutesbury,town,2501161905,http://shutesbury.org/
-Massachusetts,Franklin,Sunderland,town,2501168400,
+Massachusetts,Franklin,Sunderland,town,2501168400,https://www.townofsunderland.us/
 Massachusetts,Franklin,Warwick,town,2501173265,https://warwickma.org/
 Massachusetts,Franklin,Wendell,town,2501174525,http://www.wendellmass.us/
 Massachusetts,Franklin,Whately,town,2501179110,https://www.whately.org/
@@ -21794,7 +21794,7 @@ Massachusetts,Hampden,Chester,town,2501313485,https://townofchester.net/
 Massachusetts,Hampden,Chicopee,city,2501313660,https://www.chicopeema.gov/
 Massachusetts,Hampden,East Longmeadow,town,2501319645,http://www.eastlongmeadowma.gov/
 Massachusetts,Hampden,Granville,town,2501326675,http://www.townofgranville.net/
-Massachusetts,Hampden,Hampden,town,2501328075,
+Massachusetts,Hampden,Hampden,town,2501328075,https://www.hampdenma.gov/
 Massachusetts,Hampden,Holland,town,2501330665,https://www.town.holland.ma.us/
 Massachusetts,Hampden,Holyoke,city,2501330840,https://www.holyoke.org/
 Massachusetts,Hampden,Longmeadow,town,2501336300,https://www.longmeadowma.gov/
@@ -21893,7 +21893,7 @@ Massachusetts,Norfolk,Avon,town,2502102935,https://www.avon-ma.gov/
 Massachusetts,Norfolk,Bellingham,town,2502104930,https://www.bellinghamma.org/
 Massachusetts,Norfolk,Braintree Town,city,2502107740,https://braintreema.gov/
 Massachusetts,Norfolk,Brookline,town,2502109175,https://www.brooklinema.gov/
-Massachusetts,Norfolk,Canton,town,2502111315,
+Massachusetts,Norfolk,Canton,town,2502111315,https://cantonma.libguides.com/
 Massachusetts,Norfolk,Cohasset,town,2502114640,https://www.cohassetma.gov/
 Massachusetts,Norfolk,Dedham,town,2502116495,https://www.dedham-ma.gov/
 Massachusetts,Norfolk,Dover,town,2502117405,https://www.doverma.gov/
@@ -22099,7 +22099,7 @@ Massachusetts,,Yarmouth Port,CDP,2582595,
 Massachusetts,,,state,25000,http://mass.gov/
 Michigan,Alcona,Alcona,township,2600101040,http://alconatownship.com/
 Michigan,Alcona,Caledonia,township,2600112460,https://caledoniatwp.net/
-Michigan,Alcona,Curtis,township,2600119320,
+Michigan,Alcona,Curtis,township,2600119320,https://curtistownship.com/
 Michigan,Alcona,Greenbush,township,2600134820,https://greenbushtwp.net/
 Michigan,Alcona,Gustin,township,2600135740,http://gustintwp.com/
 Michigan,Alcona,Harrisville,city,2600136860,https://harrisvillemi.org/
@@ -22361,7 +22361,7 @@ Michigan,Cheboygan,Wilmot,township,2603187640,
 Michigan,Cheboygan,,county,26031,http://www.cheboygancounty.net/
 Michigan,Chippewa,Bay Mills,township,2603306070,https://baymillstownship.org/
 Michigan,Chippewa,Bruce,township,2603311280,http://www.brucetownship.net/
-Michigan,Chippewa,Chippewa,township,2603315560,
+Michigan,Chippewa,Chippewa,township,2603315560,https://www.chippewatownship.com/
 Michigan,Chippewa,Dafter,township,2603319540,https://www.daftertownship.org/
 Michigan,Chippewa,Detour,township,2603321770,https://detourmi.gov/
 Michigan,Chippewa,Drummond,township,2603323080,
@@ -22402,7 +22402,7 @@ Michigan,Clinton,Dallas,township,2603719620,http://dallastwp.com/
 Michigan,Clinton,DeWitt,city,2603722120,https://dewittmi.gov/
 Michigan,Clinton,Duplain,township,2603723460,http://www.duplaintwp.com/
 Michigan,Clinton,Eagle,village,2623560,
-Michigan,Clinton,Essex,township,2603726400,
+Michigan,Clinton,Essex,township,2603726400,http://www.essextwp.org/
 Michigan,Clinton,Greenbush,township,2603734840,https://www.greenbushtwp.org/
 Michigan,Clinton,Lebanon,township,2603746580,
 Michigan,Clinton,Olive,township,2603760440,https://olivetownshipccmi.gov/
@@ -22443,7 +22443,7 @@ Michigan,Dickinson,Iron Mountain,city,2604340960,http://www.ironmountainmi.gov/
 Michigan,Dickinson,Kingsford,city,2604343300,https://www.kingsfordmi.gov/
 Michigan,Dickinson,Norway,city,2604359220,https://www.norwaymi.gov/
 Michigan,Dickinson,Sagola,township,2604370600,https://sagolatwp.com/
-Michigan,Dickinson,Waucedah,township,2604384700,
+Michigan,Dickinson,Waucedah,township,2604384700,https://www.waucedahtownship.com/
 Michigan,Dickinson,West Branch,township,2604385520,
 Michigan,Dickinson,,county,26043,http://www.dickinsoncountymi.gov/
 Michigan,Eaton,Bellevue,village,2607060,https://www.bellevuemi.net/
@@ -22478,7 +22478,7 @@ Michigan,Emmet,Littlefield,township,2604748020,https://www.littlefieldtwp.org/
 Michigan,Emmet,Maple River,township,2604751280,
 Michigan,Emmet,McKinley,township,2604750340,
 Michigan,Emmet,Petoskey,city,2604763820,https://www.petoskey.us/
-Michigan,Emmet,Pleasantview,township,2604764960,
+Michigan,Emmet,Pleasantview,township,2604764960,https://pleasantviewmi.gov/
 Michigan,Emmet,Readmond,township,2604767540,https://readmondtownship.org/
 Michigan,Emmet,Resort,township,2604768060,https://www.resorttownship.gov/
 Michigan,Emmet,Springvale,township,2604775900,https://www.springvaletownship.org/
@@ -22514,7 +22514,7 @@ Michigan,Gladwin,Buckeye,township,2605111440,https://buckeyetownship.org/
 Michigan,Gladwin,Butman,township,2605112180,https://butmantwp.com/
 Michigan,Gladwin,Clement,township,2605116360,https://clementtwp.org/
 Michigan,Gladwin,Gladwin,city,2605132320,https://www.gladwin.org/
-Michigan,Gladwin,Grim,township,2605135340,
+Michigan,Gladwin,Grim,township,2605135340,https://www.grimtownship.org/
 Michigan,Gladwin,Grout,township,2605135620,https://grouttownship.org/
 Michigan,Gladwin,Hay,township,2605137300,https://haytownship.org/
 Michigan,Gladwin,Sage,township,2605170500,https://www.sagetownship.org/
@@ -22532,7 +22532,7 @@ Michigan,Gogebic,,county,26053,http://www.gogebiccountymi.gov/
 Michigan,Grand Traverse,Acme,township,2605500200,https://www.acmetownship.org/
 Michigan,Grand Traverse,Blair,township,2605508880,https://www.blairtownshipmi.gov/
 Michigan,Grand Traverse,East Bay,township,2605523800,https://www.eastbaytwp.org/
-Michigan,Grand Traverse,Fife Lake,village,2628000,
+Michigan,Grand Traverse,Fife Lake,village,2628000,https://www.fifelakevillage.org/
 Michigan,Grand Traverse,Garfield,charter township,2605531580,https://www.garfieldmi.gov/
 Michigan,Grand Traverse,Grant,township,2605534240,https://grant-grdtraverse.com/
 Michigan,Grand Traverse,Green Lake,township,2605534960,https://www.gogreenlake.org/
@@ -22553,7 +22553,7 @@ Michigan,Gratiot,Hamilton,township,2605736160,
 Michigan,Gratiot,Ithaca,city,2605741340,https://www.ithacami.com/
 Michigan,Gratiot,Lafayette,township,2605744080,https://www.lafayettetwp.com/
 Michigan,Gratiot,New Haven,township,2605757360,
-Michigan,Gratiot,Newark,township,2605757040,
+Michigan,Gratiot,Newark,township,2605757040,https://www.newarktownship.com/
 Michigan,Gratiot,North Shade,township,2605758800,
 Michigan,Gratiot,North Star,township,2605758880,https://www.northstartwp.com/
 Michigan,Gratiot,Pine River,township,2605764360,https://pinerivermi.gov/
@@ -22841,7 +22841,7 @@ Michigan,Leelanau,Empire,village,2625980,
 Michigan,Leelanau,Glen Arbor,township,2608932380,https://glenarbortownship.com/
 Michigan,Leelanau,Kasson,township,2608942320,
 Michigan,Leelanau,Leelanau,township,2608946700,https://leelanautownshipmi.gov/
-Michigan,Leelanau,Leland,township,2608946820,
+Michigan,Leelanau,Leland,township,2608946820,https://www.lelandmi.org/
 Michigan,Leelanau,Solon,township,2608974500,
 Michigan,Leelanau,Suttons Bay,village,2677600,https://www.suttonsbayvillage.org/
 Michigan,Leelanau,,county,26089,https://www.leelanau.gov/
@@ -23081,7 +23081,7 @@ Michigan,Montcalm,Montcalm,township,2611755140,https://montcalmtownship.gov/
 Michigan,Montcalm,Pierson,village,2664020,
 Michigan,Montcalm,Pine,township,2611764200,http://pinetownship.net/
 Michigan,Montcalm,Reynolds,township,2611768120,http://www.reynoldstwp.com/
-Michigan,Montcalm,Richland,township,2611768300,
+Michigan,Montcalm,Richland,township,2611768300,https://www.richlandtwp.net/
 Michigan,Montcalm,Sidney,township,2611773840,https://sidneymi.gov/
 Michigan,Montcalm,Stanton,city,2611776220,https://stantononline.com/
 Michigan,Montcalm,Winfield,township,2611787880,https://winfieldtownshipmi.gov/
@@ -23220,7 +23220,7 @@ Michigan,Ogemaw,Horton,township,2612939320,
 Michigan,Ogemaw,Klacking,township,2612943640,https://klackingtownshipmi.gov/
 Michigan,Ogemaw,Logan,township,2612949160,
 Michigan,Ogemaw,Mills,township,2612954340,https://millstwpogemawmi.gov/
-Michigan,Ogemaw,Ogemaw,township,2612960300,
+Michigan,Ogemaw,Ogemaw,township,2612960300,https://millstwpogemawmi.gov/
 Michigan,Ogemaw,Richland,township,2612968320,https://www.richlandtownship.com/
 Michigan,Ogemaw,Rose,township,2612969600,https://www.rosetownshipmich.com/
 Michigan,Ogemaw,Rose City,city,2612969680,https://www.rosecitymich.com/
@@ -23243,7 +23243,7 @@ Michigan,Osceola,Cedar,township,2613314040,
 Michigan,Osceola,Evart,city,2613326640,https://www.evart.org/
 Michigan,Osceola,Hartwick,township,2613337060,
 Michigan,Osceola,Hersey,village,2637820,
-Michigan,Osceola,Highland,township,2613338100,
+Michigan,Osceola,Highland,township,2613338100,https://www.highlandtwp.net/
 Michigan,Osceola,Le Roy,village,2647100,
 Michigan,Osceola,Lincoln,township,2613347720,https://lincoln-osceola.org/
 Michigan,Osceola,Marion,village,2651660,https://marionmichigan.org/
@@ -23561,7 +23561,7 @@ Michigan,Wayne,Westland,city,2616386000,https://www.cityofwestland.com/
 Michigan,Wayne,Woodhaven,city,2616388380,https://www.woodhavenmi.org/
 Michigan,Wayne,Wyandotte,city,2616388900,https://www.wyandottemi.gov/
 Michigan,Wayne,,county,26163,https://www.waynecountymi.gov/
-Michigan,Wexford,Antioch,township,2616503060,
+Michigan,Wexford,Antioch,township,2616503060,https://antiochtownship.org/
 Michigan,Wexford,Boon,township,2616509580,https://boontownshipmichigan.gov/
 Michigan,Wexford,Cadillac,city,2612320,https://www.cadillac-mi.net/
 Michigan,Wexford,Cedar Creek,township,2616514120,https://cedarcreektwp.org/
@@ -23804,7 +23804,7 @@ Michigan,,Mulliken,village,2656140,https://villageofmulliken.org/
 Michigan,,Nashville,village,2656680,https://nashvillemi.us/
 Michigan,,Naubinway,CDP,2656760,
 Michigan,,Nessen City,CDP,2656960,
-Michigan,,New Era,village,2657280,
+Michigan,,New Era,village,2657280,https://neweramichigan.com/
 Michigan,,New Haven,village,2657380,https://www.newhavenmi.org/
 Michigan,,New Lothrop,village,2657520,http://www.newlothrop.org/
 Michigan,,New Troy,CDP,2657660,
@@ -23978,7 +23978,7 @@ Minnesota,Aitkin,White Pine,township,2700170132,
 Minnesota,Aitkin,Williams,township,2700170384,
 Minnesota,Aitkin,Workman,township,2700171716,https://workmantownship.com/
 Minnesota,Aitkin,,county,27001,http://www.co.aitkin.mn.us/
-Minnesota,Anoka,Andover,city,2700301486,
+Minnesota,Anoka,Andover,city,2700301486,https://www.andovermn.gov/
 Minnesota,Anoka,Anoka,city,2700301720,https://www.anokamn.gov/
 Minnesota,Anoka,Bethel,city,2700305554,https://www.ci.east-bethel.mn.us/
 Minnesota,Anoka,Centerville,city,2700310648,https://www.centervillemn.com/
@@ -24015,7 +24015,7 @@ Minnesota,Becker,Green Valley,township,2700525820,
 Minnesota,Becker,Hamden,township,2700526684,
 Minnesota,Becker,Height of Land,township,2700528250,
 Minnesota,Becker,Holmesville,township,2700529816,
-Minnesota,Becker,Lake Eunice,township,2700534298,
+Minnesota,Becker,Lake Eunice,township,2700534298,https://lakeeunicetownship.org/
 Minnesota,Becker,Lake Park,city,2700534784,https://lakeparkmn.com/
 Minnesota,Becker,Lake View,township,2700535144,
 Minnesota,Becker,Maple Grove,township,2700540130,
@@ -24205,7 +24205,7 @@ Minnesota,Carlton,Skelton,township,2701760664,
 Minnesota,Carlton,Split Rock,township,2701761708,
 Minnesota,Carlton,Thomson,township,2701764768,https://townofthomsonmn.gov/
 Minnesota,Carlton,Twin Lakes,township,2701765902,https://twinlakestownship.com/
-Minnesota,Carlton,Wrenshall,city,2701771788,
+Minnesota,Carlton,Wrenshall,city,2701771788,https://www.cityofwrenshall.com/
 Minnesota,Carlton,Wrenshall,township,2701771806,
 Minnesota,Carlton,Wright,city,2701771824,https://www.cityofwrightmn.gov/
 Minnesota,Carlton,,county,27017,https://www.carltoncountymn.gov/
@@ -24257,7 +24257,7 @@ Minnesota,Cass,Inguadona,township,2702130986,
 Minnesota,Cass,Kego,township,2702132588,
 Minnesota,Cass,Lake Shore,city,2702134928,https://www.cityoflakeshore.gov/
 Minnesota,Cass,Leech Lake,township,2702136224,
-Minnesota,Cass,Longville,city,2702138114,
+Minnesota,Cass,Longville,city,2702138114,https://www.cityoflongville.com/
 Minnesota,Cass,Loon Lake,township,2702138168,
 Minnesota,Cass,Maple,township,2702140076,https://www.mapletownshipmn.com/
 Minnesota,Cass,May,township,2702141102,https://maytwp.com/
@@ -24273,7 +24273,7 @@ Minnesota,Cass,Pine Lake,township,2702151172,
 Minnesota,Cass,Pine River,city,2702151280,https://cityofpinerivermn.gov/
 Minnesota,Cass,Ponto Lake,township,2702151928,https://pontolaketownship.com/
 Minnesota,Cass,Poplar,township,2702151964,
-Minnesota,Cass,Powers,township,2702152252,
+Minnesota,Cass,Powers,township,2702152252,https://www.powerstownship.com/
 Minnesota,Cass,Remer,city,2702153782,https://www.cityofremer.com/
 Minnesota,Cass,Rogers,township,2702155168,
 Minnesota,Cass,Salem,township,2702158216,
@@ -24436,9 +24436,9 @@ Minnesota,Crow Wing,Crosslake,city,2703513978,https://www.cityofcrosslake.gov/
 Minnesota,Crow Wing,Crow Wing,township,2703514122,https://crowwingtownship.gov/
 Minnesota,Crow Wing,Cuyuna,city,2703514428,https://www.ci.cuyuna.mn.us/
 Minnesota,Crow Wing,Daggett Brook,township,2703514464,
-Minnesota,Crow Wing,Deerwood,city,2703515346,
+Minnesota,Crow Wing,Deerwood,city,2703515346,https://deerwoodtwpcrowwingmn.gov/
 Minnesota,Crow Wing,Emily,city,2703519286,https://www.cityofemily.com/
-Minnesota,Crow Wing,Fairfield,township,2703520240,
+Minnesota,Crow Wing,Fairfield,township,2703520240,https://fairfieldmn.com/
 Minnesota,Crow Wing,Fifty Lakes,city,2703521032,https://fiftylakesmn.govoffice3.com/
 Minnesota,Crow Wing,First Assessment,unorganized territory,2703521149,
 Minnesota,Crow Wing,Fort Ripley,city,2703521932,
@@ -24865,7 +24865,7 @@ Minnesota,Kanabec,Brunswick,township,2706508344,
 Minnesota,Kanabec,Comfort,township,2706512754,https://www.comforttownship.com/
 Minnesota,Kanabec,Ford,township,2706521644,https://fordtownship.org/
 Minnesota,Kanabec,Grass Lake,township,2706525406,
-Minnesota,Kanabec,Grasston,city,2706525424,
+Minnesota,Kanabec,Grasston,city,2706525424,https://cityofgrasstonmn.com/
 Minnesota,Kanabec,Hay Brook,township,2706527782,https://www.haybrooktownship.com/
 Minnesota,Kanabec,Hillman,township,2706529132,
 Minnesota,Kanabec,Kanabec,township,2706532300,
@@ -25021,7 +25021,7 @@ Minnesota,Lake of the Woods,Victory,township,2707767044,
 Minnesota,Lake of the Woods,Wabanica,township,2707767368,
 Minnesota,Lake of the Woods,Walhalla,township,2707767782,
 Minnesota,Lake of the Woods,Wheeler,township,2707769849,
-Minnesota,Lake of the Woods,Williams,city,2707770402,
+Minnesota,Lake of the Woods,Williams,city,2707770402,https://williamsminnesota.com/
 Minnesota,Lake of the Woods,Zippel,township,2707772264,
 Minnesota,Lake of the Woods,,county,27077,https://lotwcounty.gov/
 Minnesota,Le Sueur,Cleveland,city,2707911872,https://cityofclevelandmn.gov/
@@ -25145,7 +25145,7 @@ Minnesota,Marshall,Mud Lake,unorganized territory,2708944718,
 Minnesota,Marshall,Nelson Park,township,2708945142,
 Minnesota,Marshall,New Maine,township,2708945718,
 Minnesota,Marshall,New Solum,township,2708945970,
-Minnesota,Marshall,Newfolden,city,2708945520,
+Minnesota,Marshall,Newfolden,city,2708945520,https://newfoldenmn.gov/
 Minnesota,Marshall,Oak Park,township,2708947878,
 Minnesota,Marshall,Oslo,city,2708948976,
 Minnesota,Marshall,Parker,township,2708949696,
@@ -25213,7 +25213,7 @@ Minnesota,McLeod,Plato,city,2708551460,https://platomn.gov/
 Minnesota,McLeod,Rich Valley,township,2708554322,http://richvalleytownship.com/
 Minnesota,McLeod,Round Grove,township,2708556032,
 Minnesota,McLeod,Silver Lake,city,2708560376,https://cityofsilverlake.org/
-Minnesota,McLeod,Stewart,city,2708562788,
+Minnesota,McLeod,Stewart,city,2708562788,https://www.cityofstewart.com/
 Minnesota,McLeod,Sumter,township,2708563436,
 Minnesota,McLeod,Winsted,city,2708571086,https://winsted.mn.us/
 Minnesota,McLeod,,county,27085,https://www.mcleodcountymn.gov/
@@ -25404,7 +25404,7 @@ Minnesota,Norman,Good Hope,township,2710724380,
 Minnesota,Norman,Green Meadow,township,2710725766,
 Minnesota,Norman,Halstad,city,2710726630,https://halstad.com/
 Minnesota,Norman,Hegne,township,2710728178,
-Minnesota,Norman,Hendrum,city,2710728484,
+Minnesota,Norman,Hendrum,city,2710728484,https://cityofhendrum.gov/
 Minnesota,Norman,Home Lake,township,2710729996,
 Minnesota,Norman,Lake Ida,township,2710734532,
 Minnesota,Norman,Lee,township,2710736188,
@@ -25466,7 +25466,7 @@ Minnesota,Otter Tail,Dent,city,2711115724,
 Minnesota,Otter Tail,Dora,township,2711116120,https://doratownship.org/
 Minnesota,Otter Tail,Dunn,township,2711117162,https://dunntownship.com/
 Minnesota,Otter Tail,Eagle Lake,township,2711117396,
-Minnesota,Otter Tail,Eastern,township,2711117576,
+Minnesota,Otter Tail,Eastern,township,2711117576,https://easterntownshipmn.gov/
 Minnesota,Otter Tail,Edna,township,2711118224,https://www.ednatownshipmn.gov/
 Minnesota,Otter Tail,Effington,township,2711118278,
 Minnesota,Otter Tail,Elizabeth,city,2711118566,
@@ -25617,7 +25617,7 @@ Minnesota,Polk,Chester,township,2711911224,
 Minnesota,Polk,Climax,city,2711911962,
 Minnesota,Polk,Columbia,township,2711912682,
 Minnesota,Polk,Crookston,city,2711913870,https://www.crookston.mn.us/
-Minnesota,Polk,East Grand Forks,city,2711917612,
+Minnesota,Polk,East Grand Forks,city,2711917612,https://www.eastgrandforks.gov/
 Minnesota,Polk,Eden,township,2711918080,
 Minnesota,Polk,Erskine,city,2711919700,https://erskinemn.org/
 Minnesota,Polk,Esther,township,2711919790,
@@ -26045,7 +26045,7 @@ Minnesota,Stearns,Ashley,township,2714502530,
 Minnesota,Stearns,Avon,city,2703070,https://www.avontownshipmn.gov/
 Minnesota,Stearns,Belgrade,city,2704762,https://www.belgrademn.com/
 Minnesota,Stearns,Brockway,township,2714507840,https://brockwaytwpmn.gov/
-Minnesota,Stearns,Cold Spring,city,2712484,
+Minnesota,Stearns,Cold Spring,city,2712484,https://coldspringmn.gov/
 Minnesota,Stearns,Collegeville,township,2714512592,https://www.collegevilletownship.com/
 Minnesota,Stearns,Crow Lake,township,2714514032,
 Minnesota,Stearns,Crow River,township,2714514086,
@@ -26114,7 +26114,7 @@ Minnesota,Stevens,Donnelly,city,2714916084,
 Minnesota,Stevens,Eldorado,township,2714918494,
 Minnesota,Stevens,Everglade,township,2714919970,
 Minnesota,Stevens,Framnas,township,2714922274,
-Minnesota,Stevens,Hancock,city,2714926936,
+Minnesota,Stevens,Hancock,city,2714926936,https://www.cityofhancockmn.com/
 Minnesota,Stevens,Hodges,township,2714929438,
 Minnesota,Stevens,Horton,township,2714930212,
 Minnesota,Stevens,Moore,township,2714943846,
@@ -26160,7 +26160,7 @@ Minnesota,Todd,Browerville,city,2708110,https://browervillemn.com/
 Minnesota,Todd,Bruce,township,2715308272,
 Minnesota,Todd,Burleene,township,2715308668,
 Minnesota,Todd,Burnhamville,township,2715308722,
-Minnesota,Todd,Burtrum,city,2708902,
+Minnesota,Todd,Burtrum,city,2708902,https://www.cityofburtrum.com/
 Minnesota,Todd,Clarissa,city,2711602,https://cityofclarissa.weebly.com/
 Minnesota,Todd,Eagle Bend,city,2715317342,https://eaglebendmn.com/
 Minnesota,Todd,Eagle Valley,township,2715317450,
@@ -26219,7 +26219,7 @@ Minnesota,Wabasha,Millville,city,2715742290,
 Minnesota,Wabasha,Mount Pleasant,township,2715744620,
 Minnesota,Wabasha,Oakwood,township,2715748022,
 Minnesota,Wabasha,Pepin,township,2715750362,
-Minnesota,Wabasha,Plainview,city,2715751424,
+Minnesota,Wabasha,Plainview,city,2715751424,https://www.plainviewmn.com/
 Minnesota,Wabasha,Wabasha,city,2715767378,https://www.wabasha.org/
 Minnesota,Wabasha,Watopa,township,2715768638,
 Minnesota,Wabasha,West Albany,township,2715769178,
@@ -26255,7 +26255,7 @@ Minnesota,Waseca,New Richland,city,2716145862,https://newrichlandmn.gov/
 Minnesota,Waseca,Otisco,township,2716149084,
 Minnesota,Waseca,St. Mary,township,2716157274,
 Minnesota,Waseca,Vivian,township,2716167324,
-Minnesota,Waseca,Waldorf,city,2716167756,
+Minnesota,Waseca,Waldorf,city,2716167756,https://cityofwaldorf.com/
 Minnesota,Waseca,Waseca,city,2716168296,https://www.ci.waseca.mn.us/
 Minnesota,Waseca,Wilton,township,2716170744,
 Minnesota,Waseca,Woodville,township,2716171698,
@@ -26268,7 +26268,7 @@ Minnesota,Washington,Cottage Grove,city,2713456,https://www.cottagegrovemn.gov/
 Minnesota,Washington,Dellwood,city,2715616,https://www.dellwood.us/
 Minnesota,Washington,Denmark,township,2716315688,https://www.denmarktownship.org/
 Minnesota,Washington,Forest Lake,city,2716321770,https://www.ci.forest-lake.mn.us/
-Minnesota,Washington,Grant,city,2716325334,
+Minnesota,Washington,Grant,city,2716325334,https://www.cityofgrant.us/
 Minnesota,Washington,Grey Cloud Island,township,2716325982,https://www.greycloudislandtwp-mn.us/
 Minnesota,Washington,Hugo,city,2716330392,https://www.ci.hugo.mn.us/
 Minnesota,Washington,Lake Elmo,city,2716334244,https://www.lakeelmo.gov/
@@ -26567,19 +26567,19 @@ Mississippi,Choctaw,5,district,2801993042,
 Mississippi,Choctaw,,county,28019,http://choctawcountyms.com/
 Mississippi,Claiborne,1,district,2802190099,https://www.ccmsgov.us/
 Mississippi,Claiborne,2,district,2802190837,https://www.ccmsgov.us/
-Mississippi,Claiborne,3,district,2802191575,
+Mississippi,Claiborne,3,district,2802191575,https://www.ccmsgov.us/
 Mississippi,Claiborne,4,district,2802192313,
 Mississippi,Claiborne,5,district,2802193051,https://www.ccmsgov.us/
 Mississippi,Claiborne,,county,28021,https://www.ccmsgov.us/
 Mississippi,Clarke,1,district,2802390108,https://www.clarkecountyms.gov/
 Mississippi,Clarke,2,district,2802390846,https://www.clarkecountyms.gov/
 Mississippi,Clarke,3,district,2802391584,https://www.clarkecountyms.gov/
-Mississippi,Clarke,4,district,2802392322,
+Mississippi,Clarke,4,district,2802392322,https://www.clarkecountyms.gov/
 Mississippi,Clarke,5,district,2802393060,https://www.clarkecountyms.gov/
 Mississippi,Clarke,,county,28023,https://clarkecountyms.gov/
 Mississippi,Clay,1,district,2802590117,https://www.claycountyms.com/
 Mississippi,Clay,2,district,2802590855,https://www.claycountyms.com/
-Mississippi,Clay,3,district,2802591593,
+Mississippi,Clay,3,district,2802591593,https://www.claycountyms.com/
 Mississippi,Clay,4,district,2802592331,
 Mississippi,Clay,5,district,2802593069,
 Mississippi,Clay,,county,28025,http://www.claycountyms.com/
@@ -26601,7 +26601,7 @@ Mississippi,Covington,3,district,2803191620,https://www.covingtoncountyms.gov/
 Mississippi,Covington,4,district,2803192358,
 Mississippi,Covington,5,district,2803193096,
 Mississippi,Covington,,county,28031,http://www.covingtoncountyms.gov/
-Mississippi,DeSoto,1,district,2803390153,
+Mississippi,DeSoto,1,district,2803390153,https://www.desotocountyms.gov/
 Mississippi,DeSoto,2,district,2803390891,
 Mississippi,DeSoto,3,district,2803391629,
 Mississippi,DeSoto,4,district,2803392367,
@@ -26621,7 +26621,7 @@ Mississippi,Franklin,5,district,2803793123,https://www.franklincountyms.gov/
 Mississippi,Franklin,,county,28037,https://www.franklincountyms.gov/
 Mississippi,George,1,district,2803990180,
 Mississippi,George,2,district,2803990918,
-Mississippi,George,3,district,2803991656,
+Mississippi,George,3,district,2803991656,http://www.georgecountyms.com/
 Mississippi,George,4,district,2803992394,https://www.georgecountyms.com/
 Mississippi,George,5,district,2803993132,
 Mississippi,George,,county,28039,http://www.georgecountyms.com/
@@ -26638,13 +26638,13 @@ Mississippi,Grenada,4,district,2804392412,
 Mississippi,Grenada,5,district,2804393150,
 Mississippi,Grenada,,county,28043,
 Mississippi,Hancock,1,district,2804590207,https://www.hancockcounty.ms.gov/
-Mississippi,Hancock,2,district,2804590945,
+Mississippi,Hancock,2,district,2804590945,https://www.hancockcounty.ms.gov/
 Mississippi,Hancock,3,district,2804591683,
 Mississippi,Hancock,4,district,2804592421,
 Mississippi,Hancock,5,district,2804593159,
 Mississippi,Hancock,,county,28045,https://www.hancockcounty.ms.gov/
 Mississippi,Harrison,1,district,2804790216,https://harrisoncountyms.gov/
-Mississippi,Harrison,2,district,2804790954,
+Mississippi,Harrison,2,district,2804790954,https://harrisoncountyms.gov/
 Mississippi,Harrison,3,district,2804791692,
 Mississippi,Harrison,4,district,2804792430,
 Mississippi,Harrison,5,district,2804793168,
@@ -26656,8 +26656,8 @@ Mississippi,Hinds,4,district,2804992439,https://www.hindscountyms.com/
 Mississippi,Hinds,5,district,2804993177,https://www.hindscountyms.com/
 Mississippi,Hinds,,county,28049,http://www.hindscountyms.com/
 Mississippi,Holmes,1,district,2805190234,https://holmescountyms.org/
-Mississippi,Holmes,2,district,2805190972,
-Mississippi,Holmes,3,district,2805191710,
+Mississippi,Holmes,2,district,2805190972,https://holmescountyms.org/
+Mississippi,Holmes,3,district,2805191710,https://holmescountyms.org/
 Mississippi,Holmes,4,district,2805192448,
 Mississippi,Holmes,5,district,2805193186,
 Mississippi,Holmes,,county,28051,http://holmescountyms.org/
@@ -26700,7 +26700,7 @@ Mississippi,Jefferson,,county,28063,https://www.jeffersoncountyms.com/
 Mississippi,Jefferson Davis,1,district,2806590297,https://www.co.jefferson-davis.ms.us/
 Mississippi,Jefferson Davis,2,district,2806591035,https://www.co.jefferson-davis.ms.us/
 Mississippi,Jefferson Davis,3,district,2806591773,https://www.co.jefferson-davis.ms.us/
-Mississippi,Jefferson Davis,4,district,2806592511,
+Mississippi,Jefferson Davis,4,district,2806592511,https://www.co.jefferson-davis.ms.us/
 Mississippi,Jefferson Davis,5,district,2806593249,https://www.co.jefferson-davis.ms.us/
 Mississippi,Jefferson Davis,,county,28065,http://www.jeffersondaviscountyms.com/
 Mississippi,Jones,1,district,2806790306,
@@ -26753,24 +26753,24 @@ Mississippi,Lee,5,district,2808193321,https://leecountyms.com/
 Mississippi,Lee,,county,28081,https://leecountyms.com/
 Mississippi,Leflore,1,district,2808390378,https://www.leflorecounty.ms/
 Mississippi,Leflore,2,district,2808391116,https://www.leflorecounty.ms/
-Mississippi,Leflore,3,district,2808391854,
+Mississippi,Leflore,3,district,2808391854,https://www.leflorecounty.ms/
 Mississippi,Leflore,4,district,2808392592,https://www.leflorecounty.ms/
 Mississippi,Leflore,5,district,2808393330,https://www.glcsd.org/
 Mississippi,Leflore,,county,28083,https://www.leflorecounty.ms/
 Mississippi,Lincoln,1,district,2808590387,https://www.golincolnms.com/
 Mississippi,Lincoln,2,district,2808591125,
-Mississippi,Lincoln,3,district,2808591863,
+Mississippi,Lincoln,3,district,2808591863,https://www.golincolnms.com/
 Mississippi,Lincoln,4,district,2808592601,
 Mississippi,Lincoln,5,district,2808593339,
 Mississippi,Lincoln,,county,28085,http://www.golincolnms.com/
 Mississippi,Lowndes,1,district,2808790396,https://www.lowndescountyms.com/
-Mississippi,Lowndes,2,district,2808791134,
+Mississippi,Lowndes,2,district,2808791134,https://www.lowndescountyms.com/
 Mississippi,Lowndes,3,district,2808791872,
 Mississippi,Lowndes,4,district,2808792610,https://www.lowndescountyms.com/
 Mississippi,Lowndes,5,district,2808793348,
-Mississippi,Lowndes,,county,28087,
+Mississippi,Lowndes,,county,28087,https://lowndescountyms.com/
 Mississippi,Madison,1,district,2808990405,https://www.madison-schools.com/
-Mississippi,Madison,2,district,2808991143,
+Mississippi,Madison,2,district,2808991143,https://www.madison-co.com/
 Mississippi,Madison,3,district,2808991881,https://www.madison-co.com/
 Mississippi,Madison,4,district,2808992619,https://www.madison-co.com/
 Mississippi,Madison,5,district,2808993357,https://www.madison-co.com/
@@ -26785,7 +26785,7 @@ Mississippi,Marshall,1,district,2809390423,https://www.marshall-county.com/
 Mississippi,Marshall,2,district,2809391161,https://www.marshall-county.com/
 Mississippi,Marshall,3,district,2809391899,https://www.marshall-county.com/
 Mississippi,Marshall,4,district,2809392637,
-Mississippi,Marshall,5,district,2809393375,
+Mississippi,Marshall,5,district,2809393375,https://www.marshall-county.com/
 Mississippi,Marshall,,county,28093,http://www.marshall-county.com/
 Mississippi,Monroe,1,district,2809590432,https://www.mcsd.us/
 Mississippi,Monroe,2,district,2809591170,
@@ -26800,7 +26800,7 @@ Mississippi,Montgomery,4,district,2809792655,
 Mississippi,Montgomery,5,district,2809793393,
 Mississippi,Montgomery,,county,28097,http://www.montgomerycountyms.com/
 Mississippi,Neshoba,1,district,2809990450,https://www.neshobacounty.net/
-Mississippi,Neshoba,2,district,2809991188,
+Mississippi,Neshoba,2,district,2809991188,https://www.neshobacounty.net/
 Mississippi,Neshoba,3,district,2809991926,https://www.neshobacounty.net/
 Mississippi,Neshoba,4,district,2809992664,
 Mississippi,Neshoba,5,district,2809993402,
@@ -26819,7 +26819,7 @@ Mississippi,Noxubee,5,district,2810393420,
 Mississippi,Noxubee,,county,28103,
 Mississippi,Oktibbeha,1,district,2810590477,https://www.oktibbeha.ms.gov/
 Mississippi,Oktibbeha,2,district,2810591215,https://www.oktibbeha.ms.gov/
-Mississippi,Oktibbeha,3,district,2810591953,
+Mississippi,Oktibbeha,3,district,2810591953,https://www.oktibbeha.ms.gov/
 Mississippi,Oktibbeha,4,district,2810592691,
 Mississippi,Oktibbeha,5,district,2810593429,
 Mississippi,Oktibbeha,,county,28105,http://www.oktibbehacountyms.org/
@@ -26872,7 +26872,7 @@ Mississippi,Rankin,4,district,2812192763,
 Mississippi,Rankin,5,district,2812193501,
 Mississippi,Rankin,,county,28121,https://www.rcsd.ms/
 Mississippi,Scott,1,district,2812390558,https://www.scottcountyms.gov/
-Mississippi,Scott,2,district,2812391296,
+Mississippi,Scott,2,district,2812391296,https://scottcounty.usnx.com/
 Mississippi,Scott,3,district,2812392034,https://www.scottcountyms.gov/
 Mississippi,Scott,4,district,2812392772,
 Mississippi,Scott,5,district,2812393510,https://www.scottcountyms.gov/
@@ -26905,7 +26905,7 @@ Mississippi,Sunflower,1,district,2813390603,https://www.sunflowercounty.ms.gov/
 Mississippi,Sunflower,2,district,2813391341,https://www.sunflowercounty.ms.gov/
 Mississippi,Sunflower,3,district,2813392079,https://www.sunflowercounty.ms.gov/
 Mississippi,Sunflower,4,district,2813392817,https://www.sunflowercounty.ms.gov/
-Mississippi,Sunflower,5,district,2813393555,
+Mississippi,Sunflower,5,district,2813393555,https://www.sunflowercounty.ms.gov/
 Mississippi,Sunflower,,county,28133,https://www.sunflowercounty.ms.gov/
 Mississippi,Tallahatchie,1,district,2813590612,
 Mississippi,Tallahatchie,2,district,2813591350,
@@ -26914,7 +26914,7 @@ Mississippi,Tallahatchie,4,district,2813592826,
 Mississippi,Tallahatchie,5,district,2813593564,
 Mississippi,Tallahatchie,,county,28135,
 Mississippi,Tate,1,district,2813790621,https://tatecountyms.gov/
-Mississippi,Tate,2,district,2813791359,
+Mississippi,Tate,2,district,2813791359,https://tatecountyms.gov/
 Mississippi,Tate,3,district,2813792097,
 Mississippi,Tate,4,district,2813792835,
 Mississippi,Tate,5,district,2813793573,
@@ -26986,7 +26986,7 @@ Mississippi,Winston,4,district,2815992934,https://www.winstoncountyms.org/
 Mississippi,Winston,5,district,2815993672,https://www.winstoncountyms.org/
 Mississippi,Winston,,county,28159,http://www.winstonms.com/
 Mississippi,Yalobusha,1,district,2816190729,https://www.yalobushaonline.org/
-Mississippi,Yalobusha,2,district,2816191467,
+Mississippi,Yalobusha,2,district,2816191467,https://www.yalobushaonline.org/
 Mississippi,Yalobusha,3,district,2816192205,
 Mississippi,Yalobusha,4,district,2816192943,
 Mississippi,Yalobusha,5,district,2816193681,
@@ -27232,7 +27232,7 @@ Mississippi,,McComb,city,2843280,https://www.mccomb-ms.gov/
 Mississippi,,McCool,town,2843400,
 Mississippi,,McLain,town,2843840,https://www.townofmclain.com/
 Mississippi,,Meadville,town,2846200,http://www.meadvillems.com/
-Mississippi,,Mendenhall,city,2846600,
+Mississippi,,Mendenhall,city,2846600,https://www.cityofmendenhall.com/
 Mississippi,,Meridian,city,2846640,http://www.meridianms.org/
 Mississippi,,Meridian Station,CDP,2846680,
 Mississippi,,Merigold,town,2846720,
@@ -27296,7 +27296,7 @@ Mississippi,,Picayune,city,2857160,http://www.picayune.ms.us/
 Mississippi,,Pickens,town,2857200,
 Mississippi,,Pittsboro,village,2858360,
 Mississippi,,Plantersville,town,2858440,https://plantersvillems.gov/
-Mississippi,,Polkville,town,2858960,
+Mississippi,,Polkville,town,2858960,https://polkville.org/
 Mississippi,,Pontotoc,city,2859160,
 Mississippi,,Pope,village,2859240,
 Mississippi,,Poplarville,city,2859480,https://www.poplarvillems.gov/
@@ -27878,7 +27878,7 @@ Missouri,Douglas,Brown,township,2906708830,
 Missouri,Douglas,Brush Creek,township,2906709082,
 Missouri,Douglas,Bryan,township,2906709190,
 Missouri,Douglas,Buchanan,township,2906709262,
-Missouri,Douglas,Campbell,township,2906710846,
+Missouri,Douglas,Campbell,township,2906710846,https://www.campbelltownship.org/
 Missouri,Douglas,Cass,township,2906711800,
 Missouri,Douglas,Champion,township,2906713114,
 Missouri,Douglas,Clay,township,2906714320,
@@ -28058,7 +28058,7 @@ Missouri,Holt,Nodaway,township,2908752706,
 Missouri,Holt,Union,township,2908774680,
 Missouri,Holt,,county,29087,http://holtcounty.org/
 Missouri,Howard,Bonne Femme,township,2908907084,
-Missouri,Howard,Boonslick,township,2908907300,
+Missouri,Howard,Boonslick,township,2908907300,https://boonslickmo.com/
 Missouri,Howard,Burton,township,2908909964,
 Missouri,Howard,Chariton,township,2908913222,
 Missouri,Howard,Franklin,city,2925624,
@@ -28169,7 +28169,7 @@ Missouri,Lafayette,Clay,township,2910714428,
 Missouri,Lafayette,Davis,township,2910718406,
 Missouri,Lafayette,Dover,town,2919918,
 Missouri,Lafayette,Freedom,township,2910725858,
-Missouri,Lafayette,Lexington,city,2941870,
+Missouri,Lafayette,Lexington,city,2941870,https://lexingtonmo.gov/
 Missouri,Lafayette,Middleton,township,2910747882,
 Missouri,Lafayette,Sni-A-Bar,township,2910768456,
 Missouri,Lafayette,Washington,township,2910777560,
@@ -28663,7 +28663,7 @@ Missouri,Scotland,Thomson,township,2919973060,
 Missouri,Scotland,Tobin,township,2919973492,
 Missouri,Scotland,Union,township,2919974986,
 Missouri,Scotland,Vest,township,2919975958,
-Missouri,Scotland,,county,29199,
+Missouri,Scotland,,county,29199,https://scotland.missouriassessors.com/
 Missouri,Scott,Commerce,village,2915760,
 Missouri,Scott,Kelso,village,2938216,
 Missouri,Scott,Moreland,township,2920149916,
@@ -29148,7 +29148,7 @@ Missouri,,Deepwater,city,2918730,
 Missouri,,Deering,CDP,2918838,
 Missouri,,Defiance,CDP,2918910,
 Missouri,,Dellwood,city,2919018,https://mo-dellwood2.civicplus.com/
-Missouri,,Delta,city,2919072,
+Missouri,,Delta,city,2919072,http://www.delta.ca/
 Missouri,,Dennis Acres,village,2919090,
 Missouri,,Denton,CDP,2919144,
 Missouri,,Denver,village,2919162,
@@ -29546,7 +29546,7 @@ Missouri,,Oaks,village,2953804,https://www.villageofoaks.com/
 Missouri,,Oakview,village,2953858,https://oakviewmissouri.com/
 Missouri,,Oakwood,village,2953894,
 Missouri,,Oakwood Park,village,2953948,https://villageofoakwoodpark.org/
-Missouri,,Odessa,city,2954038,
+Missouri,,Odessa,city,2954038,https://www.cityofodessamo.com/
 Missouri,,Old Appleton,town,2954200,
 Missouri,,Old Jamestown,CDP,2954352,
 Missouri,,Old Monroe,city,2954416,
@@ -29578,7 +29578,7 @@ Missouri,,Parnell,city,2956360,
 Missouri,,Pasadena Hills,city,2956396,https://www.pasadenahillsmo.us/
 Missouri,,Pasadena Park,village,2956414,https://www.villageofpasadenapark.org/
 Missouri,,Passaic,town,2956468,
-Missouri,,Pattonsburg,city,2956558,
+Missouri,,Pattonsburg,city,2956558,https://pattonsburgmo.municipalone.com/
 Missouri,,Paynesville,village,2956612,
 Missouri,,Peaceful Village,village,2956620,
 Missouri,,Peculiar,city,2956756,https://www.cityofpeculiar.com/
@@ -29618,7 +29618,7 @@ Missouri,,Prathersville,village,2959816,
 Missouri,,Preston,village,2959870,
 Missouri,,Princeton,city,2959942,http://www.cityofprincetonmo.com/
 Missouri,,Purcell,city,2960140,
-Missouri,,Purdin,city,2960158,
+Missouri,,Purdin,city,2960158,https://purdin-mo-office.hub.biz/
 Missouri,,Puxico,city,2960284,http://www.puxicomo.us/
 Missouri,,Queen City,city,2960356,http://queencitymissouri.weebly.com/
 Missouri,,Quitman,CDP,2960410,
@@ -29681,7 +29681,7 @@ Missouri,,Shawneetown,CDP,2967124,
 Missouri,,Shelbina,city,2967178,https://www.cityofshelbina.com/
 Missouri,,Shelbyville,city,2967196,https://shelbyvillemo.com/
 Missouri,,Sheldon,city,2967214,
-Missouri,,Sheridan,town,2967358,
+Missouri,,Sheridan,town,2967358,https://townofsheridanmt.org/
 Missouri,,Shoal Creek Drive,village,2967628,
 Missouri,,Shoal Creek Estates,village,2967632,
 Missouri,,Shrewsbury,city,2967700,http://www.cityofshrewsbury.com/
@@ -29841,7 +29841,7 @@ Missouri,,Wooldridge,village,2981016,
 Missouri,,Worth,village,2981070,
 Missouri,,Wortham,CDP,2981088,
 Missouri,,Worthington,village,2981106,
-Missouri,,Wright City,city,2981124,
+Missouri,,Wright City,city,2981124,https://wrightcitymo.gov/
 Missouri,,Wyatt,city,2981178,
 Missouri,,Zalma,CDP,2981430,
 Missouri,,,state,29000,http://mo.gov/
@@ -29908,7 +29908,7 @@ Montana,Fergus,Roy,city,3002792898,
 Montana,Fergus,Winifred,town,3081025,https://www.townofwinifred.com/
 Montana,Fergus,,county,30027,https://fergusmt.gov/
 Montana,Flathead,Bad Rock-Columbia Heights,city,3002990147,
-Montana,Flathead,Columbia Falls,city,3016600,
+Montana,Flathead,Columbia Falls,city,3016600,https://www.cityofcolumbiafalls.org/
 Montana,Flathead,Creston-Bigfork,city,3002990735,
 Montana,Flathead,Flathead,reservation,3002991118,https://cskt.org/
 Montana,Flathead,Glacier National Park,city,3002991449,
@@ -29925,7 +29925,7 @@ Montana,Gallatin,Bozeman,city,3008950,https://www.bozemanmt.gov/
 Montana,Gallatin,Gallatin Gateway,city,3003191344,
 Montana,Gallatin,Manhattan,town,3047575,http://www.townofmanhattan.com/
 Montana,Gallatin,Three Forks,city,3073975,https://threeforksmontana.us/
-Montana,Gallatin,West Yellowstone,town,3079525,
+Montana,Gallatin,West Yellowstone,town,3079525,https://www.westyellowstone.gov/
 Montana,Gallatin,Yellowstone National Park,city,3003194017,
 Montana,Gallatin,,county,30031,https://www.gallatinmt.gov/
 Montana,Garfield,North Garfield,city,3003392478,
@@ -29939,7 +29939,7 @@ Montana,Golden Valley,Lavina,town,3042850,
 Montana,Golden Valley,Ryegate,town,3064975,
 Montana,Golden Valley,,county,30037,https://www.goldenvalleycountymt.org/
 Montana,Granite,Drummond,town,3021850,https://townofdrummondmt.gov/
-Montana,Granite,Philipsburg,town,3057175,
+Montana,Granite,Philipsburg,town,3057175,https://www.townofphilipsburgmt.com/
 Montana,Granite,,county,30039,https://www.granitecountymt.us/
 Montana,Hill,Gildford,city,3004191428,
 Montana,Hill,Havre,city,3035050,https://www.ci.havre.mt.us/
@@ -30091,7 +30091,7 @@ Montana,Yellowstone,Huntley Project,city,3011191806,
 Montana,Yellowstone,Laurel,city,3042700,https://cityoflaurelmontana.com/
 Montana,Yellowstone,Northeast Yellowstone,city,3011192426,
 Montana,Yellowstone,Northwest Yellowstone,city,3011192541,
-Montana,Yellowstone,Shepherd,city,3011193024,
+Montana,Yellowstone,Shepherd,city,3011193024,https://www.shepherdmontana.com/
 Montana,Yellowstone,South Yellowstone,city,3011193297,
 Montana,Yellowstone,,county,30111,https://www.yellowstonecountymt.gov/
 Montana,,Acton,CDP,3000400,
@@ -31089,7 +31089,7 @@ Nebraska,Hitchcock,,county,31087,http://www.hitchcockcounty.ne.gov/
 Nebraska,Holt,Antelope,township,3108901675,
 Nebraska,Holt,Atkinson,city,3102550,https://atkinsonne.com/
 Nebraska,Holt,Belle,township,3108903880,
-Nebraska,Holt,Chambers,village,3108675,
+Nebraska,Holt,Chambers,village,3108675,http://www.chambersne.com/
 Nebraska,Holt,Cleveland,township,3108909550,
 Nebraska,Holt,Coleman,township,3108909830,
 Nebraska,Holt,Conley,township,3108910320,
@@ -31232,7 +31232,7 @@ Nebraska,Knox,Western,township,3110752260,
 Nebraska,Knox,,county,31107,http://www.co.knox.ne.us/
 Nebraska,Lancaster,Buda,precinct,3110990410,
 Nebraska,Lancaster,Centerville,precinct,3110990480,
-Nebraska,Lancaster,Denton,village,3112770,
+Nebraska,Lancaster,Denton,village,3112770,https://villageofdenton.com/
 Nebraska,Lancaster,Elk,precinct,3110990860,
 Nebraska,Lancaster,Grant,precinct,3110991215,
 Nebraska,Lancaster,Highland,precinct,3110991405,
@@ -31683,7 +31683,7 @@ Nebraska,Wayne,Chapin,precinct,3117990490,
 Nebraska,Wayne,Deer Creek,precinct,3117990670,
 Nebraska,Wayne,Garfield,precinct,3117991085,
 Nebraska,Wayne,Hancock,precinct,3117991300,
-Nebraska,Wayne,Hoskins,village,3123235,
+Nebraska,Wayne,Hoskins,village,3123235,https://hoskinsne.com/
 Nebraska,Wayne,Hunter,precinct,3117991490,
 Nebraska,Wayne,Leslie,precinct,3117991725,
 Nebraska,Wayne,Logan,precinct,3117991835,
@@ -31749,7 +31749,7 @@ Nebraska,,Belmar,CDP,3104055,
 Nebraska,,Belvidere,village,3104160,
 Nebraska,,Benedict,village,3104195,
 Nebraska,,Benkelman,city,3104230,https://benkelmanusa.com/
-Nebraska,,Bennet,village,3104300,
+Nebraska,,Bennet,village,3104300,https://cityofbennet.com/
 Nebraska,,Bennington,city,3104405,https://benningtonne.com/
 Nebraska,,Berea,CDP,3104545,
 Nebraska,,Bertrand,village,3104615,https://bertrandne.gov/
@@ -31761,7 +31761,7 @@ Nebraska,,Bow Valley,CDP,3105980,
 Nebraska,,Boys Town,village,3106015,
 Nebraska,,Brainard,village,3106120,http://www.brainardnebraska.com/
 Nebraska,,Bridgeport,city,3106295,http://cityofbport.com/
-Nebraska,,Brock,village,3106505,
+Nebraska,,Brock,village,3106505,https://brocknebraska.weebly.com/
 Nebraska,,Brownlee,CDP,3106680,
 Nebraska,,Bruno,village,3106855,
 Nebraska,,Brunswick,village,3106890,
@@ -31887,7 +31887,7 @@ Nebraska,,Lake Waconda,CDP,3126156,
 Nebraska,,Lakeview,CDP,3126150,
 Nebraska,,Lamar,village,3126175,
 Nebraska,,Laurel,city,3126350,https://laurelne.com/
-Nebraska,,Lawrence,village,3126420,
+Nebraska,,Lawrence,village,3126420,https://lawrence-ne.com/
 Nebraska,,Leigh,village,3126560,https://www.cityofleigh.com/
 Nebraska,,Lemoyne,CDP,3126595,
 Nebraska,,Lewellen,village,3126805,
@@ -31902,7 +31902,7 @@ Nebraska,,Loomis,village,3129085,https://loomisne.com/
 Nebraska,,Lorenzo,CDP,3129120,
 Nebraska,,Loretto,CDP,3129155,
 Nebraska,,Lorton,village,3129175,
-Nebraska,,Loup City,city,3129470,
+Nebraska,,Loup City,city,3129470,https://loupcityne.gov/
 Nebraska,,Lushton,village,3129645,
 Nebraska,,Lyman,village,3129715,
 Nebraska,,Lyons,city,3129855,https://lyonscity.nebraska.gov/
@@ -32128,7 +32128,7 @@ Nevada,Nye,Duckwater,city,3202394252,
 Nevada,Nye,Gabbs,city,3202394350,
 Nevada,Nye,Pahrump,city,3202394644,https://www.pahrumpnv.gov/
 Nevada,Nye,Ralston,valley,3202394701,
-Nevada,Nye,Round Mountain,city,3202394728,
+Nevada,Nye,Round Mountain,city,3202394728,https://www.townofroundmountain.com/
 Nevada,Nye,Tonopah,city,3202394812,
 Nevada,Nye,Yucca Flat,city,3202394938,
 Nevada,Nye,,county,32023,http://nyecounty.net/
@@ -32706,7 +32706,7 @@ New Jersey,Camden,Tavistock,borough,3400772240,https://tavistocknj.org/
 New Jersey,Camden,Voorhees,township,3400776220,https://voorheesnj.com/
 New Jersey,Camden,Waterford,township,3400777630,https://waterfordtwp.org/
 New Jersey,Camden,Winslow,township,3400781740,https://www.winslowtownship.com/
-New Jersey,Camden,Woodlynne,borough,3400782450,
+New Jersey,Camden,Woodlynne,borough,3400782450,https://www.woodlynnenj.org/
 New Jersey,Camden,,county,34007,https://www.camdencounty.com/
 New Jersey,Cape May,Avalon,borough,3400902320,https://avalonboro.net/
 New Jersey,Cape May,Cape May,city,3400910270,https://www.capemaycity.com/
@@ -32834,7 +32834,7 @@ New Jersey,Mercer,Hightstown,borough,3402131620,https://www.hightstownborough.co
 New Jersey,Mercer,Hopewell,borough,3402133150,https://www.hopewellboro-nj.us/
 New Jersey,Mercer,Lawrence,township,3402139510,https://www.lawrencetwp.com/
 New Jersey,Mercer,Pennington,borough,3402157600,https://www.penningtonboro.org/
-New Jersey,Mercer,Robbinsville,township,3402163850,
+New Jersey,Mercer,Robbinsville,township,3402163850,https://www.robbinsville.net/
 New Jersey,Mercer,Trenton,city,3402174000,https://www.trentonnj.org/
 New Jersey,Mercer,West Windsor,township,3402180240,https://www.westwindsortwp.gov/
 New Jersey,Mercer,,county,34021,https://www.mercercounty.org/
@@ -32941,7 +32941,7 @@ New Jersey,Morris,Mount Arlington,borough,3402748690,https://mountarlingtonnj.or
 New Jersey,Morris,Mount Olive,township,3402749080,https://www.mountolivetwpnj.org/
 New Jersey,Morris,Mountain Lakes,borough,3402748480,https://mountainlakes.gov/
 New Jersey,Morris,Netcong,borough,3402750130,https://netcong.org/
-New Jersey,Morris,Parsippany-Troy Hills,township,3402756460,
+New Jersey,Morris,Parsippany-Troy Hills,township,3402756460,https://www.parsippany.net/
 New Jersey,Morris,Pequannock,township,3402758110,https://www.peqtwp.org/
 New Jersey,Morris,Randolph,township,3402761890,https://www.randolphnj.org/
 New Jersey,Morris,Riverdale,borough,3402763300,https://www.riverdalenj.gov/
@@ -32973,7 +32973,7 @@ New Jersey,Ocean,Mantoloking,borough,3402943380,https://www.mantoloking.org/
 New Jersey,Ocean,Ocean,township,3402954300,https://www.twpoceannj.gov/
 New Jersey,Ocean,Ocean Gate,borough,3402954450,https://oceangatenjgov.com/
 New Jersey,Ocean,Pine Beach,borough,3402958590,https://www.pinebeachnj.gov/
-New Jersey,Ocean,Plumsted,township,3402959790,
+New Jersey,Ocean,Plumsted,township,3402959790,https://www.plumsted.org/
 New Jersey,Ocean,Point Pleasant,borough,3402959880,
 New Jersey,Ocean,Point Pleasant Beach,borough,3402959910,https://www.pointpleasantbeach.gov/
 New Jersey,Ocean,Seaside Heights,borough,3402966450,https://www.seaside-heightsnj.org/
@@ -33105,7 +33105,7 @@ New Jersey,Warren,Mansfield,township,3404143320,https://www.mansfieldtownship-nj
 New Jersey,Warren,Oxford,township,3404155530,https://oxfordtwpnj.org/
 New Jersey,Warren,Phillipsburg,town,3404158350,https://phillipsburgnj.org/
 New Jersey,Warren,Pohatcong,township,3404159820,https://www.pohatcongtwp.org/
-New Jersey,Warren,Washington,borough,3404177270,
+New Jersey,Warren,Washington,borough,3404177270,https://www.washingtonboro-nj.gov/
 New Jersey,Warren,White,township,3404180570,https://www.white-township.com/
 New Jersey,Warren,,county,34041,https://www.warrencountynj.gov/
 New Jersey,,Absecon Highlands,CDP,3400160,
@@ -33470,7 +33470,7 @@ New Mexico,Catron,Quemado,city,3500392460,
 New Mexico,Catron,Reserve,village,3562620,
 New Mexico,Catron,,county,35003,https://www.catroncounty.us/
 New Mexico,Chaves,Dexter,town,3520620,
-New Mexico,Chaves,Hagerman,town,3531330,
+New Mexico,Chaves,Hagerman,town,3531330,https://www.hagerman-nm.us/
 New Mexico,Chaves,Northeast Chaves,city,3500592190,
 New Mexico,Chaves,Northwest Chaves,city,3500592280,
 New Mexico,Chaves,Roswell,city,3564930,https://www.roswell-nm.gov/
@@ -33506,7 +33506,7 @@ New Mexico,Eddy,Carlsbad,city,3512150,https://www.cityofcarlsbadnm.com/
 New Mexico,Eddy,Loco Hills,city,3501591800,
 New Mexico,Eddy,Loving,village,3544420,https://www.lovingnm.gov/
 New Mexico,Eddy,,county,35015,https://eddy.nm.publicsearch.us/
-New Mexico,Grant,Bayard-Santa Rita,city,3501790210,
+New Mexico,Grant,Bayard-Santa Rita,city,3501790210,https://www.cityofbayardnm.gov/
 New Mexico,Grant,Hurley,town,3533850,https://townofhurley.us/
 New Mexico,Grant,Mimbres,city,3501792070,
 New Mexico,Grant,Pinos Altos,city,3501792400,
@@ -33619,7 +33619,7 @@ New Mexico,Torrance,Estancia,town,3525380,https://www.townofestancia.com/
 New Mexico,Torrance,Mountainair-Encino,city,3505792135,https://mountainairnm.gov/
 New Mexico,Torrance,,county,35057,https://www.torrancecountynm.org/
 New Mexico,Union,Clayton North,city,3505990660,
-New Mexico,Union,Clayton South,city,3505990690,
+New Mexico,Union,Clayton South,city,3505990690,https://claytonnmchamber.org/
 New Mexico,Union,,county,35059,https://www.unionnm.us/
 New Mexico,Valencia,Belen,city,3506480,https://www.belen-nm.gov/
 New Mexico,Valencia,Los Lunas,village,3543370,https://www.loslunasnm.gov/
@@ -34113,7 +34113,7 @@ New York,Bronx,,county,36005,
 New York,Broome,Barker,town,3600704429,https://www.townofbarkerny.gov/
 New York,Broome,Binghamton,town,3600706618,https://townofbinghamton.gov/
 New York,Broome,Chenango,town,3600715110,
-New York,Broome,Colesville,town,3600717046,
+New York,Broome,Colesville,town,3600717046,https://towncolesville.digitaltowpath.org:10004/
 New York,Broome,Conklin,town,3600717772,https://townofconklin.gov/
 New York,Broome,Dickinson,town,3600720588,https://townofdickinsonnybc.gov/
 New York,Broome,Fenton,town,3600725604,https://www.townoffentonny.gov/
@@ -34145,7 +34145,7 @@ New York,Cattaraugus,Hinsdale,town,3600934946,
 New York,Cattaraugus,Humphrey,town,3600936123,https://www.humphreyny.org/
 New York,Cattaraugus,Ischua,town,3600937825,http://www.townofischuany.org/
 New York,Cattaraugus,Leon,town,3600941982,https://www.leonny.org/
-New York,Cattaraugus,Little Valley,town,3600942840,
+New York,Cattaraugus,Little Valley,town,3600942840,https://www.littlevalleyny.gov/
 New York,Cattaraugus,Lyndon,town,3600943896,https://www.lyndontown.org/
 New York,Cattaraugus,Machias,town,3600944237,https://www.machiasny.gov/
 New York,Cattaraugus,Mansfield,town,3600945161,https://www.mansfieldny.org/
@@ -34165,7 +34165,7 @@ New York,Cattaraugus,Yorkshire,town,3600984055,https://www.yorkshireny.gov/
 New York,Cattaraugus,,county,36009,https://www.cattco.gov/
 New York,Cayuga,Auburn,city,3601103078,https://www.auburnny.gov/
 New York,Cayuga,Aurelius,town,3601103166,https://aureliustown.org/
-New York,Cayuga,Brutus,town,3601110297,
+New York,Cayuga,Brutus,town,3601110297,https://townbrutus.digitaltowpath.org:10148/
 New York,Cayuga,Cato,town,3601112969,
 New York,Cayuga,Conquest,town,3601117849,https://townofconquestny.gov/
 New York,Cayuga,Fleming,town,3601126231,https://www.townoffleming.com/
@@ -34424,7 +34424,7 @@ New York,Fulton,Ephratah,town,3603524603,
 New York,Fulton,Gloversville,city,3603529443,https://cityofgloversvilleny.gov/
 New York,Fulton,Johnstown,town,3603538792,https://cityofjohnstown.ny.gov/
 New York,Fulton,Mayfield,town,3603546217,https://townofmayfieldny.gov/
-New York,Fulton,Northampton,town,3603551407,
+New York,Fulton,Northampton,town,3603551407,https://townnorthampton.digitaltowpathny.gov:10820/
 New York,Fulton,Oppenheim,town,3603555101,https://www.townofoppenheim.com/
 New York,Fulton,Perth,town,3603557353,https://www.perthny.gov/
 New York,Fulton,Stratford,town,3603571784,https://www.stratfordny.com/
@@ -34460,8 +34460,8 @@ New York,Greene,Prattsville,town,3603959751,https://www.townofprattsville.com/
 New York,Greene,Windham,town,3603982480,https://townofwindhamny.com/
 New York,Greene,,county,36039,https://gis.gcgovny.com/
 New York,Hamilton,Arietta,town,3604102572,http://www.townofarietta.com/
-New York,Hamilton,Benson,town,3604105958,
-New York,Hamilton,Hope,town,3604135496,
+New York,Hamilton,Benson,town,3604105958,https://townbenson.digitaltowpath.org:10813/
+New York,Hamilton,Hope,town,3604135496,https://townhope.digitaltowpath.org:10310/
 New York,Hamilton,Indian Lake,town,3604137374,https://indianlakeadk.com/
 New York,Hamilton,Inlet,town,3604137495,https://townofinlet.org/
 New York,Hamilton,Lake Pleasant,town,3604140794,https://lakepleasantny.gov/
@@ -34547,7 +34547,7 @@ New York,Livingston,Ossian,town,3605155508,https://ossianny.us/
 New York,Livingston,Portage,town,3605159179,
 New York,Livingston,Sparta,town,3605170101,https://www.sparta-ny.gov/
 New York,Livingston,Springwater,town,3605170475,https://www.springwaterny.gov/
-New York,Livingston,West Sparta,town,3605181006,
+New York,Livingston,West Sparta,town,3605181006,https://townwestsparta.digitaltowpath.org:10278/
 New York,Livingston,York,town,3605184022,https://www.yorkny.gov/
 New York,Livingston,,county,36051,https://www.livingstoncountyny.gov/
 New York,Madison,Brookfield,town,3605308587,https://brookfieldny.weebly.com/
@@ -34565,7 +34565,7 @@ New York,Madison,Nelson,town,3605349770,https://nelson-ny.org/
 New York,Madison,Oneida,city,3605354837,https://www.oneidacityny.gov/
 New York,Madison,Smithfield,town,3605367785,https://townofsmithfield.com/
 New York,Madison,Stockbridge,town,3605371399,
-New York,Madison,Sullivan,town,3605371993,
+New York,Madison,Sullivan,town,3605371993,https://www.townofsullivanny.gov/
 New York,Madison,,county,36053,https://www.madisoncounty.ny.gov/
 New York,Monroe,Brighton,town,3605508246,https://www.brightonny.gov/
 New York,Monroe,Chili,town,3605515462,https://www.chiliny.gov/
@@ -34575,7 +34575,7 @@ New York,Monroe,Gates,town,3605528442,https://www.townofgatesny.gov/
 New York,Monroe,Greece,town,3605530290,https://greeceny.gov/
 New York,Monroe,Hamlin,town,3605531797,https://hamlinny.org/
 New York,Monroe,Henrietta,town,3605534099,https://www.henriettany.gov/
-New York,Monroe,Irondequoit,town,3605537726,
+New York,Monroe,Irondequoit,town,3605537726,https://www.irondequoit.gov/
 New York,Monroe,Mendon,town,3605546558,https://townofmendonny.gov/
 New York,Monroe,Ogden,town,3605554474,https://ogdenny.gov/
 New York,Monroe,Parma,town,3605556561,https://parmany.gov/
@@ -34596,7 +34596,7 @@ New York,Montgomery,Florida,town,3605726308,https://www.townofflorida.com/
 New York,Montgomery,Glen,town,3605729047,https://nytownofglen.gov/
 New York,Montgomery,Minden,town,3605747614,https://www.townofmindenny.gov/
 New York,Montgomery,Mohawk,town,3605747834,https://www.townofmohawkny.com/
-New York,Montgomery,Palatine,town,3605756099,
+New York,Montgomery,Palatine,town,3605756099,https://townofpalatine.org/
 New York,Montgomery,Root,town,3605763561,
 New York,Montgomery,St. Johnsville,town,3605764650,https://www.townofstjohnsvilleny.com/
 New York,Montgomery,,county,36057,https://www.montgomerycountyny.gov/
@@ -34625,19 +34625,19 @@ New York,Niagara,Tuscarora Nation,reservation,3606375748,
 New York,Niagara,Wheatfield,town,3606381380,https://www.wheatfield-ny.gov/
 New York,Niagara,Wilson,town,3606382370,https://www.wilsonnewyork.com/
 New York,Niagara,,county,36063,https://www.niagaracounty.gov/
-New York,Oneida,Annsville,town,3606502253,
+New York,Oneida,Annsville,town,3606502253,https://townannsville.digitaltowpath.org:10103/
 New York,Oneida,Augusta,town,3606503155,https://townofaugusta.org/
 New York,Oneida,Ava,town,3606503309,https://townava.digitaltowpathny.gov:10016/
 New York,Oneida,Boonville,town,3606507366,https://townofboonvilleny.com/
-New York,Oneida,Bridgewater,town,3606508180,
+New York,Oneida,Bridgewater,town,3606508180,https://townbridgewater.digitaltowpath.org:10084/
 New York,Oneida,Camden,town,3606511858,https://www.camdenny.gov/
 New York,Oneida,Deerfield,town,3606519928,https://www.townofdeerfieldny.gov/
 New York,Oneida,Florence,town,3606526297,https://florenceny.gov/
 New York,Oneida,Floyd,town,3606526385,https://floydny.gov/
 New York,Oneida,Forestport,town,3606526627,https://townofforestport.gov/
 New York,Oneida,Kirkland,town,3606539804,https://townofkirkland.gov/
-New York,Oneida,Lee,town,3606541762,
-New York,Oneida,Marcy,town,3606545535,
+New York,Oneida,Lee,town,3606541762,https://townlee.digitaltowpath.org:10076/
+New York,Oneida,Marcy,town,3606545535,https://townmarcy.digitaltowpathny.gov:10019/
 New York,Oneida,Marshall,town,3606545755,https://townofmarshallny.gov/
 New York,Oneida,New Hartford,town,3606550309,https://www.townofnewhartfordny.gov/
 New York,Oneida,Paris,town,3606556330,https://townofparisny.gov/
@@ -34650,7 +34650,7 @@ New York,Oneida,Utica,city,3606576540,https://www.cityofutica.com/
 New York,Oneida,Vernon,town,3606577123,https://townofvernonny.gov/
 New York,Oneida,Verona,town,3606577178,https://veronany.gov/
 New York,Oneida,Vienna,town,3606577486,https://townofviennany.org/
-New York,Oneida,Western,town,3606579862,
+New York,Oneida,Western,town,3606579862,https://townwestern.digitaltowpathny.gov:10821/
 New York,Oneida,Westmoreland,town,3606580533,https://townofwestmorelandny.gov/
 New York,Oneida,Whitestown,town,3606581754,https://whitestownny.gov/
 New York,Oneida,,county,36065,https://oneidacountyny.gov/
@@ -34678,7 +34678,7 @@ New York,Onondaga,Van Buren,town,3606776760,https://vanburenny.gov/
 New York,Onondaga,,county,36067,https://onondaga.gov/
 New York,Ontario,Bristol,town,3606908378,https://www.townofbristol.org/
 New York,Ontario,Canadice,town,3606912100,https://www.canadiceny.gov/
-New York,Ontario,Canandaigua,town,3606912155,
+New York,Ontario,Canandaigua,town,3606912155,https://www.canandaiguanewyork.gov/
 New York,Ontario,East Bloomfield,town,3606921699,https://townofeastbloomfield.org/
 New York,Ontario,Farmington,town,3606925406,https://www.townoffarmingtonny.com/
 New York,Ontario,Gorham,town,3606929531,https://www.gorham-ny.com/
@@ -34699,7 +34699,7 @@ New York,Orange,Crawford,town,3607118916,https://www.townofcrawford.org/
 New York,Orange,Deerpark,town,3607119961,https://townofdeerparkny.gov/
 New York,Orange,Goshen,town,3607129553,https://townofgoshenny.gov/
 New York,Orange,Greenville,town,3607130631,https://www.greenvilleny.org/
-New York,Orange,Hamptonburgh,town,3607131907,
+New York,Orange,Hamptonburgh,town,3607131907,https://townhamptonburgh.digitaltowpath.org:10051/
 New York,Orange,Highlands,town,3607134550,https://highlands-ny.gov/
 New York,Orange,Middletown,city,3607147042,https://www.middletownny.gov/
 New York,Orange,Minisink,town,3607147713,https://www.townofminisink.com/
@@ -34790,7 +34790,7 @@ New York,Rensselaer,Brunswick,town,3608310275,https://brunswickny.gov/
 New York,Rensselaer,East Greenbush,town,3608322117,https://www.eastgreenbush.org/
 New York,Rensselaer,Grafton,town,3608329674,https://townofgraftonny.org/
 New York,Rensselaer,Hoosick,town,3608335463,
-New York,Rensselaer,Nassau,town,3608349517,
+New York,Rensselaer,Nassau,town,3608349517,https://townnassau.digitaltowpath.org:10091/
 New York,Rensselaer,North Greenbush,town,3608352100,https://www.northgreenbush.gov/
 New York,Rensselaer,Petersburgh,town,3608357441,https://petersburgh.org/
 New York,Rensselaer,Pittstown,town,3608358398,https://www.townofpittstown.org/
@@ -34833,9 +34833,9 @@ New York,Saratoga,Waterford,town,3609178531,https://www.townofwaterfordny.gov/
 New York,Saratoga,Wilton,town,3609182403,https://townofwilton.ny.gov/
 New York,Saratoga,,county,36091,https://www.saratogacountyny.gov/
 New York,Schenectady,Duanesburg,town,3609321006,https://www.duanesburg.gov/
-New York,Schenectady,Glenville,town,3609329366,
+New York,Schenectady,Glenville,town,3609329366,https://www.townofglenville.gov/
 New York,Schenectady,Niskayuna,town,3609351264,https://niskayuna.gov/
-New York,Schenectady,Princetown,town,3609359861,
+New York,Schenectady,Princetown,town,3609359861,https://townprincetown.digitaltowpath.org:10095/
 New York,Schenectady,Rotterdam,town,3609363935,https://www.townofrotterdam.gov/
 New York,Schenectady,Schenectady,city,3609365508,https://www.cityofschenectady.gov/
 New York,Schenectady,,county,36093,https://www.schenectadycountyny.gov/
@@ -34860,7 +34860,7 @@ New York,Schuyler,Catharine,town,3609712914,https://townofcatharine.com/
 New York,Schuyler,Cayuta,town,3609713112,
 New York,Schuyler,Dix,town,3609720676,https://www.townofdix.com/
 New York,Schuyler,Hector,town,3609733073,https://www.hectorny.us/
-New York,Schuyler,Montour,town,3609748186,
+New York,Schuyler,Montour,town,3609748186,https://www.townofmontour.gov/
 New York,Schuyler,Orange,town,3609755156,http://www.townoforangeny.us/
 New York,Schuyler,Reading,town,3609760763,https://townofreadingny.org/
 New York,Schuyler,Tyrone,town,3609775924,http://www.townoftyrone.org/
@@ -34938,7 +34938,7 @@ New York,Steuben,Thurston,town,3610173836,https://townofthurstonny.gov/
 New York,Steuben,Troupsburg,town,3610175440,https://townoftroupsburgny.gov/
 New York,Steuben,Tuscarora,town,3610175737,
 New York,Steuben,Urbana,town,3610176496,https://townofurbana.gov/
-New York,Steuben,Wayland,town,3610178861,
+New York,Steuben,Wayland,town,3610178861,https://townwayland.digitaltowpath.org:10163/
 New York,Steuben,Wayne,town,3610178883,https://www.townofwayneny.com/
 New York,Steuben,West Union,town,3610181105,
 New York,Steuben,Wheeler,town,3610181457,
@@ -34999,7 +34999,7 @@ New York,Ulster,Gardiner,town,3611128255,https://townofgardinerny.gov/
 New York,Ulster,Hardenburgh,town,3611132116,https://hardenburghny.gov/
 New York,Ulster,Hurley,town,3611137143,https://www.townofhurleyny.gov/
 New York,Ulster,Kingston,city,3611139727,https://kingston-ny.gov/
-New York,Ulster,Kingston,town,3611139738,
+New York,Ulster,Kingston,town,3611139738,https://www.tokny.us/
 New York,Ulster,Lloyd,town,3611142994,https://www.townoflloyd.gov/
 New York,Ulster,Marbletown,town,3611145458,https://www.marbletown.gov/
 New York,Ulster,Marlborough,town,3611145722,https://www.townofmarlboroughny.gov/
@@ -35021,7 +35021,7 @@ New York,Warren,Glens Falls,city,3611329333,https://www.cityofglensfallsny.gov/
 New York,Warren,Hague,town,3611331335,https://hagueny.gov/
 New York,Warren,Horicon,town,3611335639,https://www.horiconny.gov/
 New York,Warren,Johnsburg,town,3611338715,https://johnsburgny.gov/
-New York,Warren,Lake George,town,3611340519,
+New York,Warren,Lake George,town,3611340519,https://www.townoflakegeorge.gov/
 New York,Warren,Lake Luzerne,town,3611340662,https://www.lakeluzerneny.gov/
 New York,Warren,Queensbury,town,3611360356,https://www.queensburyny.gov/
 New York,Warren,Stony Creek,town,3611371641,https://www.stonycreekny.com/
@@ -35247,7 +35247,7 @@ New York,,Cleveland,village,3616188,https://www.villageofcleveland-ny.us/
 New York,,Clifton Gardens,CDP,3616298,
 New York,,Clifton Knolls-Mill Creek,CDP,3616322,
 New York,,Clifton Springs,village,3616375,https://www.cliftonspringsny.org/
-New York,,Clinton,village,3616419,
+New York,,Clinton,village,3616419,https://villageclinton.digitaltowpath.org:10037/
 New York,,Clintondale,CDP,3616452,
 New York,,Clyde,village,3616573,https://www.clydeny.gov/
 New York,,Cold Brook,village,3616815,
@@ -35264,7 +35264,7 @@ New York,,Copake Lake,CDP,3618124,
 New York,,Copenhagen,village,3618135,https://copenhagen.racog.org/
 New York,,Copiague,CDP,3618146,
 New York,,Coram,CDP,3618157,
-New York,,Corfu,village,3618201,
+New York,,Corfu,village,3618201,http://corfuny.com/
 New York,,Cornwall-on-Hudson,village,3618333,https://cornwall-on-hudson.gov/
 New York,,Cortland West,CDP,3618443,
 New York,,Country Knolls,CDP,3618542,
@@ -35638,7 +35638,7 @@ New York,,New Hackensack,CDP,3650265,
 New York,,New Hamburg,CDP,3650276,
 New York,,New Hempstead,village,3650353,https://villageofnewhempstead.gov/
 New York,,New Hyde Park,village,3650397,https://villagenhpny.gov/
-New York,,New Square,village,3650705,
+New York,,New Square,village,3650705,https://newsquare.blog/
 New York,,New Suffolk,CDP,3650727,
 New York,,New York,city,3651000,https://www.nyc.gov/
 New York,,New York Mills,village,3651011,https://newyorkmillsny.gov/
@@ -35700,7 +35700,7 @@ New York,,Orangeburg,CDP,3655167,
 New York,,Orient,CDP,3655321,
 New York,,Oriskany,village,3655365,https://www.oriskany.gov/
 New York,,Oriskany Falls,village,3655376,https://villageoriskanyfalls.digitaltowpathny.gov:10181/
-New York,,Otisville,village,3655673,
+New York,,Otisville,village,3655673,https://villageotisville.digitaltowpath.org:10202/
 New York,,Otter Lake,CDP,3655750,
 New York,,Oxbow,CDP,3655937,
 New York,,Oyster Bay Cove,village,3656011,https://www.oysterbaycove.net/
@@ -35735,7 +35735,7 @@ New York,,Plattsburgh West,CDP,3658601,
 New York,,Pleasantville,village,3658728,https://www.pleasantville-ny.gov/
 New York,,Plessis,CDP,3658739,
 New York,,Point Lookout,CDP,3658849,
-New York,,Poland,village,3658937,
+New York,,Poland,village,3658937,https://villagepoland.digitaltowpath.org:10110/
 New York,,Pomona,village,3658992,https://www.pomonavillage.com/
 New York,,Poquott,village,3659157,https://www.villageofpoquott.com/
 New York,,Port Byron,village,3659212,https://portbyronvillage.org/
@@ -35798,7 +35798,7 @@ New York,,Russell Gardens,village,3664232,https://www.russellgardens.com/
 New York,,Rye Brook,village,3664325,https://ryebrookny.gov/
 New York,,SUNY Oswego,CDP,3672327,
 New York,,Sackets Harbor,village,3664408,https://sacketsharbor-ny.gov/
-New York,,Saddle Rock,village,3664430,
+New York,,Saddle Rock,village,3664430,https://saddlerockny.gov/
 New York,,Saddle Rock Estates,CDP,3664441,
 New York,,Sag Harbor,village,3664485,https://www.sagharborny.gov/
 New York,,Sagaponack,village,3664452,https://www.sagaponackvillageny.gov/
@@ -35972,7 +35972,7 @@ New York,,Wellsburg,village,3679081,http://www.villageofwellsburg.com/
 New York,,Wesley Hills,village,3679174,https://www.wesleyhills.gov/
 New York,,West Babylon,CDP,3679246,
 New York,,West Bay Shore,CDP,3679301,
-New York,,West Carthage,village,3679499,
+New York,,West Carthage,village,3679499,https://villagewestcarthage.digitaltowpath.org:10087/
 New York,,West Chazy,CDP,3679543,
 New York,,West Danby,CDP,3679697,
 New York,,West Elmira,CDP,3679785,
@@ -36205,7 +36205,7 @@ North Carolina,Caldwell,,county,37027,https://www.caldwellcountync.org/
 North Carolina,Camden,Courthouse,township,3702990784,
 North Carolina,Camden,Shiloh,township,3702992920,
 North Carolina,Camden,South Mills,township,3702993044,
-North Carolina,Camden,,county,37029,
+North Carolina,Camden,,county,37029,https://www.visitcamdencountync.com/
 North Carolina,Carteret,Atlantic,township,3703190092,
 North Carolina,Carteret,Beaufort,town,3704260,https://www.beaufortnc.org/
 North Carolina,Carteret,Cedar Island,township,3703190588,
@@ -36684,7 +36684,7 @@ North Carolina,Mecklenburg,"10, Lemley",township,3711993668,
 North Carolina,Mecklenburg,"11, Long Creek",township,3711993700,
 North Carolina,Mecklenburg,"12, Paw Creek",township,3711993720,
 North Carolina,Mecklenburg,"13, Morning Star",township,3711993736,
-North Carolina,Mecklenburg,"14, Pineville",township,3711993740,
+North Carolina,Mecklenburg,"14, Pineville",township,3711993740,https://www.pinevillenc.gov/
 North Carolina,Mecklenburg,"15, Huntersville",township,3711993748,
 North Carolina,Mecklenburg,"2, Berryhill",township,3711993320,
 North Carolina,Mecklenburg,"3, Steele Creek",township,3711993392,
@@ -36845,7 +36845,7 @@ North Carolina,Randolph,Cedar Grove,township,3715190584,
 North Carolina,Randolph,Coleridge,township,3715190716,
 North Carolina,Randolph,Columbia,township,3715190732,
 North Carolina,Randolph,Concord,township,3715190748,
-North Carolina,Randolph,Franklinville,town,3724740,
+North Carolina,Randolph,Franklinville,town,3724740,https://franklinvillenc.org/
 North Carolina,Randolph,Grant,township,3715191276,
 North Carolina,Randolph,Level Cross,township,3715191784,
 North Carolina,Randolph,Liberty,town,3738100,https://www.liberty-nc.com/
@@ -36956,7 +36956,7 @@ North Carolina,Sampson,Plain View,township,3716392524,
 North Carolina,Sampson,South Clinton,township,3716393032,
 North Carolina,Sampson,South River,township,3716393052,
 North Carolina,Sampson,Taylors Bridge,township,3716393224,
-North Carolina,Sampson,Turkey,town,3768740,
+North Carolina,Sampson,Turkey,town,3768740,https://townofturkeync.com/
 North Carolina,Sampson,Westbrook,township,3716393939,
 North Carolina,Sampson,,county,37163,https://www.sampsoncountync.gov/
 North Carolina,Scotland,Laurel Hill,township,3716591748,
@@ -37184,7 +37184,7 @@ North Carolina,,Ashley Heights,CDP,3702240,
 North Carolina,,Askewville,town,3702320,
 North Carolina,,Atkinson,town,3702460,https://www.atkinsonnc.org/
 North Carolina,,Atlantic Beach,town,3702500,https://atlanticbeach-nc.com/
-North Carolina,,Aulander,town,3702580,
+North Carolina,,Aulander,town,3702580,https://aulandernc.com/
 North Carolina,,Aurora,town,3702620,https://auroranc.us/
 North Carolina,,Autryville,town,3702700,https://townofautryville.com/
 North Carolina,,Avon,CDP,3702780,https://www.hometownavonnc.org/
@@ -37400,7 +37400,7 @@ North Carolina,,Hobucken,CDP,3731880,
 North Carolina,,Hoffman,town,3731920,http://townofhoffman.com/
 North Carolina,,Holden Beach,town,3731960,https://holdenbeachnc.com/
 North Carolina,,Hollister,CDP,3732100,
-North Carolina,,Holly Ridge,town,3732180,
+North Carolina,,Holly Ridge,town,3732180,https://hollyridgenc.org/
 North Carolina,,Hope Mills,town,3732640,https://www.townofhopemills.com/
 North Carolina,,Horse Shoe,CDP,3732740,
 North Carolina,,Hot Springs,town,3732840,https://townofhotsprings.org/
@@ -37423,7 +37423,7 @@ North Carolina,,Kenly,town,3735540,https://townofkenly.com/
 North Carolina,,Kill Devil Hills,town,3735720,https://www.kdhnc.com/
 North Carolina,,King,city,3735760,https://kingnc.com/
 North Carolina,,Kings Grant,CDP,3735870,
-North Carolina,,Kings Mountain,city,3735880,
+North Carolina,,Kings Mountain,city,3735880,https://www.cityofkm.com/
 North Carolina,,Kingstown,town,3735890,
 North Carolina,,Kitty Hawk,town,3736060,https://www.kittyhawknc.gov/
 North Carolina,,Knightdale,town,3736080,https://www.knightdalenc.gov/
@@ -37577,7 +37577,7 @@ North Carolina,,Rutherford College,town,3758440,https://www.rutherfordcollegenc.
 North Carolina,,Salem,CDP,3758740,
 North Carolina,,Salemburg,town,3758840,https://www.salemburg-nc.com/
 North Carolina,,Salvo,CDP,3758940,
-North Carolina,,Sandy Creek,town,3759090,
+North Carolina,,Sandy Creek,town,3759090,https://townofsandycreek.com/
 North Carolina,,Sandyfield,town,3759135,https://townofsandyfield.org/
 North Carolina,,Sanford,city,3759280,https://www.sanfordnc.net/
 North Carolina,,Sawmills,town,3759540,https://www.townofsawmills.com/
@@ -37905,7 +37905,7 @@ North Dakota,Bowman,Sunny Slope,township,3801177060,
 North Dakota,Bowman,Talbot,township,3801177900,
 North Dakota,Bowman,West Bowman,unorganized territory,3801184650,
 North Dakota,Bowman,Whiting,township,3801185780,
-North Dakota,Bowman,,county,38011,
+North Dakota,Bowman,,county,38011,https://bowman.northdakotaassessors.com/
 North Dakota,Burke,Battleview,township,3801305380,
 North Dakota,Burke,Bowbells,city,3801308500,
 North Dakota,Burke,Carter,unorganized territory,3801312502,
@@ -37930,7 +37930,7 @@ North Dakota,Burke,Lucy,township,3801348420,
 North Dakota,Burke,Minnesota,township,3801353180,
 North Dakota,Burke,North Burke,unorganized territory,3801357715,
 North Dakota,Burke,North Star,township,3801358140,
-North Dakota,Burke,Portal,city,3801363740,
+North Dakota,Burke,Portal,city,3801363740,https://www.portalnorthdakota.org/
 North Dakota,Burke,Powers Lake,city,3801364140,https://www.powerslakend.com/
 North Dakota,Burke,Richland,township,3801366580,
 North Dakota,Burke,Roseland,township,3801368340,
@@ -38354,7 +38354,7 @@ North Dakota,Hettinger,Kunze,township,3804143620,
 North Dakota,Hettinger,Madison,township,3804149660,
 North Dakota,Hettinger,Merrill,township,3804152540,
 North Dakota,Hettinger,Mott,city,3804154620,https://www.discovermott.com/
-North Dakota,Hettinger,New England,city,3804156180,
+North Dakota,Hettinger,New England,city,3804156180,https://ndnewengland.com/
 North Dakota,Hettinger,Odessa,township,3804159100,
 North Dakota,Hettinger,Regent,city,3804166020,
 North Dakota,Hettinger,Rifle,township,3804166740,
@@ -38376,7 +38376,7 @@ North Dakota,Kidder,Clear Lake,township,3804314420,
 North Dakota,Kidder,Crown Hill,township,3804317020,
 North Dakota,Kidder,Crystal Springs,township,3804317220,
 North Dakota,Kidder,Dawson,city,3804318260,
-North Dakota,Kidder,Excelsior,township,3804325100,
+North Dakota,Kidder,Excelsior,township,3804325100,https://www.excelsiortownship.org/
 North Dakota,Kidder,Frettim,township,3804328620,
 North Dakota,Kidder,Graf,township,3804331780,
 North Dakota,Kidder,Haynes,township,3804336580,https://haynestwp.com/
@@ -38524,7 +38524,7 @@ North Dakota,McIntosh,Wishek,city,3805187020,https://wishek-nd.com/
 North Dakota,McIntosh,Zeeland,city,3805188180,
 North Dakota,McIntosh,,county,38051,https://www.mcintoshnd.com/
 North Dakota,McKenzie,Alex,township,3805301140,
-North Dakota,McKenzie,Alexander,city,3801180,
+North Dakota,McKenzie,Alexander,city,3801180,https://www.cityofalexandernd.com/
 North Dakota,McKenzie,Antelope Creek,township,3805302600,
 North Dakota,McKenzie,Arnegard,city,3803220,https://www.arnegardnd.com/
 North Dakota,McKenzie,Blue Butte,township,3805308020,
@@ -38637,7 +38637,7 @@ North Dakota,Mountrail,Manitou,township,3806150180,
 North Dakota,Mountrail,McAlmond,township,3806148860,
 North Dakota,Mountrail,McGahan,township,3806149140,
 North Dakota,Mountrail,Model,township,3806153700,
-North Dakota,Mountrail,Mountrail,township,3806154860,
+North Dakota,Mountrail,Mountrail,township,3806154860,https://mountrail.northdakotaassessors.com/
 North Dakota,Mountrail,Myrtle,township,3806155300,
 North Dakota,Mountrail,New Town,city,3806156740,https://www.citynewtownnd.com/
 North Dakota,Mountrail,Oakland,township,3806158820,
@@ -39574,7 +39574,7 @@ Ohio,Carroll,Lee,township,3901942434,
 Ohio,Carroll,Loudon,township,3901945038,
 Ohio,Carroll,Monroe,township,3901951324,
 Ohio,Carroll,Orange,township,3901958576,https://www.orangetwp.org/
-Ohio,Carroll,Perry,township,3901961784,
+Ohio,Carroll,Perry,township,3901961784,https://www.perrytwp.org/
 Ohio,Carroll,Rose,township,3901968420,https://rosetownshipohio.com/
 Ohio,Carroll,Union,township,3901978260,
 Ohio,Carroll,Washington,township,3901981116,https://www.washingtontwp.org/
@@ -39624,9 +39624,9 @@ Ohio,Clinton,Clark,township,3902715238,
 Ohio,Clinton,Green,township,3902731710,
 Ohio,Clinton,Jefferson,township,3902738542,
 Ohio,Clinton,Liberty,township,3902743064,
-Ohio,Clinton,Marion,township,3902747670,
+Ohio,Clinton,Marion,township,3902747670,https://mariontwp.org/
 Ohio,Clinton,Richland,township,3902766642,
-Ohio,Clinton,Union,township,3902778302,
+Ohio,Clinton,Union,township,3902778302,https://www.utclermont.gov/
 Ohio,Clinton,Vernon,township,3902779772,
 Ohio,Clinton,Washington,township,3902781144,https://www.washingtontwp.org/
 Ohio,Clinton,Wayne,township,3902782124,
@@ -39882,7 +39882,7 @@ Ohio,Fulton,Amboy,township,3905101728,
 Ohio,Fulton,Chesterfield,township,3905114072,
 Ohio,Fulton,Clinton,township,3905116126,https://www.clintontownshipfultoncounty.com/
 Ohio,Fulton,Dover,township,3905122442,
-Ohio,Fulton,Franklin,township,3905128294,
+Ohio,Fulton,Franklin,township,3905128294,https://franklin-townshipohio.gov/
 Ohio,Fulton,Fulton,township,3905129036,
 Ohio,Fulton,German,township,3905129876,
 Ohio,Fulton,Gorham,township,3905130940,
