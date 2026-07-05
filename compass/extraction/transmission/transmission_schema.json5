@@ -1,7 +1,7 @@
 {
   "title": "Transmission Ordinance Extraction Schema",
   "description": "Single-shot structured extraction schema for energy transmission ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "object",
   "required": ["outputs"],
   "additionalProperties": false,
@@ -25,11 +25,74 @@
             "type": "string",
             "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
             "enum": [
+              // -- Setbacks --
+              // Do I need to include participating and non-participating
+              "structures",
+              // Occupied Dwellings or Residential Buildings
+              "residential buildings",
               "property lines",
+              // Roads of frewways
+              "roads",
+              // Heliports and Airport Runways
+              "airport",
+              // Ordinary High Water Mark (OHWM)
+              "OHWM",
+              "railroads",
+
+              // -- Definitions --
+              // Definition /voltage threshold to qualify as a "transmission line"
+              "voltage threshold",
+
+              // -- Numerical Restrictions --
+              // Electric Fields Strength at Property Line
+              "electric field",
               // Tower vs facility height. Do I want both?
               "maximum height",
               "noise",
+
+              // -- Operational --
+              // Bond Requirement
+              "bond",
+              // Decommissioning or Remediation Requirements
               "decommissioning",
+              // Conditional Use or Special Use Permit Requirement
+              "permit",
+              // Compliance with Federal Aviation Administration and local approvals near airports
+              "FAA",
+
+              // -- Prohibited or limited-use districs --
+              // Maybe call these zones, such as rural zone?
+              "rural zone",
+              "residential zone",
+              "commercial zone",
+              "light industrial zone",
+              // Includes irrigated farmland, ranch land.
+              "agricultural zone",
+              // -- Exclusions --
+              "historic site",
+              "critical species habitat",
+              "wetland",
+              "floodplain",
+              "residence",
+              "hospital",
+              "school",
+              // Daycare centers
+              "daycare",
+              // institutions of higher education
+              "higher education",
+
+              // -- Qualitative --
+              "color",
+              "fencing",
+              // Fire Prevention or Fire Protection
+              "fire prevention",
+              "lighting",
+              // Identification or Signage ("Danger", "No Trespassing",etc.)
+              "signage",
+              // Traffic Disruption
+              "traffic disruption",
+              // Vegetation Protection or Landscaping Requirements
+              "vegetation",
             ]
           },
           "value": {
