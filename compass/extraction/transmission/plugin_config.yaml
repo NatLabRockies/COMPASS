@@ -35,6 +35,9 @@ website_keywords:
 
 heuristic_keywords: true
 heuristic_keywords:
+  good_tech_keywords:
+    - "transmission"
+    - "powerline"
   good_tech_acronyms:
     - "kv"
     - "hvdc"
