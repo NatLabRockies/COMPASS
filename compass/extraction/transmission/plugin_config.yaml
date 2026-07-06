@@ -43,7 +43,7 @@ heuristic_keywords:
     - "hvdc"
     - "ehv"
     - "uhv"
-    - "cpcn"
+    - "cpcn" #  Certificate of Public Convenience and Necessity
   good_tech_phrases:
     - "high voltage"
     - "high-voltage"
