@@ -2,6 +2,8 @@ schema: ./transmission_schema.json5
 
 data_type_short_desc: high-voltage transmission lines ordinance
 
+doc_selection_method: "multi doc mixed"
+
 query_templates:
   - "site:municode.com {jurisdiction}, electrical transmission line"
   - "site:codelibrary.amlegal.com {jurisdiction}, electrical transmission line"
