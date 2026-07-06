@@ -3,6 +3,8 @@ schema: ./transmission_schema.json5
 data_type_short_desc: high-voltage transmission lines ordinance
 
 query_templates:
+  - "site:municode.com {jurisdiction}, electrical transmission line"
+  - "site:codelibrary.amlegal.com {jurisdiction}, electrical transmission line"
   - "filetype:pdf {jurisdiction}, electric transmission line ordinance"
   - "{jurisdiction}, high voltage transmission line zoning ordinance"
   - "{jurisdiction}, electric transmission line siting code"
