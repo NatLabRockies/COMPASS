@@ -20824,12 +20824,12 @@ Maryland,Allegany,"7, Cresaptown/Bel Air",district,2400190555,
 Maryland,Allegany,"8, Westernport/Luke",district,2400190647,
 Maryland,Allegany,"9, Barton",district,2400190740,
 Maryland,Allegany,,county,24001,https://www.alleganygov.org/
-Maryland,Anne Arundel,1,district,2400390008,https://www.aacounty.org/
-Maryland,Anne Arundel,2,district,2400390100,https://www.aacounty.org/
-Maryland,Anne Arundel,3,district,2400390192,https://www.aacounty.org/
+Maryland,Anne Arundel,1,district,2400390008,
+Maryland,Anne Arundel,2,district,2400390100,
+Maryland,Anne Arundel,3,district,2400390192,
 Maryland,Anne Arundel,4,district,2400390284,
 Maryland,Anne Arundel,5,district,2400390376,
-Maryland,Anne Arundel,6,district,2400390468,https://www.aacounty.org/
+Maryland,Anne Arundel,6,district,2400390468,
 Maryland,Anne Arundel,7,district,2400390560,
 Maryland,Anne Arundel,,county,24003,http://www.aacounty.org/
 Maryland,Baltimore,1,district,2400590012,https://www.baltimorecountymd.gov/
@@ -20969,14 +20969,14 @@ Maryland,Harford,"5, Dublin",district,2402590416,
 Maryland,Harford,"6, Havre de Grace",district,2402590508,https://havredegracemd.gov/
 Maryland,Harford,,county,24025,https://www.harfordcountymd.gov/
 Maryland,Howard,"1, Elkridge",district,2402790052,
-Maryland,Howard,"2, Ellicott City",district,2402790144,https://www.howardcountymd.gov/
+Maryland,Howard,"2, Ellicott City",district,2402790144,
 Maryland,Howard,"3, West Friendship",district,2402790236,
 Maryland,Howard,"4, Lisbon",district,2402790328,https://www.howardcountymd.gov/
 Maryland,Howard,"5, Clarksville",district,2402790420,
 Maryland,Howard,"6, Savage",district,2402790512,
-Maryland,Howard,,county,24027,https://www.howardcountymd.gov/
+Maryland,Howard,,county,24027,
 Maryland,Kent,"1, Massey",district,2402990056,https://www.kentcounty.com/
-Maryland,Kent,"2, Kennedyville",district,2402990148,
+Maryland,Kent,"2, Kennedyville",district,2402990148,https://www.kentcounty.com/
 Maryland,Kent,"3, Worton (Betterton)",district,2402990240,
 Maryland,Kent,"4, Chestertown",district,2402990332,
 Maryland,Kent,"5, Edesville",district,2402990424,
@@ -21037,7 +21037,7 @@ Maryland,Somerset,"15, East Princess Anne",district,2403991360,
 Maryland,Somerset,"2, St. Peters",district,2403990168,
 Maryland,Somerset,"3, Brinkleys",district,2403990260,
 Maryland,Somerset,"4, Dublin",district,2403990352,
-Maryland,Somerset,"5, Mount Vernon",district,2403990444,
+Maryland,Somerset,"5, Mount Vernon",district,2403990444,https://www.somersetmd.us/
 Maryland,Somerset,"6, Fairmount",district,2403990536,
 Maryland,Somerset,"7, Crisfield",district,2403990628,
 Maryland,Somerset,"8, Lawsons",district,2403990720,
@@ -21054,7 +21054,7 @@ Maryland,St. Mary's,"8, Bay",district,2403790716,https://www.stmaryscountymd.gov
 Maryland,St. Mary's,"9, St. George Island",district,2403790808,
 Maryland,St. Mary's,,county,24037,https://www.stmaryscountymd.gov/
 Maryland,Talbot,"1, Easton",district,2404190080,https://talbotcountymd.gov/
-Maryland,Talbot,"2, St. Michaels",district,2404190172,
+Maryland,Talbot,"2, St. Michaels",district,2404190172,https://www.stmichaelsmd.gov/
 Maryland,Talbot,"3, Trappe",district,2404190264,
 Maryland,Talbot,"4, Chapel",district,2404190356,https://talbotcountymd.gov/
 Maryland,Talbot,"5, Bay Hundred",district,2404190448,
@@ -21080,7 +21080,7 @@ Maryland,Washington,"25, Hagerstown",district,2404392288,https://www.washco-md.n
 Maryland,Washington,"26, Halfway",district,2404392380,
 Maryland,Washington,"27, Fountain Head",district,2404392472,
 Maryland,Washington,"3, Hagerstown",district,2404390268,https://www.washco-md.net/
-Maryland,Washington,"4, Clear Spring",district,2404390360,
+Maryland,Washington,"4, Clear Spring",district,2404390360,https://clearspringmd.gov/
 Maryland,Washington,"5, Hancock",district,2404390452,https://townofhancock.org/
 Maryland,Washington,"6, Boonsboro",district,2404390544,
 Maryland,Washington,"7, Smithsburg",district,2404390636,https://www.washco-md.net/
@@ -21745,7 +21745,7 @@ Massachusetts,Essex,Marblehead,town,2500938400,https://marbleheadma.gov/
 Massachusetts,Essex,Merrimac,town,2500940430,http://townofmerrimac.com/
 Massachusetts,Essex,Methuen,city,2500940675,https://www.methuen.gov/
 Massachusetts,Essex,Middleton,town,2500941095,https://middletonma.gov/
-Massachusetts,Essex,Nahant,town,2500943580,
+Massachusetts,Essex,Nahant,town,2500943580,https://nahant.org/
 Massachusetts,Essex,Newbury,town,2500945175,https://www.newburyma.gov/
 Massachusetts,Essex,Newburyport,city,2500945245,https://www.cityofnewburyport.com/
 Massachusetts,Essex,North Andover,town,2500946365,https://www.northandoverma.gov/
@@ -22296,7 +22296,7 @@ Michigan,Calhoun,Homer,village,2638920,https://homermichigan.org/
 Michigan,Calhoun,Lee,township,2602546620,https://www.leetwpcc.com/
 Michigan,Calhoun,Leroy,township,2602547060,https://leroytwp-calhounmi.gov/
 Michigan,Calhoun,Marengo,township,2602551520,https://marengomi.gov/
-Michigan,Calhoun,Marshall,city,2602551940,
+Michigan,Calhoun,Marshall,city,2602551940,https://www.cityofmarshall.com/
 Michigan,Calhoun,Newton,township,2602557620,https://newtontwp.org/
 Michigan,Calhoun,Pennfield,charter township,2602563440,https://pennfieldmi.gov/
 Michigan,Calhoun,Sheridan,township,2602572980,http://sheridantwp.com/
@@ -22337,7 +22337,7 @@ Michigan,Charlevoix,Peaine,township,2602963140,https://www.peainetwp.org/
 Michigan,Charlevoix,South Arm,township,2602974680,http://southarmtwp.com/
 Michigan,Charlevoix,St. James,township,2602970920,https://www.stjamestwp.org/
 Michigan,Charlevoix,Wilson,township,2602987700,https://www.wilsontownship.org/
-Michigan,Charlevoix,,county,26029,
+Michigan,Charlevoix,,county,26029,https://www.charlevoixcounty.org/
 Michigan,Cheboygan,Aloha,township,2603101720,https://www.alohatownship.org/
 Michigan,Cheboygan,Beaugrand,township,2603106500,https://beaugrandtwp.org/
 Michigan,Cheboygan,Benton,township,2603107420,https://www.bentontwp.org/
@@ -22926,7 +22926,7 @@ Michigan,Macomb,Warren,city,2609984000,https://www.cityofwarren.org/
 Michigan,Macomb,Washington,charter township,2609984120,http://www.washingtontownship.org/
 Michigan,Macomb,,county,26099,https://www.macombgov.org/
 Michigan,Manistee,Arcadia,township,2610103320,https://www.townshipofarcadia.org/
-Michigan,Manistee,Bear Lake,village,2606460,
+Michigan,Manistee,Bear Lake,village,2606460,https://villageofbearlakemi.gov/
 Michigan,Manistee,Brown,township,2610111160,http://www.browntownshipmi.com/
 Michigan,Manistee,Cleon,township,2610116380,http://www.cleontownship.com/
 Michigan,Manistee,Dickson,township,2610122320,
@@ -23129,7 +23129,7 @@ Michigan,Newaygo,Ensley,township,2612326160,https://www.ensleytownship.org/
 Michigan,Newaygo,Everett,township,2612326700,http://www.everetttownship.com/
 Michigan,Newaygo,Fremont,city,2612330700,https://www.cityoffremont.net/
 Michigan,Newaygo,Garfield,township,2612331640,https://www.garfieldtownship.org/
-Michigan,Newaygo,Goodwell,township,2612333000,
+Michigan,Newaygo,Goodwell,township,2612333000,http://www.goodwelltownship.com/
 Michigan,Newaygo,Grant,city,2612334360,https://www.cityofgrantmi.com/
 Michigan,Newaygo,Home,township,2612338860,
 Michigan,Newaygo,Lilley,township,2612347440,https://lilleytownship.com/
@@ -23707,7 +23707,7 @@ Michigan,,Grawn,CDP,2634620,
 Michigan,,Greilickville,CDP,2635300,
 Michigan,,Gwinn,CDP,2635760,
 Michigan,,Hardwood Acres,CDP,2636585,
-Michigan,,Harrietta,village,2636720,
+Michigan,,Harrietta,village,2636720,https://harriettamichigan.com/
 Michigan,,Harvey,CDP,2637080,
 Michigan,,Haslett,CDP,2637100,
 Michigan,,Hemlock,CDP,2637600,
@@ -24769,7 +24769,7 @@ Minnesota,Isanti,Cambridge,city,2705909370,https://www.ci.cambridge.mn.us/
 Minnesota,Isanti,Dalbo,township,2705914572,
 Minnesota,Isanti,Isanti,city,2705931328,https://www.cityofisanti.us/
 Minnesota,Isanti,Maple Ridge,township,2705940292,http://www.mapleridgetwp.com/
-Minnesota,Isanti,Oxford,township,2705949354,
+Minnesota,Isanti,Oxford,township,2705949354,https://www.oxfordtownship.us/
 Minnesota,Isanti,Spencer Brook,township,2705961672,https://spencerbrooktwp.org/
 Minnesota,Isanti,Springvale,township,2705962086,
 Minnesota,Isanti,Stanchfield,township,2705962347,https://stanchfield.org/
@@ -25037,7 +25037,7 @@ Minnesota,Le Sueur,Montgomery,city,2707943738,https://www.cityofmontgomerymn.com
 Minnesota,Le Sueur,Ottawa,township,2707949174,
 Minnesota,Le Sueur,Sharon,township,2707959386,
 Minnesota,Le Sueur,Tyrone,township,2707966100,
-Minnesota,Le Sueur,Washington,township,2707968350,
+Minnesota,Le Sueur,Washington,township,2707968350,https://www.lakewashingtonmn.com/
 Minnesota,Le Sueur,Waterville,city,2707968584,https://cityofwatervillemn.gov/
 Minnesota,Le Sueur,,county,27079,https://www.lesueurcounty.gov/
 Minnesota,Lincoln,Alta Vista,township,2708101180,
@@ -25918,7 +25918,7 @@ Minnesota,Sibley,Bismarck,township,2714306130,
 Minnesota,Sibley,Cornish,township,2714313348,
 Minnesota,Sibley,Dryden,township,2714316426,
 Minnesota,Sibley,Faxon,township,2714320726,
-Minnesota,Sibley,Gaylord,city,2714323300,
+Minnesota,Sibley,Gaylord,city,2714323300,https://www.exploregaylord.org/
 Minnesota,Sibley,Gibbon,city,2714323678,https://www.cityofgibbon.com/
 Minnesota,Sibley,Grafton,township,2714324794,
 Minnesota,Sibley,Green Isle,city,2714325658,https://greenislemn.gov/
@@ -26602,10 +26602,10 @@ Mississippi,Covington,4,district,2803192358,
 Mississippi,Covington,5,district,2803193096,
 Mississippi,Covington,,county,28031,http://www.covingtoncountyms.gov/
 Mississippi,DeSoto,1,district,2803390153,https://www.desotocountyms.gov/
-Mississippi,DeSoto,2,district,2803390891,
+Mississippi,DeSoto,2,district,2803390891,https://www.desotocountyms.gov/
 Mississippi,DeSoto,3,district,2803391629,
-Mississippi,DeSoto,4,district,2803392367,
-Mississippi,DeSoto,5,district,2803393105,
+Mississippi,DeSoto,4,district,2803392367,https://www.desotocountyms.gov/
+Mississippi,DeSoto,5,district,2803393105,https://www.desotocountyms.gov/
 Mississippi,DeSoto,,county,28033,https://www.desotocountyms.gov/
 Mississippi,Forrest,1,district,2803590162,https://forrestcountyms.us/
 Mississippi,Forrest,2,district,2803590900,
@@ -26619,11 +26619,11 @@ Mississippi,Franklin,3,district,2803791647,
 Mississippi,Franklin,4,district,2803792385,
 Mississippi,Franklin,5,district,2803793123,https://www.franklincountyms.gov/
 Mississippi,Franklin,,county,28037,https://www.franklincountyms.gov/
-Mississippi,George,1,district,2803990180,
-Mississippi,George,2,district,2803990918,
+Mississippi,George,1,district,2803990180,https://www.georgecountyms.com/
+Mississippi,George,2,district,2803990918,https://www.georgecountyms.com/
 Mississippi,George,3,district,2803991656,http://www.georgecountyms.com/
 Mississippi,George,4,district,2803992394,https://www.georgecountyms.com/
-Mississippi,George,5,district,2803993132,
+Mississippi,George,5,district,2803993132,https://www.georgecountyms.com/
 Mississippi,George,,county,28039,http://www.georgecountyms.com/
 Mississippi,Greene,1,district,2804190189,https://www.greenecountyms.gov/
 Mississippi,Greene,2,district,2804190927,
@@ -26636,7 +26636,7 @@ Mississippi,Grenada,2,district,2804390936,
 Mississippi,Grenada,3,district,2804391674,
 Mississippi,Grenada,4,district,2804392412,
 Mississippi,Grenada,5,district,2804393150,
-Mississippi,Grenada,,county,28043,
+Mississippi,Grenada,,county,28043,https://grenadacountyms.org/
 Mississippi,Hancock,1,district,2804590207,https://www.hancockcounty.ms.gov/
 Mississippi,Hancock,2,district,2804590945,https://www.hancockcounty.ms.gov/
 Mississippi,Hancock,3,district,2804591683,
@@ -26645,7 +26645,7 @@ Mississippi,Hancock,5,district,2804593159,
 Mississippi,Hancock,,county,28045,https://www.hancockcounty.ms.gov/
 Mississippi,Harrison,1,district,2804790216,https://harrisoncountyms.gov/
 Mississippi,Harrison,2,district,2804790954,https://harrisoncountyms.gov/
-Mississippi,Harrison,3,district,2804791692,
+Mississippi,Harrison,3,district,2804791692,https://harrisoncountyms.gov/
 Mississippi,Harrison,4,district,2804792430,
 Mississippi,Harrison,5,district,2804793168,
 Mississippi,Harrison,,county,28047,https://harrisoncountyms.gov/
@@ -26679,7 +26679,7 @@ Mississippi,Itawamba,3,district,2805791737,https://itawamba.gov/
 Mississippi,Itawamba,4,district,2805792475,https://itawamba.gov/
 Mississippi,Itawamba,5,district,2805793213,https://itawamba.gov/
 Mississippi,Itawamba,,county,28057,https://itawamba.gov/
-Mississippi,Jackson,1,district,2805990270,
+Mississippi,Jackson,1,district,2805990270,https://www.co.jackson.ms.us/
 Mississippi,Jackson,2,district,2805991008,
 Mississippi,Jackson,3,district,2805991746,
 Mississippi,Jackson,4,district,2805992484,
@@ -26712,7 +26712,7 @@ Mississippi,Jones,,county,28067,https://jonescountyms.com/
 Mississippi,Kemper,1,district,2806990315,https://kempercountyms.gov/
 Mississippi,Kemper,2,district,2806991053,https://kempercountyms.gov/
 Mississippi,Kemper,3,district,2806991791,https://kempercountyms.gov/
-Mississippi,Kemper,4,district,2806992529,
+Mississippi,Kemper,4,district,2806992529,https://kempercountyms.gov/
 Mississippi,Kemper,5,district,2806993267,
 Mississippi,Kemper,,county,28069,http://www.kempercounty.ms/
 Mississippi,Lafayette,1,district,2807190324,https://lafayettems.com/
@@ -26974,7 +26974,7 @@ Mississippi,Webster,4,district,2815592916,
 Mississippi,Webster,5,district,2815593654,
 Mississippi,Webster,,county,28155,http://www.webstercountyms.org/
 Mississippi,Wilkinson,1,district,2815790711,https://www.wilkinson.co.ms.gov/
-Mississippi,Wilkinson,2,district,2815791449,
+Mississippi,Wilkinson,2,district,2815791449,https://www.wilkinson.co.ms.gov/
 Mississippi,Wilkinson,3,district,2815792187,https://www.wilkinson.co.ms.gov/
 Mississippi,Wilkinson,4,district,2815792925,
 Mississippi,Wilkinson,5,district,2815793663,https://www.wilkinson.co.ms.gov/
@@ -28917,7 +28917,7 @@ Missouri,Worth,Greene,township,2922729188,
 Missouri,Worth,Middlefork,township,2922747828,
 Missouri,Worth,Smith,township,2922768348,
 Missouri,Worth,Union,township,2922775076,
-Missouri,Worth,,county,29227,
+Missouri,Worth,,county,29227,https://worthmo.devnetwedge.com/
 Missouri,Wright,Boone,township,2922907264,
 Missouri,Wright,Brush Creek,township,2922909154,
 Missouri,Wright,Clark,township,2922914086,
@@ -29298,7 +29298,7 @@ Missouri,,Halltown,village,2930016,
 Missouri,,Hanley Hills,village,2930196,https://www.thevillageofhanleyhills.com/
 Missouri,,Hannibal,city,2930214,http://www.hannibal-mo.gov/
 Missouri,,Hardin,city,2930322,https://cityofhardin.com/
-Missouri,,Harris,town,2930466,
+Missouri,,Harris,town,2930466,https://townofharriswi.com/
 Missouri,,Harrisburg,town,2930484,https://harrisburgmo.wordpress.com/
 Missouri,,Harrisonville,city,2930610,http://www.harrisonville.com/
 Missouri,,Hartsburg,town,2930718,
@@ -30069,7 +30069,7 @@ Montana,Teton,Dutton-Power,city,3009990966,
 Montana,Teton,Fairfield,town,3025225,https://www.townoffairfield.com/
 Montana,Teton,,county,30099,http://www.tetoncomt.org/
 Montana,Toole,Shelby,city,3067450,https://www.shelbymtchamber.org/
-Montana,Toole,Sunburst,town,3072175,
+Montana,Toole,Sunburst,town,3072175,https://www.townofsunburst.com/
 Montana,Toole,,county,30101,http://www.toolecountymt.gov/
 Montana,Treasure,North Treasure,city,3010392520,
 Montana,Treasure,South Treasure,city,3010393255,
@@ -31635,7 +31635,7 @@ Nebraska,Stanton,,county,31167,https://stantoncounty.nebraska.gov/
 Nebraska,Thayer,Alexandria,village,3100730,
 Nebraska,Thayer,Bruning,village,3106820,
 Nebraska,Thayer,Chester,village,3109095,
-Nebraska,Thayer,Davenport,village,3112245,
+Nebraska,Thayer,Davenport,village,3112245,https://ci.davenport.ne.us/
 Nebraska,Thayer,Deshler,city,3112840,https://www.deshlernebraska.com/
 Nebraska,Thayer,Hebron,city,3116991357,https://www.hebronnebraska.us/
 Nebraska,Thayer,Hebron North,precinct,3116991358,
@@ -31754,7 +31754,7 @@ Nebraska,,Bennington,city,3104405,https://benningtonne.com/
 Nebraska,,Berea,CDP,3104545,
 Nebraska,,Bertrand,village,3104615,https://bertrandne.gov/
 Nebraska,,Bladen,village,3105140,
-Nebraska,,Bloomington,village,3105490,
+Nebraska,,Bloomington,village,3105490,https://villageofbloomington.com/
 Nebraska,,Blue Hill,city,3105560,https://www.bluehillne.com/
 Nebraska,,Blue Springs,city,3105630,http://www.bluespringsne.com/
 Nebraska,,Bow Valley,CDP,3105980,
@@ -34277,7 +34277,7 @@ New York,Columbia,Clermont,town,3602116177,https://clermontny.gov/
 New York,Columbia,Copake,town,3602118102,https://townofcopakeny.gov/
 New York,Columbia,Gallatin,town,3602128068,https://gallatinny.gov/
 New York,Columbia,Germantown,town,3602128772,https://germantownny.gov/
-New York,Columbia,Ghent,town,3602128871,
+New York,Columbia,Ghent,town,3602128871,https://townofghent.org/
 New York,Columbia,Greenport,town,3602130565,https://www.townofgreenportny.gov/
 New York,Columbia,Hillsdale,town,3602134748,https://hillsdaleny.com/
 New York,Columbia,Hudson,city,3602135969,https://visithudsonny.com/
@@ -40333,7 +40333,7 @@ Ohio,Mahoning,Beaver,township,3909904668,https://www.beavertwp-oh.gov/
 Ohio,Mahoning,Berlin,township,3909905858,
 Ohio,Mahoning,Boardman,township,3909907468,https://www.boardmantwp.com/
 Ohio,Mahoning,Campbell,city,3909911066,https://cityofcampbellohio.org/
-Ohio,Mahoning,Canfield,city,3911360,
+Ohio,Mahoning,Canfield,city,3911360,https://canfield.gov/
 Ohio,Mahoning,Coitsville,township,3909916476,https://coitsvilletwp.org/
 Ohio,Mahoning,Ellsworth,township,3909925088,http://www.ellsworthohio.com/
 Ohio,Mahoning,Fairfield,township,3909925998,
@@ -40343,7 +40343,7 @@ Ohio,Mahoning,Jackson,township,3909937884,https://www.jacksontwp.net/
 Ohio,Mahoning,Lowellville,village,3909945178,https://villageoflowellville.org/
 Ohio,Mahoning,Milton,township,3909950638,
 Ohio,Mahoning,New Middletown,village,3909955118,https://www.newmiddletownoh.gov/
-Ohio,Mahoning,Perry,township,3909961798,
+Ohio,Mahoning,Perry,township,3909961798,https://www.perrytwp.org/
 Ohio,Mahoning,Poland,village,3963954,https://polandvillage.org/
 Ohio,Mahoning,Sebring,village,3909971220,https://sebringohio.net/
 Ohio,Mahoning,Smith,township,3909972740,https://smithtownship.net/
@@ -40547,7 +40547,7 @@ Ohio,Noble,Marion,township,3912147810,
 Ohio,Noble,Noble,township,3912156028,
 Ohio,Noble,Olive,township,3912158310,
 Ohio,Noble,Seneca,township,3912171352,
-Ohio,Noble,Sharon,township,3912171826,
+Ohio,Noble,Sharon,township,3912171826,https://sharontwp.org/
 Ohio,Noble,Stock,township,3912174728,
 Ohio,Noble,Wayne,township,3912182250,
 Ohio,Noble,,county,39121,https://noblecountyohio.gov/
@@ -40824,7 +40824,7 @@ Ohio,Summit,Reminderville,city,3915366152,https://reminderville.com/
 Ohio,Summit,Richfield,village,3966530,https://www.richfieldvillageohio.org/
 Ohio,Summit,Sagamore Hills,township,3915369428,https://www.mysagamorehills.com/
 Ohio,Summit,Silver Lake,village,3915372494,https://villageofsilverlake.com/
-Ohio,Summit,Springfield,township,3915374130,
+Ohio,Summit,Springfield,township,3915374130,https://www.springfieldtownship.us/
 Ohio,Summit,Stow,city,3915374944,https://www.stowohio.gov/
 Ohio,Summit,Twinsburg,city,3915378050,https://www.mytwinsburg.com/
 Ohio,Summit,,county,39153,http://co.summitoh.net/
@@ -41005,7 +41005,7 @@ Ohio,Wood,Middleton,township,3917349812,https://www.middletontownship.com/
 Ohio,Wood,Milton,township,3917350680,
 Ohio,Wood,Montgomery,township,3917351744,
 Ohio,Wood,Northwood,city,3917357190,https://www.northwoodoh.gov/
-Ohio,Wood,Perry,township,3917362106,
+Ohio,Wood,Perry,township,3917362106,https://www.perrytwp.org/
 Ohio,Wood,Perrysburg,city,3917362148,https://www.perrysburgoh.gov/
 Ohio,Wood,Plain,township,3917363002,
 Ohio,Wood,Portage,village,3964108,https://www.voportage.org/
@@ -42037,7 +42037,7 @@ Oklahoma,Cotton,Temple,town,4072750,
 Oklahoma,Cotton,Walters,city,4078150,https://www.waltersok.org/
 Oklahoma,Cotton,,county,40033,https://cottoncountyokguide.com/
 Oklahoma,Craig,North Craig,city,4003592106,
-Oklahoma,Craig,Vinita East,city,4003593471,
+Oklahoma,Craig,Vinita East,city,4003593471,https://www.cityofvinita.com/
 Oklahoma,Craig,Vinita West,city,4003593484,https://www.cityofvinita.com/
 Oklahoma,Craig,,county,40035,
 Oklahoma,Creek,Bristow,city,4008900,https://www.cityofbristowok.org/
@@ -42879,7 +42879,7 @@ Oklahoma,,Skiatook,city,4067850,https://www.cityofskiatook.com/
 Oklahoma,,Slaughterville,town,4067950,https://www.town.slaughterville.ok.us/
 Oklahoma,,Slick,town,4068000,
 Oklahoma,,Smith Village,town,4068200,
-Oklahoma,,Smithville,town,4068250,
+Oklahoma,,Smithville,town,4068250,https://smithvilleokhistoricaldotorg.wordpress.com/
 Oklahoma,,Snake Creek,CDP,4068275,
 Oklahoma,,Soper,town,4068500,
 Oklahoma,,Sour John,CDP,4068537,
@@ -43182,7 +43182,7 @@ Oregon,Morrow,,county,41049,http://www.co.morrow.or.us/
 Oregon,Multnomah,Corbett,city,4105190663,https://www.corbettoregon.com/
 Oregon,Multnomah,Gresham,city,4131250,https://www.greshamoregon.gov/
 Oregon,Multnomah,Portland East,city,4105192518,https://www.portland.gov/
-Oregon,Multnomah,Portland West,city,4105192520,
+Oregon,Multnomah,Portland West,city,4105192520,https://www.portland.gov/
 Oregon,Multnomah,Skyline,city,4105192975,
 Oregon,Multnomah,,county,41051,https://multco.us/
 Oregon,Polk,Dallas,city,4117700,https://www.dallasor.gov/
@@ -43696,7 +43696,7 @@ Pennsylvania,Allegheny,Wilkinsburg,borough,4200385188,https://www.wilkinsburgpa.
 Pennsylvania,Allegheny,Wilmerding,borough,4200385496,https://wilmerdingboro.com/
 Pennsylvania,Allegheny,,county,42003,https://www.alleghenycounty.us/
 Pennsylvania,Armstrong,Apollo,borough,4200502720,https://apollopa.net/
-Pennsylvania,Armstrong,Applewold,borough,4200502752,
+Pennsylvania,Armstrong,Applewold,borough,4200502752,https://www.applewoldboro.com/
 Pennsylvania,Armstrong,Atwood,borough,4200503480,
 Pennsylvania,Armstrong,Bethel,township,4200505992,https://www.betheltownshiparmstrong.com/
 Pennsylvania,Armstrong,Boggs,township,4200507416,
@@ -44900,7 +44900,7 @@ Pennsylvania,Lackawanna,Glenburn,township,4206929504,https://glenburntownship.or
 Pennsylvania,Lackawanna,Greenfield,township,4206931016,https://greenfieldtownshipsupervisors.org/
 Pennsylvania,Lackawanna,Jefferson,township,4206937896,https://jeffersontwplackawanna.gov/
 Pennsylvania,Lackawanna,Jermyn,borough,4206938096,https://jermynpa.com/
-Pennsylvania,Lackawanna,Jessup,borough,4206938160,
+Pennsylvania,Lackawanna,Jessup,borough,4206938160,https://www.jessupborough.com/
 Pennsylvania,Lackawanna,La Plume,township,4206941504,https://www.laplumetownship.com/
 Pennsylvania,Lackawanna,Madison,township,4206946480,https://madisontwppa.org/
 Pennsylvania,Lackawanna,Mayfield,borough,4206948176,https://mayfieldborough.org/
@@ -45035,7 +45035,7 @@ Pennsylvania,Lebanon,West Lebanon,township,4207583312,https://westlebanonpa.gov/
 Pennsylvania,Lebanon,,county,42075,https://www.lebanoncountypa.gov/
 Pennsylvania,Lehigh,Alburtis,borough,4200660,https://www.alburtis.org/
 Pennsylvania,Lehigh,Allentown,city,4202000,https://www.allentownpa.gov/
-Pennsylvania,Lehigh,Catasauqua,borough,4207711720,
+Pennsylvania,Lehigh,Catasauqua,borough,4207711720,https://www.catasauqua.org/
 Pennsylvania,Lehigh,Coopersburg,borough,4207716056,https://www.coopersburgborough.org/
 Pennsylvania,Lehigh,Coplay,borough,4207716128,https://www.coplayborough.org/
 Pennsylvania,Lehigh,Emmaus,borough,4207723584,https://www.emmauspa.gov/
@@ -45544,7 +45544,7 @@ Pennsylvania,Schuylkill,New Philadelphia,borough,4210753944,https://newphiladelp
 Pennsylvania,Schuylkill,New Ringgold,borough,4210754016,
 Pennsylvania,Schuylkill,North Manheim,township,4210755192,http://www.northmanheimtwp.org/
 Pennsylvania,Schuylkill,North Union,township,4210755472,https://northuniontownship-pa.gov/
-Pennsylvania,Schuylkill,Norwegian,township,4210755624,
+Pennsylvania,Schuylkill,Norwegian,township,4210755624,http://www.norwegiantownship.org/
 Pennsylvania,Schuylkill,Orwigsburg,borough,4210757184,https://orwigsburg.gov/
 Pennsylvania,Schuylkill,Palo Alto,borough,4210757752,
 Pennsylvania,Schuylkill,Pine Grove,borough,4210760456,https://pinegroveborough.org/
@@ -47326,7 +47326,7 @@ South Carolina,Orangeburg,Neeses,town,4549390,
 South Carolina,Orangeburg,North,town,4550560,https://townofnorth.sc.gov/
 South Carolina,Orangeburg,Norway,town,4551550,https://townofnorwaysc.com/
 South Carolina,Orangeburg,Orangeburg,city,4553080,https://www.orangeburg.sc.us/
-South Carolina,Orangeburg,Orangeburg West,city,4507592509,
+South Carolina,Orangeburg,Orangeburg West,city,4507592509,https://www.orangeburg.sc.us/
 South Carolina,Orangeburg,Santee-Vance,city,4507593035,https://www.townofsantee-sc.org/
 South Carolina,Orangeburg,Springfield,town,4568470,https://townofspringfield.sc.gov/
 South Carolina,Orangeburg,,county,45075,https://www.orangeburgcounty.org/
@@ -48542,7 +48542,7 @@ South Dakota,Mellette,Rocky Ford,township,4609555660,
 South Dakota,Mellette,Rosebud,township,4609555900,
 South Dakota,Mellette,Running Bird,township,4609556780,
 South Dakota,Mellette,Surprise Valley,township,4609562460,
-South Dakota,Mellette,White River,city,4609571340,
+South Dakota,Mellette,White River,city,4609571340,https://whiteriversd.com/
 South Dakota,Mellette,Wood,town,4609572620,
 South Dakota,Mellette,,county,46095,https://mellette.sdcounty.gov/
 South Dakota,Miner,Adams,township,4609700300,
@@ -49172,7 +49172,7 @@ Tennessee,Carroll,,county,47017,https://carrollcountytn.gov/
 Tennessee,Carter,1,district,4701990020,https://cartercountytn.gov/
 Tennessee,Carter,2,district,4701990210,https://cartercountytn.gov/
 Tennessee,Carter,3,district,4701990400,https://cartercountytn.gov/
-Tennessee,Carter,4,district,4701990590,
+Tennessee,Carter,4,district,4701990590,https://cartercountytn.gov/
 Tennessee,Carter,5,district,4701990780,https://cartercountytn.gov/
 Tennessee,Carter,6,district,4701990970,https://cartercountytn.gov/
 Tennessee,Carter,7,district,4701991160,https://cartercountytn.gov/
@@ -49200,7 +49200,7 @@ Tennessee,Claiborne,5,district,4702590786,
 Tennessee,Claiborne,6,district,4702590976,
 Tennessee,Claiborne,7,district,4702591166,https://claibornecountytn.gov/
 Tennessee,Claiborne,8,district,4702591356,https://claibornecountytn.gov/
-Tennessee,Claiborne,9,district,4702591546,
+Tennessee,Claiborne,9,district,4702591546,https://claibornecountytn.gov/
 Tennessee,Claiborne,,county,47025,https://www.claibornecountytn.gov/
 Tennessee,Clay,1,district,4702790028,https://www.claycountytngov.com/
 Tennessee,Clay,2,district,4702790218,https://www.claycountytngov.com/
@@ -49209,7 +49209,7 @@ Tennessee,Clay,4,district,4702790598,
 Tennessee,Clay,5,district,4702790788,
 Tennessee,Clay,,county,47027,https://visitclaycountytn.com/
 Tennessee,Cocke,1,district,4702990030,https://www.cockecountytn.gov/
-Tennessee,Cocke,2,district,4702990220,
+Tennessee,Cocke,2,district,4702990220,https://www.cockecountytn.gov/
 Tennessee,Cocke,3,district,4702990410,
 Tennessee,Cocke,4,district,4702990600,
 Tennessee,Cocke,5,district,4702990790,
@@ -49233,7 +49233,7 @@ Tennessee,Crockett,12,district,4703392124,
 Tennessee,Crockett,2,district,4703390224,https://www.crockettcountytn.com/
 Tennessee,Crockett,3,district,4703390414,https://www.crockettcountytn.com/
 Tennessee,Crockett,4,district,4703390604,https://www.crockettcountytn.com/
-Tennessee,Crockett,5,district,4703390794,
+Tennessee,Crockett,5,district,4703390794,https://www.crockettcountytn.com/
 Tennessee,Crockett,6,district,4703390984,
 Tennessee,Crockett,7,district,4703391174,
 Tennessee,Crockett,8,district,4703391364,
@@ -49288,19 +49288,19 @@ Tennessee,Davidson,,county,47037,https://www.nashville.gov/
 Tennessee,DeKalb,1,district,4704190042,https://www.dekalbtennessee.com/
 Tennessee,DeKalb,2,district,4704190232,https://www.dekalbtennessee.com/
 Tennessee,DeKalb,3,district,4704190422,https://www.dekalbtennessee.com/
-Tennessee,DeKalb,4,district,4704190612,
+Tennessee,DeKalb,4,district,4704190612,https://www.dekalbtennessee.com/
 Tennessee,DeKalb,5,district,4704190802,
 Tennessee,DeKalb,6,district,4704190992,
 Tennessee,DeKalb,7,district,4704191182,
 Tennessee,DeKalb,,county,47041,http://dekalbtennessee.com/
 Tennessee,Decatur,1,district,4703990040,https://decaturcountytn.gov/
 Tennessee,Decatur,2,district,4703990230,https://decaturcountytn.gov/
-Tennessee,Decatur,3,district,4703990420,
+Tennessee,Decatur,3,district,4703990420,https://decaturcountytn.gov/
 Tennessee,Decatur,4,district,4703990610,
 Tennessee,Decatur,5,district,4703990800,
 Tennessee,Decatur,6,district,4703990990,https://decaturcountytn.gov/
 Tennessee,Decatur,7,district,4703991180,https://decaturcountytn.gov/
-Tennessee,Decatur,8,district,4703991370,
+Tennessee,Decatur,8,district,4703991370,https://decaturcountytn.gov/
 Tennessee,Decatur,9,district,4703991560,
 Tennessee,Decatur,,county,47039,https://decaturcountytn.gov/
 Tennessee,Dickson,1,district,4704390044,https://www.dicksoncountytn.gov/
@@ -49317,7 +49317,7 @@ Tennessee,Dickson,8,district,4704391374,
 Tennessee,Dickson,9,district,4704391564,
 Tennessee,Dickson,,county,47043,http://dicksoncountytn.gov/
 Tennessee,Dyer,1,district,4704590046,https://www.dyercounty.com/
-Tennessee,Dyer,10,district,4704591756,
+Tennessee,Dyer,10,district,4704591756,https://www.dyercounty.com/
 Tennessee,Dyer,2,district,4704590236,https://www.dyercounty.com/
 Tennessee,Dyer,3,district,4704590426,
 Tennessee,Dyer,4,district,4704590616,
@@ -49429,9 +49429,9 @@ Tennessee,Hamilton,,county,47065,http://www.hamiltontn.gov/
 Tennessee,Hancock,1,district,4706790068,https://www.hancockcountytn.com/
 Tennessee,Hancock,2,district,4706790258,https://www.hancockcountytn.com/
 Tennessee,Hancock,3,district,4706790448,
-Tennessee,Hancock,4,district,4706790638,
+Tennessee,Hancock,4,district,4706790638,https://www.hancockcountytn.com/
 Tennessee,Hancock,5,district,4706790828,
-Tennessee,Hancock,6,district,4706791018,
+Tennessee,Hancock,6,district,4706791018,https://www.hancockcountytn.com/
 Tennessee,Hancock,7,district,4706791208,
 Tennessee,Hancock,,county,47067,http://www.hancockcountytn.com/
 Tennessee,Hardeman,1,district,4706990070,https://hardemancounty.org/
@@ -49532,7 +49532,7 @@ Tennessee,Jefferson,9,district,4708991610,
 Tennessee,Jefferson,,county,47089,https://jeffersoncountytn.gov/
 Tennessee,Johnson,1,district,4709190092,https://www.johnsoncountytn.gov/
 Tennessee,Johnson,2,district,4709190282,https://www.johnsoncountytn.gov/
-Tennessee,Johnson,3,district,4709190472,
+Tennessee,Johnson,3,district,4709190472,https://www.johnsoncountytn.gov/
 Tennessee,Johnson,4,district,4709190662,https://www.johnsoncountytn.gov/
 Tennessee,Johnson,5,district,4709190852,
 Tennessee,Johnson,6,district,4709191042,https://www.johnsoncountytn.gov/
@@ -49570,7 +49570,7 @@ Tennessee,Lawrence,14,district,4709992570,https://lawrencecountytn.gov/
 Tennessee,Lawrence,15,district,4709992760,https://lawrencecountytn.gov/
 Tennessee,Lawrence,16,district,4709992950,https://lawrencecountytn.gov/
 Tennessee,Lawrence,17,district,4709993140,https://lawrencecountytn.gov/
-Tennessee,Lawrence,18,district,4709993330,
+Tennessee,Lawrence,18,district,4709993330,https://lawrencecountytn.gov/
 Tennessee,Lawrence,2,district,4709990290,https://lawrencecountytn.gov/
 Tennessee,Lawrence,3,district,4709990480,https://lawrencecountytn.gov/
 Tennessee,Lawrence,4,district,4709990670,https://lawrencecountytn.gov/
@@ -49596,7 +49596,7 @@ Tennessee,Lincoln,3,district,4710390484,https://www.lincolncountytn.gov/
 Tennessee,Lincoln,4,district,4710390674,
 Tennessee,Lincoln,5,district,4710390864,
 Tennessee,Lincoln,6,district,4710391054,
-Tennessee,Lincoln,7,district,4710391244,
+Tennessee,Lincoln,7,district,4710391244,https://www.lincolncountytn.gov/
 Tennessee,Lincoln,8,district,4710391434,
 Tennessee,Lincoln,,county,47103,https://www.lincolncountytn.gov/
 Tennessee,Loudon,1,district,4710590106,https://loudoncounty-tn.gov/
@@ -49766,7 +49766,7 @@ Tennessee,Rhea,2,district,4714390334,
 Tennessee,Rhea,3,district,4714390524,
 Tennessee,Rhea,4,district,4714390714,
 Tennessee,Rhea,5,district,4714390904,
-Tennessee,Rhea,6,district,4714391094,
+Tennessee,Rhea,6,district,4714391094,https://rheacountytn.org/
 Tennessee,Rhea,7,district,4714391284,
 Tennessee,Rhea,8,district,4714391474,
 Tennessee,Rhea,9,district,4714391664,
@@ -49823,7 +49823,7 @@ Tennessee,Scott,6,district,4715191102,https://scottcounty.com/
 Tennessee,Scott,7,district,4715191292,
 Tennessee,Scott,,county,47151,http://scottcounty.com/
 Tennessee,Sequatchie,1,district,4715390154,https://sequatchiecountytn.gov/
-Tennessee,Sequatchie,2,district,4715390344,
+Tennessee,Sequatchie,2,district,4715390344,https://sequatchiecountytn.gov/
 Tennessee,Sequatchie,3,district,4715390534,
 Tennessee,Sequatchie,4,district,4715390724,
 Tennessee,Sequatchie,5,district,4715390914,
@@ -49941,7 +49941,7 @@ Tennessee,Union,1,district,4717390174,https://www.unioncountytn.gov/
 Tennessee,Union,2,district,4717390364,https://www.unioncountytn.gov/
 Tennessee,Union,3,district,4717390554,
 Tennessee,Union,4,district,4717390744,
-Tennessee,Union,5,district,4717390934,
+Tennessee,Union,5,district,4717390934,https://www.unioncountytn.gov/
 Tennessee,Union,6,district,4717391124,
 Tennessee,Union,7,district,4717391314,
 Tennessee,Union,,county,47173,http://www.unioncountytn.com/
@@ -50052,7 +50052,7 @@ Tennessee,,Alcoa,city,4700540,https://www.cityofalcoa-tn.gov/
 Tennessee,,Alexandria,town,4700620,http://townofalexandria.us/
 Tennessee,,Algood,city,4700640,https://algood-tn.com/
 Tennessee,,Allardt,city,4700660,
-Tennessee,,Altamont,town,4700940,
+Tennessee,,Altamont,town,4700940,https://altamont.city/
 Tennessee,,Andersonville,CDP,4701220,
 Tennessee,,Apison,CDP,4701480,
 Tennessee,,Ardmore,city,4701640,https://cityofardmoretn.com/
@@ -50466,7 +50466,7 @@ Tennessee,,Smyrna,town,4769420,https://www.townofsmyrna.org/
 Tennessee,,Sneedville,town,4769460,
 Tennessee,,Soddy-Daisy,city,4769560,https://soddy-daisy.org/
 Tennessee,,Somerville,town,4769620,https://www.somervilletn.gov/
-Tennessee,,South Carthage,town,4769680,
+Tennessee,,South Carthage,town,4769680,https://www.townofsouthcarthage.com/
 Tennessee,,South Cleveland,CDP,4769740,
 Tennessee,,South Fulton,city,4769900,https://www.southfultontn.com/
 Tennessee,,South Pittsburg,city,4770060,https://www.southpittsburg-tn.org/
@@ -50761,7 +50761,7 @@ Texas,Concho,Eola-Paint Rock,city,4809591255,
 Texas,Concho,,county,48095,https://www.co.concho.tx.us/
 Texas,Cooke,Callisburg,city,4811968,http://www.callisburgtx.com/
 Texas,Cooke,Gainesville,city,4827984,https://www.gainesville.tx.us/
-Texas,Cooke,Gainesville Southeast,city,4809791440,
+Texas,Cooke,Gainesville Southeast,city,4809791440,https://www.gainesvilletxedc.com/
 Texas,Cooke,Muenster,city,4849932,https://cityofmuenstertx.org/
 Texas,Cooke,Valley View,city,4874756,https://www.cityofvv.com/
 Texas,Cooke,,county,48097,https://www.co.cooke.tx.us/
@@ -51242,7 +51242,7 @@ Texas,Martin,Stanton,city,4870040,https://cityofstantontx.com/
 Texas,Martin,Tarzan-Lenorah,city,4831793835,
 Texas,Martin,,county,48317,http://www.co.martin.tx.us/
 Texas,Mason,Mason East,city,4831992445,
-Texas,Mason,Mason West,city,4831992450,
+Texas,Mason,Mason West,city,4831992450,https://historicmasontexas.com/
 Texas,Mason,,county,48319,https://www.co.mason.tx.us/
 Texas,Matagorda,Bay City,city,4805984,https://baycitytxcdc.net/
 Texas,Matagorda,Matagorda-Sargent,city,4832192465,
@@ -51611,7 +51611,7 @@ Texas,Willacy,San Perlita,city,4865636,
 Texas,Willacy,Sebastian,city,4848993495,
 Texas,Willacy,,county,48489,https://www.co.willacy.tx.us/
 Texas,Williamson,Cedar Park-Liberty Hill,city,4849190657,https://www.cedarparktexas.gov/
-Texas,Williamson,Florence,city,4826136,
+Texas,Williamson,Florence,city,4826136,https://www.florencetex.com/
 Texas,Williamson,Granger,city,4830548,https://grangertx.us/
 Texas,Williamson,Jarrell,city,4837396,https://www.cityofjarrell.com/
 Texas,Williamson,Round Rock-Georgetown,city,4849193343,https://www.roundrocktexas.gov/
@@ -53802,10 +53802,10 @@ Virginia,Carroll,Sulphur Springs,district,5103596007,
 Virginia,Carroll,,county,51035,https://carrollcountyva.gov/
 Virginia,Charles City,1,district,5103691215,https://www.charlescityva.us/
 Virginia,Charles City,2,district,5103691365,https://www.charlescityva.us/
-Virginia,Charles City,3,district,5103691515,
+Virginia,Charles City,3,district,5103691515,https://www.charlescityva.us/
 Virginia,Charles City,,county,51036,https://www.charlescityva.us/
 Virginia,Charlotte,Bacon,district,5103790128,
-Virginia,Charlotte,Central,district,5103790712,
+Virginia,Charlotte,Central,district,5103790712,https://www.charlottecountyva.gov/
 Virginia,Charlotte,Madison,district,5103794431,
 Virginia,Charlotte,Midway,district,5103794687,
 Virginia,Charlotte,Roanoke,district,5103795351,https://www.charlottecountyva.gov/
@@ -54188,7 +54188,7 @@ Virginia,Prince George,Templeton,district,5114996063,
 Virginia,Prince George,,county,51149,https://www.princegeorgecountyva.gov/
 Virginia,Prince William,Brentsville,district,5115390480,
 Virginia,Prince William,Coles,district,5115390928,
-Virginia,Prince William,Gainesville,district,5115393671,
+Virginia,Prince William,Gainesville,district,5115393671,https://www.pwcva.gov/
 Virginia,Prince William,Neabsco,district,5115394807,
 Virginia,Prince William,Occoquan,town,5158696,https://www.visitoccoquanva.com/
 Virginia,Prince William,Potomac,district,5115395133,
@@ -55752,7 +55752,7 @@ West Virginia,Clay,B,district,5401590893,
 West Virginia,Clay,C,district,5401590895,https://www.claycountywv.us/
 West Virginia,Clay,,county,54015,https://www.claycountywv.us/
 West Virginia,Doddridge,Beech,district,5401790138,
-West Virginia,Doddridge,Maple,district,5401792094,
+West Virginia,Doddridge,Maple,district,5401792094,https://www.doddridgecountywv.gov/
 West Virginia,Doddridge,Oak,district,5401792374,
 West Virginia,Doddridge,Pine,district,5401792466,https://www.doddridgecountywv.gov/
 West Virginia,Doddridge,,county,54017,https://www.doddridgecountywv.gov/
@@ -55830,7 +55830,7 @@ West Virginia,Marion,Palatine,district,5404992418,https://palatineparkwv.com/
 West Virginia,Marion,West Augusta,district,5404993594,
 West Virginia,Marion,,county,54049,https://www.marioncountywv.com/
 West Virginia,Marshall,1,district,5405190780,https://marshallcountywv.gov/
-West Virginia,Marshall,2,district,5405190816,
+West Virginia,Marshall,2,district,5405190816,https://marshallcountywv.gov/
 West Virginia,Marshall,3,district,5405190852,
 West Virginia,Marshall,,county,54051,https://marshallcountywv.gov/
 West Virginia,Mason,Arbuckle,district,5405390048,
@@ -55855,7 +55855,7 @@ West Virginia,Mercer,III,district,5405590924,
 West Virginia,Mercer,,county,54055,https://mercercountywv.com/
 West Virginia,Mineral,1,district,5405790784,https://www.mineralwv.gov/
 West Virginia,Mineral,2,district,5405790820,
-West Virginia,Mineral,3,district,5405790856,
+West Virginia,Mineral,3,district,5405790856,https://www.mineralwv.gov/
 West Virginia,Mineral,,county,54057,https://www.mineralwv.gov/
 West Virginia,Mingo,Beech Ben Mate,district,5405990141,
 West Virginia,Mingo,Kermit Harvey,district,5405991770,
@@ -55941,7 +55941,7 @@ West Virginia,Summers,New River,district,5408992316,https://www.summerscountywv.
 West Virginia,Summers,,county,54089,https://www.summerscountywv.gov/
 West Virginia,Taylor,Eastern,district,5409190993,
 West Virginia,Taylor,Tygart,district,5409193175,
-West Virginia,Taylor,Western,district,5409193621,
+West Virginia,Taylor,Western,district,5409193621,https://www.wvcountytaylor.com/
 West Virginia,Taylor,,county,54091,https://www.taylorcountywv.gov/
 West Virginia,Tucker,Black Fork,district,5409390192,
 West Virginia,Tucker,Clover,district,5409390624,
@@ -55972,7 +55972,7 @@ West Virginia,Webster,Southern,district,5410192926,https://www.wvsd.uscourts.gov
 West Virginia,Webster,,county,54101,https://www.webstercountywv.com/
 West Virginia,Wetzel,1,district,5410390794,https://www.wetzelcountywv.gov/
 West Virginia,Wetzel,2,district,5410390830,https://www.wetzelcountywv.gov/
-West Virginia,Wetzel,3,district,5410390867,
+West Virginia,Wetzel,3,district,5410390867,https://www.wetzelcountywv.gov/
 West Virginia,Wetzel,,county,54103,https://www.wetzelcountywv.gov/
 West Virginia,Wirt,Central,district,5410590473,
 West Virginia,Wirt,Northeast,district,5410592344,
@@ -56406,7 +56406,7 @@ West Virginia,,Whitesville,town,5486836,
 West Virginia,,Whitmer,CDP,5486932,
 West Virginia,,Wiley Ford,CDP,5487316,
 West Virginia,,Williamstown,city,5487556,https://williamstownwv.org/
-West Virginia,,Windsor Heights,village,5487892,
+West Virginia,,Windsor Heights,village,5487892,https://windsorheightswv.weebly.com/
 West Virginia,,Winfield,town,5487988,https://www.cityofwinfield.net/
 West Virginia,,Wolf Summit,CDP,5488276,
 West Virginia,,Womelsdorf (Coalton),town,5488324,
@@ -56968,7 +56968,7 @@ Wisconsin,Green Lake,Princeton,town,5504765625,https://tn.princeton.wi.gov/
 Wisconsin,Green Lake,Seneca,town,5504772525,https://townofsenecagreenlakeco.com/
 Wisconsin,Green Lake,St. Marie,town,5504770925,
 Wisconsin,Green Lake,,county,55047,https://www.greenlakecountywi.gov/
-Wisconsin,Iowa,Arena,town,5504902575,
+Wisconsin,Iowa,Arena,town,5504902575,https://www.townofarena.org/
 Wisconsin,Iowa,Avoca,village,5504025,http://villageofavocawi.gov/
 Wisconsin,Iowa,Barneveld,village,5504775,https://barneveldwi.gov/
 Wisconsin,Iowa,Brigham,town,5504909600,https://brighamtown.com/
@@ -57052,7 +57052,7 @@ Wisconsin,Juneau,Cutler,town,5505718225,https://www.townshipofcutler.com/
 Wisconsin,Juneau,Elroy,city,5505723800,https://www.elroywi.com/
 Wisconsin,Juneau,Finley,town,5505725850,
 Wisconsin,Juneau,Fountain,town,5505726825,https://www.townoffountain.org/
-Wisconsin,Juneau,Germantown,town,5505728850,
+Wisconsin,Juneau,Germantown,town,5505728850,https://townofgermantown.com/
 Wisconsin,Juneau,Hustler,village,5505736675,
 Wisconsin,Juneau,Kildare,town,5505739575,https://kildaretownship.com/
 Wisconsin,Juneau,Kingston,town,5505739800,
@@ -57800,7 +57800,7 @@ Wisconsin,Trempealeau,Preston,town,5512165500,https://www.townofprestontremplo.c
 Wisconsin,Trempealeau,Strum,village,5512177825,https://www.strumwi.com/
 Wisconsin,Trempealeau,Sumner,town,5512178500,https://www.townofsumnerwi.com/
 Wisconsin,Trempealeau,Trempealeau,town,5512180500,https://tn.trempealeau.wi.gov/
-Wisconsin,Trempealeau,Unity,town,5512181875,
+Wisconsin,Trempealeau,Unity,town,5512181875,https://tn.trempealeau.wi.gov/
 Wisconsin,Trempealeau,Whitehall,city,5512186725,https://www.whitehallwi.com/
 Wisconsin,Trempealeau,,county,55121,https://co.trempealeau.wi.us/
 Wisconsin,Vernon,Bergen,town,5512306900,https://tn.bergen.wi.gov/
