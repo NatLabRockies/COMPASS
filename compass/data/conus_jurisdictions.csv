@@ -14,7 +14,7 @@ Alabama,Baldwin,Stockton,city,0100393024,
 Alabama,Baldwin,Summerdale,town,0173872,https://www.summerdaleal.com/
 Alabama,Baldwin,,county,01003,https://baldwincountyal.gov/
 Alabama,Barbour,Bakerhill,town,0103724,https://cityofbakerhill.com/
-Alabama,Barbour,Clayton,city,0115376,
+Alabama,Barbour,Clayton,city,0115376,https://claytonalabama.com/
 Alabama,Barbour,Clio,city,0115640,
 Alabama,Barbour,Eufaula,city,0124568,https://www.eufaulaalabama.com/
 Alabama,Barbour,Louisville,town,0144344,https://louisvillealabama.gov/
@@ -27,7 +27,7 @@ Alabama,Blount,Blountsville,town,0107456,https://www.blountsvilleal.com/
 Alabama,Blount,Brooksville,city,0100990414,
 Alabama,Blount,Clarence,city,0100990612,
 Alabama,Blount,Cleveland,town,0115472,
-Alabama,Blount,Hayden,town,0133640,
+Alabama,Blount,Hayden,town,0133640,https://www.townofhayden.com/
 Alabama,Blount,Locust Fork,town,0143888,
 Alabama,Blount,Oneonta,city,0157000,https://www.cityofoneonta.us/
 Alabama,Blount,,county,01009,http://www.blountcountyal.gov/
@@ -82,7 +82,7 @@ Alabama,Clarke,,county,01025,http://www.clarkecountyal.com/
 Alabama,Clay,Ashland,town,0102860,https://www.cityofashlandal.com/
 Alabama,Clay,Lineville,city,0143264,https://www.cityoflinevilleal.com/
 Alabama,Clay,Millerville-Hollins,city,0102792142,
-Alabama,Clay,,county,01027,
+Alabama,Clay,,county,01027,https://clay.alacourt.gov/
 Alabama,Cleburne,Fruithurst,town,0128432,
 Alabama,Cleburne,Heflin,city,0133976,https://www.cityofheflin.org/
 Alabama,Cleburne,Ranburne,town,0163408,https://ranburnealabama.com/
@@ -177,10 +177,10 @@ Alabama,Etowah,,county,01055,http://www.etowahcounty.org/
 Alabama,Fayette,Berry,town,0105932,https://townofberryalabama.org/
 Alabama,Fayette,Fayette,city,0125840,https://fayetteal.org/
 Alabama,Fayette,Northeast Fayette,city,0105792380,
-Alabama,Fayette,Winfield-Glen Allen,city,0105793495,
+Alabama,Fayette,Winfield-Glen Allen,city,0105793495,https://www.winfieldcity.org/
 Alabama,Fayette,,county,01057,https://www.fayetteco.net/
 Alabama,Franklin,Phil Campbell,town,0159496,https://philcampbellal.com/
-Alabama,Franklin,Red Bay,city,0163576,
+Alabama,Franklin,Red Bay,city,0163576,http://www.cityofredbay.org/
 Alabama,Franklin,Russellville,city,0167056,https://www.russellvilleal.org/
 Alabama,Franklin,Vina,town,0178984,https://www.vinaalabama.org/
 Alabama,Franklin,,county,01059,
@@ -272,7 +272,7 @@ Alabama,Limestone,Mooresville,town,0151264,https://mooresvilleal.com/
 Alabama,Limestone,Salem,city,0108392817,
 Alabama,Limestone,,county,01083,https://limestonecounty-al.gov/
 Alabama,Lowndes,Benton-Collirene,city,0108590270,
-Alabama,Lowndes,Fort Deposit,town,0127520,
+Alabama,Lowndes,Fort Deposit,town,0127520,https://fortdeposital.gov/
 Alabama,Lowndes,Hayneville,town,0133712,
 Alabama,Lowndes,Lowndesboro,town,0144536,https://townoflowndesboro.org/
 Alabama,Lowndes,Mosses,town,0151520,
@@ -288,7 +288,7 @@ Alabama,Madison,Gurley,town,0132440,https://www.townofgurleyal.com/
 Alabama,Madison,Hazel Green,city,0108991575,
 Alabama,Madison,Huntsville,city,0137000,https://www.huntsvilleal.gov/
 Alabama,Madison,Madison,city,0145784,https://www.madisonal.gov/
-Alabama,Madison,Madison Crossroads,city,0108992061,
+Alabama,Madison,Madison Crossroads,city,0108992061,https://www.madisonal.gov/
 Alabama,Madison,New Hope,city,0154168,https://www.newhopeal.gov/
 Alabama,Madison,New Market,city,0108992358,
 Alabama,Madison,Redstone Arsenal,city,0108992695,
@@ -307,7 +307,7 @@ Alabama,Marion,Brilliant,town,0109424,https://brilliantal.org/
 Alabama,Marion,Guin,city,0132224,https://www.guinal.org/
 Alabama,Marion,Hackleburg,town,0132560,https://townofhackleburg.com/
 Alabama,Marion,Hamilton,city,0132848,https://www.hamiltoncityal.org/
-Alabama,Marion,Winfield,city,0182992,
+Alabama,Marion,Winfield,city,0182992,https://www.winfieldcity.org/
 Alabama,Marion,,county,01093,http://marioncountyalabama.org/
 Alabama,Marshall,Albertville-Boaz,city,0109590054,https://www.cityofalbertville.com/
 Alabama,Marshall,Arab,city,0102116,https://www.arabcity.org/
@@ -359,7 +359,7 @@ Alabama,Pickens,Carrollton,town,0112304,
 Alabama,Pickens,Ethelsville,town,0124472,
 Alabama,Pickens,Gordo,town,0130736,https://www.townofgordo.org/
 Alabama,Pickens,Reform,town,0164104,https://cityofreform.com/
-Alabama,Pickens,,county,01107,
+Alabama,Pickens,,county,01107,https://taxes.pickensalabama.com/
 Alabama,Pike,Banks-Josie,city,0110990198,
 Alabama,Pike,Brundidge,city,0110240,https://brundidge.org/
 Alabama,Pike,Goshen-Shady Grove,city,0110991377,
@@ -378,7 +378,7 @@ Alabama,Russell,Crawford,city,0111390783,
 Alabama,Russell,Hurtsboro,town,0137096,
 Alabama,Russell,Phenix City,city,0159472,https://phenixcityal.gov/
 Alabama,Russell,,county,01113,https://russellcountyal.gov/
-Alabama,Shelby,Alabaster-Helena,city,0111790036,
+Alabama,Shelby,Alabaster-Helena,city,0111790036,https://www.cityofalabaster.com/
 Alabama,Shelby,Calera,city,0111416,https://www.cityofcalera.org/
 Alabama,Shelby,Chelsea,city,0114104,https://www.cityofchelsea.com/
 Alabama,Shelby,Columbiana,city,0116768,https://www.cityofcolumbiana.com/
@@ -467,7 +467,7 @@ Alabama,,Argo,city,0102320,https://www.cityofargo.org/
 Alabama,,Ariton,town,0102428,
 Alabama,,Arley,town,0102500,https://arleyal.govtportal.com/
 Alabama,,Ashford,city,0102836,https://www.cityofashford.com/
-Alabama,,Attalla,city,0103028,
+Alabama,,Attalla,city,0103028,https://attallacity.org/
 Alabama,,Auburn,city,0103076,https://selfservice.auburnalabama.org/
 Alabama,,Avon,town,0103364,
 Alabama,,Axis,CDP,0103508,
@@ -751,7 +751,7 @@ Alabama,,Sylvan Springs,town,0174424,https://sylvanspringsal.com/
 Alabama,,Sylvania,town,0174400,https://sylvaniaalabama.com/
 Alabama,,Talladega Springs,town,0174616,
 Alabama,,Tallassee,city,0174688,https://www.tallasseeal.gov/
-Alabama,,Tarrant,city,0174976,
+Alabama,,Tarrant,city,0174976,https://www.cityoftarrant.com/
 Alabama,,Taylor,city,0175096,https://www.cityoftaylor.org/
 Alabama,,Thorsby,city,0176080,https://www.thorsbyal.com/
 Alabama,,Tibbie,CDP,0176200,
@@ -1180,7 +1180,7 @@ Alaska,,Unalaska,city,0280770,https://www.unalaska.gov/
 Alaska,,Upper Kalskag,city,0281320,
 Alaska,,Utqiaġvik,city,0281920,https://www.utqiagvik.us/
 Alaska,,Valdez,city,0282200,https://www.valdezak.gov/
-Alaska,,Valdez-Cordova,city,02261,
+Alaska,,Valdez-Cordova,city,02261,https://www.valdezak.gov/
 Alaska,,Venetie,CDP,0282420,
 Alaska,,Wainwright,city,0282750,https://cityofwainwright.org/
 Alaska,,Wales,city,0282860,
@@ -1229,7 +1229,7 @@ Arizona,Graham,Bonita-Klondyke,city,0400990357,
 Arizona,Graham,Pima,town,0455560,https://www.pimatown.az.gov/
 Arizona,Graham,Safford,city,0462000,https://cityofsafford.us/
 Arizona,Graham,,county,04009,https://www.graham.az.gov/
-Arizona,Greenlee,Clifton,town,0414380,
+Arizona,Greenlee,Clifton,town,0414380,https://cliftonaz.com/
 Arizona,Greenlee,Duncan,town,0420750,https://duncanaz.us/
 Arizona,Greenlee,,county,04011,https://greenlee.az.gov/
 Arizona,La Paz,Parker,town,0453070,https://www.townofparkeraz.com/
@@ -1237,7 +1237,7 @@ Arizona,La Paz,,county,04012,http://www.co.la-paz.az.us/
 Arizona,Maricopa,Buckeye,city,0407940,https://www.buckeyeaz.gov/
 Arizona,Maricopa,Chandler,city,0412000,https://www.chandleraz.gov/
 Arizona,Maricopa,Deer,valley,0401390867,
-Arizona,Maricopa,Gila Bend,town,0427050,
+Arizona,Maricopa,Gila Bend,town,0427050,https://www.gilabendaz.org/
 Arizona,Maricopa,Phoenix,city,0455000,https://www.phoenix.gov/
 Arizona,Maricopa,Salt River,city,0401393060,
 Arizona,Maricopa,St. Johns,city,0401393009,https://www.stjohnsaz.gov/
@@ -1732,14 +1732,14 @@ Arkansas,Ashley,Longview,township,0500394751,
 Arkansas,Ashley,Marais Saline,township,0500394906,
 Arkansas,Ashley,Mill Creek,township,0500395136,
 Arkansas,Ashley,Montrose,city,0546670,
-Arkansas,Ashley,Portland,city,0556750,
+Arkansas,Ashley,Portland,city,0556750,https://portlandar.gov/
 Arkansas,Ashley,Prairie,township,0500396188,
 Arkansas,Ashley,Union,township,0500397878,
 Arkansas,Ashley,White,township,0500398658,
 Arkansas,Ashley,Wilmot,city,0575890,
 Arkansas,Ashley,,county,05003,https://www.ashleycountyar.com/
 Arkansas,Baxter,Bayou,township,0500590293,
-Arkansas,Baxter,Big Flat,town,0505980,
+Arkansas,Baxter,Big Flat,town,0505980,https://cityofbigflatar.com/
 Arkansas,Baxter,Buckhorn,township,0500591048,
 Arkansas,Baxter,Buford,township,0500591073,
 Arkansas,Baxter,Greenwood,township,0500593196,
@@ -1793,7 +1793,7 @@ Arkansas,Bradley,Pennington,township,0501195956,
 Arkansas,Bradley,River,township,0501196694,
 Arkansas,Bradley,Sumpter,township,0501197374,
 Arkansas,Bradley,Washington,township,0501198423,
-Arkansas,Bradley,,county,05011,https://www.bradleycountysheriff.com/
+Arkansas,Bradley,,county,05011,
 Arkansas,Calhoun,1,township,0501397518,
 Arkansas,Calhoun,2,township,0501397554,
 Arkansas,Calhoun,3,township,0501397590,
@@ -1942,7 +1942,7 @@ Arkansas,Cross,,county,05037,http://crosscountyar.org/
 Arkansas,Dallas,Bunn,township,0503991088,
 Arkansas,Dallas,Chester,township,0503991588,
 Arkansas,Dallas,Dry Run,township,0503992451,
-Arkansas,Dallas,Fordyce,city,0524220,
+Arkansas,Dallas,Fordyce,city,0524220,https://www.cityoffordycear.gov/
 Arkansas,Dallas,Holly Springs,township,0503993586,
 Arkansas,Dallas,Jackson,township,0503993821,
 Arkansas,Dallas,Liberty,township,0503994506,
@@ -2129,7 +2129,7 @@ Arkansas,Howard,Saline,township,0506196904,
 Arkansas,Howard,Saratoga,township,0506196929,
 Arkansas,Howard,Tollette,town,0569500,
 Arkansas,Howard,Umpire,township,0506197868,
-Arkansas,Howard,,county,05061,https://www.howardcountysheriffar.com/
+Arkansas,Howard,,county,05061,
 Arkansas,Independence,Ashley,township,0506390128,
 Arkansas,Independence,Barren,township,0506390223,
 Arkansas,Independence,Big Bottom-Wycough-Logan,township,0506390503,
@@ -2328,7 +2328,7 @@ Arkansas,Logan,Tomlinson,township,0508397479,
 Arkansas,Logan,Washburn,township,0508398398,
 Arkansas,Logan,,county,05083,https://www.logancountyark.org/
 Arkansas,Lonoke,Butler,township,0508591113,
-Arkansas,Lonoke,Carlisle,city,0511500,
+Arkansas,Lonoke,Carlisle,city,0511500,https://www.carlislear.org/
 Arkansas,Lonoke,Caroline,township,0508591348,
 Arkansas,Lonoke,Cleveland,township,0508591743,
 Arkansas,Lonoke,Crooked Creek,township,0508591963,
@@ -2405,7 +2405,7 @@ Arkansas,Monroe,Pine Ridge,township,0509596041,
 Arkansas,Monroe,Raymond,township,0509596419,
 Arkansas,Monroe,Richland,township,0509596604,
 Arkansas,Monroe,Roc Roe,township,0509596744,
-Arkansas,Monroe,,county,05095,https://www.monroecountysheriffar.com/
+Arkansas,Monroe,,county,05095,
 Arkansas,Montgomery,Alamo,township,0509790028,
 Arkansas,Montgomery,Black Springs,town,0506730,
 Arkansas,Montgomery,Caddo Gap,township,0509791218,
@@ -2671,7 +2671,7 @@ Arkansas,Searcy,Red River,township,0512996469,
 Arkansas,Searcy,Rock Creek,township,0512996739,
 Arkansas,Searcy,Shady Grove,township,0512996974,
 Arkansas,Searcy,Spring,township,0512997199,
-Arkansas,Searcy,St. Joe,town,0562030,
+Arkansas,Searcy,St. Joe,town,0562030,http://stjoearkansas.org/
 Arkansas,Searcy,Tomahawk,township,0512997474,
 Arkansas,Searcy,Wileys Cove,township,0512998788,
 Arkansas,Searcy,,county,05129,https://searcyco.org/
@@ -2873,7 +2873,7 @@ Arkansas,Yell,Ward,township,0514998368,
 Arkansas,Yell,Waveland,township,0514998563,
 Arkansas,Yell,,county,05149,https://yellcountyar.gov/
 Arkansas,,Adona,city,0500250,
-Arkansas,,Alexander,city,0500580,
+Arkansas,,Alexander,city,0500580,https://www.cityofalexander.org/
 Arkansas,,Alicia,town,0500700,
 Arkansas,,Alleene,CDP,0500820,
 Arkansas,,Allport,town,0500940,
@@ -2942,7 +2942,7 @@ Arkansas,,Bull Shoals,city,0509790,https://www.cityofbullshoals.gov/
 Arkansas,,Cabot,city,0510300,https://www.cabotar.gov/
 Arkansas,,Caddo Valley,town,0510360,
 Arkansas,,Caldwell,town,0510450,
-Arkansas,,Cale,town,0510480,
+Arkansas,,Cale,town,0510480,https://www.calearkansas.gov/
 Arkansas,,Calico Rock,city,0510570,
 Arkansas,,Calion,city,0510600,
 Arkansas,,Camden,city,0510720,https://www.explorecamden.com/
@@ -3006,7 +3006,7 @@ Arkansas,,Dora,CDP,0519540,
 Arkansas,,Drasco,CDP,0519720,
 Arkansas,,Dumas,city,0519990,https://dumasar.net/
 Arkansas,,Dyer,city,0520200,https://cityofdyerar.com/
-Arkansas,,Earle,city,0520320,
+Arkansas,,Earle,city,0520320,https://www.earlewaterar.com/
 Arkansas,,East Camden,town,0520440,
 Arkansas,,East End,CDP,0520470,
 Arkansas,,Edgemont,CDP,0520800,
@@ -3054,7 +3054,7 @@ Arkansas,,Gilbert,town,0526800,https://townofgilbertar.com/
 Arkansas,,Gillett,city,0526980,
 Arkansas,,Gillham,town,0527010,
 Arkansas,,Gilmore,city,0527040,
-Arkansas,,Glenwood,city,0527310,
+Arkansas,,Glenwood,city,0527310,https://glenwoodar.com/
 Arkansas,,Gosnell,city,0527700,https://cityofgosnell.com/
 Arkansas,,Grady,city,0527790,
 Arkansas,,Grannis,city,0527970,https://grannis.gov/
@@ -3063,7 +3063,7 @@ Arkansas,,Green Forest,city,0528600,https://www.greenforestar.net/
 Arkansas,,Greenbrier,city,0528510,https://www.gogreenbrier.com/
 Arkansas,,Greenway,city,0528720,
 Arkansas,,Greenwood,city,0528780,https://www.greenwoodarkansas.com/
-Arkansas,,Greers Ferry,city,0528810,
+Arkansas,,Greers Ferry,city,0528810,https://www.greersferryar.com/
 Arkansas,,Gregory,CDP,0528840,
 Arkansas,,Griffithville,town,0528990,
 Arkansas,,Gum Springs,town,0529140,
@@ -3157,7 +3157,7 @@ Arkansas,,Lost Bridge Village,CDP,0541555,
 Arkansas,,Louann,town,0541630,
 Arkansas,,Lowell,city,0541720,https://www.lowellarkansas.gov/
 Arkansas,,Luxora,city,0542170,
-Arkansas,,Lynn,town,0542260,
+Arkansas,,Lynn,town,0542260,https://townoflynn.org/
 Arkansas,,Magazine,city,0543310,
 Arkansas,,Magnet Cove,CDP,0543430,
 Arkansas,,Malvern,city,0543610,https://www.malvernar.gov/
@@ -3166,7 +3166,7 @@ Arkansas,,Mansfield,city,0543880,https://mansfieldar.org/
 Arkansas,,Marianna,city,0544120,
 Arkansas,,Marie,town,0544150,
 Arkansas,,Marion,city,0544180,https://www.marionar.org/
-Arkansas,,Marked Tree,city,0544210,
+Arkansas,,Marked Tree,city,0544210,https://www.markedtreearkansas.org/
 Arkansas,,Marmaduke,city,0544240,https://marmadukear.com/
 Arkansas,,Marshall,city,0544300,https://cityofmarshallar.com/
 Arkansas,,Marvell,city,0544420,
@@ -3262,7 +3262,7 @@ Arkansas,,Powhatan,town,0557050,
 Arkansas,,Poyen,town,0557080,
 Arkansas,,Prairie Creek,CDP,0557125,
 Arkansas,,Prattsville,town,0557230,
-Arkansas,,Prescott,city,0557260,
+Arkansas,,Prescott,city,0557260,https://www.arkansasprescottwaterandlight.com/
 Arkansas,,Pyatt,town,0557890,
 Arkansas,,Quitman,city,0557950,
 Arkansas,,Ratcliff,city,0558160,
@@ -3301,7 +3301,7 @@ Arkansas,,Sidney,town,0564280,
 Arkansas,,Siloam Springs,city,0564370,https://www.siloamsprings.gov/
 Arkansas,,Smithville,town,0564910,
 Arkansas,,South Lead Hill,town,0565480,
-Arkansas,,Southside,city,0565630,
+Arkansas,,Southside,city,0565630,https://cityofsouthside.com/
 Arkansas,,Sparkman,city,0565900,
 Arkansas,,Springfield,CDP,0566110,
 Arkansas,,Springtown,town,0566200,
@@ -3395,7 +3395,7 @@ California,Alpine,,county,06003,http://www.alpinecountyca.gov/
 California,Amador,Ione,city,0636672,https://www.ione.ca.gov/
 California,Amador,Jackson,city,0636980,https://www.ci.jackson.ca.us/
 California,Amador,Pine Grove-Silver Lake,region,0600592470,
-California,Amador,Sutter Creek-Plymouth,city,0600593300,
+California,Amador,Sutter Creek-Plymouth,city,0600593300,https://www.cityofsuttercreek.org/
 California,Amador,,county,06005,https://www.amadorcounty.gov/
 California,Butte,Biggs,city,0606560,https://www.biggs-ca.gov/
 California,Butte,Chico,city,0613014,https://chicoca.gov/
@@ -3491,12 +3491,12 @@ California,Kern,,county,06029,https://www.kerncounty.com/
 California,Kings,Avenal,city,0603302,https://www.cityofavenal.gov/
 California,Kings,Corcoran,city,0616224,https://cityofcorcoran.ca.gov/
 California,Kings,Hanford,city,0631960,https://www.ci.hanford.ca.us/
-California,Kings,Hanford Northeast,city,0603191230,
+California,Kings,Hanford Northeast,city,0603191230,https://www.ci.hanford.ca.us/
 California,Kings,Lemoore,city,0641152,http://fortuneandfriends.com/
 California,Kings,Stratford,city,0603193250,
 California,Kings,,county,06031,https://www.countyofkingsca.gov/
 California,Lake,Clearlake,city,0613945,https://www.clearlake.ca.us/
-California,Lake,Clearlake Riviera,city,0603390505,
+California,Lake,Clearlake Riviera,city,0603390505,https://www.clearlake.ca.us/
 California,Lake,Cobb,city,0603390545,
 California,Lake,Kelseyville,city,0603391455,
 California,Lake,Lakeport,city,0639710,https://www.cityoflakeport.com/
@@ -3554,7 +3554,7 @@ California,Mendocino,Covelo,city,0604590610,
 California,Mendocino,Fort Bragg,city,0625058,https://www.city.fortbragg.com/
 California,Mendocino,Hopland,city,0604591330,
 California,Mendocino,Laytonville-Leggett,city,0604591580,
-California,Mendocino,Mendocino,city,0604591938,
+California,Mendocino,Mendocino,city,0604591938,https://www.mendocino.courts.ca.gov/
 California,Mendocino,Point Arena,city,0657876,https://pointarena.ca.gov/
 California,Mendocino,Redwood Valley-Potter,valley,0604592592,
 California,Mendocino,Ukiah,city,0681134,https://cityofukiah.com/
@@ -3633,7 +3633,7 @@ California,Riverside,Corona,city,0616350,https://www.coronaca.gov/
 California,Riverside,Desert Hot Springs,city,0618996,https://www.cityofdhs.org/
 California,Riverside,Elsinore,valley,0606590880,
 California,Riverside,Hemet-San Jacinto,city,0606591280,https://www.hemetca.gov/
-California,Riverside,Idyllwild,city,0606591370,
+California,Riverside,Idyllwild,city,0606591370,https://idyllwildcalifornia.com/
 California,Riverside,Jurupa,city,0606591450,https://www.jurupavalley.org/
 California,Riverside,Lake Mathews,city,0606591530,
 California,Riverside,Murrieta,city,0650076,https://www.murrietaca.gov/
@@ -3836,7 +3836,7 @@ California,Yolo,East Yolo,city,0611390850,
 California,Yolo,Esparto,city,0611390910,
 California,Yolo,Knights Landing,city,0611391500,
 California,Yolo,Winters,city,0686034,https://www.cityofwinters.org/
-California,Yolo,Woodland,city,0686328,
+California,Yolo,Woodland,city,0686328,https://www.cityofwoodland.gov/
 California,Yolo,,county,06113,https://www.yolo.courts.ca.gov/
 California,Yuba,East Yuba-Beale AFB,city,0611590855,
 California,Yuba,Linda,city,0611591610,
@@ -3908,7 +3908,7 @@ California,,Avalon,city,0603274,https://www.cityofavalon.gov/
 California,,Avery,CDP,0603316,
 California,,Avila Beach,CDP,0603330,
 California,,Avocado Heights,CDP,0603344,
-California,,Azusa,city,0603386,
+California,,Azusa,city,0603386,https://www.azusaca.gov/
 California,,Baker,CDP,0603512,
 California,,Bakersfield Country Club,CDP,0603546,
 California,,Baldwin Park,city,0603666,https://www.baldwinpark.com/
@@ -4872,7 +4872,7 @@ California,,Rio Oso,CDP,0660970,
 California,,Rio del Mar,CDP,0660928,
 California,,Ripley,CDP,0661012,
 California,,River Pines,CDP,0661124,
-California,,Riverbank,city,0661068,
+California,,Riverbank,city,0661068,https://www.riverbank.org/
 California,,Riverdale Park,CDP,0661106,
 California,,Rivergrove,CDP,0661108,
 California,,Robbins,CDP,0662168,
@@ -5270,7 +5270,7 @@ Colorado,Douglas,Sedalia,city,0803593249,
 Colorado,Douglas,,county,08035,http://www.douglas.co.us/
 Colorado,Eagle,Basalt,town,0804935,https://www.basalt.net/
 Colorado,Eagle,Eagle-Gypsum,city,0803791140,
-Colorado,Eagle,Minturn-Red Cliff,city,0803792489,
+Colorado,Eagle,Minturn-Red Cliff,city,0803792489,https://www.minturn.org/
 Colorado,Eagle,,county,08037,http://www.eaglecounty.us/
 Colorado,El Paso,Black Forest-Peyton,city,0804190304,
 Colorado,El Paso,Cheyenne Mountain,city,0804190627,
@@ -5460,7 +5460,7 @@ Colorado,Weld,Erie-Frederick,city,0812391216,
 Colorado,Weld,Fort Lupton,city,0827700,https://www.fortluptonco.gov/
 Colorado,Weld,Greeley,city,0832155,https://greeleyco.gov/
 Colorado,Weld,Grover,town,0833310,
-Colorado,Weld,Johnstown-Milliken,city,0812391881,
+Colorado,Weld,Johnstown-Milliken,city,0812391881,https://johnstownco.gov/
 Colorado,Weld,Keenesburg-Hudson,city,0812391938,
 Colorado,Weld,Kersey-Gill,city,0812391957,https://www.kerseygov.com/
 Colorado,Weld,La Salle-Gilcrest,city,0812392166,
@@ -5621,7 +5621,7 @@ Colorado,,Iliff,town,0838590,
 Colorado,,Indian Hills,CDP,0838810,https://indianhillscolorado.com/
 Colorado,,Inverness,CDP,0838910,
 Colorado,,Jackson Lake,CDP,0839160,
-Colorado,,Jamestown,town,0839195,
+Colorado,,Jamestown,town,0839195,http://jamestownco.org/
 Colorado,,Jansen,CDP,0839250,
 Colorado,,Joes,CDP,0839745,
 Colorado,,Johnson Village,CDP,0839800,
@@ -5960,7 +5960,7 @@ Connecticut,Southeastern Connecticut,Stonington,borough,0973700,https://www.ston
 Connecticut,Southeastern Connecticut,Waterford,town,0918080280,https://www.waterfordct.org/
 Connecticut,Southeastern Connecticut,Windham,town,0918086790,https://whywindhamct.com/
 Connecticut,Tolland,,county,09013,
-Connecticut,Western Connecticut,Bethel,town,0919004720,
+Connecticut,Western Connecticut,Bethel,town,0919004720,https://bethel-ct.gov/
 Connecticut,Western Connecticut,Bridgewater,town,0919008210,https://www.bridgewater-ct.gov/
 Connecticut,Western Connecticut,Brookfield,town,0919008980,https://www.brookfieldct.gov/
 Connecticut,Western Connecticut,Danbury,town,0919018500,https://www.danbury-ct.gov/
@@ -7510,7 +7510,7 @@ Georgia,Chattooga,Lyerly,town,1348092,https://www.lyerlyga.com/
 Georgia,Chattooga,Menlo,city,1350848,
 Georgia,Chattooga,Summerville,city,1374376,https://www.summervillega.org/
 Georgia,Chattooga,Trion,town,1377540,https://www.townoftrion.net/
-Georgia,Chattooga,,county,13055,https://chattooga-ga-sheriff.org/
+Georgia,Chattooga,,county,13055,
 Georgia,Cherokee,Ball Ground,city,1305036,https://cityofballground.com/
 Georgia,Cherokee,Canton,city,1312988,https://www.cantonga.gov/
 Georgia,Cherokee,Holly Springs,city,1339524,https://www.hollyspringsga.us/
@@ -13286,7 +13286,7 @@ Indiana,,New Lisbon,CDP,1853154,
 Indiana,,New London,CDP,1853190,
 Indiana,,New Marion,CDP,1853226,
 Indiana,,New Market,town,1853262,
-Indiana,,New Middletown,town,1853298,
+Indiana,,New Middletown,town,1853298,https://www.middletownin.com/
 Indiana,,New Palestine,town,1853352,https://newpalestine.in.gov/
 Indiana,,New Paris,CDP,1853370,
 Indiana,,New Pekin,town,1853388,https://townofnewpekin.com/
@@ -13537,7 +13537,7 @@ Indiana,,Tri-Lakes,CDP,1876526,
 Indiana,,Tunnelton,CDP,1876742,
 Indiana,,Twelve Mile,CDP,1876886,
 Indiana,,Tyner,CDP,1877030,
-Indiana,,Ulen,town,1877066,
+Indiana,,Ulen,town,1877066,https://www.ulen.town/
 Indiana,,Underwood,CDP,1877084,
 Indiana,,Union City,city,1877768,https://unioncity-in.com/
 Indiana,,Union Mills,CDP,1877804,
@@ -14138,7 +14138,7 @@ Iowa,Des Moines,Yellow Springs,township,1905794803,
 Iowa,Des Moines,,county,19057,https://www.desmoinescounty.iowa.gov/
 Iowa,Dickinson,Center Grove,township,1905990639,
 Iowa,Dickinson,Diamond Lake,township,1905990999,
-Iowa,Dickinson,Excelsior,township,1905991257,
+Iowa,Dickinson,Excelsior,township,1905991257,https://www.excelsiortownship.org/
 Iowa,Dickinson,Lakeville,township,1905992379,
 Iowa,Dickinson,Lloyd,township,1905992673,
 Iowa,Dickinson,Milford,city,1952095,https://milford.ia.us/
@@ -15568,7 +15568,7 @@ Iowa,,Diagonal,city,1921270,
 Iowa,,Diamondhead Lake,CDP,1921320,http://www.diamondheadlakeiowa.com/
 Iowa,,Dickens,city,1921360,
 Iowa,,Dike,city,1921405,https://www.dikeia.com/
-Iowa,,Dixon,city,1921540,
+Iowa,,Dixon,city,1921540,https://cityofdixonia.org/
 Iowa,,Dolliver,city,1921675,
 Iowa,,Donahue,city,1921720,
 Iowa,,Donnellson,city,1921810,https://donnellsoniowa.org/
@@ -16976,7 +16976,7 @@ Kansas,Marion,Risley,township,2011560000,
 Kansas,Marion,Summit,township,2011569100,
 Kansas,Marion,West Branch,township,2011576775,
 Kansas,Marion,Wilson,township,2011579750,
-Kansas,Marion,,county,20115,
+Kansas,Marion,,county,20115,https://www.marioncoks.net/
 Kansas,Marshall,Balderson,township,2011703850,
 Kansas,Marshall,Bigelow,township,2011706725,
 Kansas,Marshall,Blue Rapids,township,2011707675,
@@ -17494,7 +17494,7 @@ Kansas,Sedgwick,Gypsum,township,2017329300,
 Kansas,Sedgwick,Illinois,township,2017333775,
 Kansas,Sedgwick,Kechi,city,2036225,https://kechiks.gov/
 Kansas,Sedgwick,Lincoln,township,2017341150,
-Kansas,Sedgwick,Minneha,township,2017347125,
+Kansas,Sedgwick,Minneha,township,2017347125,https://www.minnehatownship.com/
 Kansas,Sedgwick,Morton,township,2017348550,
 Kansas,Sedgwick,Ninnescah,township,2017350725,
 Kansas,Sedgwick,Ohio,township,2017352450,
@@ -17760,8 +17760,8 @@ Kansas,,Ames,CDP,2001725,
 Kansas,,Andale,city,2001775,https://www.cityofandale.com/
 Kansas,,Andover,city,2001800,https://www.andoverks.com/
 Kansas,,Arcadia,city,2002175,
-Kansas,,Argonia,city,2002250,
-Kansas,,Arma,city,2002375,
+Kansas,,Argonia,city,2002250,https://www.cityofargonia.com/
+Kansas,,Arma,city,2002375,https://www.cityofarmaks.org/
 Kansas,,Ashland,city,2002675,https://www.ashlandks.com/
 Kansas,,Assaria,city,2002850,https://assaria.krwa.net/
 Kansas,,Athol,city,2003025,
@@ -17827,7 +17827,7 @@ Kansas,,Climax,city,2014275,
 Kansas,,Clyde,city,2014475,http://www.clydekansas.org/
 Kansas,,Coats,city,2014525,
 Kansas,,Codell,CDP,2014575,
-Kansas,,Colony,city,2014950,
+Kansas,,Colony,city,2014950,https://colony.krwa.net/
 Kansas,,Colwich,city,2015100,https://www.colwichks.org/
 Kansas,,Conway Springs,city,2015325,https://www.conwayspringsks.com/
 Kansas,,Corning,city,2015725,
@@ -17843,7 +17843,7 @@ Kansas,,Danville,city,2017000,
 Kansas,,De Soto,city,2009117850,https://www.desotoks.us/
 Kansas,,Dearing,city,2017150,
 Kansas,,Delia,city,2017525,
-Kansas,,Delphos,city,2017600,
+Kansas,,Delphos,city,2017600,https://delphosks.com/
 Kansas,,Denison,city,2017625,
 Kansas,,Dennis,CDP,2017675,
 Kansas,,Denton,city,2017750,
@@ -17858,7 +17858,7 @@ Kansas,,Dwight,city,2019125,http://dwightks.net/
 Kansas,,Earlton,city,2019275,
 Kansas,,Eastborough,city,2019300,
 Kansas,,Eastshore,CDP,2019700,
-Kansas,,Edmond,city,2019875,
+Kansas,,Edmond,city,2019875,https://www.edmondks.gov/
 Kansas,,Edna,city,2019900,https://cityofedna.org/
 Kansas,,Edson,CDP,2019925,
 Kansas,,Effingham,city,2020025,https://www.cityofeffinghamks.gov/
@@ -17910,7 +17910,7 @@ Kansas,,Greensburg,city,2028675,https://www.greensburgks.org/
 Kansas,,Greenwich,CDP,2028700,
 Kansas,,Grenola,city,2028800,https://www.grenolakansas.com/
 Kansas,,Gridley,city,2028850,https://www.gridleyks.org/
-Kansas,,Gypsum,city,2029250,
+Kansas,,Gypsum,city,2029250,https://gypsum.krwa.net/
 Kansas,,Hallowell,CDP,2029550,
 Kansas,,Hamilton,city,2029675,
 Kansas,,Hanston,city,2029925,
@@ -18008,7 +18008,7 @@ Kansas,,McCune,city,2043725,
 Kansas,,McDonald,city,2043750,
 Kansas,,McFarland,city,2043775,https://mcfarlandkansas.com/
 Kansas,,McLouth,city,2043900,https://cityofmclouth.org/
-Kansas,,Meade,city,2045325,
+Kansas,,Meade,city,2045325,https://www.cityofmeade.org/
 Kansas,,Mentor,CDP,2045875,
 Kansas,,Meriden,city,2045950,https://meridenks.com/
 Kansas,,Milan,city,2046450,
@@ -18059,9 +18059,9 @@ Kansas,,Opolis,CDP,2052925,
 Kansas,,Oswego,city,2002153450,https://www.oswegokansas.com/
 Kansas,,Otis,city,2053525,
 Kansas,,Overbrook,city,2053725,https://www.overbrookks.com/
-Kansas,,Palco,city,2054125,
+Kansas,,Palco,city,2054125,https://www.cityofpalco.gov/
 Kansas,,Palmer,city,2054200,
-Kansas,,Park,city,2054400,
+Kansas,,Park,city,2054400,https://www.parkerks.com/
 Kansas,,Park City,city,2054450,https://www.parkcityks.gov/
 Kansas,,Parker,city,2054500,https://www.parkerks.com/
 Kansas,,Parkerfield,city,2054560,https://www.parkerfieldks.org/
@@ -18224,7 +18224,7 @@ Kentucky,Bath,Salt Lick,city,2168160,
 Kentucky,Bath,Sharpsburg,city,2169852,
 Kentucky,Bath,,county,21011,http://bathcounty.ky.gov/
 Kentucky,Bell,Kentucky Ridge,city,2101391920,
-Kentucky,Bell,Middlesborough,city,2151924,
+Kentucky,Bell,Middlesborough,city,2151924,https://www.cityofmiddlesboro.com/
 Kentucky,Bell,Pineville,city,2161248,https://thecityofpineville.com/
 Kentucky,Bell,Pruden-Fonde,city,2101392864,
 Kentucky,Bell,Tejay,city,2101393456,
@@ -18275,7 +18275,7 @@ Kentucky,Butler,Jetson,city,2103191888,
 Kentucky,Butler,Morgantown,city,2153490,https://morgantown-ky.com/
 Kentucky,Butler,Rochester,city,2165982,
 Kentucky,Butler,Sugar Grove,city,2103193392,
-Kentucky,Butler,Welchs Creek,region,2103193648,
+Kentucky,Butler,Welchs Creek,region,2103193648,https://butlercounty.ky.gov/
 Kentucky,Butler,,county,21031,https://butlercounty.ky.gov/
 Kentucky,Caldwell,Fredonia,city,2129080,
 Kentucky,Caldwell,Princeton,city,2163138,https://www.princetonky.us/
@@ -18360,7 +18360,7 @@ Kentucky,Fayette,Lexington-Fayette Northeast,city,2106792035,https://www.lexingt
 Kentucky,Fayette,Lexington-Fayette Northwest,city,2106792036,https://www.lexingtonky.gov/
 Kentucky,Fayette,Lexington-Fayette Southeast,city,2106792037,https://www.lexingtonky.gov/
 Kentucky,Fayette,Lexington-Fayette Southwest,city,2106792038,https://www.lexingtonky.gov/
-Kentucky,Fayette,,county,21067,
+Kentucky,Fayette,,county,21067,https://www.lexingtonky.gov/
 Kentucky,Fleming,Ewing,city,2125786,
 Kentucky,Fleming,Flemingsburg,city,2127856,https://www.flemingsburgky.org/
 Kentucky,Fleming,Hillsboro,city,2106991728,
@@ -18379,7 +18379,7 @@ Kentucky,Franklin,Frankfort,city,2128900,https://www.frankfort.ky.gov/
 Kentucky,Franklin,Peaks Mill,city,2107392704,
 Kentucky,Franklin,,county,21073,http://franklincounty.ky.gov/
 Kentucky,Fulton,Fulton,city,2129566,https://www.fulton-ky.com/
-Kentucky,Fulton,Hickman,city,2136298,
+Kentucky,Fulton,Hickman,city,2136298,https://cityofhickman.org/
 Kentucky,Fulton,Kentucky Bend,city,2107591918,
 Kentucky,Fulton,,county,21075,https://fultoncounty.ky.gov/
 Kentucky,Gallatin,Warsaw,city,2180706,https://www.cityofwarsawky.org/
@@ -18412,7 +18412,7 @@ Kentucky,Green,Gresham,city,2108791536,
 Kentucky,Green,Summersville,city,2108793408,
 Kentucky,Green,,county,21087,https://greencounty.ky.gov/
 Kentucky,Greenup,Flatwoods-Russell,city,2108991260,https://www.flatwoodsky.gov/
-Kentucky,Greenup,Greenup,city,2133004,
+Kentucky,Greenup,Greenup,city,2133004,https://www.greenupky.net/
 Kentucky,Greenup,South Shore,city,2172210,
 Kentucky,Greenup,Tygarts,valley,2108993530,
 Kentucky,Greenup,Wurtland,city,2185008,https://www.cityofwurtland.com/
@@ -18461,8 +18461,8 @@ Kentucky,Henry,,county,21103,https://henrycounty.ky.gov/
 Kentucky,Hickman,Clinton,city,2115742,https://cityofclintonky.com/
 Kentucky,Hickman,Columbus,city,2116768,
 Kentucky,Hickman,,county,21105,https://www.explorehickmancounty.com/
-Kentucky,Hopkins,Dawson Springs,city,2120224,
-Kentucky,Hopkins,Hanson,city,2134390,
+Kentucky,Hopkins,Dawson Springs,city,2120224,https://www.dawsonspringsky.com/
+Kentucky,Hopkins,Hanson,city,2134390,https://hanson.hopkins.kyschools.us/
 Kentucky,Hopkins,Madisonville,city,2149368,https://www.madisonvilleliving.com/
 Kentucky,Hopkins,Nebo,city,2155092,
 Kentucky,Hopkins,Nortonville,city,2156910,http://www.nortonvilleky.us/
@@ -18505,7 +18505,7 @@ Kentucky,Knott,Carr Fork,city,2111990600,
 Kentucky,Knott,Emmalena,city,2111991160,
 Kentucky,Knott,Hindman,city,2137108,
 Kentucky,Knott,Mousie,city,2111992448,
-Kentucky,Knott,,county,21119,
+Kentucky,Knott,,county,21119,https://www.knottcountyky.gov/
 Kentucky,Knox,Barbourville,city,2103574,https://cityofbarbourville.com/
 Kentucky,Knox,Bryants Store,city,2112190396,
 Kentucky,Knox,Dewitt,city,2112191040,
@@ -18520,12 +18520,12 @@ Kentucky,Larue,,county,21123,http://www.laruecounty.org/
 Kentucky,Laurel,Bush,city,2112590464,
 Kentucky,Laurel,Camp Ground,city,2112590536,
 Kentucky,Laurel,Colony,city,2112590768,
-Kentucky,Laurel,East Bernstadt,city,2112591096,
+Kentucky,Laurel,East Bernstadt,city,2112591096,https://www.ebernstadt.kyschools.us/
 Kentucky,Laurel,Greenmount-Langnau,city,2112591496,
 Kentucky,Laurel,Keavy,city,2112591904,
 Kentucky,Laurel,London,city,2147476,https://www.londonky.gov/
 Kentucky,Laurel,North Corbin,city,2112592568,
-Kentucky,Laurel,,county,21125,
+Kentucky,Laurel,,county,21125,https://laurelcountyclerk.ky.gov/
 Kentucky,Lawrence,Adams,city,2112790016,
 Kentucky,Lawrence,Blaine,city,2107264,
 Kentucky,Lawrence,Clifford,city,2112790744,
@@ -18543,7 +18543,7 @@ Kentucky,Leslie,,county,21131,http://www.lesliecounty.ky.gov/
 Kentucky,Letcher,Blackey,city,2113390256,
 Kentucky,Letcher,Colson,city,2113390776,
 Kentucky,Letcher,Eolia,city,2113391168,
-Kentucky,Letcher,Jenkins,city,2140312,
+Kentucky,Letcher,Jenkins,city,2140312,https://cityofjenkins.org/
 Kentucky,Letcher,Whitesburg,city,2182776,https://cityofwhitesburgky.com/
 Kentucky,Letcher,,county,21133,http://letchercounty.ky.gov/
 Kentucky,Lewis,Garrison,city,2113591376,
@@ -18560,7 +18560,7 @@ Kentucky,Livingston,Salem,city,2168052,https://www.cityofsalemky.gov/
 Kentucky,Livingston,Smithland,city,2171382,
 Kentucky,Livingston,,county,21139,http://livingstoncountyky.com/
 Kentucky,Logan,Adairville,city,2100298,https://adairville.logan.kyschools.us/
-Kentucky,Logan,Auburn,city,2102638,
+Kentucky,Logan,Auburn,city,2102638,https://auburn.ky.gov/
 Kentucky,Logan,Lewisburg,city,2145064,https://cityoflewisburgky.com/
 Kentucky,Logan,Russellville,city,2167512,https://russellvilleky.gov/
 Kentucky,Logan,,county,21141,https://logancountyky.gov/
@@ -18611,7 +18611,7 @@ Kentucky,McCreary,,county,21147,http://www.mccrearycounty.com/
 Kentucky,McLean,Calhoun,city,2111854,https://calhounky.com/
 Kentucky,McLean,Island,city,2139700,
 Kentucky,McLean,Livermore,city,2147062,https://www.cityoflivermore.info/
-Kentucky,McLean,Sacramento,city,2167638,
+Kentucky,McLean,Sacramento,city,2167638,https://www.cityofsacramentoky.com/
 Kentucky,McLean,,county,21149,http://www.mcleancounty.ky.gov/
 Kentucky,Meade,Battletown-Payneville,city,2116390176,
 Kentucky,Meade,Brandenburg,city,2109226,https://brandenburg.ky.gov/
@@ -18686,7 +18686,7 @@ Kentucky,Perry,Defiance-Vicco,city,2119391032,
 Kentucky,Perry,Dice,city,2119391048,
 Kentucky,Perry,Hazard,city,2135362,https://hazardky.gov/
 Kentucky,Perry,Krypton,city,2119391944,
-Kentucky,Perry,Viper,city,2119393576,
+Kentucky,Perry,Viper,city,2119393576,https://viper.perry.kyschools.us/
 Kentucky,Perry,,county,21193,http://www.perrycounty.ky.gov/
 Kentucky,Pike,Ashcamp,city,2119590088,
 Kentucky,Pike,Dorton,city,2119591072,
@@ -18783,7 +18783,7 @@ Kentucky,Wayne,Mill Springs,city,2123192344,
 Kentucky,Wayne,Monticello,city,2153130,https://www.monticelloky.gov/
 Kentucky,Wayne,Zula-Powersburg,city,2123193792,
 Kentucky,Wayne,,county,21231,http://waynecounty.ky.gov/
-Kentucky,Webster,Clay,city,2115202,
+Kentucky,Webster,Clay,city,2115202,https://www.claycityky.gov/
 Kentucky,Webster,Dixon,city,2121682,https://dixon.ky.gov/
 Kentucky,Webster,Providence,city,2163372,
 Kentucky,Webster,Sebree,city,2169222,https://cityofsebreeky.com/
@@ -18816,7 +18816,7 @@ Kentucky,,Bandana,CDP,2103412,
 Kentucky,,Barbourmeade,city,2103556,http://barbourmeade.org/
 Kentucky,,Beech Grove,CDP,2104978,
 Kentucky,,Beechmont,CDP,2105014,
-Kentucky,,Beechwood Village,city,2105068,
+Kentucky,,Beechwood Village,city,2105068,https://beechwoodvillage.org/
 Kentucky,,Belfry,CDP,2105266,
 Kentucky,,Bellefonte,city,2105374,http://bellefonte.ky.gov/
 Kentucky,,Bellemeade,city,2105392,https://bellemeade-ky.gov/
@@ -18857,7 +18857,7 @@ Kentucky,,Coxton,CDP,2117938,
 Kentucky,,Crayne,CDP,2118190,
 Kentucky,,Creekside,city,2118270,http://www.creeksidecity.com/
 Kentucky,,Crescent Springs,city,2118352,http://www.crescent-springs.ky.us/
-Kentucky,,Crestview,city,2118424,
+Kentucky,,Crestview,city,2118424,https://crestviewky.gov/
 Kentucky,,Crestview Hills,city,2118442,https://www.crestviewhills.gov/
 Kentucky,,Crestwood,city,2118496,https://crestwoodky.gov/
 Kentucky,,Crossgate,city,2118766,http://crossgateky.org/
@@ -18962,7 +18962,7 @@ Kentucky,,Magnolia,CDP,2149476,
 Kentucky,,Manitou,CDP,2149746,
 Kentucky,,Manor Creek,city,2149800,https://www.manorcreekky.com/
 Kentucky,,Marrowbone,CDP,2150124,
-Kentucky,,Martin,city,2150286,
+Kentucky,,Martin,city,2150286,https://www.cityofmartin.net/
 Kentucky,,Maryhill Estates,city,2150412,
 Kentucky,,Masonville,CDP,2150520,
 Kentucky,,Massac,CDP,2150556,
@@ -18988,7 +18988,7 @@ Kentucky,,Murray Hill,city,2154660,http://www.cityofmurrayhill.com/
 Kentucky,,New Hope,CDP,2155794,
 Kentucky,,Newport,city,2155884,http://www.newportky.gov/
 Kentucky,,Norbourne Estates,city,2156550,https://www.norbourneestates.org/
-Kentucky,,Northfield,city,2156730,
+Kentucky,,Northfield,city,2156730,https://www.cityofnorthfield.com/
 Kentucky,,Norwood,city,2156928,http://norwoodky.com/
 Kentucky,,Oak Grove,city,2157090,http://www.oakgroveky.org/
 Kentucky,,Oakbrook,CDP,2157030,
@@ -19002,7 +19002,7 @@ Kentucky,,Park Hills,city,2159255,http://www.parkhillsky.net/
 Kentucky,,Parkway Village,city,2159322,http://www.parkwayvillageky.com/
 Kentucky,,Pathfork,CDP,2159466,
 Kentucky,,Payne Gap,CDP,2159592,
-Kentucky,,Pembroke,city,2159934,
+Kentucky,,Pembroke,city,2159934,https://pembroke.christian.kyschools.us/
 Kentucky,,Petersburg,CDP,2160312,
 Kentucky,,Philpot,CDP,2160654,
 Kentucky,,Pioneer Village,city,2161356,https://www.cityofpioneervillage.com/
@@ -19749,7 +19749,7 @@ Louisiana,,Ama,CDP,2201780,
 Louisiana,,Amelia,CDP,2201815,
 Louisiana,,Amite City,town,2201885,https://www.townofamitecity.com/
 Louisiana,,Anacoco,village,2201920,
-Louisiana,,Angie,village,2202165,
+Louisiana,,Angie,village,2202165,https://thevillageofangie.org/
 Louisiana,,Arabi,CDP,2202550,
 Louisiana,,Arcadia,town,2202655,http://www.arcadialouisiana.org/
 Louisiana,,Arnaudville,town,2203110,http://www.arnaudvillela.com/
@@ -19828,7 +19828,7 @@ Louisiana,,Choudrant,village,2215290,http://www.choudrant.org/
 Louisiana,,Church Point,town,2215465,http://www.churchpoint.org/
 Louisiana,,Claiborne,CDP,2215605,
 Louisiana,,Clarence,village,2215745,
-Louisiana,,Clarks,village,2215780,
+Louisiana,,Clarks,village,2215780,https://townofclarksla.org/
 Louisiana,,Clayton,town,2215850,
 Louisiana,,Clinton,town,2215990,http://www.townofclintonla.com/
 Louisiana,,Colfax,town,2216375,
@@ -19838,7 +19838,7 @@ Louisiana,,Convent,CDP,2217180,
 Louisiana,,Converse,village,2217215,
 Louisiana,,Cotton Valley,town,2217915,https://cottonvalley.municipalimpact.com/
 Louisiana,,Cottonport,town,2217880,https://www.thetownofcottonport.net/
-Louisiana,,Coushatta,town,2218055,
+Louisiana,,Coushatta,town,2218055,https://townofcoushatta.com/
 Louisiana,,Covington,city,2218125,https://www.covla.com/
 Louisiana,,Creola,village,2218295,
 Louisiana,,Crescent,CDP,2218335,
@@ -19862,7 +19862,7 @@ Louisiana,,Donaldsonville,city,2221240,http://www.donaldsonville-la.gov/
 Louisiana,,Dorseyville,CDP,2221388,
 Louisiana,,Downsville,village,2221450,
 Louisiana,,Doyline,village,2221590,
-Louisiana,,Dry Prong,village,2221765,
+Louisiana,,Dry Prong,village,2221765,https://www.villageofdryprong.org/
 Louisiana,,Dubach,town,2221800,https://townofdubach.com/
 Louisiana,,Dubberly,village,2221835,
 Louisiana,,Dulac,CDP,2221940,
@@ -19872,7 +19872,7 @@ Louisiana,,Eastwood,CDP,2222610,
 Louisiana,,Echo,CDP,2222640,
 Louisiana,,Eden Isle,CDP,2222722,
 Louisiana,,Edgard,CDP,2222815,
-Louisiana,,Edgefield,village,2222850,
+Louisiana,,Edgefield,village,2222850,https://edgefield.myruralwater.com/
 Louisiana,,Egan,CDP,2223025,
 Louisiana,,Elizabeth,village,2223235,https://villageofelizabeth.com/
 Louisiana,,Elmwood,CDP,2223567,
@@ -19884,8 +19884,8 @@ Louisiana,,Eros,town,2224215,
 Louisiana,,Erwinville,CDP,2224250,
 Louisiana,,Estelle,CDP,2224390,
 Louisiana,,Estherwood,village,2224460,https://villageofestherwood.org/
-Louisiana,,Eunice,city,2224565,
-Louisiana,,Evergreen,town,2224775,
+Louisiana,,Eunice,city,2224565,https://www.eunicela.com/
+Louisiana,,Evergreen,town,2224775,http://www.evergreenla.org/
 Louisiana,,Farmerville,town,2225160,https://farmerville.org/
 Louisiana,,Fenton,village,2225335,https://www.villageoffenton.net/
 Louisiana,,Ferriday,town,2225440,
@@ -19970,7 +19970,7 @@ Louisiana,,Junction City,village,2238985,
 Louisiana,,Kaplan,city,2239055,https://www.kaplanla.com/
 Louisiana,,Keachi,town,2239085,
 Louisiana,,Kenner,city,2239475,http://www.kenner.la.us/
-Louisiana,,Kentwood,town,2239545,
+Louisiana,,Kentwood,town,2239545,http://www.kentwoodla.org/
 Louisiana,,Kilbourne,village,2239650,https://www.kilbournevillage.com/
 Louisiana,,Killian,town,2239685,https://killianla.municipalimpact.com/
 Louisiana,,Killona,CDP,2239720,
@@ -23276,7 +23276,7 @@ Michigan,Otsego,Otsego Lake,township,2613761680,https://otsegolaketownship.org/
 Michigan,Otsego,,county,26137,http://otsegocountymi.gov/
 Michigan,Ottawa,Allendale,charter township,2613901360,https://allendalemi.gov/
 Michigan,Ottawa,Blendon,township,2613908940,https://www.blendontownship-mi.gov/
-Michigan,Ottawa,Chester,township,2613915300,
+Michigan,Ottawa,Chester,township,2613915300,https://www.chester-twp.org/
 Michigan,Ottawa,Coopersville,city,2613918020,
 Michigan,Ottawa,Crockery,township,2613918800,https://crockerytownship.gov/
 Michigan,Ottawa,Ferrysburg,city,2613927960,https://ferrysburg.org/
@@ -25808,7 +25808,7 @@ Minnesota,Renville,Winfield,township,2712970852,
 Minnesota,Renville,,county,27129,https://www.renvillecountymn.gov/
 Minnesota,Rice,Bridgewater,township,2713107714,http://bridgewatertwp.org/
 Minnesota,Rice,Cannon City,township,2713109712,
-Minnesota,Rice,Dundas,city,2713117126,
+Minnesota,Rice,Dundas,city,2713117126,https://www.cityofdundas.org/
 Minnesota,Rice,Erin,township,2713119682,
 Minnesota,Rice,Faribault,city,2713120546,https://www.ci.faribault.mn.us/
 Minnesota,Rice,Forest,township,2713121680,https://foresttownshipricecomn.gov/
@@ -27668,7 +27668,7 @@ Missouri,Carter,Jackson,township,2903535666,
 Missouri,Carter,Johnson,township,2903537376,
 Missouri,Carter,Kelly,township,2903538162,
 Missouri,Carter,Pike,township,2903557530,
-Missouri,Carter,,county,29035,https://www.cartercountymosheriff.org/
+Missouri,Carter,,county,29035,
 Missouri,Cass,Austin,township,2903702620,
 Missouri,Cass,Big Creek,township,2903705374,
 Missouri,Cass,Camp Branch,township,2903710936,
@@ -27687,7 +27687,7 @@ Missouri,Cass,Sherman,township,2903767394,
 Missouri,Cass,Union,township,2903774536,
 Missouri,Cass,West Dolan,township,2903778694,
 Missouri,Cass,West Peculiar,township,2903778892,
-Missouri,Cass,,county,29037,https://cassmosheriff.org/
+Missouri,Cass,,county,29037,
 Missouri,Cedar,Benton,township,2903904600,
 Missouri,Cedar,Box,township,2903907696,
 Missouri,Cedar,Cedar,township,2903912178,
@@ -27895,7 +27895,7 @@ Missouri,Douglas,Spring Creek,township,2906769626,
 Missouri,Douglas,Walls,township,2906776732,
 Missouri,Douglas,Washington,township,2906777398,
 Missouri,Douglas,Wood,township,2906780710,
-Missouri,Douglas,,county,29067,
+Missouri,Douglas,,county,29067,https://douglascountymoassessor.com/
 Missouri,Dunklin,Buffalo,township,2906909532,
 Missouri,Dunklin,Clay,township,2906914338,
 Missouri,Dunklin,Cotton Hill,township,2906916696,
@@ -28012,7 +28012,7 @@ Missouri,Harrison,Trail Creek,township,2908173744,
 Missouri,Harrison,Union,township,2908174662,
 Missouri,Harrison,Washington,township,2908177488,
 Missouri,Harrison,White Oak,township,2908179486,
-Missouri,Harrison,,county,29081,https://www.harrisoncountysheriffmo.org/
+Missouri,Harrison,,county,29081,
 Missouri,Henry,Bear Creek,township,2908303736,
 Missouri,Henry,Bethlehem,township,2908305140,
 Missouri,Henry,Big Creek,township,2908305392,
@@ -28614,7 +28614,7 @@ Missouri,Reynolds,Carroll,township,2917911530,
 Missouri,Reynolds,Jackson,township,2917936062,
 Missouri,Reynolds,Lesterville,township,2917941726,
 Missouri,Reynolds,Logan,township,2917943598,
-Missouri,Reynolds,Webb,township,2917978100,
+Missouri,Reynolds,Webb,township,2917978100,https://webbcitymo.org/
 Missouri,Reynolds,,county,29179,
 Missouri,Ripley,Current River,township,2918117866,
 Missouri,Ripley,Doniphan,city,2919792,https://www.doniphanmo.org/
@@ -31236,7 +31236,7 @@ Nebraska,Lancaster,Denton,village,3112770,https://villageofdenton.com/
 Nebraska,Lancaster,Elk,precinct,3110990860,
 Nebraska,Lancaster,Grant,precinct,3110991215,
 Nebraska,Lancaster,Highland,precinct,3110991405,
-Nebraska,Lancaster,Lancaster,precinct,3110991675,
+Nebraska,Lancaster,Lancaster,precinct,3110991675,https://www.lancaster.ne.gov/
 Nebraska,Lancaster,Lincoln,city,3110991776,https://www.lincoln.ne.gov/
 Nebraska,Lancaster,Little Salt,precinct,3110991795,
 Nebraska,Lancaster,Middle Creek,precinct,3110991965,
@@ -32577,7 +32577,7 @@ New Jersey,Bergen,East Rutherford,borough,3400319510,https://www.eastrutherfordn
 New Jersey,Bergen,Edgewater,borough,3400320020,https://www.edgewaternj.org/
 New Jersey,Bergen,Elmwood Park,borough,3400321300,https://www.elmwoodparknj.us/
 New Jersey,Bergen,Emerson,borough,3400321450,https://emersonnj.gov/
-New Jersey,Bergen,Englewood,city,3400321480,
+New Jersey,Bergen,Englewood,city,3400321480,https://cityofenglewood.org/
 New Jersey,Bergen,Englewood Cliffs,borough,3400321510,https://englewoodcliffsnj.org/
 New Jersey,Bergen,Fair Lawn,borough,3400322470,https://www.fairlawn.org/
 New Jersey,Bergen,Fairview,borough,3400322560,https://fairviewborough.com/
@@ -34099,7 +34099,7 @@ New York,Allegany,Grove,town,3600330994,http://www.townofgrove.gov/
 New York,Allegany,Hume,town,3600336112,https://townofhumeny.gov/
 New York,Allegany,Independence,town,3600337297,https://www.independenceny.org/
 New York,Allegany,New Hudson,town,3600350375,
-New York,Allegany,Oil Springs,reservation,3600354523,
+New York,Allegany,Oil Springs,reservation,3600354523,https://sni.org/
 New York,Allegany,Rushford,town,3600364166,https://www.townofrushford.gov/
 New York,Allegany,Scio,town,3600365772,https://www.townofsciony.gov/
 New York,Allegany,Ward,town,3600378201,
@@ -35003,7 +35003,7 @@ New York,Ulster,Kingston,town,3611139738,https://www.tokny.us/
 New York,Ulster,Lloyd,town,3611142994,https://www.townoflloyd.gov/
 New York,Ulster,Marbletown,town,3611145458,https://www.marbletown.gov/
 New York,Ulster,Marlborough,town,3611145722,https://www.townofmarlboroughny.gov/
-New York,Ulster,New Paltz,town,3611150562,
+New York,Ulster,New Paltz,town,3611150562,https://www.townofnewpaltzny.gov/
 New York,Ulster,Olive,town,3611154749,https://townofoliveny.gov/
 New York,Ulster,Plattekill,town,3611158552,https://townofplattekill.gov/
 New York,Ulster,Rochester,town,3611163011,https://www.townofrochester.ny.gov/
@@ -36685,7 +36685,7 @@ North Carolina,Mecklenburg,"11, Long Creek",township,3711993700,
 North Carolina,Mecklenburg,"12, Paw Creek",township,3711993720,
 North Carolina,Mecklenburg,"13, Morning Star",township,3711993736,
 North Carolina,Mecklenburg,"14, Pineville",township,3711993740,https://www.pinevillenc.gov/
-North Carolina,Mecklenburg,"15, Huntersville",township,3711993748,
+North Carolina,Mecklenburg,"15, Huntersville",township,3711993748,https://www.huntersville.org/
 North Carolina,Mecklenburg,"2, Berryhill",township,3711993320,
 North Carolina,Mecklenburg,"3, Steele Creek",township,3711993392,
 North Carolina,Mecklenburg,"5, Providence",township,3711993492,
@@ -36800,7 +36800,7 @@ North Carolina,Pender,Topsail,township,3714193248,
 North Carolina,Pender,Union,township,3714193804,
 North Carolina,Pender,,county,37141,https://www.pendercountync.gov/
 North Carolina,Perquimans,Belvidere,township,3714390220,
-North Carolina,Perquimans,Bethel,township,3714390248,
+North Carolina,Perquimans,Bethel,township,3714390248,https://bethelnc.org/
 North Carolina,Perquimans,Hertford,town,3730900,https://townofhertfordnc.com/
 North Carolina,Perquimans,New Hope,township,3714392248,
 North Carolina,Perquimans,Parkville,township,3714392448,
@@ -37544,7 +37544,7 @@ North Carolina,,Porters Neck,CDP,3753475,
 North Carolina,,Potters Hill,CDP,3753580,
 North Carolina,,Powellsville,town,3753680,
 North Carolina,,Princeton,town,3753820,https://www.myprincetonnc.com/
-North Carolina,,Princeville,town,3753840,
+North Carolina,,Princeville,town,3753840,https://www.townofprinceville.com/
 North Carolina,,Proctorville,town,3753900,
 North Carolina,,Prospect,CDP,3753950,
 North Carolina,,Pumpkin Center,CDP,3754160,
@@ -38456,7 +38456,7 @@ North Dakota,Logan,Glendale,township,3804730620,
 North Dakota,Logan,Gutschmidt,township,3804733940,
 North Dakota,Logan,Haag,township,3804734060,
 North Dakota,Logan,Janke,township,3804740620,
-North Dakota,Logan,Napoleon,city,3804755420,
+North Dakota,Logan,Napoleon,city,3804755420,https://www.napoleonnd.com/
 North Dakota,Logan,Red Lake,township,3804765700,
 North Dakota,Logan,Sealy,township,3804771580,
 North Dakota,Logan,West Logan,unorganized territory,3804785065,
@@ -39324,7 +39324,7 @@ North Dakota,Williams,Dry Fork,township,3810520580,
 North Dakota,Williams,Dublin,township,3810520660,
 North Dakota,Williams,East Fork,township,3810521660,
 North Dakota,Williams,Ellisville,township,3810523420,
-North Dakota,Williams,Epping,city,3810524540,
+North Dakota,Williams,Epping,city,3810524540,https://epping.govoffice.com/
 North Dakota,Williams,Equality,township,3810524580,
 North Dakota,Williams,Farmvale,township,3810525900,
 North Dakota,Williams,Golden Valley,unorganized territory,3810531262,
@@ -39526,7 +39526,7 @@ Ohio,Belmont,Smith,township,3901372736,
 Ohio,Belmont,Somerset,township,3901372970,
 Ohio,Belmont,Union,township,3901378218,
 Ohio,Belmont,Warren,township,3901380864,
-Ohio,Belmont,Washington,township,3901381088,
+Ohio,Belmont,Washington,township,3901381088,https://www.washingtontwp.org/
 Ohio,Belmont,Wayne,township,3901382068,
 Ohio,Belmont,Wheeling,township,3901384602,
 Ohio,Belmont,York,township,3901386996,
@@ -39612,7 +39612,7 @@ Ohio,Clermont,Monroe,township,3902551338,https://monroetwp-oh.gov/
 Ohio,Clermont,Ohio,township,3902557960,https://www.ohiotownshipclermontcounty.org/
 Ohio,Clermont,Pierce,township,3902562540,https://piercetownship.org/
 Ohio,Clermont,Stonelick,township,3902574825,https://www.stonelicktwp.org/
-Ohio,Clermont,Tate,township,3902576155,
+Ohio,Clermont,Tate,township,3902576155,https://tatetownship.org/
 Ohio,Clermont,Union,township,3902578288,https://www.utclermont.gov/
 Ohio,Clermont,Washington,township,3902581130,https://washingtontwpclermont.org/
 Ohio,Clermont,Wayne,township,3902582110,https://wayne-township.org/
@@ -39847,7 +39847,7 @@ Ohio,Fayette,Green,township,3904731724,
 Ohio,Fayette,Jasper,township,3904738388,
 Ohio,Fayette,Jefferson,township,3904738598,https://jeffersontwpfayette.org/
 Ohio,Fayette,Madison,township,3904746396,
-Ohio,Fayette,Marion,township,3904747684,
+Ohio,Fayette,Marion,township,3904747684,https://mariontwp.org/
 Ohio,Fayette,Paint,township,3904759486,
 Ohio,Fayette,Perry,township,3904761826,
 Ohio,Fayette,Union,township,3904778316,
@@ -39866,7 +39866,7 @@ Ohio,Franklin,Jefferson,township,3904938612,https://www.jeffersontownship.org/
 Ohio,Franklin,Madison,township,3904946410,https://www.madisontownship.org/
 Ohio,Franklin,Marble Cliff,village,3904947474,https://marblecliff.org/
 Ohio,Franklin,Mifflin,township,3904950064,https://mifflin-oh.gov/
-Ohio,Franklin,Norwich,township,3904957344,
+Ohio,Franklin,Norwich,township,3904957344,https://www.norwichtownship.org/
 Ohio,Franklin,Perry,township,3904961840,
 Ohio,Franklin,Plain,township,3904962974,https://plaintownship.org/
 Ohio,Franklin,Pleasant,township,3904963254,http://www.pleasanttownship.com/
@@ -53459,7 +53459,7 @@ Vermont,Grand Isle,Grand Isle,town,5001329275,https://grandislevt.org/
 Vermont,Grand Isle,Isle La Motte,town,5001335875,https://islelamotte.us/
 Vermont,Grand Isle,North Hero,town,5001350650,https://www.northherovt.com/
 Vermont,Grand Isle,South Hero,town,5001367000,https://southherovt.org/
-Vermont,Grand Isle,,county,50013,https://grandislesheriffvt.org/
+Vermont,Grand Isle,,county,50013,
 Vermont,Lamoille,Belvidere,town,5001504375,https://townofbelviderevt.com/
 Vermont,Lamoille,Cambridge,town,5001511500,https://www.cambridge.vermont.gov/
 Vermont,Lamoille,Eden,town,5001523500,https://www.edenvt.org/
@@ -53555,7 +53555,7 @@ Vermont,Washington,Warren,town,5002376525,https://www.warrenvt.org/
 Vermont,Washington,Waterbury,town,5002376975,https://www.waterburyvt.com/
 Vermont,Washington,Woodbury,town,5002385525,https://woodburyvt.org/
 Vermont,Washington,Worcester,town,5002386125,https://worcestervt.org/
-Vermont,Washington,,county,50023,https://washingtoncountysheriffvt.gov/
+Vermont,Washington,,county,50023,
 Vermont,Windham,Athens,town,5002501900,https://www.athensvt.com/
 Vermont,Windham,Brattleboro,town,5002507900,https://brattleboro.gov/
 Vermont,Windham,Brookline,town,5002509475,https://brooklinevt.com/
