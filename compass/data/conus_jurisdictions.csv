@@ -19477,15 +19477,15 @@ Louisiana,Ouachita,D,district,2207395785,
 Louisiana,Ouachita,E,district,2207395800,
 Louisiana,Ouachita,F,district,2207395815,
 Louisiana,Ouachita,,parish,22073,http://oppj.org/
-Louisiana,Plaquemines,1,district,2207594093,https://www.plaqueminesparish.gov/
+Louisiana,Plaquemines,1,district,2207594093,
 Louisiana,Plaquemines,2,district,2207594297,
-Louisiana,Plaquemines,3,district,2207594480,https://www.plaqueminesparish.gov/
-Louisiana,Plaquemines,4,district,2207594657,https://www.plaqueminesparish.gov/
-Louisiana,Plaquemines,5,district,2207594855,https://www.plaqueminesparish.gov/
-Louisiana,Plaquemines,6,district,2207595020,https://www.plaqueminesparish.gov/
-Louisiana,Plaquemines,7,district,2207595173,https://www.plaqueminesparish.gov/
+Louisiana,Plaquemines,3,district,2207594480,
+Louisiana,Plaquemines,4,district,2207594657,
+Louisiana,Plaquemines,5,district,2207594855,
+Louisiana,Plaquemines,6,district,2207595020,
+Louisiana,Plaquemines,7,district,2207595173,
 Louisiana,Plaquemines,8,district,2207595311,
-Louisiana,Plaquemines,9,district,2207595422,https://www.plaqueminesparish.gov/
+Louisiana,Plaquemines,9,district,2207595422,
 Louisiana,Plaquemines,,parish,22075,http://plaqueminesparish.com/
 Louisiana,Pointe Coupee,1,district,2207794096,
 Louisiana,Pointe Coupee,10,district,2207795515,
@@ -20971,10 +20971,10 @@ Maryland,Harford,,county,24025,https://www.harfordcountymd.gov/
 Maryland,Howard,"1, Elkridge",district,2402790052,
 Maryland,Howard,"2, Ellicott City",district,2402790144,
 Maryland,Howard,"3, West Friendship",district,2402790236,
-Maryland,Howard,"4, Lisbon",district,2402790328,https://www.howardcountymd.gov/
+Maryland,Howard,"4, Lisbon",district,2402790328,
 Maryland,Howard,"5, Clarksville",district,2402790420,
 Maryland,Howard,"6, Savage",district,2402790512,
-Maryland,Howard,,county,24027,
+Maryland,Howard,,county,24027,https://www.howardcountymd.gov/
 Maryland,Kent,"1, Massey",district,2402990056,
 Maryland,Kent,"2, Kennedyville",district,2402990148,
 Maryland,Kent,"3, Worton (Betterton)",district,2402990240,
@@ -31377,10 +31377,10 @@ Nebraska,Pawnee,"3, Table Rock",precinct,3113392495,
 Nebraska,Pawnee,"4, Steinauer",precinct,3113392505,
 Nebraska,Pawnee,"5, Burchard",precinct,3113392515,
 Nebraska,Pawnee,,county,31133,http://pawneecountynebraska.com/
-Nebraska,Perkins,1,district,3113590709,https://perkinscounty.ne.gov/
-Nebraska,Perkins,2,district,3113590713,https://perkinscounty.ne.gov/
-Nebraska,Perkins,3,district,3113590717,https://perkinscounty.ne.gov/
-Nebraska,Perkins,,county,31135,http://www.co.perkins.ne.us/
+Nebraska,Perkins,1,district,3113590709,
+Nebraska,Perkins,2,district,3113590713,
+Nebraska,Perkins,3,district,3113590717,
+Nebraska,Perkins,,county,31135,https://perkinscounty.ne.gov/
 Nebraska,Phelps,1,precinct,3113792476,
 Nebraska,Phelps,10,precinct,3113792558,
 Nebraska,Phelps,11,precinct,3113792563,
@@ -31692,12 +31692,12 @@ Nebraska,Wayne,Sherman,precinct,3117992945,
 Nebraska,Wayne,Strahan,precinct,3117993125,
 Nebraska,Wayne,Wilbur,precinct,3117993495,
 Nebraska,Wayne,,county,31179,http://www.waynecountyne.org/
-Nebraska,Webster,1,district,3118190711,https://webstercounty.ne.gov/
-Nebraska,Webster,2,district,3118190715,https://webstercounty.ne.gov/
+Nebraska,Webster,1,district,3118190711,
+Nebraska,Webster,2,district,3118190715,
 Nebraska,Webster,3,district,3118190719,
 Nebraska,Webster,4,district,3118190721,
 Nebraska,Webster,5,district,3118190723,
-Nebraska,Webster,,county,31181,http://www.co.webster.ne.us/
+Nebraska,Webster,,county,31181,https://webstercounty.ne.gov/
 Nebraska,Wheeler,Bartlett,village,3103145,
 Nebraska,Wheeler,Ericson,village,3116025,
 Nebraska,Wheeler,,county,31183,https://wheelercounty.ne.gov/
@@ -53859,7 +53859,7 @@ Virginia,Dickenson,Sand Lick,district,5105195575,
 Virginia,Dickenson,Willis,district,5105196407,
 Virginia,Dickenson,,county,51051,http://www.dickensonva.org/
 Virginia,Dinwiddie,1,district,5105391222,
-Virginia,Dinwiddie,2,district,5105391372,https://va-dinwiddiecounty.civicplus.com/
+Virginia,Dinwiddie,2,district,5105391372,
 Virginia,Dinwiddie,3,district,5105391522,
 Virginia,Dinwiddie,4,district,5105391672,
 Virginia,Dinwiddie,5,district,5105391822,
