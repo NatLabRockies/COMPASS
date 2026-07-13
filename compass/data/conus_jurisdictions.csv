@@ -1900,12 +1900,12 @@ Arkansas,Craighead,Promised Land,township,0503196384,
 Arkansas,Craighead,Taylor,township,0503197414,
 Arkansas,Craighead,Texas,township,0503197439,
 Arkansas,Craighead,,county,05031,http://www.craigheadcounty.org/
-Arkansas,Crawford,1,district,0503390161,https://www.crawfordcountyar.gov/
+Arkansas,Crawford,1,district,0503390161,
 Arkansas,Crawford,10,district,0503396831,
 Arkansas,Crawford,11,district,0503397171,
 Arkansas,Crawford,12,district,0503397441,
 Arkansas,Crawford,13,district,0503397571,
-Arkansas,Crawford,2,district,0503390901,https://www.crawfordcountyar.gov/
+Arkansas,Crawford,2,district,0503390901,
 Arkansas,Crawford,3,district,0503391651,
 Arkansas,Crawford,4,district,0503392401,
 Arkansas,Crawford,5,district,0503393151,
@@ -19100,14 +19100,14 @@ Kentucky,,Worthington Hills,city,2184891,http://www.cityofworthingtonhillsky.gov
 Kentucky,,Worthville,city,2184900,
 Kentucky,,Yelvington,CDP,2185224,
 Kentucky,,,state,21000,https://www.kentucky.gov/
-Louisiana,Acadia,1,district,2200194000,https://appj.org/
+Louisiana,Acadia,1,district,2200194000,
 Louisiana,Acadia,2,district,2200194201,
 Louisiana,Acadia,3,district,2200194381,
 Louisiana,Acadia,4,district,2200194567,
 Louisiana,Acadia,5,district,2200194759,
 Louisiana,Acadia,6,district,2200194933,
 Louisiana,Acadia,7,district,2200195092,
-Louisiana,Acadia,8,district,2200195242,https://appj.org/
+Louisiana,Acadia,8,district,2200195242,
 Louisiana,Acadia,,parish,22001,https://appj.org/
 Louisiana,Allen,1,district,2200394003,
 Louisiana,Allen,2,district,2200394204,
@@ -19236,7 +19236,7 @@ Louisiana,Catahoula,7,district,2202595119,
 Louisiana,Catahoula,8,district,2202595260,
 Louisiana,Catahoula,9,district,2202595377,
 Louisiana,Catahoula,,parish,22025,
-Louisiana,Claiborne,1,district,2202794039,https://www.claiborneparish.org/
+Louisiana,Claiborne,1,district,2202794039,
 Louisiana,Claiborne,10,district,2202795479,
 Louisiana,Claiborne,2,district,2202794237,
 Louisiana,Claiborne,3,district,2202794417,
@@ -19266,18 +19266,18 @@ Louisiana,De Soto,4D,district,2203194756,
 Louisiana,De Soto,5,district,2203194801,
 Louisiana,De Soto,6,district,2203194969,
 Louisiana,De Soto,,parish,22031,https://desotoppj.com/
-Louisiana,East Baton Rouge,1,district,2203394045,https://www.brla.gov/
+Louisiana,East Baton Rouge,1,district,2203394045,
 Louisiana,East Baton Rouge,10,district,2203395482,
-Louisiana,East Baton Rouge,11,district,2203395557,https://www.brla.gov/
+Louisiana,East Baton Rouge,11,district,2203395557,
 Louisiana,East Baton Rouge,12,district,2203395623,
-Louisiana,East Baton Rouge,2,district,2203394246,https://www.brla.gov/
-Louisiana,East Baton Rouge,3,district,2203394426,https://www.brla.gov/
-Louisiana,East Baton Rouge,4,district,2203394606,https://www.brla.gov/
-Louisiana,East Baton Rouge,5,district,2203394804,https://www.brla.gov/
-Louisiana,East Baton Rouge,6,district,2203394972,https://www.brla.gov/
-Louisiana,East Baton Rouge,7,district,2203395125,https://www.brla.gov/
+Louisiana,East Baton Rouge,2,district,2203394246,
+Louisiana,East Baton Rouge,3,district,2203394426,
+Louisiana,East Baton Rouge,4,district,2203394606,
+Louisiana,East Baton Rouge,5,district,2203394804,
+Louisiana,East Baton Rouge,6,district,2203394972,
+Louisiana,East Baton Rouge,7,district,2203395125,
 Louisiana,East Baton Rouge,8,district,2203395266,
-Louisiana,East Baton Rouge,9,district,2203395383,https://www.brla.gov/
+Louisiana,East Baton Rouge,9,district,2203395383,
 Louisiana,East Baton Rouge,,parish,22033,https://www.brla.gov/
 Louisiana,East Carroll,1,district,2203594048,
 Louisiana,East Carroll,2,district,2203594249,
@@ -19291,8 +19291,8 @@ Louisiana,East Carroll,9,district,2203595386,
 Louisiana,East Carroll,,parish,22035,
 Louisiana,East Feliciana,1A,district,2203794168,
 Louisiana,East Feliciana,1B,district,2203794177,
-Louisiana,East Feliciana,2,district,2203794252,https://efparish.org/
-Louisiana,East Feliciana,3,district,2203794432,https://efparish.org/
+Louisiana,East Feliciana,2,district,2203794252,
+Louisiana,East Feliciana,3,district,2203794432,
 Louisiana,East Feliciana,4A,district,2203794738,
 Louisiana,East Feliciana,4B,district,2203794750,
 Louisiana,East Feliciana,5,district,2203794810,
@@ -19330,7 +19330,7 @@ Louisiana,Grant,6,district,2204394987,
 Louisiana,Grant,7,district,2204395140,
 Louisiana,Grant,8,district,2204395278,
 Louisiana,Grant,,parish,22043,https://gppj.org/
-Louisiana,Iberia,1,district,2204594060,https://iberiaparishgovernment.com/
+Louisiana,Iberia,1,district,2204594060,
 Louisiana,Iberia,10,district,2204595491,
 Louisiana,Iberia,11,district,2204595566,
 Louisiana,Iberia,12,district,2204595629,
@@ -19345,7 +19345,7 @@ Louisiana,Iberia,7,district,2204595143,
 Louisiana,Iberia,8,district,2204595281,
 Louisiana,Iberia,9,district,2204595395,
 Louisiana,Iberia,,parish,22045,http://iberiaparishgovernment.com/
-Louisiana,Iberville,1,district,2204794063,https://ibervilleparish.com/
+Louisiana,Iberville,1,district,2204794063,
 Louisiana,Iberville,10,district,2204795494,
 Louisiana,Iberville,11,district,2204795569,
 Louisiana,Iberville,12,district,2204795632,
@@ -19398,13 +19398,13 @@ Louisiana,LaSalle,7,district,2205995158,
 Louisiana,LaSalle,8,district,2205995296,
 Louisiana,LaSalle,9,district,2205995410,
 Louisiana,LaSalle,,parish,22059,
-Louisiana,Lafayette,A,district,2205595737,https://www.lafayettela.gov/
-Louisiana,Lafayette,B,district,2205595752,https://www.lafayettela.gov/
-Louisiana,Lafayette,C,district,2205595767,https://www.lafayettela.gov/
-Louisiana,Lafayette,D,district,2205595782,https://www.lafayettela.gov/
+Louisiana,Lafayette,A,district,2205595737,
+Louisiana,Lafayette,B,district,2205595752,
+Louisiana,Lafayette,C,district,2205595767,
+Louisiana,Lafayette,D,district,2205595782,
 Louisiana,Lafayette,E,district,2205595797,
-Louisiana,Lafayette,F,district,2205595812,https://www.lpssonline.com/
-Louisiana,Lafayette,G,district,2205595827,https://www.lafayettela.gov/
+Louisiana,Lafayette,F,district,2205595812,
+Louisiana,Lafayette,G,district,2205595827,
 Louisiana,Lafayette,,parish,22055,https://www.lafayettela.gov/
 Louisiana,Lafourche,1,district,2205794075,
 Louisiana,Lafourche,2,district,2205794279,
@@ -19429,7 +19429,7 @@ Louisiana,Lincoln,7,district,2206195160,
 Louisiana,Lincoln,8,district,2206195298,
 Louisiana,Lincoln,9,district,2206195412,
 Louisiana,Lincoln,,parish,22061,http://www.lincolnparish.org/
-Louisiana,Livingston,1,district,2206394081,https://www.livingstonparishla.gov/
+Louisiana,Livingston,1,district,2206394081,
 Louisiana,Livingston,2,district,2206394285,
 Louisiana,Livingston,3,district,2206394468,
 Louisiana,Livingston,4,district,2206394645,
@@ -19471,11 +19471,11 @@ Louisiana,Natchitoches,,parish,22069,https://www.npgov.org/
 Louisiana,Orleans,New Orleans,city,2207198000,https://nola.gov/
 Louisiana,Orleans,,parish,22071,
 Louisiana,Ouachita,A,district,2207395740,
-Louisiana,Ouachita,B,district,2207395755,https://www.oppj.org/
-Louisiana,Ouachita,C,district,2207395770,http://oppj.org/
-Louisiana,Ouachita,D,district,2207395785,https://www.oppj.org/
+Louisiana,Ouachita,B,district,2207395755,
+Louisiana,Ouachita,C,district,2207395770,
+Louisiana,Ouachita,D,district,2207395785,
 Louisiana,Ouachita,E,district,2207395800,
-Louisiana,Ouachita,F,district,2207395815,https://www.oppj.org/
+Louisiana,Ouachita,F,district,2207395815,
 Louisiana,Ouachita,,parish,22073,http://oppj.org/
 Louisiana,Plaquemines,1,district,2207594093,https://www.plaqueminesparish.gov/
 Louisiana,Plaquemines,2,district,2207594297,
@@ -19515,7 +19515,7 @@ Louisiana,Red River,2,district,2208194303,
 Louisiana,Red River,3,district,2208194486,
 Louisiana,Red River,4,district,2208194663,
 Louisiana,Red River,5,district,2208194861,
-Louisiana,Red River,6,district,2208195026,https://www.rrppj.org/
+Louisiana,Red River,6,district,2208195026,
 Louisiana,Red River,7,district,2208195179,
 Louisiana,Red River,,parish,22081,http://rrppj.org/
 Louisiana,Richland,1,district,2208394102,
@@ -19552,7 +19552,7 @@ Louisiana,St. Charles,5,district,2208994870,
 Louisiana,St. Charles,6,district,2208995035,
 Louisiana,St. Charles,7,district,2208995188,
 Louisiana,St. Charles,,parish,22089,https://www.stcharlesparish.gov/
-Louisiana,St. Helena,1,district,2209194111,https://www.sthelenaparish.la.gov/
+Louisiana,St. Helena,1,district,2209194111,
 Louisiana,St. Helena,2,district,2209194315,
 Louisiana,St. Helena,3,district,2209194498,
 Louisiana,St. Helena,4,district,2209194675,
@@ -19575,7 +19575,7 @@ Louisiana,St. John the Baptist,5,district,2209594879,
 Louisiana,St. John the Baptist,6,district,2209595044,https://www.sjbparish.gov/
 Louisiana,St. John the Baptist,7,district,2209595194,https://www.sjbparish.gov/
 Louisiana,St. John the Baptist,,parish,22095,http://www.sjbparish.com/
-Louisiana,St. Landry,1,district,2209794120,https://stlandrypg.org/
+Louisiana,St. Landry,1,district,2209794120,
 Louisiana,St. Landry,10,district,2209795518,
 Louisiana,St. Landry,11,district,2209795587,
 Louisiana,St. Landry,12,district,2209795644,
@@ -19642,7 +19642,7 @@ Louisiana,Tensas,5,district,2210794897,
 Louisiana,Tensas,6,district,2210795062,
 Louisiana,Tensas,7,district,2210795212,
 Louisiana,Tensas,,parish,22107,
-Louisiana,Terrebonne,1,district,2210994136,https://tpcg.org/
+Louisiana,Terrebonne,1,district,2210994136,
 Louisiana,Terrebonne,2,district,2210994340,
 Louisiana,Terrebonne,3,district,2210994523,
 Louisiana,Terrebonne,4,district,2210994700,
@@ -20832,14 +20832,14 @@ Maryland,Anne Arundel,5,district,2400390376,
 Maryland,Anne Arundel,6,district,2400390468,
 Maryland,Anne Arundel,7,district,2400390560,
 Maryland,Anne Arundel,,county,24003,http://www.aacounty.org/
-Maryland,Baltimore,1,district,2400590012,https://www.baltimorecountymd.gov/
+Maryland,Baltimore,1,district,2400590012,
 Maryland,Baltimore,10,district,2400590840,
 Maryland,Baltimore,11,district,2400590932,
 Maryland,Baltimore,12,district,2400591020,
 Maryland,Baltimore,13,district,2400591112,
 Maryland,Baltimore,14,district,2400591204,
 Maryland,Baltimore,15,district,2400591296,
-Maryland,Baltimore,2,district,2400590104,https://www.baltimorecountymd.gov/
+Maryland,Baltimore,2,district,2400590104,
 Maryland,Baltimore,3,district,2400590196,
 Maryland,Baltimore,4,district,2400590288,
 Maryland,Baltimore,5,district,2400590380,
@@ -20851,7 +20851,7 @@ Maryland,Baltimore,Baltimore,city,2404000,https://www.baltimorecity.gov/
 Maryland,Baltimore,,county,24005,https://www.baltimorecountymd.gov/
 Maryland,Calvert,"1, Solomons Island",district,2400990016,
 Maryland,Calvert,"2, Prince Frederick",district,2400990108,
-Maryland,Calvert,"3, Sunderland",district,2400990200,https://www.calvertcountymd.gov/
+Maryland,Calvert,"3, Sunderland",district,2400990200,
 Maryland,Calvert,,county,24009,https://www.calvertcountymd.gov/
 Maryland,Caroline,"1, Henderson",district,2401190020,
 Maryland,Caroline,"2, Greensboro",district,2401190112,
@@ -20890,11 +20890,11 @@ Maryland,Cecil,,county,24015,https://www.cecilcountymd.gov/
 Maryland,Charles,"1, La Plata",district,2401790032,
 Maryland,Charles,"10, Marbury",district,2401790860,
 Maryland,Charles,"2, Hill Top",district,2401790124,
-Maryland,Charles,"3, Nanjemoy",district,2401790216,https://www.charlescountymd.gov/
-Maryland,Charles,"4, Allens Fresh",district,2401790308,https://www.charlescountymd.gov/
+Maryland,Charles,"3, Nanjemoy",district,2401790216,
+Maryland,Charles,"4, Allens Fresh",district,2401790308,
 Maryland,Charles,"5, Thompkinsville",district,2401790400,
-Maryland,Charles,"6, Waldorf",district,2401790492,https://www.charlescountymd.gov/
-Maryland,Charles,"7, Pomonkey",district,2401790584,https://www.charlescountymd.gov/
+Maryland,Charles,"6, Waldorf",district,2401790492,
+Maryland,Charles,"7, Pomonkey",district,2401790584,
 Maryland,Charles,"8, Bryantown",district,2401790676,
 Maryland,Charles,"9, Hughesville",district,2401790768,
 Maryland,Charles,,county,24017,http://www.charlescountymd.gov/
@@ -20948,7 +20948,7 @@ Maryland,Garrett,"1, Swanton",district,2402390044,
 Maryland,Garrett,"10, Deer Park",district,2402390872,
 Maryland,Garrett,"11, The Elbow",district,2402390960,
 Maryland,Garrett,"12, Bittinger",district,2402391052,
-Maryland,Garrett,"13, Kitzmiller",district,2402391144,https://www.garrettcountymd.gov/
+Maryland,Garrett,"13, Kitzmiller",district,2402391144,
 Maryland,Garrett,"14, West Oakland",district,2402391236,
 Maryland,Garrett,"15, Avilton",district,2402391328,
 Maryland,Garrett,"16, Mountain Lake Park",district,2402391420,http://mtnlakepark.org/
@@ -20975,31 +20975,31 @@ Maryland,Howard,"4, Lisbon",district,2402790328,https://www.howardcountymd.gov/
 Maryland,Howard,"5, Clarksville",district,2402790420,
 Maryland,Howard,"6, Savage",district,2402790512,
 Maryland,Howard,,county,24027,
-Maryland,Kent,"1, Massey",district,2402990056,https://www.kentcounty.com/
-Maryland,Kent,"2, Kennedyville",district,2402990148,https://www.kentcounty.com/
+Maryland,Kent,"1, Massey",district,2402990056,
+Maryland,Kent,"2, Kennedyville",district,2402990148,
 Maryland,Kent,"3, Worton (Betterton)",district,2402990240,
 Maryland,Kent,"4, Chestertown",district,2402990332,
 Maryland,Kent,"5, Edesville",district,2402990424,
 Maryland,Kent,"6, Fairlee",district,2402990516,
-Maryland,Kent,"7, Pomona",district,2402990608,https://www.kentcounty.com/
+Maryland,Kent,"7, Pomona",district,2402990608,
 Maryland,Kent,,county,24029,https://kentcounty.com/
-Maryland,Montgomery,1,district,2403190060,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,1,district,2403190060,
 Maryland,Montgomery,10,district,2403190888,
 Maryland,Montgomery,11,district,2403190976,
-Maryland,Montgomery,12,district,2403191068,https://www.montgomerycountymd.gov/
-Maryland,Montgomery,13,district,2403191160,https://www.montgomerycountymd.gov/
-Maryland,Montgomery,2,district,2403190152,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,12,district,2403191068,
+Maryland,Montgomery,13,district,2403191160,
+Maryland,Montgomery,2,district,2403190152,
 Maryland,Montgomery,3,district,2403190244,
 Maryland,Montgomery,4,district,2403190336,
 Maryland,Montgomery,5,district,2403190428,
 Maryland,Montgomery,6,district,2403190520,
-Maryland,Montgomery,7,district,2403190612,https://www.montgomerycountymd.gov/
-Maryland,Montgomery,8,district,2403190704,https://www.montgomerycountymd.gov/
-Maryland,Montgomery,9,district,2403190796,https://www.montgomerycountymd.gov/
+Maryland,Montgomery,7,district,2403190612,
+Maryland,Montgomery,8,district,2403190704,
+Maryland,Montgomery,9,district,2403190796,
 Maryland,Montgomery,,county,24031,https://www.montgomerycountymd.gov/
 Maryland,Prince George's,"1, Vansville",district,2403390064,
 Maryland,Prince George's,"10, Laurel",district,2403390892,
-Maryland,Prince George's,"11, Brandywine",district,2403390980,https://www.princegeorgescountymd.gov/
+Maryland,Prince George's,"11, Brandywine",district,2403390980,
 Maryland,Prince George's,"12, Oxon Hill",district,2403391072,
 Maryland,Prince George's,"13, Kent",district,2403391164,http://www.co.pg.md.us/
 Maryland,Prince George's,"14, Bowie",district,2403391256,
@@ -21023,7 +21023,7 @@ Maryland,Queen Anne's,"1, Dixon",district,2403590068,
 Maryland,Queen Anne's,"2, Church Hill",district,2403590160,https://churchhillmd.com/
 Maryland,Queen Anne's,"3, Centreville",district,2403590252,
 Maryland,Queen Anne's,"4, Kent Island",district,2403590344,
-Maryland,Queen Anne's,"5, Queenstown",district,2403590436,https://www.qac.org/
+Maryland,Queen Anne's,"5, Queenstown",district,2403590436,
 Maryland,Queen Anne's,"6, Ruthsburg",district,2403590528,
 Maryland,Queen Anne's,"7, Crumpton",district,2403590620,
 Maryland,Queen Anne's,,county,24035,https://www.qac.org/
@@ -21037,7 +21037,7 @@ Maryland,Somerset,"15, East Princess Anne",district,2403991360,
 Maryland,Somerset,"2, St. Peters",district,2403990168,
 Maryland,Somerset,"3, Brinkleys",district,2403990260,
 Maryland,Somerset,"4, Dublin",district,2403990352,
-Maryland,Somerset,"5, Mount Vernon",district,2403990444,https://www.somersetmd.us/
+Maryland,Somerset,"5, Mount Vernon",district,2403990444,
 Maryland,Somerset,"6, Fairmount",district,2403990536,
 Maryland,Somerset,"7, Crisfield",district,2403990628,
 Maryland,Somerset,"8, Lawsons",district,2403990720,
@@ -21045,18 +21045,18 @@ Maryland,Somerset,"9, Tangier",district,2403990812,
 Maryland,Somerset,,county,24039,http://www.somersetmd.us/
 Maryland,St. Mary's,"1, St. Inigoes",district,2403790072,
 Maryland,St. Mary's,"2, Valley Lee",district,2403790164,
-Maryland,St. Mary's,"3, Leonardtown",district,2403790256,https://www.stmaryscountymd.gov/
+Maryland,St. Mary's,"3, Leonardtown",district,2403790256,
 Maryland,St. Mary's,"4, Chaptico",district,2403790348,
 Maryland,St. Mary's,"5, Mechanicsville",district,2403790440,
 Maryland,St. Mary's,"6, Patuxent",district,2403790532,
 Maryland,St. Mary's,"7, Milestown",district,2403790624,
-Maryland,St. Mary's,"8, Bay",district,2403790716,https://www.stmaryscountymd.gov/
+Maryland,St. Mary's,"8, Bay",district,2403790716,
 Maryland,St. Mary's,"9, St. George Island",district,2403790808,
 Maryland,St. Mary's,,county,24037,https://www.stmaryscountymd.gov/
-Maryland,Talbot,"1, Easton",district,2404190080,https://talbotcountymd.gov/
+Maryland,Talbot,"1, Easton",district,2404190080,
 Maryland,Talbot,"2, St. Michaels",district,2404190172,https://www.stmichaelsmd.gov/
 Maryland,Talbot,"3, Trappe",district,2404190264,
-Maryland,Talbot,"4, Chapel",district,2404190356,https://talbotcountymd.gov/
+Maryland,Talbot,"4, Chapel",district,2404190356,
 Maryland,Talbot,"5, Bay Hundred",district,2404190448,
 Maryland,Talbot,,county,24041,https://www.talbotcountymd.gov/
 Maryland,Washington,"1, Sharpsburg",district,2404390084,
@@ -21064,26 +21064,26 @@ Maryland,Washington,"10, Funkstown",district,2404390912,
 Maryland,Washington,"11, Sandy Hook",district,2404391000,
 Maryland,Washington,"12, Fairplay",district,2404391092,
 Maryland,Washington,"13, Maugansville",district,2404391184,
-Maryland,Washington,"14, Ringgold",district,2404391276,https://www.washco-md.net/
+Maryland,Washington,"14, Ringgold",district,2404391276,
 Maryland,Washington,"15, Indian Spring",district,2404391368,
 Maryland,Washington,"16, Beaver Creek",district,2404391460,
-Maryland,Washington,"17, Hagerstown",district,2404391552,https://www.washco-md.net/
+Maryland,Washington,"17, Hagerstown",district,2404391552,
 Maryland,Washington,"18, Chewsville",district,2404391644,
 Maryland,Washington,"19, Keedysville",district,2404391736,
 Maryland,Washington,"2, Williamsport",district,2404390176,
 Maryland,Washington,"20, Downsville",district,2404391828,
-Maryland,Washington,"21, Hagerstown",district,2404391920,https://www.washco-md.net/
-Maryland,Washington,"22, Hagerstown",district,2404392012,https://www.washco-md.net/
+Maryland,Washington,"21, Hagerstown",district,2404391920,
+Maryland,Washington,"22, Hagerstown",district,2404392012,
 Maryland,Washington,"23, Wilsons",district,2404392104,
 Maryland,Washington,"24, Cedar Lawn",district,2404392196,
-Maryland,Washington,"25, Hagerstown",district,2404392288,https://www.washco-md.net/
+Maryland,Washington,"25, Hagerstown",district,2404392288,
 Maryland,Washington,"26, Halfway",district,2404392380,
 Maryland,Washington,"27, Fountain Head",district,2404392472,
-Maryland,Washington,"3, Hagerstown",district,2404390268,https://www.washco-md.net/
+Maryland,Washington,"3, Hagerstown",district,2404390268,
 Maryland,Washington,"4, Clear Spring",district,2404390360,https://clearspringmd.gov/
 Maryland,Washington,"5, Hancock",district,2404390452,https://townofhancock.org/
 Maryland,Washington,"6, Boonsboro",district,2404390544,
-Maryland,Washington,"7, Smithsburg",district,2404390636,https://www.washco-md.net/
+Maryland,Washington,"7, Smithsburg",district,2404390636,
 Maryland,Washington,"8, Rohrersville",district,2404390728,
 Maryland,Washington,"9, Leitersburg",district,2404390820,
 Maryland,Washington,,county,24043,https://www.washco-md.net/
@@ -26967,11 +26967,11 @@ Mississippi,Wayne,3,district,2815392169,
 Mississippi,Wayne,4,district,2815392907,
 Mississippi,Wayne,5,district,2815393645,
 Mississippi,Wayne,,county,28153,http://www.waynecounty.ms/
-Mississippi,Webster,1,district,2815590702
-Mississippi,Webster,2,district,2815591440
-Mississippi,Webster,3,district,2815592178
-Mississippi,Webster,4,district,2815592916
-Mississippi,Webster,5,district,2815593654
+Mississippi,Webster,1,district,2815590702,
+Mississippi,Webster,2,district,2815591440,
+Mississippi,Webster,3,district,2815592178,
+Mississippi,Webster,4,district,2815592916,
+Mississippi,Webster,5,district,2815593654,
 Mississippi,Webster,,county,28155,http://www.webstercountyms.org/
 Mississippi,Wilkinson,1,district,2815790711,
 Mississippi,Wilkinson,2,district,2815791449,
@@ -31170,12 +31170,12 @@ Nebraska,Johnson,Todd Creek,precinct,3109793210,
 Nebraska,Johnson,Vesta,precinct,3109793315,
 Nebraska,Johnson,Western,precinct,3109793420,
 Nebraska,Johnson,,county,31097,https://johnsoncounty.ne.gov/
-Nebraska,Kearney,1,district,3109990708,https://kearneycounty.ne.gov/
-Nebraska,Kearney,2,district,3109990712,https://kearneycounty.ne.gov/
-Nebraska,Kearney,3,district,3109990716,https://kearneycounty.ne.gov/
+Nebraska,Kearney,1,district,3109990708,
+Nebraska,Kearney,2,district,3109990712,
+Nebraska,Kearney,3,district,3109990716,
 Nebraska,Kearney,4,district,3109990720,
 Nebraska,Kearney,5,district,3109990722,
-Nebraska,Kearney,6,district,3109990724,https://kearneycounty.ne.gov/
+Nebraska,Kearney,6,district,3109990724,
 Nebraska,Kearney,7,district,3109990726,
 Nebraska,Kearney,,county,31099,http://www.kearneycounty.ne.gov/
 Nebraska,Keith,Brule,village,3106785,https://ci.brule.ne.us/
@@ -53686,7 +53686,7 @@ Virginia,Accomack,8,district,5100192246,
 Virginia,Accomack,9,district,5100192396,
 Virginia,Accomack,,county,51001,http://www.co.accomack.va.us/
 Virginia,Albemarle,Jack Jouett,district,5100393983,
-Virginia,Albemarle,Rio,district,5100395311,https://www.albemarle.org/
+Virginia,Albemarle,Rio,district,5100395311,
 Virginia,Albemarle,Rivanna,district,5100395319,
 Virginia,Albemarle,Samuel Miller,district,5100395567,
 Virginia,Albemarle,Scottsville,town,5170800,https://www.townofscottsville.org/
@@ -53694,7 +53694,7 @@ Virginia,Albemarle,White Hall,district,5100396359,
 Virginia,Albemarle,,county,51003,http://www.albemarle.org/
 Virginia,Alexandria,Alexandria,city,5101000,https://www.alexandriava.gov/
 Virginia,Alexandria,,county,51510,
-Virginia,Alleghany,Boiling Springs,district,5100590424,https://www.co.alleghany.va.us/
+Virginia,Alleghany,Boiling Springs,district,5100590424,
 Virginia,Alleghany,Clifton Forge East,district,5100590877,https://cliftonforgeva.gov/
 Virginia,Alleghany,Clifton Forge West,district,5100590878,
 Virginia,Alleghany,Falling Spring,district,5100593527,
@@ -53830,7 +53830,7 @@ Virginia,Clarke,,county,51043,http://clarkecounty.gov/
 Virginia,Colonial Heights,Colonial Heights,city,5118448,http://www.colonialheightsva.gov/
 Virginia,Colonial Heights,,county,51570,http://www.colonialheightsva.gov/
 Virginia,Covington,,county,51580,
-Virginia,Craig,Craig City,district,5104591024,https://www.craigcountyva.gov/
+Virginia,Craig,Craig City,district,5104591024,
 Virginia,Craig,Craig Creek,district,5104591032,
 Virginia,Craig,New Castle,town,5155592,
 Virginia,Craig,Potts Mountain,district,5104595135,
@@ -53844,7 +53844,7 @@ Virginia,Culpeper,Salem,district,5104795535,
 Virginia,Culpeper,Stevensburg,district,5104795895,
 Virginia,Culpeper,West Fairfax,district,5104796303,
 Virginia,Culpeper,,county,51047,http://www.culpepercounty.gov/
-Virginia,Cumberland,1,district,5104991220,https://cumberlandcounty.virginia.gov/
+Virginia,Cumberland,1,district,5104991220,
 Virginia,Cumberland,2,district,5104991370,
 Virginia,Cumberland,3,district,5104991520,
 Virginia,Cumberland,4,district,5104991670,
@@ -53854,11 +53854,11 @@ Virginia,Danville,Danville,city,5121344,https://danvilleva.gov/
 Virginia,Danville,,county,51590,
 Virginia,Dickenson,Clintwood,town,5117552,https://townofclintwood.com/
 Virginia,Dickenson,Ervinton,district,5105193495,
-Virginia,Dickenson,Kenady,district,5105194135,https://dickensonva.org/
+Virginia,Dickenson,Kenady,district,5105194135,
 Virginia,Dickenson,Sand Lick,district,5105195575,
 Virginia,Dickenson,Willis,district,5105196407,
 Virginia,Dickenson,,county,51051,http://www.dickensonva.org/
-Virginia,Dinwiddie,1,district,5105391222,https://www.dinwiddieva.us/
+Virginia,Dinwiddie,1,district,5105391222,
 Virginia,Dinwiddie,2,district,5105391372,https://va-dinwiddiecounty.civicplus.com/
 Virginia,Dinwiddie,3,district,5105391522,
 Virginia,Dinwiddie,4,district,5105391672,
@@ -53926,12 +53926,12 @@ Virginia,Giles,Eastern,district,5107193431,https://virginiasmtnplayground.com/
 Virginia,Giles,Western,district,5107196287,
 Virginia,Giles,,county,51071,
 Virginia,Gloucester,Abingdon,district,5107390008,
-Virginia,Gloucester,Gloucester Point,district,5107393735,https://gloucesterva.gov/
+Virginia,Gloucester,Gloucester Point,district,5107393735,
 Virginia,Gloucester,Petsworth,district,5107395047,
 Virginia,Gloucester,Ware,district,5107396231,
 Virginia,Gloucester,York,district,5107396471,
 Virginia,Gloucester,,county,51073,https://gloucesterva.gov/
-Virginia,Goochland,1,district,5107591232,https://www.goochlandva.us/
+Virginia,Goochland,1,district,5107591232,
 Virginia,Goochland,2,district,5107591382,
 Virginia,Goochland,3,district,5107591532,
 Virginia,Goochland,4,district,5107591682,
@@ -53999,9 +53999,9 @@ Virginia,Isle of Wight,Smithfield,town,5173200,https://www.smithfieldva.gov/
 Virginia,Isle of Wight,Windsor,town,5186784,https://www.windsor-va.gov/
 Virginia,Isle of Wight,,county,51093,https://www.isleofwight.gov/
 Virginia,James City,Berkeley,district,5109590224,
-Virginia,James City,Jamestown,district,5109594063,https://www.jamescitycountyva.gov/
+Virginia,James City,Jamestown,district,5109594063,
 Virginia,James City,Powhatan,district,5109595159,
-Virginia,James City,Roberts,district,5109595375,https://www.jamescitycountyva.gov/
+Virginia,James City,Roberts,district,5109595375,
 Virginia,James City,Stonehouse,district,5109595911,
 Virginia,James City,,county,51095,http://www.jamescitycountyva.gov/
 Virginia,King George,Dahlgren,district,5109991080,
@@ -54014,7 +54014,7 @@ Virginia,King William,Mangohick,district,5110194479,
 Virginia,King William,West Point,town,5184960,https://www.west-point.va.us/
 Virginia,King William,,county,51101,https://www.kwc.gov/
 Virginia,King and Queen,Buena Vista,district,5109790552,
-Virginia,King and Queen,Newtown,district,5109794863,https://kingandqueenco.net/
+Virginia,King and Queen,Newtown,district,5109794863,
 Virginia,King and Queen,Shanghai,district,5109795631,
 Virginia,King and Queen,St. Stephens Church,district,5109795527,
 Virginia,King and Queen,Stevensville,district,5109795903,
@@ -54048,7 +54048,7 @@ Virginia,Louisa,Jackson,district,5110993999,
 Virginia,Louisa,Louisa,town,5147144,https://louisava.gov/
 Virginia,Louisa,Mineral,town,5152120,https://www.townofmineral.com/
 Virginia,Louisa,Mountain Road,district,5110994759,
-Virginia,Louisa,Patrick Henry,district,5110995015,https://www.louisacounty.gov/
+Virginia,Louisa,Patrick Henry,district,5110995015,
 Virginia,Louisa,,county,51109,https://www.louisacounty.gov/
 Virginia,Lunenburg,Beaver Creek,district,5111190192,
 Virginia,Lunenburg,Browns Store,district,5111190512,
@@ -54070,7 +54070,7 @@ Virginia,Manassas Park,Manassas Park,city,5148968,https://www.manassasparkva.gov
 Virginia,Manassas Park,,county,51685,
 Virginia,Martinsville,Martinsville,city,5149784,https://www.martinsville-va.gov/
 Virginia,Martinsville,,county,51690,
-Virginia,Mathews,Chesapeake,district,5111590808,https://www.mathewscountyva.gov/
+Virginia,Mathews,Chesapeake,district,5111590808,
 Virginia,Mathews,Piankatank,district,5111595055,
 Virginia,Mathews,Westville,district,5111596335,
 Virginia,Mathews,,county,51115,https://www.mathewscountyva.gov/
@@ -54195,10 +54195,10 @@ Virginia,Prince William,Potomac,district,5115395133,
 Virginia,Prince William,Woodbridge,district,5115396455,
 Virginia,Prince William,,county,51153,https://www.pwcva.gov/
 Virginia,Pulaski,Cloyd,district,5115590904,
-Virginia,Pulaski,Draper,district,5115593399,https://www.pulaskicounty.org/
+Virginia,Pulaski,Draper,district,5115593399,
 Virginia,Pulaski,Ingles,district,5115593967,
 Virginia,Pulaski,Massie,district,5115594551,
-Virginia,Pulaski,Robinson,district,5115595391,https://www.pulaskicounty.org/
+Virginia,Pulaski,Robinson,district,5115595391,
 Virginia,Pulaski,,county,51155,http://www.pulaskicounty.org/
 Virginia,Radford,Radford,city,5165392,https://www.radfordva.gov/
 Virginia,Radford,,county,51750,
@@ -54326,7 +54326,7 @@ Virginia,Washington,Wilson,district,5119196415,
 Virginia,Washington,,county,51191,https://www.washcova.com/
 Virginia,Waynesboro,Waynesboro,city,5182096275,https://www.waynesboro.va.us/
 Virginia,Waynesboro,,county,51820,
-Virginia,Westmoreland,Cople,district,5119390976,https://www.westmoreland-county.org/
+Virginia,Westmoreland,Cople,district,5119390976,
 Virginia,Westmoreland,Montross,town,5152952,https://townofmontross.org/
 Virginia,Westmoreland,Washington,district,5119396255,
 Virginia,Westmoreland,,county,51193,http://www.westmoreland-county.org/
@@ -55722,7 +55722,7 @@ West Virginia,Berkeley,Norborne,district,5400392322,
 West Virginia,Berkeley,Potomac,district,5400392526,
 West Virginia,Berkeley,Shenandoah,district,5400392754,
 West Virginia,Berkeley,Tuscarora,district,5400393171,
-West Virginia,Berkeley,Valley,district,5400393388,https://www.berkeleywv.org/
+West Virginia,Berkeley,Valley,district,5400393388,
 West Virginia,Berkeley,,county,54003,https://www.berkeleywv.org/
 West Virginia,Boone,1,district,5400590762,
 West Virginia,Boone,2,district,5400590796,
@@ -55747,9 +55747,9 @@ West Virginia,Calhoun,3,district,5401390836,
 West Virginia,Calhoun,4,district,5401390873,
 West Virginia,Calhoun,5,district,5401390885,
 West Virginia,Calhoun,,county,54013,https://calhouncounty.wv.gov/
-West Virginia,Clay,A,district,5401590891,https://www.claycountywv.us/
+West Virginia,Clay,A,district,5401590891,
 West Virginia,Clay,B,district,5401590893,
-West Virginia,Clay,C,district,5401590895,https://www.claycountywv.us/
+West Virginia,Clay,C,district,5401590895,
 West Virginia,Clay,,county,54015,https://www.claycountywv.us/
 West Virginia,Doddridge,Beech,district,5401790138,
 West Virginia,Doddridge,Maple,district,5401792094,
@@ -55853,9 +55853,9 @@ West Virginia,Mercer,I,district,5405590900,
 West Virginia,Mercer,II,district,5405590912,
 West Virginia,Mercer,III,district,5405590924,
 West Virginia,Mercer,,county,54055,https://mercercountywv.com/
-West Virginia,Mineral,1,district,5405790784,https://www.mineralwv.gov/
+West Virginia,Mineral,1,district,5405790784,
 West Virginia,Mineral,2,district,5405790820,
-West Virginia,Mineral,3,district,5405790856,https://www.mineralwv.gov/
+West Virginia,Mineral,3,district,5405790856,
 West Virginia,Mineral,,county,54057,https://www.mineralwv.gov/
 West Virginia,Mingo,Beech Ben Mate,district,5405990141,
 West Virginia,Mingo,Kermit Harvey,district,5405991770,
@@ -55873,7 +55873,7 @@ West Virginia,Monroe,Central,district,5406390457,
 West Virginia,Monroe,Eastern,district,5406390984,
 West Virginia,Monroe,Western,district,5406393613,
 West Virginia,Monroe,,county,54063,http://www.monroecountywv.net/
-West Virginia,Morgan,1,district,5406590786,https://morgancountywv.gov/
+West Virginia,Morgan,1,district,5406590786,
 West Virginia,Morgan,2,district,5406590822,
 West Virginia,Morgan,3,district,5406590858,
 West Virginia,Morgan,,county,54065,https://morgancountywv.gov/
