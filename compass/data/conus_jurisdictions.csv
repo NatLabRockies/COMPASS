@@ -82,7 +82,7 @@ Alabama,Clarke,,county,01025,http://www.clarkecountyal.com/
 Alabama,Clay,Ashland,town,0102860,https://www.cityofashlandal.com/
 Alabama,Clay,Lineville,city,0143264,https://www.cityoflinevilleal.com/
 Alabama,Clay,Millerville-Hollins,city,0102792142,
-Alabama,Clay,,county,01027,https://clay.alacourt.gov/
+Alabama,Clay,,county,01027,
 Alabama,Cleburne,Fruithurst,town,0128432,
 Alabama,Cleburne,Heflin,city,0133976,https://www.cityofheflin.org/
 Alabama,Cleburne,Ranburne,town,0163408,https://ranburnealabama.com/
@@ -104,7 +104,7 @@ Alabama,Conecuh,Evergreen,city,0124808,https://www.evergreenal.org/
 Alabama,Conecuh,Lyeffion,city,0103592016,
 Alabama,Conecuh,Repton,town,0164368,https://www.reptonalabama.com/
 Alabama,Conecuh,Shreve,city,0103592916,
-Alabama,Conecuh,,county,01035,https://conecuh.alacourt.gov/
+Alabama,Conecuh,,county,01035,
 Alabama,Coosa,Goodwater-Kellyton,city,0103791350,https://www.cityofgoodwater.com/
 Alabama,Coosa,Rockford,town,0165472,http://www.rockfordalabama.net/
 Alabama,Coosa,Weogufka-Marble,valley,0103793429,
@@ -118,7 +118,7 @@ Alabama,Covington,,county,01039,http://www.covcounty.com/
 Alabama,Crenshaw,Brantley,town,0109016,https://www.townofbrantley.org/
 Alabama,Crenshaw,Luverne,city,0144728,https://luverne.org/
 Alabama,Crenshaw,Petrey-Highland Home,city,0104192529,
-Alabama,Crenshaw,,county,01041,https://crenshaw.alacourt.gov/
+Alabama,Crenshaw,,county,01041,
 Alabama,Cullman,Baileyton-Joppa,city,0104390180,
 Alabama,Cullman,Bremen,city,0104390369,
 Alabama,Cullman,Crane Hill,city,0104390774,
@@ -465,7 +465,7 @@ Alabama,,Anderson,town,0101756,
 Alabama,,Ardmore,town,0102260,http://www.townofardmorealabama.com/
 Alabama,,Argo,city,0102320,https://www.cityofargo.org/
 Alabama,,Ariton,town,0102428,
-Alabama,,Arley,town,0102500,https://arleyal.govtportal.com/
+Alabama,,Arley,town,0102500,
 Alabama,,Ashford,city,0102836,https://www.cityofashford.com/
 Alabama,,Attalla,city,0103028,https://attallacity.org/
 Alabama,,Auburn,city,0103076,https://selfservice.auburnalabama.org/
@@ -664,7 +664,7 @@ Alabama,,Nectar,town,0153448,https://www.townofnectar.com/
 Alabama,,Needham,town,0153472,
 Alabama,,New Brockton,town,0153856,https://www.newbrocktonal.org/
 Alabama,,New Union,CDP,0154582,
-Alabama,,Newton,town,0154480,https://newtonal.govtportal.com/
+Alabama,,Newton,town,0154480,
 Alabama,,Newville,town,0154600,
 Alabama,,Nixburg,CDP,0154696,
 Alabama,,North Courtland,town,0155044,
@@ -721,7 +721,7 @@ Alabama,,Saks,CDP,0167608,
 Alabama,,Sand Rock,town,0167920,https://www.sandrock-al.org/
 Alabama,,Sanford,town,0168016,
 Alabama,,Saraland,city,0168160,https://saraland.org/
-Alabama,,Sardis City,town,0168280,https://sardiscityal.govtportal.com/
+Alabama,,Sardis City,town,0168280,
 Alabama,,Satsuma,city,0168352,https://www.cityofsatsuma.com/
 Alabama,,Selmont-West Selmont,CDP,0169180,
 Alabama,,Sheffield,city,0169648,https://sheffieldalabama.net/
@@ -2356,7 +2356,7 @@ Arkansas,Lonoke,Walls,township,0508598318,
 Arkansas,Lonoke,Ward,city,0573130,https://wardarkansas.org/
 Arkansas,Lonoke,Williams,township,0508598793,
 Arkansas,Lonoke,York,township,0508598903,
-Arkansas,Lonoke,,county,05085,https://lonokecoclerk.com/
+Arkansas,Lonoke,,county,05085,
 Arkansas,Madison,North,township,0508795678,
 Arkansas,Madison,South,township,0508797152,
 Arkansas,Madison,,county,05087,http://madisoncogov.com/
@@ -3451,7 +3451,7 @@ California,Fresno,Sierra,city,0601993010,
 California,Fresno,,county,06019,https://www.fresnocountyca.gov/
 California,Glenn,Orland,city,0654274,https://www.cityoforland.com/
 California,Glenn,Willows,city,0685684,https://cityofwillows.org/
-California,Glenn,,county,06021,https://www.glenn.courts.ca.gov/
+California,Glenn,,county,06021,
 California,Humboldt,Arcata,city,0602476,https://www.cityofarcata.org/
 California,Humboldt,Eureka,city,0623042,https://www.eurekaca.gov/
 California,Humboldt,Ferndale,city,0623910,https://ci.ferndale.ca.us/
@@ -3504,7 +3504,7 @@ California,Lake,Lower Lake,region,0603391775,
 California,Lake,Lucerne-Clearlake Oaks,city,0603391795,
 California,Lake,Middletown,city,0603391975,
 California,Lake,Upper Lake-Nice,city,0603393505,
-California,Lake,,county,06033,https://lake.courts.ca.gov/
+California,Lake,,county,06033,
 California,Lassen,Big,valley,0603590240,
 California,Lassen,Honey Lake,region,0603591320,
 California,Lassen,Madeline Plains,city,0603591820,
@@ -3554,7 +3554,7 @@ California,Mendocino,Covelo,city,0604590610,
 California,Mendocino,Fort Bragg,city,0625058,https://www.city.fortbragg.com/
 California,Mendocino,Hopland,city,0604591330,
 California,Mendocino,Laytonville-Leggett,city,0604591580,
-California,Mendocino,Mendocino,city,0604591938,https://www.mendocino.courts.ca.gov/
+California,Mendocino,Mendocino,city,0604591938,
 California,Mendocino,Point Arena,city,0657876,https://pointarena.ca.gov/
 California,Mendocino,Redwood Valley-Potter,valley,0604592592,
 California,Mendocino,Ukiah,city,0681134,https://cityofukiah.com/
@@ -3597,7 +3597,7 @@ California,Napa,Calistoga,city,0609892,https://www.calistogaca.gov/
 California,Napa,Lake Berryessa,city,0605591515,
 California,Napa,Napa,city,0650258,https://www.cityofnapa.org/
 California,Napa,St. Helena,city,0664140,https://www.cityofsthelena.gov/
-California,Napa,,county,06055,https://www.napa.courts.ca.gov/
+California,Napa,,county,06055,
 California,Nevada,Donner,city,0605790710,
 California,Nevada,Grass Valley,city,0630798,https://www.grassvalleyca.gov/
 California,Nevada,Nevada City,city,0650874,https://www.nevadacityca.gov/
@@ -3794,7 +3794,7 @@ California,Trinity,Hayfork,city,0610591250,
 California,Trinity,Mad River,city,0610591860,
 California,Trinity,Northwest Trinity,city,0610592202,
 California,Trinity,Weaverville,city,0610593595,
-California,Trinity,,county,06105,https://www.trinity.courts.ca.gov/
+California,Trinity,,county,06105,
 California,Tulare,Dinuba,city,0619318,https://www.dinuba.org/
 California,Tulare,Earlimart,city,0610790760,
 California,Tulare,Exeter,city,0623126,https://cityofexeter.ca.gov/
@@ -3837,7 +3837,7 @@ California,Yolo,Esparto,city,0611390910,
 California,Yolo,Knights Landing,city,0611391500,
 California,Yolo,Winters,city,0686034,https://www.cityofwinters.org/
 California,Yolo,Woodland,city,0686328,https://www.cityofwoodland.gov/
-California,Yolo,,county,06113,https://www.yolo.courts.ca.gov/
+California,Yolo,,county,06113,
 California,Yuba,East Yuba-Beale AFB,city,0611590855,
 California,Yuba,Linda,city,0611591610,
 California,Yuba,Marysville,city,0646170,https://www.marysville.ca.us/
@@ -4661,7 +4661,7 @@ California,,Monument Hills,CDP,0649045,
 California,,Morada,CDP,0649180,
 California,,Moraga,town,0649187,https://www.moraga.ca.us/
 California,,Moreno Valley,city,0649270,https://moval.gov/
-California,,Morgan Hill,city,0649278,https://morganhillca.portal.civicclerk.com/
+California,,Morgan Hill,city,0649278,
 California,,Morongo Valley,CDP,0649348,
 California,,Morro Bay,city,0649362,https://www.morrobayca.gov/
 California,,Moskowite Corner,CDP,0649432,
@@ -7357,7 +7357,7 @@ Florida,,Whitfield,CDP,1277470,
 Florida,,Williamsburg,CDP,1277735,
 Florida,,Williston,city,1277825,https://www.willistonfl.org/
 Florida,,Williston Highlands,CDP,1277837,
-Florida,,Willow Oak,CDP,1277862,https://willowoak.polkschoolsfl.com/
+Florida,,Willow Oak,CDP,1277862,
 Florida,,Wilton Manors,city,1278000,
 Florida,,Wimauma,CDP,1278025,
 Florida,,Windermere,town,1278050,http://www.town.windermere.fl.us/
@@ -7545,7 +7545,7 @@ Georgia,Coffee,Ambrose,city,1302060,
 Georgia,Coffee,Broxton,city,1311504,https://cityofbroxton.com/
 Georgia,Coffee,Douglas,city,1323872,https://www.cityofdouglasga.gov/
 Georgia,Coffee,Nicholls,city,1355440,https://cityofnichollsga.gov/
-Georgia,Coffee,West Green,city,1306993324,https://westgreenelem.ga.cce.schoolinsites.com/
+Georgia,Coffee,West Green,city,1306993324,
 Georgia,Coffee,,county,13069,https://www.coffeecounty-ga.gov/
 Georgia,Colquitt,Berlin-Ellenton,city,1307190258,https://cityofberlinga.com/
 Georgia,Colquitt,Doerun,city,1323284,https://www.cityofdoerun.com/
@@ -9341,7 +9341,7 @@ Illinois,Ford,Pella,township,1705358512,
 Illinois,Ford,Rogers,township,1705365273,
 Illinois,Ford,Sullivant,township,1705373521,
 Illinois,Ford,Wall,township,1705378474,
-Illinois,Ford,,county,17053,http://www.fordcountycourthouse.com/
+Illinois,Ford,,county,17053,
 Illinois,Franklin,Barren,township,1705503818,
 Illinois,Franklin,Benton,city,1705300,https://bentonil.com/
 Illinois,Franklin,Browning,township,1705508940,
@@ -11440,7 +11440,7 @@ Illinois,,Sauget,village,1767756,
 Illinois,,Sauk Village,village,1767769,http://www.saukvillage.org/
 Illinois,,Savoy,village,1767860,https://www.savoy.illinois.gov/
 Illinois,,Sawyerville,village,1767873,
-Illinois,,Saybrook,village,1767912,https://saybrookil.govtportal.com/
+Illinois,,Saybrook,village,1767912,
 Illinois,,Schiller Park,village,1768081,http://www.villageofschillerpark.com/
 Illinois,,Schram City,village,1768120,
 Illinois,,Scott AFB,CDP,1768328,
@@ -18197,7 +18197,7 @@ Kentucky,Adair,Columbia,city,2116750,https://cityofcolumbiaky.com/
 Kentucky,Adair,Glens Fork,city,2100191416,
 Kentucky,Adair,Gradyville,city,2100191432,
 Kentucky,Adair,White Oak,city,2100193680,
-Kentucky,Adair,,county,21001,https://adaircoclerkky.gov/
+Kentucky,Adair,,county,21001,
 Kentucky,Allen,Adolphus,city,2100390024,
 Kentucky,Allen,Halfway,city,2100391560,
 Kentucky,Allen,Holland,city,2100391760,
@@ -18264,7 +18264,7 @@ Kentucky,Breckinridge,Glen Dean-Vanzant,city,2102791412,
 Kentucky,Breckinridge,Hardinsburg,city,2134552,https://hardinsburgky.com/
 Kentucky,Breckinridge,Irvington,city,2139664,https://irvington.ky.gov/
 Kentucky,Breckinridge,McDaniels-Hudson,city,2102792134,
-Kentucky,Breckinridge,,county,21027,https://www.breck.kyschools.us/
+Kentucky,Breckinridge,,county,21027,
 Kentucky,Bullitt,Fort Knox,city,2102991296,
 Kentucky,Bullitt,Lebanon Junction,city,2144362,https://lebanonjunctionky.com/
 Kentucky,Bullitt,Mount Washington,city,2154228,https://www.mtwashingtonky.org/
@@ -18309,8 +18309,8 @@ Kentucky,Casey,Dividing Ridge,city,2104591052,
 Kentucky,Casey,Dunnville,city,2104591088,
 Kentucky,Casey,Liberty,city,2146072,https://explorelibertyky.com/
 Kentucky,Casey,Middleburg,city,2104592296,
-Kentucky,Casey,,county,21045,https://caseycountyclerk.ky.gov/
-Kentucky,Christian,Crofton,city,2118658,https://crofton.christian.kyschools.us/
+Kentucky,Casey,,county,21045,
+Kentucky,Christian,Crofton,city,2118658,
 Kentucky,Christian,Fort Campbell,city,2104791288,
 Kentucky,Christian,Hopkinsville,city,2137918,https://www.hopkinsvilleky.us/
 Kentucky,Christian,LaFayette,city,2143444,
@@ -18392,12 +18392,12 @@ Kentucky,Grant,Corinth,city,2117434,https://corinth.ky.gov/
 Kentucky,Grant,Crittenden,city,2118568,https://cityofcrittendenky.gov/
 Kentucky,Grant,Williamstown-Dry Ridge,city,2108193720,https://www.wtownky.org/
 Kentucky,Grant,,county,21081,http://grantcounty.ky.gov/
-Kentucky,Graves,Fancy Farm,city,2108391208,https://fancyfarm.graves.kyschools.us/
-Kentucky,Graves,Farmington,city,2108391216,https://farmington.graves.kyschools.us/
+Kentucky,Graves,Fancy Farm,city,2108391208,
+Kentucky,Graves,Farmington,city,2108391216,
 Kentucky,Graves,Hickory-Lowes,city,2108391722,
 Kentucky,Graves,Mayfield,city,2150898,https://www.mayfieldky.gov/
-Kentucky,Graves,Sedalia,city,2108393128,https://sedalia.graves.kyschools.us/
-Kentucky,Graves,Symsonia,city,2108393432,https://symsonia.graves.kyschools.us/
+Kentucky,Graves,Sedalia,city,2108393128,
+Kentucky,Graves,Symsonia,city,2108393432,
 Kentucky,Graves,Wingo-Water,valley,2108393752,
 Kentucky,Graves,,county,21083,https://gravescounty.ky.gov/
 Kentucky,Grayson,Caneyville,city,2112538,https://caneyville.ky.gov/
@@ -18441,7 +18441,7 @@ Kentucky,Harlan,,county,21095,
 Kentucky,Harrison,Berry,city,2105968,
 Kentucky,Harrison,Berry West,city,2109790240,
 Kentucky,Harrison,Cynthiana,city,2119432,https://www.cynthianaky.com/
-Kentucky,Harrison,,county,21097,http://www.harrisoncountyfiscalcourt.com/
+Kentucky,Harrison,,county,21097,
 Kentucky,Hart,Bonnieville,city,2108488,
 Kentucky,Hart,Hammonville,city,2109991568,
 Kentucky,Hart,Hardyville,city,2109991600,
@@ -18451,7 +18451,7 @@ Kentucky,Hart,,county,21099,http://www.hartcountyky.org/
 Kentucky,Henderson,Corydon,city,2117686,
 Kentucky,Henderson,Hebbardsville-Robards,city,2110191672,
 Kentucky,Henderson,Henderson,city,2135866,https://www.hendersonky.gov/
-Kentucky,Henderson,Spottsville,city,2110193320,https://spottsville.henderson.kyschools.us/
+Kentucky,Henderson,Spottsville,city,2110193320,
 Kentucky,Henderson,,county,21101,http://www.hendersoncountyky.gov/
 Kentucky,Henry,Campbellsburg,city,2112142,https://www.campbellsburgky.com/
 Kentucky,Henry,Eminence,city,2124904,https://eminence.ky.gov/
@@ -18462,7 +18462,7 @@ Kentucky,Hickman,Clinton,city,2115742,https://cityofclintonky.com/
 Kentucky,Hickman,Columbus,city,2116768,
 Kentucky,Hickman,,county,21105,https://www.explorehickmancounty.com/
 Kentucky,Hopkins,Dawson Springs,city,2120224,https://www.dawsonspringsky.com/
-Kentucky,Hopkins,Hanson,city,2134390,https://hanson.hopkins.kyschools.us/
+Kentucky,Hopkins,Hanson,city,2134390,
 Kentucky,Hopkins,Madisonville,city,2149368,https://www.madisonvilleliving.com/
 Kentucky,Hopkins,Nebo,city,2155092,
 Kentucky,Hopkins,Nortonville,city,2156910,http://www.nortonvilleky.us/
@@ -18498,7 +18498,7 @@ Kentucky,Johnson,Paintsville,city,2158962,
 Kentucky,Johnson,,county,21115,http://www.johnsoncoky.com/
 Kentucky,Kenton,Covington,city,2117848,https://www.covingtonky.gov/
 Kentucky,Kenton,Independence,city,2139142,
-Kentucky,Kenton,Piner-Visalia,city,2111792800,https://piner.kenton.kyschools.us/
+Kentucky,Kenton,Piner-Visalia,city,2111792800,
 Kentucky,Kenton,,county,21117,http://www.kentoncounty.org/
 Kentucky,Knott,Beaver Creek,region,2111990196,
 Kentucky,Knott,Carr Fork,city,2111990600,
@@ -18512,7 +18512,7 @@ Kentucky,Knox,Dewitt,city,2112191040,
 Kentucky,Knox,Girdler,city,2112191400,
 Kentucky,Knox,Gray,city,2112191472,
 Kentucky,Knox,Trosper,city,2112193520,
-Kentucky,Knox,,county,21121,https://knoxfiscalcourt.com/
+Kentucky,Knox,,county,21121,
 Kentucky,Larue,Buffalo,city,2112390416,
 Kentucky,Larue,Hodgenville,city,2137396,https://cityofhodgenvilleky.com/
 Kentucky,Larue,Magnolia-Upton,city,2112392192,
@@ -18520,12 +18520,12 @@ Kentucky,Larue,,county,21123,http://www.laruecounty.org/
 Kentucky,Laurel,Bush,city,2112590464,
 Kentucky,Laurel,Camp Ground,city,2112590536,
 Kentucky,Laurel,Colony,city,2112590768,
-Kentucky,Laurel,East Bernstadt,city,2112591096,https://www.ebernstadt.kyschools.us/
+Kentucky,Laurel,East Bernstadt,city,2112591096,
 Kentucky,Laurel,Greenmount-Langnau,city,2112591496,
 Kentucky,Laurel,Keavy,city,2112591904,
 Kentucky,Laurel,London,city,2147476,https://www.londonky.gov/
 Kentucky,Laurel,North Corbin,city,2112592568,
-Kentucky,Laurel,,county,21125,https://laurelcountyclerk.ky.gov/
+Kentucky,Laurel,,county,21125,
 Kentucky,Lawrence,Adams,city,2112790016,
 Kentucky,Lawrence,Blaine,city,2107264,
 Kentucky,Lawrence,Clifford,city,2112790744,
@@ -18559,7 +18559,7 @@ Kentucky,Lincoln,,county,21137,http://www.lincolnky.com/
 Kentucky,Livingston,Salem,city,2168052,https://www.cityofsalemky.gov/
 Kentucky,Livingston,Smithland,city,2171382,
 Kentucky,Livingston,,county,21139,http://livingstoncountyky.com/
-Kentucky,Logan,Adairville,city,2100298,https://adairville.logan.kyschools.us/
+Kentucky,Logan,Adairville,city,2100298,
 Kentucky,Logan,Auburn,city,2102638,https://auburn.ky.gov/
 Kentucky,Logan,Lewisburg,city,2145064,https://cityoflewisburgky.com/
 Kentucky,Logan,Russellville,city,2167512,https://russellvilleky.gov/
@@ -18627,7 +18627,7 @@ Kentucky,Mercer,,county,21167,http://www.mercercounty.ky.gov/
 Kentucky,Metcalfe,Center,city,2116990664,
 Kentucky,Metcalfe,Edmonton,city,2123968,https://cityofedmontonky.com/
 Kentucky,Metcalfe,Summer Shade,city,2116993400,
-Kentucky,Metcalfe,,county,21169,https://www.metcalfe.kyschools.us/
+Kentucky,Metcalfe,,county,21169,
 Kentucky,Monroe,Fountain Run,city,2128666,https://www.fountainrunkentucky.com/
 Kentucky,Monroe,Mount Hermon,city,2117192400,
 Kentucky,Monroe,Tompkinsville,city,2177160,http://tompkinsvilleky.gov/
@@ -18675,7 +18675,7 @@ Kentucky,Owen,,county,21187,http://www.owencountyky.us/
 Kentucky,Owsley,Booneville,city,2108614,https://boonevilleky.com/
 Kentucky,Owsley,Cowcreek,city,2118990872,
 Kentucky,Owsley,Sturgeon,city,2118993376,
-Kentucky,Owsley,,county,21189,https://www.owsley.kyschools.us/
+Kentucky,Owsley,,county,21189,
 Kentucky,Pendleton,Butler,city,2111530,https://butlerky.org/
 Kentucky,Pendleton,Falmouth,city,2126434,https://cityoffalmouth.com/
 Kentucky,Pendleton,Goforth-Locust Grove,city,2119191420,
@@ -18686,7 +18686,7 @@ Kentucky,Perry,Defiance-Vicco,city,2119391032,
 Kentucky,Perry,Dice,city,2119391048,
 Kentucky,Perry,Hazard,city,2135362,https://hazardky.gov/
 Kentucky,Perry,Krypton,city,2119391944,
-Kentucky,Perry,Viper,city,2119393576,https://viper.perry.kyschools.us/
+Kentucky,Perry,Viper,city,2119393576,
 Kentucky,Perry,,county,21193,http://www.perrycounty.ky.gov/
 Kentucky,Pike,Ashcamp,city,2119590088,
 Kentucky,Pike,Dorton,city,2119591072,
@@ -18696,7 +18696,7 @@ Kentucky,Pike,Hellier,city,2119591696,
 Kentucky,Pike,Long Fork,city,2119592080,
 Kentucky,Pike,Mayflower,city,2119592264,
 Kentucky,Pike,McCarr,city,2119592112,
-Kentucky,Pike,Millard,city,2119592320,https://millard.pike.kyschools.us/
+Kentucky,Pike,Millard,city,2119592320,
 Kentucky,Pike,Phelps,city,2119592760,
 Kentucky,Pike,Pikeville,city,2160852,https://pikevilleky.gov/
 Kentucky,Pike,Raccoon,city,2119592872,
@@ -18793,7 +18793,7 @@ Kentucky,Whitley,Pearl,city,2123592712,
 Kentucky,Whitley,Saxton,city,2123593096,
 Kentucky,Whitley,Siler,city,2123593216,
 Kentucky,Whitley,Williamsburg,city,2183334,https://www.williamsburgky.com/
-Kentucky,Whitley,,county,21235,http://www.whitleycountyfiscalcourt.com/
+Kentucky,Whitley,,county,21235,
 Kentucky,Wolfe,Campton,city,2112358,
 Kentucky,Wolfe,Hazel Green,city,2123791656,
 Kentucky,Wolfe,Malaga,city,2123792208,
@@ -18836,7 +18836,7 @@ Kentucky,,Bromley,city,2109856,http://www.cityofbromley.com/
 Kentucky,,Brooks,CDP,2109964,
 Kentucky,,Brownsboro Farm,city,2110162,http://brownsborofarm.org/
 Kentucky,,Brownsboro Village,city,2110198,http://www.brownsborovillage.org/
-Kentucky,,Buckner,CDP,2110648,https://buckner.oldham.kyschools.us/
+Kentucky,,Buckner,CDP,2110648,
 Kentucky,,Burna,CDP,2111188,
 Kentucky,,California,city,2111872,
 Kentucky,,Camargo,city,2112052,https://camargo.ky.gov/
@@ -19002,7 +19002,7 @@ Kentucky,,Park Hills,city,2159255,http://www.parkhillsky.net/
 Kentucky,,Parkway Village,city,2159322,http://www.parkwayvillageky.com/
 Kentucky,,Pathfork,CDP,2159466,
 Kentucky,,Payne Gap,CDP,2159592,
-Kentucky,,Pembroke,city,2159934,https://pembroke.christian.kyschools.us/
+Kentucky,,Pembroke,city,2159934,
 Kentucky,,Petersburg,CDP,2160312,
 Kentucky,,Philpot,CDP,2160654,
 Kentucky,,Pioneer Village,city,2161356,https://www.cityofpioneervillage.com/
@@ -19331,13 +19331,13 @@ Louisiana,Grant,7,district,2204395140,
 Louisiana,Grant,8,district,2204395278,
 Louisiana,Grant,,parish,22043,https://gppj.org/
 Louisiana,Iberia,1,district,2204594060,https://iberiaparishgovernment.com/
-Louisiana,Iberia,10,district,2204595491,https://www.iberiaschools.org/
+Louisiana,Iberia,10,district,2204595491,
 Louisiana,Iberia,11,district,2204595566,
-Louisiana,Iberia,12,district,2204595629,https://www.iberiaschools.org/
+Louisiana,Iberia,12,district,2204595629,
 Louisiana,Iberia,13,district,2204595677,
 Louisiana,Iberia,14,district,2204595707,
 Louisiana,Iberia,2,district,2204594264,
-Louisiana,Iberia,3,district,2204594444,https://www.iberiaschools.org/
+Louisiana,Iberia,3,district,2204594444,
 Louisiana,Iberia,4,district,2204594621,
 Louisiana,Iberia,5,district,2204594822,
 Louisiana,Iberia,6,district,2204594990,
@@ -19371,7 +19371,7 @@ Louisiana,Jefferson,1,district,2205194069,https://www.jeffparish.gov/
 Louisiana,Jefferson,2,district,2205194273,
 Louisiana,Jefferson,3,district,2205194453,
 Louisiana,Jefferson,4,district,2205194630,
-Louisiana,Jefferson,5,district,2205194829,https://www.jpschools.org/
+Louisiana,Jefferson,5,district,2205194829,
 Louisiana,Jefferson,,parish,22051,http://www.jeffparish.net/
 Louisiana,Jefferson Davis,1,district,2205394072,
 Louisiana,Jefferson Davis,10,district,2205395500,
@@ -19623,12 +19623,12 @@ Louisiana,St. Tammany,7,district,2210395206,
 Louisiana,St. Tammany,8,district,2210395335,
 Louisiana,St. Tammany,9,district,2210395440,
 Louisiana,St. Tammany,,parish,22103,http://www.stpgov.org/
-Louisiana,Tangipahoa,1,district,2210594132,https://www.tangischools.org/
+Louisiana,Tangipahoa,1,district,2210594132,
 Louisiana,Tangipahoa,10,district,2210595524,
 Louisiana,Tangipahoa,2,district,2210594336,
-Louisiana,Tangipahoa,3,district,2210594519,https://www.tangischools.org/
+Louisiana,Tangipahoa,3,district,2210594519,
 Louisiana,Tangipahoa,4,district,2210594696,
-Louisiana,Tangipahoa,5,district,2210594894,https://www.tangischools.org/
+Louisiana,Tangipahoa,5,district,2210594894,
 Louisiana,Tangipahoa,6,district,2210595059,
 Louisiana,Tangipahoa,7,district,2210595209,
 Louisiana,Tangipahoa,8,district,2210595338,
@@ -26517,23 +26517,23 @@ Mississippi,Alcorn,3,district,2800391494,
 Mississippi,Alcorn,4,district,2800392232,
 Mississippi,Alcorn,5,district,2800392970,
 Mississippi,Alcorn,,county,28003,http://alcorncounty.org/
-Mississippi,Amite,1,district,2800590027,https://www.amitecounty.ms/
-Mississippi,Amite,2,district,2800590765,https://www.amitecounty.ms/
-Mississippi,Amite,3,district,2800591503,https://www.amitecounty.ms/
-Mississippi,Amite,4,district,2800592241,https://www.amitecounty.ms/
-Mississippi,Amite,5,district,2800592979,https://www.amitecounty.ms/
+Mississippi,Amite,1,district,2800590027,
+Mississippi,Amite,2,district,2800590765,
+Mississippi,Amite,3,district,2800591503,
+Mississippi,Amite,4,district,2800592241,
+Mississippi,Amite,5,district,2800592979,
 Mississippi,Amite,,county,28005,http://www.amitecounty.ms/
-Mississippi,Attala,1,district,2800790036,https://www.attalacounty.net/
-Mississippi,Attala,2,district,2800790774,https://www.attalacounty.net/
-Mississippi,Attala,3,district,2800791512,https://www.attalacounty.net/
-Mississippi,Attala,4,district,2800792250,https://www.attalacounty.net/
+Mississippi,Attala,1,district,2800790036,
+Mississippi,Attala,2,district,2800790774,
+Mississippi,Attala,3,district,2800791512,
+Mississippi,Attala,4,district,2800792250,
 Mississippi,Attala,5,district,2800792988,
 Mississippi,Attala,,county,28007,http://www.attalacounty.net/
-Mississippi,Benton,1,district,2800990045,https://www.bentoncountyms.gov/
-Mississippi,Benton,2,district,2800990783,https://www.bentoncountyms.gov/
-Mississippi,Benton,3,district,2800991521,https://www.bentoncountyms.gov/
-Mississippi,Benton,4,district,2800992259,https://www.bentoncountyms.gov/
-Mississippi,Benton,5,district,2800992997,https://www.bentoncountyms.gov/
+Mississippi,Benton,1,district,2800990045,
+Mississippi,Benton,2,district,2800990783,
+Mississippi,Benton,3,district,2800991521,
+Mississippi,Benton,4,district,2800992259,
+Mississippi,Benton,5,district,2800992997,
 Mississippi,Benton,,county,28009,http://bentoncountyms.gov/
 Mississippi,Bolivar,1,district,2801190054,
 Mississippi,Bolivar,2,district,2801190792,
@@ -26565,70 +26565,70 @@ Mississippi,Choctaw,3,district,2801991566,
 Mississippi,Choctaw,4,district,2801992304,
 Mississippi,Choctaw,5,district,2801993042,
 Mississippi,Choctaw,,county,28019,http://choctawcountyms.com/
-Mississippi,Claiborne,1,district,2802190099,https://www.ccmsgov.us/
-Mississippi,Claiborne,2,district,2802190837,https://www.ccmsgov.us/
-Mississippi,Claiborne,3,district,2802191575,https://www.ccmsgov.us/
+Mississippi,Claiborne,1,district,2802190099,
+Mississippi,Claiborne,2,district,2802190837,
+Mississippi,Claiborne,3,district,2802191575,
 Mississippi,Claiborne,4,district,2802192313,
-Mississippi,Claiborne,5,district,2802193051,https://www.ccmsgov.us/
+Mississippi,Claiborne,5,district,2802193051,
 Mississippi,Claiborne,,county,28021,https://www.ccmsgov.us/
-Mississippi,Clarke,1,district,2802390108,https://www.clarkecountyms.gov/
-Mississippi,Clarke,2,district,2802390846,https://www.clarkecountyms.gov/
-Mississippi,Clarke,3,district,2802391584,https://www.clarkecountyms.gov/
-Mississippi,Clarke,4,district,2802392322,https://www.clarkecountyms.gov/
-Mississippi,Clarke,5,district,2802393060,https://www.clarkecountyms.gov/
+Mississippi,Clarke,1,district,2802390108,
+Mississippi,Clarke,2,district,2802390846,
+Mississippi,Clarke,3,district,2802391584,
+Mississippi,Clarke,4,district,2802392322,
+Mississippi,Clarke,5,district,2802393060,
 Mississippi,Clarke,,county,28023,https://clarkecountyms.gov/
-Mississippi,Clay,1,district,2802590117,https://www.claycountyms.com/
-Mississippi,Clay,2,district,2802590855,https://www.claycountyms.com/
-Mississippi,Clay,3,district,2802591593,https://www.claycountyms.com/
+Mississippi,Clay,1,district,2802590117,
+Mississippi,Clay,2,district,2802590855,
+Mississippi,Clay,3,district,2802591593,
 Mississippi,Clay,4,district,2802592331,
 Mississippi,Clay,5,district,2802593069,
 Mississippi,Clay,,county,28025,http://www.claycountyms.com/
-Mississippi,Coahoma,1,district,2802790126,https://coahomacounty.net/
-Mississippi,Coahoma,2,district,2802790864,https://coahomacounty.net/
+Mississippi,Coahoma,1,district,2802790126,
+Mississippi,Coahoma,2,district,2802790864,
 Mississippi,Coahoma,3,district,2802791602,
 Mississippi,Coahoma,4,district,2802792340,
 Mississippi,Coahoma,5,district,2802793078,
 Mississippi,Coahoma,,county,28027,http://www.coahomacounty.net/
-Mississippi,Copiah,1,district,2802990135,https://www.copiahcountyms.gov/
-Mississippi,Copiah,2,district,2802990873,https://www.copiahcountyms.gov/
+Mississippi,Copiah,1,district,2802990135,
+Mississippi,Copiah,2,district,2802990873,
 Mississippi,Copiah,3,district,2802991611,
 Mississippi,Copiah,4,district,2802992349,
-Mississippi,Copiah,5,district,2802993087,https://www.copiahcountyms.gov/
+Mississippi,Copiah,5,district,2802993087,
 Mississippi,Copiah,,county,28029,http://www.copiahcountyms.gov/
-Mississippi,Covington,1,district,2803190144,https://www.covingtoncountyms.gov/
-Mississippi,Covington,2,district,2803190882,https://www.covingtoncountyms.gov/
-Mississippi,Covington,3,district,2803191620,https://www.covingtoncountyms.gov/
+Mississippi,Covington,1,district,2803190144,
+Mississippi,Covington,2,district,2803190882,
+Mississippi,Covington,3,district,2803191620,
 Mississippi,Covington,4,district,2803192358,
 Mississippi,Covington,5,district,2803193096,
 Mississippi,Covington,,county,28031,http://www.covingtoncountyms.gov/
-Mississippi,DeSoto,1,district,2803390153,https://www.desotocountyms.gov/
-Mississippi,DeSoto,2,district,2803390891,https://www.desotocountyms.gov/
+Mississippi,DeSoto,1,district,2803390153,
+Mississippi,DeSoto,2,district,2803390891,
 Mississippi,DeSoto,3,district,2803391629,
-Mississippi,DeSoto,4,district,2803392367,https://www.desotocountyms.gov/
-Mississippi,DeSoto,5,district,2803393105,https://www.desotocountyms.gov/
+Mississippi,DeSoto,4,district,2803392367,
+Mississippi,DeSoto,5,district,2803393105,
 Mississippi,DeSoto,,county,28033,https://www.desotocountyms.gov/
-Mississippi,Forrest,1,district,2803590162,https://forrestcountyms.us/
+Mississippi,Forrest,1,district,2803590162,
 Mississippi,Forrest,2,district,2803590900,
 Mississippi,Forrest,3,district,2803591638,
 Mississippi,Forrest,4,district,2803592376,
 Mississippi,Forrest,5,district,2803593114,
 Mississippi,Forrest,,county,28035,http://forrestcountyms.us/
-Mississippi,Franklin,1,district,2803790171,https://www.franklincountyms.gov/
+Mississippi,Franklin,1,district,2803790171,
 Mississippi,Franklin,2,district,2803790909,
 Mississippi,Franklin,3,district,2803791647,
 Mississippi,Franklin,4,district,2803792385,
-Mississippi,Franklin,5,district,2803793123,https://www.franklincountyms.gov/
+Mississippi,Franklin,5,district,2803793123,
 Mississippi,Franklin,,county,28037,https://www.franklincountyms.gov/
-Mississippi,George,1,district,2803990180,https://www.georgecountyms.com/
-Mississippi,George,2,district,2803990918,https://www.georgecountyms.com/
-Mississippi,George,3,district,2803991656,http://www.georgecountyms.com/
-Mississippi,George,4,district,2803992394,https://www.georgecountyms.com/
-Mississippi,George,5,district,2803993132,https://www.georgecountyms.com/
+Mississippi,George,1,district,2803990180,
+Mississippi,George,2,district,2803990918,
+Mississippi,George,3,district,2803991656,
+Mississippi,George,4,district,2803992394,
+Mississippi,George,5,district,2803993132,
 Mississippi,George,,county,28039,http://www.georgecountyms.com/
-Mississippi,Greene,1,district,2804190189,https://www.greenecountyms.gov/
+Mississippi,Greene,1,district,2804190189,
 Mississippi,Greene,2,district,2804190927,
 Mississippi,Greene,3,district,2804191665,
-Mississippi,Greene,4,district,2804192403,https://www.greenecountyms.gov/
+Mississippi,Greene,4,district,2804192403,
 Mississippi,Greene,5,district,2804193141,
 Mississippi,Greene,,county,28041,http://www.greenecountyms.gov/
 Mississippi,Grenada,1,district,2804390198,
@@ -26637,97 +26637,97 @@ Mississippi,Grenada,3,district,2804391674,
 Mississippi,Grenada,4,district,2804392412,
 Mississippi,Grenada,5,district,2804393150,
 Mississippi,Grenada,,county,28043,https://grenadacountyms.org/
-Mississippi,Hancock,1,district,2804590207,https://www.hancockcounty.ms.gov/
-Mississippi,Hancock,2,district,2804590945,https://www.hancockcounty.ms.gov/
+Mississippi,Hancock,1,district,2804590207,
+Mississippi,Hancock,2,district,2804590945,
 Mississippi,Hancock,3,district,2804591683,
 Mississippi,Hancock,4,district,2804592421,
 Mississippi,Hancock,5,district,2804593159,
 Mississippi,Hancock,,county,28045,https://www.hancockcounty.ms.gov/
-Mississippi,Harrison,1,district,2804790216,https://harrisoncountyms.gov/
-Mississippi,Harrison,2,district,2804790954,https://harrisoncountyms.gov/
-Mississippi,Harrison,3,district,2804791692,https://harrisoncountyms.gov/
+Mississippi,Harrison,1,district,2804790216,
+Mississippi,Harrison,2,district,2804790954,
+Mississippi,Harrison,3,district,2804791692,
 Mississippi,Harrison,4,district,2804792430,
 Mississippi,Harrison,5,district,2804793168,
 Mississippi,Harrison,,county,28047,https://harrisoncountyms.gov/
-Mississippi,Hinds,1,district,2804990225,https://www.hindscountyms.com/
-Mississippi,Hinds,2,district,2804990963,https://www.hindscountyms.com/
-Mississippi,Hinds,3,district,2804991701,https://www.hindscountyms.com/
-Mississippi,Hinds,4,district,2804992439,https://www.hindscountyms.com/
-Mississippi,Hinds,5,district,2804993177,https://www.hindscountyms.com/
+Mississippi,Hinds,1,district,2804990225,
+Mississippi,Hinds,2,district,2804990963,
+Mississippi,Hinds,3,district,2804991701,
+Mississippi,Hinds,4,district,2804992439,
+Mississippi,Hinds,5,district,2804993177,
 Mississippi,Hinds,,county,28049,http://www.hindscountyms.com/
-Mississippi,Holmes,1,district,2805190234,https://holmescountyms.org/
-Mississippi,Holmes,2,district,2805190972,https://holmescountyms.org/
-Mississippi,Holmes,3,district,2805191710,https://holmescountyms.org/
+Mississippi,Holmes,1,district,2805190234,
+Mississippi,Holmes,2,district,2805190972,
+Mississippi,Holmes,3,district,2805191710,
 Mississippi,Holmes,4,district,2805192448,
 Mississippi,Holmes,5,district,2805193186,
 Mississippi,Holmes,,county,28051,http://holmescountyms.org/
-Mississippi,Humphreys,1,district,2805390243,https://www.humphreyscountyms.com/
-Mississippi,Humphreys,2,district,2805390981,https://www.humphreyscountyms.com/
-Mississippi,Humphreys,3,district,2805391719,https://www.humphreyscountyms.com/
+Mississippi,Humphreys,1,district,2805390243,
+Mississippi,Humphreys,2,district,2805390981,
+Mississippi,Humphreys,3,district,2805391719,
 Mississippi,Humphreys,4,district,2805392457,
-Mississippi,Humphreys,5,district,2805393195,https://www.humphreyscountyms.com/
-Mississippi,Humphreys,,county,28053,https://humphreyscounty.ms/
+Mississippi,Humphreys,5,district,2805393195,
+Mississippi,Humphreys,,county,28053,https://www.humphreyscountyms.com/
 Mississippi,Issaquena,1,district,2805590252,
 Mississippi,Issaquena,2,district,2805590990,
 Mississippi,Issaquena,3,district,2805591728,
 Mississippi,Issaquena,4,district,2805592466,
 Mississippi,Issaquena,5,district,2805593204,
 Mississippi,Issaquena,,county,28055,
-Mississippi,Itawamba,1,district,2805790261,https://itawamba.gov/
-Mississippi,Itawamba,2,district,2805790999,https://itawamba.gov/
-Mississippi,Itawamba,3,district,2805791737,https://itawamba.gov/
-Mississippi,Itawamba,4,district,2805792475,https://itawamba.gov/
-Mississippi,Itawamba,5,district,2805793213,https://itawamba.gov/
+Mississippi,Itawamba,1,district,2805790261,
+Mississippi,Itawamba,2,district,2805790999,
+Mississippi,Itawamba,3,district,2805791737,
+Mississippi,Itawamba,4,district,2805792475,
+Mississippi,Itawamba,5,district,2805793213,
 Mississippi,Itawamba,,county,28057,https://itawamba.gov/
-Mississippi,Jackson,1,district,2805990270,https://www.co.jackson.ms.us/
+Mississippi,Jackson,1,district,2805990270,
 Mississippi,Jackson,2,district,2805991008,
 Mississippi,Jackson,3,district,2805991746,
 Mississippi,Jackson,4,district,2805992484,
 Mississippi,Jackson,5,district,2805993222,
 Mississippi,Jackson,,county,28059,http://www.co.jackson.ms.us/
-Mississippi,Jasper,1,district,2806190279,https://co.jasper.ms.us/
-Mississippi,Jasper,2,district,2806191017,https://co.jasper.ms.us/
+Mississippi,Jasper,1,district,2806190279,
+Mississippi,Jasper,2,district,2806191017,
 Mississippi,Jasper,3,district,2806191755,
 Mississippi,Jasper,4,district,2806192493,
-Mississippi,Jasper,5,district,2806193231,https://co.jasper.ms.us/
+Mississippi,Jasper,5,district,2806193231,
 Mississippi,Jasper,,county,28061,https://co.jasper.ms.us/
-Mississippi,Jefferson,1,district,2806390288,https://www.jeffersoncountyms.com/
-Mississippi,Jefferson,2,district,2806391026,https://www.jeffersoncountyms.com/
+Mississippi,Jefferson,1,district,2806390288,
+Mississippi,Jefferson,2,district,2806391026,
 Mississippi,Jefferson,3,district,2806391764,
 Mississippi,Jefferson,4,district,2806392502,
 Mississippi,Jefferson,5,district,2806393240,
 Mississippi,Jefferson,,county,28063,https://www.jeffersoncountyms.com/
-Mississippi,Jefferson Davis,1,district,2806590297,https://www.co.jefferson-davis.ms.us/
-Mississippi,Jefferson Davis,2,district,2806591035,https://www.co.jefferson-davis.ms.us/
-Mississippi,Jefferson Davis,3,district,2806591773,https://www.co.jefferson-davis.ms.us/
-Mississippi,Jefferson Davis,4,district,2806592511,https://www.co.jefferson-davis.ms.us/
-Mississippi,Jefferson Davis,5,district,2806593249,https://www.co.jefferson-davis.ms.us/
-Mississippi,Jefferson Davis,,county,28065,http://www.jeffersondaviscountyms.com/
+Mississippi,Jefferson Davis,1,district,2806590297,
+Mississippi,Jefferson Davis,2,district,2806591035,
+Mississippi,Jefferson Davis,3,district,2806591773,
+Mississippi,Jefferson Davis,4,district,2806592511,
+Mississippi,Jefferson Davis,5,district,2806593249,
+Mississippi,Jefferson Davis,,county,28065,https://www.co.jefferson-davis.ms.us/
 Mississippi,Jones,1,district,2806790306,
 Mississippi,Jones,2,district,2806791044,
 Mississippi,Jones,3,district,2806791782,
 Mississippi,Jones,4,district,2806792520,
 Mississippi,Jones,5,district,2806793258,
 Mississippi,Jones,,county,28067,https://jonescountyms.com/
-Mississippi,Kemper,1,district,2806990315,https://kempercountyms.gov/
-Mississippi,Kemper,2,district,2806991053,https://kempercountyms.gov/
-Mississippi,Kemper,3,district,2806991791,https://kempercountyms.gov/
-Mississippi,Kemper,4,district,2806992529,https://kempercountyms.gov/
+Mississippi,Kemper,1,district,2806990315,
+Mississippi,Kemper,2,district,2806991053,
+Mississippi,Kemper,3,district,2806991791,
+Mississippi,Kemper,4,district,2806992529,
 Mississippi,Kemper,5,district,2806993267,
 Mississippi,Kemper,,county,28069,http://www.kempercounty.ms/
-Mississippi,Lafayette,1,district,2807190324,https://lafayettems.com/
-Mississippi,Lafayette,2,district,2807191062,https://lafayettems.com/
-Mississippi,Lafayette,3,district,2807191800,https://lafayettems.com/
-Mississippi,Lafayette,4,district,2807192538,https://lafayettems.com/
-Mississippi,Lafayette,5,district,2807193276,https://lafayettems.com/
+Mississippi,Lafayette,1,district,2807190324,
+Mississippi,Lafayette,2,district,2807191062,
+Mississippi,Lafayette,3,district,2807191800,
+Mississippi,Lafayette,4,district,2807192538,
+Mississippi,Lafayette,5,district,2807193276,
 Mississippi,Lafayette,,county,28071,http://lafayettems.com/
-Mississippi,Lamar,1,district,2807390333,https://lamarcountyms.gov/
-Mississippi,Lamar,2,district,2807391071,https://lamarcountyms.gov/
-Mississippi,Lamar,3,district,2807391809,https://lamarcountyms.gov/
-Mississippi,Lamar,4,district,2807392547,https://lamarcountyms.gov/
-Mississippi,Lamar,5,district,2807393285,https://lamarcountyms.gov/
+Mississippi,Lamar,1,district,2807390333,
+Mississippi,Lamar,2,district,2807391071,
+Mississippi,Lamar,3,district,2807391809,
+Mississippi,Lamar,4,district,2807392547,
+Mississippi,Lamar,5,district,2807393285,
 Mississippi,Lamar,,county,28073,http://www.lamarcountyms.gov/
-Mississippi,Lauderdale,1,district,2807590342,https://www.lauderdalecounty.org/
+Mississippi,Lauderdale,1,district,2807590342,
 Mississippi,Lauderdale,2,district,2807591080,
 Mississippi,Lauderdale,3,district,2807591818,
 Mississippi,Lauderdale,4,district,2807592556,
@@ -26739,110 +26739,110 @@ Mississippi,Lawrence,3,district,2807791827,
 Mississippi,Lawrence,4,district,2807792565,
 Mississippi,Lawrence,5,district,2807793303,
 Mississippi,Lawrence,,county,28077,http://lawrencecountyms.com/
-Mississippi,Leake,1,district,2807990360,https://leakecountyms.org/
-Mississippi,Leake,2,district,2807991098,https://leakecountyms.org/
+Mississippi,Leake,1,district,2807990360,
+Mississippi,Leake,2,district,2807991098,
 Mississippi,Leake,3,district,2807991836,
 Mississippi,Leake,4,district,2807992574,
 Mississippi,Leake,5,district,2807993312,
 Mississippi,Leake,,county,28079,http://www.leakecountyms.org/
-Mississippi,Lee,1,district,2808190369,https://leecountyms.com/
-Mississippi,Lee,2,district,2808191107,https://leecountyms.com/
+Mississippi,Lee,1,district,2808190369,
+Mississippi,Lee,2,district,2808191107,
 Mississippi,Lee,3,district,2808191845,
 Mississippi,Lee,4,district,2808192583,
-Mississippi,Lee,5,district,2808193321,https://leecountyms.com/
+Mississippi,Lee,5,district,2808193321,
 Mississippi,Lee,,county,28081,https://leecountyms.com/
-Mississippi,Leflore,1,district,2808390378,https://www.leflorecounty.ms/
-Mississippi,Leflore,2,district,2808391116,https://www.leflorecounty.ms/
-Mississippi,Leflore,3,district,2808391854,https://www.leflorecounty.ms/
-Mississippi,Leflore,4,district,2808392592,https://www.leflorecounty.ms/
-Mississippi,Leflore,5,district,2808393330,https://www.glcsd.org/
+Mississippi,Leflore,1,district,2808390378,
+Mississippi,Leflore,2,district,2808391116,
+Mississippi,Leflore,3,district,2808391854,
+Mississippi,Leflore,4,district,2808392592,
+Mississippi,Leflore,5,district,2808393330,
 Mississippi,Leflore,,county,28083,https://www.leflorecounty.ms/
-Mississippi,Lincoln,1,district,2808590387,https://www.golincolnms.com/
+Mississippi,Lincoln,1,district,2808590387,
 Mississippi,Lincoln,2,district,2808591125,
-Mississippi,Lincoln,3,district,2808591863,https://www.golincolnms.com/
+Mississippi,Lincoln,3,district,2808591863,
 Mississippi,Lincoln,4,district,2808592601,
 Mississippi,Lincoln,5,district,2808593339,
 Mississippi,Lincoln,,county,28085,http://www.golincolnms.com/
-Mississippi,Lowndes,1,district,2808790396,https://www.lowndescountyms.com/
-Mississippi,Lowndes,2,district,2808791134,https://www.lowndescountyms.com/
+Mississippi,Lowndes,1,district,2808790396,
+Mississippi,Lowndes,2,district,2808791134,
 Mississippi,Lowndes,3,district,2808791872,
-Mississippi,Lowndes,4,district,2808792610,https://www.lowndescountyms.com/
+Mississippi,Lowndes,4,district,2808792610,
 Mississippi,Lowndes,5,district,2808793348,
 Mississippi,Lowndes,,county,28087,https://lowndescountyms.com/
-Mississippi,Madison,1,district,2808990405,https://www.madison-schools.com/
-Mississippi,Madison,2,district,2808991143,https://www.madison-co.com/
-Mississippi,Madison,3,district,2808991881,https://www.madison-co.com/
-Mississippi,Madison,4,district,2808992619,https://www.madison-co.com/
-Mississippi,Madison,5,district,2808993357,https://www.madison-co.com/
+Mississippi,Madison,1,district,2808990405,
+Mississippi,Madison,2,district,2808991143,
+Mississippi,Madison,3,district,2808991881,
+Mississippi,Madison,4,district,2808992619,
+Mississippi,Madison,5,district,2808993357,
 Mississippi,Madison,,county,28089,http://www.madison-co.com/
-Mississippi,Marion,1,district,2809190414,https://www.marioncountyms.com/
-Mississippi,Marion,2,district,2809191152,https://www.marioncountyms.com/
+Mississippi,Marion,1,district,2809190414,
+Mississippi,Marion,2,district,2809191152,
 Mississippi,Marion,3,district,2809191890,
 Mississippi,Marion,4,district,2809192628,
 Mississippi,Marion,5,district,2809193366,
 Mississippi,Marion,,county,28091,http://www.marioncountyms.com/
-Mississippi,Marshall,1,district,2809390423,https://www.marshall-county.com/
-Mississippi,Marshall,2,district,2809391161,https://www.marshall-county.com/
-Mississippi,Marshall,3,district,2809391899,https://www.marshall-county.com/
+Mississippi,Marshall,1,district,2809390423,
+Mississippi,Marshall,2,district,2809391161,
+Mississippi,Marshall,3,district,2809391899,
 Mississippi,Marshall,4,district,2809392637,
-Mississippi,Marshall,5,district,2809393375,https://www.marshall-county.com/
+Mississippi,Marshall,5,district,2809393375,
 Mississippi,Marshall,,county,28093,http://www.marshall-county.com/
-Mississippi,Monroe,1,district,2809590432,https://www.mcsd.us/
+Mississippi,Monroe,1,district,2809590432,
 Mississippi,Monroe,2,district,2809591170,
 Mississippi,Monroe,3,district,2809591908,
 Mississippi,Monroe,4,district,2809592646,
 Mississippi,Monroe,5,district,2809593384,
 Mississippi,Monroe,,county,28095,http://www.monroems.com/
-Mississippi,Montgomery,1,district,2809790441,https://www.montgomerycountyms.com/
-Mississippi,Montgomery,2,district,2809791179,https://www.montgomerycountyms.com/
+Mississippi,Montgomery,1,district,2809790441,
+Mississippi,Montgomery,2,district,2809791179,
 Mississippi,Montgomery,3,district,2809791917,
 Mississippi,Montgomery,4,district,2809792655,
 Mississippi,Montgomery,5,district,2809793393,
 Mississippi,Montgomery,,county,28097,http://www.montgomerycountyms.com/
-Mississippi,Neshoba,1,district,2809990450,https://www.neshobacounty.net/
-Mississippi,Neshoba,2,district,2809991188,https://www.neshobacounty.net/
-Mississippi,Neshoba,3,district,2809991926,https://www.neshobacounty.net/
+Mississippi,Neshoba,1,district,2809990450,
+Mississippi,Neshoba,2,district,2809991188,
+Mississippi,Neshoba,3,district,2809991926,
 Mississippi,Neshoba,4,district,2809992664,
 Mississippi,Neshoba,5,district,2809993402,
 Mississippi,Neshoba,,county,28099,http://www.neshobacounty.net/
-Mississippi,Newton,1,district,2810190459,https://www.newtoncountyms.net/
-Mississippi,Newton,2,district,2810191197,https://www.newtoncountyms.net/
+Mississippi,Newton,1,district,2810190459,
+Mississippi,Newton,2,district,2810191197,
 Mississippi,Newton,3,district,2810191935,
-Mississippi,Newton,4,district,2810192673,https://www.newtoncountyms.net/
+Mississippi,Newton,4,district,2810192673,
 Mississippi,Newton,5,district,2810193411,
 Mississippi,Newton,,county,28101,http://www.newtoncountyms.net/
-Mississippi,Noxubee,1,district,2810390468,https://www.ourncsd.org/
+Mississippi,Noxubee,1,district,2810390468,
 Mississippi,Noxubee,2,district,2810391206,
 Mississippi,Noxubee,3,district,2810391944,
 Mississippi,Noxubee,4,district,2810392682,
 Mississippi,Noxubee,5,district,2810393420,
 Mississippi,Noxubee,,county,28103,
-Mississippi,Oktibbeha,1,district,2810590477,https://www.oktibbeha.ms.gov/
-Mississippi,Oktibbeha,2,district,2810591215,https://www.oktibbeha.ms.gov/
-Mississippi,Oktibbeha,3,district,2810591953,https://www.oktibbeha.ms.gov/
+Mississippi,Oktibbeha,1,district,2810590477,
+Mississippi,Oktibbeha,2,district,2810591215,
+Mississippi,Oktibbeha,3,district,2810591953,
 Mississippi,Oktibbeha,4,district,2810592691,
 Mississippi,Oktibbeha,5,district,2810593429,
-Mississippi,Oktibbeha,,county,28105,http://www.oktibbehacountyms.org/
+Mississippi,Oktibbeha,,county,28105,https://www.oktibbeha.ms.gov/
 Mississippi,Panola,1,district,2810790486,
 Mississippi,Panola,2,district,2810791224,
 Mississippi,Panola,3,district,2810791962,
 Mississippi,Panola,4,district,2810792700,
 Mississippi,Panola,5,district,2810793438,
 Mississippi,Panola,,county,28107,
-Mississippi,Pearl River,1,district,2810990495,https://pearlrivercounty.net/
-Mississippi,Pearl River,2,district,2810991233,https://www.pearlrivercounty.net/
-Mississippi,Pearl River,3,district,2810991971,https://www.pearlrivercounty.net/
-Mississippi,Pearl River,4,district,2810992709,https://www.pearlrivercounty.net/
-Mississippi,Pearl River,5,district,2810993447,https://www.pearlrivercounty.net/
+Mississippi,Pearl River,1,district,2810990495,
+Mississippi,Pearl River,2,district,2810991233,
+Mississippi,Pearl River,3,district,2810991971,
+Mississippi,Pearl River,4,district,2810992709,
+Mississippi,Pearl River,5,district,2810993447,
 Mississippi,Pearl River,,county,28109,http://www.pearlrivercounty.net/
-Mississippi,Perry,1,district,2811190504,https://perrycountyms.gov/
-Mississippi,Perry,2,district,2811191242,https://perrycountyms.gov/
-Mississippi,Perry,3,district,2811191980,https://perrycountyms.gov/
+Mississippi,Perry,1,district,2811190504,
+Mississippi,Perry,2,district,2811191242,
+Mississippi,Perry,3,district,2811191980,
 Mississippi,Perry,4,district,2811192718,
 Mississippi,Perry,5,district,2811193456,
 Mississippi,Perry,,county,28111,https://perrycountyms.gov/
-Mississippi,Pike,1,district,2811390513,https://www.co.pike.ms.us/
-Mississippi,Pike,2,district,2811391251,https://www.co.pike.ms.us/
+Mississippi,Pike,1,district,2811390513,
+Mississippi,Pike,2,district,2811391251,
 Mississippi,Pike,3,district,2811391989,
 Mississippi,Pike,4,district,2811392727,
 Mississippi,Pike,5,district,2811393465,
@@ -26853,59 +26853,59 @@ Mississippi,Pontotoc,3,district,2811591998,
 Mississippi,Pontotoc,4,district,2811592736,
 Mississippi,Pontotoc,5,district,2811593474,
 Mississippi,Pontotoc,,county,28115,https://crms.pontotoccountyms.gov/
-Mississippi,Prentiss,1,district,2811790531,https://www.prentisscounty.org/
+Mississippi,Prentiss,1,district,2811790531,
 Mississippi,Prentiss,2,district,2811791269,
 Mississippi,Prentiss,3,district,2811792007,
 Mississippi,Prentiss,4,district,2811792745,
 Mississippi,Prentiss,5,district,2811793483,
 Mississippi,Prentiss,,county,28117,http://www.prentisscounty.org/
-Mississippi,Quitman,1,district,2811990540,https://quitmancountyms.org/
-Mississippi,Quitman,2,district,2811991278,https://quitmancountyms.org/
-Mississippi,Quitman,3,district,2811992016,https://quitmancountyms.org/
-Mississippi,Quitman,4,district,2811992754,https://quitmancountyms.org/
-Mississippi,Quitman,5,district,2811993492,https://quitmancountyms.org/
+Mississippi,Quitman,1,district,2811990540,
+Mississippi,Quitman,2,district,2811991278,
+Mississippi,Quitman,3,district,2811992016,
+Mississippi,Quitman,4,district,2811992754,
+Mississippi,Quitman,5,district,2811993492,
 Mississippi,Quitman,,county,28119,http://quitmancountyms.org/
-Mississippi,Rankin,1,district,2812190549,https://www.rcsd.ms/
+Mississippi,Rankin,1,district,2812190549,
 Mississippi,Rankin,2,district,2812191287,
 Mississippi,Rankin,3,district,2812192025,
 Mississippi,Rankin,4,district,2812192763,
 Mississippi,Rankin,5,district,2812193501,
 Mississippi,Rankin,,county,28121,https://www.rcsd.ms/
-Mississippi,Scott,1,district,2812390558,https://www.scottcountyms.gov/
-Mississippi,Scott,2,district,2812391296,https://scottcounty.usnx.com/
-Mississippi,Scott,3,district,2812392034,https://www.scottcountyms.gov/
+Mississippi,Scott,1,district,2812390558,
+Mississippi,Scott,2,district,2812391296,
+Mississippi,Scott,3,district,2812392034,
 Mississippi,Scott,4,district,2812392772,
-Mississippi,Scott,5,district,2812393510,https://www.scottcountyms.gov/
+Mississippi,Scott,5,district,2812393510,
 Mississippi,Scott,,county,28123,http://www.scottcountyms.gov/
-Mississippi,Sharkey,1,district,2812590567,https://www.sharkeycounty.net/
-Mississippi,Sharkey,2,district,2812591305,https://www.sharkeycounty.net/
+Mississippi,Sharkey,1,district,2812590567,
+Mississippi,Sharkey,2,district,2812591305,
 Mississippi,Sharkey,3,district,2812592043,
 Mississippi,Sharkey,4,district,2812592781,
 Mississippi,Sharkey,5,district,2812593519,
 Mississippi,Sharkey,,county,28125,http://www.sharkeycounty.net/
-Mississippi,Simpson,1,district,2812790576,http://simpsoncountyms.com/
-Mississippi,Simpson,2,district,2812791314,http://simpsoncountyms.com/
-Mississippi,Simpson,3,district,2812792052,http://simpsoncountyms.com/
-Mississippi,Simpson,4,district,2812792790,http://simpsoncountyms.com/
-Mississippi,Simpson,5,district,2812793528,http://simpsoncountyms.com/
+Mississippi,Simpson,1,district,2812790576,
+Mississippi,Simpson,2,district,2812791314,
+Mississippi,Simpson,3,district,2812792052,
+Mississippi,Simpson,4,district,2812792790,
+Mississippi,Simpson,5,district,2812793528,
 Mississippi,Simpson,,county,28127,https://www.simpsoncounty.ms/
-Mississippi,Smith,1,district,2812990585,https://www.smithcountyms.gov/
+Mississippi,Smith,1,district,2812990585,
 Mississippi,Smith,2,district,2812991323,
 Mississippi,Smith,3,district,2812992061,
 Mississippi,Smith,4,district,2812992799,
 Mississippi,Smith,5,district,2812993537,
 Mississippi,Smith,,county,28129,https://www.smithcountyms.gov/
-Mississippi,Stone,1,district,2813190594,https://www.stonecountyms.gov/
-Mississippi,Stone,2,district,2813191332,https://www.stonecountyms.gov/
+Mississippi,Stone,1,district,2813190594,
+Mississippi,Stone,2,district,2813191332,
 Mississippi,Stone,3,district,2813192070,
 Mississippi,Stone,4,district,2813192808,
 Mississippi,Stone,5,district,2813193546,
 Mississippi,Stone,,county,28131,http://www.stonecountyms.gov/
-Mississippi,Sunflower,1,district,2813390603,https://www.sunflowercounty.ms.gov/
-Mississippi,Sunflower,2,district,2813391341,https://www.sunflowercounty.ms.gov/
-Mississippi,Sunflower,3,district,2813392079,https://www.sunflowercounty.ms.gov/
-Mississippi,Sunflower,4,district,2813392817,https://www.sunflowercounty.ms.gov/
-Mississippi,Sunflower,5,district,2813393555,https://www.sunflowercounty.ms.gov/
+Mississippi,Sunflower,1,district,2813390603,
+Mississippi,Sunflower,2,district,2813391341,
+Mississippi,Sunflower,3,district,2813392079,
+Mississippi,Sunflower,4,district,2813392817,
+Mississippi,Sunflower,5,district,2813393555,
 Mississippi,Sunflower,,county,28133,https://www.sunflowercounty.ms.gov/
 Mississippi,Tallahatchie,1,district,2813590612,
 Mississippi,Tallahatchie,2,district,2813591350,
@@ -26913,25 +26913,25 @@ Mississippi,Tallahatchie,3,district,2813592088,
 Mississippi,Tallahatchie,4,district,2813592826,
 Mississippi,Tallahatchie,5,district,2813593564,
 Mississippi,Tallahatchie,,county,28135,
-Mississippi,Tate,1,district,2813790621,https://tatecountyms.gov/
-Mississippi,Tate,2,district,2813791359,https://tatecountyms.gov/
+Mississippi,Tate,1,district,2813790621,
+Mississippi,Tate,2,district,2813791359,
 Mississippi,Tate,3,district,2813792097,
 Mississippi,Tate,4,district,2813792835,
 Mississippi,Tate,5,district,2813793573,
-Mississippi,Tate,,county,28137,https://www.tatecountygov.com/
-Mississippi,Tippah,1,district,2813990630,https://www.co.tippah.ms.us/
-Mississippi,Tippah,2,district,2813991368,https://www.co.tippah.ms.us/
-Mississippi,Tippah,3,district,2813992106,https://www.co.tippah.ms.us/
+Mississippi,Tate,,county,28137,https://tatecountyms.gov/
+Mississippi,Tippah,1,district,2813990630,
+Mississippi,Tippah,2,district,2813991368,
+Mississippi,Tippah,3,district,2813992106,
 Mississippi,Tippah,4,district,2813992844,
 Mississippi,Tippah,5,district,2813993582,
-Mississippi,Tippah,,county,28139,http://www.co.tippah.ms.us/
-Mississippi,Tishomingo,1,district,2814190639,https://www.co.tishomingo.ms.us/
+Mississippi,Tippah,,county,28139,https://www.co.tippah.ms.us/
+Mississippi,Tishomingo,1,district,2814190639,
 Mississippi,Tishomingo,2,district,2814191377,
 Mississippi,Tishomingo,3,district,2814192115,
 Mississippi,Tishomingo,4,district,2814192853,
 Mississippi,Tishomingo,5,district,2814193591,
-Mississippi,Tishomingo,,county,28141,http://co.tishomingo.ms.us/
-Mississippi,Tunica,1,district,2814390648,https://www.tunicacountymississippi.com/
+Mississippi,Tishomingo,,county,28141,https://www.co.tishomingo.ms.us/
+Mississippi,Tunica,1,district,2814390648,
 Mississippi,Tunica,2,district,2814391386,
 Mississippi,Tunica,3,district,2814392124,
 Mississippi,Tunica,4,district,2814392862,
@@ -26943,55 +26943,55 @@ Mississippi,Union,3,district,2814592133,
 Mississippi,Union,4,district,2814592871,
 Mississippi,Union,5,district,2814593609,
 Mississippi,Union,,county,28145,http://unioncoms.com/
-Mississippi,Walthall,1,district,2814790666,https://www.walthallchamber.com/
-Mississippi,Walthall,2,district,2814791404,https://www.walthallchamber.com/
-Mississippi,Walthall,3,district,2814792142,https://www.walthallchamber.com/
-Mississippi,Walthall,4,district,2814792880,https://www.walthallchamber.com/
-Mississippi,Walthall,5,district,2814793618,https://www.walthallchamber.com/
+Mississippi,Walthall,1,district,2814790666,
+Mississippi,Walthall,2,district,2814791404,
+Mississippi,Walthall,3,district,2814792142,
+Mississippi,Walthall,4,district,2814792880,
+Mississippi,Walthall,5,district,2814793618,
 Mississippi,Walthall,,county,28147,https://www.walthallchamber.com/
-Mississippi,Warren,1,district,2814990675,https://www.co.warren.ms.us/
-Mississippi,Warren,2,district,2814991413,https://www.co.warren.ms.us/
+Mississippi,Warren,1,district,2814990675,
+Mississippi,Warren,2,district,2814991413,
 Mississippi,Warren,3,district,2814992151,
 Mississippi,Warren,4,district,2814992889,
-Mississippi,Warren,5,district,2814993627,https://www.co.warren.ms.us/
+Mississippi,Warren,5,district,2814993627,
 Mississippi,Warren,,county,28149,http://www.co.warren.ms.us/
-Mississippi,Washington,1,district,2815190684,https://www.washingtoncounty.ms/
+Mississippi,Washington,1,district,2815190684,
 Mississippi,Washington,2,district,2815191422,
 Mississippi,Washington,3,district,2815192160,
 Mississippi,Washington,4,district,2815192898,
 Mississippi,Washington,5,district,2815193636,
 Mississippi,Washington,,county,28151,http://www.washingtoncounty.ms/
-Mississippi,Wayne,1,district,2815390693,https://www.waynecounty.ms/
+Mississippi,Wayne,1,district,2815390693,
 Mississippi,Wayne,2,district,2815391431,
 Mississippi,Wayne,3,district,2815392169,
 Mississippi,Wayne,4,district,2815392907,
 Mississippi,Wayne,5,district,2815393645,
 Mississippi,Wayne,,county,28153,http://www.waynecounty.ms/
-Mississippi,Webster,1,district,2815590702,https://www.webstercountyschools.org/
-Mississippi,Webster,2,district,2815591440,http://www.webstercountyms.org/
-Mississippi,Webster,3,district,2815592178,
-Mississippi,Webster,4,district,2815592916,
-Mississippi,Webster,5,district,2815593654,
+Mississippi,Webster,1,district,2815590702
+Mississippi,Webster,2,district,2815591440
+Mississippi,Webster,3,district,2815592178
+Mississippi,Webster,4,district,2815592916
+Mississippi,Webster,5,district,2815593654
 Mississippi,Webster,,county,28155,http://www.webstercountyms.org/
-Mississippi,Wilkinson,1,district,2815790711,https://www.wilkinson.co.ms.gov/
-Mississippi,Wilkinson,2,district,2815791449,https://www.wilkinson.co.ms.gov/
-Mississippi,Wilkinson,3,district,2815792187,https://www.wilkinson.co.ms.gov/
+Mississippi,Wilkinson,1,district,2815790711,
+Mississippi,Wilkinson,2,district,2815791449,
+Mississippi,Wilkinson,3,district,2815792187,
 Mississippi,Wilkinson,4,district,2815792925,
-Mississippi,Wilkinson,5,district,2815793663,https://www.wilkinson.co.ms.gov/
+Mississippi,Wilkinson,5,district,2815793663,
 Mississippi,Wilkinson,,county,28157,http://www.wilkinson.co.ms.gov/
-Mississippi,Winston,1,district,2815990720,https://www.winstoncountyms.org/
-Mississippi,Winston,2,district,2815991458,https://www.winstoncountyms.org/
-Mississippi,Winston,3,district,2815992196,https://www.winstoncountyms.org/
-Mississippi,Winston,4,district,2815992934,https://www.winstoncountyms.org/
-Mississippi,Winston,5,district,2815993672,https://www.winstoncountyms.org/
-Mississippi,Winston,,county,28159,http://www.winstonms.com/
-Mississippi,Yalobusha,1,district,2816190729,https://www.yalobushaonline.org/
-Mississippi,Yalobusha,2,district,2816191467,https://www.yalobushaonline.org/
+Mississippi,Winston,1,district,2815990720,
+Mississippi,Winston,2,district,2815991458,
+Mississippi,Winston,3,district,2815992196,
+Mississippi,Winston,4,district,2815992934,
+Mississippi,Winston,5,district,2815993672,
+Mississippi,Winston,,county,28159,https://www.winstoncountyms.org/
+Mississippi,Yalobusha,1,district,2816190729,
+Mississippi,Yalobusha,2,district,2816191467,
 Mississippi,Yalobusha,3,district,2816192205,
 Mississippi,Yalobusha,4,district,2816192943,
 Mississippi,Yalobusha,5,district,2816193681,
 Mississippi,Yalobusha,,county,28161,http://www.yalobushaonline.org/
-Mississippi,Yazoo,1,district,2816390738,https://www.yazoocounty.net/
+Mississippi,Yazoo,1,district,2816390738,
 Mississippi,Yazoo,2,district,2816391476,
 Mississippi,Yazoo,3,district,2816392214,
 Mississippi,Yazoo,4,district,2816392952,
@@ -28138,7 +28138,7 @@ Missouri,Johnson,Rose Hill,township,2910163146,
 Missouri,Johnson,Simpson,township,2910168006,
 Missouri,Johnson,Warrensburg,city,2977092,https://www.warrensburg-mo.com/
 Missouri,Johnson,Washington,township,2910177524,
-Missouri,Johnson,,county,29101,http://www.jococourthouse.com/
+Missouri,Johnson,,county,29101,
 Missouri,Knox,Bee Ridge,township,2910303988,
 Missouri,Knox,Benton,township,2910304708,
 Missouri,Knox,Bourbon,township,2910307552,
@@ -32739,7 +32739,7 @@ New Jersey,Cumberland,Shiloh,borough,3401167020,https://shilohborough.com/
 New Jersey,Cumberland,Stow Creek,township,3401171160,https://stowcreektwp.org/
 New Jersey,Cumberland,Upper Deerfield,township,3401174870,https://upperdeerfield.com/
 New Jersey,Cumberland,Vineland,city,3401176070,https://www.vinelandcity.org/
-New Jersey,Cumberland,,county,34011,https://cumberlandcountyclerknj.gov/
+New Jersey,Cumberland,,county,34011,h
 New Jersey,Essex,Belleville,township,3401304695,https://www.bellevillenj.org/
 New Jersey,Essex,Bloomfield,township,3401306260,https://www.bloomfieldtwpnj.com/
 New Jersey,Essex,Caldwell,borough,3401309250,https://caldwell-nj.com/
@@ -33636,7 +33636,7 @@ New Mexico,,Algodones,CDP,3502210,
 New Mexico,,Alma,CDP,3502560,
 New Mexico,,Angel Fire,village,3503400,https://www.angelfirenm.gov/
 New Mexico,,Angustura,CDP,3503680,
-New Mexico,,Animas,CDP,3503750,https://animasadjudication.nmcourts.gov/
+New Mexico,,Animas,CDP,3503750,
 New Mexico,,Anton Chico,CDP,3503890,
 New Mexico,,Anzac Village,CDP,3503970,
 New Mexico,,Apache Creek,CDP,3504030,
@@ -35726,7 +35726,7 @@ New York,,Piffard,CDP,3657804,
 New York,,Pine Bush,CDP,3657980,
 New York,,Pine Hill,CDP,3658057,
 New York,,Pine Valley,CDP,3658189,
-New York,,Plainedge,CDP,3658409,https://www.plainedgeschools.org/
+New York,,Plainedge,CDP,3658409,
 New York,,Plainview,CDP,3658442,
 New York,,Plandome,village,3658475,https://plandomemanorny.gov/
 New York,,Plandome Heights,village,3658486,https://plandomeheights-ny.gov/
@@ -39483,7 +39483,7 @@ Ohio,Ashtabula,Trumbull,township,3900777686,https://www.trumbulltownship.org/
 Ohio,Ashtabula,Wayne,township,3900782040,
 Ohio,Ashtabula,Williamsfield,township,3900785372,
 Ohio,Ashtabula,Windsor,township,3900785988,http://www.windsortownship.org/
-Ohio,Ashtabula,,county,39007,https://courts.co.ashtabula.oh.us/
+Ohio,Ashtabula,,county,39007,
 Ohio,Athens,Alexander,township,3900901112,
 Ohio,Athens,Ames,township,3900901770,
 Ohio,Athens,Athens,city,3902736,https://www.ci.athens.oh.us/
@@ -41762,7 +41762,7 @@ Ohio,,Rossmoyne,CDP,3968714,
 Ohio,,Roswell,village,3968742,
 Ohio,,Rudolph,CDP,3968938,
 Ohio,,Rushsylvania,village,3969176,https://rushsylvaniaoh.com/
-Ohio,,Rushville,village,3969204,https://rushvilleoh.govtportal.com/
+Ohio,,Rushville,village,3969204,
 Ohio,,Russells Point,village,3969302,https://www.russellspoint-oh.gov/
 Ohio,,Russellville,village,3969316,
 Ohio,,Russia,village,3969344,https://russiaoh.com/
@@ -42127,7 +42127,7 @@ Oklahoma,Kay,Kaw City,city,4038800,https://kawcityok.gov/
 Oklahoma,Kay,Newkirk,city,4051300,https://www.cityofnewkirkok.gov/
 Oklahoma,Kay,Ponca City,city,4059850,https://www.poncacityok.gov/
 Oklahoma,Kay,Tonkawa,city,4074150,https://tonkawaok.gov/
-Oklahoma,Kay,,county,40071,https://www.courthouse.kay.ok.us/
+Oklahoma,Kay,,county,40071,
 Oklahoma,Kingfisher,Hennessey,town,4033700,https://hennesseyok.org/
 Oklahoma,Kingfisher,Kingfisher,city,4039850,https://www.kingfisher.org/
 Oklahoma,Kingfisher,Okarche-Cashion,city,4007392379,
@@ -47041,7 +47041,7 @@ Rhode Island,,Ashaway,CDP,4403520,
 Rhode Island,,Bradford,CDP,4408020,
 Rhode Island,,Carolina,CDP,4412340,
 Rhode Island,,Chepachet,CDP,4414860,
-Rhode Island,,Clayville,CDP,4415940,https://clayville.scituateschoolsri.net/
+Rhode Island,,Clayville,CDP,4415940,
 Rhode Island,,Cumberland Hill,CDP,4420260,
 Rhode Island,,Foster Center,CDP,4427640,
 Rhode Island,,Greene,CDP,4431240,
@@ -49102,7 +49102,7 @@ Tennessee,Anderson,5,district,4700190762,https://andersoncountytn.gov/
 Tennessee,Anderson,6,district,4700190952,https://andersoncountytn.gov/
 Tennessee,Anderson,7,district,4700191142,https://andersoncountytn.gov/
 Tennessee,Anderson,8,district,4700191332,https://andersoncountytn.gov/
-Tennessee,Anderson,,county,47001,https://andersoncountyclerk.com/
+Tennessee,Anderson,,county,47001,
 Tennessee,Bedford,1,district,4700390004,https://www.bedfordcountytn.gov/
 Tennessee,Bedford,2,district,4700390194,https://www.bedfordcountytn.gov/
 Tennessee,Bedford,3,district,4700390384,
@@ -49760,7 +49760,7 @@ Tennessee,Putnam,6,district,4714191092,
 Tennessee,Putnam,7,district,4714191282,
 Tennessee,Putnam,8,district,4714191472,
 Tennessee,Putnam,9,district,4714191662,
-Tennessee,Putnam,,county,47141,https://putnamtncourtclerk.gov/
+Tennessee,Putnam,,county,47141,
 Tennessee,Rhea,1,district,4714390144,
 Tennessee,Rhea,2,district,4714390334,
 Tennessee,Rhea,3,district,4714390524,
@@ -51022,7 +51022,7 @@ Texas,Henderson,Athens,city,4804504,https://www.athenstx.gov/
 Texas,Henderson,Cedar Creek Lake,region,4821390652,
 Texas,Henderson,Chandler-Brownsboro,city,4821390687,https://www.chandlertx.com/
 Texas,Henderson,LaRue-Poynor,city,4821392150,
-Texas,Henderson,,county,48213,https://portal-txhenderson.tylertech.cloud/
+Texas,Henderson,,county,48213,
 Texas,Hidalgo,Edcouch-Elsa,city,4821591155,http://www.edcouch.org/
 Texas,Hidalgo,Edinburg,city,4822660,https://cityofedinburg.com/
 Texas,Hidalgo,Hargill,city,4821591710,
@@ -51175,7 +51175,7 @@ Texas,Lamar,Roxton,city,4863584,https://cityofroxton.com/
 Texas,Lamar,Sumner,city,4827793795,
 Texas,Lamar,,county,48277,https://www.lamarcountytx.gov/
 Texas,Lamb,Earth,city,4821928,
-Texas,Lamb,Littlefield,city,4843024,https://littlefieldtexasportal.com/
+Texas,Lamb,Littlefield,city,4843024,https://littlefieldtexas.net/
 Texas,Lamb,Olton,city,4854012,https://cityofolton.com/
 Texas,Lamb,Sudan-Amherst,city,4827993775,
 Texas,Lamb,,county,48279,https://www.co.lamb.tx.us/
@@ -52083,7 +52083,7 @@ Texas,,Hartley,CDP,4832612,
 Texas,,Harwood,town,4832684,
 Texas,,Haslet,city,4832720,https://www.haslet.org/
 Texas,,Havana,CDP,4832792,
-Texas,,Hawk Cove,city,4832810,https://hawkcovetx.govtportal.com/
+Texas,,Hawk Cove,city,4832810,
 Texas,,Hawley,city,4832840,https://www.cityofhawley.com/
 Texas,,Hays,city,4832906,https://hays-city-store-tx.onepage.me/
 Texas,,Heartland,CDP,4832978,https://heartlandtexas.com/
@@ -53714,8 +53714,8 @@ Virginia,Amherst,4,district,5100991650,https://www.countyofamherst.com/
 Virginia,Amherst,5,district,5100991800,https://www.countyofamherst.com/
 Virginia,Amherst,,county,51009,http://www.countyofamherst.com/
 Virginia,Appomattox,Appomattox River,district,5101190054,
-Virginia,Appomattox,Courthouse,district,5101190985,https://www.appomattoxcountyva.gov/
-Virginia,Appomattox,Falling River,district,5101193524,https://www.appomattoxcountyva.gov/
+Virginia,Appomattox,Courthouse,district,5101190985,
+Virginia,Appomattox,Falling River,district,5101193524,
 Virginia,Appomattox,Piney Mountain,district,5101195083,
 Virginia,Appomattox,Wreck Island,district,5101196459,
 Virginia,Appomattox,,county,51011,http://www.appomattoxcountyva.gov/
@@ -54280,8 +54280,8 @@ Virginia,Spotsylvania,,county,51177,http://www.spotsylvania.va.us/
 Virginia,Stafford,Aquia,district,5117990064,
 Virginia,Stafford,Falmouth,district,5117993535,
 Virginia,Stafford,Garrisonville,district,5117993683,
-Virginia,Stafford,George Washington,district,5117993687,https://staffordcountyva.gov/
-Virginia,Stafford,Griffis-Widewater,district,5117993783,https://staffordcountyva.gov/
+Virginia,Stafford,George Washington,district,5117993687,
+Virginia,Stafford,Griffis-Widewater,district,5117993783,
 Virginia,Stafford,Hartwood,district,5117993863,
 Virginia,Stafford,Rock Hill,district,5117995407,
 Virginia,Stafford,,county,51179,https://staffordcountyva.gov/
@@ -54295,16 +54295,16 @@ Virginia,Surry,Claremont,town,5116880,https://claremontva.gov/
 Virginia,Surry,Dendron,town,5122160,
 Virginia,Surry,Surry,town,5176880,https://surryva.town/
 Virginia,Surry,,county,51181,http://www.surrycountyva.gov/
-Virginia,Sussex,Courthouse,district,5118391000,https://sussexcountyva.gov/
+Virginia,Sussex,Courthouse,district,5118391000,
 Virginia,Sussex,Henry,district,5118393895,
-Virginia,Sussex,Newville,district,5118394871,https://sussexcountyva.gov/
+Virginia,Sussex,Newville,district,5118394871,
 Virginia,Sussex,Stony Creek,town,5175840,
 Virginia,Sussex,Wakefield,town,5182384,https://wakefieldva.org/
 Virginia,Sussex,Waverly,town,5183600,https://waverlyva.org/
 Virginia,Sussex,,county,51183,http://www.sussexcountyva.gov/
 Virginia,Tazewell,Eastern,district,5118593439,https://tazewellcountyva.org/
 Virginia,Tazewell,Northern,district,5118594887,https://tazewellcountyva.org/
-Virginia,Tazewell,Northwestern,district,5118594927,
+Virginia,Tazewell,Northwestern,district,5118594927,https://tazewellcountyva.org/
 Virginia,Tazewell,Southern,district,5118595767,https://tazewellcountyva.org/
 Virginia,Tazewell,Western,district,5118596295,https://tazewellcountyva.org/
 Virginia,Tazewell,,county,51185,http://tazewellcountyva.org/
@@ -54346,7 +54346,7 @@ Virginia,Wythe,Lead Mines,district,5119794183,
 Virginia,Wythe,Speedwell,district,5119795823,
 Virginia,Wythe,West Wytheville,district,5119796343,
 Virginia,Wythe,,county,51197,http://www.wytheco.org/
-Virginia,York,1,district,5119991290,https://yorkcountyschools.org/
+Virginia,York,1,district,5119991290,
 Virginia,York,2,district,5119991440,
 Virginia,York,3,district,5119991590,
 Virginia,York,4,district,5119991740,
@@ -55422,7 +55422,7 @@ Washington,,Kayak Point,CDP,5334915,
 Washington,,Keller,CDP,5334960,
 Washington,,Kelso,city,5335065,https://www.kelso.gov/
 Washington,,Kendall,CDP,5335135,
-Washington,,Kenmore,city,5335170,https://kenmorewa.portal.civicclerk.com/
+Washington,,Kenmore,city,5335170,
 Washington,,Kennewick,city,5335275,https://services.ci.kennewick.wa.us/
 Washington,,Kent,city,5335415,https://www.kentwa.gov/
 Washington,,Ketron Island,CDP,5335450,
@@ -55727,7 +55727,7 @@ West Virginia,Berkeley,,county,54003,https://www.berkeleywv.org/
 West Virginia,Boone,1,district,5400590762,
 West Virginia,Boone,2,district,5400590796,
 West Virginia,Boone,3,district,5400590832,
-West Virginia,Boone,,county,54005,https://www.boonecountyclerkwv.com/
+West Virginia,Boone,,county,54005,
 West Virginia,Braxton,Eastern,district,5400790968,
 West Virginia,Braxton,Northern,district,5400792346,
 West Virginia,Braxton,Southern,district,5400792922,
@@ -55793,9 +55793,9 @@ West Virginia,Hardy,South Fork,district,5403192928,
 West Virginia,Hardy,,county,54031,https://hardycounty.com/
 West Virginia,Harrison,Eastern,district,5403390975,
 West Virginia,Harrison,North Urban,district,5403392368,
-West Virginia,Harrison,Northern,district,5403392352,https://www.wvnd.uscourts.gov/
+West Virginia,Harrison,Northern,district,5403392352,
 West Virginia,Harrison,South Urban,district,5403392932,
-West Virginia,Harrison,Southern,district,5403392923,https://www.wvsd.uscourts.gov/
+West Virginia,Harrison,Southern,district,5403392923,
 West Virginia,Harrison,Southwest,district,5403392952,
 West Virginia,Harrison,,county,54033,https://www.harrisoncountywv.com/
 West Virginia,Jackson,Eastern,district,5403590976,
@@ -55860,9 +55860,9 @@ West Virginia,Mineral,,county,54057,https://www.mineralwv.gov/
 West Virginia,Mingo,Beech Ben Mate,district,5405990141,
 West Virginia,Mingo,Kermit Harvey,district,5405991770,
 West Virginia,Mingo,Lee,district,5405991848,
-West Virginia,Mingo,Magnolia,district,5405992064,https://www.mingoschools.com/
+West Virginia,Mingo,Magnolia,district,5405992064,
 West Virginia,Mingo,Stafford,district,5405993012,
-West Virginia,Mingo,Tug Hardee,district,5405993162,https://www.mingoschools.com/
+West Virginia,Mingo,Tug Hardee,district,5405993162,
 West Virginia,Mingo,Williamson,city,5487508,
 West Virginia,Mingo,,county,54059,https://mingocountywv.com/
 West Virginia,Monongalia,Central,district,5406190456,
@@ -55908,7 +55908,7 @@ West Virginia,Preston,Fourth,district,5407791134,
 West Virginia,Preston,Second,district,5407792742,
 West Virginia,Preston,Third,district,5407793102,
 West Virginia,Preston,,county,54077,https://www.prestoncountywv.gov/
-West Virginia,Putnam,1,district,5407990790,https://www.putnamschools.com/
+West Virginia,Putnam,1,district,5407990790,
 West Virginia,Putnam,2,district,5407990826,
 West Virginia,Putnam,3,district,5407990863,
 West Virginia,Putnam,,county,54079,https://putnamcountywv.gov/
@@ -55934,7 +55934,7 @@ West Virginia,Ritchie,,county,54085,https://ritchiecounty.wv.gov/
 West Virginia,Roane,I,district,5408790906,
 West Virginia,Roane,II,district,5408790918,
 West Virginia,Roane,III,district,5408790930,
-West Virginia,Roane,,county,54087,https://www.roanewvschools.com/
+West Virginia,Roane,,county,54087,
 West Virginia,Summers,Bluestone River,district,5408990216,
 West Virginia,Summers,Greenbrier River,district,5408991440,https://www.summerscountywv.gov/
 West Virginia,Summers,New River,district,5408992316,https://www.summerscountywv.gov/
@@ -55968,7 +55968,7 @@ West Virginia,Wayne,Westmoreland,district,5409993624,
 West Virginia,Wayne,,county,54099,https://www.waynecountywv.org/
 West Virginia,Webster,Central,district,5410190471,
 West Virginia,Webster,Northern,district,5410192360,
-West Virginia,Webster,Southern,district,5410192926,https://www.wvsd.uscourts.gov/
+West Virginia,Webster,Southern,district,5410192926,
 West Virginia,Webster,,county,54101,https://www.webstercountywv.com/
 West Virginia,Wetzel,1,district,5410390794,https://www.wetzelcountywv.gov/
 West Virginia,Wetzel,2,district,5410390830,https://www.wetzelcountywv.gov/
