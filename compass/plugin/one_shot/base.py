@@ -52,6 +52,29 @@ class _CacheKey(StrEnum):
     HEURISTIC_KEYWORDS = auto()
 
 
+SCOPE_SENTINEL_ALL = "all"
+SCOPE_SENTINEL_OTHER = "other"
+
+
+def _inject_scope_sentinels(schema):
+    """Prepend ``all`` and append ``other`` to the scope enum in-place"""
+    try:
+        scope = schema["properties"]["outputs"]["items"]["properties"][
+            "scope"
+        ]
+    except (KeyError, TypeError):
+        return
+
+    enum = scope.get("enum")
+    if not isinstance(enum, list):
+        return
+
+    if SCOPE_SENTINEL_ALL not in enum:
+        enum.insert(0, SCOPE_SENTINEL_ALL)
+    if SCOPE_SENTINEL_OTHER not in enum:
+        enum.append(SCOPE_SENTINEL_OTHER)
+
+
 def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore[complex-structure]
     """Create a one-shot extraction plugin based on a configuration
 
@@ -192,6 +215,8 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
 
     if isinstance(config["schema"], str):
         config["schema"] = load_config(config["schema"])
+
+    _inject_scope_sentinels(config["schema"])
 
     config["qual_feats"] = {
         f.casefold() for f in config["schema"].pop("$qualitative_features", [])
