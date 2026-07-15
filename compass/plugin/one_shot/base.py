@@ -28,6 +28,8 @@ from compass.plugin.one_shot.components import (
     SchemaBasedTextCollector,
     SchemaBasedTextExtractor,
     SchemaOrdinanceParser,
+    SCOPE_SENTINEL_ALL,
+    SCOPE_SENTINEL_OTHER,
 )
 from compass.plugin.one_shot.cache import key_from_cache, key_to_cache
 from compass.services.threaded import CLEANED_FP_REGISTRY
@@ -52,12 +54,8 @@ class _CacheKey(StrEnum):
     HEURISTIC_KEYWORDS = auto()
 
 
-SCOPE_SENTINEL_ALL = "all"
-SCOPE_SENTINEL_OTHER = "other"
-
-
 def _inject_scope_sentinels(schema):
-    """Prepend ``all`` and append ``other`` to the scope enum"""
+    """Add ``all`` and ``other`` sentinels to the scope enum in-place"""
     try:
         scope = schema["properties"]["outputs"]["items"]["properties"][
             "scope"
