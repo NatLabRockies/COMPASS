@@ -57,7 +57,7 @@ SCOPE_SENTINEL_OTHER = "other"
 
 
 def _inject_scope_sentinels(schema):
-    """Prepend ``all`` and append ``other`` to the scope enum in-place"""
+    """Prepend ``all`` and append ``other`` to the scope enum"""
     try:
         scope = schema["properties"]["outputs"]["items"]["properties"][
             "scope"
