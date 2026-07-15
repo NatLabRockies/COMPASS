@@ -241,6 +241,14 @@
         }
       }
     },
+    "administrative_features": {
+      "description": "Administrative or legal grants recorded in the ordinance code that do not impose a physical or numeric requirement on transmission infrastructure. Extract only when the ordinance text explicitly names the grant and its holder(s).",
+      "properties": {
+        "franchise": {
+          "description": "Electric utility franchise granted by this jurisdiction to a named company or companies. Extract only when the ordinance explicitly grants (or renews, extends, or amends) an electric franchise, right, or privilege to operate electric infrastructure in the jurisdiction. In summary, name every explicitly named grantee company using its verbatim legal name and quote the granting clause. Do not extract water, gas, cable, telecom, or other non-electric franchises. Do not infer a franchise from operational references to a utility elsewhere in the code. Emit at most one row per jurisdiction; if multiple electric franchises are named, list all grantees in the same summary."
+        }
+      }
+    }
   },
   "$examples": [
     {
