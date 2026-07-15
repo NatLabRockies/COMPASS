@@ -93,6 +93,10 @@
               "traffic disruption",
               // Vegetation Protection or Landscaping Requirements
               "vegetation",
+
+              // -- Administrative --
+              // Electric utility franchise granted to a named company
+              "franchise",
             ]
           },
           "value": {
