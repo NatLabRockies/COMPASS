@@ -16,7 +16,6 @@ query_templates:
   - "{jurisdiction}, code of ordinances electric franchise"
   - "filetype:pdf {jurisdiction} electric franchise agreement"
 
-
 website_keywords:
   pdf: 92160
   transmission: 46080
@@ -24,26 +23,41 @@ website_keywords:
   zoning: 11520
   utility: 5760
   electric: 5760
+  franchise: 5760
+  code: 2880
   right-of-way: 1440
+  easement: 1440
+  siting: 1440
+  franchise agreement: 1440
   overhead: 720
+  substation: 720
   permit: 720
   land use: 720
+  planning: 720
+  grantee: 720
   municipal: 360
   county: 360
   code of ordinances: 360
   ordinance code: 360
   land use code: 360
+  use table: 360
   conditional use permit: 180
   special use permit: 180
+  chapter: 180
+  article: 180
+  title: 180
   statute: 180
   administrative code: 180
   government: 180
 
-heuristic_keywords: true
 heuristic_keywords:
   good_tech_keywords:
     - "transmission"
+    - "kilovolt"
     - "powerline"
+    - "franchise"
+    - "grantee"
+    - "substation"
   good_tech_acronyms:
     - "kv"
     - "hvdc"
