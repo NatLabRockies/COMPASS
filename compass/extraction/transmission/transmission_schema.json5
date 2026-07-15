@@ -8,11 +8,12 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**. Never infer, imply, or guess a requirement from related context.",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per (feature, scope) pair**. Emit one row per scope only when the ordinance text explicitly states different values or requirements per scope for the same feature; otherwise emit a single row with scope='all'. Never infer, imply, or guess a requirement from related context.",
       "items": {
         "type": "object",
         "required": [
           "feature",
+          "scope",
           "value",
           "units",
           "section",
