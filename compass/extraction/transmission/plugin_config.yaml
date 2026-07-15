@@ -8,10 +8,11 @@ query_templates:
   - "site:municode.com {jurisdiction}, electrical transmission line"
   - "site:codelibrary.amlegal.com {jurisdiction}, electrical transmission line"
   - "filetype:pdf {jurisdiction}, electric transmission line ordinance"
-  - "{jurisdiction}, high voltage transmission line zoning ordinance"
-  - "{jurisdiction}, electric transmission line siting code"
-  - "{jurisdiction}, overhead electric utility line ordinance"
-  - "{jurisdiction}, transmission line right-of-way regulation"
+  - "{jurisdiction}, zoning code electric transmission line setback"
+  - "{jurisdiction}, high voltage transmission line ordinance"
+  - "{jurisdiction}, overhead electric utility line zoning"
+  - "{jurisdiction}, power line"
+
 
 website_keywords:
   pdf: 92160
