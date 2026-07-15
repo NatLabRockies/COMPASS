@@ -14,6 +14,15 @@ updates:
   schedule:
     interval: weekly
     day: monday
+  groups:
+    codeql:
+      patterns:
+        - "github/codeql-action*"
+    other-actions:
+      patterns:
+        - "*"
+      exclude-patterns:
+        - "github/codeql-action*"
   open-pull-requests-limit: 10
   labels:
     - "chore"
