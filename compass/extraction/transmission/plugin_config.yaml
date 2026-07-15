@@ -80,10 +80,22 @@ heuristic_keywords:
     - "500 kv"
     - "765 kv"
   not_tech_words:
+    - "local distribution"
     - "transmission fluid"
-    - "radio tower"
+    - "auto transmission"
+    - "automatic transmission"
+    - "communication transmission"
+    - "manual transmission"
+    - "data transmission"
+    - "radio transmission"
+    - "wireless transmission"
+    - "telephone line"
+    - "disease transmission"
+    - "virus transmission"
+    - "heat transmission"
+    - "natural gas transmission"
     - "gas transmission"
-
+    - "oil transmission"
 
 collection_prompts: true
 
