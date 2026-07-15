@@ -14,6 +14,10 @@ from compass.warn import COMPASSPluginConfigurationWarning
 class _TestSchemaBasedTextCollector(SchemaBasedTextCollector):
     OUT_LABEL = "relevant_text"
     SCHEMA = {
+        "$scope": (
+            "Ground-source heat pump ordinance provisions, "
+            "definitions, and requirements."
+        ),
         "type": "object",
         "properties": {
             "technology": {"const": "ground-source heat pump ordinance"}
