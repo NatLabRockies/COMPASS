@@ -21,6 +21,19 @@
         ],
         "additionalProperties": false,
         "properties": {
+          "scope": {
+            "type": "string",
+            "description": "The subset of the jurisdiction to which this row applies. Use 'all' when the requirement applies jurisdiction-wide with no zone-specific variation. Use one of the named zoning categories when the ordinance text explicitly ties the requirement to that district. Use 'other' when the ordinance names a specific district that does not match any of the enumerated categories (for example, 'PUD', 'aviation overlay', 'conservation-2'). Do not invent categories; do not infer a zone from headings or nearby context that does not explicitly bind the requirement to that district.",
+            "enum": [
+              "rural",
+              "residential",
+              "commercial",
+              "light industrial",
+              "industrial",
+              "agricultural",
+              "mixed use"
+            ]
+          },
           "feature": {
             "type": "string",
             "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
