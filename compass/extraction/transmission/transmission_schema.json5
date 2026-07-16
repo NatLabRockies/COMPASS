@@ -78,14 +78,12 @@
               // Compliance with Federal Aviation Administration and local approvals near airports
               "FAA",
 
-              // -- Prohibited or limited-use districs --
-              // Maybe call these zones, such as rural zone?
-              "rural zone",
-              "residential zone",
-              "commercial zone",
-              "light industrial zone",
-              // Includes irrigated farmland, ranch land.
-              "agricultural zone",
+              // -- Prohibited or limited-use districts --
+              // Use the `scope` field to identify which district the
+              // prohibition applies to (rural, residential, commercial,
+              // light industrial, industrial, agricultural, mixed use,
+              // or 'other' for named districts not covered by the enum).
+              "zone use restriction",
               // -- Exclusions --
               "historic site",
               "critical species habitat",
@@ -235,7 +233,7 @@
       }
     },
     "prohibition_features": {
-      "description": "Prohibitions, bans, or moratoria on building, installing, siting, or otherwise deploying electric transmission lines and related infrastructure in certain areas or under certain conditions. These features require text extraction only.",
+      "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `scope` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
       "properties": {
         "rural zone": {
           "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in rural zones, agricultural zones, or similar low-density land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
