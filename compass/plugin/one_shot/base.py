@@ -57,9 +57,7 @@ class _CacheKey(StrEnum):
 def _inject_scope_sentinels(schema):
     """Add ``all`` and ``other`` sentinels to the scope enum in-place"""
     try:
-        scope = schema["properties"]["outputs"]["items"]["properties"][
-            "scope"
-        ]
+        scope = schema["properties"]["outputs"]["items"]["properties"]["scope"]
     except (KeyError, TypeError):
         return
 
