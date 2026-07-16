@@ -673,7 +673,7 @@ class BaseRequest:
     @cached_property
     def models(self):
         """dict: Mapping of LLM task to OpenAIConfig for this request"""
-        if not self.user_model_input or self.MODE == COMPASSRunMode.COLLECT:
+        if not self.user_model_input:
             return {}
         return _build_models(self.user_model_input)
 
