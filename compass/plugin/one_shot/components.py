@@ -16,18 +16,48 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 
 logger = logging.getLogger(__name__)
+_TEXT_SCOPE_SYSTEM_PROMPT = """\
+You are a structured extraction scope validator. Given a text chunk, \
+determine whether the chunk is within the given extraction scope. \
+Focus on any explicit scope limitations, including technology, document \
+type, regulatory subject, exclusions, and similar boundaries. Be strict and \
+literal: only mark the chunk in scope when the text clearly pertains to the \
+intended domain. Note that a broader ordinance can still be in scope \
+when the excerpt contains an explicit definition, permit, prohibition, or \
+requirement for the target technology. Do not infer beyond the text. \
+If the scope match is unclear, return ``true``. Keep the response concise \
+and consistent.\
+"""
+_TEXT_SCOPE_MAIN_PROMPT = """\
+Determine whether this text excerpt is within the following extraction \
+scope. Only decide whether the chunk matches the scope. Do not decide yet \
+whether it contains enough substantive context for extraction.\
+
+SCOPE:
+
+{scope}
+
+TEXT:
+
+{text}
+
+Think before you answer.\
+"""
 _TEXT_COLLECTION_SYSTEM_PROMPT = """\
 You are a structured extraction validator. You receive:
 1) A text chunk.
-2) An extraction schema that specifies the exact criteria for relevance \
-(e.g., technology type, document type, required data fields).
+2) An extraction schema that specifies the extraction criteria.
 
-Determine whether the chunk contains content that matches any of the \
-schema's criteria. Be strict and literal: only mark relevant if the chunk \
-clearly addresses the specific technology and document scope described in \
-the schema. Do not infer beyond the text. If relevant, summarize the \
-specific matching content; if not, state why it does not meet the schema's \
-requirements. Keep the response concise and consistent.\
+Determine whether the chunk contains content that matches any of the schema's \
+extraction criteria. Be strict and literal: only mark relevant if the chunk \
+clearly contains at least one extraction component. Do not infer beyond the \
+text. Do not treat chapter titles, section titles, tables of contents, \
+navigation links, cross-reference lists, or citation-only indexes as relevant \
+on their own; mark them relevant only when they also include operative \
+provisions, definitions, prohibitions, or other substantive regulatory text \
+that supports extraction. If relevant, summarize the specific matching \
+content; if not, state why it does not meet the schema's requirements. \
+Keep the response concise and consistent.\
 """
 _TEXT_COLLECTION_MAIN_PROMPT = """\
 Determine whether this text excerpt contains any information relevant to \
@@ -122,8 +152,14 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     @property
     @abstractmethod
-    def OUTPUT_SCHEMA(self):  # noqa: N802
-        """dict: Validation output schema"""
+    def SCOPE_VALIDATION_OUTPUT_SCHEMA(self):  # noqa: N802
+        """dict: Scope validation output schema"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def CONTENT_VALIDATION_OUTPUT_SCHEMA(self):  # noqa: N802
+        """dict: Content validation output schema"""
         raise NotImplementedError
 
     def __init__(self, *args, **kwargs):
@@ -165,29 +201,90 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             Boolean flag indicating whether or not the text in the chunk
             contains large wind energy conversion system ordinance text.
         """
-        key = "contains_relevant_text"
+        if "$scope" in self.SCHEMA:
+            passed_scope = await chunk_parser.parse_from_ind(
+                ind,
+                key="matches_scope",
+                llm_call_callback=self._check_chunk_scope_with_prompt,
+            )
+
+            if not passed_scope:
+                logger.debug(
+                    "Text at ind %d did not pass collection step: scope match",
+                    ind,
+                )
+                return False
+
+            logger.debug(
+                "Text at ind %d passed collection step: scope match", ind
+            )
+
         passed_filter = await chunk_parser.parse_from_ind(
             ind,
-            key=key,
+            key="contains_relevant_text",
             llm_call_callback=self._check_chunk_with_prompt,
         )
 
         if not passed_filter:
-            logger.debug("Text at ind %d did not pass collection step", ind)
+            logger.debug(
+                "Text at ind %d did not pass collection step: relevant "
+                "context",
+                ind,
+            )
             return False
 
-        logger.debug("Text at ind %d passed collection step ", ind)
+        logger.debug(
+            "Text at ind %d passed collection step: relevant context", ind
+        )
 
         self._store_chunk(chunk_parser, ind)
         logger.debug("Added text chunk at ind %d to extraction text", ind)
         return True
 
+    async def _check_chunk_scope_with_prompt(self, key, text_chunk):
+        """Call LLM on a chunk of text to check schema scope"""
+        scope = self.SCHEMA.get("$scope")
+        if not scope:
+            logger.debug(
+                "No $scope defined in schema; skipping scope check for "
+                "text chunk: %s",
+                text_chunk,
+            )
+            return True
+
+        main_prompt = _TEXT_SCOPE_MAIN_PROMPT.format(
+            schema=self.SCHEMA, scope=scope, text=text_chunk
+        )
+        logger.debug("Checking text chunk scope with LLM: %s", text_chunk)
+        logger.debug_to_file(
+            "\t- System Message:\n%s", _TEXT_SCOPE_SYSTEM_PROMPT
+        )
+        logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
+        content = await self.call(
+            sys_msg=_TEXT_SCOPE_SYSTEM_PROMPT,
+            content=main_prompt,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "chunk_scope_validation",
+                    "strict": True,
+                    "schema": self.SCOPE_VALIDATION_OUTPUT_SCHEMA,
+                },
+            },
+            usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
+        )
+        logger.debug("LLM scope response:\n%s", json.dumps(content, indent=4))
+        return content.get(key, False)
+
     async def _check_chunk_with_prompt(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for ordinance"""
+        """Call LLM on a chunk of text to check relevant context"""
         main_prompt = _TEXT_COLLECTION_MAIN_PROMPT.format(
             schema=self.SCHEMA, text=text_chunk
         )
-        logger.debug("Checking text chunk with LLM: %s", text_chunk)
+        logger.debug(
+            "Checking text chunk for relevant context with LLM: %s",
+            text_chunk,
+        )
         logger.debug_to_file(
             "\t- System Message:\n%s", _TEXT_COLLECTION_SYSTEM_PROMPT
         )
@@ -200,12 +297,15 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
                 "json_schema": {
                     "name": "chunk_validation",
                     "strict": True,
-                    "schema": self.OUTPUT_SCHEMA,
+                    "schema": self.CONTENT_VALIDATION_OUTPUT_SCHEMA,
                 },
             },
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
         )
-        logger.debug("LLM response:\n%s", json.dumps(content, indent=4))
+        logger.debug(
+            "LLM relevant context response:\n%s",
+            json.dumps(content, indent=4),
+        )
         return content.get(key, False)
 
     def _store_chunk(self, parser, chunk_ind):

@@ -25,7 +25,7 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.utilities.url import sanitize_url
+from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
@@ -238,10 +238,13 @@ async def find_jurisdiction_website(
     potential_website_links = await search_with_fallback(
         queries=[query_1, query_2],
         num_urls=3,
-        ignore_url_parts=url_ignore_substrings,
+        url_ignore_substrings=url_ignore_substrings,
         browser_semaphore=search_semaphore,
         task_name=jurisdiction.full_name,
         **kwargs,
+    )
+    potential_website_links = _normalize_website_candidates(
+        potential_website_links
     )
 
     if not potential_website_links:
@@ -599,7 +602,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             num_urls=num_urls,
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
-            ignore_url_parts=url_ignore_substrings,
+            url_ignore_substrings=url_ignore_substrings,
             jurisdiction=jurisdiction,
             simple_se_result_sort=simple_se_result_sort,
             **kwargs,
@@ -727,12 +730,26 @@ async def filter_ordinance_docs(
     return docs
 
 
+def _normalize_website_candidates(urls):
+    """Normalize website candidates to canonical root URLs"""
+    seen = set()
+    normalized_urls = []
+    for url in urls:
+        normalized_url = base_website_url(url)
+        url_key = normalized_url.casefold()
+        if url_key in seen:
+            continue
+        seen.add(url_key)
+        normalized_urls.append(normalized_url)
+    return normalized_urls
+
+
 async def _docs_from_web_search(
     query_templates,
     num_urls,
     search_semaphore,
     browser_semaphore,
-    ignore_url_parts,
+    url_ignore_substrings,
     jurisdiction,
     simple_se_result_sort,
     **kwargs,
@@ -744,7 +761,7 @@ async def _docs_from_web_search(
         jurisdiction,
         num_urls,
         search_semaphore,
-        ignore_url_parts,
+        url_ignore_substrings,
         simple=simple_se_result_sort,
         **kwargs,
     )

@@ -305,7 +305,11 @@ class JurisdictionWebsiteValidator:
         "You are an expert data analyst that examines website text to "
         "determine if the website is the main website for a given "
         "jurisdiction. Only ever answer based on the information from the "
-        "website itself."
+        "website itself. Do not treat affiliated but separate entities as "
+        "the main jurisdiction website (i.e. such as school district "
+        "websites, courthouse or court system websites, library websites, "
+        "or other department and agency websites are **not** the main "
+        "website)."
     )
     """System message for main jurisdiction website validation calls"""
 
@@ -397,6 +401,11 @@ class JurisdictionWebsiteValidator:
             "Based on the website text below, is it reasonable to conclude "
             f"that this webpage is the **main** {jurisdiction.type} website "
             f"for {jurisdiction.full_name_the_prefixed}? "
+            "Do not treat affiliated but separate entities as the main "
+            "jurisdiction website. Examples of websites that should **not** "
+            "be treated the main jurisdiction website include school "
+            "district websites, courthouse or court system websites, "
+            "library websites, and other department or agency websites. "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
             f'\n\n"""\n{doc.text}\n"""'

@@ -13,9 +13,13 @@
         "carolinas-dash.org",
         "findlaw.com",
         "encodeplus.com",
+        "wind-watch.org",
+        "/search",
         "grokipedia.com",
     ],
     "whitelist": [
         // If any of these substrings are in the URL, it is always included regardless of blacklist status
+        "searchdocs",
+        "searchlight",
     ]
 }

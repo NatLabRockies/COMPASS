@@ -194,6 +194,10 @@ class SingleJurisdictionRun:
         )
         self.jurisdiction_website = collection_info.get("jurisdiction_website")
         try:
+            COMPASS_PB.update_jurisdiction_task(
+                self.jurisdiction.full_name,
+                description="Loading pre-parsed documents...",
+            )
             docs = await load_collected_docs(
                 collection_info, task_name=self.jurisdiction.full_name
             )

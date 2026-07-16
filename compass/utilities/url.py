@@ -27,6 +27,28 @@ def sanitize_url(url):
     return urlunsplit((parsed.scheme, parsed.netloc, path, query, fragment))
 
 
+def base_website_url(url):
+    """Return the scheme and netloc portion of a website URL
+
+    Parameters
+    ----------
+    url : str
+        URL string that may include a path, query string, or fragment.
+
+    Returns
+    -------
+    str
+        Canonical website root URL consisting of the original scheme
+        and netloc with a trailing slash. If the URL is missing a
+        scheme or netloc, the input is returned unchanged.
+    """
+    parsed = urlsplit(url)
+    if not parsed.scheme or not parsed.netloc:
+        return url
+
+    return urlunsplit((parsed.scheme, parsed.netloc, "/", "", ""))
+
+
 def normalize_domain(url):
     """Return a comparable domain string for a URL or empty string
 

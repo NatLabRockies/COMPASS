@@ -8,6 +8,7 @@ import asyncio
 import logging
 import contextlib
 import warnings
+import multiprocessing
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -15,6 +16,7 @@ from concurrent.futures import ProcessPoolExecutor
 from logging.handlers import QueueHandler
 
 import numpy as np
+import pandas as pd
 from elm.web.document import PDFDocument, MDDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
 from docling.datamodel.backend_options import HTMLBackendOptions
@@ -35,8 +37,15 @@ from compass.services.base import Service
 from compass.utilities.logs import AddLocationFilter, LQ
 
 
+logger = logging.getLogger(__name__)
+
+
 class ProcessPoolService(Service):
     """Service that contains a ProcessPoolExecutor instance"""
+
+    _DEFAULT_MAX_TASKS_PER_CHILD = 100
+    _SHUTDOWN_TIMEOUT = 5
+    _FORCE_SHUTDOWN_TIMEOUT = 1
 
     def __init__(self, **kwargs):
         """
@@ -55,19 +64,50 @@ class ProcessPoolService(Service):
         """Open thread pool and temp directory"""
         os.environ.setdefault("OMP_NUM_THREADS", "1")
         ppe_kwargs = dict(self._ppe_kwargs)
+        # ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
         user_initializer = ppe_kwargs.pop("initializer", None)
         initargs = tuple(ppe_kwargs.pop("initargs", ()))
         ppe_kwargs["initializer"] = _configure_subprocess_logging
-        ppe_kwargs["initargs"] = (
-            LQ.QUEUE,
-            user_initializer,
-            initargs,
-        )
+        ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
         self.pool = ProcessPoolExecutor(**ppe_kwargs)
+
+    def _set_tasks_per_child(self, ppe_kwargs):
+        """Set default ``max_tasks_per_child``"""
+        ppe_kwargs.setdefault(
+            "max_tasks_per_child", self._DEFAULT_MAX_TASKS_PER_CHILD
+        )
+        ppe_kwargs.setdefault(
+            "mp_context", multiprocessing.get_context("spawn")
+        )
+        return ppe_kwargs
 
     def release_resources(self):
         """Shutdown thread pool and cleanup temp directory"""
-        self.pool.shutdown(wait=True, cancel_futures=True)
+        pool = self.pool
+        self.pool = None
+        if pool is None:
+            return
+
+        manager_thread = getattr(pool, "_executor_manager_thread", None)
+        processes = list(getattr(pool, "_processes", {}).values())
+        pool.shutdown(wait=False, cancel_futures=True)
+
+        if not _needs_forced_shutdown(
+            manager_thread, processes, self._SHUTDOWN_TIMEOUT
+        ):
+            return
+
+        logger.warning(
+            "Process pool did not shut down within %.1f seconds; "
+            "terminating lingering workers",
+            self._SHUTDOWN_TIMEOUT,
+        )
+        _force_shutdown_processes(
+            processes, timeout=self._FORCE_SHUTDOWN_TIMEOUT
+        )
+        _join_manager_thread(
+            manager_thread, timeout=self._FORCE_SHUTDOWN_TIMEOUT
+        )
 
 
 class FileLoader(ProcessPoolService):
@@ -369,8 +409,10 @@ def _read_docling(
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
-        mean_confidence = conv_result.confidence.mean_score
-        low_score_confidence = conv_result.confidence.low_score
+        mean_confidence = _none_if_missing(conv_result.confidence.mean_score)
+        low_score_confidence = _none_if_missing(
+            conv_result.confidence.low_score
+        )
 
     attrs = {
         "doc_filename": conv_result.input.file.stem,
@@ -407,6 +449,11 @@ def _configure_pytesseract(tesseract_cmd):
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
 
 
+def _none_if_missing(value):
+    """Return ``None`` when a scalar confidence value is missing"""
+    return None if pd.isna(value) else value
+
+
 def _try_decode_ocr_pages(pages):
     """Try to decode pages into strings"""
     decoded_pages = []
@@ -415,6 +462,52 @@ def _try_decode_ocr_pages(pages):
             page = ast.literal_eval(page).decode("utf-8")  # noqa: PLW2901
         decoded_pages.append(page)
     return decoded_pages
+
+
+def _needs_forced_shutdown(manager_thread, processes, shutdown_timeout):
+    """Determine whether graceful shutdown exceeded the timeout"""
+    if manager_thread is not None:
+        return _join_manager_thread(manager_thread, timeout=shutdown_timeout)
+
+    deadline = time.monotonic() + shutdown_timeout
+    while time.monotonic() < deadline:
+        if not any(_is_process_alive(process) for process in processes):
+            return False
+        time.sleep(0.05)
+
+    return any(_is_process_alive(process) for process in processes)
+
+
+def _join_manager_thread(manager_thread, timeout):
+    """bool: Join a manager thread and report whether it lives"""
+    if manager_thread is None:
+        return False
+
+    manager_thread.join(timeout=timeout)
+    return manager_thread.is_alive()
+
+
+def _force_shutdown_processes(processes, timeout=1):
+    """Force lingering worker processes to exit"""
+    for process in processes:
+        if process is None or not _is_process_alive(process):
+            continue
+
+        with contextlib.suppress(Exception):
+            process.terminate()
+            process.join(timeout=timeout)
+
+        if not _is_process_alive(process):
+            continue
+
+        with contextlib.suppress(Exception):
+            process.kill()
+            process.join(timeout=timeout)
+
+
+def _is_process_alive(process):
+    """bool: Check whether a worker process is still alive"""
+    return process is not None and process.is_alive()
 
 
 def _configure_subprocess_logging(logging_queue, user_initializer, initargs):

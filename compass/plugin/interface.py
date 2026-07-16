@@ -278,13 +278,17 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         return self.HEURISTIC()
 
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, max_num_docs=None):
         """Filter down candidate documents before parsing
 
         Parameters
         ----------
         extraction_context : ExtractionContext
             Context containing candidate documents to be filtered.
+        max_num_docs : int, optional
+            Maximum number of documents to parse (regardless of the
+            collection method). If ``None``, all collected documents are
+            parsed. By default, ``None``.
 
         Returns
         -------
@@ -339,6 +343,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         )
         if not docs:
             return None
+
+        if max_num_docs is not None:
+            logger.debug(
+                "Sub-setting to %d document(s) for parsing", max_num_docs
+            )
+            docs = docs[:max_num_docs]
 
         extraction_context.documents = docs
         return extraction_context

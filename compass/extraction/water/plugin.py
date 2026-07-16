@@ -100,7 +100,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         """
         return WaterRightsHeuristic()
 
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, __):
         """Filter down candidate documents before parsing
 
         Parameters

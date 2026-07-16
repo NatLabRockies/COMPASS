@@ -299,6 +299,22 @@ class WebSearchParams:
         return extra_kwargs
 
 
+class DocParsingParams:
+    """Value Object for document parsing settings"""
+
+    def __init__(self, max_num_docs_per_jurisdiction=None):
+        """
+
+        Parameters
+        ----------
+        max_num_docs_per_jurisdiction : int, optional
+            Maximum number of documents to parse for each jurisdiction
+            (regardless of the collection method). If ``None``, all
+            collected documents are parsed. By default, ``None``.
+        """
+        self.max_num_docs_per_jurisdiction = max_num_docs_per_jurisdiction
+
+
 class BaseRequest:
     """Parameter Object base class for pipeline requests"""
 
@@ -314,6 +330,7 @@ class BaseRequest:
         model="gpt-4o-mini",
         llm_costs=None,
         num_urls_to_check_per_jurisdiction=5,
+        max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
@@ -439,6 +456,10 @@ class BaseRequest:
             Number of unique Google search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        max_num_docs_to_parse_per_jurisdiction : int, optional
+            Maximum number of documents to parse for each jurisdiction
+            (regardless of the collection method). If ``None``, all
+            collected documents are parsed. By default, ``None``.
         max_num_concurrent_browsers : int, default=10
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -618,6 +639,11 @@ class BaseRequest:
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
             pytesseract_exe_fp=pytesseract_exe_fp,
+        )
+        self.parsing_settings = DocParsingParams(
+            max_num_docs_per_jurisdiction=(
+                max_num_docs_to_parse_per_jurisdiction
+            )
         )
         self.runtime_settings = RuntimeSettings(
             td_kwargs=td_kwargs,
@@ -963,6 +989,7 @@ class ExtractionRequest(BaseRequest):
         collection_manifest_fp,
         *,
         model="gpt-4o-mini",
+        max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_jurisdictions=25,
         file_loader_kwargs=None,
         td_kwargs=None,
@@ -1052,6 +1079,10 @@ class ExtractionRequest(BaseRequest):
                 set ``"model": "gpt-4o-mini-2025-04-11"``.
 
             By default, ``"gpt-4o-mini"``.
+        max_num_docs_to_parse_per_jurisdiction : int, optional
+            Maximum number of documents to parse for each jurisdiction
+            (regardless of the collection method). If ``None``, all
+            collected documents are parsed. By default, ``None``.
         max_num_concurrent_jurisdictions : int, default=25
             Maximum number of jurisdictions to process concurrently.
             Limiting this can help manage memory usage when dealing with
@@ -1139,6 +1170,9 @@ class ExtractionRequest(BaseRequest):
             tech=tech,
             jurisdiction_fp=jurisdiction_fp,
             model=model,
+            max_num_docs_to_parse_per_jurisdiction=(
+                max_num_docs_to_parse_per_jurisdiction
+            ),
             max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
             file_loader_kwargs=file_loader_kwargs,
             td_kwargs=td_kwargs,

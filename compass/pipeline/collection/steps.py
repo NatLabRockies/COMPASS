@@ -15,6 +15,7 @@ from compass.scripts.download import (
 )
 from compass.validation.location import JurisdictionWebsiteValidator
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
 
 
@@ -76,7 +77,9 @@ class KnownLocalDocumentsStep(CollectionStep):
             docs = await load_known_docs(
                 workflow.jurisdiction,
                 [info["source_fp"] for info in workflow.known_local_docs],
-                local_file_loader_kwargs=workflow.runtime.local_file_loader_kwargs,
+                local_file_loader_kwargs=(
+                    workflow.runtime.local_file_loader_kwargs
+                ),
             )
         except Exception:
             logger.exception(
@@ -396,8 +399,8 @@ async def try_set_website_from_jurisdiction(workflow):
         if workflow.validate_user_website_input:
             await _validate_jurisdiction_website(workflow)
         else:
-            workflow.jurisdiction_website = await get_redirected_url(
-                workflow.jurisdiction_website, timeout=30
+            workflow.jurisdiction_website = await _get_base_website(
+                workflow.jurisdiction_website
             )
 
     if not workflow.jurisdiction_website:
@@ -411,9 +414,12 @@ async def _validate_jurisdiction_website(workflow):
     if workflow.jurisdiction_website is None:
         return
 
-    workflow.jurisdiction_website = await get_redirected_url(
-        workflow.jurisdiction_website, timeout=30
+    workflow.jurisdiction_website = await _get_base_website(
+        workflow.jurisdiction_website,
     )
+    if workflow.jurisdiction_website is None:
+        return
+
     COMPASS_PB.update_jurisdiction_task(
         workflow.jurisdiction.full_name,
         description=(
@@ -437,6 +443,16 @@ async def _validate_jurisdiction_website(workflow):
     )
     if not is_website_correct:
         workflow.jurisdiction_website = None
+
+
+async def _get_base_website(website):
+    """Get the base URL for a website, following redirects if needed"""
+    try:
+        website = await get_redirected_url(website, timeout=30)
+    except Exception:
+        logger.exception("Error getting redirected URL for %s", website)
+        return None
+    return base_website_url(website)
 
 
 async def _find_jurisdiction_website_for_workflow(workflow):
