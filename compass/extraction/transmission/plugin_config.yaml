@@ -65,6 +65,7 @@ heuristic_keywords:
     - "uhv"
     - "cpcn" #  Certificate of Public Convenience and Necessity
   good_tech_phrases:
+    - "certificate of public convenience and necessity"
     - "high voltage"
     - "high-voltage"
     - "extra high voltage"
