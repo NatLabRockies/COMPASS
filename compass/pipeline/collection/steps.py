@@ -13,8 +13,7 @@ from compass.scripts.download import (
     find_jurisdiction_website,
     load_known_docs,
 )
-from compass.validation.location import JurisdictionWebsiteValidator
-from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.enums import COMPASSDocumentCollectionStep
 from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
 
@@ -258,24 +257,21 @@ class ElmWebsiteCrawlStep(CollectionStep):
 
         if not workflow.perform_website_search:
             return []
+
+        await _validate_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
-            await try_set_website_from_jurisdiction(workflow)
-            if not workflow.jurisdiction_website:
-                logger.debug(
-                    "No jurisdiction website found for %r; skipping "
-                    "website document collection",
-                    workflow.jurisdiction.full_name,
-                )
-                return []
+            logger.debug(
+                "No jurisdiction website found for %r; skipping "
+                "ELM website document collection",
+                workflow.jurisdiction.full_name,
+            )
+            return []
 
         logger.debug(
             "Collecting documents using ELM web crawl for: %s",
             workflow.jurisdiction.full_name,
         )
         try:
-            workflow.jurisdiction_website = await get_redirected_url(
-                workflow.jurisdiction_website, timeout=30
-            )
             out = await download_jurisdiction_ordinances_from_website(
                 workflow.jurisdiction_website,
                 heuristic=await workflow.extractor.get_heuristic(),
@@ -342,15 +338,15 @@ class CompassWebsiteCrawlStep(CollectionStep):
         """
         if not workflow.perform_website_search:
             return []
+
+        await _validate_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
-            await try_set_website_from_jurisdiction(workflow)
-            if not workflow.jurisdiction_website:
-                logger.debug(
-                    "No jurisdiction website found for %r; skipping "
-                    "website document collection",
-                    workflow.jurisdiction.full_name,
-                )
-                return []
+            logger.debug(
+                "No jurisdiction website found for %r; skipping "
+                "COMPASS website document collection",
+                workflow.jurisdiction.full_name,
+            )
+            return []
 
         logger.debug(
             "Collecting documents using COMPASS web crawl for: %s",
@@ -384,65 +380,20 @@ class CompassWebsiteCrawlStep(CollectionStep):
         return docs
 
 
-async def try_set_website_from_jurisdiction(workflow):
-    """Resolve the website URL for this jurisdiction
-
-    Parameters
-    ----------
-    workflow : compass.pipeline.jurisdiction.SingleJurisdictionRun
-        The workflow for the jurisdiction being processed, which may or
-        may not have a user-supplied website URL. If the workflow
-        doesn't have a website URL, this function will attempt to find
-        one.
-    """
-    if workflow.jurisdiction_website:
-        if workflow.validate_user_website_input:
-            await _validate_jurisdiction_website(workflow)
-        else:
-            workflow.jurisdiction_website = await _get_base_website(
-                workflow.jurisdiction_website
-            )
-
-    if not workflow.jurisdiction_website:
-        website = await _find_jurisdiction_website_for_workflow(workflow)
-        if website:
-            workflow.jurisdiction_website = website
-
-
 async def _validate_jurisdiction_website(workflow):
-    """Validate a user-supplied jurisdiction website"""
-    if workflow.jurisdiction_website is None:
+    """Try to set and resolve the website URL for this jurisdiction"""
+    if workflow.jurisdiction_website:
+        workflow.jurisdiction_website = await _get_base_website(
+            workflow.jurisdiction_website
+        )
+
+    # only try to find a website if we don't have one and we have LLMs
+    # we can use for validation
+    if workflow.jurisdiction_website or not workflow.runtime.models:
         return
 
-    workflow.jurisdiction_website = await _get_base_website(
-        workflow.jurisdiction_website,
-    )
-    if workflow.jurisdiction_website is None:
-        return
-
-    COMPASS_PB.update_jurisdiction_task(
-        workflow.jurisdiction.full_name,
-        description=(
-            f"Validating user input website: {workflow.jurisdiction_website}"
-        ),
-    )
-    model_config = workflow.runtime.models.get(
-        LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
-        workflow.runtime.models[LLMTasks.DEFAULT],
-    )
-    validator = JurisdictionWebsiteValidator(
-        browser_semaphore=workflow.runtime.browser_semaphore,
-        file_loader_kwargs=workflow.runtime.file_loader_kwargs_no_ocr,
-        usage_tracker=workflow.usage_tracker,
-        llm_service=model_config.llm_service,
-        **model_config.llm_call_kwargs,
-    )
-    is_website_correct = await validator.check(
-        workflow.jurisdiction_website,
-        workflow.jurisdiction,
-    )
-    if not is_website_correct:
-        workflow.jurisdiction_website = None
+    if website := await _find_jurisdiction_website_for_workflow(workflow):
+        workflow.jurisdiction_website = await _get_base_website(website)
 
 
 async def _get_base_website(website):
@@ -468,7 +419,6 @@ async def _find_jurisdiction_website_for_workflow(workflow):
         search_semaphore=workflow.runtime.search_engine_semaphore,
         browser_semaphore=workflow.runtime.browser_semaphore,
         usage_tracker=workflow.usage_tracker,
-        validate=workflow.validate_user_website_input,
         url_ignore_substrings=(
             workflow.runtime.search_params.url_ignore_substrings
         ),
