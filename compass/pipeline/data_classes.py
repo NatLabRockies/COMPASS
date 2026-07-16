@@ -752,7 +752,8 @@ class CollectionRequest(BaseRequest):
             Optional model configuration used only for collection-side
             LLM tasks, such as:
 
-                - validating a jurisdiction website before website crawl
+                - Searching for and validating a jurisdiction website
+                  before website crawl
 
             If this key is left out, these steps are skipped completely.
             If provided as a string, it is assumed to be the name of the
