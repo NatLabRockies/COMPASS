@@ -60,8 +60,12 @@
               // -- Numerical Restrictions --
               // Electric Fields Strength at Property Line
               "electric field",
-              // Tower vs facility height. Do I want both?
-              "maximum height",
+              // Maximum allowed height for transmission towers, poles,
+              // or monopoles that carry high-voltage conductors.
+              "maximum tower height",
+              // Maximum allowed height for accessory or support
+              // structures (substations, control buildings, etc.).
+              "maximum structure height",
               "noise",
 
               // -- Operational --
@@ -196,6 +200,12 @@
     "numerical_features": {
       "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the text.",
       "properties": {
+        "electric field": {
+          "description": "Extract maximum electric field strength allowed at a property line."
+        },
+        "maximum height": {
+          "description": "Extract maximum structure height allowed. If the ordinance includes separate maximum height limits for towers and other support structures, extract them as separate rows under 'maximum tower height' and 'maximum structure height' features respectively, even if the numeric values are the same."
+        },
         "noise": {
           "description": "Extract maximum allowable operational noise for electric transmission lines and related facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in summary. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
         },
