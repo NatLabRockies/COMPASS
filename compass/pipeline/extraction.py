@@ -16,6 +16,12 @@ class DocumentExtraction:
     def __init__(self, workflow):
         self.workflow = workflow
 
+    @property
+    def max_docs_to_parse(self):
+        """int or None: Maximum number of documents to parse"""
+        parse_settings = self.workflow.runtime.request.parsing_settings
+        return parse_settings.max_num_docs_per_jurisdiction
+
     async def extract_from_docs(self, docs):
         """Filter and extract data from a set of docs
 
@@ -35,7 +41,7 @@ class DocumentExtraction:
 
         extraction_context = ExtractionContext(documents=docs)
         extraction_context = await self.workflow.extractor.filter_docs(
-            extraction_context
+            extraction_context, self.max_docs_to_parse
         )
         if not extraction_context:
             return None

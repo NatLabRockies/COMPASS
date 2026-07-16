@@ -58,9 +58,29 @@ def setup_graph_correct_document_type(**kwargs):
         ),
     )
 
-    G.add_edge("init", "is_model", condition=llm_response_starts_with_yes)
     G.add_edge(
-        "check_for_laws", "is_model", condition=llm_response_starts_with_yes
+        "init", "has_substantive_text", condition=llm_response_starts_with_yes
+    )
+    G.add_edge(
+        "check_for_laws",
+        "has_substantive_text",
+        condition=llm_response_starts_with_yes,
+    )
+    G.add_node(
+        "has_substantive_text",
+        prompt=(
+            "Does this excerpt include substantive legal content such as "
+            "operative provisions, definitions, or other regulatory text, "
+            "rather than only a table of contents, chapter/section heading "
+            "list, navigation links, or a citation-only index? "
+            "{YES_NO_PROMPT}"
+        ),
+    )
+
+    G.add_edge(
+        "has_substantive_text",
+        "is_model",
+        condition=llm_response_starts_with_yes,
     )
     G.add_node(
         "is_model",
@@ -272,8 +292,10 @@ def setup_graph_correct_document_type(**kwargs):
             "2. **'type'** (string) - The best-fitting category for the "
             "source of the text.\n"
             "3. **'{key}'** (boolean) -\n"
-            "\t- `true` if the text is a **legally binding regulation**.\n"
-            "\t- `false` if the text belongs to any other type of document or "
+            "\t- `true` if the text is a **legally binding regulation** "
+            "with substantive legal content.\n"
+            "\t- `false` if the text belongs to any other type of document, "
+            "if it does not contain substantive legal content, or "
             "if you cannot tell for certain one way or another.\n\n"
         ),
     )

@@ -5,9 +5,9 @@ data_type_short_desc: geothermal ground source heat pump ordinance
 query_templates:
     - "{jurisdiction} geothermal ground source heat pump code"
     - "filetype:pdf {jurisdiction} geothermal heat pump ordinance"
-    - "{jurisdiction} geothermal energy system ordinance"
+    - "{jurisdiction} private geothermal energy system ordinance"
     - "Where can I find the legal text for geothermal heat pump zoning ordinances in {jurisdiction}?"
-    - "What is the specific legal information regarding zoning ordinances for geothermal heat pumps in {jurisdiction}?"
+    - "What is the specific legal information regarding zoning ordinances for private heat exchange wells in {jurisdiction}?"
 
 website_keywords:
     # These still need massaging
@@ -30,11 +30,14 @@ heuristic_keywords:
   good_tech_keywords:
     - "geoexchange"
     - "geo-exchange"
+    - "heat-exchange"
     - "wellfield"
     - "direct-use"
     - "closed-loop"
   good_tech_phrases:
+    - "water well"
     - "well field"
+    - "geothermal heat"
     - "geothermal resource"
     - "geothermal drilling"
     - "geothermal well"
@@ -46,6 +49,7 @@ heuristic_keywords:
     - "open loop"
     - "vertical loop"
     - "horizontal loop"
+    - "heat exchange"
     - "heating and cooling"
     - "space heating"
     - "direct use"

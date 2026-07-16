@@ -10,7 +10,11 @@ import pytest
 from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
-from compass.utilities.url import normalize_domain, sanitize_url
+from compass.utilities.url import (
+    normalize_domain,
+    sanitize_url,
+    base_website_url,
+)
 from compass.web.website_crawl import (
     COMPASSCrawler,
     COMPASSLinkScorer,
@@ -90,6 +94,26 @@ class StubPage:
     def locator(self, selector):
         locators = self._locator_map.get(selector, [])
         return StubLocators(self, locators)
+
+
+@pytest.mark.parametrize(
+    "url, expected_out",
+    [
+        (
+            "https://prattvilleal.gov/venue/autauga-county-commission/",
+            "https://prattvilleal.gov/",
+        ),
+        (
+            "https://cityofbayminetteal.gov/government/city-council?x=1",
+            "https://cityofbayminetteal.gov/",
+        ),
+        ("not-a-url", "not-a-url"),
+    ],
+)
+def test_base_website_url(url, expected_out):
+    """Collapse website URLs to their root domain"""
+
+    assert base_website_url(url) == expected_out
 
 
 @pytest.fixture

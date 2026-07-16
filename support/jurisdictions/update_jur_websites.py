@@ -44,8 +44,8 @@ from compass.utilities.enums import LLMTasks
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.logs import AddLocationFilter, log_versions
+from compass.utilities.url import base_website_url
 from compass.web.file_loader import COMPASSWebFileLoader
-from compass.web.url_utils import base_website_url
 from compass.validation.location import JurisdictionWebsiteValidator
 
 
@@ -96,7 +96,7 @@ def _parse_args():
     parser.add_argument(
         "--log-level",
         default="DEBUG",
-        help="Logging level for terminal output. By default, INFO.",
+        help="Logging level for terminal output. By default, DEBUG.",
     )
     parser.add_argument(
         "-v",
@@ -266,7 +266,8 @@ def _load_runtime_inputs(config_fp):
     model_configs = _build_models(raw_config["model"])
 
     search_params = WebSearchParams(
-        search_engines=raw_config["search_engines"]
+        search_engines=raw_config["search_engines"],
+        url_ignore_substrings=[".k12.", ".edu/"],
     )
 
     file_loader_kwargs = raw_config.get("file_loader_kwargs") or {}
@@ -582,6 +583,9 @@ def _process_all_jurisdictions(
 
         jobs.append(asyncio.create_task(_run_row(), name=location_label))
 
+    logger.info(
+        "Submitted %d jurisdiction row tasks for processing", len(jobs)
+    )
     return jobs
 
 

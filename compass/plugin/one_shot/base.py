@@ -472,12 +472,14 @@ def _collectors_from_config(config):
     cp = config.get("collection_prompts")
 
     if cp is True:
-        schema_fp = _SCHEMA_DIR / "validate_chunk.json5"
+        scope_schema_fp = _SCHEMA_DIR / "validate_chunk_scope.json5"
+        content_schema_fp = _SCHEMA_DIR / "validate_chunk_content.json5"
 
         class PluginTextCollector(SchemaBasedTextCollector):
             OUT_LABEL = NoOpTextCollector.OUT_LABEL  # reuse label
             SCHEMA = config["schema"]
-            OUTPUT_SCHEMA = load_config(schema_fp)
+            SCOPE_VALIDATION_OUTPUT_SCHEMA = load_config(scope_schema_fp)
+            CONTENT_VALIDATION_OUTPUT_SCHEMA = load_config(content_schema_fp)
 
         return [PluginTextCollector]
 
