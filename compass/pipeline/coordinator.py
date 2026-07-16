@@ -122,13 +122,7 @@ class BaseRunMode(ABC):
         """
         self.runtime = runtime
 
-    def _create(
-        self,
-        jurisdiction,
-        *,
-        usage_tracker=None,
-        validate_user_website_input=True,
-    ):
+    def _create(self, jurisdiction, *, usage_tracker=None):
         """Create one configured jurisdiction workflow"""
         extractor = self.runtime.extractor_class(
             jurisdiction=jurisdiction,
@@ -148,7 +142,6 @@ class BaseRunMode(ABC):
             perform_website_search=(
                 self.runtime.request.perform_website_search
             ),
-            validate_user_website_input=validate_user_website_input,
         )
 
     @abstractmethod
@@ -195,11 +188,7 @@ class COMPASSFullProcessing(BaseRunMode):
             usage_tracker = UsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(
-                jurisdiction,
-                usage_tracker=usage_tracker,
-                validate_user_website_input=True,
-            )
+            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
             tasks.append(
                 asyncio.create_task(
                     workflow.run_process_with_logging(),
@@ -252,11 +241,7 @@ class COMPASSCollection(BaseRunMode):
         )
         tasks = []
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            workflow = self._create(
-                jurisdiction,
-                usage_tracker=None,
-                validate_user_website_input=False,
-            )
+            workflow = self._create(jurisdiction, usage_tracker=None)
             tasks.append(
                 asyncio.create_task(
                     workflow.run_collection_with_logging(
@@ -342,11 +327,7 @@ class COMPASSExtraction(BaseRunMode):
             usage_tracker = UsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(
-                jurisdiction,
-                usage_tracker=usage_tracker,
-                validate_user_website_input=True,
-            )
+            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
             tasks.append(
                 asyncio.create_task(
                     workflow.run_extraction_with_logging(collection_info[0]),
