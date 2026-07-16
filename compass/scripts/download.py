@@ -173,7 +173,6 @@ async def find_jurisdiction_website(
     browser_semaphore=None,
     usage_tracker=None,
     url_ignore_substrings=None,
-    validate=True,
     **kwargs,
 ):
     """Search for the main landing page of a given jurisdiction
@@ -213,12 +212,6 @@ async def find_jurisdiction_website(
     url_ignore_substrings : list of str, optional
         URL substrings that should be excluded from search results.
         Substrings are applied case-insensitively. By default, ``None``.
-    validate : bool, default=True
-        If ``True``, each potential jurisdiction website will be checked
-        for validity using the
-        :class:`~compass.validation.location.JurisdictionWebsiteValidator`
-        before being returned. If ``False``, the first potential website
-        will be returned without validation. By default, ``True``.
     **kwargs
         Additional arguments forwarded to
         :func:`elm.web.search.run.search_with_fallback`.
@@ -249,9 +242,6 @@ async def find_jurisdiction_website(
 
     if not potential_website_links:
         return None
-
-    if not validate:
-        return potential_website_links.pop()
 
     model_config = model_configs.get(
         LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION,
