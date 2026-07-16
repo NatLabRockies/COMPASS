@@ -750,13 +750,56 @@ class CollectionRequest(BaseRequest):
             "City", "Township", etc.)
         model : str or list of dict, optional
             Optional model configuration used only for collection-side
-            LLM tasks, such as validating a user-supplied jurisdiction
-            website. If provided as a string, it is treated as the
-            default model name. If provided as a list, each entry
-            should contain keyword arguments used to initialize
-            :class:`~compass.llm.config.OpenAIConfig`, along with a
-            ``tasks`` key describing which LLM tasks that configuration
-            should handle. By default, ``None``.
+            LLM tasks, such as:
+
+                - validating a jurisdiction website before website crawl
+
+            If this key is left out, these steps are skipped completely.
+            If provided as a string, it is assumed to be the name of the
+            default model (e.g., "gpt-5-mini"), and environment
+            variables are used for authentication.
+
+            If a list is provided, it should contain dictionaries of
+            arguments that can initialize instances of
+            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
+            can specify the model name, client type, and initialization
+            arguments.
+
+            Each dictionary must also include a ``tasks`` key, which
+            maps to a string or list of strings indicating the tasks
+            that instance should handle. Exactly one of the instances
+            **must** include "default" as a task, which will be used
+            when no specific task is matched. For example::
+
+                "model": [
+                    {
+                        "model": "gpt-4o-mini",
+                        "llm_call_kwargs": {
+                            "temperature": 0,
+                            "timeout": 300,
+                        },
+                        "client_kwargs": {
+                            "api_key": "<your_api_key>",
+                            "api_version": "<your_api_version>",
+                            "azure_endpoint": "<your_azure_endpoint>",
+                        },
+                        "tasks": ["default", "date_extraction"],
+                    },
+                    {
+                        "model": "gpt-4o",
+                        "client_type": "openai",
+                        "tasks": ["ordinance_text_extraction"],
+                    }
+                ]
+
+            .. IMPORTANT::
+                You will need to ensure that the model name used here
+                matches your deployment if you are using Azure OpenAI.
+                For example, if you deployed the GPT-4o-mini model under
+                the name ``"gpt-4o-mini-2025-04-11"``, you would want to
+                set ``"model": "gpt-4o-mini-2025-04-11"``.
+
+            By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
             Number of unique Google search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
