@@ -457,7 +457,6 @@ async def _find_jurisdiction_website_for_jurisdiction(
         search_semaphore=search_semaphore,
         browser_semaphore=browser_semaphore,
         usage_tracker=usage_tracker,
-        validate=True,
         url_ignore_substrings=search_params.url_ignore_substrings,
         **search_params.se_kwargs,
     )
