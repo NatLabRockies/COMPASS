@@ -258,7 +258,7 @@ class ElmWebsiteCrawlStep(CollectionStep):
         if not workflow.perform_website_search:
             return []
 
-        await _validate_jurisdiction_website(workflow)
+        await _resolve_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
             logger.debug(
                 "No jurisdiction website found for %r; skipping "
@@ -339,7 +339,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
         if not workflow.perform_website_search:
             return []
 
-        await _validate_jurisdiction_website(workflow)
+        await _resolve_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
             logger.debug(
                 "No jurisdiction website found for %r; skipping "
@@ -380,7 +380,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
         return docs
 
 
-async def _validate_jurisdiction_website(workflow):
+async def _resolve_jurisdiction_website(workflow):
     """Try to set and resolve the website URL for this jurisdiction"""
     if workflow.jurisdiction_website:
         workflow.jurisdiction_website = await _get_base_website(
