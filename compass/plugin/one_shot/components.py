@@ -17,8 +17,8 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 logger = logging.getLogger(__name__)
 
-SCOPE_SENTINEL_ALL = "all"
-SCOPE_SENTINEL_OTHER = "other"
+SUBAREA_SENTINEL_ALL = "all"
+SUBAREA_SENTINEL_OTHER = "other"
 
 _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
 You are a structured extraction scope validator. Given a text chunk, \
@@ -540,7 +540,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             {"feature": all_features, "quantitative": quant}
         )
         full_df = full_df.merge(df, on="feature", how="left")
-        full_df = self._apply_scope_defaults(full_df)
+        full_df = self._apply_subarea_defaults(full_df)
 
         ignore_cols = {
             "county",
@@ -558,13 +558,10 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         ]
         return full_df[["feature", *out_cols, "quantitative"]]
 
-    def _apply_scope_defaults(self, df):
-        """Fill placeholder scope entries with the 'all' sentinel"""
+    def _apply_subarea_defaults(self, df):
+        """Fill placeholder subarea entries with the 'all' sentinel"""
 
-        output_items = self.SCHEMA["properties"]["outputs"]["items"]
-        if "scope" not in output_items.get("properties", {}):
-            return df
-        if "scope" not in df.columns:
-            df["scope"] = SCOPE_SENTINEL_ALL
-        df["scope"] = df["scope"].fillna(SCOPE_SENTINEL_ALL)
+        if "subarea" not in df.columns:
+            df["subarea"] = SUBAREA_SENTINEL_ALL
+        df["subarea"] = df["subarea"].fillna(SUBAREA_SENTINEL_ALL)
         return df

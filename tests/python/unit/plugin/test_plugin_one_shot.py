@@ -228,39 +228,40 @@ def _schema_with_scope(enum):
         "properties": {
             "outputs": {
                 "items": {
-                    "properties": {"scope": {"enum": list(enum)}}
+                    "properties": {"subarea": {"enum": list(enum)}}
                 }
             }
         }
     }
 
-def test_inject_scope_sentinels_wraps_enum():
+
+def test_inject_subarea_sentinels_wraps_enum():
     """``all`` is prepended and ``other`` appended around user values"""
 
-    schema = _schema_with_scope(["residential", "commercial"])
-    _inject_scope_sentinels(schema)
+    schema = _schema_with_subarea(["residential", "commercial"])
+    _inject_subarea_sentinels(schema)
 
-    enum = schema["properties"]["outputs"]["items"]["properties"]["scope"][
-        "enum"
-    ]
+    enum = schema["properties"]["outputs"]["items"]["properties"][
+        "subarea"
+    ]["enum"]
     assert enum == ["all", "residential", "commercial", "other"]
 
 
-def test_inject_scope_sentinels_is_idempotent():
+def test_inject_subarea_sentinels_is_idempotent():
     """Calling twice does not duplicate sentinels"""
 
-    schema = _schema_with_scope(["residential"])
-    _inject_scope_sentinels(schema)
-    _inject_scope_sentinels(schema)
+    schema = _schema_with_subarea(["residential"])
+    _inject_subarea_sentinels(schema)
+    _inject_subarea_sentinels(schema)
 
-    enum = schema["properties"]["outputs"]["items"]["properties"]["scope"][
-        "enum"
-    ]
+    enum = schema["properties"]["outputs"]["items"]["properties"][
+        "subarea"
+    ]["enum"]
     assert enum == ["all", "residential", "other"]
 
 
-def test_inject_scope_sentinels_noop_when_no_scope_property():
-    """Legacy schemas without a scope property are left unchanged"""
+def test_inject_subarea_sentinels_noop_when_no_subarea_property():
+    """Legacy schemas without a subarea property are left unchanged"""
 
     schema = {
         "properties": {
@@ -271,7 +272,7 @@ def test_inject_scope_sentinels_noop_when_no_scope_property():
     }
     original = deepcopy(schema)
 
-    _inject_scope_sentinels(schema)
+    _inject_subarea_sentinels(schema)
 
     assert schema == original
 

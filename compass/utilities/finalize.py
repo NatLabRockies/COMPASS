@@ -24,7 +24,7 @@ _PARSED_COLS = [
     "jurisdiction_type",
     "FIPS",
     "feature",
-    "scope",
+    "subarea",
     "value",
     "units",
     "adder",

@@ -28,8 +28,8 @@ from compass.plugin.one_shot.components import (
     SchemaBasedTextCollector,
     SchemaBasedTextExtractor,
     SchemaOrdinanceParser,
-    SCOPE_SENTINEL_ALL,
-    SCOPE_SENTINEL_OTHER,
+    SUBAREA_SENTINEL_ALL,
+    SUBAREA_SENTINEL_OTHER,
 )
 from compass.plugin.one_shot.cache import key_from_cache, key_to_cache
 from compass.services.threaded import CLEANED_FP_REGISTRY
@@ -54,21 +54,23 @@ class _CacheKey(StrEnum):
     HEURISTIC_KEYWORDS = auto()
 
 
-def _inject_scope_sentinels(schema):
-    """Add ``all`` and ``other`` sentinels to the scope enum in-place"""
+def _inject_subarea_sentinels(schema):
+    """Add ``all``/``other`` sentinels to the subarea enum in-place"""
     try:
-        scope = schema["properties"]["outputs"]["items"]["properties"]["scope"]
+        subarea = schema["properties"]["outputs"]["items"]["properties"][
+            "subarea"
+        ]
     except (KeyError, TypeError):
         return
 
-    enum = scope.get("enum")
+    enum = subarea.get("enum")
     if not isinstance(enum, list):
         return
 
-    if SCOPE_SENTINEL_ALL not in enum:
-        enum.insert(0, SCOPE_SENTINEL_ALL)
-    if SCOPE_SENTINEL_OTHER not in enum:
-        enum.append(SCOPE_SENTINEL_OTHER)
+    if SUBAREA_SENTINEL_ALL not in enum:
+        enum.insert(0, SUBAREA_SENTINEL_ALL)
+    if SUBAREA_SENTINEL_OTHER not in enum:
+        enum.append(SUBAREA_SENTINEL_OTHER)
 
 
 def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore[complex-structure]
@@ -212,7 +214,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
     if isinstance(config["schema"], str):
         config["schema"] = load_config(config["schema"])
 
-    _inject_scope_sentinels(config["schema"])
+    _inject_subarea_sentinels(config["schema"])
 
     config["qual_feats"] = {
         f.casefold() for f in config["schema"].pop("$qualitative_features", [])
