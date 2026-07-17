@@ -319,6 +319,17 @@
     ],
   },
   "$qualitative_features": [
+    "bond",
+    "color",
     "decommissioning",
+    "fencing",
+    "fire prevention",
+    "franchise",
+    "lightning",
+    "permit",
+    "signage",
+    "traffic disruption",
+    "vegetation",
+    "FAA"
   ]
 }
