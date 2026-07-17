@@ -130,7 +130,8 @@
           },
           "units": {
             "type": ["string", "null"],
-            "description": "Units for the extracted value. Preserve the ordinance unit wording exactly whenever possible. For setbacks/depth, use linear units such as 'feet' or 'meters' as stated in text. For noise, use 'dBA' only if the ordinance says 'dBA' or 'dB(A)'; if it says 'dB' without A-weighting, keep 'dB'. Use null for qualitative fields without measurable units."
+            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters' when possible. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use null for permit lists and qualitative requirements without measurable units."
+
           },
           "section": {
             "type": ["string", "null"],
