@@ -116,7 +116,7 @@
             ]
           },
           "value": {
-            "description": "The extracted ordinance value. For numerical setbacks/limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
+            "description": "The extracted ordinance value. For numerical distance thresholds and limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
             "anyOf": [
               {"type": "number"},
               {"type": "string"},
