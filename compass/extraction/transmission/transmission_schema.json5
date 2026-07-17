@@ -236,20 +236,40 @@
     "prohibition_features": {
       "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `scope` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
       "properties": {
-        "rural zone": {
-          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in rural zones, agricultural zones, or similar low-density land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        "zone use restriction": {
+          "description": "Extract prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission lines and related infrastructure within a specific zoning district. Set `scope` to the district being restricted (for example 'residential', 'commercial', 'agricultural'). Use scope='other' when the ordinance names a district that does not match the enumerated categories. Do not emit scope='all' for this feature; if the restriction is jurisdiction-wide, it is not a zone use restriction and should be captured under a different feature. Emit one row per explicitly restricted district. Include the verbatim ordinance language in summary and cite the restricting clause."
+        }
+      }
+    },
+    "excluded_lands": {
+      "description": "Lands excluded from transmission line siting. Do not extract as prohibitions or setbacks. Only extract when the ordinance explicitly states that transmission lines and related infrastructure are prohibited from being sited, built, or installed in these areas.",
+      "properties": {
+        "historic site": {
+          "description": "Extract exclusions for historic sites, landmarks, or districts."
         },
-        "residential zone": {
-          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in residential zones, residential districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        "critical species habitat": {
+          "description": "Extract exclusions for critical species habitat, protected wildlife areas, or similar conservation lands."
         },
-        "commercial zone": {
-          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in commercial zones, commercial districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        "wetland": {
+          "description": "Extract exclusions for wetlands, marshes, swamps, or similar aquatic habitats."
         },
-        "light industrial zone": {
-          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in light industrial zones, light industrial districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure."
+        "floodplain": {
+          "description": "Extract exclusions for floodplains, flood zones, or similar areas prone to flooding."
         },
-        "agricultural zone": {
-          "description": "Extract prohibitions or moratoria on electric transmission lines and related infrastructure in agricultural zones, agricultural districts, or similar land use areas when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure. Include prohibitions in irrigated farmland, ranch land, or similar agricultural land when the ordinance explicitly states that the prohibition applies to transmission lines or related infrastructure in those areas."
+        "residence": {
+          "description": "Extract exclusions for residences, homes, occupied dwellings, or similar occupied buildings."
+        },
+        "hospital": {
+          "description": "Extract exclusions for hospitals, medical centers, healthcare facilities, or similar critical community facilities."
+        },
+        "school": {
+          "description": "Extract exclusions for schools, educational institutions, daycare centers, institutions of higher education, or similar educational facilities."
+        },
+        "daycare": {
+          "description": "Extract exclusions for daycare centers, childcare facilities, or similar child-focused facilities."
+        },
+        "higher education": {
+          "description": "Extract exclusions for institutions of higher education, colleges, universities, or similar post-secondary educational facilities."
         }
       }
     },
