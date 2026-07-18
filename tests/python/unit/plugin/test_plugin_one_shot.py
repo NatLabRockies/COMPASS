@@ -7,7 +7,7 @@ import pytest
 
 from compass.exceptions import COMPASSPluginConfigurationError
 from compass.plugin.one_shot.base import (
-    _inject_scope_sentinels,
+    _inject_subarea_sentinels,
     _normalize_heuristic_keywords,
 )
 from compass.plugin.one_shot.components import SchemaBasedTextCollector
