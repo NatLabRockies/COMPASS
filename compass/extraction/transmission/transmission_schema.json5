@@ -45,7 +45,7 @@
               // Occupied Dwellings or Residential Buildings
               "residential buildings",
               "property lines",
-              // Roads of frewways
+              // Roads of freeways
               "roads",
               // Heliports and Airport Runways
               "airport",
@@ -139,7 +139,7 @@
           },
           "summary": {
             "type": "string",
-            "description": "A short summary of the relevant ordinance requiremets."
+            "description": "A short summary of the relevant ordinance requirements."
           },
           "explanation": {
             "type": "string",
