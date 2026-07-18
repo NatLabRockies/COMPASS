@@ -13,7 +13,7 @@
         "type": "object",
         "required": [
           "feature",
-          "scope",
+          "subarea",
           "value",
           "units",
           "section",
@@ -22,19 +22,6 @@
         ],
         "additionalProperties": false,
         "properties": {
-          "scope": {
-            "type": "string",
-            "description": "The subset of the jurisdiction to which this row applies. Use 'all' when the requirement applies jurisdiction-wide with no zone-specific variation. Use one of the named zoning categories when the ordinance text explicitly ties the requirement to that district. Use 'other' when the ordinance names a specific district that does not match any of the enumerated categories (for example, 'PUD', 'aviation overlay', 'conservation-2'). Do not invent categories; do not infer a zone from headings or nearby context that does not explicitly bind the requirement to that district.",
-            "enum": [
-              "rural",
-              "residential",
-              "commercial",
-              "light industrial",
-              "industrial",
-              "agricultural",
-              "mixed use"
-            ]
-          },
           "feature": {
             "type": "string",
             "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
@@ -79,7 +66,7 @@
               "FAA",
 
               // -- Prohibited or limited-use districts --
-              // Use the `scope` field to identify which district the
+              // Use the `subarea` field to identify which district the
               // prohibition applies to (rural, residential, commercial,
               // light industrial, industrial, agricultural, mixed use,
               // or 'other' for named districts not covered by the enum).
@@ -113,6 +100,19 @@
               // -- Administrative --
               // Electric utility franchise granted to a named company
               "franchise",
+            ]
+          },
+          "subarea": {
+            "type": "string",
+            "description": "The subset of the jurisdiction to which this row applies. Use 'all' when the requirement applies jurisdiction-wide with no zone-specific variation. Use one of the named zoning categories when the ordinance text explicitly ties the requirement to that district. Use 'other' when the ordinance names a specific district that does not match any of the enumerated categories (for example, 'PUD', 'aviation overlay', 'conservation-2'). Do not invent categories; do not infer a zone from headings or nearby context that does not explicitly bind the requirement to that district.",
+            "enum": [
+              "rural",
+              "residential",
+              "commercial",
+              "light industrial",
+              "industrial",
+              "agricultural",
+              "mixed use"
             ]
           },
           "value": {
@@ -161,8 +161,7 @@
       "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units=null only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
     },
     "numeric_prioritization": {
-      // Review numeric features if I specify all conditions here.
-      "description": "When multiple numeric values apply to the same feature, keep one row and select the controlling most restrictive value for that feature. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; tower height -> choose the highest maximum height; noise -> choose the lowest allowed noise limit. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same feature for GHP systems."
+      "description": "When multiple numeric values apply to the same (feature, subarea) pair, keep one row for that pair and select the controlling most restrictive value. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; maximum tower height and maximum structure height -> choose the lowest limit within each feature independently, never combine tower limits with accessory-structure limits; noise -> choose the lowest allowed noise limit. When the ordinance explicitly states different numeric limits per zoning district for the same feature (for example a noise table with distinct limits for residential vs commercial districts), emit one row per district using the appropriate `subarea` value and apply restrictiveness within each row. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same (feature, subarea) pair for electric transmission systems."
     },
     /*
     "definition_v_rule_test": {
@@ -285,25 +284,25 @@
   "$examples": [
     {
       "feature": "noise",
-      "scope": "all",
+      "subarea": "all",
       "value": 50,
       "units": "dBA",
       "section": "SECTION 1308 – Performance / Construction Standards",
       "summary": "The transmission line and or facility shall not generate noise in excess of Fifty (50) decibel levels at ground level to the property lines or at the nearest residence. Such measurements shall be signed by a qualified engineer, stating that noise levels are being met, per ordinance.",
-      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide with no zone-specific variation, so a single record with scope='all' is used."
+      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide with no zone-specific variation, so a single row with subarea='all' is emitted."
     },
     {
       "feature": "noise",
-      "scope": "residential",
+      "subarea": "residential",
       "value": 45,
       "units": "dBA",
       "section": "Table 5-3 – Noise Standards by District",
       "summary": "Maximum permissible operational noise at the property line for transmission facilities in residential districts is 45 dBA.",
-      "explanation": "Ordinance explicitly states a distinct noise limit for residential districts. Other districts are also defined."
+      "explanation": "Ordinance explicitly states a distinct noise limit for residential districts; a companion row with subarea='commercial' captures the 55 dBA limit for commercial districts."
     },
     {
       "feature": "noise",
-      "scope": "commercial",
+      "subarea": "commercial",
       "value": 55,
       "units": "dBA",
       "section": "Table 5-3 – Noise Standards by District",
@@ -312,12 +311,12 @@
     },
     {
       "feature": "zone use restriction",
-      "scope": "residential",
+      "subarea": "residential",
       "value": null,
       "units": null,
       "section": "Sec. 12.04.A – Prohibited Uses in Residential Districts",
       "summary": "Overhead electric transmission lines rated above 69 kV are prohibited in all residential districts (R-1, R-2, R-3).",
-      "explanation": "Ordinance explicitly bans transmission lines from residential districts; scope='residential' captures the district class."
+      "explanation": "Ordinance explicitly bans transmission lines from residential districts; subarea='residential' captures the district class."
     }
   ],
   "$instructions": {
@@ -330,11 +329,11 @@
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
     ],
-    "scope": [
-      "Set scope='all' when the ordinance states a single requirement that applies jurisdiction-wide with no zone-specific variation.",
-      "Set scope to a named zoning category only when the ordinance text explicitly binds the requirement to that district (for example a table of limits per district, or a clause 'in residential districts, ...').",
-      "Set scope='other' when the ordinance names a specific district that does not match any enumerated category (for example PUD, aviation overlay, conservation-2).",
-      "Do not invent scopes from section headings, chapter titles, or nearby context that does not explicitly bind the requirement to that district.",
+    "subarea": [
+      "Set subarea='all' when the ordinance states a single requirement that applies jurisdiction-wide with no zone-specific variation.",
+      "Set subarea to a named zoning category only when the ordinance text explicitly binds the requirement to that district (for example a table of limits per district, or a clause 'in residential districts, ...').",
+      "Set subarea='other' when the ordinance names a specific district that does not match any enumerated category (for example PUD, aviation overlay, conservation-2).",
+      "Do not invent subareas from section headings, chapter titles, or nearby context that does not explicitly bind the requirement to that district.",
       "When the same feature has different requirements in different districts, emit one row per district; do not merge them into a single row.",
       "For the 'zone use restriction' feature, scope must be a specific district (never 'all'); emit one row per explicitly restricted district.",
     ],
