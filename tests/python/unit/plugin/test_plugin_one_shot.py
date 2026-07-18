@@ -223,7 +223,7 @@ async def test_schema_text_collector_stores_chunk_after_scope_and_context():
         1: "operative geothermal setback text",
     }
 
-def _schema_with_scope(enum):
+def _schema_with_subarea(enum):
     return {
         "properties": {
             "outputs": {
