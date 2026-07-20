@@ -34,11 +34,7 @@ class DocumentDeDuplicator:
         logger.debug("Adding %d doc(s) to collection", len(docs))
         for doc in docs:
             doc.attrs.setdefault("jurisdiction_name", jurisdiction_name)
-            try:
-                key = _collection_doc_key(doc)
-            except KeyError:
-                key = _collection_doc_key(doc, use_fallback=True)
-
+            key = _collection_doc_key(doc)
             entry = self._docs.setdefault(key, {"doc": doc, "from_steps": []})
             if step_name not in entry["from_steps"]:
                 entry["from_steps"].append(step_name)
@@ -52,9 +48,11 @@ class DocumentDeDuplicator:
         return bool(self._docs)
 
 
-def _collection_doc_key(doc, use_fallback=False):
+def _collection_doc_key(doc):
     """Build the deduplication key for a collected document"""
-    if use_fallback:
+    try:
+        return str(doc.attrs["checksum"])
+    except KeyError:
         return str(
             doc.attrs.get("checksum")
             or doc.attrs.get("source_fp")
@@ -62,4 +60,3 @@ def _collection_doc_key(doc, use_fallback=False):
             or doc.attrs.get("cache_fn")
             or id(doc)
         )
-    return str(doc.attrs["checksum"])
