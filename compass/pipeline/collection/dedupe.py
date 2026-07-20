@@ -39,10 +39,9 @@ class DocumentDeDuplicator:
             except KeyError:
                 key = _collection_doc_key(doc, use_fallback=True)
 
-            if key not in self._docs:
-                self._docs[key] = {"doc": doc, "from_steps": []}
-
-            self._docs[key]["from_steps"].append(step_name)
+            entry = self._docs.setdefault(key, {"doc": doc, "from_steps": []})
+            if step_name not in entry["from_steps"]:
+                entry["from_steps"].append(step_name)
 
     @property
     def values(self):
