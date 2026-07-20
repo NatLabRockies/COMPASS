@@ -33,10 +33,10 @@ def build_collection_manifest(
     tech : str
         Technology specified in the pipeline request, included in the
         manifest for compatibility validation when loading.
-    jurisdictions : dict
-        Dictionary mapping jurisdiction full names to serialized
-        collection metadata for each jurisdiction, including
-        jurisdiction identifiers and the persisted document records.
+    jurisdictions : list
+        List of serialized collection metadata for each jurisdiction,
+        including jurisdiction identifiers and the persisted document
+        records.
     time_start_utc : datetime.datetime
         UTC datetime when the collection process started, used to
         calculate elapsed time for the manifest metadata.
@@ -52,6 +52,11 @@ def build_collection_manifest(
     """
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
+    jurisdictions = [
+        info
+        for info in jurisdictions
+        if info is not None and info.get("documents")
+    ]
     return {
         "tech": tech,
         "time_start_utc": time_start_utc.isoformat(),

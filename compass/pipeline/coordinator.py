@@ -254,7 +254,7 @@ class COMPASSCollection(BaseRunMode):
         collection_infos = await asyncio.gather(*tasks)
         manifest = build_collection_manifest(
             self.runtime.tech,
-            list(filter(None, collection_infos)),
+            collection_infos,
             start_date,
             len(jurisdictions_df),
         )
