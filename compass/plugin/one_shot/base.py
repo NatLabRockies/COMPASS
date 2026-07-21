@@ -172,7 +172,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
             - `post_processing_steps`: Optional list of post-processing
               steps to apply to the extracted data. Each entry should
               be a string of the name of a post processing function in
-              the :module:`compass.plugin.post_processing` module. If
+              the :mod:`compass.plugin.post_processing` module. If
               not provided, no post-processing steps will be applied.
               By default, ``None``.
 
