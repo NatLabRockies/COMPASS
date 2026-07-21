@@ -99,3 +99,6 @@ cache_llm_generated_content: true
 # Allows a single jurisdiction entry to span multiple PDF documents,
 # which is typical for RMPs that are split across many files.
 doc_selection_method: multi-doc-all
+
+post_processing_steps:
+  - "add_document_name"
