@@ -169,6 +169,12 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
                   most once.
 
               By default, ``"single doc"``.
+            - `post_processing_steps`: Optional list of post-processing
+              steps to apply to the extracted data. Each entry should
+              be a string of the name of a post processing function in
+              the :module:`compass.plugin.post_processing` module. If
+              not provided, no post-processing steps will be applied.
+              By default, ``None``.
 
     tech : str
         Technology identifier to use for the plugin (e.g., "wind",
@@ -253,6 +259,9 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
 
         OUTPUT_COLUMNS = out_cols
         """list: List of output columns for the extracted data"""
+
+        POST_PROCESSING_STEPS = config.get("post_processing_steps")
+        """list: Post-processing steps to apply to the extracted data"""
 
         async def get_heuristic(self):
             """Get a `BaseHeuristic` instance with a `check()` method
