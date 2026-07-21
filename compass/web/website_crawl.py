@@ -394,8 +394,13 @@ class COMPASSCrawler:
         logger.debug("Loading Link as HTML: %s", link)
         html_text = await self._get_text_no_err(link.href)
 
-        attrs = {_DEPTH_KEY: depth, _SCORE_KEY: score}
+        attrs = {_DEPTH_KEY: depth, _SCORE_KEY: score, "source": link.href}
         doc = HTMLDocument([html_text], attrs=attrs)
+
+        cache_fn = await TempFileCache.call(doc, doc.text)
+        if cache_fn is not None:
+            doc.attrs["cache_fn"] = cache_fn
+
         self._out_docs.append(doc)
         return True
 
