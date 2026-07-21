@@ -244,6 +244,11 @@ class COMPASSCrawler:
         """Recursive web crawl function"""
         if link is None:
             base_url, link = self._reset_crawl(base_url)
+            logger.debug(
+                "Starting COMPASS crawl for base URL: %s\nLink: %r",
+                base_url,
+                link,
+            )
 
         if link in self._already_visited:
             return
