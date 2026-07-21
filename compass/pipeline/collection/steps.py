@@ -376,6 +376,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
             )
             return []
 
+        logger.debug("Found the following docs with COMPASS crawl:\n%r", docs)
         for doc in docs:
             doc.attrs["compass_crawl"] = True
             doc.attrs["check_correct_jurisdiction"] = True
