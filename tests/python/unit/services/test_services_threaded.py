@@ -201,6 +201,32 @@ def test_move_file_uses_jurisdiction_name(tmp_path):
     assert not cached_fp.exists()
 
 
+def test_output_filenames_preserve_index_after_st_abbreviation(tmp_path):
+    """Periods in names like ``St.`` should not drop indexed suffixes"""
+
+    cached_dir = tmp_path / "cached"
+    cached_dir.mkdir()
+    out_dir = tmp_path / "output"
+    out_dir.mkdir()
+
+    cached_fp = cached_dir / "download.md"
+    cached_fp.write_text("content", encoding="utf-8")
+
+    doc = HTMLDocument(["payload"])
+    doc.attrs["cache_fn"] = cached_fp
+
+    date = datetime.now().strftime("%Y_%m_%d")
+    out_stem = "City of St. Paul, Alaska_1"
+
+    moved_fp = threaded._move_file(doc, out_dir, out_stem=out_stem)
+    parsed_fp = threaded._write_parsed_text(doc, out_dir, out_stem=out_stem)
+
+    assert moved_fp.name == f"City_of_St._Paul_Alaska_1_processed_{date}.md"
+    assert parsed_fp.name == "City_of_St._Paul_Alaska_1.txt"
+    assert moved_fp.read_text(encoding="utf-8") == "content"
+    assert parsed_fp.read_text(encoding="utf-8").strip() == "payload"
+
+
 def test_move_file_handles_extensionless_cached_file(tmp_path):
     """Verify `_move_file` handles cached files without an extension"""
 
@@ -243,7 +269,7 @@ def test_write_cleaned_file_with_debug(tmp_path):
     }
 
     CLEANED_FP_REGISTRY["cleaned_file_test"] = fp_names
-    try:  # noqa
+    try:
         outputs = threaded._write_cleaned_file(
             doc,
             tmp_path,
