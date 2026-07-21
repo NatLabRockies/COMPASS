@@ -253,7 +253,7 @@ def _empirical_adjustments(db):
 
     """
     if "adder" in db.columns:
-        db.loc[db["adder"] > 250, "adder"] = None  # noqa: PLR2004
+        db.loc[db["adder"] > 250, "adder"] = None  # ruff:ignore[magic-value-comparison]
     return db
 
 

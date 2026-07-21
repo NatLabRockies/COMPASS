@@ -6,7 +6,7 @@ from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
-    _SCORE_KEY,  # noqa: PLC2701
+    _SCORE_KEY,  # ruff:ignore[import-private-name]
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
@@ -340,7 +340,7 @@ async def download_jurisdiction_ordinances_from_website(
     if crawl_semaphore is None:
         crawl_semaphore = AsyncExitStack()
 
-    async def _doc_heuristic(doc):  # noqa: RUF029
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
         is_valid_document = heuristic.check(doc.text.lower())
         if is_valid_document and pb_jurisdiction_name:
@@ -348,7 +348,7 @@ async def download_jurisdiction_ordinances_from_website(
 
         return is_valid_document
 
-    async def _crawl_hook(*__, **___):  # noqa: RUF029
+    async def _crawl_hook(*__, **___):  # ruff:ignore[unused-async]
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_website_crawl_task(pb_jurisdiction_name, advance=1)
 
@@ -475,7 +475,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     if crawl_semaphore is None:
         crawl_semaphore = AsyncExitStack()
 
-    async def _doc_heuristic(doc):  # noqa: RUF029
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
         is_valid_document = heuristic.check(doc.text.lower())
         if is_valid_document and pb_jurisdiction_name:
@@ -484,7 +484,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
             )
         return is_valid_document
 
-    async def _crawl_hook(*__, **___):  # noqa: RUF029
+    async def _crawl_hook(*__, **___):  # ruff:ignore[unused-async]
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_compass_website_crawl_task(
             pb_jurisdiction_name, advance=1

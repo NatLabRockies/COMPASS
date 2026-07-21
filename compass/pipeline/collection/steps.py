@@ -26,7 +26,7 @@ class CollectionStep(ABC):
 
     @property
     @abstractmethod
-    def STEP_NAME(self):  # noqa: N802
+    def STEP_NAME(self):  # ruff:ignore[invalid-function-name]
         """Identifier for step (e.g. "known_local_docs")"""
         raise NotImplementedError
 
@@ -42,7 +42,7 @@ class KnownLocalDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_LOCAL_DOCS
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect known local documents for this jurisdiction
 
         Parameters
@@ -98,7 +98,7 @@ class KnownUrlDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_DOC_URLS
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents from known URL's for this jurisdiction
 
         Parameters
@@ -152,7 +152,7 @@ class SearchEngineDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_ENGINE
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents based on a search engine search
 
         Parameters
@@ -223,7 +223,7 @@ class ElmWebsiteCrawlStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_ELM
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents based on an ELM website crawl
 
         Parameters
@@ -307,7 +307,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_COMPASS
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents based on a COMPASS website crawl
 
         Parameters

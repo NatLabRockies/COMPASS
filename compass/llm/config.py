@@ -81,7 +81,7 @@ class LLMConfig(ABC):
 
     @cached_property
     def text_splitter(self):
-        """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # noqa: W505, E501
+        """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # ruff:ignore[doc-line-too-long, line-too-long]
         return _PrintableRecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,

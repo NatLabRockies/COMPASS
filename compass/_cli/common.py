@@ -97,11 +97,11 @@ def setup_cli_logging(console, verbosity_level, log_level="INFO"):
     libs = []
     if verbosity_level >= 1:
         libs.append("compass")
-    if verbosity_level >= 2:  # noqa: PLR2004
+    if verbosity_level >= 2:  # ruff:ignore[magic-value-comparison]
         libs.extend(("elm", "docling"))
-    if verbosity_level >= 3:  # noqa: PLR2004
+    if verbosity_level >= 3:  # ruff:ignore[magic-value-comparison]
         libs.append("openai")
-    if verbosity_level >= 4:  # noqa: PLR2004
+    if verbosity_level >= 4:  # ruff:ignore[magic-value-comparison]
         libs.extend(("networkx", "pytesseract", "pdf2image", "pdftotext"))
 
     for lib in libs:

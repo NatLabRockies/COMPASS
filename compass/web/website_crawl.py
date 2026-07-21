@@ -15,11 +15,11 @@ from crawl4ai.models import Link as c4AILink
 from bs4 import BeautifulSoup
 from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
-from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
+from playwright._impl._errors import Error as PlaywrightError  # ruff:ignore[import-private-name]
 from elm.web.utilities import pw_page
 from elm.web.document import HTMLDocument
 from elm.web.file_loader import AsyncWebFileLoader
-from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
+from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # ruff:ignore[import-private-name]
 
 from compass.utilities.url import sanitize_url
 from compass.services.threaded import TempFileCache
@@ -529,7 +529,7 @@ class COMPASSCrawler:
         return depth_counts
 
 
-async def _default_found_enough_docs(out_docs):  # noqa: RUF029
+async def _default_found_enough_docs(out_docs):  # ruff:ignore[unused-async]
     """Check if a predetermined # of documents has been found
 
     The number to check is set by the module-level constant
@@ -551,7 +551,7 @@ def _debug_info_on_links(links):
         logger.debug(
             "    - %d: %s (%s)", link["score"], link["title"], link["href"]
         )
-    if num_links > 3:  # noqa: PLR2004
+    if num_links > 3:  # ruff:ignore[magic-value-comparison]
         logger.debug("    ...")
 
 

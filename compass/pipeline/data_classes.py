@@ -321,7 +321,7 @@ class BaseRequest:
     MODE = None
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         out_dir,
         tech,
@@ -691,7 +691,7 @@ class CollectionRequest(BaseRequest):
     MODE = COMPASSRunMode.COLLECT
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         out_dir,
         tech,
@@ -1025,7 +1025,7 @@ class ExtractionRequest(BaseRequest):
     MODE = COMPASSRunMode.EXTRACT
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         out_dir,
         tech,

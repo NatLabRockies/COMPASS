@@ -372,7 +372,7 @@ class StoreFileOnDisk(ThreadedService):
 
     @property
     @abstractmethod
-    def _PROCESS(self):  # noqa: N802
+    def _PROCESS(self):  # ruff:ignore[invalid-function-name]
         """str: Key in `_PROCESSING_FUNCTIONS` defining the doc func"""
         raise NotImplementedError
 

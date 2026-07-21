@@ -21,7 +21,7 @@ def setup_graph_permits(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Permit Requirements", **kwargs
     )
 
@@ -91,7 +91,7 @@ def setup_graph_extraction(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Water Extraction Requirements", **kwargs
     )
 
@@ -149,7 +149,7 @@ def setup_graph_geothermal(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Geothermal Policies", **kwargs
     )
 
@@ -213,7 +213,7 @@ def setup_graph_oil_and_gas(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Oil and Gas Policies", **kwargs
     )
 
@@ -277,7 +277,7 @@ def setup_graph_limits(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Extraction Limits", **kwargs
     )
 
@@ -387,7 +387,7 @@ def setup_graph_well_spacing(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Well Spacing", **kwargs
     )
 
@@ -481,7 +481,7 @@ def setup_graph_time(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Drilling Window", **kwargs
     )
 
@@ -546,7 +546,7 @@ def setup_graph_metering_device(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Metering Device", **kwargs
     )
 
@@ -605,7 +605,7 @@ def setup_graph_drought(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Drought Management Plan", **kwargs
     )
 
@@ -669,7 +669,7 @@ def setup_graph_contingency(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Contingency Plan Requirements", **kwargs
     )
 
@@ -733,7 +733,7 @@ def setup_graph_plugging_reqs(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Plugging Requirements", **kwargs
     )
 
@@ -793,7 +793,7 @@ def setup_graph_external_transfer(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="External Transfer Restrictions", **kwargs
     )
 
@@ -902,7 +902,7 @@ def setup_graph_production_reporting(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Water Well Production Reporting", **kwargs
     )
 
@@ -962,7 +962,7 @@ def setup_graph_production_cost(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Water Well Production Cost", **kwargs
     )
 
@@ -1045,7 +1045,7 @@ def setup_graph_setback_features(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Setback Features", **kwargs
     )
 
@@ -1109,7 +1109,7 @@ def setup_graph_redrilling(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Redrilling Restrictions", **kwargs
     )
 

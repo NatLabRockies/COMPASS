@@ -281,7 +281,7 @@ def convert_paths_to_strings(obj):
     if isinstance(obj, Path):
         out = os.fspath(obj)
         if not obj.is_absolute():
-            out = os.path.join(".", out)  # noqa PTH118
+            out = os.path.join(".", out)  # ruff:ignore[os-path-join] PTH118
         return out
     if isinstance(obj, dict):
         return {

@@ -150,7 +150,7 @@ def setup_async_decision_tree(
     The function asserts that the tree has recorded at least the system
     prompt before returning the constructed wrapper.
     """
-    G = graph_setup_func(**kwargs)  # noqa: N806
+    G = graph_setup_func(**kwargs)  # ruff:ignore[non-lowercase-variable-in-function]
     tree = AsyncDecisionTree(G, usage_sub_label=usage_sub_label)
     assert len(tree.chat_llm_caller.messages) == 1
     return tree
@@ -241,7 +241,7 @@ def setup_base_setback_graph(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Base setback questions", **kwargs
     )
 
@@ -315,7 +315,7 @@ def setup_participating_owner(**kwargs):
         Graph instance that can be used to initialize an
         `elm.tree.DecisionTree`.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Participating owner", **kwargs
     )
 
@@ -434,7 +434,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     kwargs.setdefault("unit_clarification", "")
     kwargs.setdefault("feature_clarifications", "")
     feature_id = kwargs.get("feature_id", "")
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Extra restriction", **kwargs
     )
 
@@ -571,7 +571,7 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     return G
 
 
-def _add_other_system_setback_clarification_nodes(G):  # noqa: N803
+def _add_other_system_setback_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify "other system" setbacks"""
     G.add_edge("init", "is_intra_farm", condition=llm_response_starts_with_yes)
     G.add_node(
@@ -592,7 +592,7 @@ def _add_other_system_setback_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_coverage_clarification_nodes(G):  # noqa: N803
+def _add_coverage_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify "coverage" extraction"""
     G.add_edge("init", "is_area", condition=llm_response_starts_with_yes)
     G.add_node(
@@ -603,7 +603,7 @@ def _add_coverage_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_land_density_clarification_nodes(G):  # noqa: N803
+def _add_land_density_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify "land density" extraction"""
     G.add_edge(
         "init", "correct_density_units", condition=llm_response_starts_with_yes
@@ -623,7 +623,7 @@ def _add_land_density_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_minimum_lot_size_clarification_nodes(G):  # noqa: N803
+def _add_minimum_lot_size_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify "minimum lot size" extraction"""
     G.add_edge(
         "init", "correct_min_ls_units", condition=llm_response_starts_with_yes
@@ -641,7 +641,7 @@ def _add_minimum_lot_size_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_maximum_lot_size_clarification_nodes(G):  # noqa: N803
+def _add_maximum_lot_size_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify "maximum lot size" extraction"""
     G.add_edge(
         "init", "correct_max_ls_units", condition=llm_response_starts_with_yes
@@ -659,7 +659,7 @@ def _add_maximum_lot_size_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
+def _add_maximum_project_size_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify "max project size" extraction"""
     G.add_edge("init", "is_mps_area", condition=llm_response_starts_with_yes)
     G.add_node(
@@ -691,7 +691,7 @@ def _add_maximum_project_size_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_maximum_turbine_height_clarification_nodes(G):  # noqa: N803
+def _add_maximum_turbine_height_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify max turbine height extraction"""
     G.add_edge("init", "has_relative", condition=llm_response_starts_with_yes)
     G.add_node(
@@ -726,7 +726,7 @@ def _add_maximum_turbine_height_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_value_and_units_clarification_nodes(G):  # noqa: N803
+def _add_value_and_units_clarification_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to clarify value and units extraction"""
 
     G.add_node(
@@ -796,7 +796,7 @@ def _add_value_and_units_clarification_nodes(G):  # noqa: N803
     return G
 
 
-def _add_prohibitions_extraction_nodes(G):  # noqa: N803
+def _add_prohibitions_extraction_nodes(G):  # ruff:ignore[invalid-argument-name]
     """Add nodes and edges to extract 'prohibitions'"""
 
     G.add_edge("init", "is_proposed", condition=llm_response_starts_with_yes)
@@ -888,7 +888,7 @@ def setup_graph_permitted_use_districts(**kwargs):
         `elm.tree.DecisionTree`.
     """
     feature_id = kwargs.get("feature_id", "")
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Permitted use districts", **kwargs
     )
 

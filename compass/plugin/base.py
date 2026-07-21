@@ -68,7 +68,7 @@ class BaseExtractionPlugin(ABC):
 
     @property
     @abstractmethod
-    def IDENTIFIER(self):  # noqa: N802
+    def IDENTIFIER(self):  # ruff:ignore[invalid-function-name]
         """str: Identifier for extraction task (e.g. "water rights")"""
         raise NotImplementedError
 
@@ -176,5 +176,5 @@ class BaseExtractionPlugin(ABC):
         total_cost = compute_total_cost_from_usage(total_usage)
         COMPASS_PB.update_total_cost(total_cost, replace=True)
 
-    def validate_plugin_configuration(self):  # noqa: B027
+    def validate_plugin_configuration(self):  # ruff:ignore[empty-method-without-abstract-decorator]
         """[NOT PUBLIC API] Validate plugin is properly configured"""

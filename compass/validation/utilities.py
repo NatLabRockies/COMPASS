@@ -20,10 +20,10 @@ def step_based_threshold(num_chunks):
         indicate a stricter requirement for the fraction of chunks that
         must pass the validation.
     """
-    if num_chunks <= 2:  # noqa: PLR2004
+    if num_chunks <= 2:  # ruff:ignore[magic-value-comparison]
         return min(1 / 1, 1 / 2)
-    if num_chunks <= 6:  # noqa: PLR2004
+    if num_chunks <= 6:  # ruff:ignore[magic-value-comparison]
         return min(2 / 3, 3 / 4, 3 / 5, 4 / 6)
-    if num_chunks <= 9:  # noqa: PLR2004
+    if num_chunks <= 9:  # ruff:ignore[magic-value-comparison]
         return min(5 / 7, 6 / 8, 7 / 9)
     return 0.8
