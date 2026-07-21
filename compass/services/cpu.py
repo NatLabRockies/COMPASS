@@ -471,9 +471,9 @@ def _pytesseract_cleanup_win(temp_name):
     patches cleanup to suppress all OSErrors so the OCR result is not
     lost.
     """
-    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):  # noqa
+    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):  # ruff:ignore[glob]
         with contextlib.suppress(OSError):
-            os.remove(filename)  # noqa
+            os.remove(filename)  # ruff:ignore[os-remove]
 
 
 def _none_if_missing(value):

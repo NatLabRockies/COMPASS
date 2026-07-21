@@ -187,7 +187,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def OUTPUT_COLUMNS(self):  # noqa: N802
+    def OUTPUT_COLUMNS(self):  # ruff:ignore[invalid-function-name]
         """list: List of output columns for the extracted data
 
         Each entry should be an

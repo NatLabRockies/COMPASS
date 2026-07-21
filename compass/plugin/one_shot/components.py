@@ -427,7 +427,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
 
     @property
     @abstractmethod
-    def POSSIBLE_OUT_COLS(self):  # noqa: N802
+    def POSSIBLE_OUT_COLS(self):  # ruff:ignore[invalid-function-name]
         """list: List of possible output column names"""
         raise NotImplementedError
 
