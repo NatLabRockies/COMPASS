@@ -193,7 +193,7 @@ def test_move_file_uses_jurisdiction_name(tmp_path):
     doc.attrs.update({"cache_fn": cached_fp})
 
     date = datetime.now().strftime("%Y_%m_%d")
-    moved_fp = threaded._move_file(doc, out_dir, out_fn="Test County, ST")
+    moved_fp = threaded._move_file(doc, out_dir, out_stem="Test County, ST")
 
     expected_name = f"Test_County_ST_processed_{date}.pdf"
     assert moved_fp.name == expected_name
@@ -221,8 +221,8 @@ def test_output_filenames_preserve_index_after_st_abbreviation(tmp_path):
     moved_fp = threaded._move_file(doc, out_dir, out_stem=out_stem)
     parsed_fp = threaded._write_parsed_text(doc, out_dir, out_stem=out_stem)
 
-    assert moved_fp.name == f"City_of_St._Paul_Alaska_1_processed_{date}.md"
-    assert parsed_fp.name == "City_of_St._Paul_Alaska_1.txt"
+    assert moved_fp.name == f"City_of_St_Paul_Alaska_1_processed_{date}.md"
+    assert parsed_fp.name == "City_of_St_Paul_Alaska_1.txt"
     assert moved_fp.read_text(encoding="utf-8") == "content"
     assert parsed_fp.read_text(encoding="utf-8").strip() == "payload"
 
