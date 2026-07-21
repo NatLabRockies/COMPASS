@@ -201,7 +201,7 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         task = asyncio.create_task(
             _persist_doc(
                 info["doc"],
-                out_fn=f"{jurisdiction.full_name}_{index}",
+                out_stem=f"{jurisdiction.full_name}_{index}",
                 from_steps=info["from_steps"],
                 relative_to=relative_to,
             ),
@@ -276,24 +276,24 @@ async def _load_single_doc(doc_info):
     return doc
 
 
-async def _persist_doc(doc, out_fn, from_steps, relative_to):
+async def _persist_doc(doc, out_stem, from_steps, relative_to):
     """Persist one collected document and its parsed text"""
-    await _move_file_to_collection_dir(doc, out_fn, relative_to)
-    await _persist_parsed_text(doc, out_fn, relative_to)
+    await _move_file_to_collection_dir(doc, out_stem, relative_to)
+    await _persist_parsed_text(doc, out_stem, relative_to)
     return _serialize_collection_doc_info(doc, from_steps)
 
 
-async def _move_file_to_collection_dir(doc, out_fn, relative_to):
+async def _move_file_to_collection_dir(doc, out_stem, relative_to):
     """Move a source file to the collection output directory"""
-    out_fp = await FileMover.call(doc, out_fn, "downloaded")
+    out_fp = await FileMover.call(doc, out_stem, "downloaded")
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
     doc.attrs["source_fp"] = out_fp
 
 
-async def _persist_parsed_text(doc, out_fn, relative_to):
+async def _persist_parsed_text(doc, out_stem, relative_to):
     """Write parsed text for a collected document"""
-    out_fp = await ParsedFileWriter.call(doc, out_fn)
+    out_fp = await ParsedFileWriter.call(doc, out_stem)
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
     doc.attrs["parsed_fp"] = out_fp
