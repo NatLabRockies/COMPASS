@@ -2,8 +2,10 @@
 
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from compass.plugin.base import BaseExtractionPlugin
+from compass.plugin.post_processing import POST_PROCESSING_REGISTRY
 from compass.llm.calling import BaseLLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
@@ -13,6 +15,20 @@ from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class OutputColumn:
+    """Column expected to appear in a structured CSV output"""
+
+    name: str
+    """Name of column in output CSV"""
+
+    include_in_quant_output: bool = True
+    """Flag indicating whether to include in the quantitative output"""
+
+    include_in_qual_output: bool = True
+    """Flag indicating whether to include in the qualitative output"""
 
 
 class BaseHeuristic(ABC):
@@ -113,6 +129,14 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
     methods as needed.
     """
 
+    POST_PROCESSING_STEPS = None
+    """List of post-processing steps to apply to the extracted data
+
+    Each entry should correspond to a key in the
+    `POST_PROCESSING_REGISTRY`. If `None`, no post-processing steps will
+    be applied. By default, `None`.
+    """
+
     @property
     @abstractmethod
     def IDENTIFIER(self):  # ruff:ignore[invalid-function-name]
@@ -161,6 +185,16 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         raise NotImplementedError
 
+    @property
+    @abstractmethod
+    def OUTPUT_COLUMNS(self):  # ruff:ignore[invalid-function-name]
+        """list: List of output columns for the extracted data
+
+        Each entry should be an
+        :class:`compass.plugin.interface.OutputColumn` instance.
+        """
+        raise NotImplementedError
+
     @classmethod
     def save_structured_data(cls, doc_infos, out_dir):
         """Write extracted water rights data to disk
@@ -184,9 +218,28 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             Number of unique jurisdictions that information was
             found/written for.
         """
-        db, num_docs_found = doc_infos_to_db(doc_infos)
-        save_db(db, out_dir)
+        db, num_docs_found = doc_infos_to_db(doc_infos, cls.OUTPUT_COLUMNS)
+        db = cls._apply_post_processing(db)
+        save_db(db, out_dir, cls.OUTPUT_COLUMNS)
         return num_docs_found
+
+    @classmethod
+    def _apply_post_processing(cls, db):
+        """Apply post-processing steps to the extracted data"""
+        if db.empty or not cls.POST_PROCESSING_STEPS:
+            return db
+
+        for step in cls.POST_PROCESSING_STEPS:
+            normalized_step = step.strip().casefold().replace(" ", "_")
+            if normalized_step in POST_PROCESSING_REGISTRY:
+                db = POST_PROCESSING_REGISTRY[normalized_step](db)
+            else:
+                logger.warning(
+                    "Post-processing step '%s' not found in registry. "
+                    "Skipping this step.",
+                    step,
+                )
+        return db
 
     async def pre_filter_docs_hook(self, extraction_context):  # ruff:ignore[no-self-use]
         """Pre-process documents before running them through the filter

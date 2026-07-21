@@ -1,0 +1,11 @@
+{
+    // Keys are FIPS codes (string). Each value is a list of local PDF source files
+    // for that jurisdiction. Set check_if_legal_doc to false for RMP documents.
+    //
+    // Carson City, NV FIPS: 32510
+    // Example structure — replace source_fp values with your actual PDF paths:
+    "32510": [
+        {"source_fp": "./docs/Carson_City_Consolidated_RMP.pdf", "check_if_legal_doc": false},
+        {"source_fp": "./docs/Amendment_Southern_Washoe.pdf", "check_if_legal_doc": false}
+    ]
+}

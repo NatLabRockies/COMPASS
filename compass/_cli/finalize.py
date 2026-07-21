@@ -6,6 +6,7 @@ import click
 from rich.theme import Theme
 from rich.console import Console
 
+from compass.plugin.registry import PLUGIN_REGISTRY
 from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
@@ -66,7 +67,7 @@ def finalize(config):
     console.print("Compiling databases...")
     jurisdictions = jurisdictions.get("jurisdictions", [])
 
-    _compile_db(jurisdictions, dirs)
+    _compile_db(jurisdictions, dirs, tech)
 
     console.print("Saving meta info...")
     num_jurisdictions_searched = len(jurisdictions)
@@ -88,7 +89,7 @@ def finalize(config):
     console.print(f"✅ Finalized COMPASS run in {dirs.out!s}!")
 
 
-def _compile_db(jurisdictions, dirs):
+def _compile_db(jurisdictions, dirs, tech):
     """Merge all jurisdiction dbs into one"""
     all_doc_infos = []
     for jur_info in jurisdictions:
@@ -117,5 +118,6 @@ def _compile_db(jurisdictions, dirs):
             {"ord_db_fp": ord_db_fp, "jurisdiction": jurisdiction}
         )
 
-    db, __ = doc_infos_to_db(all_doc_infos)
-    save_db(db, dirs.out)
+    out_cols = PLUGIN_REGISTRY[tech].OUTPUT_COLUMNS
+    db, __ = doc_infos_to_db(all_doc_infos, out_cols)
+    save_db(db, dirs.out, out_cols)

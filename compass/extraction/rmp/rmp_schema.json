@@ -1,0 +1,422 @@
+{
+  "title": "RMP Geothermal Restriction Extraction Schema",
+  "description": "Single-shot structured extraction schema for geothermal restrictions in BLM Resource Management Plan (RMP) documents. Extract information that directly affects or is likely to affect geothermal leasing, exploration, drilling, or development on BLM lands. A restriction is relevant if it: (1) explicitly mentions geothermal leasing or development, OR (2) applies broadly to energy development, oil/gas/geothermal leasing, fluid mineral leasing/development, or mineral leasing/entry in a way that would encompass geothermal UNLESS the document explicitly excludes geothermal. NOTE: 'Fluid minerals' is the BLM/Mineral Leasing Act regulatory term covering oil, gas, AND geothermal resources collectively — treat 'fluid mineral leasing' and 'fluid mineral development' as equivalent to an 'oil, gas, and geothermal' group reference. Use 'geothermal_applicability' to flag whether the restriction directly names geothermal ('direct'), applies broadly and would encompass geothermal ('broad'), or explicitly excludes geothermal ('excluded'). Do NOT extract restrictions that apply only to grazing, recreation, land disposal, residential development, or other activities clearly unrelated to energy or mineral development. If the document contains no relevant information, return an empty array. The output is a flat array where each object represents one extracted data point.",
+  "version": "1.2.0",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "location", "restriction_type", "restriction_level", "geothermal_applicability", "rights_status", "binding_status", "value", "units", "section", "map_reference", "summary", "source"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The type of restriction or metadata being extracted. Must be one of the enumerated feature IDs. Each closed area, NSO stipulation, seasonal restriction, wildlife restriction, water restriction, and other restriction should be its own row in the output array. Use 'geothermal_closure' for all area closures — whether the document explicitly names geothermal or applies a broader energy/mineral closure that would encompass geothermal. Use 'restriction_type' to classify the stipulation category and 'restriction_level' to indicate severity (1=open/no stipulations, 2=minor stipulations, 3=major stipulations, 4=closures).",
+            "enum": [
+              "geothermal_closure",
+              "geothermal_closure_with_stipulations",
+              "energy_development_closure",
+              "oil_gas_closure",
+              "mineral_entry_closure",
+              "mineral_leasing_closure",
+              "all_minerals_closure",
+              "no_surface_occupancy",
+              "controlled_surface_use",
+              "seasonal_restriction",
+              "wildlife_restriction",
+              "water_restriction",
+              "other_restriction",
+              "resource_removals",
+              "resource_additions"
+            ]
+          },
+          "location": {
+            "type": ["string", "null"],
+            "description": "The named geographic area, habitat, water feature, or condition to which this restriction applies. This is the PRIMARY field for identifying WHERE a restriction applies. The place name, area designation, habitat type, or condition triggering the restriction (e.g., 'Jack's Valley', 'Riparian Management Areas', 'Sage Grouse breeding habitat', 'springs and seeps'). Use null only when no specific location or condition can be identified."
+          },
+          "restriction_type": {
+            "type": ["string", "null"],
+            "description": "The stipulation category label for this row. Use concise, normalized labels that describe HOW the lease is constrained, not just WHAT resource is named. Preferred values: 'open_no_stipulations', 'closure', 'valid_existing_rights_closure', 'conditional_closure', 'no_surface_occupancy', 'controlled_surface_use', 'seasonal_timing', 'wildlife_buffer', 'water_buffer', 'other_stipulation', 'resource_removal', 'resource_addition'. Use null only when no meaningful category can be inferred."
+          },
+          "restriction_level": {
+            "type": ["integer", "null"],
+            "minimum": 1,
+            "maximum": 4,
+            "description": "Severity score for lease constraints. Use one of: 1 = open, no lease stipulations; 2 = minor lease stipulations (for example seasonal timing limits or moderate operating constraints); 3 = major lease stipulations (for example NSO or similarly strong constraints that still allow leasing); 4 = closures (areas closed to leasing or effectively unavailable for new leasing). Use null only when the document does not provide enough information to classify severity."
+          },
+          "geothermal_applicability": {
+            "type": ["string", "null"],
+            "description": "Indicates how directly this restriction applies to geothermal leasing or development. Use one of three values: 'direct' — the restriction explicitly names geothermal leasing or development; 'broad' — the restriction applies to energy development, fluid mineral leasing/development, or mineral leasing broadly and would encompass geothermal unless the document explicitly excludes it (fluid minerals = the BLM/Mineral Leasing Act term for oil, gas, and geothermal collectively, so it counts as 'broad' just like 'mineral leasing'); 'excluded' — the restriction explicitly carves geothermal out (e.g., 'closed to oil and gas leasing but open to geothermal')."
+          },
+          "rights_status": {
+            "type": ["string", "null"],
+            "description": "ONLY for 'geothermal_closure' and 'geothermal_closure_with_stipulations': a brief one-sentence description of whether the closure prohibits ALL geothermal/energy development — including existing operations and leases — or whether valid existing rights/leases are preserved and only NEW leasing or development is barred. This complements restriction_type and restriction_level by isolating the existing-rights distinction into its own field. Examples: 'Fully closed — no new or existing geothermal leasing or development permitted.', 'Closed to new leasing only; valid existing rights and leases are honored.', 'New mineral entry barred, but existing claims and leases may continue operating.' Use null for all other features, and use null here too if the document does not address whether existing rights/leases are affected."
+          },
+          "binding_status": {
+            "type": ["string", "null"],
+            "description": "Indicates whether this restriction is a firm, currently-effective requirement versus a discretionary, conditional, or case-by-case determination. Use 'binding' when the document states the restriction in mandatory terms that apply automatically and are currently in effect — e.g., outright closures, NSO stipulations, mandatory seasonal timing limitations, required setbacks, mandatory survey/consultation requirements ('must be completed', 'will be required', 'is closed'), and currently-enforced WSA/IMP restrictions. Use 'discretionary' when the restriction depends on further agency determination, case-by-case review, future designation, or a conditional/administrative classification that could change — e.g., closures that apply only 'under current classification' pending re-designation, CSU stipulations whose specific mitigation requirements are determined site-by-site, or language such as 'may', 'could', 'as determined by the authorized officer', 'subject to further NEPA analysis'. Populate this field for every row; use null only if the document's language genuinely does not indicate either."
+          },
+          "value": {
+            "description": "A quantitative or categorical value associated with the restriction, subordinate to location. Type and content depend on the feature: (1) geothermal_closure: acreage if stated (number), otherwise null; (2) geothermal_closure_with_stipulations: acreage if stated (number), otherwise null; (3) no_surface_occupancy: the numeric setback distance if specified (number), otherwise null; (4) controlled_surface_use: null; (5) seasonal_restriction: the restriction period extracted exactly as written — this may be a date range (e.g., 'March 1 - July 30'), a named season (e.g., 'spring', 'breeding season', 'lekking season'), or a descriptive period (e.g., 'during active nesting'); (6) wildlife_restriction: the numeric setback/buffer distance if specified (number), otherwise null; (7) water_restriction: the numeric setback distance if specified (number), otherwise null; (8) other_restriction: a short category label string (e.g., 'cultural resources', 'visual resources'); (9) resource_removals: acreage removed if stated (number), otherwise null; (10) resource_additions: acreage added if stated (number), otherwise null. Use null if no relevant value is found.",
+            "anyOf": [
+              { "type": "number" },
+              { "type": "string" },
+              { "type": "null" }
+            ]
+          },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units for the numeric value field only. For numeric setback distances (no_surface_occupancy, wildlife_restriction, water_restriction): use 'feet', 'miles', or 'meters'. For seasonal_restriction: use 'dates'. For geothermal_closure, geothermal_closure_with_stipulations (acreage): use 'acres' if a numeric acreage is given, otherwise null. For resource_removals and resource_additions: 'acres' if a numeric acreage is given, otherwise null. For all other features or when value is null: use null. Do NOT put stipulation category or severity here — those belong in restriction_type and restriction_level."
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "The section title, number, table, or page reference from the RMP document where this information is found (e.g., 'Table 2-1: Mineral Stipulations', 'Chapter 3: Energy and Minerals', 'Appendix B: Stipulations'). Include the numeric label if provided. Null if no section identifier is available."
+          },
+          "map_reference": {
+            "type": ["string", "null"],
+            "description": "Map identifier(s) or figure reference(s) that support this restriction row (e.g., 'Map 2-3', 'Figure 2-31', 'Appendix A Map 4'). Keep as written in the document. If multiple references support the same row, separate with semicolons. Use null when no map is cited."
+          },
+          "summary": {
+            "type": ["string", "null"],
+            "description": "A structured text field with two labeled sections separated by a newline. Format exactly as: 'Summary: [summary text]\\nJustification: [justification text]'. The Summary section (2–4 sentences) covers: (1) the area name and acreage if stated, (2) the exact language used in the document describing what is restricted (quoted where possible), (3) the stated reason or resource being protected, and (4) any conditions, exceptions, or relevant context. Use direct text excerpts and quotes from the document where possible. The Justification section (1–2 sentences) explains why this restriction was included — specifically, how it relates to or could affect geothermal leasing or development (e.g., 'Included because mineral leasing closures under the Mineral Leasing Act encompass geothermal leasing.', 'Included because this NSO stipulation applies to all surface-disturbing activities associated with mineral leasing, which includes geothermal drilling.'). Null only if no relevant information is found."
+          },
+          "source": {
+            "type": ["number", "null"],
+            "description": "Integer indicating the source index from which this information was pulled. If not applicable or unavailable, use null.",
+            "default": null
+          }
+        }
+      }
+    }
+  },
+  "$definitions": {
+    "scope": {
+      "description": "CRITICAL SCOPE: Extract restrictions that directly affect or are likely to affect geothermal leasing, exploration, drilling, or facility construction on BLM lands. A restriction qualifies if it: (1) explicitly mentions geothermal leasing or development; OR (2) applies broadly to energy development, fluid mineral leasing/development, or mineral leasing in a way that would encompass geothermal UNLESS the document explicitly carves geothermal out. 'Fluid minerals' is the BLM/Mineral Leasing Act regulatory category for oil, gas, AND geothermal resources collectively — RMPs frequently use 'fluid minerals', 'fluid mineral leasing', or 'fluid mineral development' instead of spelling out 'oil, gas, and geothermal', so treat these terms the same way you would treat an explicit 'oil, gas, and geothermal' or 'mineral leasing' group reference. High-recall rule: when in doubt about whether a broad energy, fluid mineral, or mineral closure applies to geothermal, extract it and set geothermal_applicability to 'broad' so downstream users can evaluate applicability. Do NOT extract: restrictions applying only to grazing, recreation, land disposal, residential development, fire management, OHV use, or hunting UNLESS those restrictions also explicitly constrain surface-disturbing activities or mineral/energy development. Closure information may be spread across multiple sections and documents (e.g., main RMP text, amendments) — extract from all sections as its own row in the outputs array. Each distinct restriction should be its own row; do not combine multiple restrictions into one row."
+    },
+    "geothermal_closure": {
+      "description": "Areas where geothermal leasing and/or development is fully closed or prohibited, including both explicit geothermal closures and broader energy or mineral closures that would encompass geothermal. This is the single feature for all area closures regardless of whether the document names geothermal specifically or uses broader language — use geothermal_applicability and summary text to capture the scope distinction. Each closed area should be its own output row — do NOT combine multiple areas into one row. Do NOT include areas that are merely restricted with stipulations such as NSO, timing limitations, or mitigation requirements — those belong in other feature categories. Do NOT include WSAs or areas closed only to NEW leasing while honoring valid existing rights — those belong in geothermal_closure_with_stipulations. Include even if the area is transferred to another jurisdiction (e.g., the USFS). If the same named location is listed under two different closure sections with different scopes (e.g., section 6 'Closed to Oil, Gas and Geothermal Leasing' and section 9 'Closed to Geothermal Leasing Only'), extract it as two separate rows — one for each section. LOCATION: The name of the closed area or land designation (e.g., 'Jack's Valley', 'Grimes Point Archaeological Area', 'Walker Lake'). RESTRICTION_TYPE: Use 'closure'. RESTRICTION_LEVEL: Use 4. GEOTHERMAL_APPLICABILITY: 'direct' if geothermal is explicitly named; 'broad' if the closure applies broadly and encompasses geothermal; 'excluded' if geothermal is explicitly carved out. RIGHTS_STATUS: A brief sentence stating whether the closure prohibits all development including existing operations/leases, or whether valid existing rights are preserved (e.g., 'Fully closed — no new or existing geothermal leasing or development permitted.'); use null if the document does not address this. VALUE: Acreage of the closed area if stated (number); otherwise null. UNITS: 'acres' if acreage is given, otherwise null. SUMMARY: 2–4 sentences including area name, acreage, the exact document language describing the closure, the stated reason, and any relevant context such as transfers to another jurisdiction, relationship to other closures, or whether individual acreage was unstated with a group total given."
+    },
+    "geothermal_closure_with_stipulations": {
+      "description": "Areas closed to NEW geothermal or mineral leasing but where valid existing rights are honored, or areas subject to discretionary/conditional closures under specific legal authority. This is distinct from a full outright closure — leasing is not permitted on new parcels, but existing leases or rights are not extinguished. The primary cases are: (1) Wilderness Study Areas (WSAs) managed under the Interim Management Policy (IMP), which restrict mining and energy development to valid existing rights and prohibit new leasing; (2) lands segregated or withdrawn from mineral entry under specific legal authority (e.g., Classification and Multiple Use Act) where the closure is conditional or discretionary rather than absolute. Each distinct area should be its own row. LOCATION: The name of the area or designation (e.g., 'Clan Alpine Mountains WSA', 'Sun Valley CMU Act lands'). RESTRICTION_TYPE: Use 'valid_existing_rights_closure' for WSA/IMP cases or 'conditional_closure' for discretionary legal closures. RESTRICTION_LEVEL: Use 4. RIGHTS_STATUS: A brief sentence describing exactly what is preserved vs. barred (e.g., 'New leasing and mineral entry barred; valid existing rights, claims, and leases may continue operating under the Interim Management Policy.'); use null if the document does not specify. VALUE: Acreage if stated (number); otherwise null. UNITS: 'acres' if acreage is given, otherwise null. SUMMARY: Include area name, acreage, the legal basis for the restriction (e.g., 'Wilderness Interim Management Policy', 'Classification and Multiple Use Act'), what rights are preserved (e.g., 'valid existing rights honored'), and the stated reason extracted as written."
+    },
+    "no_surface_occupancy": {
+      "description": "Areas where No Surface Occupancy (NSO) stipulations apply, meaning the lessee cannot drill or place facilities on the surface. A lease can be issued but no surface disturbance is permitted. Each distinct NSO stipulation should be its own output row. Only include NSO stipulations that explicitly apply to geothermal leases, mineral leases, fluid mineral leases (fluid minerals = BLM term for oil, gas, and geothermal collectively), or all surface-disturbing activities (which would encompass geothermal drilling). Do NOT include NSO conditions that only apply to other uses like grazing or recreation. LOCATION: The named area, habitat, or condition triggering the NSO stipulation (e.g., 'Riparian Management Areas', 'cultural resource sites', 'perennial streams'). VALUE: The numeric setback distance if specified (e.g., 500 for '500 feet'); otherwise null. UNITS: Setback distance units ('feet', 'miles', 'meters') if a numeric distance is given; otherwise null. SUMMARY: Include the full area name or condition, setback distance with units, acreage if stated, and all additional details about the NSO stipulation extracted as written. Include stipulation code if provided (e.g., NSO-1)."
+    },
+    "controlled_surface_use": {
+      "description": "Areas where geothermal leasing and surface use are permitted, but the lessee must comply with specific required mitigation measures or operating constraints (Controlled Surface Use, CSU stipulation). Unlike NSO, the lessee CAN drill and construct facilities, but must follow specific conditions such as seasonal operating windows, reclamation requirements, access restrictions, or site-specific mitigation plans. Each distinct CSU stipulation should be its own output row. Only include CSU stipulations that explicitly apply to geothermal leases, mineral leases, fluid mineral leases, or surface-disturbing energy development activities. LOCATION: The named area or condition triggering the CSU stipulation (e.g., 'Sage Grouse Habitat — East Walker River Area'). VALUE: null. UNITS: null. SUMMARY: Include the area name, the specific mitigation measures or operating constraints required (extracted as written), acreage if stated, the resource or value being protected, and any conditions or exceptions. Include stipulation code if provided (e.g., CSU-1)."
+    },
+    "seasonal_restriction": {
+      "description": "Time-based restrictions that limit WHEN geothermal exploration, drilling, or construction activities can occur. These are seasonal timing limitations on surface-disturbing activities that would apply to geothermal operations. Each distinct seasonal restriction should be its own output row. Only include restrictions on 'surface-disturbing activities', 'drilling', 'construction', 'mineral leasing activities', 'fluid mineral leasing/development activities', or similarly broad categories encompassing geothermal work. Do NOT include seasonal restrictions that only apply to grazing, hunting, recreation, or OHV use. LOCATION: The named area, habitat, species range, or geographic location where the seasonal restriction applies. This may be a species habitat name (e.g., 'Sage Grouse breeding habitat', 'Prairie Falcon Habitat'), a geographic area name (e.g., 'North of Cold Springs', 'East Walker River Area', 'Pine Nut Mountains'), or any other named place. Do NOT require a species name — geographic area names are equally valid. VALUE: The restriction period extracted exactly as written — may be a specific date range (e.g., 'March 1 - July 30'), a named season (e.g., 'spring', 'breeding season', 'lekking season'), or a descriptive period (e.g., 'during active nesting'). Do NOT skip a seasonal restriction just because it uses a season name rather than explicit dates. UNITS: 'dates'. SUMMARY: Include the area name or habitat, the species or resource being protected (if specified), the full restriction period as written, the type of activity restricted (extracted as written, e.g., 'all surface-disturbing activities', 'drilling operations'), and the acreage affected if stated."
+    },
+    "wildlife_restriction": {
+      "description": "Year-round wildlife protections that would constrain WHERE geothermal facilities, wells, or access roads could be placed (Seasonal wildlife restrictions do not fall under this category. They fall under seasonal_restrictions). Each distinct wildlife restriction should be its own output row. Only include restrictions that apply to surface-disturbing activities, mineral development, or energy development. Examples: habitat buffer zones prohibiting surface disturbance, endangered species consultation requirements for energy projects, wildlife corridors where development is restricted. Do NOT include restrictions that only apply to grazing management, livestock, hunting, or OHV use — unless they also explicitly restrict surface-disturbing activities or mineral/energy development. LOCATION: The species name, habitat type, or named area the restriction protects (e.g., 'active Prairie Falcon nest sites', 'Greater Sage-Grouse habitat'). VALUE: The numeric setback or buffer distance if specified (number); otherwise null. UNITS: Setback distance units ('feet', 'miles', 'meters') if a numeric distance is given; otherwise null. SUMMARY: Include the species or habitat being protected, the type of restriction (e.g., 'habitat avoidance', 'buffer zone', 'no surface disturbance', 'mitigation required', 'no surface occupancy'), the specific area or land unit where the restriction applies if named, the setback distance with units, and all additional details extracted as written."
+    },
+    "water_restriction": {
+      "description": "Water resource protections that would constrain geothermal drilling, facility siting, or surface disturbance near water features (This is a distinct category, do not replicate NSO's). Each distinct water restriction should be its own output row. Only include restrictions that apply to surface-disturbing activities, mineral leasing, fluid mineral leasing, or energy development near water. Examples: NSO setbacks from streams for mineral leases, riparian buffers prohibiting surface disturbance, groundwater monitoring requirements for drilling. Do NOT include water restrictions that only apply to grazing, irrigation, or general land management. LOCATION: The type of water feature or named water body the restriction applies to (e.g., 'springs, seeps, and wetlands', 'perennial and intermittent streams', 'Riparian Management Areas'). VALUE: The numeric setback distance if specified (number); otherwise null. UNITS: Setback distance units ('feet', 'miles', 'meters') if a numeric distance is given; otherwise null. SUMMARY: Include the type of water feature or resource, the type of restriction (e.g., 'no surface occupancy', 'setback', 'avoidance', 'monitoring required'), the setback distance with units, and any additional context or conditions extracted as written."
+    },
+    "other_restriction": {
+      "description": "Other restrictions that DIRECTLY constrain geothermal leasing, exploration, drilling, or facility construction but do not fit the categories above. Each distinct restriction should be its own output row. Examples: cultural resource protections requiring archaeological surveys before ground disturbance, visual resource management classes limiting industrial development, air quality permits required for geothermal operations, tribal consultation requirements for energy projects, land withdrawals from mineral entry. Do NOT include: general land management policies, recreational use rules, grazing regulations, land disposal plans, residential development constraints, fire management, or any restriction that does not directly affect geothermal or mineral/energy development. Return no rows with this feature if no such restrictions exist. LOCATION: The area or condition the restriction applies to; null if it applies planning-area wide. VALUE: A short category label string (e.g., 'cultural resources', 'visual resources', 'air quality', 'tribal consultation', 'land withdrawal'). UNITS: null. SUMMARY: Include the area or condition the restriction applies to and the full restriction details extracted as written."
+    },
+    "resource_removals": {
+      "description": "Areas or acreage removed from availability for geothermal leasing or mineral/energy development in the RMP. Include: acreage removed from geothermal or mineral leasing availability, wilderness or WSA designations that withdraw land from mineral entry, land transfers or disposals that remove federal mineral estate, KGRA reductions, and any other action that explicitly reduces the area open to geothermal leasing. Each distinct removal action should be its own row. Do NOT include closures with stipulations (NSO, timing limits) — those belong in other categories. LOCATION: The name of the area or designation being removed (e.g., 'Warm Springs area', 'Clan Alpine WSA'). VALUE: The numeric acreage removed if specified (number); otherwise null. UNITS: 'acres' if a numeric acreage is given; otherwise null. SUMMARY: Include the area name, acreage removed, reason stated, the specific action taken (e.g., 'withdrawn from mineral entry', 'removed from geothermal leasing availability', 'designated as wilderness'), and the document or amendment that enacted the change. Use direct quotes where possible."
+    },
+    "resource_additions": {
+      "description": "Areas or acreage added to or opened for geothermal leasing or mineral/energy development in the RMP. Include: acreage newly opened to geothermal or mineral leasing, KGRA designations or expansions, land re-entries into the federal leasing pool, and any other action that explicitly increases the area available for geothermal leasing. Each distinct addition should be its own row. LOCATION: The name of the area or designation being added (e.g., 'Steamboat Known Geothermal Resource Area (KGRA)'). VALUE: The numeric acreage added if specified (number); otherwise null. UNITS: 'acres' if a numeric acreage is given; otherwise null. SUMMARY: Include the area name, acreage added, reason or justification stated, the specific action taken (e.g., 'opened to geothermal leasing', 'designated as KGRA'), and the document or amendment that enacted the change. Use direct quotes where possible."
+    }
+  },
+  "$examples": [
+    {
+      "feature": "geothermal_closure",
+      "location": "Walker Lake",
+      "restriction_type": "oil_gas_geothermal",
+      "geothermal_applicability": "broad",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": null,
+      "units": null,
+      "section": "Minerals and Energy: Areas Closed to Oil, Gas and Geothermal Leasing",
+      "summary": "Walker Lake is closed to oil, gas, and geothermal leasing as part of 'Key Scenic, Wildlife, Recreation, and Historic Areas' totaling 45,392 acres. Document language: 'Areas Closed to Oil, Gas and Geothermal Leasing.' Individual acreage not specified; group total is 45,392 acres.",
+      "source": 0
+    },
+    {
+      "feature": "geothermal_closure",
+      "location": "Grimes Point Archaeological Area",
+      "restriction_type": "mineral_entry",
+      "geothermal_applicability": "broad",
+      "rights_status": "Fully closed to mineral entry — no new or existing mining claims permitted in this area.",
+      "binding_status": "binding",
+      "value": 400,
+      "units": "acres",
+      "section": "Minerals and Energy: Areas Closed to Mineral Entry (22,672 Acres)",
+      "summary": "Grimes Point Archaeological Area (400 acres) is closed to mineral entry under the General Mining Law. Stated reason: cultural resource protection. Note: a separate geothermal-specific closure also exists for this area (640 acres) under section 9.",
+      "source": 0
+    },
+    {
+      "feature": "geothermal_closure",
+      "location": "Jack's Valley",
+      "restriction_type": "all_mineral_leasing",
+      "rights_status": "Fully closed — no new or existing mineral or geothermal leasing permitted.",
+      "binding_status": "binding",
+      "value": 1200,
+      "units": "acres",
+      "section": "Table 2-1: Mineral Stipulations",
+      "summary": "Jack's Valley (1,200 acres) is closed to all mineral leasing including geothermal. Reason stated: 'Key Scenic, Wildlife, Recreation, and Historic Areas'. Closure applies to oil, gas, and geothermal leasing."
+    },
+    {
+      "feature": "geothermal_closure",
+      "location": "Grimes Point Archaeological Area",
+      "restriction_type": "geothermal_only",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": null,
+      "units": null,
+      "section": "Chapter 3: Energy and Minerals, Special Designations",
+      "summary": "Grimes Point Archaeological Area is closed specifically to geothermal leasing. Stated reason: 'cultural resource protection'. Acreage not specified in document."
+    },
+    {
+      "feature": "no_surface_occupancy",
+      "location": "perennial and intermittent streams, rivers, lakes, and reservoirs",
+      "restriction_type": "no_surface_occupancy",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": 500,
+      "units": "feet",
+      "section": "Appendix B: Lease Stipulations, Stipulation NSO-1",
+      "summary": "No Surface Occupancy stipulation applies within 500 feet of any perennial or intermittent stream, river, lake, or reservoir. Applies to all geothermal and mineral lease activities. No acreage specified. Details: 'No surface-disturbing activities associated with mineral leasing operations will be permitted within 500 feet of any water body.'"
+    },
+    {
+      "feature": "no_surface_occupancy",
+      "location": "Riparian Management Areas",
+      "restriction_type": "no_surface_occupancy",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": null,
+      "units": null,
+      "section": "Appendix B: Lease Stipulations, Stipulation NSO-4",
+      "summary": "No Surface Occupancy applies within all designated Riparian Management Areas. No numeric setback distance specified — restriction applies to the full extent of the riparian management zone. Approximately 3,400 acres affected. Applies to all surface-disturbing activities associated with mineral leasing."
+    },
+    {
+      "feature": "seasonal_restriction",
+      "location": "Sage Grouse breeding habitat",
+      "restriction_type": "seasonal",
+      "geothermal_applicability": "direct",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": "March 1 - July 30",
+      "units": "dates",
+      "section": "Appendix B: Lease Stipulations, Stipulation TL-3",
+      "summary": "Seasonal timing limitation applies in Sage Grouse breeding habitat. Species protected: Sage Grouse. Restriction period: March 1 through July 30. Activity restricted: 'all surface-disturbing activities'. Approximately 45,000 acres affected. Applies to geothermal and all mineral leasing operations within designated Sage Grouse habitat areas."
+    },
+    {
+      "feature": "seasonal_restriction",
+      "location": "North of Cold Springs",
+      "restriction_type": "seasonal",
+      "geothermal_applicability": "direct",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": "spring",
+      "units": "dates",
+      "section": "Areas Where Some Restrictions Apply to Geothermal Leasing: Seasonal Restrictions, Spring Restrictions",
+      "summary": "Spring seasonal restriction applies north of Cold Springs (referenced in Fort Churchill/Clan Alpine Geothermal EAR 1975). Restriction period: spring season. Activity restricted: surface-disturbing activities associated with geothermal leasing operations. No acreage specified for this subarea."
+    },
+    {
+      "feature": "wildlife_restriction",
+      "location": "active Prairie Falcon nest sites",
+      "restriction_type": "wildlife_buffer",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": 0.25,
+      "units": "miles",
+      "section": "Chapter 3: Wildlife, Special Status Species",
+      "summary": "No surface disturbance allowed within 0.25 miles of active Prairie Falcon nest sites. Species: Prairie Falcon (special status). Restriction type: buffer zone / no surface disturbance. Applies to all energy development and surface-disturbing activities associated with mineral leasing. Details extracted as written: 'Avoid all surface-disturbing activities within one-quarter mile of active Prairie Falcon nesting sites.'"
+    },
+    {
+      "feature": "water_restriction",
+      "location": "springs, seeps, and wetlands",
+      "restriction_type": "water_buffer",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": 300,
+      "units": "feet",
+      "section": "Appendix B: Lease Stipulations, Stipulation NSO-2",
+      "summary": "No Surface Occupancy setback of 300 feet from all springs, seeps, and wetlands. Restriction type: no surface occupancy. Applies to all geothermal and mineral leasing surface-disturbing activities. Details: 'No surface occupancy or surface-disturbing activities will be permitted within 300 feet of springs, seeps, or wetland areas.'"
+    },
+    {
+      "feature": "other_restriction",
+      "location": null,
+      "restriction_type": "cultural resources",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": "cultural resources",
+      "units": null,
+      "section": "Chapter 3: Cultural Resources",
+      "summary": "Applies planning-area wide to all ground-disturbing activities associated with geothermal or mineral leasing. Full restriction: 'Prior to any ground-disturbing activities, a Class III cultural resource inventory must be completed and approved by the authorized BLM officer. Any identified cultural resources must be avoided or a mitigation plan approved before surface disturbance may proceed.'"
+    },
+    {
+      "feature": "resource_removals",
+      "location": "Warm Springs area",
+      "restriction_type": "removal",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": 2956,
+      "units": "acres",
+      "section": "Plan Amendment Decision: Southern Washoe County Urban Interface",
+      "summary": "'Removed all 2,956 acres available for geothermal leasing in the Warm Springs area due to the lack of a sufficient resource for development and no existing leases.' Action: removed from geothermal leasing availability. Reason: insufficient geothermal resource and no existing leases. Enacted by Southern Washoe County Urban Interface Plan Amendment (2001)."
+    },
+    {
+      "feature": "geothermal_closure_with_stipulations",
+      "location": "Clan Alpine Mountains WSA",
+      "restriction_type": "valid_existing_rights",
+      "rights_status": "New geothermal and mineral leasing prohibited; valid existing rights are honored and may continue under the Wilderness Interim Management Policy.",
+      "binding_status": "binding",
+      "value": 196128,
+      "units": "acres",
+      "section": "Chapter 2: Wilderness Study Areas, Leasable Minerals SOP",
+      "summary": "'Clan Alpine WSA 196,128 acres.' Managed under the Wilderness Interim Management Policy (IMP): 'restrict mining and energy development activities to those that are allowed under valid existing rights and do not impair wilderness quality.' No new geothermal or mineral leasing permitted. Valid existing rights honored. If designated as wilderness by Congress, will be fully closed to mineral entry."
+    },
+    {
+      "feature": "geothermal_closure_with_stipulations",
+      "location": "Sun Valley, Washoe Valley, Steamboat and Peavine Mountain CMU Act lands",
+      "restriction_type": "conditional",
+      "rights_status": "New mineral leasing and energy development barred under current classification; document does not state whether pre-existing rights or leases are affected.",
+      "binding_status": "discretionary",
+      "value": 8000,
+      "units": "acres",
+      "section": "Chapter 2: Mineral Entry and Energy Development",
+      "summary": "'Approximately 8,000 acres in Sun Valley, Washoe Valley, Steamboat and Peavine Mountain' classified under the Classification and Multiple Use Act. These are discretionary closures — lands segregated from mineral entry under specific legal authority. New mineral leasing and energy development not permitted under current classification."
+    },
+    {
+      "feature": "controlled_surface_use",
+      "location": "Sage Grouse Habitat — East Walker River Area",
+      "restriction_type": "controlled_surface_use",
+      "rights_status": null,
+      "binding_status": "discretionary",
+      "value": null,
+      "units": null,
+      "section": "Appendix B: Lease Stipulations, Stipulation CSU-2",
+      "summary": "Controlled Surface Use stipulation applies within designated Sage Grouse habitat in the East Walker River Area. Leasing and surface operations are permitted but subject to required mitigation: operator must prepare and implement a site-specific mitigation plan minimizing disturbance to sage grouse habitat, including requirements for revegetation with native species, limitations on infrastructure footprint, and reporting to BLM. Stipulation code: CSU-2."
+    },
+    {
+      "feature": "resource_additions",
+      "location": "Steamboat Known Geothermal Resource Area (KGRA)",
+      "restriction_type": "addition",
+      "rights_status": null,
+      "binding_status": "binding",
+      "value": 1933,
+      "units": "acres",
+      "section": "Plan Amendment Decision: Southern Washoe County Urban Interface, Map 3",
+      "summary": "'Geothermal leasing on 1,933 acres in and adjacent to the Steamboat Known Geothermal Resource Area (KGRA)' retained as open to leasing within an otherwise closed planning area. Action: 1,933 acres explicitly kept open for geothermal leasing. Reason: active KGRA with existing geothermal development potential. Enacted by Southern Washoe County Urban Interface Plan Amendment (2001)."
+    }
+
+  ],
+  "$instructions": {
+    "general": [
+      "Extract restrictions that directly affect OR are broadly likely to affect geothermal leasing, exploration, drilling, or facility construction on BLM lands. This includes: (1) explicit geothermal closures or stipulations; (2) closures to oil, gas, and geothermal leasing as a group; (3) closures to all energy development; (4) closures to mineral leasing (Mineral Leasing Act — which covers geothermal); (5) closures to mineral entry (General Mining Law — which restricts surface access and land availability); (6) closures or stipulations on 'fluid minerals' or 'fluid mineral leasing/development' — fluid minerals is the BLM/Mineral Leasing Act regulatory category for oil, gas, AND geothermal resources collectively, so it is equivalent to category 2/4 above. Set geothermal_applicability to 'broad' for categories 2–6. Skip restrictions unrelated to surface disturbance, mineral development, or energy development (e.g., grazing rules, recreation fee programs, fire management).",
+      "Each closed area, WSA, NSO stipulation, CSU stipulation, seasonal restriction, wildlife restriction, water restriction, and other restriction should be its own row in the outputs array. Do not combine multiple distinct restrictions into a single row.",
+      "Populate 'restriction_type' as a normalized stipulation category and populate 'restriction_level' for every row when possible: 1=open/no lease stipulations, 2=minor stipulations, 3=major stipulations, 4=closures. Use null only when severity cannot be inferred from the document text.",
+      "For 'geothermal_closure' and 'geothermal_closure_with_stipulations' rows only, populate 'rights_status' with a brief one-sentence statement of whether the closure bars ALL geothermal/energy activity — including pre-existing operations and leases — or whether valid existing rights/leases are preserved and only NEW activity is barred. Use null for every other feature, and use null here too if the document is silent on the question.",
+      "Populate 'binding_status' for EVERY row with one of two values: 'binding' or 'discretionary'. Use 'binding' for restrictions stated in mandatory, currently-effective terms — outright closures, NSO stipulations, mandatory seasonal/timing limitations, required setbacks, mandatory survey or consultation requirements, and WSA/IMP restrictions currently in force. Use 'discretionary' for restrictions whose application depends on case-by-case review, future designation, or a conditional/administrative classification — e.g., closures that apply only 'under current classification' pending re-designation (restriction_type 'conditional'), CSU stipulations where the specific mitigation is determined site-by-site, or language such as 'may', 'could', 'as determined by the authorized officer', 'subject to further analysis'. This flag distinguishes hard constraints from items that need additional review in the final dataset, so it should be null only if the document's language genuinely does not indicate either.",
+      "Do not extract document metadata (document name, date, RMP area, state) — these are derived automatically from file paths.",
+      "The 'location' field is the primary carrier for WHERE a restriction applies — always populate it for restriction features. Use 'value' for quantitative data (acreage, setback distance, date range) and 'units' for what that number means.",
+      "Use the 'map_reference' column to capture map or figure citations that support each extracted restriction row (e.g., 'Map 2-3', 'Figure 2-31', 'Appendix A Map 4'). Do NOT create standalone map-only rows.",
+      "In the summary field, always use the two-section format: 'Summary: [text]\\nJustification: [text]'. Use direct text excerpts and quotes in the Summary section. The Justification section must explain how this restriction relates to or could affect geothermal leasing.",
+      "Only extract enacted requirements. Do not extract definitions, proposed actions, or alternatives that were not selected in the Record of Decision.",
+      "If a category has no qualifying restrictions, omit rows for that feature entirely rather than returning null values.",
+      "If a document section references a stipulation by code (e.g., 'NSO-1', 'TL-3'), include that code in the section field."
+    ],
+    "energy_closure_guidance": [
+      "Use 'geothermal_closure' when the document closes an area to oil, gas, and geothermal leasing as a group, or to 'energy development' broadly. Set restriction_type to 'closure' and restriction_level to 4 for these rows. Set geothermal_applicability to 'broad' for all of these unless geothermal is explicitly excluded.",
+      "'Fluid minerals' (or 'fluid mineral leasing'/'fluid mineral development') is the BLM/Mineral Leasing Act term for oil, gas, and geothermal resources collectively. Treat any closure or stipulation on fluid minerals exactly like an 'oil, gas, and geothermal' group closure — use 'geothermal_closure', restriction_type 'closure', restriction_level 4, and geothermal_applicability 'broad' (or 'excluded' if the document explicitly carves geothermal out of the fluid minerals category for that area).",
+      "If the same area appears under both a broad energy closure section (e.g., 'Areas Closed to Oil, Gas and Geothermal Leasing') AND a geothermal-specific section, extract two separate rows — both as 'geothermal_closure' with restriction_type 'closure' and restriction_level 4.",
+      "When a section lists multiple named places under a group heading without individual acreages, extract EACH named place as its own row with value null. Include the group total acreage in the summary."
+    ],
+    "mineral_closure_guidance": [
+      "Use 'geothermal_closure' when the document closes an area to 'mineral entry' (General Mining Law — locatable minerals) or to 'mineral leasing' (Mineral Leasing Act — includes oil, gas, geothermal, coal). Set restriction_type to 'closure' and restriction_level to 4 for these rows.",
+      "'Mineral entry' and 'mineral leasing' are legally distinct: preserve that distinction in summary text and section references while still classifying the stipulation category as closure.",
+      "If an area is closed to mineral entry AND also separately closed to oil/gas/geothermal leasing, extract each as its own row — both as 'geothermal_closure' with restriction_type 'closure' and restriction_level 4.",
+      "When a section lists multiple named areas under a total acreage header, extract each named area as its own row."
+    ],
+    "geothermal_closure_guidance": [
+      "Distinguish between areas closed to geothermal leasing only vs. all mineral leasing in summary text and section references. Use restriction_type 'closure' for both and set restriction_level to 4.",
+      "Do not include areas with NSO, timing limitation, CSU, or mitigation stipulations as closures — those are restrictions, not closures.",
+      "Do not include WSAs or areas where existing rights are honored — those belong in geothermal_closure_with_stipulations.",
+      "Wilderness Areas formally designated by Congress and National Monuments are fully closed to mineral leasing — use geothermal_closure for these.",
+      "Put the area name in location. Put acreage in value (number) if stated, otherwise null. Use the phrase 'Acreage not specified' in summary if acreage is not given.",
+      "RIGHTS_STATUS: State in one brief sentence whether the closure extinguishes existing operations/leases too (full closure — e.g., 'Fully closed — no new or existing geothermal leasing or development permitted.') or is silent/ambiguous on the matter (use null). Most full closures under geothermal_closure bar both new and existing activity; only mark a 'preserves existing rights' statement here if the document explicitly says so — otherwise such an area likely belongs in geothermal_closure_with_stipulations instead.",
+      "IMPORTANT: If an area appears in a list headed 'Closed to Oil, Gas and Geothermal Leasing' or similar, but has a note such as 'Transferred to USFS' or 'Transferred to NPS', it MUST still be extracted as a geothermal_closure. The jurisdictional transfer does not remove the closure from the document — extract the closure exactly as listed and note the transfer in the summary. Do NOT skip an area just because it was transferred to another agency.",
+      "When a closure section lists multiple named places under a group heading (e.g., 'Key Scenic, Wildlife, Recreation, and Historic Areas'), extract EACH named place as its own separate row — do NOT combine them into a single row. Set value to null if no individual acreage is stated for that place; include the section's group total acreage in the summary if given.",
+      "A location may appear under multiple distinct closure sections in the same RMP (e.g., once under 'Areas Closed to Mineral Entry' and again under 'Areas Closed to Geothermal Leasing Only'). Extract EACH appearance as its own separate row with the appropriate feature, units, acreage, and section. Do NOT deduplicate based on location name.",
+      "A location may also appear in both a closure section AND a restriction section (e.g., NSO or timing limitation). If the document clearly states the area is CLOSED (no leasing permitted) in one section and separately imposes an NSO or other stipulation in another, extract a geothermal_closure row AND the applicable restriction row — both are valid and should be included."
+    ],
+    "geothermal_closure_with_stipulations_guidance": [
+      "Use this feature for areas closed to NEW leasing only, where valid existing rights are still honored — the primary case is Wilderness Study Areas (WSAs) managed under the Interim Management Policy (IMP). Set restriction_type to 'valid_existing_rights_closure' and restriction_level to 4.",
+      "Also use for lands segregated or withdrawn under discretionary legal authority (e.g., Classification and Multiple Use Act, formal withdrawal processes) where the closure is conditional rather than absolute — set restriction_type to 'conditional_closure' and restriction_level to 4.",
+      "Each distinct area or designation should be its own row — do not combine multiple WSAs into one row.",
+      "Put the area name in location. Put acreage in value (number) if stated, otherwise null. Include the legal basis and acreage in the summary.",
+      "RIGHTS_STATUS: Spell out in one brief sentence exactly what is barred vs. preserved (e.g., 'New leasing and mineral entry barred; valid existing rights, claims, and leases may continue operating under the Interim Management Policy.', 'New mineral leasing barred under current classification; existing operations may continue pending reclassification.'). This is the defining characteristic of this feature, so it should rarely be null here — use null only if the document genuinely does not address what happens to existing rights/operations.",
+      "Do NOT use this feature for outright closures with no exceptions — those belong in geothermal_closure.",
+      "Do NOT use this feature for areas with surface stipulations (NSO, CSU, timing) where leasing itself is still open — those belong in their respective stipulation features.",
+      "BINDING_STATUS: Use 'binding' for restriction_type 'valid_existing_rights_closure' (WSA/IMP) — this restriction is currently in force regardless of any future congressional action. Use 'discretionary' for restriction_type 'conditional_closure' — the closure applies only under the current administrative classification and could change without further legislative action."
+    ],
+    "no_surface_occupancy_guidance": [
+      "NSO means the lessee cannot occupy or disturb the surface even if a lease is issued. This is distinct from a full closure (no lease issued), from a CSU (surface use allowed with conditions), and from a timing limitation (only restricted during certain periods).",
+      "Put the area name or condition in location. If a numeric setback distance is given, use it as value with appropriate distance units. If no numeric distance applies, value is null.",
+      "Include stipulation codes (e.g., NSO-1) in the section field when available."
+    ],
+    "controlled_surface_use_guidance": [
+      "CSU means the lessee CAN drill and construct facilities, but must comply with specific required operating constraints or mitigation measures. This is less restrictive than NSO (which prohibits all surface use) but more restrictive than a standard lease.",
+      "Only extract CSU stipulations that explicitly apply to geothermal leases, mineral leases, or surface-disturbing energy development activities.",
+      "Put the area name or condition in location. Value is null for CSU.",
+      "Include the specific mitigation measures or operating constraints in the summary — these are the core of what makes a CSU distinct.",
+      "Include stipulation codes (e.g., CSU-1) in the section field when available.",
+      "Do not confuse CSU with NSO — if the document says 'no surface occupancy' or 'no surface disturbance permitted', use no_surface_occupancy instead.",
+      "BINDING_STATUS: CSU stipulations are typically 'discretionary' — the requirement to mitigate is mandatory, but the specific operating constraints are determined case-by-case via a site-specific mitigation plan. Use 'binding' only if the document specifies a fixed, non-negotiable operating constraint (e.g., a specific setback or timing window) rather than a plan to be developed later."
+    ],
+    "seasonal_restriction_guidance": [
+      "Put the area or habitat name in location — this may be a species habitat name (e.g., 'Sage Grouse Strutting Grounds', 'Prairie Falcon Habitat') OR a geographic area name (e.g., 'North of Cold Springs', 'East Walker River Area', 'Pine Nut Mountains'). Do NOT require a species or habitat name — geographic names are equally valid locations for seasonal restrictions.",
+      "When a seasonal restriction section lists multiple named areas (e.g., 'A. Sage Grouse Strutting Grounds' and 'B. North of Cold Springs'), extract EACH named area as its own separate row — do NOT combine them or skip geographic area names.",
+      "Extract the restriction period exactly as written — do NOT skip a restriction because it uses a season name ('spring', 'breeding season', 'lekking season') rather than specific calendar dates. Record the season name as-is in the value field.",
+      "Only include timing restrictions that apply to activities that would encompass geothermal drilling or construction (e.g., 'surface-disturbing activities', 'drilling', 'construction', 'mineral leasing operations').",
+      "Do not extract timing restrictions limited to grazing, livestock, hunting, OHV use, or recreation unless they are explicitly tied to geothermal or mineral leasing activities."
+    ],
+    "wildlife_restriction_guidance": [
+      "Put the species name, habitat type, or feature being protected in location (e.g., 'active Prairie Falcon nest sites', 'sage-grouse strutting grounds'). Put the numeric setback distance in value if stated.",
+      "Year-round buffer zones or avoidance areas around wildlife habitat that prohibit surface disturbance qualify — these constrain where geothermal facilities can be placed.",
+      "Seasonal wildlife restrictions (time-based) should use the 'seasonal_restriction' feature instead.",
+      "Endangered species consultation requirements that apply broadly to energy development qualify as other_restriction, not wildlife_restriction, unless a specific buffer distance or avoidance area is defined."
+    ],
+    "water_restriction_guidance": [
+      "Put the water feature type or named water body in location (e.g., 'springs, seeps, and wetlands', 'perennial and intermittent streams'). Put the numeric setback distance in value if stated.",
+      "NSO setbacks from streams or water bodies for mineral leases qualify — use 'no_surface_occupancy' if the stipulation is explicitly an NSO, or 'water_restriction' if it is a broader avoidance or monitoring requirement.",
+      "If both NSO and water feature overlap (e.g., NSO within 500 feet of streams), classify as 'no_surface_occupancy' with water feature context in the summary.",
+      "Groundwater monitoring requirements tied to drilling operations qualify."
+    ],
+    "other_restriction_guidance": [
+      "Put the area or condition the restriction applies to in location; use null if it applies planning-area wide.",
+      "Cultural resource survey requirements before ground disturbance qualify.",
+      "Visual Resource Management (VRM) Class designations that explicitly prohibit industrial development qualify.",
+      "Land withdrawals from mineral entry qualify — include withdrawal type and acreage in summary.",
+      "Tribal consultation requirements specifically tied to energy or mineral development qualify.",
+      "Do not extract general fire management, grazing, or recreation policies."
+    ],
+    "resource_removals_guidance": [
+      "Put the area name in location. Put acreage in value (number) if stated, otherwise null.",
+      "Extract any action that explicitly reduces the land area available for geothermal or mineral leasing — this includes acreage reductions, KGRA contractions, wilderness or WSA designations withdrawing land from mineral entry, land transfers conveying the mineral estate, and plan amendments that close previously open areas.",
+      "Wilderness Study Areas (WSAs) managed under the Interim Management Policy (IMP) are closed to new mineral leasing — extract each WSA as a resource_removal if the document states or implies it was previously open or available.",
+      "Each distinct removal action should be its own row — do not combine multiple areas into one row.",
+      "Include the reason for the removal in the summary (e.g., 'lack of sufficient resource', 'wilderness designation', 'land sale', 'urban interface protection').",
+      "Do not duplicate entries already captured as geothermal_closure — use resource_removals for actions that explicitly change the inventory of leasable acreage rather than applying a leasing restriction to land that remains in the federal estate."
+    ],
+    "resource_additions_guidance": [
+      "Put the area name in location. Put acreage in value (number) if stated, otherwise null.",
+      "Extract any action that explicitly increases the land area available for geothermal or mineral leasing — KGRA designations, plan amendments opening previously closed areas, re-entries of land into the federal leasing pool, and decisions to make additional acreage available for leasing.",
+      "Each distinct addition should be its own row.",
+      "Include the justification or reason for the addition in the summary.",
+      "Do not extract general statements that land 'may be' or 'could be' leased in the future — only extract enacted decisions that open specific areas."
+    ]
+  }
+}

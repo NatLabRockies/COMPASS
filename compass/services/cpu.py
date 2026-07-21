@@ -6,9 +6,11 @@ import sys
 import time
 import asyncio
 import logging
-import contextlib
 import warnings
+import platform
+import contextlib
 import multiprocessing
+from glob import iglob
 from io import BytesIO
 from pathlib import Path
 from functools import partial
@@ -322,6 +324,8 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
 
 def _read_pdf_file(pdf_fp, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
+    kwargs.pop("image_to_string_kwargs", None)
+    kwargs.pop("convert_from_bytes_kwargs", None)
     pdf_bytes = Path(pdf_fp).read_bytes()
     pages = read_pdf(pdf_bytes, verbose=False)
     return PDFDocument(pages, **kwargs), pdf_bytes
@@ -332,8 +336,16 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     if tesseract_cmd:
         _configure_pytesseract(tesseract_cmd)
 
+    image_to_string_kwargs = kwargs.pop("image_to_string_kwargs", None)
+    convert_from_bytes_kwargs = kwargs.pop("convert_from_bytes_kwargs", None)
+
     pdf_bytes = Path(pdf_fp).read_bytes()
-    pages = read_pdf_ocr(pdf_bytes, verbose=False)
+    pages = read_pdf_ocr(
+        pdf_bytes,
+        verbose=True,
+        image_to_string_kwargs=image_to_string_kwargs,
+        convert_from_bytes_kwargs=convert_from_bytes_kwargs,
+    )
     doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True
     return doc, pdf_bytes
@@ -447,6 +459,21 @@ def _configure_pytesseract(tesseract_cmd):
     import pytesseract  # ruff:ignore[import-outside-top-level]
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+    if platform.system() == "Windows":
+        pytesseract.pytesseract.cleanup = _pytesseract_cleanup_win
+
+
+def _pytesseract_cleanup_win(temp_name):
+    """Suppress all OSErrors when cleaning up temp files on Windows
+
+    On Windows, Tesseract may still hold the temp PPM file open when
+    pytesseract's cleanup runs, causing WinError 32. This function
+    patches cleanup to suppress all OSErrors so the OCR result is not
+    lost.
+    """
+    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):  # ruff:ignore[glob]
+        with contextlib.suppress(OSError):
+            os.remove(filename)  # ruff:ignore[os-remove]
 
 
 def _none_if_missing(value):

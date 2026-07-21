@@ -16,7 +16,7 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 
 logger = logging.getLogger(__name__)
-_TEXT_SCOPE_SYSTEM_PROMPT = """\
+_DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
 You are a structured extraction scope validator. Given a text chunk, \
 determine whether the chunk is within the given extraction scope. \
 Focus on any explicit scope limitations, including technology, document \
@@ -28,7 +28,7 @@ requirement for the target technology. Do not infer beyond the text. \
 If the scope match is unclear, return ``true``. Keep the response concise \
 and consistent.\
 """
-_TEXT_SCOPE_MAIN_PROMPT = """\
+_DEFAULT_TEXT_SCOPE_MAIN_PROMPT = """\
 Determine whether this text excerpt is within the following extraction \
 scope. Only decide whether the chunk matches the scope. Do not decide yet \
 whether it contains enough substantive context for extraction.\
@@ -43,7 +43,7 @@ TEXT:
 
 Think before you answer.\
 """
-_TEXT_COLLECTION_SYSTEM_PROMPT = """\
+_DEFAULT_TEXT_COLLECTION_SYSTEM_PROMPT = """\
 You are a structured extraction validator. You receive:
 1) A text chunk.
 2) An extraction schema that specifies the extraction criteria.
@@ -59,7 +59,7 @@ that supports extraction. If relevant, summarize the specific matching \
 content; if not, state why it does not meet the schema's requirements. \
 Keep the response concise and consistent.\
 """
-_TEXT_COLLECTION_MAIN_PROMPT = """\
+_DEFAULT_TEXT_COLLECTION_MAIN_PROMPT = """\
 Determine whether this text excerpt contains any information relevant to \
 the following extraction schema:
 
@@ -71,7 +71,7 @@ TEXT:
 
 Think before you answer.\
 """
-_TEXT_EXTRACTOR_SYSTEM_PROMPT = """\
+_DEFAULT_TEXT_EXTRACTOR_SYSTEM_PROMPT = """\
 You are a text extraction assistant. Your job is to extract only verbatim, \
 **unmodified** excerpts from the provided text. Do not interpret or \
 paraphrase. Do not summarize. Only return exactly copied segments that match \
@@ -79,7 +79,7 @@ the specified extraction scope/domain. If the relevant content appears within \
 a table, return the entire table, including headers and footers, exactly as \
 formatted.\
 """
-_TEXT_EXTRACTOR_MAIN_PROMPT = """\
+_DEFAULT_TEXT_EXTRACTOR_MAIN_PROMPT = """\
 # CONTEXT #
 We want to reduce the provided excerpt to only contain information for the \
 domain relevant to the following extraction schema:
@@ -122,14 +122,14 @@ or modify the text you keep in any way.
 {text}
 
 """
-_DATA_PARSER_MAIN_PROMPT = """\
+_DEFAULT_DATA_PARSER_MAIN_PROMPT = """\
 Extract all applicable {desc}features explicitly supported by following text:
 
 {text}
 
 Think before you answer\
 """
-_DATA_PARSER_SYSTEM_PROMPT = """\
+_DEFAULT_DATA_PARSER_SYSTEM_PROMPT = """\
 You are a legal scholar extracting structured data from {desc}documents. \
 Follow all instructions in the schema descriptions carefully.\
 """
@@ -161,6 +161,12 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
     def CONTENT_VALIDATION_OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Content validation output schema"""
         raise NotImplementedError
+
+    _SSP = _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT
+    _SMP = _DEFAULT_TEXT_SCOPE_MAIN_PROMPT
+
+    _SP = _DEFAULT_TEXT_COLLECTION_SYSTEM_PROMPT
+    _MP = _DEFAULT_TEXT_COLLECTION_MAIN_PROMPT
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -252,16 +258,14 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             )
             return True
 
-        main_prompt = _TEXT_SCOPE_MAIN_PROMPT.format(
+        main_prompt = self._SMP.format(
             schema=self.SCHEMA, scope=scope, text=text_chunk
         )
         logger.debug("Checking text chunk scope with LLM: %s", text_chunk)
-        logger.debug_to_file(
-            "\t- System Message:\n%s", _TEXT_SCOPE_SYSTEM_PROMPT
-        )
+        logger.debug_to_file("\t- System Message:\n%s", self._SSP)
         logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
         content = await self.call(
-            sys_msg=_TEXT_SCOPE_SYSTEM_PROMPT,
+            sys_msg=self._SSP,
             content=main_prompt,
             response_format={
                 "type": "json_schema",
@@ -278,19 +282,15 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     async def _check_chunk_with_prompt(self, key, text_chunk):
         """Call LLM on a chunk of text to check relevant context"""
-        main_prompt = _TEXT_COLLECTION_MAIN_PROMPT.format(
-            schema=self.SCHEMA, text=text_chunk
-        )
+        main_prompt = self._MP.format(schema=self.SCHEMA, text=text_chunk)
         logger.debug(
             "Checking text chunk for relevant context with LLM: %s",
             text_chunk,
         )
-        logger.debug_to_file(
-            "\t- System Message:\n%s", _TEXT_COLLECTION_SYSTEM_PROMPT
-        )
+        logger.debug_to_file("\t- System Message:\n%s", self._SP)
         logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
         content = await self.call(
-            sys_msg=_TEXT_COLLECTION_SYSTEM_PROMPT,
+            sys_msg=self._SP,
             content=main_prompt,
             response_format={
                 "type": "json_schema",
@@ -334,6 +334,9 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         """dict: Validation output schema"""
         raise NotImplementedError
 
+    _SP = _DEFAULT_TEXT_EXTRACTOR_SYSTEM_PROMPT
+    _MP = _DEFAULT_TEXT_EXTRACTOR_MAIN_PROMPT
+
     @property
     def parsers(self):
         """Iterable of parsers provided by this extractor
@@ -361,10 +364,8 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         summaries = [
             asyncio.create_task(
                 self.call(
-                    sys_msg=_TEXT_EXTRACTOR_SYSTEM_PROMPT,
-                    content=_TEXT_EXTRACTOR_MAIN_PROMPT.format(
-                        schema=self.SCHEMA, text=chunk
-                    ),
+                    sys_msg=self._SP,
+                    content=self._MP.format(schema=self.SCHEMA, text=chunk),
                     response_format={
                         "type": "json_schema",
                         "json_schema": {
@@ -409,7 +410,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     - "water rights"
     - "resource management plan geothermal restriction"
     """
-    SYSTEM_PROMPT = _DATA_PARSER_SYSTEM_PROMPT
+    SYSTEM_PROMPT = _DEFAULT_DATA_PARSER_SYSTEM_PROMPT
     """System prompt to use for parsing structured data with an LLM"""
 
     @property
@@ -423,6 +424,14 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     def QUALITATIVE_FEATURES(self):  # ruff:ignore[invalid-function-name]
         """set: **Lowercase** feature names of qualitative features"""
         raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def POSSIBLE_OUT_COLS(self):  # ruff:ignore[invalid-function-name]
+        """list: List of possible output column names"""
+        raise NotImplementedError
+
+    _MP = _DEFAULT_DATA_PARSER_MAIN_PROMPT
 
     async def parse(self, text, jurisdiction):
         """Parse text and extract structured data
@@ -479,7 +488,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             ),
         )
 
-        main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)
+        main_prompt = self._MP.format(desc=desc, text=text)
         logger.debug(
             "Extracting ordinances with LLM: %r", self.llm_service.model_name
         )
@@ -528,13 +537,18 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         full_df = full_df.merge(df, on="feature", how="left")
 
-        possible_out_cols = [
-            "value",
-            "units",
-            "summary",
-            "year",
-            "section",
-            "source",
+        ignore_cols = {
+            "county",
+            "state",
+            "subdivision",
+            "jurisdiction_type",
+            "FIPS",
+            "feature",
+            "quantitative",
+        }
+        out_cols = [
+            col.name
+            for col in self.POSSIBLE_OUT_COLS
+            if col.name in full_df.columns and col.name not in ignore_cols
         ]
-        out_cols = [col for col in possible_out_cols if col in full_df.columns]
         return full_df[["feature", *out_cols, "quantitative"]]

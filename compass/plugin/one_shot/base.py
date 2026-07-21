@@ -9,6 +9,7 @@ from warnings import warn
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.plugin import (
     register_plugin,
+    OutputColumn,
     NoOpHeuristic,
     NoOpTextCollector,
     NoOpTextExtractor,
@@ -168,6 +169,12 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
                   most once.
 
               By default, ``"single doc"``.
+            - `post_processing_steps`: Optional list of post-processing
+              steps to apply to the extracted data. Each entry should
+              be a string of the name of a post processing function in
+              the :mod:`compass.plugin.post_processing` module. If
+              not provided, no post-processing steps will be applied.
+              By default, ``None``.
 
     tech : str
         Technology identifier to use for the plugin (e.g., "wind",
@@ -193,8 +200,11 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
     text_extractors = _extractors_from_config(
         config, in_label=text_collectors[-1].OUT_LABEL, tech=tech
     )
+    out_cols = _out_cols_from_config(config)
     parsers = _parser_from_config(
-        config, in_label=text_extractors[-1].OUT_LABEL
+        config,
+        in_label=text_extractors[-1].OUT_LABEL,
+        possible_out_cols=out_cols,
     )
 
     class SchemaBasedExtractionPlugin(OrdinanceExtractionPlugin):
@@ -246,6 +256,12 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore
 
         WEBSITE_KEYWORDS = {}  # set by user or LLM-generated
         """dict: Keyword weight mapping for link crawl prioritization"""
+
+        OUTPUT_COLUMNS = out_cols
+        """list: List of output columns for the extracted data"""
+
+        POST_PROCESSING_STEPS = config.get("post_processing_steps")
+        """list: Post-processing steps to apply to the extracted data"""
 
         async def get_heuristic(self):
             """Get a `BaseHeuristic` instance with a `check()` method
@@ -527,7 +543,7 @@ def _extractors_from_config(config, in_label, tech):
     return [PluginTextExtractor]
 
 
-def _parser_from_config(config, in_label):
+def _parser_from_config(config, in_label, possible_out_cols):
     """Create a TextExtractor subclass based on a config dict"""
 
     new_sys_prompt = config.get(
@@ -541,8 +557,56 @@ def _parser_from_config(config, in_label):
         QUALITATIVE_FEATURES = config["qual_feats"]
         DATA_TYPE_SHORT_DESC = config.get("data_type_short_desc")
         SYSTEM_PROMPT = new_sys_prompt
+        POSSIBLE_OUT_COLS = possible_out_cols
 
     return [PluginParser]
+
+
+def _out_cols_from_config(config):
+    """Create a list of OutputColumn instances for the output CSV"""
+    cols = [
+        OutputColumn("county"),
+        OutputColumn("state"),
+        OutputColumn("subdivision"),
+        OutputColumn("jurisdiction_type"),
+        OutputColumn("FIPS"),
+    ]
+
+    try:
+        schema_props = config["schema"]["properties"]["outputs"]["items"][
+            "required"
+        ]
+    except Exception as e:
+        msg = f"Error parsing output columns from schema: {e}"
+        raise COMPASSPluginConfigurationError(msg) from e
+
+    cols.extend(
+        OutputColumn(
+            name,
+            include_in_qual_output=name not in {"value", "units"},
+        )
+        for name in schema_props
+        if name != "explanation"
+    )
+
+    source_col_ind = next(
+        (ind for ind, col in enumerate(cols) if col.name == "source"),
+        None,
+    )
+    year_col = OutputColumn("year")
+    if source_col_ind is None:
+        cols.append(year_col)
+    else:
+        cols.insert(source_col_ind, year_col)
+
+    cols.append(
+        OutputColumn(
+            "quantitative",
+            include_in_quant_output=False,
+            include_in_qual_output=False,
+        ),
+    )
+    return cols
 
 
 def _augment_website_keywords(keywords):
