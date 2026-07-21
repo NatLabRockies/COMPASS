@@ -217,7 +217,7 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         "subdivision": jurisdiction.subdivision_name,
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
-        "documents": documents,
+        "documents": [doc for doc in documents if doc is not None],
     }
 
 
@@ -315,6 +315,8 @@ def _make_relative(fp, relative_to):
 def _serialize_collection_doc_info(doc, from_steps):
     """Serialize a collected document for manifest storage"""
     serialized = dict(doc.attrs)
+    if not serialized or serialized.get("parsed_fp") is None:
+        return None
     serialized.pop("cache_fn", None)
     serialized.pop("cleaned_fps", None)
     serialized.setdefault("check_correct_jurisdiction", True)
