@@ -1,10 +1,8 @@
 """COMPASS Geothermal Resource Management Plan plugin"""
 
 import importlib.resources
-from pathlib import Path
 
-from compass.plugin import create_schema_based_one_shot_extraction_plugin, OutputColumn
-from compass.utilities import doc_infos_to_db, save_db
+from compass.plugin import create_schema_based_one_shot_extraction_plugin
 
 
 COMPASSGeoRMPExtractor = create_schema_based_one_shot_extraction_plugin(
@@ -12,26 +10,20 @@ COMPASSGeoRMPExtractor = create_schema_based_one_shot_extraction_plugin(
     tech="geo_rmp",
 )
 
-_out_cols = getattr(COMPASSGeoRMPExtractor, "OUTPUT_COLUMNS", [])
-if not any(col.name == "restriction_level" for col in _out_cols):
-    _out_cols.append(OutputColumn("restriction_level"))
-if not any(col.name == "document_name" for col in _out_cols):
-    _out_cols.append(OutputColumn("document_name"))
 
+COMPASSGeoRMPExtractor.TEXT_COLLECTORS[0]._SP = """\
+You are a structured extraction validator. You receive:
+1) A text chunk.
+2) An extraction schema that specifies the extraction criteria.
 
-@classmethod
-def _save_structured_data(cls, doc_infos, out_dir):
-    """Save RMP extraction results, adding document_name from source path"""
-    output_cols = getattr(cls, "OUTPUT_COLUMNS", [])
-    db, num_docs_found = doc_infos_to_db(doc_infos, output_cols)
-
-    if not db.empty:
-        db["document_name"] = db["source"].apply(
-            lambda src: Path(src).name if isinstance(src, str) and src else None
-        )
-
-    save_db(db, out_dir, output_cols)
-    return num_docs_found
-
-
-COMPASSGeoRMPExtractor.save_structured_data = _save_structured_data
+Determine whether the chunk contains content that matches any of the \
+schema's criteria. Apply the schema's own inclusion rules faithfully: \
+if the schema states that broad categories (e.g., oil/gas leasing, \
+fluid mineral leasing, energy development) encompass the target \
+technology, treat text addressing those broad categories as relevant. \
+Do not require the target technology to be named verbatim when the \
+schema explicitly defines broader qualifying criteria. If relevant, \
+summarize the specific matching content; if not, state why it does \
+not meet the schema's requirements. Keep the response concise and \
+consistent.\
+"""  # ruff:ignore[private-member-access]
