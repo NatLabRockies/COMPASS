@@ -475,7 +475,11 @@ class COMPASSCrawler:
     def _log_crawl_stats(self):
         """Log statistics about crawled pages and depths"""
         logger.info("Crawled %d pages", len(self._already_visited))
-        logger.info("Found %d potential document(s)", len(self._out_docs))
+        logger.info(
+            "Found %d potential document(s):\n%r",
+            len(self._out_docs),
+            self._out_docs,
+        )
         logger.debug("Average score: %.2f", self._compute_avg_link_score())
 
         logger.debug("Pages crawled by depth:")
