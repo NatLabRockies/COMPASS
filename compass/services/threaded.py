@@ -51,7 +51,23 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir, out_fn=None, verb="processed"):
+def _normalize_output_stem(out_stem):
+    """Normalize an output file name while preserving the full stem"""
+    return (
+        out_stem.replace(".", "")
+        .replace(",", "")
+        .replace("/", "_")
+        .replace(" ", "_")
+    )
+
+
+def _ensure_output_suffix(out_dir, out_stem, suffix):
+    """Build output path"""
+    out_stem = _normalize_output_stem(out_stem)
+    return Path(out_dir) / f"{out_stem}{suffix}"
+
+
+def _move_file(doc, out_dir, out_stem=None, verb="processed"):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -59,13 +75,9 @@ def _move_file(doc, out_dir, out_fn=None, verb="processed"):
 
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_fn = out_fn or cached_fp.stem
-    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
-    out_fn = f"{out_fn}_{verb}_{date}"
-    out_fp = Path(out_dir) / out_fn
-
-    if out_fp.suffix != cached_fp.suffix:
-        out_fp = out_fp.with_suffix(cached_fp.suffix)
+    out_stem = out_stem or cached_fp.stem
+    out_stem = f"{out_stem}_{verb}_{date}"
+    out_fp = _ensure_output_suffix(out_dir, out_stem, cached_fp.suffix)
 
     shutil.move(cached_fp, out_fp)
     return out_fp
@@ -92,15 +104,12 @@ def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
     return out_paths
 
 
-def _write_parsed_text(doc, out_dir, out_fn=None):
+def _write_parsed_text(doc, out_dir, out_stem=None):
     """Write parsed document text to directory"""
-    if not doc.text or out_fn is None:
+    if not doc.text or out_stem is None:
         return None
 
-    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
-    out_fp = Path(out_dir) / out_fn
-    if out_fp.suffix != ".txt":
-        out_fp = out_fp.with_suffix(".txt")
+    out_fp = _ensure_output_suffix(out_dir, out_stem, ".txt")
     out_fp.write_text(doc.text, encoding="utf-8")
     return out_fp
 
