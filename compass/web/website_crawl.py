@@ -18,9 +18,11 @@ from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
 from elm.web.utilities import pw_page
 from elm.web.document import HTMLDocument
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
-from compass.utilities.url import sanitize_url
 
+from compass.utilities.url import sanitize_url
+from compass.services.threaded import TempFileCache
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
 
@@ -176,7 +178,13 @@ class COMPASSCrawler:
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
         flk.update(file_loader_kwargs or {})
-        self.afl = COMPASSWebFileLoader(**flk)
+
+        # Fast file loader that always uses poppler
+        self.fast_afl = AsyncWebFileLoader(**flk)
+
+        # best parsing file loader selected by user
+        self.final_afl = COMPASSWebFileLoader(**flk)
+
         self.pw_launch_kwargs = (
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )
@@ -287,6 +295,7 @@ class COMPASSCrawler:
             if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
                     logger.debug("    - Document passed validation check!")
+                    self._load_last_doc_with_final_afl(next_link["href"])
                 else:
                     self._out_docs = self._out_docs[:-1]
             elif (
@@ -307,6 +316,26 @@ class COMPASSCrawler:
                 break
 
         return
+
+    async def _load_last_doc_with_final_afl(self, link):
+        """Load the last document with the final file loader"""
+        old_doc = self._out_docs[-1]
+        link = old_doc.attrs.get("source", link)
+        try:
+            doc = await self.final_afl.fetch(link)
+            doc.attrs[_DEPTH_KEY] = old_doc.attrs[_DEPTH_KEY]
+            doc.attrs[_SCORE_KEY] = old_doc.attrs[_SCORE_KEY]
+            if not doc.empty:
+                self._out_docs[-1] = doc
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while trying to fetch "
+                "content from %s"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, link)
 
     def _reset_crawl(self, base_url):
         """Reset crawl state and initialize crawling link"""
@@ -366,7 +395,7 @@ class COMPASSCrawler:
         logger.debug("Loading Link: %s", link)
 
         try:
-            doc = await self.afl.fetch(link.href)
+            doc = await self.fast_afl.fetch(link.href)
         except KeyboardInterrupt:
             raise
         except Exception as e:
