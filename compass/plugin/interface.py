@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
 from compass.plugin.base import BaseExtractionPlugin
+from compass.plugin.post_processing import POST_PROCESSING_REGISTRY
 from compass.llm.calling import BaseLLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
@@ -128,6 +129,14 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
     methods as needed.
     """
 
+    POST_PROCESSING_STEPS = None
+    """List of post-processing steps to apply to the extracted data
+
+    Each entry should correspond to a key in the
+    `POST_PROCESSING_REGISTRY`. If `None`, no post-processing steps will
+    be applied. By default, `None`.
+    """
+
     @property
     @abstractmethod
     def IDENTIFIER(self):  # ruff:ignore[invalid-function-name]
@@ -210,8 +219,27 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             found/written for.
         """
         db, num_docs_found = doc_infos_to_db(doc_infos, cls.OUTPUT_COLUMNS)
+        db = cls._apply_post_processing(db)
         save_db(db, out_dir, cls.OUTPUT_COLUMNS)
         return num_docs_found
+
+    @classmethod
+    def _apply_post_processing(cls, db):
+        """Apply post-processing steps to the extracted data"""
+        if db.empty or not cls.POST_PROCESSING_STEPS:
+            return db
+
+        for step in cls.POST_PROCESSING_STEPS:
+            normalized_step = step.strip().casefold().replace(" ", "_")
+            if normalized_step in POST_PROCESSING_REGISTRY:
+                db = POST_PROCESSING_REGISTRY[normalized_step](db)
+            else:
+                logger.warning(
+                    "Post-processing step '%s' not found in registry. "
+                    "Skipping this step.",
+                    step,
+                )
+        return db
 
     async def pre_filter_docs_hook(self, extraction_context):  # ruff:ignore[no-self-use]
         """Pre-process documents before running them through the filter
