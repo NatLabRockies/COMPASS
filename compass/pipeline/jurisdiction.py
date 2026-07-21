@@ -34,7 +34,6 @@ class SingleJurisdictionRun:
         known_doc_urls=None,
         perform_se_search=True,
         perform_website_search=True,
-        validate_user_website_input=True,
     ):
         """
 
@@ -69,10 +68,6 @@ class SingleJurisdictionRun:
         perform_website_search : bool, optional
             Whether website-specific search and crawl steps should be
             performed for this jurisdiction. By default, ``True``.
-        validate_user_website_input : bool, optional
-            Whether user-supplied jurisdiction website inputs should be
-            validated before being used in collection. By default,
-            ``True``.
         """
         self.runtime = runtime
         self.jurisdiction = jurisdiction
@@ -82,7 +77,6 @@ class SingleJurisdictionRun:
         self.known_doc_urls = known_doc_urls
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
-        self.validate_user_website_input = validate_user_website_input
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
         self.extraction_workflow = DocumentExtraction(self)

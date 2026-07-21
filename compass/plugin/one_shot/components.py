@@ -146,19 +146,19 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     @property
     @abstractmethod
-    def SCHEMA(self):  # noqa: N802
+    def SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Extraction schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def SCOPE_VALIDATION_OUTPUT_SCHEMA(self):  # noqa: N802
+    def SCOPE_VALIDATION_OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Scope validation output schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def CONTENT_VALIDATION_OUTPUT_SCHEMA(self):  # noqa: N802
+    def CONTENT_VALIDATION_OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Content validation output schema"""
         raise NotImplementedError
 
@@ -324,13 +324,13 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
 
     @property
     @abstractmethod
-    def SCHEMA(self):  # noqa: N802
+    def SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Extraction schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def OUTPUT_SCHEMA(self):  # noqa: N802
+    def OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Validation output schema"""
         raise NotImplementedError
 
@@ -414,13 +414,13 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
 
     @property
     @abstractmethod
-    def SCHEMA(self):  # noqa: N802
+    def SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Extraction schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def QUALITATIVE_FEATURES(self):  # noqa: N802
+    def QUALITATIVE_FEATURES(self):  # ruff:ignore[invalid-function-name]
         """set: **Lowercase** feature names of qualitative features"""
         raise NotImplementedError
 

@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 class NoOpHeuristic(BaseHeuristic):
     """NoOp heuristic check"""
 
-    def check(self, *__, **___):  # noqa: PLR6301
+    def check(self, *__, **___):  # ruff:ignore[no-self-use]
         """Always return ``True``"""
         return True
 
@@ -76,7 +76,7 @@ class NoOpTextCollector(BaseTextCollector):
 class NoOpTextExtractor(BaseTextExtractor):
     """NoOp text extractor that returns the full text"""
 
-    async def return_original(self, text_chunks):  # noqa: PLR6301
+    async def return_original(self, text_chunks):  # ruff:ignore[no-self-use]
         """No processing, just return original text
 
         Parameters

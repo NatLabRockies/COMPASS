@@ -112,7 +112,7 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         out = await run_async_tree(tree, response_as_json=True)
         return self._parse_output(out)
 
-    def _parse_output(self, props):  # noqa: PLR6301
+    def _parse_output(self, props):  # ruff:ignore[no-self-use]
         """Parse LLM response and return boolean validation result"""
         logger.debug(
             "Parsing URL jurisdiction validation output:\n\t%s", props
@@ -193,7 +193,7 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
         out = await run_async_tree(tree, response_as_json=True)
         return self._parse_output(out)
 
-    def _parse_output(self, props):  # noqa: PLR6301
+    def _parse_output(self, props):  # ruff:ignore[no-self-use]
         """Parse LLM response and return boolean validation result"""
         logger.debug(
             "Parsing county jurisdiction validation output:\n\t%s", props

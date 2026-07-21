@@ -93,6 +93,9 @@ heuristic_keywords:
     - "geothermal production project"
     - "exploratory well"
     - "injection well"
+    - "wellbeing"
+    - "well-being"
+    - "as well as"
 
 collection_prompts: True
 

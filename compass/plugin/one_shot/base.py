@@ -51,7 +51,7 @@ class _CacheKey(StrEnum):
     HEURISTIC_KEYWORDS = auto()
 
 
-def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
+def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore[complex-structure]
     """Create a one-shot extraction plugin based on a configuration
 
     Parameters
@@ -621,7 +621,7 @@ def _normalize_heuristic_keywords(raw):
         )
         raise COMPASSPluginConfigurationError(msg)
 
-    if num_good_kw < 10:  # noqa: PLR2004
+    if num_good_kw < 10:  # ruff:ignore[magic-value-comparison]
         msg = (
             'It is recommended to provide at least 10 total "Good" '
             "heuristic values across the GOOD_TECH_KEYWORDS, "

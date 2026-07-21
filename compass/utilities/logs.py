@@ -53,7 +53,7 @@ class LQ:
 class NoLocationFilter(logging.Filter):
     """Filter that catches all records without a location attribute"""
 
-    def filter(self, record):  # noqa: PLR6301
+    def filter(self, record):  # ruff:ignore[no-self-use]
         """Filter logging record.
 
         Parameters
@@ -116,7 +116,7 @@ class LocationFilter(logging.Filter):
 class AddLocationFilter(logging.Filter):
     """Filter that injects location information into the log record"""
 
-    def filter(self, record):  # noqa: PLR6301
+    def filter(self, record):  # ruff:ignore[no-self-use]
         """Add location to record
 
         Parameters
@@ -165,7 +165,7 @@ class _LocalProcessQueueHandler(QueueHandler):
             )
         except asyncio.CancelledError:
             raise
-        except Exception:  # noqa: BLE001
+        except Exception:  # ruff:ignore[blind-except]
             self.handleError(record)
 
 
@@ -239,7 +239,7 @@ class LogListener:
     async def __aexit__(self, exc_type, exc, tb):
         self.__exit__(exc_type, exc, tb)
 
-    def addHandler(self, handler):  # noqa: N802
+    def addHandler(self, handler):  # ruff:ignore[invalid-function-name]
         """Add a handler to the queue listener
 
         Logs that are sent to the queue will be emitted to the handler.
@@ -252,7 +252,7 @@ class LogListener:
         if handler not in self._listener.handlers:
             self._listener.handlers.append(handler)
 
-    def removeHandler(self, handler):  # noqa: N802
+    def removeHandler(self, handler):  # ruff:ignore[invalid-function-name]
         """Remove a handler from the queue listener
 
         Logs that are sent to the queue will no longer be emitted to the
@@ -406,7 +406,7 @@ class LocationFileLog:
 class ExceptionOnlyFilter(logging.Filter):
     """Filter to only pass through Exception logging (errors)"""
 
-    def filter(self, record):  # noqa: D102, PLR6301
+    def filter(self, record):  # ruff:ignore[undocumented-public-method, no-self-use]
         return bool(record.exc_info or getattr(record, "exc_type", None))
 
 
@@ -417,7 +417,7 @@ class _JsonFormatter(logging.Formatter):
         exc_info, exc_text = _extract_exc_info_from_record(record)
 
         message = record.getMessage()
-        if message and len(message) > 103:  # noqa: PLR2004
+        if message and len(message) > 103:  # ruff:ignore[magic-value-comparison]
             message = message[:103]
 
         return {
@@ -604,12 +604,12 @@ def _extract_exc_info_from_record(record):
 
     try:
         exc_text = exc_info[1].args[0]
-    except Exception:  # noqa: BLE001
+    except Exception:  # ruff:ignore[blind-except]
         exc_text = None
 
     try:
         exc_info = exc_info[0].__name__
-    except Exception:  # noqa: BLE001
+    except Exception:  # ruff:ignore[blind-except]
         exc_info = None
 
     return exc_info, exc_text

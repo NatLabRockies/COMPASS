@@ -6,10 +6,11 @@ from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
-    _SCORE_KEY,  # noqa: PLC2701
+    _SCORE_KEY,  # ruff:ignore[import-private-name]
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.web.search import search_single_jurisdiction
@@ -173,7 +174,6 @@ async def find_jurisdiction_website(
     browser_semaphore=None,
     usage_tracker=None,
     url_ignore_substrings=None,
-    validate=True,
     **kwargs,
 ):
     """Search for the main landing page of a given jurisdiction
@@ -213,12 +213,6 @@ async def find_jurisdiction_website(
     url_ignore_substrings : list of str, optional
         URL substrings that should be excluded from search results.
         Substrings are applied case-insensitively. By default, ``None``.
-    validate : bool, default=True
-        If ``True``, each potential jurisdiction website will be checked
-        for validity using the
-        :class:`~compass.validation.location.JurisdictionWebsiteValidator`
-        before being returned. If ``False``, the first potential website
-        will be returned without validation. By default, ``True``.
     **kwargs
         Additional arguments forwarded to
         :func:`elm.web.search.run.search_with_fallback`.
@@ -249,9 +243,6 @@ async def find_jurisdiction_website(
 
     if not potential_website_links:
         return None
-
-    if not validate:
-        return potential_website_links.pop()
 
     model_config = model_configs.get(
         LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION,
@@ -349,7 +340,7 @@ async def download_jurisdiction_ordinances_from_website(
     if crawl_semaphore is None:
         crawl_semaphore = AsyncExitStack()
 
-    async def _doc_heuristic(doc):  # noqa: RUF029
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
         is_valid_document = heuristic.check(doc.text.lower())
         if is_valid_document and pb_jurisdiction_name:
@@ -357,7 +348,7 @@ async def download_jurisdiction_ordinances_from_website(
 
         return is_valid_document
 
-    async def _crawl_hook(*__, **___):  # noqa: RUF029
+    async def _crawl_hook(*__, **___):  # ruff:ignore[unused-async]
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_website_crawl_task(pb_jurisdiction_name, advance=1)
 
@@ -373,10 +364,16 @@ async def download_jurisdiction_ordinances_from_website(
         "kwargs for COMPASSWebFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(flk),
     )
-    afl = COMPASSWebFileLoader(**flk)
+
+    # Fast file loader that always uses poppler
+    fast_afl = AsyncWebFileLoader(**flk)
+
+    # best parsing file loader selected by user
+    final_afl = COMPASSWebFileLoader(**flk)
+
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
-        async_file_loader=afl,
+        async_file_loader=fast_afl,
         url_scorer=ELMLinkScorer(keyword_points).score,
         browser_config_kwargs=browser_config_kwargs,
         crawler_config_kwargs=crawler_config_kwargs,
@@ -405,11 +402,10 @@ async def download_jurisdiction_ordinances_from_website(
 
     if return_c4ai_results:
         docs, c4ai_results = docs_or_pair
-        _sanitize_doc_sources(docs)
+        docs = await _finalize_doc_sources(docs, final_afl)
         return docs, c4ai_results
 
-    _sanitize_doc_sources(docs_or_pair)
-    return docs_or_pair
+    return await _finalize_doc_sources(docs_or_pair, final_afl)
 
 
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
@@ -479,7 +475,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     if crawl_semaphore is None:
         crawl_semaphore = AsyncExitStack()
 
-    async def _doc_heuristic(doc):  # noqa: RUF029
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
         is_valid_document = heuristic.check(doc.text.lower())
         if is_valid_document and pb_jurisdiction_name:
@@ -488,7 +484,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
             )
         return is_valid_document
 
-    async def _crawl_hook(*__, **___):  # noqa: RUF029
+    async def _crawl_hook(*__, **___):  # ruff:ignore[unused-async]
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_compass_website_crawl_task(
             pb_jurisdiction_name, advance=1
@@ -877,8 +873,8 @@ async def _contains_relevant_text(
     return found_text
 
 
-def _sanitize_doc_sources(docs):
-    """Rewrite source attrs on documents returned by ELMWebsiteCrawler
+async def _finalize_doc_sources(docs, final_afl):
+    """Finalize documents returned by ELMWebsiteCrawler
 
     crawl4ai can surface PDF URLs containing raw spaces (e.g. filenames
     like "Land Use Code.pdf").  These fail when the file loader issues
@@ -890,6 +886,35 @@ def _sanitize_doc_sources(docs):
         source = doc.attrs.get("source")
         if source and " " in source:
             doc.attrs["source"] = sanitize_url(source)
+
+    return await _reload_using_final_afl(docs, final_afl)
+
+
+async def _reload_using_final_afl(docs, final_afl):
+    """Reload documents using the final AsyncFileLoader"""
+    out_docs = []
+    for old_doc in docs:
+        link = old_doc.attrs.get("source")
+        if not link:
+            out_docs.append(old_doc)
+            continue
+
+        try:
+            doc = await final_afl.fetch(link)
+            doc.attrs[_SCORE_KEY] = old_doc.attrs[_SCORE_KEY]
+            out_docs.append(doc)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while trying "
+                "to fetch content from %s"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, link)
+            out_docs.append(old_doc)
+
+    return out_docs
 
 
 def _sort_final_ord_docs(all_ord_docs):

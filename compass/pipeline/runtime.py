@@ -265,7 +265,7 @@ class PipelineRuntime:
         if self._pytesseract_was_set_up:
             return
 
-        import pytesseract  # noqa: PLC0415
+        import pytesseract  # ruff:ignore[import-outside-top-level]
 
         logger.debug(
             "Setting `tesseract_cmd` to %s",

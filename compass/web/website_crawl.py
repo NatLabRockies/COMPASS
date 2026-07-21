@@ -15,12 +15,14 @@ from crawl4ai.models import Link as c4AILink
 from bs4 import BeautifulSoup
 from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
-from playwright._impl._errors import Error as PlaywrightError  # noqa: PLC2701
+from playwright._impl._errors import Error as PlaywrightError  # ruff:ignore[import-private-name]
 from elm.web.utilities import pw_page
 from elm.web.document import HTMLDocument
-from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # noqa: PLC2701
-from compass.utilities.url import sanitize_url
+from elm.web.file_loader import AsyncWebFileLoader
+from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # ruff:ignore[import-private-name]
 
+from compass.utilities.url import sanitize_url
+from compass.services.threaded import TempFileCache
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
 
@@ -176,7 +178,13 @@ class COMPASSCrawler:
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
         flk.update(file_loader_kwargs or {})
-        self.afl = COMPASSWebFileLoader(**flk)
+
+        # Fast file loader that always uses poppler
+        self.fast_afl = AsyncWebFileLoader(**flk)
+
+        # best parsing file loader selected by user
+        self.final_afl = COMPASSWebFileLoader(**flk)
+
         self.pw_launch_kwargs = (
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )
@@ -244,6 +252,11 @@ class COMPASSCrawler:
         """Recursive web crawl function"""
         if link is None:
             base_url, link = self._reset_crawl(base_url)
+            logger.debug(
+                "Starting COMPASS crawl for base URL: %s\nLink: %r",
+                base_url,
+                link,
+            )
 
         if link in self._already_visited:
             return
@@ -282,6 +295,7 @@ class COMPASSCrawler:
             if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
                     logger.debug("    - Document passed validation check!")
+                    self._load_last_doc_with_final_afl(next_link["href"])
                 else:
                     self._out_docs = self._out_docs[:-1]
             elif (
@@ -302,6 +316,26 @@ class COMPASSCrawler:
                 break
 
         return
+
+    async def _load_last_doc_with_final_afl(self, link):
+        """Load the last document with the final file loader"""
+        old_doc = self._out_docs[-1]
+        link = old_doc.attrs.get("source", link)
+        try:
+            doc = await self.final_afl.fetch(link)
+            doc.attrs[_DEPTH_KEY] = old_doc.attrs[_DEPTH_KEY]
+            doc.attrs[_SCORE_KEY] = old_doc.attrs[_SCORE_KEY]
+            if not doc.empty:
+                self._out_docs[-1] = doc
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while trying to fetch "
+                "content from %s"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, link)
 
     def _reset_crawl(self, base_url):
         """Reset crawl state and initialize crawling link"""
@@ -327,7 +361,7 @@ class COMPASSCrawler:
         # at this point the page is NOT a PDF. However, it could still
         # just be a normal webpage on the main domain that we haven't
         # visited before. In that case, just return False
-        if not link.consistent_domain:
+        if link.consistent_domain:
             return False
 
         # now we are on an external page that we either have not visited
@@ -361,7 +395,7 @@ class COMPASSCrawler:
         logger.debug("Loading Link: %s", link)
 
         try:
-            doc = await self.afl.fetch(link.href)
+            doc = await self.fast_afl.fetch(link.href)
         except KeyboardInterrupt:
             raise
         except Exception as e:
@@ -389,8 +423,13 @@ class COMPASSCrawler:
         logger.debug("Loading Link as HTML: %s", link)
         html_text = await self._get_text_no_err(link.href)
 
-        attrs = {_DEPTH_KEY: depth, _SCORE_KEY: score}
+        attrs = {_DEPTH_KEY: depth, _SCORE_KEY: score, "source": link.href}
         doc = HTMLDocument([html_text], attrs=attrs)
+
+        cache_fn = await TempFileCache.call(doc, doc.text)
+        if cache_fn is not None:
+            doc.attrs["cache_fn"] = cache_fn
+
         self._out_docs.append(doc)
         return True
 
@@ -470,7 +509,7 @@ class COMPASSCrawler:
     def _log_crawl_stats(self):
         """Log statistics about crawled pages and depths"""
         logger.info("Crawled %d pages", len(self._already_visited))
-        logger.info("Found %d potential documents", len(self._out_docs))
+        logger.info("Found %d potential document(s)", len(self._out_docs))
         logger.debug("Average score: %.2f", self._compute_avg_link_score())
 
         logger.debug("Pages crawled by depth:")
@@ -490,7 +529,7 @@ class COMPASSCrawler:
         return depth_counts
 
 
-async def _default_found_enough_docs(out_docs):  # noqa: RUF029
+async def _default_found_enough_docs(out_docs):  # ruff:ignore[unused-async]
     """Check if a predetermined # of documents has been found
 
     The number to check is set by the module-level constant
@@ -512,7 +551,7 @@ def _debug_info_on_links(links):
         logger.debug(
             "    - %d: %s (%s)", link["score"], link["title"], link["href"]
         )
-    if num_links > 3:  # noqa: PLR2004
+    if num_links > 3:  # ruff:ignore[magic-value-comparison]
         logger.debug("    ...")
 
 

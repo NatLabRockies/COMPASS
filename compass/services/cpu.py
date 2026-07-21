@@ -207,7 +207,7 @@ async def read_pdf_doc_ocr(pdf_bytes, **kwargs):
     elm.web.document.PDFDocument
         PDFDocument instances with pages loaded as text.
     """
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     return await OCRPDFLoader.call(
         _read_pdf_ocr,
@@ -239,7 +239,7 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     bytes
         Raw bytes of the PDF file.
     """
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     return await OCRPDFLoader.call(
         _read_pdf_file_ocr,
@@ -444,7 +444,7 @@ def _read_file_docling(fp, **kwargs):
 
 def _configure_pytesseract(tesseract_cmd):
     """Set the tesseract_cmd"""
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
 
@@ -459,7 +459,7 @@ def _try_decode_ocr_pages(pages):
     decoded_pages = []
     for page in pages:
         with contextlib.suppress(Exception):
-            page = ast.literal_eval(page).decode("utf-8")  # noqa: PLW2901
+            page = ast.literal_eval(page).decode("utf-8")  # ruff:ignore[redefined-loop-name]
         decoded_pages.append(page)
     return decoded_pages
 
@@ -573,6 +573,6 @@ class _LogStream:
             self.logger.log(self.level, self._buffer)
             self._buffer = ""
 
-    def isatty(self):  # noqa: PLR6301
+    def isatty(self):  # ruff:ignore[no-self-use]
         """bool: Redirected subprocess streams are never TTYs"""
         return False

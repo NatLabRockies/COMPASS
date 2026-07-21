@@ -96,16 +96,16 @@ class Service(ABC):
 
         try:
             response = await self.process(*args, **kwargs)
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:  # ruff:ignore[blind-except]
             fut.set_exception(e)
             return
 
         fut.set_result(response)
 
-    def acquire_resources(self):  # noqa: B027
+    def acquire_resources(self):  # ruff:ignore[empty-method-without-abstract-decorator]
         """Use this method to allocate resources, if needed"""
 
-    def release_resources(self):  # noqa: B027
+    def release_resources(self):  # ruff:ignore[empty-method-without-abstract-decorator]
         """Use this method to clean up resources, if needed"""
 
     @property

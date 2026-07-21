@@ -223,25 +223,25 @@ class Heuristic(ABC):
 
     @property
     @abstractmethod
-    def NOT_TECH_WORDS(self):  # noqa: N802
+    def NOT_TECH_WORDS(self):  # ruff:ignore[invalid-function-name]
         """:class:`~collections.abc.Iterable`: Not tech keywords"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def GOOD_TECH_KEYWORDS(self):  # noqa: N802
+    def GOOD_TECH_KEYWORDS(self):  # ruff:ignore[invalid-function-name]
         """:class:`~collections.abc.Iterable`: Tech keywords"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def GOOD_TECH_ACRONYMS(self):  # noqa: N802
+    def GOOD_TECH_ACRONYMS(self):  # ruff:ignore[invalid-function-name]
         """:class:`~collections.abc.Iterable`: Tech acronyms"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def GOOD_TECH_PHRASES(self):  # noqa: N802
+    def GOOD_TECH_PHRASES(self):  # ruff:ignore[invalid-function-name]
         """:class:`~collections.abc.Iterable`: Tech phrases"""
         raise NotImplementedError
 

@@ -6,6 +6,9 @@ from pathlib import Path
 from warnings import warn
 from datetime import datetime, UTC
 
+from elm.version import __version__ as elm_version
+
+from compass import __version__ as compass_version
 from compass.services.threaded import (
     FileMover,
     ParsedFileWriter,
@@ -33,10 +36,10 @@ def build_collection_manifest(
     tech : str
         Technology specified in the pipeline request, included in the
         manifest for compatibility validation when loading.
-    jurisdictions : dict
-        Dictionary mapping jurisdiction full names to serialized
-        collection metadata for each jurisdiction, including
-        jurisdiction identifiers and the persisted document records.
+    jurisdictions : list
+        List of serialized collection metadata for each jurisdiction,
+        including jurisdiction identifiers and the persisted document
+        records.
     time_start_utc : datetime.datetime
         UTC datetime when the collection process started, used to
         calculate elapsed time for the manifest metadata.
@@ -52,8 +55,14 @@ def build_collection_manifest(
     """
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
+    jurisdictions = [
+        info
+        for info in jurisdictions
+        if info is not None and info.get("documents")
+    ]
     return {
         "tech": tech,
+        "versions": {"compass": compass_version, "elm": elm_version},
         "time_start_utc": time_start_utc.isoformat(),
         "time_end_utc": time_end_utc.isoformat(),
         "total_time": time_elapsed.total_seconds(),
@@ -196,7 +205,7 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         task = asyncio.create_task(
             _persist_doc(
                 info["doc"],
-                out_fn=f"{jurisdiction.full_name}_{index}",
+                out_stem=f"{jurisdiction.full_name}_{index}",
                 from_steps=info["from_steps"],
                 relative_to=relative_to,
             ),
@@ -212,7 +221,7 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         "subdivision": jurisdiction.subdivision_name,
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
-        "documents": documents,
+        "documents": [doc for doc in documents if doc is not None],
     }
 
 
@@ -271,24 +280,24 @@ async def _load_single_doc(doc_info):
     return doc
 
 
-async def _persist_doc(doc, out_fn, from_steps, relative_to):
+async def _persist_doc(doc, out_stem, from_steps, relative_to):
     """Persist one collected document and its parsed text"""
-    await _move_file_to_collection_dir(doc, out_fn, relative_to)
-    await _persist_parsed_text(doc, out_fn, relative_to)
+    await _move_file_to_collection_dir(doc, out_stem, relative_to)
+    await _persist_parsed_text(doc, out_stem, relative_to)
     return _serialize_collection_doc_info(doc, from_steps)
 
 
-async def _move_file_to_collection_dir(doc, out_fn, relative_to):
+async def _move_file_to_collection_dir(doc, out_stem, relative_to):
     """Move a source file to the collection output directory"""
-    out_fp = await FileMover.call(doc, out_fn, "downloaded")
+    out_fp = await FileMover.call(doc, out_stem, "downloaded")
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
     doc.attrs["source_fp"] = out_fp
 
 
-async def _persist_parsed_text(doc, out_fn, relative_to):
+async def _persist_parsed_text(doc, out_stem, relative_to):
     """Write parsed text for a collected document"""
-    out_fp = await ParsedFileWriter.call(doc, out_fn)
+    out_fp = await ParsedFileWriter.call(doc, out_stem)
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
     doc.attrs["parsed_fp"] = out_fp
@@ -310,6 +319,8 @@ def _make_relative(fp, relative_to):
 def _serialize_collection_doc_info(doc, from_steps):
     """Serialize a collected document for manifest storage"""
     serialized = dict(doc.attrs)
+    if not serialized or serialized.get("parsed_fp") is None:
+        return None
     serialized.pop("cache_fn", None)
     serialized.pop("cleaned_fps", None)
     serialized.setdefault("check_correct_jurisdiction", True)

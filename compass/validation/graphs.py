@@ -36,7 +36,7 @@ def setup_graph_correct_document_type(**kwargs):
     """
     doc_is_from_ocr = kwargs.pop("doc_is_from_ocr", False)
 
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Correct document type", **kwargs
     )
     G.add_node(
@@ -327,7 +327,7 @@ def setup_graph_correct_jurisdiction_type(jurisdiction, **kwargs):
     JSON payload keyed by ``correct_jurisdiction`` plus a human-readable
     explanation summarizing the reasoning.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Correct jurisdiction type", **kwargs
     )
 
@@ -564,7 +564,7 @@ def setup_graph_correct_jurisdiction_from_url(jurisdiction, **kwargs):
     ``correct_county``. The final prompt instructs the LLM to emit a
     JSON document describing each match plus an explanatory string.
     """
-    G = setup_graph_no_nodes(  # noqa: N806
+    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
         d_tree_name="Correct jurisdiction type from URL", **kwargs
     )
 
