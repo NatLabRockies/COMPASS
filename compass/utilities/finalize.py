@@ -98,7 +98,7 @@ def save_run_meta(
     time_elapsed = end_date - start_date
     meta_data = {
         "username": username,
-        "versions": {"elm": elm_version, "compass": compass_version},
+        "versions": {"compass": compass_version, "elm": elm_version},
         "technology": tech,
         "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date.isoformat(),

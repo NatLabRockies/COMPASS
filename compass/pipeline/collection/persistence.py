@@ -6,6 +6,9 @@ from pathlib import Path
 from warnings import warn
 from datetime import datetime, UTC
 
+from elm.version import __version__ as elm_version
+
+from compass import __version__ as compass_version
 from compass.services.threaded import (
     FileMover,
     ParsedFileWriter,
@@ -59,6 +62,7 @@ def build_collection_manifest(
     ]
     return {
         "tech": tech,
+        "versions": {"compass": compass_version, "elm": elm_version},
         "time_start_utc": time_start_utc.isoformat(),
         "time_end_utc": time_end_utc.isoformat(),
         "total_time": time_elapsed.total_seconds(),
