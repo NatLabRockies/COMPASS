@@ -10,6 +10,7 @@ from elm.web.website_crawl import (
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.web.search import search_single_jurisdiction
@@ -363,10 +364,16 @@ async def download_jurisdiction_ordinances_from_website(
         "kwargs for COMPASSWebFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(flk),
     )
-    afl = COMPASSWebFileLoader(**flk)
+
+    # Fast file loader that always uses poppler
+    fast_afl = AsyncWebFileLoader(**flk)
+
+    # best parsing file loader selected by user
+    final_afl = COMPASSWebFileLoader(**flk)
+
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
-        async_file_loader=afl,
+        async_file_loader=fast_afl,
         url_scorer=ELMLinkScorer(keyword_points).score,
         browser_config_kwargs=browser_config_kwargs,
         crawler_config_kwargs=crawler_config_kwargs,
@@ -395,11 +402,10 @@ async def download_jurisdiction_ordinances_from_website(
 
     if return_c4ai_results:
         docs, c4ai_results = docs_or_pair
-        _sanitize_doc_sources(docs)
+        docs = await _finalize_doc_sources(docs, final_afl)
         return docs, c4ai_results
 
-    _sanitize_doc_sources(docs_or_pair)
-    return docs_or_pair
+    return await _finalize_doc_sources(docs_or_pair, final_afl)
 
 
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
@@ -867,8 +873,8 @@ async def _contains_relevant_text(
     return found_text
 
 
-def _sanitize_doc_sources(docs):
-    """Rewrite source attrs on documents returned by ELMWebsiteCrawler
+async def _finalize_doc_sources(docs, final_afl):
+    """Finalize documents returned by ELMWebsiteCrawler
 
     crawl4ai can surface PDF URLs containing raw spaces (e.g. filenames
     like "Land Use Code.pdf").  These fail when the file loader issues
@@ -880,6 +886,35 @@ def _sanitize_doc_sources(docs):
         source = doc.attrs.get("source")
         if source and " " in source:
             doc.attrs["source"] = sanitize_url(source)
+
+    return await _reload_using_final_afl(docs, final_afl)
+
+
+async def _reload_using_final_afl(docs, final_afl):
+    """Reload documents using the final AsyncFileLoader"""
+    out_docs = []
+    for old_doc in docs:
+        link = old_doc.attrs.get("source")
+        if not link:
+            out_docs.append(old_doc)
+            continue
+
+        try:
+            doc = await final_afl.fetch(link)
+            doc.attrs[_SCORE_KEY] = old_doc.attrs[_SCORE_KEY]
+            out_docs.append(doc)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while trying "
+                "to fetch content from %s"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, link)
+            out_docs.append(old_doc)
+
+    return out_docs
 
 
 def _sort_final_ord_docs(all_ord_docs):
