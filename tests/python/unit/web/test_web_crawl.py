@@ -154,6 +154,7 @@ def crawler_setup(monkeypatch):
             )
 
     monkeypatch.setattr(website_crawl, "HTMLDocument", DummyHTMLDocument)
+    monkeypatch.setattr(website_crawl, "AsyncWebFileLoader", DummyLoader)
     monkeypatch.setattr(website_crawl, "COMPASSWebFileLoader", DummyLoader)
 
     async def validator(doc):
@@ -870,7 +871,7 @@ def test_log_crawl_stats_emits_messages(
 
     crawler._log_crawl_stats()
     assert_message_was_logged("Crawled 1 pages", log_level="INFO")
-    assert_message_was_logged("Found 1 potential documents", log_level="INFO")
+    assert_message_was_logged("Found 1 potential document", log_level="INFO")
 
 
 @pytest.mark.asyncio
