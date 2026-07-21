@@ -181,7 +181,7 @@ The contract
 ``get_heuristic()``
   Return a heuristic instance for initial document screening.
 
-``filter_docs(extraction_context)``
+``filter_docs(extraction_context, max_num_docs=None)``
   The heart of customization. Take ``extraction_context.docs`` and reduce
   them to relevant content. Store anything you want in
   ``extraction_context.attrs`` for later stages.
@@ -251,7 +251,7 @@ for data centers:
         def get_heuristic(cls):
             return NoOpHeuristic()
 
-        async def filter_docs(self, extraction_context):
+        async def filter_docs(self, extraction_context, max_num_docs=None):
             docs = extraction_context.docs
 
             page_texts = [
@@ -801,7 +801,7 @@ parsing, and output. Here is the complete plugin class:
        def get_heuristic(cls):
            return NoOpHeuristic()
 
-       async def filter_docs(self, extraction_context):
+       async def filter_docs(self, extraction_context, max_num_docs=None):
            docs = extraction_context.docs
 
            page_texts = [

@@ -32,6 +32,7 @@ from compass.services.threaded import (
     read_html_file,
 )
 from compass.utilities import LLM_COST_REGISTRY, Directories
+from compass.utilities.jurisdictions import fips_to_str
 from compass.utilities.io import load_config
 from compass.utilities.logs import NoLocationFilter, LogListener
 
@@ -64,8 +65,11 @@ class PipelineRuntime:
         self.log_listener = LogListener(
             ["compass", "elm"], level=self.log_level
         )
-        self.known_local_docs, self.known_doc_urls = _load_known_sources(
-            request.known_sources
+        self.known_local_docs = _load_known_source(
+            request.known_sources.known_local_docs
+        )
+        self.known_doc_urls = _load_known_source(
+            request.known_sources.known_doc_urls
         )
         self._pytesseract_was_set_up = False
         LLM_COST_REGISTRY.update(request.llm_costs or {})
@@ -99,7 +103,7 @@ class PipelineRuntime:
 
     @cached_property
     def extractor_class(self):
-        """Return the extractor class for the configured tech"""
+        """Extractor class for the configured tech"""
         return resolve_plugin(self.tech)
 
     @cached_property
@@ -261,7 +265,7 @@ class PipelineRuntime:
         if self._pytesseract_was_set_up:
             return
 
-        import pytesseract  # noqa: PLC0415
+        import pytesseract  # ruff:ignore[import-outside-top-level]
 
         logger.debug(
             "Setting `tesseract_cmd` to %s",
@@ -336,17 +340,9 @@ def _setup_folders(output_settings, collect_only=False):
     return dirs
 
 
-def _load_known_sources(known_sources):
+def _load_known_source(known_source):
     """Load configured known sources as int-keyed dictionaries"""
-    known_local_docs = known_sources.known_local_docs or {}
-    if isinstance(known_local_docs, str):
-        known_local_docs = load_config(known_local_docs)
-
-    known_doc_urls = known_sources.known_doc_urls or {}
-    if isinstance(known_doc_urls, str):
-        known_doc_urls = load_config(known_doc_urls)
-
-    return (
-        {int(key): val for key, val in known_local_docs.items()},
-        {int(key): val for key, val in known_doc_urls.items()},
-    )
+    known_source = known_source or {}
+    if isinstance(known_source, str):
+        known_source = load_config(known_source)
+    return {fips_to_str(k): v for k, v in known_source.items()}

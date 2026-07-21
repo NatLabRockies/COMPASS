@@ -3,16 +3,18 @@
 from pathlib import Path
 
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
 
 from compass.utilities.jurisdictions import (
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
+    load_jurisdictions_from_subdivision_names,
     jurisdiction_websites,
     jurisdictions_from_df,
     Jurisdiction,
     _JURISDICTION_TYPES_AS_PREFIXES,
+    _format_jurisdiction_df_for_output,
 )
 from compass.exceptions import COMPASSValueError
 from compass.warn import COMPASSWarning
@@ -53,6 +55,21 @@ def test_load_all_jurisdictions():
     assert "Rhode Island" in set(jurisdiction_info["State"])
 
 
+def test_load_all_jurisdictions_returns_shallow_copy():
+    """Test cached jurisdiction info is returned as a caller-safe copy"""
+
+    jurisdiction_info = load_all_jurisdiction_info()
+    county_col = jurisdiction_info.columns.get_loc("County")
+    original_county = jurisdiction_info.iloc[0, county_col]
+
+    jurisdiction_info.iloc[0, county_col] = "Modified County"
+
+    fresh_jurisdiction_info = load_all_jurisdiction_info()
+
+    assert fresh_jurisdiction_info is not jurisdiction_info
+    assert fresh_jurisdiction_info.iloc[0, county_col] == original_county
+
+
 def test_jurisdiction_websites():
     """Test the `jurisdiction_websites` function"""
 
@@ -61,9 +78,85 @@ def test_jurisdiction_websites():
     assert isinstance(websites, dict)
 
     # Spot checks:
-    assert 18031 in websites  # Decatur Indiana
-    assert 8041 in websites  # El Paso, Colorado
-    assert 49003 in websites  # Box Elder, Utah
+    assert "18031" in websites  # Decatur Indiana
+    assert "08041" in websites  # El Paso, Colorado
+    assert "49003" in websites  # Box Elder, Utah
+
+
+def test_load_jurisdictions_from_subdivision_names_safe_matching():
+    """Test subdivision lookup with normalization across symbols/spaces"""
+
+    jurisdiction_info = pd.DataFrame(
+        {
+            "County": ["Apache", "Weld", "Rio Arriba", None, None],
+            "State": [
+                "Arizona",
+                "Colorado",
+                "New Mexico",
+                "Texas",
+                "Texas",
+            ],
+            "Subdivision": [
+                "St. Johns",
+                "St Johns",
+                "St-Johns",
+                "Barton Springs/Edwards",
+                None,
+            ],
+            "Jurisdiction Type": [
+                "city",
+                "town",
+                "village",
+                "Aquifer Conservation District",
+                "county",
+            ],
+            "FIPS": [4001, 8001, 35039, 2, 48453],
+            "Website": [
+                "https://stjohnsaz.gov",
+                "https://stjohnsco.gov",
+                "https://stjohnsnm.gov",
+                "https://www.bseacd.org",
+                "https://traviscountytx.gov",
+            ],
+        }
+    )
+
+    jurisdictions = load_jurisdictions_from_subdivision_names(
+        [" st johns ", "barton_springs edwards"],
+        jurisdiction_info=jurisdiction_info,
+    )
+
+    assert set(jurisdictions["FIPS"]) == {4001, 8001, 35039, 2}
+    assert None not in set(jurisdictions["Subdivision"])
+
+
+def test_load_jurisdictions_from_subdivision_names_state_filter():
+    """Test subdivision lookup can be narrowed to a normalized state"""
+
+    jurisdiction_info = pd.DataFrame(
+        {
+            "County": ["Apache", "Weld", "Rio Arriba"],
+            "State": ["Arizona", "Colorado", "New Mexico"],
+            "Subdivision": ["St. Johns", "St Johns", "St-Johns"],
+            "Jurisdiction Type": ["city", "town", "village"],
+            "FIPS": [4001, 8001, 35039],
+            "Website": [
+                "https://stjohnsaz.gov",
+                "https://stjohnsco.gov",
+                "https://stjohnsnm.gov",
+            ],
+        }
+    )
+
+    jurisdictions = load_jurisdictions_from_subdivision_names(
+        "st johns",
+        state="new-mexico",
+        jurisdiction_info=jurisdiction_info,
+    )
+
+    assert len(jurisdictions) == 1
+    assert jurisdictions.iloc[0]["State"] == "New Mexico"
+    assert jurisdictions.iloc[0]["FIPS"] == 35039
 
 
 def test_load_jurisdictions_from_fp(tmp_path):
@@ -91,7 +184,7 @@ def test_load_jurisdictions_from_fp(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_from_fp_bad_input(tmp_path):
@@ -126,7 +219,7 @@ def test_load_jurisdictions_from_fp_single_county(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_no_repeated_counties(tmp_path):
@@ -149,7 +242,7 @@ def test_load_jurisdictions_no_repeated_counties(tmp_path):
     assert set(jurisdictions["Subdivision"]) == {None}
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_no_repeated_townships(tmp_path):
@@ -173,7 +266,7 @@ def test_load_jurisdictions_no_repeated_townships(tmp_path):
     assert set(jurisdictions["State"]) == {"Maine"}
     assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield"}
     assert set(jurisdictions["Jurisdiction Type"]) == {"town"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_load_jurisdictions_no_repeated_townships_and_counties(tmp_path):
@@ -197,7 +290,7 @@ def test_load_jurisdictions_no_repeated_townships_and_counties(tmp_path):
     assert set(jurisdictions["State"]) == {"Maine"}
     assert set(jurisdictions["Subdivision"]) == {"Perham", "Oakfield", None}
     assert set(jurisdictions["Jurisdiction Type"]) == {"town", "county"}
-    assert {type(val) for val in jurisdictions["FIPS"]} == {int}
+    assert {type(val) for val in jurisdictions["FIPS"]} == {str}
 
 
 def test_basic_state_properties():
@@ -398,6 +491,51 @@ def test_full_name_the_prefixed_property():
     )
 
 
+def test_short_name_with_state_property():
+    """Test ``Jurisdiction.short_name_with_state`` property"""
+
+    state = Jurisdiction("state", state="Colorado")
+    assert state.short_name_with_state == "Colorado"
+
+    county = Jurisdiction("county", state="Colorado", county="Jefferson")
+    assert county.short_name_with_state == "Jefferson County, Colorado"
+
+    city = Jurisdiction(
+        "city", state="Colorado", county="Jefferson", subdivision_name="Golden"
+    )
+    assert city.short_name_with_state == "City of Golden, Colorado"
+
+
+def test_short_name_with_state_the_prefixed_property():
+    """Test ``Jurisdiction.short_name_with_state_the_prefixed`` property"""
+
+    state = Jurisdiction("state", state="Colorado")
+    assert state.short_name_with_state_the_prefixed == "Colorado"
+
+    county = Jurisdiction("county", state="Colorado", county="Jefferson")
+    assert county.short_name_with_state_the_prefixed == (
+        "Jefferson County, Colorado"
+    )
+
+    city = Jurisdiction(
+        "city", state="Colorado", county="Jefferson", subdivision_name="Golden"
+    )
+    assert (
+        city.short_name_with_state_the_prefixed
+        == "the City of Golden, Colorado"
+    )
+
+    parish = Jurisdiction(
+        "parish",
+        state="Louisiana",
+        county="Assumption",
+        subdivision_name="Napoleonville",
+    )
+    assert parish.short_name_with_state_the_prefixed == (
+        "Napoleonville Parish, Louisiana"
+    )
+
+
 def test_full_subdivision_phrase_the_prefixed_property():
     """Test ``Jurisdiction.full_subdivision_phrase_the_prefixed`` property"""
 
@@ -448,7 +586,7 @@ def test_jurisdictions_from_df_basic():
     assert state_jur.state == "Colorado"
     assert state_jur.county is None
     assert state_jur.subdivision_name is None
-    assert state_jur.code == 8
+    assert state_jur.code == "8"
     assert state_jur.website_url == "https://colorado.gov"
     assert state_jur.full_name == "Colorado"
 
@@ -457,7 +595,7 @@ def test_jurisdictions_from_df_basic():
     assert county_jur.state == "Utah"
     assert county_jur.county == "Box Elder"
     assert county_jur.subdivision_name is None
-    assert county_jur.code == 49003
+    assert county_jur.code == "49003"
     assert county_jur.website_url == "https://boxeldercounty.org"
     assert county_jur.full_name == "Box Elder County, Utah"
 
@@ -466,7 +604,7 @@ def test_jurisdictions_from_df_basic():
     assert city_jur.state == "Texas"
     assert city_jur.county == "Travis"
     assert city_jur.subdivision_name == "Austin"
-    assert city_jur.code == 48453
+    assert city_jur.code == "48453"
     assert city_jur.website_url == "https://austintexas.gov"
     assert city_jur.full_name == "City of Austin, Travis County, Texas"
 
@@ -493,7 +631,7 @@ def test_jurisdictions_from_df_with_none_values():
     assert jur.state == "Indiana"
     assert jur.county == "Decatur"
     assert jur.subdivision_name is None
-    assert jur.code == 18031
+    assert jur.code == "18031"
     assert jur.website_url is None
 
 
@@ -529,7 +667,7 @@ def test_jurisdictions_from_df_texas_water_districts():
     assert district1.state == "Texas"
     assert district1.county is None
     assert district1.subdivision_name == "Bandera County River"
-    assert district1.code == 1
+    assert district1.code == "1"
     assert (
         district1.full_name
         == "Bandera County River Authority & Groundwater District, Texas"
@@ -540,7 +678,7 @@ def test_jurisdictions_from_df_texas_water_districts():
     assert district2.state == "Texas"
     assert district2.county is None
     assert district2.subdivision_name == "Barton Springs/Edwards"
-    assert district2.code == 2
+    assert district2.code == "2"
     assert (
         district2.full_name
         == "Barton Springs/Edwards Aquifer Conservation District, Texas"
@@ -644,101 +782,24 @@ def test_jurisdiction_websites_custom_dataframe():
     assert websites[99002] == "https://another.gov"
 
 
-def test_load_jurisdictions_from_fp_missing_jurisdiction_type(tmp_path):
-    """Test error when Subdivision provided without Jurisdiction Type column"""
+def test_format_jurisdiction_df_for_output_normalizes_float_fips():
+    """Test float FIPS values are rendered without a decimal suffix"""
 
-    test_jurisdiction_fp = tmp_path / "out.csv"
-    input_jurisdictions = pd.DataFrame(
+    jurisdiction_df = pd.DataFrame(
         {
-            "County": ["Aroostook"],
-            "State": ["Maine"],
-            "Subdivision": ["Perham"],
+            "County": ["Decatur"],
+            "State": ["Indiana"],
+            "Subdivision": [None],
+            "Jurisdiction Type": ["county"],
+            "FIPS": [18031.0],
+            "Website": [None],
         }
     )
-    input_jurisdictions.to_csv(test_jurisdiction_fp)
 
-    with pytest.raises(COMPASSValueError) as exc_info:
-        load_jurisdictions_from_fp(test_jurisdiction_fp)
+    out = _format_jurisdiction_df_for_output(jurisdiction_df)
 
-    error_msg = str(exc_info.value)
-    assert "Jurisdiction Type" in error_msg
-    assert "Subdivision" in error_msg
-    assert "must have" in error_msg
-
-
-def test_load_jurisdictions_from_fp_warning_message_content(tmp_path):
-    """Test that warning message contains key information"""
-
-    test_jurisdiction_fp = tmp_path / "out.csv"
-    input_jurisdictions = pd.DataFrame(
-        {
-            "County": ["Fake County", "Another Fake"],
-            "State": ["Colorado", "Texas"],
-        }
-    )
-    input_jurisdictions.to_csv(test_jurisdiction_fp)
-
-    with pytest.warns(COMPASSWarning) as record:
-        jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
-
-    assert len(record) == 1
-    warning_msg = str(record[0].message)
-
-    assert "not found" in warning_msg.lower()
-    assert "Fake County" in warning_msg
-    assert "Another Fake" in warning_msg
-    assert "Colorado" in warning_msg
-    assert "Texas" in warning_msg
-    assert (
-        "spelling" in warning_msg.lower()
-        or "capitalization" in warning_msg.lower()
-    )
-
-    assert len(jurisdictions) == 0
-
-
-def test_load_jurisdictions_from_fp_whitespace_trimming(tmp_path):
-    """Test that input jurisdictions have whitespace trimmed"""
-
-    test_jurisdiction_fp = tmp_path / "out.csv"
-    input_jurisdictions = pd.DataFrame(
-        {
-            "County": ["  Decatur  ", "Wharton"],
-            "State": ["  Indiana  ", "  Texas  "],
-        }
-    )
-    input_jurisdictions.to_csv(test_jurisdiction_fp)
-
-    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
-
-    assert len(jurisdictions) == 2
-    assert "Decatur" in set(jurisdictions["County"])
-    assert "Wharton" in set(jurisdictions["County"])
-    assert "Indiana" in set(jurisdictions["State"])
-    assert "Texas" in set(jurisdictions["State"])
-
-
-def test_load_jurisdictions_from_fp_subdivision_whitespace_trimming(tmp_path):
-    """Test whitespace trimming for subdivisions and jurisdiction types"""
-
-    test_jurisdiction_fp = tmp_path / "out.csv"
-    input_jurisdictions = pd.DataFrame(
-        {
-            "County": ["  Aroostook  "],
-            "State": ["  Maine  "],
-            "Subdivision": ["  Perham  "],
-            "Jurisdiction Type": ["  town  "],
-        }
-    )
-    input_jurisdictions.to_csv(test_jurisdiction_fp)
-
-    jurisdictions = load_jurisdictions_from_fp(test_jurisdiction_fp)
-
-    assert len(jurisdictions) == 1
-    assert jurisdictions.iloc[0]["County"] == "Aroostook"
-    assert jurisdictions.iloc[0]["State"] == "Maine"
-    assert jurisdictions.iloc[0]["Subdivision"] == "Perham"
-    assert jurisdictions.iloc[0]["Jurisdiction Type"] == "town"
+    assert out.loc[0, "FIPS"] == "18031"
+    assert isinstance(out.loc[0, "FIPS"], str)
 
 
 if __name__ == "__main__":

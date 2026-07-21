@@ -5,13 +5,10 @@ import json
 from pathlib import Path
 
 import pytest
-from elm.web.search.run import load_docs
 
 from compass.utilities.io import load_config, ConfigType, resolve_all_paths
-from compass.services.cpu import FileLoader, read_docling_local_file
-from compass.web.file_loader import AsyncLocalDoclingFileLoader
-from compass.services.provider import RunningAsyncServices
-from compass.exceptions import COMPASSNotInitializedError, COMPASSValueError
+from compass.services.cpu import FileLoader
+from compass.exceptions import COMPASSValueError
 
 
 PYT_CMD = os.getenv("TESSERACT_CMD")
@@ -57,6 +54,75 @@ def test_file_loader_preserves_existing_omp_num_threads(monkeypatch):
     assert os.environ["OMP_NUM_THREADS"] == "4"
 
     service.release_resources()
+
+
+# def test_file_loader_sets_default_max_tasks_per_child(monkeypatch):
+#     """Test process pool recycles workers after a default task count"""
+
+#     captured_kwargs = {}
+
+#     class DummyPool:
+#         def __init__(self, *__, **kwargs):
+#             captured_kwargs.update(kwargs)
+
+#         def shutdown(self, wait=True, cancel_futures=True):
+#             return None
+
+#     monkeypatch.setattr("compass.services.cpu.ProcessPoolExecutor", DummyPool)
+
+#     service = FileLoader()
+#     service.acquire_resources()
+
+#     assert (
+#         captured_kwargs["max_tasks_per_child"]
+#         == service._DEFAULT_MAX_TASKS_PER_CHILD
+#     )
+
+#     service.release_resources()
+
+
+# def test_file_loader_preserves_max_tasks_per_child_override(monkeypatch):
+#     """Test process pool respects user task-recycling overrides"""
+
+#     captured_kwargs = {}
+
+#     class DummyPool:
+#         def __init__(self, *__, **kwargs):
+#             captured_kwargs.update(kwargs)
+
+#         def shutdown(self, wait=True, cancel_futures=True):
+#             return None
+
+#     monkeypatch.setattr("compass.services.cpu.ProcessPoolExecutor", DummyPool)
+
+#     service = FileLoader(max_tasks_per_child=7)
+#     service.acquire_resources()
+
+#     assert captured_kwargs["max_tasks_per_child"] == 7
+
+#     service.release_resources()
+
+
+# def test_file_loader_sets_spawn_mp_context(monkeypatch):
+#     """Test process pool defaults to a spawn multiprocessing context"""
+
+#     captured_kwargs = {}
+
+#     class DummyPool:
+#         def __init__(self, *__, **kwargs):
+#             captured_kwargs.update(kwargs)
+
+#         def shutdown(self, wait=True, cancel_futures=True):
+#             return None
+
+#     monkeypatch.setattr("compass.services.cpu.ProcessPoolExecutor", DummyPool)
+
+#     service = FileLoader()
+#     service.acquire_resources()
+
+#     assert captured_kwargs["mp_context"].get_start_method() == "spawn"
+
+#     service.release_resources()
 
 
 def test_resolve_all_paths():
@@ -278,119 +344,6 @@ def test_load_config_invalid_extension(tmp_path):
         ),
     ):
         load_config(config_file)
-
-
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
-@pytest.mark.asyncio
-async def test_basic_load_pdf(test_data_files_dir):
-    """Test basic loading of local PDF document"""
-    test_fp = test_data_files_dir / "Caneadea New York.pdf"
-
-    fl = AsyncLocalDoclingFileLoader()
-    async with RunningAsyncServices([FileLoader()]):
-        docs = await load_docs([test_fp], fl)
-
-    assert len(docs) == 1
-    doc = docs[0]
-    assert not doc.empty
-    assert Path(doc.attrs.get("source_fp")) == test_fp
-    assert len(doc.pages) == 1
-
-
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
-@pytest.mark.asyncio
-async def test_basic_load_html(test_data_files_dir):
-    """Test basic loading of local HTML document"""
-    test_fp = test_data_files_dir / "Whatcom.txt"
-
-    fl = AsyncLocalDoclingFileLoader()
-    async with RunningAsyncServices([FileLoader()]):
-        docs = await load_docs([test_fp], fl)
-
-    assert len(docs) == 1
-    doc = docs[0]
-    assert not doc.empty
-    assert Path(doc.attrs.get("source_fp")) == test_fp
-    assert len(doc.pages) == 1
-
-
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
-@pytest.mark.asyncio
-async def test_basic_load_pdf_with_service(test_data_files_dir):
-    """Test basic loading of local PDF document with service"""
-    test_fp = test_data_files_dir / "Caneadea New York.pdf"
-
-    with pytest.raises(
-        COMPASSNotInitializedError,
-        match=r"Must initialize the queue for 'FileLoader'.",
-    ):
-        await read_docling_local_file(test_fp)
-
-    fl = AsyncLocalDoclingFileLoader()
-    async with RunningAsyncServices([FileLoader()]):
-        doc, __ = await read_docling_local_file(test_fp)
-        doc_2 = await load_docs([test_fp], fl)
-
-    assert not doc.empty
-    assert not doc_2[0].empty
-    assert doc.text == doc_2[0].text
-
-
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true" or not PYT_CMD,
-    reason="requires PyTesseract command to be set; Docling too heavy for GHA",
-)
-@pytest.mark.asyncio
-async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
-    """Test basic loading of local PDF document with service"""
-    test_fp = test_data_files_dir / "Sedgwick Kansas.pdf"
-
-    with pytest.raises(
-        COMPASSNotInitializedError,
-        match=r"Must initialize the queue for 'FileLoader'.",
-    ):
-        await read_docling_local_file(test_fp)
-
-    fl = AsyncLocalDoclingFileLoader(pytesseract_exe_fp=PYT_CMD)
-    async with RunningAsyncServices([FileLoader()]):
-        doc, __ = await read_docling_local_file(
-            test_fp, pytesseract_exe_fp=PYT_CMD
-        )
-        doc_2 = await load_docs([test_fp], fl)
-
-    assert not doc.empty
-    assert not doc_2[0].empty
-    assert doc.text == doc_2[0].text
-
-
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
-@pytest.mark.asyncio
-async def test_basic_load_html_with_service(test_data_files_dir):
-    """Test basic loading of local HTML document with service"""
-    test_fp = test_data_files_dir / "Whatcom.txt"
-
-    with pytest.raises(
-        COMPASSNotInitializedError,
-        match=r"Must initialize the queue for 'FileLoader'.",
-    ):
-        await read_docling_local_file(test_fp)
-
-    fl = AsyncLocalDoclingFileLoader()
-    async with RunningAsyncServices([FileLoader()]):
-        doc, __ = await read_docling_local_file(test_fp)
-        doc_2 = await load_docs([test_fp], fl)
-
-    assert not doc.empty
-    assert not doc_2[0].empty
-    assert doc.text == doc_2[0].text
 
 
 if __name__ == "__main__":

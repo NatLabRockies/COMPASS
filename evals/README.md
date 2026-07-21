@@ -2,9 +2,10 @@
 
 Accuracy/quality evaluations of COMPASS extraction against real ordinance
 documents. Each suite is a `test_run_<name>_evals.py` file that drives a
-specific extractor end-to-end and writes a breakdown + metrics file to
-`results/`. A regression gate (run by the test module's autouse fixture)
-fails the run if the committed baseline gets worse.
+specific extractor end-to-end and writes a metrics file (and, for dev, a
+per-case breakdown) to `results/`. Cases run in parallel under
+pytest-xdist. There is no regression gate — accuracy changes show up as
+diffs in the committed `results/` files.
 
 ## Run
 
@@ -30,8 +31,7 @@ Each dataset is split into a frequently-run **dev** set and a sacred
 | --- | --- | --- |
 | Purpose | iterate, tune prompts/logic, debug failures | unbiased estimate of true performance |
 | Cadence | run frequently during development | run before a release |
-| Regression gate | yes — fails on aggregate or per-row regression | no — unbiased read, just prints + writes JSON |
-| Per-case breakdown | written + logged | hidden (no breakdown CSV, no per-case logs) |
+| Per-case breakdown | written + logged | hidden (metrics only, no per-case detail) |
 
 The held-out set only gives an **honest** read if we *don't* tune against it:
 
@@ -43,23 +43,24 @@ The held-out set only gives an **honest** read if we *don't* tune against it:
   before a release), not a development loop.
 
 The harness helps enforce this: a `--held-out` run writes **only summary
-metrics** (no per-case breakdown), per-case predictions are not logged,
-and there is no regression gate — so there is nothing to eyeball or tune
-against.
+metrics** (no per-case breakdown, no explanations, no per-case logs) — so
+there is nothing to eyeball or tune against.
 
 ## Layout
 
 ```
 test_run_<name>_evals.py   # one eval suite per extractor (e.g. test_run_date_extraction_evals.py)
-conftest.py                # registers the --held-out pytest flag
+conftest.py                # --held-out flag; session hooks that clear + aggregate results
 utilities/                 # shared, eval-agnostic plumbing
   base.py                  #   Result schema, SUCCESS/FAILURE, classify, load_doc
   metrics.py               #   compute_metrics, wilson_ci (pure math, no I/O)
-  reports.py               #   report_evals + load_baseline_failing + regressed_rows (I/O + formatting)
+  reports.py               #   report_evals + PerJurisdictionResults (I/O + formatting)
 results/
-  dev/<name>_evals.json              # committed baseline metrics (gate reads these)
-  dev/<name>_evals_breakdown.csv     # committed per-case dev breakdown
-  held_out/<name>_evals.json         # committed baseline held-out metrics (no per-case detail)
+  dev/<name>_evals.json              # committed metrics
+  dev/<name>_evals_breakdown.json    # committed per-case dev breakdown (+ explanations)
+  dev/per_jurisdiction/              # one Result JSON per case (xdist shards; gitignored)
+  dev/logs/                          # per-jurisdiction run logs (gitignored)
+  held_out/<name>_evals.json         # committed held-out metrics (no per-case detail)
 data/
   dev/<tech>/
     manifest.json5         # [{state, county, subdivision, jurisdiction_type, file, source, expected: {year, ...}}, ...]
@@ -78,21 +79,23 @@ exists" — the extractor should return no year for that document.
 
 ## How a suite is wired
 
-A `test_run_<name>_evals.py` file owns three pieces:
+Cases run in parallel across xdist worker processes, so results can't
+live in a module-level list (each worker is its own process). Instead:
 
 1. **`pytest_generate_tests(metafunc)`** reads `--held-out`, loads the
    right `manifest.json5`, and parametrizes the test's `case` argument.
    It also stamps each case with `case["fp"]` (the resolved document
    path), so the test body never has to know which dataset it came from.
 2. **`@pytest.mark.evals` test function** runs the extractor on one
-   case and appends a `Result` to the module-level `RESULTS` list.
-3. **Module-scoped autouse teardown fixture** calls
-   `report_evals(request, EVAL_NAME, RESULTS, results_dir,
-   write_breakdown=not held_out)` to compute metrics, write the
-   artifacts, and snapshot baselines. The returned dict's
-   `baseline_failing` / `fails_now` / `regressed_rows` fields drive
-   each suite's own gate -- the `reports` module does **not** decide
-   what counts as a regression. (Held-out runs skip the gate entirely.)
+   case and writes its `Result` to its own
+   `results/<set>/per_jurisdiction/<jurisdiction>.json` file (one file
+   per case, so concurrent workers never collide) via
+   `utilities.PerJurisdictionResults`.
+3. **`conftest.py` session hooks** (controller only): `sessionstart`
+   clears stale per-jurisdiction files and logs; `sessionfinish` reads
+   every per-jurisdiction file back, then calls the suite's `report(...)`
+   to write the metrics JSON and (dev only) the explanation-rich
+   breakdown JSON.
 
 ## Adding an eval suite
 
@@ -100,5 +103,6 @@ A `test_run_<name>_evals.py` file owns three pieces:
 2. Copy `test_run_date_extraction_evals.py` as a starting point. Swap in
    your extractor function and the `expected.<feature>` key you compare
    against.
-3. First run sets the baseline; commit the resulting
-   `results/{dev,held_out}/<name>_evals.json` (and the dev breakdown `.csv`).
+3. Commit the resulting `results/{dev,held_out}/<name>_evals.json` and
+   the dev `<name>_evals_breakdown.json`; accuracy changes then show up
+   as diffs on those files.

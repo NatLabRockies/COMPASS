@@ -1,8 +1,10 @@
 """Date Extraction Evals"""
 
 import asyncio
+import json
 import logging
 import time
+from dataclasses import asdict
 from pathlib import Path
 
 import pytest
@@ -33,7 +35,7 @@ from compass.utilities.logs import (
 )
 from compass.web.file_loader import COMPASSLocalFileLoader
 
-from utilities import Result, classify, report_evals
+from utilities import Result, classify, report_evals, PerJurisdictionResults
 
 
 logger = logging.getLogger(__name__)
@@ -45,18 +47,56 @@ _DEV_DATASET_DIR = _DATA_DIR / "dev" / "solar"
 _HELD_OUT_DATASET_DIR = _DATA_DIR / "held-out" / "solar"
 RESULTS_DIR = Path(__file__).parent / "results"
 
-RESULTS = []
 
-# Allow up to 2 rows to flip correct -> failing before failing the gate.
-# The eval can otherwise pass while two flaky cases trade places (one
-# correct becomes wrong, another wrong becomes correct), keeping
-# aggregate accuracy flat -- the breakdown CSV always shows the swap,
-# this gate just makes a large enough swap surface as a test failure.
-REGRESSION_TOL = 2
+def results_dir(held_out):
+    """Top-level results directory for the active dataset"""
+    return RESULTS_DIR / ("held_out" if held_out else "dev")
+
+
+def per_jurisdiction_results(held_out):
+    """Sharded per-jurisdiction result store for the active dataset"""
+    return PerJurisdictionResults(results_dir(held_out) / "per_jurisdiction")
+
+
+def _logs_dir(held_out):
+    return results_dir(held_out) / "logs"
+
+
+def clear_logs(held_out):
+    """Delete stale logs before a run
+
+    Logs are opened in append mode and re-read for explanations, so stale
+    files would mix old/new records and confuse the explanation lookup.
+    """
+    out_dir = _logs_dir(held_out)
+    if not out_dir.exists():
+        return
+    for log_fp in out_dir.iterdir():
+        if log_fp.is_file():
+            log_fp.unlink()
+
+
+# DateExtractor logs the LLM's justification but drops it from its return
+# value; we recover it from the DEBUG log rather than touch production
+# date.py. A missing line yields ``None``.
+_EXPLANATION_MARKER = "Date extraction explanation: "
+
+
+def _read_explanation_from_log(log_dir, label):
+    """Return the date explanation from a jurisdiction's log, or ``None``"""
+    log_fp = Path(log_dir) / f"{label}.log"
+    if not log_fp.exists():
+        return None
+    explanation = None
+    with log_fp.open(encoding="utf-8") as fh:
+        for line in fh:
+            idx = line.find(_EXPLANATION_MARKER)
+            if idx != -1:
+                explanation = line[idx + len(_EXPLANATION_MARKER) :].strip()
+    return explanation
 
 
 def _setup_pytesseract(exe_fp):
-    """Set the pytesseract command"""
     import pytesseract  # noqa: PLC0415
 
     pytesseract.pytesseract.tesseract_cmd = exe_fp
@@ -65,13 +105,11 @@ def _setup_pytesseract(exe_fp):
 def build_local_file_loader_kwargs(
     pytesseract_exe_fp=None, pdf_read_kwargs=None, html_read_kwargs=None
 ):
-    """Build keyword arguments for ``COMPASSLocalFileLoader``
+    """Build kwargs for ``COMPASSLocalFileLoader``
 
-    Mirrors the file-loader-kwargs logic that lives in production at
-    ``compass.pipeline.runtime.PipelineRuntime.local_file_loader_kwargs``
-    (a cached_property on the runtime object). Inlined here so the eval
-    stays decoupled from that runtime; the duplication is intentional
-    until evals migrate to the production call path.
+    Intentionally duplicates
+    ``PipelineRuntime.local_file_loader_kwargs`` to keep the eval
+    decoupled from the production runtime.
     """
     file_loader_kwargs = {
         "pdf_read_coroutine": read_pdf_file,
@@ -100,20 +138,21 @@ def pytest_generate_tests(metafunc):
         else _DEV_DATASET_DIR
     )
     cases = load_config(dataset_dir / "manifest.json5")
-    # Date extraction is only meaningful for enacted (Final) ordinances
-    # since drafts/proposals have no "adoption date"
-    cases = [c for c in cases if c["document_satus"].strip().lower() == "final"]
+    # Only enacted (Final) ordinances have an adoption date to extract.
+    cases = [
+        c for c in cases if c["document_satus"].strip().lower() == "final"
+    ]
     metafunc.parametrize(
         "case",
         [(case, dataset_dir) for case in cases],
         ids=[case.get("file", f"case_{i}") for i, case in enumerate(cases)],
-        indirect=True,  # send to the case fixture instead of test function
+        indirect=True,
     )
 
 
 @pytest.fixture
 def case(request):
-    """Receives the (raw_case, dataset_dir) from pytest_generate_tests."""
+    """Resolve one parametrized (raw_case, dataset_dir) into a case dict"""
     case, dataset_dir = request.param
     case["fp"] = dataset_dir / case["file"]
     case["county"] = case["county"] or None
@@ -121,41 +160,35 @@ def case(request):
     return case
 
 
-@pytest.fixture(scope="module", autouse=True)
-def _report(request):
-    """Write CSVs/JSON, print summary, and (dev evals only) enforce the gate"""
-    yield  # The code below runs after the test module finishes
-    held_out = request.config.getoption("--held-out")
-    eval_subdir = "held_out" if held_out else "dev"
-    evals_data = report_evals(
-        request,
-        EVAL_NAME,
-        RESULTS,
-        RESULTS_DIR / eval_subdir,
-        write_breakdown=not held_out,
+def _write_breakdown_json(results, held_out):
+    """Write a JSON twin of the breakdown CSV, enriched with explanations"""
+    log_dir = _logs_dir(held_out)
+    ordered = sorted(
+        results, key=lambda r: (r.state, r.county or "", r.subdivision or "")
     )
-    if not evals_data or held_out:
-        return  # held-out evals aren't compared against stored values
+    rows = []
+    for r in ordered:
+        row = asdict(r)
+        row["explanation"] = _read_explanation_from_log(
+            log_dir, r.jurisdiction.full_name
+        )
+        rows.append(row)
 
-    failures = []
-    if (
-        evals_data["prev_nfail"] is not None
-        and evals_data["current_nfail"] > evals_data["prev_nfail"]
-    ):
-        failures.append(
-            f"aggregate regression: {evals_data['current_nfail']} failing"
-            f" > previous {evals_data['prev_nfail']}"
-        )
-    if (
-        evals_data["regressed_jurs"]
-        and len(evals_data["regressed_jurs"]) > REGRESSION_TOL
-    ):
-        failures.append(
-            f"{len(evals_data['regressed_jurs'])} rows regressed "
-            f"(tol {REGRESSION_TOL}): {evals_data['regressed_jurs']}"
-        )
-    if failures:
-        pytest.fail("Eval regression gate:\n  " + "\n  ".join(failures))
+    out_fp = results_dir(held_out) / f"{EVAL_NAME}_evals_breakdown.json"
+    with out_fp.open("w", encoding="utf-8") as fh:
+        json.dump(rows, fh, indent=2, ensure_ascii=False)
+        fh.write("\n")
+
+
+def report(request, results, held_out):
+    """Write the metrics JSON, print the summary, write the dev breakdown
+
+    Runs on the controller in ``pytest_sessionfinish``. The explanation-rich
+    breakdown JSON is dev only -- held-out hides per-case detail.
+    """
+    report_evals(request, EVAL_NAME, results, results_dir(held_out))
+    if not held_out:
+        _write_breakdown_json(results, held_out)
 
 
 @pytest.fixture(scope="module")
@@ -173,12 +206,16 @@ def _log_listener():
         yield listener
 
 
-async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
-    """Extract the date for one case and record the result
-
-    Each case's ``compass``/``elm`` logs (production detail) are written
-    to ``<log_dir>/<jurisdiction>.log`` via :class:`LocationFileLog`.
-    """
+async def _run_case(
+    case,
+    model_config,
+    log_listener,
+    log_dir,
+    *,
+    held_out,
+    log_detail,
+):
+    """Extract the date for one case and write its ``Result``"""
     label = Jurisdiction(
         subdivision_type=case["jurisdiction_type"],
         state=case["state"],
@@ -209,8 +246,7 @@ async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
             ]
         ),
     ):
-        # Run in a task named after the jurisdiction so COMPASS's
-        # location-aware logging routes records to this case's log file.
+        # Task name routes COMPASS's location-aware logs to this case's file.
         doc = await asyncio.create_task(_load_and_extract(), name=label)
     elapsed = time.perf_counter() - start
 
@@ -218,22 +254,21 @@ async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
     expected = case["expected"]["year"]
     usage = compute_total_cost_and_token_from_totals(usage_tracker.totals)
 
-    RESULTS.append(
-        Result(
-            state=case["state"],
-            county=case["county"],
-            subdivision=case["subdivision"],
-            jurisdiction_type=case["jurisdiction_type"],
-            file=case["file"],
-            source=case["source"],
-            feature="year",
-            expected=expected,
-            extracted=year,
-            comparison_result=classify(expected, year),
-            time_taken_s=round(elapsed, 3),
-            **usage,
-        )
+    result = Result(
+        state=case["state"],
+        county=case["county"],
+        subdivision=case["subdivision"],
+        jurisdiction_type=case["jurisdiction_type"],
+        file=case["file"],
+        source=case["source"],
+        feature="year",
+        expected=expected,
+        extracted=year,
+        comparison_result=classify(expected, year),
+        time_taken_s=round(elapsed, 3),
+        **usage,
     )
+    per_jurisdiction_results(held_out).write(result, label)
     if log_detail:
         logger.info(
             "%s: expected=%s extracted=%s cost=$%.4f",
@@ -248,13 +283,12 @@ async def _run_case(case, model_config, log_listener, log_dir, *, log_detail):
 async def test_date_year_accuracy(case, _model_config, _log_listener, request):
     """Run date extraction on each document in the active dataset"""
     held_out = request.config.getoption("--held-out")
-    eval_subdir = "held_out" if held_out else "dev"
-    log_dir = RESULTS_DIR / eval_subdir / "logs"
     # held-out per-case detail hidden to prevent tuning against it
     await _run_case(
         case,
         _model_config,
         _log_listener,
-        log_dir,
+        _logs_dir(held_out),
+        held_out=held_out,
         log_detail=not held_out,
     )

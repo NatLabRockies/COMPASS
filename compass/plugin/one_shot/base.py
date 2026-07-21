@@ -4,6 +4,7 @@ import logging
 import importlib.resources
 from asyncio import Semaphore
 from enum import StrEnum, auto
+from warnings import warn
 
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.plugin import (
@@ -33,6 +34,7 @@ from compass.services.threaded import CLEANED_FP_REGISTRY
 from compass.utilities.io import load_config
 from compass.utilities.enums import LLMTasks
 from compass.exceptions import COMPASSPluginConfigurationError
+from compass.warn import COMPASSPluginConfigurationWarning
 
 
 logger = logging.getLogger(__name__)
@@ -50,7 +52,7 @@ class _CacheKey(StrEnum):
     HEURISTIC_KEYWORDS = auto()
 
 
-def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
+def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore[complex-structure]
     """Create a one-shot extraction plugin based on a configuration
 
     Parameters
@@ -122,9 +124,31 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):  # noqa: C901
               for the structured data extraction step. If not provided,
               a default prompt will be used that instructs the LLM to
               extract structured data from the given document(s). You
-              may provide a custom system prompt if you want to provide
-              more specific instructions to the LLM for the structured
-              data extraction step.
+              may provide a custom system prompt if you want more
+              specific instructions for this extraction step. Custom
+              prompts may include the following jurisdiction
+              placeholders, which are populated from the active
+              `Jurisdiction` object:
+
+                - ``{jur_full_name}``: Full jurisdiction name.
+                - ``{jur_full_name_the_prefixed}``: Full jurisdiction
+                    name with a leading ``the`` when needed.
+                - ``{jur_type}``: Jurisdiction type.
+                - ``{jur_state}``: State name.
+                - ``{jur_county}``: County name, if available.
+                - ``{jur_subdivision_name}``: Subdivision or
+                    municipality name, if available.
+                - ``{jur_full_subdivision_phrase}``: Full subdivision
+                    phrase, if available.
+                - ``{jur_full_subdivision_phrase_the_prefixed}``:
+                    Full subdivision phrase with a leading ``the`` when
+                    needed.
+                - ``{jur_full_county_phrase}``: Full county phrase,
+                    if available.
+                - ``{jur_code}``: Jurisdiction code, if available.
+                - ``{jur_website_url}``: Official website URL, if
+                    available.
+
             - `doc_selection_method`: String defining the multi-doc
               selection option. Specifically, if multiple documents pass
               the filter, this method determines how the documents are
@@ -455,12 +479,14 @@ def _collectors_from_config(config):
     cp = config.get("collection_prompts")
 
     if cp is True:
-        schema_fp = _SCHEMA_DIR / "validate_chunk.json5"
+        scope_schema_fp = _SCHEMA_DIR / "validate_chunk_scope.json5"
+        content_schema_fp = _SCHEMA_DIR / "validate_chunk_content.json5"
 
         class PluginTextCollector(SchemaBasedTextCollector):
             OUT_LABEL = NoOpTextCollector.OUT_LABEL  # reuse label
             SCHEMA = config["schema"]
-            OUTPUT_SCHEMA = load_config(schema_fp)
+            SCOPE_VALIDATION_OUTPUT_SCHEMA = load_config(scope_schema_fp)
+            CONTENT_VALIDATION_OUTPUT_SCHEMA = load_config(content_schema_fp)
 
         return [PluginTextCollector]
 
@@ -634,6 +660,30 @@ def _normalize_heuristic_keywords(raw):
     if empty:
         msg = f"Heuristic keyword lists must not be empty: {sorted(empty)}"
         raise COMPASSPluginConfigurationError(msg)
+
+    num_good_kw = sum(
+        len(kw_list)
+        for key, kw_list in normalized.items()
+        if key != "NOT_TECH_WORDS"
+    )
+    if num_good_kw < KeywordBasedHeuristic.MIN_DEFAULT_MATCHES:
+        msg = (
+            "Must provide at least "
+            f'{KeywordBasedHeuristic.MIN_DEFAULT_MATCHES} "Good" '
+            "heuristic values across the GOOD_TECH_KEYWORDS, "
+            "GOOD_TECH_ACRONYMS, and GOOD_TECH_PHRASES lists to ensure "
+            "an effective heuristic."
+        )
+        raise COMPASSPluginConfigurationError(msg)
+
+    if num_good_kw < 10:  # ruff:ignore[magic-value-comparison]
+        msg = (
+            'It is recommended to provide at least 10 total "Good" '
+            "heuristic values across the GOOD_TECH_KEYWORDS, "
+            "GOOD_TECH_ACRONYMS, and GOOD_TECH_PHRASES lists for a "
+            "more effective heuristic."
+        )
+        warn(msg, COMPASSPluginConfigurationWarning)
 
     return normalized
 

@@ -4,10 +4,13 @@ import logging
 import sys
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 
+import numpy as np
+import pandas as pd
 import pytest
 
-from compass.services.cpu import ProcessPoolService
+from compass.services.cpu import ProcessPoolService, _read_docling
 from compass.services.provider import RunningAsyncServices
 from compass.utilities.logs import LocationFileLog, LogListener
 
@@ -114,6 +117,181 @@ async def test_process_streams_are_forwarded_to_logs(capfd):
     assert any(
         record.message == "PROCESS STDERR" for record in captured_records
     )
+
+
+def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
+    """Test that missing Docling confidence values are normalized"""
+
+    class FakeDocumentConverter:
+        def __init__(self, format_options):
+            self.format_options = format_options
+
+        def convert(self, stream, headers=None):
+            return SimpleNamespace(
+                confidence=SimpleNamespace(
+                    mean_score=np.nan,
+                    low_score=pd.NA,
+                    pages={0: SimpleNamespace(ocr_score=np.nan)},
+                ),
+                input=SimpleNamespace(
+                    file=Path("sample.html"),
+                    format=SimpleNamespace(value="html"),
+                ),
+                pages=["page 1"],
+                document=SimpleNamespace(
+                    export_to_markdown=lambda **kwargs: "markdown body"
+                ),
+            )
+
+    monkeypatch.setattr(
+        "compass.services.cpu.DocumentConverter", FakeDocumentConverter
+    )
+
+    doc = _read_docling(b"<html></html>", "sample.html")
+
+    assert doc.pages == ["markdown body"]
+    assert doc.attrs["mean_confidence"] is None
+    assert doc.attrs["low_score_confidence"] is None
+
+
+def test_process_pool_release_resources_graceful_shutdown():  # noqa
+    """Graceful process-pool shutdown should not force worker exit"""
+
+    class DummyService(ProcessPoolService):
+        @property
+        def can_process(self):
+            return True
+
+        async def process(self):
+            return None
+
+    class FakeThread:
+        def __init__(self):
+            self.join_calls = []
+            self._alive = True
+
+        def join(self, timeout=None):
+            self.join_calls.append(timeout)
+            self._alive = False
+
+        def is_alive(self):
+            return self._alive
+
+    class FakeProcess:
+        def __init__(self):
+            self.terminate_calls = 0
+            self.kill_calls = 0
+            self.join_calls = []
+
+        def is_alive(self):
+            return False
+
+        def terminate(self):
+            self.terminate_calls += 1
+
+        def kill(self):
+            self.kill_calls += 1
+
+        def join(self, timeout=None):
+            self.join_calls.append(timeout)
+
+    class FakePool:
+        def __init__(self):
+            self.shutdown_calls = []
+            self._executor_manager_thread = FakeThread()
+            self._processes = {0: FakeProcess()}
+
+        def shutdown(self, wait=True, cancel_futures=True):
+            self.shutdown_calls.append((wait, cancel_futures))
+
+    service = DummyService()
+    pool = FakePool()
+    service.pool = pool
+
+    service.release_resources()
+
+    assert service.pool is None
+    assert pool.shutdown_calls == [(False, True)]
+    assert pool._executor_manager_thread.join_calls == [
+        service._SHUTDOWN_TIMEOUT
+    ]
+    process = pool._processes[0]
+    assert process.terminate_calls == 0
+    assert process.kill_calls == 0
+
+
+def test_process_pool_release_resources_forces_stuck_shutdown():  # noqa
+    """Stuck process-pool shutdown should terminate then kill workers"""
+
+    class DummyService(ProcessPoolService):
+        @property
+        def can_process(self):
+            return True
+
+        async def process(self):
+            return None
+
+    class FakeThread:
+        def __init__(self):
+            self.join_calls = []
+            self._alive = True
+
+        def join(self, timeout=None):
+            self.join_calls.append(timeout)
+            if len(self.join_calls) > 1:
+                self._alive = False
+
+        def is_alive(self):
+            return self._alive
+
+    class FakeProcess:
+        def __init__(self):
+            self.terminate_calls = 0
+            self.kill_calls = 0
+            self.join_calls = []
+            self._alive = True
+
+        def is_alive(self):
+            return self._alive
+
+        def terminate(self):
+            self.terminate_calls += 1
+
+        def kill(self):
+            self.kill_calls += 1
+            self._alive = False
+
+        def join(self, timeout=None):
+            self.join_calls.append(timeout)
+
+    class FakePool:
+        def __init__(self):
+            self.shutdown_calls = []
+            self._executor_manager_thread = FakeThread()
+            self._processes = {0: FakeProcess()}
+
+        def shutdown(self, wait=True, cancel_futures=True):
+            self.shutdown_calls.append((wait, cancel_futures))
+
+    service = DummyService()
+    pool = FakePool()
+    service.pool = pool
+
+    service.release_resources()
+
+    assert service.pool is None
+    assert pool.shutdown_calls == [(False, True)]
+    assert pool._executor_manager_thread.join_calls == [
+        service._SHUTDOWN_TIMEOUT,
+        service._FORCE_SHUTDOWN_TIMEOUT,
+    ]
+    process = pool._processes[0]
+    assert process.terminate_calls == 1
+    assert process.kill_calls == 1
+    assert process.join_calls == [
+        service._FORCE_SHUTDOWN_TIMEOUT,
+        service._FORCE_SHUTDOWN_TIMEOUT,
+    ]
 
 
 if __name__ == "__main__":

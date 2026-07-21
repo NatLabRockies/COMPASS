@@ -7,8 +7,8 @@ particular location.
 import asyncio
 import logging
 
-
 from compass.llm.calling import BaseLLMCaller, ChatLLMCaller, LLMCaller
+from compass.utilities.jurisdictions import jurisdiction_websites
 from compass.common import setup_async_decision_tree, run_async_tree
 from compass.validation.graphs import (
     setup_graph_correct_jurisdiction_type,
@@ -16,6 +16,7 @@ from compass.validation.graphs import (
 )
 from compass.validation.utilities import step_based_threshold
 from compass.web.file_loader import COMPASSWebFileLoader
+from compass.utilities.url import normalize_domain
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import raw_pages_from_doc
 
@@ -86,6 +87,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         if not url:
             return False
 
+        if _url_matches_known_jurisdiction_website(url, self.jurisdiction):
+            logger.debug(
+                "Skipping URL jurisdiction LLM check for %s because its "
+                "domain matches the canonical website for %s",
+                url,
+                self.jurisdiction,
+            )
+            return True
+
         chat_llm_caller = ChatLLMCaller(
             llm_service=self.llm_service,
             system_message=self.SYSTEM_MESSAGE,
@@ -102,7 +112,7 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         out = await run_async_tree(tree, response_as_json=True)
         return self._parse_output(out)
 
-    def _parse_output(self, props):  # noqa: PLR6301
+    def _parse_output(self, props):  # ruff:ignore[no-self-use]
         """Parse LLM response and return boolean validation result"""
         logger.debug(
             "Parsing URL jurisdiction validation output:\n\t%s", props
@@ -183,7 +193,7 @@ class DTreeJurisdictionValidator(BaseLLMCaller):
         out = await run_async_tree(tree, response_as_json=True)
         return self._parse_output(out)
 
-    def _parse_output(self, props):  # noqa: PLR6301
+    def _parse_output(self, props):  # ruff:ignore[no-self-use]
         """Parse LLM response and return boolean validation result"""
         logger.debug(
             "Parsing county jurisdiction validation output:\n\t%s", props
@@ -295,7 +305,11 @@ class JurisdictionWebsiteValidator:
         "You are an expert data analyst that examines website text to "
         "determine if the website is the main website for a given "
         "jurisdiction. Only ever answer based on the information from the "
-        "website itself."
+        "website itself. Do not treat affiliated but separate entities as "
+        "the main jurisdiction website (i.e. such as school district "
+        "websites, courthouse or court system websites, library websites, "
+        "or other department and agency websites are **not** the main "
+        "website)."
     )
     """System message for main jurisdiction website validation calls"""
 
@@ -387,6 +401,11 @@ class JurisdictionWebsiteValidator:
             "Based on the website text below, is it reasonable to conclude "
             f"that this webpage is the **main** {jurisdiction.type} website "
             f"for {jurisdiction.full_name_the_prefixed}? "
+            "Do not treat affiliated but separate entities as the main "
+            "jurisdiction website. Examples of websites that should **not** "
+            "be treated the main jurisdiction website include school "
+            "district websites, courthouse or court system websites, "
+            "library websites, and other department or agency websites. "
             "Please start your response with either 'Yes' or 'No' and briefly "
             "explain your answer."
             f'\n\n"""\n{doc.text}\n"""'
@@ -459,3 +478,26 @@ def _weighted_vote(out, raw_pages, doc_source):
 
     weights = max(weights, 1)
     return total / weights, num_verdicts
+
+
+def _url_matches_known_jurisdiction_website(url, jurisdiction):
+    """Return whether URL domain matches canonical website"""
+    known_website = _known_jurisdiction_website(jurisdiction)
+    if not known_website:
+        return False
+
+    url_domain = normalize_domain(url)
+    known_domain = normalize_domain(known_website)
+    if not url_domain or not known_domain:
+        return False
+
+    return url_domain == known_domain or url_domain.endswith(
+        f".{known_domain}"
+    )
+
+
+def _known_jurisdiction_website(jurisdiction):
+    """Return a canonical website URL for a jurisdiction if available"""
+    if jurisdiction.website_url:
+        return jurisdiction.website_url
+    return jurisdiction_websites().get(jurisdiction.code)

@@ -57,7 +57,7 @@ class BaseTextCollector(BaseLLMCaller, ABC):
 
     @property
     @abstractmethod
-    def OUT_LABEL(self):  # noqa: N802
+    def OUT_LABEL(self):  # ruff:ignore[invalid-function-name]
         """str: Identifier for text collected by this class"""
         raise NotImplementedError
 
@@ -130,13 +130,13 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def IDENTIFIER(self):  # noqa: N802
+    def IDENTIFIER(self):  # ruff:ignore[invalid-function-name]
         """str: Identifier for extraction task (e.g. "water rights")"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def QUERY_TEMPLATES(self):  # noqa: N802
+    def QUERY_TEMPLATES(self):  # ruff:ignore[invalid-function-name]
         """list: List of search engine query templates for extraction
 
         Query templates can contain the placeholder ``{jurisdiction}``
@@ -147,7 +147,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def WEBSITE_KEYWORDS(self):  # noqa: N802
+    def WEBSITE_KEYWORDS(self):  # ruff:ignore[invalid-function-name]
         """list: List of keywords
 
         List of keywords that indicate links which should be prioritized
@@ -157,7 +157,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def TEXT_COLLECTORS(self):  # noqa: N802
+    def TEXT_COLLECTORS(self):  # ruff:ignore[invalid-function-name]
         """list of BaseTextCollector: Classes to collect text
 
         Should be an iterable of one or more classes to collect text
@@ -167,7 +167,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def HEURISTIC(self):  # noqa: N802
+    def HEURISTIC(self):  # ruff:ignore[invalid-function-name]
         """BaseHeuristic: Class with a ``check()`` method
 
         The ``check()`` method should accept a string of text and
@@ -213,7 +213,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         save_db(db, out_dir, cls.OUTPUT_COLUMNS)
         return num_docs_found
 
-    async def pre_filter_docs_hook(self, extraction_context):  # noqa: PLR6301
+    async def pre_filter_docs_hook(self, extraction_context):  # ruff:ignore[no-self-use]
         """Pre-process documents before running them through the filter
 
         Parameters
@@ -228,7 +228,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         return extraction_context
 
-    async def post_filter_docs_hook(self, extraction_context):  # noqa: PLR6301
+    async def post_filter_docs_hook(self, extraction_context):  # ruff:ignore[no-self-use]
         """Post-process documents after running them through the filter
 
         Parameters
@@ -303,13 +303,17 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         return self.HEURISTIC()
 
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, max_num_docs=None):
         """Filter down candidate documents before parsing
 
         Parameters
         ----------
         extraction_context : ExtractionContext
             Context containing candidate documents to be filtered.
+        max_num_docs : int, optional
+            Maximum number of documents to parse (regardless of the
+            collection method). If ``None``, all collected documents are
+            parsed. By default, ``None``.
 
         Returns
         -------
@@ -364,6 +368,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         )
         if not docs:
             return None
+
+        if max_num_docs is not None:
+            logger.debug(
+                "Sub-setting to %d document(s) for parsing", max_num_docs
+            )
+            docs = docs[:max_num_docs]
 
         extraction_context.documents = docs
         return extraction_context

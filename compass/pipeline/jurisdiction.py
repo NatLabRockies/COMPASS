@@ -14,6 +14,7 @@ from compass.pipeline.collection.persistence import (
 )
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pb import COMPASS_PB
+from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
@@ -33,7 +34,6 @@ class SingleJurisdictionRun:
         known_doc_urls=None,
         perform_se_search=True,
         perform_website_search=True,
-        validate_user_website_input=True,
     ):
         """
 
@@ -68,10 +68,6 @@ class SingleJurisdictionRun:
         perform_website_search : bool, optional
             Whether website-specific search and crawl steps should be
             performed for this jurisdiction. By default, ``True``.
-        validate_user_website_input : bool, optional
-            Whether user-supplied jurisdiction website inputs should be
-            validated before being used in collection. By default,
-            ``True``.
         """
         self.runtime = runtime
         self.jurisdiction = jurisdiction
@@ -81,7 +77,6 @@ class SingleJurisdictionRun:
         self.known_doc_urls = known_doc_urls
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
-        self.validate_user_website_input = validate_user_website_input
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
         self.extraction_workflow = DocumentExtraction(self)
@@ -193,6 +188,10 @@ class SingleJurisdictionRun:
         )
         self.jurisdiction_website = collection_info.get("jurisdiction_website")
         try:
+            COMPASS_PB.update_jurisdiction_task(
+                self.jurisdiction.full_name,
+                description="Loading pre-parsed documents...",
+            )
             docs = await load_collected_docs(
                 collection_info, task_name=self.jurisdiction.full_name
             )
@@ -248,6 +247,8 @@ class SingleJurisdictionRun:
                             error_action,
                             self.jurisdiction.full_name,
                         )
+                        if isinstance(error, COMPASSPluginConfigurationError):
+                            raise
                         return fallback
 
     async def run_process_with_logging(self):

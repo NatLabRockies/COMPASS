@@ -15,3 +15,7 @@ class COMPASSWarning(UserWarning):
             logger.warning(
                 "<%s> %s", self.__class__.__name__, args[0], stacklevel=2
             )
+
+
+class COMPASSPluginConfigurationWarning(COMPASSWarning):
+    """Warning for issues with plugin configuration"""

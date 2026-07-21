@@ -203,7 +203,7 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
     TASK_ID = LLMUsageCategory.ORDINANCE_VALUE_EXTRACTION
     """Identifier for this parser's specific LLM task category"""
 
-    async def parse(self, text):
+    async def parse(self, text, jurisdiction):
         """Parse text and extract structure ordinance data
 
         Parameters
@@ -213,6 +213,11 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
             or more features (property lines, structure, roads, etc.).
             Text can also contain other supported regulations (noise,
             shadow-flicker, etc,) which will be extracted as well.
+        jurisdiction : Jurisdiction
+            Jurisdiction object corresponding to the document being
+            parsed. This is passed in case the system prompt needs any
+            information about the jurisdiction to successfully extract
+            values from the text.
 
         Returns
         -------
@@ -225,20 +230,21 @@ class StructuredSolarOrdinanceParser(StructuredSolarParser):
         if not largest_sef_type:
             return None
 
-        outer_task_name = asyncio.current_task().get_name()
         num_to_process = (
             len(SetbackFeatures.DEFAULT_FEATURE_DESCRIPTIONS)
             + len(EXTRA_NUMERICAL_RESTRICTIONS)
             + len(EXTRA_QUALITATIVE_RESTRICTIONS)
         )
-        with COMPASS_PB.jurisdiction_sub_prog_bar(outer_task_name) as sub_pb:
+        with COMPASS_PB.jurisdiction_sub_prog_bar(
+            jurisdiction.full_name
+        ) as sub_pb:
             task_id = sub_pb.add_task(
                 "Extracting ordinance values...",
                 total=num_to_process,
                 just_parsed="",
             )
             outputs = await self._parse_all_restrictions_with_pb(
-                sub_pb, task_id, text, largest_sef_type, outer_task_name
+                sub_pb, task_id, text, largest_sef_type, jurisdiction.full_name
             )
             sub_pb.update(task_id, completed=num_to_process)
             await asyncio.sleep(1)
@@ -570,7 +576,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         },
     ]
 
-    async def parse(self, text):
+    async def parse(self, text, jurisdiction):
         """Parse text and extract permitted use districts data
 
         Parameters
@@ -578,6 +584,11 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         text : str
             Permitted use districts text which may or may not contain
             information about allowed uses in one or more districts.
+        jurisdiction : Jurisdiction
+            Jurisdiction object corresponding to the document being
+            parsed. This is passed in case the system prompt needs any
+            information about the jurisdiction to successfully extract
+            values from the text.
 
         Returns
         -------
@@ -590,8 +601,9 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
         if not largest_sef_type:
             return None
 
-        loc = asyncio.current_task().get_name()
-        with COMPASS_PB.jurisdiction_sub_prog_bar(loc) as sub_pb:
+        with COMPASS_PB.jurisdiction_sub_prog_bar(
+            jurisdiction.full_name
+        ) as sub_pb:
             task_id = sub_pb.add_task(
                 "Extracting permitted uses...",
                 total=len(self._USE_TYPES),
@@ -606,7 +618,7 @@ class StructuredSolarPermittedUseDistrictsParser(StructuredSolarParser):
                         largest_sef_type,
                         **use_type_kwargs,
                     ),
-                    name=loc,
+                    name=jurisdiction.full_name,
                 )
                 for use_type_kwargs in self._USE_TYPES
             ]

@@ -157,9 +157,9 @@ class ExtractionContext:
         return f"## MULTI-DOCUMENT CONTEXT ##\n\n{serialized}"
 
 
-async def _move_file_to_out_dir(doc, out_fn):
+async def _move_file_to_out_dir(doc, out_stem):
     """Move PDF or HTML text file to output directory"""
-    out_fp = await FileMover.call(doc, out_fn)
+    out_fp = await FileMover.call(doc, out_stem)
     doc.attrs["out_fp"] = out_fp
     return doc
 
