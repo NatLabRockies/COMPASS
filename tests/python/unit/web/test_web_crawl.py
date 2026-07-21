@@ -459,8 +459,39 @@ async def test_website_link_is_doc_skips_pre_checked(crawler_setup):
 
 
 @pytest.mark.asyncio
-async def test_website_link_is_doc_external_returns_false(crawler_setup):
-    """External domains should return false and not create docs"""
+async def test_website_link_is_doc_same_domain_non_pdf_returns_false(
+    crawler_setup, monkeypatch
+):
+    """Same-domain HTML pages must stay on the recursive crawl path"""
+
+    crawler = crawler_setup["crawler"]
+    link = _Link(
+        title="Internal",
+        href="https://example.com/page",
+        base_domain="https://example.com",
+    )
+    html_doc_calls = 0
+
+    async def fake_is_pdf(_link, _depth, _score):  # noqa
+        return False
+
+    async def fake_as_html_doc(_link, _depth, _score):  # noqa
+        nonlocal html_doc_calls
+        html_doc_calls += 1
+        return True
+
+    monkeypatch.setattr(crawler, "_website_link_is_pdf", fake_is_pdf)
+    monkeypatch.setattr(crawler, "_website_link_as_html_doc", fake_as_html_doc)
+
+    assert not await crawler._website_link_is_doc(link, 0, 0)
+    assert html_doc_calls == 0
+
+
+@pytest.mark.asyncio
+async def test_website_link_is_doc_external_collects_html_doc(
+    crawler_setup, monkeypatch
+):
+    """External non-PDF pages should be collected as HTML docs"""
 
     crawler = crawler_setup["crawler"]
     link = _Link(
@@ -468,7 +499,51 @@ async def test_website_link_is_doc_external_returns_false(crawler_setup):
         href="https://other.com/file",
         base_domain="https://example.com",
     )
-    assert not await crawler._website_link_is_doc(link, 0, 0)
+
+    async def fake_get_text_no_err(_url):  # noqa
+        return "<html>external</html>"
+
+    async def fake_tempfile_call(_doc, _text):  # noqa
+        return None
+
+    monkeypatch.setattr(crawler, "_get_text_no_err", fake_get_text_no_err)
+    monkeypatch.setattr(
+        website_crawl.TempFileCache, "call", fake_tempfile_call
+    )
+
+    assert await crawler._website_link_is_doc(link, 0, 0)
+    assert len(crawler._out_docs) == 1
+    assert crawler._out_docs[0].attrs["source"] == link.href
+
+
+@pytest.mark.asyncio
+async def test_website_link_is_doc_external_sets_cache_fn(
+    crawler_setup, monkeypatch
+):
+    """External HTML docs should store returned cache filename"""
+
+    crawler = crawler_setup["crawler"]
+    link = _Link(
+        title="External",
+        href="https://other.com/file",
+        base_domain="https://example.com",
+    )
+    cache_fn = Path("/tmp/external-cache.html")  # noqa
+
+    async def fake_get_text_no_err(_url):  # noqa
+        return "<html>external</html>"
+
+    async def fake_tempfile_call(_doc, _text):  # noqa
+        return cache_fn
+
+    monkeypatch.setattr(crawler, "_get_text_no_err", fake_get_text_no_err)
+    monkeypatch.setattr(
+        website_crawl.TempFileCache, "call", fake_tempfile_call
+    )
+
+    assert await crawler._website_link_is_doc(link, 0, 0)
+    assert len(crawler._out_docs) == 1
+    assert crawler._out_docs[0].attrs["cache_fn"] == cache_fn
 
 
 @pytest.mark.asyncio
@@ -488,7 +563,9 @@ async def test_website_link_is_pdf_accepts_docling_pdf(crawler_setup):
         href="https://example.com/doc.pdf",
         base_domain="https://example.com",
     )
-    crawler.afl.loader_docs[link.href] = DummyDoclingPDFDocument(link.href)
+    crawler.fast_afl.loader_docs[link.href] = DummyDoclingPDFDocument(
+        link.href
+    )
 
     assert await crawler._website_link_is_pdf(link, 2, 88)
     assert crawler._out_docs[-1].attrs[_DEPTH_KEY] == 2
@@ -554,6 +631,13 @@ async def test_website_link_as_html_doc_adds_document(
         types.MethodType(fake_get_text, crawler),
     )
 
+    async def fake_tempfile_call(_doc, _text):  # noqa
+        return None
+
+    monkeypatch.setattr(
+        website_crawl.TempFileCache, "call", fake_tempfile_call
+    )
+
     link = _Link(
         title="HTML",
         href="https://example.com/page",
@@ -564,6 +648,7 @@ async def test_website_link_as_html_doc_adds_document(
     assert doc.attrs[_DEPTH_KEY] == 2
     assert doc.attrs[_SCORE_KEY] == 9
     assert "keep" in doc.text
+    assert doc.attrs["source"] == "https://example.com/page"
 
 
 @pytest.mark.asyncio
