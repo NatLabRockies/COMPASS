@@ -292,6 +292,8 @@ class ElmWebsiteCrawlStep(CollectionStep):
             return []
 
         docs, scrape_results = out
+        logger.debug("Found the following docs with ELM crawl:\n%r", docs)
+
         workflow.last_scrape_results = scrape_results
         for doc in docs:
             doc.attrs["compass_crawl"] = False
