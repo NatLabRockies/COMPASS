@@ -332,7 +332,7 @@ class COMPASSCrawler:
         # at this point the page is NOT a PDF. However, it could still
         # just be a normal webpage on the main domain that we haven't
         # visited before. In that case, just return False
-        if not link.consistent_domain:
+        if link.consistent_domain:
             return False
 
         # now we are on an external page that we either have not visited
