@@ -8,7 +8,7 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per (feature, scope) pair**. Emit one row per scope only when the ordinance text explicitly states different values or requirements per scope for the same feature; otherwise emit a single row with scope='all'. Never infer, imply, or guess a requirement from related context.",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per (feature, subarea) pair**. Emit one row per subarea only when the ordinance text explicitly states different values or requirements per subarea for the same feature; otherwise emit a single row with subarea='all'. Never infer, imply, or guess a requirement from related context.",
       "items": {
         "type": "object",
         "required": [
@@ -233,10 +233,10 @@
       }
     },
     "prohibition_features": {
-      "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `scope` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
+      "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `subarea` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
       "properties": {
         "zone use restriction": {
-          "description": "Extract prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission lines and related infrastructure within a specific zoning district. Set `scope` to the district being restricted (for example 'residential', 'commercial', 'agricultural'). Use scope='other' when the ordinance names a district that does not match the enumerated categories. Do not emit scope='all' for this feature; if the restriction is jurisdiction-wide, it is not a zone use restriction and should be captured under a different feature. Emit one row per explicitly restricted district. Include the verbatim ordinance language in summary and cite the restricting clause."
+          "description": "Extract prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission lines and related infrastructure within a specific zoning district. Set `subarea` to the district being restricted (for example 'residential', 'commercial', 'agricultural'). Use subarea='other' when the ordinance names a district that does not match the enumerated categories. Do not emit subarea='all' for this feature; if the restriction is jurisdiction-wide, it is not a zone use restriction and should be captured under a different feature. Emit one row per explicitly restricted district. Include the verbatim ordinance language in summary and cite the restricting clause."
         }
       }
     },
