@@ -71,6 +71,11 @@ class Directories:
             Directory for storing jurisdiction databases. If not
             specified, defaults to ``out/jurisdiction_dbs``.
             By default, ``None``
+        collect_only : bool, optional
+            Flag indicating whether the run is a collection-only run. If
+            ``True``, the default directories for cleaned text and
+            ordinance files are changed to ``out/parsed_docs`` and
+            ``out/source_docs``, respectively. By default, ``False``.
         """
         self.out = _full_path(out)
         self.logs = _full_path(logs) if logs else self.out / "logs"

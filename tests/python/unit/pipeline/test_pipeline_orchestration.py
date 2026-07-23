@@ -140,6 +140,29 @@ async def test_collect_request_uses_collection_workflow(
 
 
 @pytest.mark.asyncio
+async def test_collect_request_allows_existing_output_dir(
+    tmp_path, patched_workflow
+):
+    """Collection requests may reuse an existing output directory"""
+    out_dir = tmp_path / "outputs"
+    out_dir.mkdir()
+
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+
+    request = CollectionRequest(
+        out_dir=out_dir,
+        tech="solar",
+        jurisdiction_fp=jurisdiction_fp,
+    )
+    result = await run_compass(request)
+
+    assert result == f"processed {request.MODE}"
+    assert patched_workflow.LAST_MODE_USED == request.MODE
+    assert out_dir.exists()
+
+
+@pytest.mark.asyncio
 async def test_extract_request_uses_extraction_workflow(
     tmp_path, patched_workflow
 ):

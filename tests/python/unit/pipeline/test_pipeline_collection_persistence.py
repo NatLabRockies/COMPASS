@@ -198,14 +198,8 @@ def test_load_specific_collection_manifest_shard_resolves_paths(tmp_path):
     )
 
     assert loaded["documents"][0]["source"] == "https://example.com/valid.html"
-    assert (
-        loaded["documents"][0]["source_fp"]
-        == (shard_dir / "Example Township_1.html").resolve().as_posix()
-    )
-    assert (
-        loaded["documents"][0]["parsed_fp"]
-        == (shard_dir / "Example Township_1.txt").resolve().as_posix()
-    )
+    assert loaded["documents"][0]["source_fp"] == "./Example Township_1.html"
+    assert loaded["documents"][0]["parsed_fp"] == "./Example Township_1.txt"
 
 
 def test_build_collection_manifest_computes_doc_stats():

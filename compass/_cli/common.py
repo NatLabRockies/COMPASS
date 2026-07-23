@@ -131,6 +131,13 @@ def _resolve_out_dir_conflict(out_dir, policy):
     if not out_dir.exists() or policy == "continue":
         return out_dir
 
+    if policy == "fail":
+        msg = (
+            f"Output directory '{out_dir!s}' already exists. "
+            "Use --out_dir_exists increment/overwrite to continue."
+        )
+        raise click.ClickException(msg)
+
     if policy == "increment":
         new_out_dir = _next_versioned_directory(out_dir)
         click.echo(
@@ -180,7 +187,7 @@ def _resolve_out_dir_policy(policy):
         return policy.lower()
     if sys.stdin.isatty():
         return "prompt"
-    return "unknown"
+    return "fail"
 
 
 def _resolve_prompt_out_dir_conflict(out_dir):

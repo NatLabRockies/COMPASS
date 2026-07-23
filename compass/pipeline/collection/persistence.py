@@ -157,7 +157,7 @@ async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
 
     Returns
     -------
-    dict | None
+    dict or None
         Loaded collection metadata for the jurisdiction, or ``None``
         when no shard exists yet.
     """
@@ -221,12 +221,11 @@ def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
     if not shard_fp.exists():
         return None
 
-    collection_info = load_config(
+    return load_config(
         shard_fp,
         resolve_paths=False,
         file_name="Collection manifest shard",
     )
-    return resolve_all_paths(collection_info, shard_dir)
 
 
 async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
@@ -267,7 +266,7 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
     documents = await asyncio.gather(*tasks)
     documents = [doc for doc in documents if doc is not None]
     collection_step_counts = Counter(
-        step for info in collected_docs.values for step in info["from_steps"]
+        step for info in documents for step in info["from_steps"]
     )
     return {
         "full_name": jurisdiction.full_name,

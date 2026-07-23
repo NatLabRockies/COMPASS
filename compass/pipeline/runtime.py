@@ -329,7 +329,7 @@ def _setup_folders(output_settings, collect_only=False):
         collect_only,
     )
 
-    if dirs.out.exists():
+    if not collect_only and dirs.out.exists():
         msg = (
             f"Output directory '{output_settings.out_dir!s}' already "
             "exists! Please specify a new directory for every COMPASS run."
