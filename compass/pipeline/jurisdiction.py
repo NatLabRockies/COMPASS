@@ -11,6 +11,7 @@ from compass.pipeline import JurisdictionResult
 from compass.pipeline.collection.persistence import (
     load_collected_docs,
     write_collection_manifest_shard,
+    load_specific_collection_manifest_shard,
 )
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pb import COMPASS_PB
@@ -146,9 +147,12 @@ class SingleJurisdictionRun:
             "Kicking off collection for jurisdiction: %s",
             self.jurisdiction.full_name,
         )
-        collection_info = await self.collection_workflow.execute(
-            eager_extract=False, relative_to=relative_to
-        )
+
+        collection_info = await self._load_existing_collection_info()
+        if collection_info is None:
+            collection_info = await self.collection_workflow.execute(
+                eager_extract=False, relative_to=relative_to
+            )
 
         await _safe_shard_write(
             self.runtime.dirs.jurisdiction_dbs,
@@ -160,6 +164,18 @@ class SingleJurisdictionRun:
             "Completed collection for jurisdiction: %s",
             self.jurisdiction.full_name,
         )
+        return collection_info
+
+    async def _load_existing_collection_info(self):
+        """Load saved collection info when a shard already exists"""
+        collection_info = await load_specific_collection_manifest_shard(
+            self.runtime.dirs.jurisdiction_dbs, self.jurisdiction
+        )
+        if collection_info is not None:
+            logger.info(
+                "Using existing collection manifest shard for %s",
+                self.jurisdiction.full_name,
+            )
         return collection_info
 
     async def extract_from_collection_info(self, collection_info):

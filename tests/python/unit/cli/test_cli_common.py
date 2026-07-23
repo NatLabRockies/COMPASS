@@ -119,15 +119,29 @@ def test_resolve_out_dir_conflict_prompt_non_interactive(
         _ = _resolve_out_dir_conflict(out_dir, "prompt")
 
 
-def test_resolve_out_dir_conflict_fail_keeps_path(tmp_path):
+def test_resolve_out_dir_conflict_continue_keeps_path(tmp_path):
     """Fail policy leaves existing output directory unchanged"""
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
-    result = _resolve_out_dir_conflict(out_dir, "fail")
+    result = _resolve_out_dir_conflict(out_dir, "continue")
 
     assert result == out_dir
     assert out_dir.exists()
+
+
+def test_resolve_out_dir_conflict_fail_raises(tmp_path):
+    """Fail policy raises when output directory already exists"""
+    out_dir = tmp_path / "outputs"
+    out_dir.mkdir()
+
+    with pytest.raises(ClickException) as excinfo:
+        _resolve_out_dir_conflict(out_dir, "fail")
+
+    assert str(excinfo.value) == (
+        f"Output directory '{out_dir!s}' already exists. "
+        "Use --out_dir_exists increment/overwrite to continue."
+    )
 
 
 def test_process_uses_prompt_policy_in_interactive_terminal(
@@ -146,7 +160,7 @@ def test_process_uses_prompt_policy_in_interactive_terminal(
         lambda *_, **__: confirmed.append(True) or True,
     )
 
-    policy = "prompt" if common_module.sys.stdin.isatty() else "fail"
+    policy = common_module._resolve_out_dir_policy(None)
     assert policy == "prompt"
 
 
@@ -154,7 +168,7 @@ def test_process_uses_fail_policy_in_non_interactive_terminal(monkeypatch):
     """Auto-select fail policy when stdin is not a TTY"""
     monkeypatch.setattr(common_module.sys, "stdin", _NoTty())
 
-    policy = "prompt" if common_module.sys.stdin.isatty() else "fail"
+    policy = common_module._resolve_out_dir_policy(None)
     assert policy == "fail"
 
 
@@ -167,7 +181,7 @@ def test_process_flag_overrides_tty_detection(tmp_path, monkeypatch):
 
     explicit_flag = "increment"
     policy = explicit_flag or (
-        "prompt" if common_module.sys.stdin.isatty() else "fail"
+        "prompt" if common_module.sys.stdin.isatty() else "continue"
     )
     result = _resolve_out_dir_conflict(out_dir, policy)
     assert result == tmp_path / "outputs_v2"

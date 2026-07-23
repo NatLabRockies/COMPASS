@@ -1,5 +1,7 @@
 """Tests for collection persistence"""
 
+import json
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -20,6 +22,11 @@ def _build_doc(source, pages, *, has_parsed_text=True):
         },
         pages=pages,
     )
+
+
+def _build_jurisdiction(full_name="Example Township", code="12345"):
+    """Build a minimal jurisdiction for persistence tests"""
+    return SimpleNamespace(full_name=full_name, code=code)
 
 
 @pytest.mark.asyncio
@@ -86,6 +93,140 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         }
     ]
     assert missing_parsed_doc.attrs["parsed_fp"] is None
+
+
+@pytest.mark.asyncio
+async def test_persist_documents_includes_collection_step_metadata(
+    monkeypatch, tmp_path
+):
+    """Persisted collection info should include step count metadata"""
+
+    async def fake_move(doc, out_stem, _subdir):  # ruff:ignore[unused-async]
+        suffix = Path(doc.attrs["source"]).suffix or ".txt"
+        return tmp_path / f"{out_stem}{suffix}"
+
+    async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
+        return tmp_path / f"{out_stem}.txt"
+
+    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(
+        persistence_module.ParsedFileWriter,
+        "call",
+        fake_write_parsed,
+    )
+
+    jurisdiction = SimpleNamespace(
+        full_name="Example Township",
+        county="Example County",
+        state="CO",
+        subdivision_name=None,
+        type="Township",
+        code="12345",
+    )
+    shared_doc = _build_doc("https://example.com/shared.html", ["page one"])
+    search_only_doc = _build_doc(
+        "https://example.com/search-only.html",
+        ["page one", "page two"],
+    )
+    collected_docs = DocumentDeDuplicator()
+    collected_docs.add_docs(
+        [shared_doc, search_only_doc],
+        step_name="crawl",
+        jurisdiction_name=jurisdiction.full_name,
+    )
+    collected_docs.add_docs(
+        [shared_doc],
+        step_name="search",
+        jurisdiction_name=jurisdiction.full_name,
+    )
+
+    collection_info = await persistence_module.persist_documents(
+        jurisdiction,
+        collected_docs,
+        relative_to=tmp_path,
+    )
+
+    assert collection_info["num_docs"] == 2
+    assert collection_info["collection_step_counts"] == {
+        "crawl": 2,
+        "search": 1,
+    }
+    assert [doc["from_steps"] for doc in collection_info["documents"]] == [
+        ["crawl", "search"],
+        ["crawl"],
+    ]
+
+
+def test_load_specific_collection_manifest_shard_returns_none(tmp_path):
+    """Missing jurisdiction shard should return None"""
+    jurisdiction = _build_jurisdiction()
+
+    collection_info = (
+        persistence_module._load_specific_collection_manifest_shard(
+            tmp_path, jurisdiction
+        )
+    )
+
+    assert collection_info is None
+
+
+def test_load_specific_collection_manifest_shard_resolves_paths(tmp_path):
+    """Jurisdiction shard paths should resolve from the shard directory"""
+    shard_dir = tmp_path / "shards"
+    shard_dir.mkdir()
+    collection_info = {
+        "FIPS": "12345",
+        "full_name": "Example Township",
+        "documents": [
+            {
+                "source": "https://example.com/valid.html",
+                "source_fp": "./Example Township_1.html",
+                "parsed_fp": "./Example Township_1.txt",
+            }
+        ],
+    }
+    shard_fp = (
+        shard_dir
+        / persistence_module._collection_manifest_shard_filename(
+            collection_info
+        )
+    )
+    shard_fp.write_text(json.dumps(collection_info), encoding="utf-8")
+
+    loaded = persistence_module._load_specific_collection_manifest_shard(
+        shard_dir, _build_jurisdiction()
+    )
+
+    assert loaded["documents"][0]["source"] == "https://example.com/valid.html"
+    assert loaded["documents"][0]["source_fp"] == "./Example Township_1.html"
+    assert loaded["documents"][0]["parsed_fp"] == "./Example Township_1.txt"
+
+
+def test_build_collection_manifest_computes_doc_stats():
+    """Collection manifest should summarize document counts"""
+    manifest = persistence_module.build_collection_manifest(
+        "solar",
+        [
+            {"full_name": "Alpha", "documents": [{"id": 1}, {"id": 2}]},
+            {"full_name": "Beta", "documents": [{"id": 3}]},
+            {"full_name": "Gamma", "documents": []},
+            None,
+        ],
+        datetime(2026, 1, 1, tzinfo=UTC),
+        4,
+    )
+
+    assert manifest["num_jurisdictions_searched"] == 4
+    assert manifest["num_jurisdictions_found"] == 2
+    assert manifest["num_doc_stats"] == {
+        "min": 1,
+        "max": 2,
+        "median": 1.5,
+        "total": 3,
+    }
+    assert [
+        jurisdiction["full_name"] for jurisdiction in manifest["jurisdictions"]
+    ] == ["Alpha", "Beta"]
 
 
 if __name__ == "__main__":

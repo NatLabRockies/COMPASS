@@ -49,7 +49,7 @@ def run_async_command(
         progress bars.
     out_dir_exists : str, optional
         Policy controlling how an existing output directory should be
-        handled. Supported values are ``"fail"``, ``"increment"``,
+        handled. Supported values are ``"continue"``, ``"increment"``,
         ``"overwrite"``, and ``"prompt"``. If ``None``, the policy is
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
@@ -128,8 +128,15 @@ def _resolve_out_dir_conflict(out_dir, policy):
     out_dir = Path(out_dir)
     policy = _resolve_out_dir_policy(policy)
 
-    if not out_dir.exists() or policy == "fail":
+    if not out_dir.exists() or policy == "continue":
         return out_dir
+
+    if policy == "fail":
+        msg = (
+            f"Output directory '{out_dir!s}' already exists. "
+            "Use --out_dir_exists increment/overwrite to continue."
+        )
+        raise click.ClickException(msg)
 
     if policy == "increment":
         new_out_dir = _next_versioned_directory(out_dir)

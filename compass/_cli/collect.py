@@ -42,9 +42,11 @@ from compass.utilities.io import load_config
     "-o",
     required=False,
     default=None,
-    type=click.Choice(OUT_DIR_POLICY_CHOICES, case_sensitive=False),
+    type=click.Choice(
+        [*OUT_DIR_POLICY_CHOICES, "continue"], case_sensitive=False
+    ),
     help="How to handle an existing output directory."
-    " Choices: fail, increment, overwrite, prompt."
+    " Choices: continue, fail, increment, overwrite, prompt."
     " If omitted, prompts interactively when running in a terminal,"
     " or fails when running non-interactively (e.g. CI).",
 )
