@@ -11,6 +11,7 @@ from compass.pipeline import JurisdictionResult
 from compass.pipeline.collection.persistence import (
     load_collected_docs,
     write_collection_manifest_shard,
+    load_specific_collection_manifest_shard,
 )
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pb import COMPASS_PB
