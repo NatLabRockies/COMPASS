@@ -51,6 +51,12 @@ website_keywords:
   government: 180
 
 heuristic_keywords:
+  good_tech_acronyms:
+    - "kv"
+    - "hvdc"
+    - "ehv"
+    - "uhv"
+    - "cpcn" #  Certificate of Public Convenience and Necessity
   good_tech_keywords:
     - "transmission"
     - "kilovolt"
@@ -58,12 +64,6 @@ heuristic_keywords:
     - "franchise"
     - "grantee"
     - "substation"
-  good_tech_acronyms:
-    - "kv"
-    - "hvdc"
-    - "ehv"
-    - "uhv"
-    - "cpcn" #  Certificate of Public Convenience and Necessity
   good_tech_phrases:
     - "certificate of public convenience and necessity"
     - "high voltage"
