@@ -21,7 +21,7 @@ from compass.pipeline.runtime import PipelineRuntime
 from compass.pb import COMPASS_PB
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture(autouse=True)  # ruff:ignore[pytest-fixture-autouse]
 def reset_compass_pb():
     """Reset progress bar state around each test"""
     COMPASS_PB.reset()
