@@ -454,7 +454,7 @@ def setup_graph_well_spacing(**kwargs):
             "include exactly four keys. The keys are 'spacing', 'units', "
             "'qualifier', and 'explanation'. The value of the 'spacing' key "
             "should be the numerical value specifying the required distance "
-            "betweeen wells, focus on spacing between wells only and ignore "
+            "between wells, focus on spacing between wells only and ignore "
             "spacing requirements for other types of infrastructure. "
             "The 'units' key should describe the units associated with the "
             "spacing. The value of the 'qualifier' key should be the well "

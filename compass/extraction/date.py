@@ -22,7 +22,7 @@ class DateExtractor:
     SYSTEM_MESSAGE = (
         "You are a legal scholar that reads ordinance text and extracts "
         "a single date. The date you report is the latest year the "
-        "ordinance was enacted or ammended or became effective. If no such "
+        "ordinance was enacted or amended or became effective. If no such "
         "date is available return null."
         "Return your answer in JSON format like this: "
         '{"explanation": TEXT, "year": YY, "month": MM, "day": DD}'
