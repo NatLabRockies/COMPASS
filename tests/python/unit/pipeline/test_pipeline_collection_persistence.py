@@ -1,5 +1,6 @@
 """Tests for collection persistence"""
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -20,6 +21,11 @@ def _build_doc(source, pages, *, has_parsed_text=True):
         },
         pages=pages,
     )
+
+
+def _build_jurisdiction(full_name="Example Township", code="12345"):
+    """Build a minimal jurisdiction for persistence tests"""
+    return SimpleNamespace(full_name=full_name, code=code)
 
 
 @pytest.mark.asyncio
@@ -86,6 +92,57 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         }
     ]
     assert missing_parsed_doc.attrs["parsed_fp"] is None
+
+
+def test_load_specific_collection_manifest_shard_returns_none(tmp_path):
+    """Missing jurisdiction shard should return None"""
+    jurisdiction = _build_jurisdiction()
+
+    collection_info = (
+        persistence_module._load_specific_collection_manifest_shard(
+            tmp_path, jurisdiction
+        )
+    )
+
+    assert collection_info is None
+
+
+def test_load_specific_collection_manifest_shard_resolves_paths(tmp_path):
+    """Jurisdiction shard paths should resolve from the shard directory"""
+    shard_dir = tmp_path / "shards"
+    shard_dir.mkdir()
+    collection_info = {
+        "FIPS": "12345",
+        "full_name": "Example Township",
+        "documents": [
+            {
+                "source": "https://example.com/valid.html",
+                "source_fp": "./Example Township_1.html",
+                "parsed_fp": "./Example Township_1.txt",
+            }
+        ],
+    }
+    shard_fp = (
+        shard_dir
+        / persistence_module._collection_manifest_shard_filename(
+            collection_info
+        )
+    )
+    shard_fp.write_text(json.dumps(collection_info), encoding="utf-8")
+
+    loaded = persistence_module._load_specific_collection_manifest_shard(
+        shard_dir, _build_jurisdiction()
+    )
+
+    assert loaded["documents"][0]["source"] == "https://example.com/valid.html"
+    assert (
+        loaded["documents"][0]["source_fp"]
+        == (shard_dir / "Example Township_1.html").resolve().as_posix()
+    )
+    assert (
+        loaded["documents"][0]["parsed_fp"]
+        == (shard_dir / "Example Township_1.txt").resolve().as_posix()
+    )
 
 
 if __name__ == "__main__":

@@ -135,6 +135,28 @@ async def load_collection_manifest(manifest_fp, expected_tech):
     )
 
 
+async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
+    """Load one jurisdiction collection manifest shard when present
+
+    Parameters
+    ----------
+    shard_dir : path-like
+        Directory containing per-jurisdiction collection manifest
+        shard files.
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction whose shard should be loaded.
+
+    Returns
+    -------
+    dict | None
+        Loaded collection metadata for the jurisdiction, or ``None``
+        when no shard exists yet.
+    """
+    return await GenericFuncRunner.call(
+        _load_specific_collection_manifest_shard, shard_dir, jurisdiction
+    )
+
+
 def _write_collection_manifest(manifest_dir, collection_manifest):
     """Write a collection manifest to disk"""
     manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
@@ -176,6 +198,26 @@ def _load_collection_manifest(manifest_fp, expected_tech):
 
     _validate_collection_manifest(manifest, expected_tech)
     return manifest
+
+
+def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
+    """Load one jurisdiction collection manifest shard if it exists"""
+    shard_dir = Path(shard_dir).expanduser().resolve()
+    shard_fp = shard_dir / _collection_manifest_shard_filename(
+        {
+            "FIPS": jurisdiction.code,
+            "full_name": jurisdiction.full_name,
+        }
+    )
+    if not shard_fp.exists():
+        return None
+
+    collection_info = load_config(
+        shard_fp,
+        resolve_paths=False,
+        file_name="Collection manifest shard",
+    )
+    return resolve_all_paths(collection_info, shard_dir)
 
 
 async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
