@@ -124,7 +124,7 @@ def test_resolve_out_dir_conflict_fail_keeps_path(tmp_path):
     out_dir = tmp_path / "outputs"
     out_dir.mkdir()
 
-    result = _resolve_out_dir_conflict(out_dir, "fail")
+    result = _resolve_out_dir_conflict(out_dir, "continue")
 
     assert result == out_dir
     assert out_dir.exists()
@@ -146,7 +146,7 @@ def test_process_uses_prompt_policy_in_interactive_terminal(
         lambda *_, **__: confirmed.append(True) or True,
     )
 
-    policy = "prompt" if common_module.sys.stdin.isatty() else "fail"
+    policy = "prompt" if common_module.sys.stdin.isatty() else "continue"
     assert policy == "prompt"
 
 
@@ -154,8 +154,8 @@ def test_process_uses_fail_policy_in_non_interactive_terminal(monkeypatch):
     """Auto-select fail policy when stdin is not a TTY"""
     monkeypatch.setattr(common_module.sys, "stdin", _NoTty())
 
-    policy = "prompt" if common_module.sys.stdin.isatty() else "fail"
-    assert policy == "fail"
+    policy = "prompt" if common_module.sys.stdin.isatty() else "continue"
+    assert policy == "continue"
 
 
 def test_process_flag_overrides_tty_detection(tmp_path, monkeypatch):
@@ -167,7 +167,7 @@ def test_process_flag_overrides_tty_detection(tmp_path, monkeypatch):
 
     explicit_flag = "increment"
     policy = explicit_flag or (
-        "prompt" if common_module.sys.stdin.isatty() else "fail"
+        "prompt" if common_module.sys.stdin.isatty() else "continue"
     )
     result = _resolve_out_dir_conflict(out_dir, policy)
     assert result == tmp_path / "outputs_v2"

@@ -20,7 +20,7 @@ from compass.utilities.logs import AddLocationFilter
 from compass.pipeline.coordinator import run_compass
 
 
-OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
+OUT_DIR_POLICY_CHOICES = ["continue", "increment", "overwrite", "prompt"]
 
 
 def run_async_command(
@@ -49,7 +49,7 @@ def run_async_command(
         progress bars.
     out_dir_exists : str, optional
         Policy controlling how an existing output directory should be
-        handled. Supported values are ``"fail"``, ``"increment"``,
+        handled. Supported values are ``"continue"``, ``"increment"``,
         ``"overwrite"``, and ``"prompt"``. If ``None``, the policy is
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
@@ -128,7 +128,7 @@ def _resolve_out_dir_conflict(out_dir, policy):
     out_dir = Path(out_dir)
     policy = _resolve_out_dir_policy(policy)
 
-    if not out_dir.exists() or policy == "fail":
+    if not out_dir.exists() or policy == "continue":
         return out_dir
 
     if policy == "increment":
@@ -180,7 +180,7 @@ def _resolve_out_dir_policy(policy):
         return policy.lower()
     if sys.stdin.isatty():
         return "prompt"
-    return "fail"
+    return "unknown"
 
 
 def _resolve_prompt_out_dir_conflict(out_dir):

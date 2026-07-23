@@ -2,7 +2,7 @@
 
 import click
 
-from compass._cli.common import run_async_command, OUT_DIR_POLICY_CHOICES
+from compass._cli.common import run_async_command
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.pipeline import CollectionRequest
 from compass.utilities.io import load_config
@@ -37,18 +37,7 @@ from compass.utilities.io import load_config
     default=None,
     help="One-shot plugin configuration to add to COMPASS before collection",
 )
-@click.option(
-    "--out-dir-exists",
-    "-o",
-    required=False,
-    default=None,
-    type=click.Choice(OUT_DIR_POLICY_CHOICES, case_sensitive=False),
-    help="How to handle an existing output directory."
-    " Choices: fail, increment, overwrite, prompt."
-    " If omitted, prompts interactively when running in a terminal,"
-    " or fails when running non-interactively (e.g. CI).",
-)
-def collect(config, verbose, no_progress, plugin, out_dir_exists):
+def collect(config, verbose, no_progress, plugin):
     """Collect ordinance documents for a list of jurisdictions
 
     This command runs the "first half" (i.e. the collection portion) of
@@ -67,5 +56,9 @@ def collect(config, verbose, no_progress, plugin, out_dir_exists):
         )
 
     run_async_command(
-        config, CollectionRequest, verbose, no_progress, out_dir_exists
+        config,
+        CollectionRequest,
+        verbose,
+        no_progress,
+        out_dir_exists="continue",
     )
