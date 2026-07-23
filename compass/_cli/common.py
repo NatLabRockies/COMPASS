@@ -20,7 +20,7 @@ from compass.utilities.logs import AddLocationFilter
 from compass.pipeline.coordinator import run_compass
 
 
-OUT_DIR_POLICY_CHOICES = ["continue", "increment", "overwrite", "prompt"]
+OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
 
 
 def run_async_command(
