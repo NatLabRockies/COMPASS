@@ -145,5 +145,32 @@ def test_load_specific_collection_manifest_shard_resolves_paths(tmp_path):
     )
 
 
+def test_build_collection_manifest_computes_doc_stats():
+    """Collection manifest should summarize document counts"""
+    manifest = persistence_module.build_collection_manifest(
+        "solar",
+        [
+            {"full_name": "Alpha", "documents": [{"id": 1}, {"id": 2}]},
+            {"full_name": "Beta", "documents": [{"id": 3}]},
+            {"full_name": "Gamma", "documents": []},
+            None,
+        ],
+        datetime(2026, 1, 1, tzinfo=UTC),
+        4,
+    )
+
+    assert manifest["num_jurisdictions_searched"] == 4
+    assert manifest["num_jurisdictions_found"] == 2
+    assert manifest["num_doc_stats"] == {
+        "min": 1,
+        "max": 2,
+        "median": 1.5,
+        "total": 3,
+    }
+    assert [
+        jurisdiction["full_name"] for jurisdiction in manifest["jurisdictions"]
+    ] == ["Alpha", "Beta"]
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])

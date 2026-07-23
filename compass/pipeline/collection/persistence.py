@@ -60,6 +60,7 @@ def build_collection_manifest(
         for info in jurisdictions
         if info is not None and info.get("documents")
     ]
+    num_docs = [len(info.get("documents", [])) for info in jurisdictions]
     return {
         "tech": tech,
         "versions": {"compass": compass_version, "elm": elm_version},
@@ -69,6 +70,12 @@ def build_collection_manifest(
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": len(jurisdictions),
+        "num_doc_stats": {
+            "min": min(num_docs, default=0),
+            "max": max(num_docs, default=0),
+            "median": median(num_docs) if num_docs else 0,
+            "total": sum(num_docs),
+        },
         "jurisdictions": jurisdictions,
     }
 
