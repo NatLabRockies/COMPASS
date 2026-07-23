@@ -307,7 +307,7 @@
       "units": "dBA",
       "section": "Table 5-3 – Noise Standards by District",
       "summary": "Maximum permissible operational noise at the property line for transmission facilities in commercial districts is 55 dBA.",
-      "explanation": "Ordinance explicitly states a distinct noise limit for commercial districts. Other disctricts are also defined."
+      "explanation": "Ordinance explicitly states a distinct noise limit for commercial districts. Other districts are also defined."
     },
     {
       "feature": "zone use restriction",
@@ -345,7 +345,7 @@
     "fencing",
     "fire prevention",
     "franchise",
-    "lightning",
+    "lighting",
     "permit",
     "signage",
     "traffic disruption",
