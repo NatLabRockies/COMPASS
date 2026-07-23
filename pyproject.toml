@@ -165,25 +165,25 @@ select = [
   "W", # Warning
 ]
 ignore = [
-  "B028", # no-explicit-stacklevel
-  "COM812", # missing-trailing-comma (incompatible with formatter)
-  "D105", # undocumented-magic-method
-  "D205", # blank-line-after-summary
-  "D202", # no-blank-lines-after-function
-  "D210", # surrounded-whitespace
-  "D400", # first-line-should-end-with-a-period
-  "D401", # non-imperative-mood
-  "D403", # first-line-capitalized
-  "FURB140", # reimplemented-starmap
-  "I001", # unsorted-imports
-  "PYI024", # collections-named-tuple
-  "RUF012", # mutable-class-default
-  "RUF031", # incorrectly-parenthesized-tuple-in-subscript
-  "RUF067", # non-empty-init-module
-  "S101", # assert
-  "S324", # hashlib-insecure-hash-function
-  "S403", # suspicious-pickle-import
-  "TRY003", # raise-vanilla-args
+  "no-explicit-stacklevel", # no-explicit-stacklevel
+  "missing-trailing-comma", # missing-trailing-comma (incompatible with formatter)
+  "undocumented-magic-method", # undocumented-magic-method
+  "missing-blank-line-after-summary", # blank-line-after-summary
+  "blank-line-after-function", # no-blank-lines-after-function
+  "surrounding-whitespace", # surrounded-whitespace
+  "missing-trailing-period", # first-line-should-end-with-a-period
+  "non-imperative-mood", # non-imperative-mood
+  "first-word-uncapitalized", # first-line-capitalized
+  "reimplemented-starmap", # reimplemented-starmap
+  "unsorted-imports", # unsorted-imports
+  "collections-named-tuple", # collections-named-tuple
+  "mutable-class-default", # mutable-class-default
+  "incorrectly-parenthesized-tuple-in-subscript", # incorrectly-parenthesized-tuple-in-subscript
+  "non-empty-init-module", # non-empty-init-module
+  "assert", # assert
+  "hashlib-insecure-hash-function", # hashlib-insecure-hash-function
+  "suspicious-pickle-import", # suspicious-pickle-import
+  "raise-vanilla-args", # raise-vanilla-args
 ]
 
 [tool.ruff.lint.pycodestyle]
@@ -194,25 +194,25 @@ convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = [
-  "F401", # unused-import
+  "unused-import", # unused-import
 ]
 "{tests,evals}/**.py" = [
-  "ARG001", # unused-function-argument
-  "ARG002", # unused-method-argument
-  "D101", # undocumented-public-class
-  "D102", # undocumented-public-method
-  "EM101", # raw-string-in-exception
-  "G004", # logging-f-string
-  "INP001", # implicit-namespace-package
-  "N806", # non-lowercase-variable-in-function
-  "PLC2701", # import-private-name
-  "PLR0914", # too-many-locals
-  "PLR0915", # too-many-statements
-  "PLR2004", # magic-value-comparison
-  "PLR6301", # no-self-use
-  "SLF001", # private-member-access
-  "TRY301", # raise-within-try
-  "W505", # doc-line-too-long
+  "unused-function-argument", # unused-function-argument
+  "unused-method-argument", # unused-method-argument
+  "undocumented-public-class", # undocumented-public-class
+  "undocumented-public-method", # undocumented-public-method
+  "raw-string-in-exception", # raw-string-in-exception
+  "logging-f-string", # logging-f-string
+  "implicit-namespace-package", # implicit-namespace-package
+  "non-lowercase-variable-in-function", # non-lowercase-variable-in-function
+  "import-private-name", # import-private-name
+  "too-many-locals", # too-many-locals
+  "too-many-statements", # too-many-statements
+  "magic-value-comparison", # magic-value-comparison
+  "no-self-use", # no-self-use
+  "private-member-access", # private-member-access
+  "raise-within-try", # raise-within-try
+  "doc-line-too-long", # doc-line-too-long
 ]
 
 [tool.ruff.lint.pylint]

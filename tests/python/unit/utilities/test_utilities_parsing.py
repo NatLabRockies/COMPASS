@@ -190,7 +190,7 @@ def test_convert_paths_to_strings_all_structures():
     """Test `convert_paths_to_strings` across nested containers"""
 
     def rel(value):
-        return os.path.join(".", value)  # noqa PTH118
+        return os.path.join(".", value)  # ruff:ignore[os-path-join] PTH118
 
     input_obj = {
         Path("path_key"): {

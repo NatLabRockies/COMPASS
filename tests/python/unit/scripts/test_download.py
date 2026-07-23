@@ -13,7 +13,7 @@ from compass.utilities.enums import LLMTasks
 async def test_find_jurisdiction_website_returns_base_domain(monkeypatch):
     """Return the canonical root URL for the selected website"""
 
-    async def fake_search_with_fallback(**_kwargs):  # noqa
+    async def fake_search_with_fallback(**_kwargs):  # ruff:ignore[unused-async]
         return [
             "https://prattvilleal.gov/venue/autauga-county-commission/",
             "https://prattvilleal.gov/government/mayor",

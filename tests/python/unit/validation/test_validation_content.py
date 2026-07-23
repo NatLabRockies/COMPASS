@@ -130,7 +130,7 @@ async def test_legal_text_validation_ocr(
     oai_llm_service, test_data_files_dir, text_splitter
 ):
     """Test the `LegalTextValidator` class for scanned doc"""
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     pytesseract.pytesseract.tesseract_cmd = PYT_CMD
 

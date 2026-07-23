@@ -117,7 +117,7 @@ def test_save_run_meta_writes_meta_file(tmp_path, monkeypatch):
     assert meta["technology"] == "wind"
     assert meta["total_time"] == 3723
     assert meta["total_time_string"] == str(end - start)
-    assert meta["cost"] == 12.34  # noqa
+    assert meta["cost"] == 12.34  # ruff:ignore[float-equality-comparison]
 
     manifest = meta["manifest"]
     assert manifest["LOG_DIR"] == "logs"
@@ -311,7 +311,7 @@ def test_save_run_meta_manifest_handles_root_only_shared_component(
 ):
     """Manifest handles paths that share only the filesystem root"""
 
-    roots = [Path("/tmp"), Path("/var/tmp")]  # noqa
+    roots = [Path("/tmp"), Path("/var/tmp")]  # ruff:ignore[hardcoded-temp-file]
     if any(not root.exists() for root in roots):
         pytest.skip("Required temp roots are not available on this system")
 

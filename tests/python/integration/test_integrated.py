@@ -54,7 +54,7 @@ def mock_get_methods(sample_file):
 
         yield MockResponse(content)
 
-    async def patched_get_html(url, *args, **kwargs):  # noqa: RUF029
+    async def patched_get_html(url, *args, **kwargs):  # ruff:ignore[unused-async]
         with sample_file.open(encoding="utf-8") as fh:
             return fh.read()
 
@@ -83,7 +83,7 @@ async def test_openai_query(
     monkeypatch.setattr(retry_module.asyncio, "sleep", fake_sleep)
     monkeypatch.setattr(retry_module.random, "random", lambda: 0.0)
 
-    async def _test_response(*args, **kwargs):  # noqa: RUF029
+    async def _test_response(*args, **kwargs):  # ruff:ignore[unused-async]
         time_elapsed = time.perf_counter() - start_time
         elapsed_times.append(time_elapsed)
         if time_elapsed < time_limit:

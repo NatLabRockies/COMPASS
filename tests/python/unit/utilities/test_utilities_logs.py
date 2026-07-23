@@ -56,10 +56,10 @@ class _DummyListener:
         self.added_handlers = []
         self.removed_handlers = []
 
-    def addHandler(self, handler):  # noqa: N802
+    def addHandler(self, handler):  # ruff:ignore[invalid-function-name]
         self.added_handlers.append(handler)
 
-    def removeHandler(self, handler):  # noqa: N802
+    def removeHandler(self, handler):  # ruff:ignore[invalid-function-name]
         self.removed_handlers.append(handler)
 
 

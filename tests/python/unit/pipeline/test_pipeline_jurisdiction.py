@@ -65,7 +65,7 @@ async def test_run_process_with_logging_reraises_plugin_config_errors(
 ):
     """Plugin configuration errors should propagate out of logging wrapper"""
 
-    async def _raise_config_error(self):  # noqa
+    async def _raise_config_error(self):  # ruff:ignore[unused-async]
         raise COMPASSPluginConfigurationError("bad plugin config")
 
     monkeypatch.setattr(SingleJurisdictionRun, "process", _raise_config_error)
