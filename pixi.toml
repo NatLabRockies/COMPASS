@@ -29,6 +29,7 @@ tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov
 tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=50 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=40 tests/python/integration"
 evals = { cmd = "pytest -rapP -vv -n auto --dist=load -m evals --log-cli-level=INFO evals/test_run_{{ name }}_evals.py", args = ["name"], default-environment = "ptest" }
+codespell = "codespell --toml pyproject.toml compass/extraction"
 
 [feature.python-doc.tasks]
 python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
@@ -149,6 +150,7 @@ ruff-lsp = ">=0.0.62,<0.0.63"
 seaborn = ">=0.13.2,<0.14"
 
 [feature.python-test.dependencies]
+codespell = ">=2.4,<3"
 flaky = ">=3.8.1,<4"
 git-lfs = ">=3.7.1,<4"  # tracks PDFs/TXTs under evals/data/
 pytest = ">=9.0.3,<9.1"
