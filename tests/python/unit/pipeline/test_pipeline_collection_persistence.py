@@ -1,6 +1,7 @@
 """Tests for collection persistence"""
 
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -92,6 +93,68 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         }
     ]
     assert missing_parsed_doc.attrs["parsed_fp"] is None
+
+
+@pytest.mark.asyncio
+async def test_persist_documents_includes_collection_step_metadata(
+    monkeypatch, tmp_path
+):
+    """Persisted collection info should include step count metadata"""
+
+    async def fake_move(doc, out_stem, _subdir):  # ruff:ignore[unused-async]
+        suffix = Path(doc.attrs["source"]).suffix or ".txt"
+        return tmp_path / f"{out_stem}{suffix}"
+
+    async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
+        return tmp_path / f"{out_stem}.txt"
+
+    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(
+        persistence_module.ParsedFileWriter,
+        "call",
+        fake_write_parsed,
+    )
+
+    jurisdiction = SimpleNamespace(
+        full_name="Example Township",
+        county="Example County",
+        state="CO",
+        subdivision_name=None,
+        type="Township",
+        code="12345",
+    )
+    shared_doc = _build_doc("https://example.com/shared.html", ["page one"])
+    search_only_doc = _build_doc(
+        "https://example.com/search-only.html",
+        ["page one", "page two"],
+    )
+    collected_docs = DocumentDeDuplicator()
+    collected_docs.add_docs(
+        [shared_doc, search_only_doc],
+        step_name="crawl",
+        jurisdiction_name=jurisdiction.full_name,
+    )
+    collected_docs.add_docs(
+        [shared_doc],
+        step_name="search",
+        jurisdiction_name=jurisdiction.full_name,
+    )
+
+    collection_info = await persistence_module.persist_documents(
+        jurisdiction,
+        collected_docs,
+        relative_to=tmp_path,
+    )
+
+    assert collection_info["num_docs"] == 2
+    assert collection_info["collection_step_counts"] == {
+        "crawl": 2,
+        "search": 1,
+    }
+    assert [doc["from_steps"] for doc in collection_info["documents"]] == [
+        ["crawl", "search"],
+        ["crawl"],
+    ]
 
 
 def test_load_specific_collection_manifest_shard_returns_none(tmp_path):

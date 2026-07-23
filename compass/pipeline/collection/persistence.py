@@ -3,6 +3,8 @@
 import json
 import asyncio
 from pathlib import Path
+from statistics import median
+from collections import Counter
 from warnings import warn
 from datetime import datetime, UTC
 
@@ -263,6 +265,10 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         tasks.append(task)
 
     documents = await asyncio.gather(*tasks)
+    documents = [doc for doc in documents if doc is not None]
+    collection_step_counts = Counter(
+        step for info in collected_docs.values for step in info["from_steps"]
+    )
     return {
         "full_name": jurisdiction.full_name,
         "county": jurisdiction.county,
@@ -270,7 +276,9 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         "subdivision": jurisdiction.subdivision_name,
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
-        "documents": [doc for doc in documents if doc is not None],
+        "num_docs": len(documents),
+        "collection_step_counts": dict(collection_step_counts),
+        "documents": documents,
     }
 
 
