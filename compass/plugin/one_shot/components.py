@@ -558,7 +558,8 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         ]
         return full_df[["feature", *out_cols, "quantitative"]]
 
-    def _apply_subarea_defaults(self, df):
+    @staticmethod
+    def _apply_subarea_defaults(df):
         """Fill placeholder subarea entries with the 'all' sentinel"""
 
         if "subarea" not in df.columns:
