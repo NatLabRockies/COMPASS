@@ -1,4 +1,4 @@
-"""Pull out websites for jurisdictions using Wikipedia"""  # noqa
+"""Pull out websites for jurisdictions using Wikipedia"""  # ruff:ignore[implicit-namespace-package]
 
 import re
 import sys
@@ -12,7 +12,7 @@ from docling.document_converter import DocumentConverter
 from elm.web.search.dux import DuxDistributedGlobalSearch
 
 from compass.utilities.jurisdictions import jurisdictions_from_df
-from compass.utilities.finalize import _elapsed_time_as_str  # noqa
+from compass.utilities.finalize import _elapsed_time_as_str  # ruff:ignore[import-private-name]
 
 
 def _pull_out_website(markdown):
@@ -36,7 +36,7 @@ async def _run_one_jurisdiction(jurisdiction, sem):
     async with sem:
         try:
             website = await _find_one(jurisdiction)
-        except Exception as e:  # noqa
+        except Exception as e:  # ruff:ignore[blind-except]
             print(
                 f"Error processing {jurisdiction.full_name}: {e}", flush=True
             )

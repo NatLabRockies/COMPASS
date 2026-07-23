@@ -26,7 +26,7 @@ def _date_eval():
     generic results I/O lives in ``utilities.PerJurisdictionResults``.
     """
     try:
-        import test_run_date_extraction_evals as module  # noqa: PLC0415
+        import test_run_date_extraction_evals as module  # ruff:ignore[import-outside-top-level]
     except ImportError:
         return None
     return module

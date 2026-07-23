@@ -19,16 +19,15 @@ for _, per_state in df.groupby(["state_fips"]):
 
     subd = per_state[["state_name", "state_fips", "subd_name", "subd_fips", "geometry"]].dropna()
     for _, site in subd.iterrows():
-        if site.subd_name.endswith('town'):
+        if site.subd_name.endswith("town"):
             rank = "town"
-        elif site.subd_name.endswith('city'):
+        elif site.subd_name.endswith("city"):
             rank = "city"
-        elif site.subd_name.endswith('CCD'):
+        elif site.subd_name.endswith("CCD"):
             rank = "CCD"
-        elif site.subd_name.endswith('Reservation'):
+        elif site.subd_name.endswith("Reservation"):
             rank = "reservation"
         else:
             rank = "other"
             print(site.subd_name)
         db.execute(f"INSERT INTO jurisdiction (bookkeeping_lnk, parent_id, name, FIPS, rank, geometry) values ({bookkeepping_id}, {state_pk}, '{site.subd_name.replace("'", "''''")}', {site.subd_fips}, '{rank}', '{site.geometry}')")
-

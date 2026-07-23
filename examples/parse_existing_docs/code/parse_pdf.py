@@ -1,4 +1,4 @@
-# noqa: INP001
+# ruff:ignore[implicit-namespace-package]
 """Example on parsing an existing PDF file on-disk for ordinances"""
 
 import logging

@@ -39,7 +39,7 @@ from compass.utilities.costs import (
     compute_cost_from_totals,
     compute_total_cost_from_usage,
 )
-from compass.utilities.finalize import _elapsed_time_as_str  # noqa
+from compass.utilities.finalize import _elapsed_time_as_str  # ruff:ignore[import-private-name]
 from compass.utilities.enums import LLMTasks
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
@@ -128,11 +128,11 @@ def _setup_terminal_logging(
 ):
     """Set up terminal logging with COMPASS location tagging"""
     logger_names = [__name__, "compass"]
-    if verbosity_level >= 2:  # noqa: PLR2004
+    if verbosity_level >= 2:  # ruff:ignore[magic-value-comparison]
         logger_names.extend(("elm", "docling"))
-    if verbosity_level >= 3:  # noqa: PLR2004
+    if verbosity_level >= 3:  # ruff:ignore[magic-value-comparison]
         logger_names.append("openai")
-    if verbosity_level >= 4:  # noqa: PLR2004
+    if verbosity_level >= 4:  # ruff:ignore[magic-value-comparison]
         logger_names.extend(
             ("networkx", "pytesseract", "pdf2image", "pdftotext")
         )
@@ -635,7 +635,7 @@ async def _cancel_pending_row_tasks(tasks):
     await asyncio.gather(*pending_tasks, return_exceptions=True)
 
 
-async def _run(args, console):  # noqa
+async def _run(args, console):  # ruff:ignore[too-many-locals]
     """Run the website update workflow"""
 
     start_time = datetime.now(UTC)

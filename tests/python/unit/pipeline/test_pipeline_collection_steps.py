@@ -78,10 +78,10 @@ async def test_elm_website_crawl_uses_ocr_loader(monkeypatch):
     workflow = _build_workflow()
     captured = {}
 
-    async def fake_redirect(url, **kwargs):  # noqa
+    async def fake_redirect(url, **kwargs):  # ruff:ignore[unused-async]
         return url
 
-    async def fake_download(url, **kwargs):  # noqa
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
         captured.update(kwargs)
         return [], []
 
@@ -109,7 +109,7 @@ async def test_compass_website_crawl_uses_ocr_loader(monkeypatch):
     ]
     captured = {}
 
-    async def fake_download(url, **kwargs):  # noqa
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
         captured.update(kwargs)
         return []
 
@@ -136,13 +136,13 @@ async def test_elm_website_crawl_uses_provided_website_without_discovery(
     workflow = _build_workflow(website="https://user-provided.example/path")
     captured = {}
 
-    async def fake_get_base_website(url):  # noqa
+    async def fake_get_base_website(url):  # ruff:ignore[unused-async]
         return "https://user-provided.example"
 
-    async def fail_if_discovery_called(workflow):  # noqa
+    async def fail_if_discovery_called(workflow):  # ruff:ignore[unused-async]
         raise AssertionError("website discovery should not be attempted")
 
-    async def fake_download(url, **kwargs):  # noqa
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
         captured["url"] = url
         return [], []
 
@@ -176,14 +176,14 @@ async def test_elm_website_crawl_attempts_discovery_when_models_present(
     calls = {"discover": 0}
     captured = {}
 
-    async def fake_discover(workflow):  # noqa
+    async def fake_discover(workflow):  # ruff:ignore[unused-async]
         calls["discover"] += 1
         return "https://discovered.example/home"
 
-    async def fake_get_base_website(url):  # noqa
+    async def fake_get_base_website(url):  # ruff:ignore[unused-async]
         return "https://discovered.example"
 
-    async def fake_download(url, **kwargs):  # noqa
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
         captured["url"] = url
         return [], []
 
@@ -214,10 +214,10 @@ async def test_elm_website_crawl_skips_discovery_without_models(monkeypatch):
     """Missing websites should short-circuit when no models are available"""
     workflow = _build_workflow(website=None, models={})
 
-    async def fail_if_discovery_called(workflow):  # noqa
+    async def fail_if_discovery_called(workflow):  # ruff:ignore[unused-async]
         raise AssertionError("website discovery should not be attempted")
 
-    async def fail_if_download_called(url, **kwargs):  # noqa
+    async def fail_if_download_called(url, **kwargs):  # ruff:ignore[unused-async]
         raise AssertionError("website crawl should not be attempted")
 
     monkeypatch.setattr(

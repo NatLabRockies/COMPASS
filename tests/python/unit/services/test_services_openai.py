@@ -58,7 +58,7 @@ def test_usage_from_response(
 async def test_openai_service(sample_openai_response, monkeypatch):
     """Test querying OpenAI while tracking limits and usage"""
 
-    async def _test_response(*args, **kwargs):  # noqa: RUF029
+    async def _test_response(*args, **kwargs):  # ruff:ignore[unused-async]
         if kwargs.get("bad_request"):
             response = httpx.Response(404)
             response.request = httpx.Request(method="test", url="test")

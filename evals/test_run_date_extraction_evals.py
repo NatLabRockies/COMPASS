@@ -97,7 +97,7 @@ def _read_explanation_from_log(log_dir, label):
 
 
 def _setup_pytesseract(exe_fp):
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     pytesseract.pytesseract.tesseract_cmd = exe_fp
 

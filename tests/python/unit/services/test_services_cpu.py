@@ -154,7 +154,7 @@ def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
     assert doc.attrs["low_score_confidence"] is None
 
 
-def test_process_pool_release_resources_graceful_shutdown():  # noqa
+def test_process_pool_release_resources_graceful_shutdown():  # ruff:ignore[complex-structure]
     """Graceful process-pool shutdown should not force worker exit"""
 
     class DummyService(ProcessPoolService):
@@ -220,7 +220,7 @@ def test_process_pool_release_resources_graceful_shutdown():  # noqa
     assert process.kill_calls == 0
 
 
-def test_process_pool_release_resources_forces_stuck_shutdown():  # noqa
+def test_process_pool_release_resources_forces_stuck_shutdown():  # ruff:ignore[complex-structure]
     """Stuck process-pool shutdown should terminate then kill workers"""
 
     class DummyService(ProcessPoolService):

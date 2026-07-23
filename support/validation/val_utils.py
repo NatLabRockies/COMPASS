@@ -143,13 +143,13 @@ def plot_compass_confusion_matrix(
         elif row == 1 and col == 1:
             cell.set_facecolor(true_pos_color)
 
-        elif row == 2 and col == 2:  # noqa: PLR2004
+        elif row == 2 and col == 2:  # ruff:ignore[magic-value-comparison]
             cell.set_facecolor(true_neg_color)
 
-        elif row == 2 and col == 1:  # noqa: PLR2004
+        elif row == 2 and col == 1:  # ruff:ignore[magic-value-comparison]
             cell.set_facecolor(false_pos_color)
 
-        elif row == 1 and col == 2:  # noqa: PLR2004
+        elif row == 1 and col == 2:  # ruff:ignore[magic-value-comparison]
             cell.set_facecolor(false_neg_color)
 
         else:

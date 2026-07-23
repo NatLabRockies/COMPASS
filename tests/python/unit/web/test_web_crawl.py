@@ -473,10 +473,10 @@ async def test_website_link_is_doc_same_domain_non_pdf_returns_false(
     )
     html_doc_calls = 0
 
-    async def fake_is_pdf(_link, _depth, _score):  # noqa
+    async def fake_is_pdf(_link, _depth, _score):  # ruff:ignore[unused-async]
         return False
 
-    async def fake_as_html_doc(_link, _depth, _score):  # noqa
+    async def fake_as_html_doc(_link, _depth, _score):  # ruff:ignore[unused-async]
         nonlocal html_doc_calls
         html_doc_calls += 1
         return True
@@ -501,10 +501,10 @@ async def test_website_link_is_doc_external_collects_html_doc(
         base_domain="https://example.com",
     )
 
-    async def fake_get_text_no_err(_url):  # noqa
+    async def fake_get_text_no_err(_url):  # ruff:ignore[unused-async]
         return "<html>external</html>"
 
-    async def fake_tempfile_call(_doc, _text):  # noqa
+    async def fake_tempfile_call(_doc, _text):  # ruff:ignore[unused-async]
         return None
 
     monkeypatch.setattr(crawler, "_get_text_no_err", fake_get_text_no_err)
@@ -529,12 +529,12 @@ async def test_website_link_is_doc_external_sets_cache_fn(
         href="https://other.com/file",
         base_domain="https://example.com",
     )
-    cache_fn = Path("/tmp/external-cache.html")  # noqa
+    cache_fn = Path("/tmp/external-cache.html")  # ruff:ignore[hardcoded-temp-file]
 
-    async def fake_get_text_no_err(_url):  # noqa
+    async def fake_get_text_no_err(_url):  # ruff:ignore[unused-async]
         return "<html>external</html>"
 
-    async def fake_tempfile_call(_doc, _text):  # noqa
+    async def fake_tempfile_call(_doc, _text):  # ruff:ignore[unused-async]
         return cache_fn
 
     monkeypatch.setattr(crawler, "_get_text_no_err", fake_get_text_no_err)
@@ -632,7 +632,7 @@ async def test_website_link_as_html_doc_adds_document(
         types.MethodType(fake_get_text, crawler),
     )
 
-    async def fake_tempfile_call(_doc, _text):  # noqa
+    async def fake_tempfile_call(_doc, _text):  # ruff:ignore[unused-async]
         return None
 
     monkeypatch.setattr(
