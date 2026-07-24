@@ -141,8 +141,8 @@ def _resolve_out_dir_conflict(out_dir, policy):
     if policy == "increment":
         new_out_dir = _next_versioned_directory(out_dir)
         click.echo(
-            "Output directory exists. "
-            f"Using incremented directory: {new_out_dir!s}"
+            f"Output directory exists. Using incremented directory: "
+            f"{new_out_dir!s}"
         )
         return new_out_dir
 
