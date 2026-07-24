@@ -26,7 +26,7 @@ from compass.services.cpu import (
     read_pdf_file_ocr,
 )
 from compass.services.threaded import HTMLFileLoader, read_html_file
-from compass.pipeline.data_classes import _build_models
+from compass.pipeline.data_classes import build_models
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.logs import (
     LocationFileLog,
@@ -195,7 +195,7 @@ def report(request, results, held_out):
 def _model_config():
     config = load_config(Path(__file__).parent / "config.json5")
     LLM_COST_REGISTRY.update(config.get("llm_costs") or {})
-    return _build_models(config["model"])[LLMTasks.DEFAULT]
+    return build_models(config["model"])[LLMTasks.DEFAULT]
 
 
 @pytest.fixture(scope="session")
