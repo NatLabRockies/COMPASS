@@ -10,7 +10,7 @@ from rich.theme import Theme
 from compass._cli.common import (
     setup_cli_logging,
     CONFIG_OVERRIDE_CONTEXT_SETTINGS,
-    _apply_cli_config_overrides,
+    apply_cli_config_overrides,
 )
 from compass.pipeline import ProcessRequest
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
@@ -80,7 +80,7 @@ def search(ctx, config, n_top_urls, output, output_format, verbose, plugin):
     config_path = config
     config = load_config(config)
     if ctx.args:
-        config = _apply_cli_config_overrides(config, ctx.args)
+        config = apply_cli_config_overrides(config, ctx.args)
 
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(

@@ -8,7 +8,7 @@ from rich.console import Console
 
 from compass._cli.common import (
     CONFIG_OVERRIDE_CONTEXT_SETTINGS,
-    _apply_cli_config_overrides,
+    apply_cli_config_overrides,
 )
 from compass.plugin.registry import PLUGIN_REGISTRY
 from compass.utilities import Directories
@@ -36,7 +36,7 @@ def finalize(ctx, config):
     """Finalize a partially-completed COMPASS run"""
     config = load_config(config)
     if ctx.args:
-        config = _apply_cli_config_overrides(config, ctx.args)
+        config = apply_cli_config_overrides(config, ctx.args)
     tech = config["tech"]  # fail early
 
     dirs = Directories(

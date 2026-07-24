@@ -8,7 +8,7 @@ from click import ClickException
 
 import compass._cli.common as common_module
 from compass._cli.common import (
-    _apply_cli_config_overrides,
+    apply_cli_config_overrides,
     _next_versioned_directory,
     _resolve_out_dir_conflict,
 )
@@ -196,7 +196,7 @@ def test_apply_cli_config_overrides_parses_json5_and_boolean_values():
         "perform_se_search": True,
     }
 
-    result = _apply_cli_config_overrides(
+    result = apply_cli_config_overrides(
         config,
         [
             "--tech",

@@ -66,7 +66,7 @@ def run_async_command(
         interactive. By default, ``None``.
     """
     if override_args:
-        config = _apply_cli_config_overrides(config, override_args)
+        config = apply_cli_config_overrides(config, override_args)
 
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
@@ -239,8 +239,8 @@ def _resolve_prompt_out_dir_conflict(out_dir):
     raise click.ClickException(msg)
 
 
-def _apply_cli_config_overrides(config, extra_args):
-    """Apply top-level CLI overrides onto config"""
+def apply_cli_config_overrides(config, extra_args):
+    """[NOT PUBLIC API] Apply top-level CLI overrides onto config"""
     if not extra_args:
         return config
 
