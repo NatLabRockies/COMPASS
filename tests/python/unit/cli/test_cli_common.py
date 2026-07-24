@@ -8,6 +8,7 @@ from click import ClickException
 
 import compass._cli.common as common_module
 from compass._cli.common import (
+    apply_cli_config_overrides,
     _next_versioned_directory,
     _resolve_out_dir_conflict,
 )
@@ -185,6 +186,40 @@ def test_process_flag_overrides_tty_detection(tmp_path, monkeypatch):
     )
     result = _resolve_out_dir_conflict(out_dir, policy)
     assert result == tmp_path / "outputs_v2"
+
+
+def test_apply_cli_config_overrides_parses_json5_and_boolean_values():
+    """Extra CLI options override config values with parsed types"""
+    config = {
+        "out_dir": "outputs",
+        "tech": "solar",
+        "perform_se_search": True,
+    }
+
+    result = apply_cli_config_overrides(
+        config,
+        [
+            "--tech",
+            "wind",
+            "--perform-se-search",
+            "False",
+            "--max-num-concurrent-browsers=12",
+            "--search-engines=[{se_name: 'GoogleSearch'}]",
+        ],
+    )
+
+    assert result["tech"] == "wind"
+    assert result["perform_se_search"] is False
+    assert result["max_num_concurrent_browsers"] == 12
+    assert result["search_engines"] == [{"se_name": "GoogleSearch"}]
+
+
+def test_apply_cli_config_overrides_rejects_unknown_keys():
+    """Unknown extra CLI options raise a ClickException"""
+    config = {"out_dir": "outputs", "tech": "solar"}
+
+    with pytest.raises(ClickException, match="Unknown config override key"):
+        apply_cli_config_overrides(config, ["--not-a-real-key", "value"])
 
 
 if __name__ == "__main__":
