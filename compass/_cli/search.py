@@ -7,14 +7,20 @@ import click
 from rich.console import Console
 from rich.theme import Theme
 
-from compass._cli.common import setup_cli_logging
+from compass._cli.common import (
+    setup_cli_logging,
+    CONFIG_OVERRIDE_CONTEXT_SETTINGS,
+    _apply_cli_config_overrides,
+)
 from compass.pipeline import ProcessRequest
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.search import run_search, summary, write_search_report
 from compass.utilities.io import load_config
 
 
-@click.command(name="search")
+@click.command(
+    name="search", context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS
+)
 @click.option(
     "--config",
     "-c",
@@ -24,7 +30,9 @@ from compass.utilities.io import load_config
     "search-related keys (``tech``, ``jurisdiction_fp``, "
     "``search_engines``, ``url_ignore_substrings``, ``url_keep_substrings``, "
     "``num_urls_to_check_per_jurisdiction``, "
-    "``max_num_concurrent_browsers``) are read.",
+    "``max_num_concurrent_browsers``) are read. Any top-level "
+    "config may also be passed as an extra CLI option (using the syntax "
+    "`--my_param=new`) to override the config value.",
 )
 @click.option(
     "-n",
@@ -66,10 +74,13 @@ from compass.utilities.io import load_config
     default=None,
     help="One-shot plugin configuration to register before searching",
 )
-def search(config, n_top_urls, output, output_format, verbose, plugin):
+@click.pass_context
+def search(ctx, config, n_top_urls, output, output_format, verbose, plugin):
     """Run only the search step and emit ranked URL results"""
     config_path = config
     config = load_config(config)
+    if ctx.args:
+        config = _apply_cli_config_overrides(config, ctx.args)
 
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(

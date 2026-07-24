@@ -6,6 +6,10 @@ import click
 from rich.theme import Theme
 from rich.console import Console
 
+from compass._cli.common import (
+    CONFIG_OVERRIDE_CONTEXT_SETTINGS,
+    _apply_cli_config_overrides,
+)
 from compass.plugin.registry import PLUGIN_REGISTRY
 from compass.utilities import Directories
 from compass.utilities.io import load_config
@@ -14,7 +18,7 @@ from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
 from compass.pipeline import _build_models
 
 
-@click.command
+@click.command(context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS)
 @click.option(
     "--config",
     "-c",
@@ -22,12 +26,17 @@ from compass.pipeline import _build_models
     type=click.Path(exists=True),
     help="Path to COMPASS run configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":class:`~compass.pipeline.data_classes.ProcessRequest`. "
-    "The output directory that this config points to will be finalized.",
+    ":class:`~compass.pipeline.data_classes.ProcessRequest`. Any top-level "
+    "config may also be passed as an extra CLI option (using the syntax "
+    "`--my_param=new`) to override the config value. The output directory "
+    "that this config points to will be finalized.",
 )
-def finalize(config):
+@click.pass_context
+def finalize(ctx, config):
     """Finalize a partially-completed COMPASS run"""
     config = load_config(config)
+    if ctx.args:
+        config = _apply_cli_config_overrides(config, ctx.args)
     tech = config["tech"]  # fail early
 
     dirs = Directories(
