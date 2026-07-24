@@ -23,10 +23,19 @@ from compass.pipeline.coordinator import run_compass
 
 
 OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
+CONFIG_OVERRIDE_CONTEXT_SETTINGS = {
+    "ignore_unknown_options": True,
+    "allow_extra_args": True,
+}
 
 
 def run_async_command(
-    config, request_class, verbose, no_progress, out_dir_exists=None
+    config,
+    request_class,
+    verbose,
+    no_progress,
+    out_dir_exists=None,
+    override_args=None,
 ):
     """Run a COMPASS async command with shared CLI behavior
 
@@ -56,6 +65,9 @@ def run_async_command(
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
     """
+    if override_args:
+        config = _apply_cli_config_overrides(config, override_args)
+
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
@@ -92,15 +104,6 @@ def run_async_command(
 
     console.print(run_msg)
     COMPASS_PB.console = None
-
-
-def apply_cli_config_overrides(config, extra_args):
-    """[NOT PUBLIC API] Apply top-level CLI overrides onto config"""
-    if not extra_args:
-        return config
-
-    config.update(_parse_cli_config_overrides(extra_args))
-    return config
 
 
 def setup_cli_logging(console, verbosity_level, log_level="INFO"):
@@ -234,6 +237,15 @@ def _resolve_prompt_out_dir_conflict(out_dir):
         "--out_dir_exists increment/overwrite."
     )
     raise click.ClickException(msg)
+
+
+def _apply_cli_config_overrides(config, extra_args):
+    """Apply top-level CLI overrides onto config"""
+    if not extra_args:
+        return config
+
+    config.update(_parse_cli_config_overrides(extra_args))
+    return config
 
 
 def _parse_cli_config_overrides(extra_args):
