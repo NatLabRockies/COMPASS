@@ -153,7 +153,7 @@ def patched_model_configs(monkeypatch):
         return {LLMTasks.DEFAULT: _DummyModelConfig()}
 
     monkeypatch.setattr(
-        data_classes_module, "_build_models", _dummy_build_models
+        data_classes_module, "build_models", _dummy_build_models
     )
 
 
