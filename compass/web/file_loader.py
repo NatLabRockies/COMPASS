@@ -239,6 +239,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         resolved_filename = resolve_remote_filename(
             http_url=AnyHttpUrl(url), response_headers=dict(headers)
         )
+        logger.debug("Docling is starting content read from %r", url)
         doc = await read_docling_web_file(
             raw_content,
             url=resolved_filename,
@@ -251,6 +252,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             logger.info("Docling could not parse content from %s", url)
             return doc, None
 
+        logger.debug("Docling finished parsing %r", url)
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
             doc.FILE_EXTENSION = doc.attrs["doc_type"]
