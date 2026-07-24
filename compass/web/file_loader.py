@@ -306,6 +306,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
 
     async def _fetch_doc(self, source):
         """Load a doc by reading file based on extension"""
+        logger.debug("Docling is starting content read from %s", source)
         doc, raw_content = await read_docling_local_file(
             source,
             pytesseract_exe_fp=self.pytesseract_exe_fp,
@@ -315,6 +316,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             logger.info("Docling could not parse content from %s", source)
             return doc, None
 
+        logger.debug("Docling finished parsing %s", source)
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
             doc.FILE_EXTENSION = doc.attrs["doc_type"]
