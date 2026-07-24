@@ -249,15 +249,20 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             http_url=AnyHttpUrl(url), response_headers=dict(headers)
         )
         logger.debug("Docling is starting content read from %r", url)
-        doc = await read_docling_web_file(
-            raw_content,
-            url=resolved_filename,
-            source_uri=url,
-            headers=dict(headers),
-            pytesseract_exe_fp=self.pytesseract_exe_fp,
-            pdf_pipeline_options=self.pdf_pipeline_options,
-            **self.to_md_kwargs,
-        )
+        try:
+            doc = await read_docling_web_file(
+                raw_content,
+                url=resolved_filename,
+                source_uri=url,
+                headers=dict(headers),
+                pytesseract_exe_fp=self.pytesseract_exe_fp,
+                pdf_pipeline_options=self.pdf_pipeline_options,
+                **self.to_md_kwargs,
+            )
+        except TimeoutError:
+            logger.info("Docling parsing timed out for %r", url)
+            return MDDocument(pages=[]), None
+
         if doc.empty:
             logger.info("Docling could not parse content from %s", url)
             return doc, None
@@ -326,12 +331,17 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
     async def _fetch_doc(self, source):
         """Load a doc by reading file based on extension"""
         logger.debug("Docling is starting content read from %s", source)
-        doc, raw_content = await read_docling_local_file(
-            source,
-            pytesseract_exe_fp=self.pytesseract_exe_fp,
-            pdf_pipeline_options=self.pdf_pipeline_options,
-            **self.to_md_kwargs,
-        )
+        try:
+            doc, raw_content = await read_docling_local_file(
+                source,
+                pytesseract_exe_fp=self.pytesseract_exe_fp,
+                pdf_pipeline_options=self.pdf_pipeline_options,
+                **self.to_md_kwargs,
+            )
+        except TimeoutError:
+            logger.info("Docling parsing timed out for %s", source)
+            return MDDocument(pages=[]), None
+
         if doc.empty:
             logger.info("Docling could not parse content from %s", source)
             return doc, None
