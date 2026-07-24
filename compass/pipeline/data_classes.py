@@ -675,7 +675,7 @@ class BaseRequest:
         """dict: Mapping of LLM task to OpenAIConfig for this request"""
         if not self.user_model_input:
             return {}
-        return _build_models(self.user_model_input)
+        return build_models(self.user_model_input)
 
 
 class ProcessRequest(BaseRequest):
@@ -1255,8 +1255,8 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def _build_models(user_input, *, allow_empty=False):
-    """Build configured model registry"""
+def build_models(user_input, *, allow_empty=False):
+    """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
 

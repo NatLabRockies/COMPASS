@@ -15,7 +15,7 @@ from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
-from compass.pipeline import _build_models
+from compass.pipeline import build_models
 
 
 @click.command(context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS)
@@ -67,7 +67,7 @@ def finalize(ctx, config):
     console = Console(theme=custom_theme)
     console.print(f"Finalizing COMPASS run in {dirs.out!s}...")
 
-    models = _build_models(config.get("model", "gpt-4o-mini"))
+    models = build_models(config.get("model", "gpt-4o-mini"))
     start_datetime = datetime.fromtimestamp(dirs.out.stat().st_ctime)
     end_datetime = datetime.fromtimestamp(jurisdictions_fp.stat().st_mtime)
 
