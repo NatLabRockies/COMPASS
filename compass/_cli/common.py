@@ -10,6 +10,7 @@ import multiprocessing
 from pathlib import Path
 
 import click
+import pyjson5
 from rich.console import Console
 from rich.live import Live
 from rich.logging import RichHandler
@@ -17,6 +18,7 @@ from rich.theme import Theme
 
 from compass.pb import COMPASS_PB
 from compass.utilities.logs import AddLocationFilter
+from compass.utilities.io import JSON5Handler
 from compass.pipeline.coordinator import run_compass
 
 
@@ -90,6 +92,15 @@ def run_async_command(
 
     console.print(run_msg)
     COMPASS_PB.console = None
+
+
+def apply_cli_config_overrides(config, extra_args):
+    """[NOT PUBLIC API] Apply top-level CLI overrides onto config"""
+    if not extra_args:
+        return config
+
+    config.update(_parse_cli_config_overrides(extra_args))
+    return config
 
 
 def setup_cli_logging(console, verbosity_level, log_level="INFO"):
@@ -223,3 +234,59 @@ def _resolve_prompt_out_dir_conflict(out_dir):
         "--out_dir_exists increment/overwrite."
     )
     raise click.ClickException(msg)
+
+
+def _parse_cli_config_overrides(extra_args):
+    """Parse free-form CLI options into config overrides"""
+    overrides = {}
+    idx = 0
+    while idx < len(extra_args):
+        arg = extra_args[idx]
+        if not arg.startswith("--"):
+            msg = f"Unexpected extra CLI argument: {arg!r}"
+            raise click.ClickException(msg)
+
+        key_text, has_inline_value, inline_value = arg[2:].partition("=")
+        if not key_text:
+            msg = "Invalid empty override option '--'"
+            raise click.ClickException(msg)
+
+        key_name = key_text.replace("-", "_")
+        if has_inline_value:
+            value = _parse_cli_override_value(inline_value)
+        elif value := _arg_value(extra_args, idx):
+            idx += 1
+            value = _parse_cli_override_value(value)
+        else:
+            msg = f"Override '{arg}' requires a value."
+            raise click.ClickException(msg)
+
+        overrides[key_name] = value
+        idx += 1
+
+    return overrides
+
+
+def _arg_value(extra_args, arg_idx):
+    """Get the value for a CLI option argument, if present"""
+    if arg_idx + 1 >= len(extra_args):
+        return None
+
+    arg_value = extra_args[arg_idx + 1]
+    return None if arg_value.startswith("--") else arg_value
+
+
+def _parse_cli_override_value(raw_value):
+    """Parse a CLI override value using JSON5 when possible"""
+    lowered = raw_value.lower()
+    if lowered == "true":
+        return True
+    if lowered == "false":
+        return False
+    if lowered == "null":
+        return None
+
+    try:
+        return JSON5Handler.loads(raw_value)
+    except pyjson5.Json5DecoderException:
+        return raw_value
