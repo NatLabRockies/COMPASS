@@ -251,7 +251,9 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     )
 
 
-async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
+async def read_docling_web_file(
+    doc_bytes, url, source_uri=None, pdf_pipeline_options=None, **kwargs
+):
     """Read a web file using Docling in a Process Pool
 
     Parameters
@@ -264,6 +266,10 @@ async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
         Original remote URL for the file. If specified, this is used
         as the HTML base URI while ``url`` is still used as the stream
         name for Docling format inference. By default, ``None``.
+    pdf_pipeline_options : dict, optional
+        Dictionary of keyword-value arguments to pass to
+        :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
+        initializer. By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
         :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
@@ -279,6 +285,7 @@ async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
         doc_bytes,
         file_source=url,
         source_uri=source_uri,
+        pdf_pipeline_options=pdf_pipeline_options,
         **kwargs,
     )
 
@@ -357,6 +364,7 @@ def _read_docling_catch_error(
     headers=None,
     pytesseract_exe_fp=None,
     source_uri=None,
+    pdf_pipeline_options=None,
     **kwargs,
 ):
     """Utility to return empty docs on Docling conversion errors"""
@@ -367,6 +375,7 @@ def _read_docling_catch_error(
             headers=headers,
             pytesseract_exe_fp=pytesseract_exe_fp,
             source_uri=source_uri,
+            pdf_pipeline_options=pdf_pipeline_options,
             **kwargs,
         )
     except ConversionError:
@@ -379,6 +388,7 @@ def _read_docling(
     headers=None,
     pytesseract_exe_fp=None,
     source_uri=None,
+    pdf_pipeline_options=None,
     **kwargs,
 ):
     """Utility func to read documents using Docling"""
@@ -388,7 +398,7 @@ def _read_docling(
     if headers is not None:
         headers = dict(headers)
 
-    pipeline_options = PdfPipelineOptions()
+    pipeline_options = PdfPipelineOptions(**(pdf_pipeline_options or {}))
     pipeline_options.do_table_structure = True
     pipeline_options.table_structure_options = TableStructureOptions(
         do_cell_matching=True
