@@ -440,6 +440,7 @@ def _read_docling(
         "doc_filename": conv_result.input.file.stem,
         "doc_type": conv_result.input.format.value,
         "conversion_time_seconds": conversion_time_seconds,
+        "conversion_status": conv_result.status.value,
         "num_pages": len(conv_result.pages),
         "from_ocr": any(
             ~np.isnan(c.ocr_score)
