@@ -45,7 +45,7 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
         return _doc(source)
 
     async def _fetch_html_docs(docs):  # ruff:ignore[unused-async]
-        return []
+        return docs
 
     monkeypatch.setattr(loader, "fetch", _fetch)
     monkeypatch.setattr(
