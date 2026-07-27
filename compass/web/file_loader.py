@@ -178,10 +178,16 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             fetcher. This can be useful if Docling fails to parse a
             document, but ELM's fetcher can still retrieve it. To make
             sure this functions properly, be sure to specify
-            ``pdf_read_kwargs``, ``pdf_read_coroutine``, and
-            ``pdf_ocr_read_coroutine`` in the ``extra`` kwargs as you
-            would for the elm-based
+            ``pdf_read_kwargs`` and ``pdf_read_coroutine``, in the
+            ``extra`` kwargs as you would for the elm-based
             :class:`~elm.web.file_loader.AsyncWebFileLoader`.
+
+            .. NOTE::
+
+                This is meant to be a _fast_ fallback option for the
+                longer Docling parse, so OCR PDF parsing is completely
+                disabled for the ELM fallback.
+
             By default, ``False``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
@@ -213,7 +219,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 html_read_kwargs=html_read_kwargs,
                 pdf_read_coroutine=extra.get("pdf_read_coroutine"),
                 html_read_coroutine=html_read_coroutine,
-                pdf_ocr_read_coroutine=extra.get("pdf_ocr_read_coroutine"),
+                pdf_ocr_read_coroutine=None,
                 file_cache_coroutine=file_cache_coroutine,
                 browser_semaphore=browser_semaphore,
                 use_scrapling_stealth=use_scrapling_stealth,
