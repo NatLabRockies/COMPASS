@@ -335,7 +335,7 @@
       "Set subarea='other' when the ordinance names a specific district that does not match any enumerated category (for example PUD, aviation overlay, conservation-2).",
       "Do not invent subareas from section headings, chapter titles, or nearby context that does not explicitly bind the requirement to that district.",
       "When the same feature has different requirements in different districts, emit one row per district; do not merge them into a single row.",
-      "For the 'zone use restriction' feature, scope must be a specific district (never 'all'); emit one row per explicitly restricted district.",
+      "For the 'zone use restriction' feature, subarea must be a specific district (never 'all'); emit one row per explicitly restricted district.",
     ],
   },
   "$qualitative_features": [
