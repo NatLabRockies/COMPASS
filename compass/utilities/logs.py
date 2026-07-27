@@ -28,8 +28,7 @@ class _LQ:
     """Logging queue descriptor"""
 
     def __get__(self, __, lq_class=None):
-        lq_class.QUEUE = multiprocessing.get_context().Queue()
-        # lq_class.QUEUE = multiprocessing.get_context("spawn").Queue()
+        lq_class.QUEUE = multiprocessing.get_context("spawn").Queue()
         return lq_class.QUEUE
 
 

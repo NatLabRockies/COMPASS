@@ -67,7 +67,7 @@ class ProcessPoolService(Service):
         """Open thread pool and temp directory"""
         os.environ.setdefault("OMP_NUM_THREADS", "1")
         ppe_kwargs = dict(self._ppe_kwargs)
-        # ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
+        ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
         user_initializer = ppe_kwargs.pop("initializer", None)
         initargs = tuple(ppe_kwargs.pop("initargs", ()))
         ppe_kwargs["initializer"] = _configure_subprocess_logging
