@@ -68,10 +68,7 @@ class ProcessPoolService(Service):
         os.environ.setdefault("OMP_NUM_THREADS", "1")
         ppe_kwargs = dict(self._ppe_kwargs)
         ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
-        user_initializer = ppe_kwargs.pop("initializer", None)
-        initargs = tuple(ppe_kwargs.pop("initargs", ()))
-        ppe_kwargs["initializer"] = _configure_subprocess_logging
-        ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
+        ppe_kwargs = self._set_ppe_initializer(ppe_kwargs)
         logger.debug(
             "  - Setting up ProcessPoolExecutor with kwargs:\n%s",
             pprint.PrettyPrinter().pformat(ppe_kwargs),
@@ -86,6 +83,14 @@ class ProcessPoolService(Service):
         ppe_kwargs.setdefault(
             "mp_context", multiprocessing.get_context("spawn")
         )
+        return ppe_kwargs
+
+    def _set_ppe_initializer(self, ppe_kwargs):  # ruff:ignore[no-self-use]
+        """Set initializer to configure subprocess logging"""
+        user_initializer = ppe_kwargs.pop("initializer", None)
+        initargs = tuple(ppe_kwargs.pop("initargs", ()))
+        ppe_kwargs["initializer"] = _configure_subprocess_logging
+        ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
         return ppe_kwargs
 
     def release_resources(self):
