@@ -63,16 +63,21 @@ async def test_logging_within_service(tmp_path):
         with LocationFileLog(ll, tmp_path, location="test_loc", level="DEBUG"):
             msg = await ProcessLogging.call()
             for _ in range(30):
-                if captured_records:
+                messages = {record.message for record in captured_records}
+                if "[compass] HELLO WORLD" in messages:
                     break
                 await asyncio.sleep(0.1)
         ll.removeHandler(capture_handler)
 
     assert msg == "HELLO WORLD"
-    assert any(record.message == "HELLO WORLD" for record in captured_records)
+    assert any(
+        record.message == "[compass] HELLO WORLD"
+        for record in captured_records
+    ), {record.message for record in captured_records}
     assert not any(
-        record.message == "A DEBUG LOG" for record in captured_records
-    )
+        record.message == "[compass] A DEBUG LOG"
+        for record in captured_records
+    ), {record.message for record in captured_records}
 
 
 @pytest.mark.asyncio
@@ -105,18 +110,24 @@ async def test_process_streams_are_forwarded_to_logs(capfd):
         ll.addHandler(capture_handler)
         msg = await ProcessStreamLogging.call()
         for _ in range(30):
-            if len(captured_records) >= 2:
+            messages = {record.message for record in captured_records}
+            if {
+                "[compass.subprocess.stdout] PROCESS STDOUT",
+                "[compass.subprocess.stderr] PROCESS STDERR",
+            } <= messages:
                 break
             await asyncio.sleep(0.1)
         ll.removeHandler(capture_handler)
 
     assert msg == "STREAMED"
     assert any(
-        record.message == "PROCESS STDOUT" for record in captured_records
-    )
+        record.message == "[compass.subprocess.stdout] PROCESS STDOUT"
+        for record in captured_records
+    ), {record.message for record in captured_records}
     assert any(
-        record.message == "PROCESS STDERR" for record in captured_records
-    )
+        record.message == "[compass.subprocess.stderr] PROCESS STDERR"
+        for record in captured_records
+    ), {record.message for record in captured_records}
 
 
 def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
@@ -139,8 +150,10 @@ def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
                 ),
                 pages=["page 1"],
                 document=SimpleNamespace(
+                    # ruff:ignore[unused-lambda-argument]
                     export_to_markdown=lambda **kwargs: "markdown body"
                 ),
+                status=SimpleNamespace(value="success"),
             )
 
     monkeypatch.setattr(
