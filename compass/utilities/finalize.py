@@ -16,31 +16,6 @@ from compass.utilities.parsing import (
 
 
 logger = logging.getLogger(__name__)
-_PARSED_COLS = [
-    # TODO: Put these in an enum
-    "county",
-    "state",
-    "subdivision",
-    "jurisdiction_type",
-    "FIPS",
-    "feature",
-    "subarea",
-    "value",
-    "units",
-    "adder",
-    "min_dist",
-    "max_dist",
-    "summary",
-    "year",
-    "section",
-    "source",
-    "quantitative",
-]
-QUANT_OUT_COLS = _PARSED_COLS[:-1]
-"""Output columns in quantitative ordinance file"""
-QUAL_OUT_COLS = _PARSED_COLS[:7] + _PARSED_COLS[-5:-1]
-"""Output columns in qualitative ordinance file"""
-
 
 def save_run_meta(
     dirs,
