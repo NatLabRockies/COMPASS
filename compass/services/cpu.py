@@ -4,6 +4,7 @@ import ast
 import os
 import sys
 import time
+import pprint
 import asyncio
 import logging
 import warnings
@@ -71,6 +72,10 @@ class ProcessPoolService(Service):
         initargs = tuple(ppe_kwargs.pop("initargs", ()))
         ppe_kwargs["initializer"] = _configure_subprocess_logging
         ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
+        logger.debug(
+            "  - Setting up ProcessPoolExecutor with kwargs:\n%s",
+            pprint.PrettyPrinter().pformat(ppe_kwargs),
+        )
         self.pool = ProcessPoolExecutor(**ppe_kwargs)
 
     def _set_tasks_per_child(self, ppe_kwargs):
@@ -552,6 +557,7 @@ def _configure_subprocess_logging(logging_queue, user_initializer, initargs):
     """Route subprocess output through the main process log queue"""
     queue_handler = QueueHandler(logging_queue)
     queue_handler.addFilter(AddLocationFilter())
+    queue_handler.setFormatter(logging.Formatter("[%(name)s] %(message)s"))
 
     root_logger = logging.getLogger()
     root_logger.handlers = []
@@ -571,6 +577,7 @@ def _configure_subprocess_logging(logging_queue, user_initializer, initargs):
     sys.stdout = _LogStream(stdout_logger, logging.INFO)
     sys.stderr = _LogStream(stderr_logger, logging.WARNING)
 
+    logging.getLogger("compass").info("Subprocess logging initialized")
     if user_initializer is not None:
         user_initializer(*initargs)
 
