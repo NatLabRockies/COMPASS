@@ -492,7 +492,8 @@ def _pytesseract_cleanup_win(temp_name):
     patches cleanup to suppress all OSErrors so the OCR result is not
     lost.
     """
-    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):  # ruff:ignore[glob]
+    # ruff:ignore[glob]
+    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):
         with contextlib.suppress(OSError):
             os.remove(filename)  # ruff:ignore[os-remove]
 
@@ -507,7 +508,8 @@ def _try_decode_ocr_pages(pages):
     decoded_pages = []
     for page in pages:
         with contextlib.suppress(Exception):
-            page = ast.literal_eval(page).decode("utf-8")  # ruff:ignore[redefined-loop-name]
+            # ruff:ignore[redefined-loop-name]
+            page = ast.literal_eval(page).decode("utf-8")
         decoded_pages.append(page)
     return decoded_pages
 
