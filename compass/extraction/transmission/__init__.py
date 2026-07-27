@@ -1,4 +1,4 @@
-"""COMPASS transmission extraction plugin"""
+"""COMPASS high-voltage transmission extraction plugin"""
 
 import importlib.resources
 
