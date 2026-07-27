@@ -242,8 +242,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         """
         docs = await self._fetch_docs_with_docling(sources)
         docs += await self._fetch_html_docs_again_using_playwright(docs)
-        docs += await self._maybe_fetch_failed_docs_with_elm(docs, sources)
-        return docs
+        return await self._maybe_fetch_failed_docs_with_elm(docs, sources)
 
     async def _fetch_docs_with_docling(self, sources):
         """Fetch docs using Docling"""
@@ -286,22 +285,45 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     async def _maybe_fetch_failed_docs_with_elm(self, docs, sources):
         """Fetch docs that failed to load with ELM (if enabled)"""
         if self.failed_fetcher is None:
-            return []
+            return docs
 
-        failed_searches = [
-            source
-            for source in sources
-            if not any(doc.attrs["source"] == source for doc in docs)
-        ]
+        out_docs = []
+        partial_fail_docs = {}
+        failed_searches = []
+        for source in sources:
+            source_docs = [
+                doc for doc in docs if doc.attrs["source"] == source
+            ]
+            if not source_docs:
+                failed_searches.append(source)
+                continue
+
+            if len(source_docs) > 1:
+                out_docs.extend(source_docs)
+                continue
+
+            doc = source_docs[0]
+            if doc.attrs.get("conversion_status") != "success":
+                failed_searches.append(source)
+                partial_fail_docs[source] = doc
+            else:
+                out_docs.append(doc)
+
         if not failed_searches:
-            return []
+            return out_docs
 
         logger.debug(
             "Re-fetching %d failed source(s) with ELM:\n%r",
             len(failed_searches),
             failed_searches,
         )
-        return await self.failed_fetcher.fetch_all(*failed_searches)
+        elm_docs = await self.failed_fetcher.fetch_all(*failed_searches)
+        for doc in elm_docs:
+            if doc.empty or "cache_fn" not in doc.attrs:
+                out_docs.append(partial_fail_docs[doc.attrs["source"]])
+            else:
+                out_docs.append(doc)
+        return out_docs
 
     async def _fetch_doc(self, url):
         """Fetch a doc using Docling"""
