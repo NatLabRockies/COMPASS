@@ -240,7 +240,9 @@ class PipelineRuntime:
             )
 
         if self.search_params.pytesseract_exe_fp is not None:
-            services.append(OCRPDFLoader(max_workers=1))
+            kwargs = deepcopy(runtime_settings.ppe_kwargs)
+            kwargs["max_workers"] = 1
+            services.append(OCRPDFLoader(**kwargs))
         return services
 
     @cached_property
