@@ -222,18 +222,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 ),
             )
 
-        to_re_fetch = [
-            doc.attrs["source"]
-            for doc in docs
-            if doc.attrs["doc_type"].casefold() == "html"
-        ]
-        if to_re_fetch:
-            logger.debug(
-                "Loading HTML with Playwright for %d source(s):\n%r",
-                len(to_re_fetch),
-                to_re_fetch,
-            )
-            docs += await self.html_loader.fetch_all(*to_re_fetch)
+        docs += self._fetch_playwright_html(docs)
         return docs
 
     async def _fetch_doc(self, url):
@@ -274,6 +263,23 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             return doc, raw_content
 
         return doc, doc.text
+
+    async def _fetch_playwright_html(self, docs):
+        """Fetch HTML docs using Playwright"""
+        to_re_fetch = [
+            doc.attrs["source"]
+            for doc in docs
+            if doc.attrs["doc_type"].casefold() == "html"
+        ]
+        if not to_re_fetch:
+            return []
+
+        logger.debug(
+            "Loading HTML with Playwright for %d source(s):\n%r",
+            len(to_re_fetch),
+            to_re_fetch,
+        )
+        return await self.html_loader.fetch_all(*to_re_fetch)
 
 
 class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
