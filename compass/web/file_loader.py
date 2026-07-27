@@ -239,45 +239,6 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         docs += await self._maybe_fetch_failed_docs_with_elm(docs, sources)
         return docs
 
-    async def _fetch_doc(self, url):
-        """Fetch a doc using Docling"""
-
-        out = await self.content_fetcher.fetch(url)
-        if out is None:
-            return MDDocument(pages=[]), None
-
-        logger.debug("Got content from %r", url)
-        raw_content, __, __, headers = out
-        resolved_filename = resolve_remote_filename(
-            http_url=AnyHttpUrl(url), response_headers=dict(headers)
-        )
-        logger.debug("Docling is starting content read from %r", url)
-        try:
-            doc = await read_docling_web_file(
-                raw_content,
-                url=resolved_filename,
-                source_uri=url,
-                headers=dict(headers),
-                pytesseract_exe_fp=self.pytesseract_exe_fp,
-                pdf_pipeline_options=self.pdf_pipeline_options,
-                **self.to_md_kwargs,
-            )
-        except TimeoutError:
-            logger.info("Docling parsing timed out for %r", url)
-            return MDDocument(pages=[]), None
-
-        if doc.empty:
-            logger.info("Docling could not parse content from %s", url)
-            return doc, None
-
-        logger.debug("Docling finished parsing %r", url)
-        if doc.attrs["doc_type"].casefold() != "html":
-            doc.WRITE_KWARGS = {"mode": "wb"}
-            doc.FILE_EXTENSION = doc.attrs["doc_type"]
-            return doc, raw_content
-
-        return doc, doc.text
-
     async def _fetch_docs_with_docling(self, sources):
         """Fetch docs using Docling"""
         outer_task_name = asyncio.current_task().get_name()
@@ -335,6 +296,45 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             failed_searches,
         )
         return await self.failed_fetcher.fetch_all(*failed_searches)
+
+    async def _fetch_doc(self, url):
+        """Fetch a doc using Docling"""
+
+        out = await self.content_fetcher.fetch(url)
+        if out is None:
+            return MDDocument(pages=[]), None
+
+        logger.debug("Got content from %r", url)
+        raw_content, __, __, headers = out
+        resolved_filename = resolve_remote_filename(
+            http_url=AnyHttpUrl(url), response_headers=dict(headers)
+        )
+        logger.debug("Docling is starting content read from %r", url)
+        try:
+            doc = await read_docling_web_file(
+                raw_content,
+                url=resolved_filename,
+                source_uri=url,
+                headers=dict(headers),
+                pytesseract_exe_fp=self.pytesseract_exe_fp,
+                pdf_pipeline_options=self.pdf_pipeline_options,
+                **self.to_md_kwargs,
+            )
+        except TimeoutError:
+            logger.info("Docling parsing timed out for %r", url)
+            return MDDocument(pages=[]), None
+
+        if doc.empty:
+            logger.info("Docling could not parse content from %s", url)
+            return doc, None
+
+        logger.debug("Docling finished parsing %r", url)
+        if doc.attrs["doc_type"].casefold() != "html":
+            doc.WRITE_KWARGS = {"mode": "wb"}
+            doc.FILE_EXTENSION = doc.attrs["doc_type"]
+            return doc, raw_content
+
+        return doc, doc.text
 
 
 class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
