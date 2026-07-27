@@ -328,7 +328,15 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             logger.info("Docling could not parse content from %s", url)
             return doc, None
 
-        logger.debug("Docling finished parsing %r", url)
+        logger.debug(
+            "Docling finished parsing %r:\n\t- Status: %r\n\t- "
+            "Conversion time (s): %.2f\n\t- Num pages: %r\n\t- From OCR: %r",
+            url,
+            doc.attrs.get("conversion_status", "unknown"),
+            doc.attrs.get("conversion_time_seconds", "unknown"),
+            doc.attrs.get("num_pages", "unknown"),
+            doc.attrs.get("from_ocr", "unknown"),
+        )
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
             doc.FILE_EXTENSION = doc.attrs["doc_type"]
@@ -407,7 +415,15 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             logger.info("Docling could not parse content from %s", source)
             return doc, None
 
-        logger.debug("Docling finished parsing %s", source)
+        logger.debug(
+            "Docling finished parsing %s:\n\t- Status: %r\n\t- "
+            "Conversion time (s): %.2f\n\t- Num pages: %r\n\t- From OCR: %r",
+            source,
+            doc.attrs.get("conversion_status", "unknown"),
+            doc.attrs.get("conversion_time_seconds", "unknown"),
+            doc.attrs.get("num_pages", "unknown"),
+            doc.attrs.get("from_ocr", "unknown"),
+        )
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
             doc.FILE_EXTENSION = doc.attrs["doc_type"]
