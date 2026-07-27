@@ -86,7 +86,8 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
 class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     """Async web file loader using Docling"""
 
-    def __init__(  # ruff:ignore[too-many-arguments, too-many-positional-arguments]
+    # ruff:ignore[too-many-arguments, too-many-positional-arguments]
+    def __init__(
         self,
         header_template=None,
         verify_ssl=True,
