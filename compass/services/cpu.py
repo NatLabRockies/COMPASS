@@ -2,7 +2,6 @@
 
 import ast
 import os
-import sys
 import time
 import pprint
 import asyncio
@@ -16,7 +15,6 @@ from io import BytesIO
 from pathlib import Path
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
-from logging.handlers import QueueHandler
 
 import numpy as np
 import pandas as pd
@@ -37,7 +35,7 @@ from docling.datamodel.pipeline_options import (
 from docling.exceptions import ConversionError
 
 from compass.services.base import Service
-from compass.utilities.logs import AddLocationFilter, LQ
+from compass.utilities.logs import configure_subprocess_logging, LQ
 
 
 logger = logging.getLogger(__name__)
@@ -89,7 +87,7 @@ class ProcessPoolService(Service):
         """Set initializer to configure subprocess logging"""
         user_initializer = ppe_kwargs.pop("initializer", None)
         initargs = tuple(ppe_kwargs.pop("initargs", ()))
-        ppe_kwargs["initializer"] = _configure_subprocess_logging
+        ppe_kwargs["initializer"] = configure_subprocess_logging
         ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
         return ppe_kwargs
 
@@ -558,73 +556,3 @@ def _force_shutdown_processes(processes, timeout=1):
 def _is_process_alive(process):
     """bool: Check whether a worker process is still alive"""
     return process is not None and process.is_alive()
-
-
-def _configure_subprocess_logging(logging_queue, user_initializer, initargs):
-    """Route subprocess output through the main process log queue"""
-    queue_handler = QueueHandler(logging_queue)
-    queue_handler.addFilter(AddLocationFilter())
-    queue_handler.setFormatter(logging.Formatter("[%(name)s] %(message)s"))
-
-    root_logger = logging.getLogger()
-    root_logger.handlers = []
-    root_logger.addHandler(queue_handler)  # root emits to queue handler
-    root_logger.setLevel(logging.INFO)
-
-    for lib in ("compass", "elm", "docling", "openai"):
-        lib_logger = logging.getLogger(lib)
-        lib_logger.handlers = []  # no handlers within subprocess
-        lib_logger.propagate = True  # instead, propogate to root logger
-        lib_logger.setLevel(logging.INFO)
-
-    stdout_logger = logging.getLogger("compass.subprocess.stdout")
-    stderr_logger = logging.getLogger("compass.subprocess.stderr")
-    stdout_logger.setLevel(logging.INFO)
-    stderr_logger.setLevel(logging.WARNING)
-    sys.stdout = _LogStream(stdout_logger, logging.INFO)
-    sys.stderr = _LogStream(stderr_logger, logging.WARNING)
-
-    logging.getLogger("compass").info("Subprocess logging initialized")
-    if user_initializer is not None:
-        user_initializer(*initargs)
-
-
-class _LogStream:
-    """File-like object that forwards writes into a logger"""
-
-    def __init__(self, logger, level):
-        """
-
-        Parameters
-        ----------
-        logger : logging.Logger
-            Logger to emit redirected stream output to.
-        level : int
-            Logging level used for forwarded messages.
-        """
-        self.logger = logger
-        self.level = level
-        self._buffer = ""
-        self.encoding = "utf-8"
-
-    def write(self, message):
-        """Forward complete lines to the configured logger"""
-        if not message:
-            return 0
-
-        self._buffer += message
-        while "\n" in self._buffer:
-            line, self._buffer = self._buffer.split("\n", 1)
-            if line:
-                self.logger.log(self.level, line)
-        return len(message)
-
-    def flush(self):
-        """Flush any partial line buffered from the stream"""
-        if self._buffer:
-            self.logger.log(self.level, self._buffer)
-            self._buffer = ""
-
-    def isatty(self):  # ruff:ignore[no-self-use]
-        """bool: Redirected subprocess streams are never TTYs"""
-        return False

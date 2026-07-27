@@ -5,6 +5,7 @@ https://www.zopatista.com/python/2019/05/11/asyncio-logging/
 """
 
 import os
+import sys
 import time
 import json
 import copy
@@ -166,6 +167,47 @@ class _LocalProcessQueueHandler(QueueHandler):
             raise
         except Exception:  # ruff:ignore[blind-except]
             self.handleError(record)
+
+
+class _LogStream:
+    """File-like object that forwards writes into a logger"""
+
+    def __init__(self, logger, level):
+        """
+
+        Parameters
+        ----------
+        logger : logging.Logger
+            Logger to emit redirected stream output to.
+        level : int
+            Logging level used for forwarded messages.
+        """
+        self.logger = logger
+        self.level = level
+        self._buffer = ""
+        self.encoding = "utf-8"
+
+    def write(self, message):
+        """Forward complete lines to the configured logger"""
+        if not message:
+            return 0
+
+        self._buffer += message
+        while "\n" in self._buffer:
+            line, self._buffer = self._buffer.split("\n", 1)
+            if line:
+                self.logger.log(self.level, line)
+        return len(message)
+
+    def flush(self):
+        """Flush any partial line buffered from the stream"""
+        if self._buffer:
+            self.logger.log(self.level, self._buffer)
+            self._buffer = ""
+
+    def isatty(self):  # ruff:ignore[no-self-use]
+        """bool: Redirected subprocess streams are never TTYs"""
+        return False
 
 
 class LogListener:
@@ -405,7 +447,8 @@ class LocationFileLog:
 class ExceptionOnlyFilter(logging.Filter):
     """Filter to only pass through Exception logging (errors)"""
 
-    def filter(self, record):  # ruff:ignore[undocumented-public-method, no-self-use]
+    # ruff:ignore[undocumented-public-method, no-self-use]
+    def filter(self, record):
         return bool(record.exc_info or getattr(record, "exc_type", None))
 
 
@@ -416,7 +459,8 @@ class _JsonFormatter(logging.Formatter):
         exc_info, exc_text = _extract_exc_info_from_record(record)
 
         message = record.getMessage()
-        if message and len(message) > 103:  # ruff:ignore[magic-value-comparison]
+        # ruff:ignore[magic-value-comparison]
+        if message and len(message) > 103:
             message = message[:103]
 
         return {
@@ -544,6 +588,35 @@ def setup_logging_levels():
         logging.Logger.log, logging.DEBUG_TO_FILE
     )
     logging.debug_to_file = partial(logging.log, logging.DEBUG_TO_FILE)
+
+
+def configure_subprocess_logging(logging_queue, user_initializer, initargs):
+    """[NOT PUBLIC API] Route subprocess output through main queue"""
+    queue_handler = QueueHandler(logging_queue)
+    queue_handler.addFilter(AddLocationFilter())
+    queue_handler.setFormatter(logging.Formatter("[%(name)s] %(message)s"))
+
+    root_logger = logging.getLogger()
+    root_logger.handlers = []
+    root_logger.addHandler(queue_handler)  # root emits to queue handler
+    root_logger.setLevel(logging.INFO)
+
+    for lib in ("compass", "elm", "docling", "openai"):
+        lib_logger = logging.getLogger(lib)
+        lib_logger.handlers = []  # no handlers within subprocess
+        lib_logger.propagate = True  # instead, propagate to root logger
+        lib_logger.setLevel(logging.INFO)
+
+    stdout_logger = logging.getLogger("compass.subprocess.stdout")
+    stderr_logger = logging.getLogger("compass.subprocess.stderr")
+    stdout_logger.setLevel(logging.INFO)
+    stderr_logger.setLevel(logging.WARNING)
+    sys.stdout = _LogStream(stdout_logger, logging.INFO)
+    sys.stderr = _LogStream(stderr_logger, logging.WARNING)
+
+    logging.getLogger("compass").info("Subprocess logging initialized")
+    if user_initializer is not None:
+        user_initializer(*initargs)
 
 
 def _get_version(pkg_name):
