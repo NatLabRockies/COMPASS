@@ -102,7 +102,8 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         to_md_kwargs=None,
         pytesseract_exe_fp=None,
         pdf_pipeline_options=None,
-        **__,  # consume any extra kwargs
+        re_fetch_failed_with_elm=False,
+        **extra,
     ):
         """
 
@@ -172,6 +173,16 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             ``do_table_structure``, ``table_structure_options``, and
             ``do_ocr`` are set automatically and cannot be overridden.
             If ``None``, the default options are used.
+        re_fetch_failed_with_elm : bool, default=False
+            Option to re-fetch failed sources using ELM's default
+            fetcher. This can be useful if Docling fails to parse a
+            document, but ELM's fetcher can still retrieve it. To make
+            sure this functions properly, be sure to specify
+            ``pdf_read_kwargs``, ``pdf_read_coroutine``, and
+            ``pdf_ocr_read_coroutine`` in the ``extra`` kwargs as you
+            would for the elm-based
+            :class:`~elm.web.file_loader.AsyncWebFileLoader`.
+            By default, ``False``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.content_fetcher = AsyncFetchWithRetry(
@@ -190,6 +201,24 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         self.to_md_kwargs = to_md_kwargs or {}
         self.pytesseract_exe_fp = pytesseract_exe_fp
         self.pdf_pipeline_options = pdf_pipeline_options
+
+        self.failed_fetcher = None
+        if re_fetch_failed_with_elm:
+            self.failed_fetcher = AsyncWebFileLoader(
+                header_template=header_template,
+                verify_ssl=verify_ssl,
+                aget_kwargs=aget_kwargs,
+                pw_launch_kwargs=pw_launch_kwargs,
+                pdf_read_kwargs=extra.get("pdf_read_kwargs"),
+                html_read_kwargs=html_read_kwargs,
+                pdf_read_coroutine=extra.get("pdf_read_coroutine"),
+                html_read_coroutine=html_read_coroutine,
+                pdf_ocr_read_coroutine=extra.get("pdf_ocr_read_coroutine"),
+                file_cache_coroutine=file_cache_coroutine,
+                browser_semaphore=browser_semaphore,
+                use_scrapling_stealth=use_scrapling_stealth,
+                num_pw_html_retries=num_pw_html_retries,
+            )
 
     async def fetch_all(self, *sources):
         """Fetch documents for all requested sources.
@@ -223,7 +252,8 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                 ),
             )
 
-        docs += self._fetch_playwright_html(docs)
+        docs += await self._fetch_playwright_html(docs)
+        docs += await self._fetch_failed_docs_with_elm(docs, sources)
         return docs
 
     async def _fetch_doc(self, url):
@@ -281,6 +311,26 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             to_re_fetch,
         )
         return await self.html_loader.fetch_all(*to_re_fetch)
+
+    async def _fetch_failed_docs_with_elm(self, docs, sources):
+        """Fetch docs that failed to load with ELM (if enabled)"""
+        if self.failed_fetcher is None:
+            return []
+
+        failed_searches = [
+            source
+            for source in sources
+            if not any(doc.attrs["source"] == source for doc in docs)
+        ]
+        if not failed_searches:
+            return []
+
+        logger.debug(
+            "Re-fetching %d failed source(s) with ELM:\n%r",
+            len(failed_searches),
+            failed_searches,
+        )
+        return await self.failed_fetcher.fetch_all(*failed_searches)
 
 
 class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
