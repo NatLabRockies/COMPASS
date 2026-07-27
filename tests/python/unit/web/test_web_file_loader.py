@@ -8,9 +8,13 @@ import pytest
 from compass.web.file_loader import AsyncDoclingWebFileLoader
 
 
-def _doc(source, doc_type="pdf", empty=False):
+def _doc(source, doc_type="pdf", empty=False, conversion_status="success"):
     return SimpleNamespace(
-        attrs={"source": source, "doc_type": doc_type},
+        attrs={
+            "source": source,
+            "doc_type": doc_type,
+            "conversion_status": conversion_status,
+        },
         empty=empty,
     )
 

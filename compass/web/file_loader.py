@@ -318,11 +318,15 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             failed_searches,
         )
         elm_docs = await self.failed_fetcher.fetch_all(*failed_searches)
-        for doc in elm_docs:
-            if doc.empty or "cache_fn" not in doc.attrs:
-                out_docs.append(partial_fail_docs[doc.attrs["source"]])
+
+        for elm_doc in elm_docs:
+            docling_doc = partial_fail_docs.get(elm_doc.attrs["source"])
+            elm_doc_failed = elm_doc.empty or "cache_fn" not in elm_doc.attrs
+            if elm_doc_failed and docling_doc is not None:
+                out_docs.append(docling_doc)
             else:
-                out_docs.append(doc)
+                out_docs.append(elm_doc)
+
         return out_docs
 
     async def _fetch_doc(self, url):
