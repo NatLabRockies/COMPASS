@@ -40,14 +40,14 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
             return None
         return _doc(source)
 
-    async def _fetch_playwright_html(docs):  # ruff:ignore[unused-async]
+    async def _fetch_html_docs(docs):  # ruff:ignore[unused-async]
         return []
 
     monkeypatch.setattr(loader, "fetch", _fetch)
     monkeypatch.setattr(
         loader,
-        "_fetch_playwright_html",
-        _fetch_playwright_html,
+        "_fetch_html_docs_again_using_playwright",
+        _fetch_html_docs,
     )
 
     docs = await loader.fetch_all("kept", "missing")

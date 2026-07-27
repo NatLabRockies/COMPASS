@@ -235,8 +235,8 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             List of parsed documents.
         """
         docs = await self._fetch_docs_with_docling(sources)
-        docs += await self._fetch_playwright_html(docs)
-        docs += await self._fetch_failed_docs_with_elm(docs, sources)
+        docs += await self._fetch_html_docs_again_using_playwright(docs)
+        docs += await self._maybe_fetch_failed_docs_with_elm(docs, sources)
         return docs
 
     async def _fetch_doc(self, url):
@@ -299,7 +299,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             )
         return docs
 
-    async def _fetch_playwright_html(self, docs):
+    async def _fetch_html_docs_again_using_playwright(self, docs):
         """Fetch HTML docs using Playwright"""
         to_re_fetch = [
             doc.attrs["source"]
@@ -316,7 +316,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         )
         return await self.html_loader.fetch_all(*to_re_fetch)
 
-    async def _fetch_failed_docs_with_elm(self, docs, sources):
+    async def _maybe_fetch_failed_docs_with_elm(self, docs, sources):
         """Fetch docs that failed to load with ELM (if enabled)"""
         if self.failed_fetcher is None:
             return []
