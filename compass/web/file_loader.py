@@ -241,7 +241,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             List of parsed documents.
         """
         docs = await self._fetch_docs_with_docling(sources)
-        docs += await self._fetch_html_docs_again_using_playwright(docs)
+        docs = await self._fetch_html_docs_again_using_playwright(docs)
         return await self._maybe_fetch_failed_docs_with_elm(docs, sources)
 
     async def _fetch_docs_with_docling(self, sources):
@@ -273,17 +273,18 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             if doc.attrs["doc_type"].casefold() == "html"
         ]
         if not to_re_fetch:
-            return []
+            return docs
 
         logger.debug(
             "Loading HTML with Playwright for %d source(s):\n%r",
             len(to_re_fetch),
             to_re_fetch,
         )
-        return await self.html_loader.fetch_all(*to_re_fetch)
+        docs += await self.html_loader.fetch_all(*to_re_fetch)
+        return docs
 
     async def _maybe_fetch_failed_docs_with_elm(self, docs, sources):
-        """Fetch docs that failed to load with ELM (if enabled)"""
+        """Fetch failed docs using ELM (if enabled)"""
         if self.failed_fetcher is None:
             return docs
 
@@ -365,7 +366,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             "Conversion time (s): %.2f\n\t- Num pages: %r\n\t- From OCR: %r",
             url,
             doc.attrs.get("conversion_status", "unknown"),
-            doc.attrs.get("conversion_time_seconds", "unknown"),
+            doc.attrs.get("conversion_time_seconds", -1),
             doc.attrs.get("num_pages", "unknown"),
             doc.attrs.get("from_ocr", "unknown"),
         )
@@ -452,7 +453,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             "Conversion time (s): %.2f\n\t- Num pages: %r\n\t- From OCR: %r",
             source,
             doc.attrs.get("conversion_status", "unknown"),
-            doc.attrs.get("conversion_time_seconds", "unknown"),
+            doc.attrs.get("conversion_time_seconds", -1),
             doc.attrs.get("num_pages", "unknown"),
             doc.attrs.get("from_ocr", "unknown"),
         )
