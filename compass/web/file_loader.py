@@ -234,24 +234,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         list
             List of parsed documents.
         """
-        outer_task_name = asyncio.current_task().get_name()
-        fetches = [
-            asyncio.create_task(self.fetch(source), name=outer_task_name)
-            for source in sources
-        ]
-        docs = await asyncio.gather(*fetches)
-        docs = [doc for doc in docs if doc is not None and not doc.empty]
-        if docs:
-            logger.debug(
-                "Got the following doc types from initial fetch:\n\t- %s",
-                "\n\t- ".join(
-                    [
-                        f"{doc.attrs['source']} -> {doc.attrs['doc_type']!r}"
-                        for doc in docs
-                    ]
-                ),
-            )
-
+        docs = await self._fetch_docs_with_docling(sources)
         docs += await self._fetch_playwright_html(docs)
         docs += await self._fetch_failed_docs_with_elm(docs, sources)
         return docs
@@ -294,6 +277,27 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             return doc, raw_content
 
         return doc, doc.text
+
+    async def _fetch_docs_with_docling(self, sources):
+        """Fetch docs using Docling"""
+        outer_task_name = asyncio.current_task().get_name()
+        fetches = [
+            asyncio.create_task(self.fetch(source), name=outer_task_name)
+            for source in sources
+        ]
+        docs = await asyncio.gather(*fetches)
+        docs = [doc for doc in docs if doc is not None and not doc.empty]
+        if docs:
+            logger.debug(
+                "Got the following doc types from initial fetch:\n\t- %s",
+                "\n\t- ".join(
+                    [
+                        f"{doc.attrs['source']} -> {doc.attrs['doc_type']!r}"
+                        for doc in docs
+                    ]
+                ),
+            )
+        return docs
 
     async def _fetch_playwright_html(self, docs):
         """Fetch HTML docs using Playwright"""
