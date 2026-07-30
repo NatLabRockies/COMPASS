@@ -150,10 +150,9 @@
     }
   },
   "$core_principles": {
-    /*
     "scope_context": {
+      "description": "Only extract features that apply to high-voltage electric transmission lines and related infrastructure. Provisions scoped only to other energy systems (geothermal, solar PV, wind turbines) or only to lower-voltage electric infrastructure (distribution lines, service lines, service drops, secondary lines, sub-transmission) are out of scope unless the ordinance explicitly extends them to transmission. Encompassment rule: provisions that regulate a broader class which includes high-voltage transmission — for example 'all development', 'all construction activity', 'all public utilities', 'all utility infrastructure', 'all subdivision improvements', or 'electric utility lines' without a voltage qualifier — are in scope. If the ordinance defines 'transmission line' by a minimum voltage, treat that threshold as the cutoff: provisions explicitly restricted to voltages at or below it are out of scope even when phrased as electric utility infrastructure."
     },
-    */
     "strict_evidence_gate": {
       "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
     },
