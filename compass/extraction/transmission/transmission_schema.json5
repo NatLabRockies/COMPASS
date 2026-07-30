@@ -217,7 +217,7 @@
       "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
       "properties": {
         "bond": {
-          "description": "Extract requirements for bonds, sureties, or financial assurance instruments related to construction, operation, maintenance, or decommissioning of electric transmission lines and related infrastructure. Include any specific conditions, amounts, or criteria for bond release when explicitly stated."
+          "description": "Extract requirements for bonds, sureties, or financial assurance instruments related to construction, operation, maintenance, or decommissioning of electric transmission lines and related infrastructure. Include any specific conditions, amounts, or criteria for bond release when explicitly stated. Also includes bond, surety, or financial-assurance provisions covering subdivision-scale utility-infrastructure completion when the provision does not carve out electric infrastructure and is not restricted to lower-voltage electric infrastructure only (distribution, service, secondary, sub-transmission lines). A numeric amount is not required; qualitative bond rows (for example 'sufficiency determined by the utility agency') are permitted when the provision imposes an enforceable obligation."
         },
         "decommissioning": {
           "description": "Extract requirements for abandonment, removal, and site restoration and when systems are retired, fail, or towers are abandoned, including responsible party and timeline details when explicitly stated."
