@@ -5,17 +5,17 @@ data_type_short_desc: high-voltage transmission lines ordinance
 doc_selection_method: "multi doc mixed"
 
 query_templates:
-  - "site:municode.com {jurisdiction}, electrical transmission line"
-  - "site:codelibrary.amlegal.com {jurisdiction}, electrical transmission line"
-  - "filetype:pdf {jurisdiction}, electric transmission line ordinance"
-  - "{jurisdiction}, zoning code electric transmission line setback"
-  - "{jurisdiction}, high voltage transmission line ordinance"
-  - "{jurisdiction}, overhead electric utility line zoning"
-  - "{jurisdiction}, power line"
-  - "Where can I find the legal text for electric transmission line zoning ordinances in {jurisdiction}?"
-  - "{jurisdiction}, electric utility franchise ordinance"
-  - "{jurisdiction}, code of ordinances electric franchise"
-  - "filetype:pdf {jurisdiction}, electric franchise agreement"
+  - 'site:municode.com "{jurisdiction}" electrical transmission line'
+  - 'site:codelibrary.amlegal.com "{jurisdiction}" electrical transmission line'
+  - '"{jurisdiction}" zoning code electric transmission line setback'
+  - '"{jurisdiction}" high voltage transmission line ordinance'
+  - '"{jurisdiction}" overhead electric utility line zoning'
+  - '"{jurisdiction}" power line'
+  - 'filetype:pdf "{jurisdiction}" electric transmission line ordinance'
+  - 'Where can I find the legal text for electric transmission line zoning ordinances in "{jurisdiction}"?'
+  - '"{jurisdiction}" electric utility franchise ordinance'
+  - '"{jurisdiction}" code of ordinances electric franchise'
+  - 'filetype:pdf "{jurisdiction}" electric franchise agreement'
 
 website_keywords:
   pdf: 92160
