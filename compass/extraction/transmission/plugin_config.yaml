@@ -5,8 +5,8 @@ data_type_short_desc: high-voltage transmission lines ordinance
 doc_selection_method: "multi doc mixed"
 
 query_templates:
-  - 'site:municode.com "{jurisdiction}" electrical transmission line'
-  - 'site:codelibrary.amlegal.com "{jurisdiction}" electrical transmission line'
+  - 'site:municode.com {jurisdiction} electrical transmission line'
+  - 'site:codelibrary.amlegal.com {jurisdiction} electrical transmission line'
   - '"{jurisdiction}" zoning code electric transmission line setback'
   - '"{jurisdiction}" high voltage transmission line ordinance'
   - '"{jurisdiction}" overhead electric utility line zoning'
