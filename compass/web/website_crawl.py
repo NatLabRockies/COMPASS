@@ -473,6 +473,7 @@ class COMPASSCrawler:
             browser = await p.chromium.launch(**self.pw_launch_kwargs)
             async with pw_page(browser, **pw_page_kwargs) as page:
                 await page.goto(url)
+                logger.debug("Waiting up to 10 min for '%s' to load...", url)
                 await page.wait_for_load_state("networkidle", timeout=60_000)
 
                 all_text.append(await page.content())
