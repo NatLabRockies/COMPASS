@@ -590,14 +590,12 @@ def _out_cols_from_config(config):
     )
 
     source_col_ind = next(
-        (ind for ind, col in enumerate(cols) if col.name == "source"),
-        None,
+        (ind for ind, col in enumerate(cols) if col.name == "source"), None
     )
-    year_col = OutputColumn("year")
     if source_col_ind is None:
-        cols.append(year_col)
+        cols.extend((OutputColumn("year"), OutputColumn("source")))
     else:
-        cols.insert(source_col_ind, year_col)
+        cols.insert(source_col_ind, OutputColumn("year"))
 
     cols.append(
         OutputColumn(
