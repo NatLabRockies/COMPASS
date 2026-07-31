@@ -65,7 +65,7 @@ class ProcessPoolService(Service):
         """Open thread pool and temp directory"""
         os.environ.setdefault("OMP_NUM_THREADS", "1")
         ppe_kwargs = dict(self._ppe_kwargs)
-        ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
+        # ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
         ppe_kwargs = self._set_ppe_initializer(ppe_kwargs)
         logger.debug(
             "  - Setting up ProcessPoolExecutor with kwargs:\n%s",
