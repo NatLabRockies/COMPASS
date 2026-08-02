@@ -277,7 +277,9 @@ async def read_docling_web_file(
     pdf_pipeline_options : dict, optional
         Dictionary of keyword-value arguments to pass to
         :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-        initializer. By default, ``None``.
+        initializer. Table structure defaults to enabled when omitted.
+        OCR defaults to enabled only when ``pytesseract_exe_fp`` is
+        specified. By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
         :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`

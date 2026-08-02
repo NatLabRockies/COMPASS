@@ -169,10 +169,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         pdf_pipeline_options : dict, optional
             Dictionary of keyword-value arguments to pass to
             :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-            initializer. Note that some options like
-            ``do_table_structure``, ``table_structure_options``, and
-            ``do_ocr`` are set automatically and cannot be overridden.
-            If ``None``, the default options are used.
+            initializer. Table structure defaults to enabled when not
+            explicitly specified. OCR defaults to enabled only when a
+            Tesseract executable path is provided. If ``None``, the
+            default options are used.
         re_fetch_failed_with_elm : bool, default=False
             Option to re-fetch failed sources using ELM's default
             fetcher. This can be useful if Docling fails to parse a
@@ -419,10 +419,10 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
         pdf_pipeline_options : dict, optional
             Dictionary of keyword-value arguments to pass to
             :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-            initializer. Note that some options like
-            ``do_table_structure``, ``table_structure_options``, and
-            ``do_ocr`` are set automatically and cannot be overridden.
-            If ``None``, the default options are used.
+            initializer. Table structure defaults to enabled when not
+            explicitly specified. OCR defaults to enabled only when a
+            Tesseract executable path is provided. If ``None``, the
+            default options are used.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.to_md_kwargs = to_md_kwargs or {}
