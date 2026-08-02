@@ -221,7 +221,7 @@
           "description": "Extract requirements for bonds, sureties, or financial assurance instruments related to construction, operation, maintenance, or decommissioning of electric transmission lines and related infrastructure. Include any specific conditions, amounts, or criteria for bond release when explicitly stated. Also includes bond, surety, or financial-assurance provisions covering subdivision-scale utility-infrastructure completion when the provision does not carve out electric infrastructure and is not restricted to lower-voltage electric infrastructure only (distribution, service, secondary, sub-transmission lines). A numeric amount is not required; qualitative bond rows (for example 'sufficiency determined by the utility agency') are permitted when the provision imposes an enforceable obligation."
         },
         "decommissioning": {
-          "description": "Extract requirements for abandonment, removal, and site restoration and when systems are retired, fail, or towers are abandoned, including responsible party and timeline details when explicitly stated."
+          "description": "Extract requirements for abandonment, removal, and site restoration when systems are retired, fail, or towers are abandoned, including obligations to remove facilities and restore the site upon termination, forfeiture, or expiration of a franchise or grant, with responsible party and timeline details when explicitly stated."
         },
         "permit": {
           "description": "Extract requirements for conditional use permits, special use permits, or other discretionary land use approvals that apply to electric transmission lines and related infrastructure. Include any specific conditions or criteria for approval when explicitly stated."
