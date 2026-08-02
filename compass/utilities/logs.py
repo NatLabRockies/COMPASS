@@ -19,6 +19,7 @@ from logging.handlers import QueueHandler, QueueListener
 from importlib.metadata import version, PackageNotFoundError
 
 from compass import __version__
+from compass.utilities.io import normalize_output_stem
 from compass.exceptions import COMPASSValueError
 
 
@@ -357,8 +358,9 @@ class LocationFileLog:
 
     def _setup_handler(self):
         """Setup the file handler for this location"""
+        fn_stem = normalize_output_stem(self.location)
         self._handler = logging.FileHandler(
-            self.log_dir / f"{self.location}.log", encoding="utf-8"
+            self.log_dir / f"{fn_stem}.log", encoding="utf-8"
         )
         self._handler.setLevel(self.level)
         self._handler.addFilter(LocationFilter(self.location))
@@ -366,8 +368,9 @@ class LocationFileLog:
 
     def _setup_exception_handler(self):
         """Setup file handler for tracking errors for this location"""
+        fn_stem = normalize_output_stem(f"{self.location}_exceptions")
         self._exception_handler = _JsonExceptionFileHandler(
-            self.log_dir / f"{self.location} exceptions.json", encoding="utf-8"
+            self.log_dir / f"{fn_stem}.json", encoding="utf-8"
         )
         self._exception_handler.addFilter(LocationFilter(self.location))
 
