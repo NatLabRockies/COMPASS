@@ -224,7 +224,7 @@
           "description": "Extract requirements for abandonment, removal, and site restoration when systems are retired, fail, or towers are abandoned, including obligations to remove facilities and restore the site upon termination, forfeiture, or expiration of a franchise or grant, with responsible party and timeline details when explicitly stated."
         },
         "permit": {
-          "description": "Extract requirements for conditional use permits, special use permits, or other discretionary land use approvals that apply to electric transmission lines and related infrastructure. Include any specific conditions or criteria for approval when explicitly stated."
+          "description": "Extract requirements to obtain approval or authorization before constructing, installing, or working on electric transmission lines and related infrastructure, including conditional use permits, special use permits, or other discretionary land-use approvals, as well as street-opening, road-cut, right-of-way, or encroachment permits issued by a road or public-works authority. Include any specific conditions or criteria for approval when explicitly stated."
         },
         "FAA": {
           "description": "Extract requirements for compliance with Federal Aviation Administration (FAA) regulations and local approvals for transmission lines and related infrastructure near airports. Include any specific FAA standards or local approval processes when explicitly stated."
