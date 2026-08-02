@@ -342,10 +342,11 @@ def resolve_path(path, base_dir):
 
 
 def normalize_output_stem(out_stem):
-    """[NOT PUBLIC API] Normalize an output file name"""
+    """[NOT PUBLIC API] Normalize an output file name stem"""
     return (
         out_stem.replace(".", "")
         .replace(",", "")
         .replace("/", "_")
+        .replace("\\", "_")
         .replace(" ", "_")
     )
