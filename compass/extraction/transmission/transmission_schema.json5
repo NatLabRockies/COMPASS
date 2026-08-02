@@ -228,6 +228,9 @@
         },
         "FAA": {
           "description": "Extract requirements for compliance with Federal Aviation Administration (FAA) regulations and local approvals for transmission lines and related infrastructure near airports. Include any specific FAA standards or local approval processes when explicitly stated."
+        },
+        "traffic disruption": {
+          "description": "Extract requirements for how transmission infrastructure and related work affect public travel ways, temporarily or permanently: construction-period obligations not to obstruct traffic and to restore the right-of-way after excavation, road cuts, or street openings; and permanent effects of new construction such as line or crossing clearances over roadways, sight-distance at intersections and driveways, and limits on obstruction of the traveled way. Include timing and responsible-party details when explicitly stated."
         }
       }
     },
