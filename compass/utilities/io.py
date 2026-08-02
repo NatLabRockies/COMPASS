@@ -339,3 +339,13 @@ def resolve_path(path, base_dir):
         path = path.expanduser().resolve().as_posix()
 
     return path
+
+
+def normalize_output_stem(out_stem):
+    """[NOT PUBLIC API] Normalize an output file name"""
+    return (
+        out_stem.replace(".", "")
+        .replace(",", "")
+        .replace("/", "_")
+        .replace(" ", "_")
+    )

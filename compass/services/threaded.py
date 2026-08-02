@@ -17,6 +17,7 @@ from elm.web.document import HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
 from compass.services.base import Service
+from compass.utilities.io import normalize_output_stem
 from compass.utilities.parsing import is_pdf_doc
 from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
@@ -51,19 +52,9 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _normalize_output_stem(out_stem):
-    """Normalize an output file name while preserving the full stem"""
-    return (
-        out_stem.replace(".", "")
-        .replace(",", "")
-        .replace("/", "_")
-        .replace(" ", "_")
-    )
-
-
 def _ensure_output_suffix(out_dir, out_stem, suffix):
     """Build output path"""
-    out_stem = _normalize_output_stem(out_stem)
+    out_stem = normalize_output_stem(out_stem)
     return Path(out_dir) / f"{out_stem}{suffix}"
 
 
