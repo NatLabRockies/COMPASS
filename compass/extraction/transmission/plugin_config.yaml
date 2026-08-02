@@ -136,28 +136,32 @@ heuristic_keywords:
 collection_prompts: true
 
 extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from two
-  related types of ordinance documents:
-  (1) high-voltage electric transmission line ordinances, and
-  (2) electric utility franchise ordinances that grant a named
-  company the right to operate electric infrastructure in this
+  You are a legal scholar extracting structured data from
+  ordinance documents. A document may contain two kinds of
+  content, which can appear separately or together in the same
+  document:
+  (1) high-voltage electric transmission line requirements, and
+  (2) an electric utility franchise that grants a named company
+  the right to operate electric infrastructure in this
   jurisdiction.
 
-  For document type (1), be focused and literal: extract only
-  enacted, explicit, in-scope requirements that apply to
-  high-voltage (typically 69 kV or higher) electric transmission
-  lines, towers, poles, substations, and their rights-of-way.
-  Do not extract requirements that apply only to local electric
-  distribution, telecommunications, gas or oil pipelines, or
-  low-voltage service lines.
+  For transmission-line content (1), be focused and literal:
+  extract only enacted, explicit, in-scope requirements that
+  apply to high-voltage (typically 69 kV or higher) electric
+  transmission lines, towers, poles, substations, and their
+  rights-of-way. Do not extract requirements that apply only to
+  local electric distribution, telecommunications, gas or oil
+  pipelines, or low-voltage service lines.
 
-  For document type (2), extract only the "franchise" feature.
-  The summary must name every explicitly named grantee company
+  For franchise content (2), the "franchise" feature is the
+  primary output: name every explicitly named grantee company
   using its verbatim legal name and quote the granting clause.
   Do not extract non-electric franchises (water, gas, cable,
-  telecom). Do not extract other schema features from a franchise
-  document unless the same document also contains explicit
-  transmission-line requirements.
+  telecom). If the same document also contains transmission-line
+  content (1), extract those features as well under the rules
+  above, including provisions that apply to the grantee's
+  electric infrastructure generally and, by encompassment, would
+  apply to its high-voltage transmission lines.
 
   Be thorough and complete: review all relevant sections,
   including tables and lists, so no explicitly stated in-scope
