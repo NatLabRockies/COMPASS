@@ -177,7 +177,7 @@ def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
         "compass.services.cpu.DocumentConverter", FakeDocumentConverter
     )
 
-    doc = _read_docling(b"<html></html>", "sample.html")
+    doc = _read_docling_without_timeout(b"<html></html>", "sample.html")
 
     assert doc.pages == ["markdown body"]
     assert doc.attrs["mean_confidence"] is None
