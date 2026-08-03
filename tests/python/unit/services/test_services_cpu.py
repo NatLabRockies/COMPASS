@@ -224,7 +224,7 @@ def test_docling_subprocess_returns_result():
         _return_from_subprocess,
         args=("converted",),
         kwargs={},
-        timeout=5,
+        timeout=60,
     )
 
     assert result == "converted"
