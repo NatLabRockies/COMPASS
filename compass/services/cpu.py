@@ -554,7 +554,7 @@ def _receive_docling_result(receiver, process, timeout):
 
         if receiver.poll(min(remaining, 10)):
             try:
-                return receiver.recv()
+                status, payload = receiver.recv()
             except EOFError as error:
                 msg = "Docling conversion subprocess exited without a result"
                 raise ConversionError(msg) from error
@@ -566,7 +566,7 @@ def _receive_docling_result(receiver, process, timeout):
 
         if not process.is_alive():
             if receiver.poll():
-                return receiver.recv()
+                continue
             msg = "Docling conversion subprocess exited without a result"
             raise ConversionError(msg)
 
