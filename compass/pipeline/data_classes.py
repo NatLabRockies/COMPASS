@@ -181,6 +181,7 @@ class WebSearchParams:
         num_urls_to_check_per_jurisdiction=5,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=None,
+        website_crawl_timeout_seconds=3600,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         search_engines=None,
@@ -205,6 +206,11 @@ class WebSearchParams:
             simultaneously. Increasing this value can speed up searches,
             but may lead to timeouts or performance issues on machines
             with limited resources. By default, ``10``.
+        website_crawl_timeout_seconds : int, default=3600
+            Maximum number of seconds to allow for a website crawl to
+            complete before timing out. If the crawl exceeds this time,
+            it will be terminated and no documents will be returned for
+            the crawl step for the jurisdiction. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -273,6 +279,7 @@ class WebSearchParams:
         self.max_num_concurrent_website_searches = (
             max_num_concurrent_website_searches
         )
+        self.website_crawl_timeout_seconds = website_crawl_timeout_seconds
         self.url_ignore_substrings = _DOMAINS["blacklist"]
         self.url_ignore_substrings += url_ignore_substrings or []
         self.url_keep_substrings = _DOMAINS["whitelist"]
@@ -334,6 +341,7 @@ class BaseRequest:
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
+        website_crawl_timeout_seconds=3600,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         known_local_docs=None,
@@ -474,6 +482,11 @@ class BaseRequest:
             Maximum number of jurisdictions to process concurrently.
             Limiting this can help manage memory usage when dealing with
             a large number of documents. By default, ``25``.
+        website_crawl_timeout_seconds : int, default=3600
+            Maximum number of seconds to allow for a website crawl to
+            complete before timing out. If the crawl exceeds this time,
+            it will be terminated and no documents will be returned for
+            the crawl step for the jurisdiction. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -634,6 +647,7 @@ class BaseRequest:
             max_num_concurrent_website_searches=(
                 max_num_concurrent_website_searches
             ),
+            website_crawl_timeout_seconds=website_crawl_timeout_seconds,
             url_ignore_substrings=url_ignore_substrings,
             url_keep_substrings=url_keep_substrings,
             search_engines=search_engines,
@@ -702,6 +716,7 @@ class CollectionRequest(BaseRequest):
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
+        website_crawl_timeout_seconds=3600,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         known_local_docs=None,
@@ -819,6 +834,11 @@ class CollectionRequest(BaseRequest):
             Maximum number of jurisdictions to process concurrently.
             Limiting this can help manage memory usage when dealing with
             a large number of documents. By default, ``25``.
+        website_crawl_timeout_seconds : int, default=3600
+            Maximum number of seconds to allow for a website crawl to
+            complete before timing out. If the crawl exceeds this time,
+            it will be terminated and no documents will be returned for
+            the crawl step for the jurisdiction. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -996,6 +1016,7 @@ class CollectionRequest(BaseRequest):
                 max_num_concurrent_website_searches
             ),
             max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
+            website_crawl_timeout_seconds=website_crawl_timeout_seconds,
             url_ignore_substrings=url_ignore_substrings,
             url_keep_substrings=url_keep_substrings,
             known_local_docs=known_local_docs,
