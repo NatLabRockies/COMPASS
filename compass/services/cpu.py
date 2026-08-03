@@ -388,7 +388,7 @@ def _read_docling_catch_error(
             pdf_pipeline_options=pdf_pipeline_options,
             **kwargs,
         )
-    except ConversionError:
+    except Exception:  # ruff:ignore[blind-except]
         return MDDocument(pages=[], attrs={"doc_type": "unknown"})
 
 
