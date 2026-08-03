@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from types import SimpleNamespace
+from contextlib import AsyncExitStack
 
 import pytest
 
@@ -52,12 +53,13 @@ def _build_workflow(*, website="https://example.com", models=None):
             "loader_mode": "ocr",
         },
         file_loader_kwargs_no_ocr={"loader_mode": "no-ocr"},
-        crawl_semaphore=None,
+        crawl_semaphore=AsyncExitStack(),
         browser_semaphore=None,
         search_engine_semaphore=None,
         search_params=SimpleNamespace(
             url_ignore_substrings=(),
             se_kwargs={},
+            website_crawl_timeout_seconds=3600,
         ),
         models=models,
     )
