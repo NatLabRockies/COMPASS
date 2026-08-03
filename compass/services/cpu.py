@@ -41,14 +41,16 @@ from compass.utilities.logs import configure_subprocess_logging, LQ
 
 
 logger = logging.getLogger(__name__)
+TIMEOUT_PARAMS = {
+    "shutdown_timeout": 5,
+    "force_shutdown_timeout": 1,
+}
 
 
 class ProcessPoolService(Service):
     """Service that contains a ProcessPoolExecutor instance"""
 
     _DEFAULT_MAX_TASKS_PER_CHILD = 100
-    _SHUTDOWN_TIMEOUT = 5
-    _FORCE_SHUTDOWN_TIMEOUT = 1
 
     def __init__(self, **kwargs):
         """
@@ -105,20 +107,20 @@ class ProcessPoolService(Service):
         pool.shutdown(wait=False, cancel_futures=True)
 
         if not _needs_forced_shutdown(
-            manager_thread, processes, self._SHUTDOWN_TIMEOUT
+            manager_thread, processes, TIMEOUT_PARAMS["shutdown_timeout"]
         ):
             return
 
         logger.warning(
             "Process pool did not shut down within %.1f seconds; "
             "terminating lingering workers",
-            self._SHUTDOWN_TIMEOUT,
+            TIMEOUT_PARAMS["shutdown_timeout"],
         )
         _force_shutdown_processes(
-            processes, timeout=self._FORCE_SHUTDOWN_TIMEOUT
+            processes, timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
         )
         _join_manager_thread(
-            manager_thread, timeout=self._FORCE_SHUTDOWN_TIMEOUT
+            manager_thread, timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
         )
 
 
@@ -561,10 +563,10 @@ def _receive_docling_result(receiver, process, timeout):
 
 def _shutdown_docling_process(process):
     """Join or force-stop a completed or timed-out Docling process"""
-    process.join(timeout=FileLoader._SHUTDOWN_TIMEOUT)
+    process.join(timeout=TIMEOUT_PARAMS["shutdown_timeout"])
     if process.is_alive():
         _force_shutdown_processes(
-            [process], timeout=FileLoader._FORCE_SHUTDOWN_TIMEOUT
+            [process], timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
         )
 
 
