@@ -3,6 +3,7 @@
 import ast
 import os
 import time
+import math
 import pprint
 import asyncio
 import logging
@@ -34,6 +35,7 @@ from docling.datamodel.pipeline_options import (
 )
 from docling.exceptions import ConversionError
 
+from compass.exceptions import COMPASSValueError
 from compass.services.base import Service
 from compass.utilities.logs import configure_subprocess_logging, LQ
 
@@ -401,7 +403,37 @@ def _read_docling(
     pdf_pipeline_options=None,
     **kwargs,
 ):
-    """Utility func to read documents using Docling"""
+    """Read documents using Docling with an optional hard deadline"""
+
+    pdf_pipeline_options = dict(pdf_pipeline_options or {})
+    docling_timeout = pdf_pipeline_options.get(
+        "document_timeout", 60 * 60 / 1.1
+    )
+    _validate_docling_timeout(docling_timeout)
+    return _run_docling_in_subprocess(
+        _read_docling_without_timeout,
+        args=(doc_bytes, file_source),
+        kwargs={
+            "headers": headers,
+            "pytesseract_exe_fp": pytesseract_exe_fp,
+            "source_uri": source_uri,
+            "pdf_pipeline_options": pdf_pipeline_options,
+            **kwargs,
+        },
+        timeout=docling_timeout * 1.1,
+    )
+
+
+def _read_docling_without_timeout(
+    doc_bytes,
+    file_source,
+    headers=None,
+    pytesseract_exe_fp=None,
+    source_uri=None,
+    pdf_pipeline_options=None,
+    **kwargs,
+):
+    """Read documents using Docling without an in-process deadline"""
 
     file_source = str(file_source)
     source_uri = file_source if source_uri is None else str(source_uri)
@@ -462,6 +494,90 @@ def _read_docling(
     doc_text = conv_result.document.export_to_markdown(**kwargs)
 
     return MDDocument([doc_text], attrs=attrs, remove_comments=False)
+
+
+def _run_docling_in_subprocess(fn, *, args, kwargs, timeout):
+    """Run one Docling conversion in a disposable child process"""
+    mp_context = multiprocessing.get_context(
+        "fork"
+        if "fork" in multiprocessing.get_all_start_methods()
+        else "spawn"
+    )
+    receiver, sender = mp_context.Pipe(duplex=False)
+    process = mp_context.Process(
+        target=_run_docling_subprocess, args=(sender, fn, args, kwargs)
+    )
+    process.start()
+    sender.close()
+
+    try:
+        status, payload = _receive_docling_result(receiver, process, timeout)
+    finally:
+        receiver.close()
+        _shutdown_docling_process(process)
+
+    if status == "success":
+        logger.info("Docling conversion ran successfully in subprocess")
+        return payload
+
+    msg = f"Docling conversion subprocess failed: {payload}"
+    logger.error(msg)
+    raise ConversionError(msg)
+
+
+def _run_docling_subprocess(sender, fn, args, kwargs):
+    """Execute a Docling conversion and send its result to the worker"""
+    try:
+        sender.send(("success", fn(*args, **kwargs)))
+    except Exception as error:  # ruff:ignore[blind-except]
+        with contextlib.suppress(BrokenPipeError, EOFError, OSError):
+            sender.send(("error", f"{type(error).__name__}: {error}"))
+    finally:
+        sender.close()
+
+
+def _receive_docling_result(receiver, process, timeout):
+    """Receive a child conversion result before its deadline expires"""
+    deadline = time.monotonic() + timeout
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            msg = f"Docling conversion exceeded {timeout} seconds"
+            raise TimeoutError(msg)
+
+        if receiver.poll(min(remaining, 10)):
+            try:
+                return receiver.recv()
+            except EOFError as error:
+                msg = "Docling conversion subprocess exited without a result"
+                raise ConversionError(msg) from error
+
+        if not process.is_alive():
+            if receiver.poll():
+                return receiver.recv()
+            msg = "Docling conversion subprocess exited without a result"
+            raise ConversionError(msg)
+
+
+def _shutdown_docling_process(process):
+    """Join or force-stop a completed or timed-out Docling process"""
+    process.join(timeout=FileLoader._SHUTDOWN_TIMEOUT)
+    if process.is_alive():
+        _force_shutdown_processes(
+            [process], timeout=FileLoader._FORCE_SHUTDOWN_TIMEOUT
+        )
+
+
+def _validate_docling_timeout(timeout):
+    """Validate the configured Docling deadline"""
+    if (
+        isinstance(timeout, bool)
+        or not isinstance(timeout, (int, float))
+        or not math.isfinite(timeout)
+        or timeout <= 0
+    ):
+        msg = "`docling_timeout` must be a positive number of seconds"
+        raise COMPASSValueError(msg)
 
 
 def _read_file_docling(fp, **kwargs):
