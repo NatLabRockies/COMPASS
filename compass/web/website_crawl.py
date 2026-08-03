@@ -5,6 +5,7 @@ some links that Crawl4AI cannot (such as those behind a button
 interface).
 """
 
+import math
 import logging
 import operator
 from collections import Counter
@@ -464,16 +465,24 @@ class COMPASSCrawler:
     async def _get_text(self, url):
         """Get all html text from a page"""
         all_text = []
+        timeout_ms = 180_000  # milliseconds
         pw_page_kwargs = {
             "intercept_routes": True,
             "ignore_https_errors": True,
-            "timeout": 60_0000,
+            "timeout": timeout_ms,
         }
         async with async_playwright() as p, self.browser_semaphore:
             browser = await p.chromium.launch(**self.pw_launch_kwargs)
             async with pw_page(browser, **pw_page_kwargs) as page:
                 await page.goto(url)
-                await page.wait_for_load_state("networkidle", timeout=60_000)
+                logger.debug(
+                    "Waiting up to %d min for '%s' to load...",
+                    math.ceil(timeout_ms / 60_000),
+                    url,
+                )
+                await page.wait_for_load_state(
+                    "networkidle", timeout=timeout_ms
+                )
 
                 all_text.append(await page.content())
                 all_text += await _get_text_from_all_locators(page)

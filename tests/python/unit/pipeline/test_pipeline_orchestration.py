@@ -116,6 +116,28 @@ def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
     )
 
 
+def test_runtime_passes_docling_pipeline_options_to_local_loader(tmp_path):
+    """Pass Docling configuration to known-local document loaders"""
+    request = CollectionRequest(
+        out_dir=tmp_path / "outputs",
+        tech="solar",
+        jurisdiction_fp=tmp_path / "jurisdictions.csv",
+        file_loader_kwargs={
+            "pdf_pipeline_options": {
+                "document_timeout": 120,
+                "do_table_structure": True,
+            },
+        },
+    )
+
+    runtime = PipelineRuntime(request)
+
+    assert runtime.local_file_loader_kwargs["pdf_pipeline_options"] == {
+        "document_timeout": 120,
+        "do_table_structure": True,
+    }
+
+
 @pytest.mark.asyncio
 async def test_collect_request_uses_collection_workflow(
     tmp_path, patched_workflow

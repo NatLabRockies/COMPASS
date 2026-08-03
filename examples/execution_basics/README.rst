@@ -134,6 +134,26 @@ You can locate the executable path by running:
 
 Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
 
+**Docling conversion deadline**
+When using the Docling file loader, set ``docling_timeout`` in
+``file_loader_kwargs.pdf_pipeline_options`` to apply a wall-clock deadline to each document.
+COMPASS runs the conversion in a disposable child process and terminates that
+child when the deadline expires.
+
+.. code-block:: json
+
+    "pytesseract_exe_fp": "/path/to/tesseract",
+    "file_loader_kwargs": {
+        "pdf_pipeline_options": {
+            "do_ocr": true,
+            "do_table_structure": true
+            "docling_timeout": 1800,
+        }
+    }
+
+This setting applies only when ``COMPASS_FILE_LOAD_BACKEND=docling``. The deadline wrapper
+does not retry a timed-out document.
+
 
 Kitchen Sink Config
 -------------------

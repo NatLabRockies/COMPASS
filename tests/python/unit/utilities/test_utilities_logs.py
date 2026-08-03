@@ -174,7 +174,7 @@ async def test_location_file_log_async_context(tmp_path):
         await task
 
     text_log = log_dir / "async_loc.log"
-    json_log = log_dir / "async_loc exceptions.json"
+    json_log = log_dir / "async_loc_exceptions.json"
     assert text_log.exists()
     assert json_log.exists()
 

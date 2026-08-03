@@ -230,7 +230,9 @@ async def test_google_search_with_logging(tmp_path):
     for fp in log_files:
         text = fp.read_text()
         assert "A generic test log" in text
-        assert f"This location is {fp.stem!r}" in text
+        assert any(
+            f"This location is {loc!r}" in text for loc in test_locations
+        )
 
 
 @pytest.mark.asyncio

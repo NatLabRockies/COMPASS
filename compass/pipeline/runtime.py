@@ -116,13 +116,20 @@ class PipelineRuntime:
         )
 
     @cached_property
-    def crawl_semaphore(self):
-        """Crawl concurrency limiter"""
+    def _crawl_semaphore(self):
+        """Crawl concurrency limiter or None"""
         if not self.search_params.max_num_concurrent_website_searches:
             return None
         return asyncio.Semaphore(
             self.search_params.max_num_concurrent_website_searches
         )
+
+    @property
+    def crawl_semaphore(self):
+        """Crawl concurrency limiter"""
+        if self._crawl_semaphore is None:
+            return AsyncExitStack()
+        return self._crawl_semaphore
 
     @cached_property
     def search_engine_semaphore(self):
@@ -171,6 +178,9 @@ class PipelineRuntime:
             "pdf_read_kwargs": self.file_loader_kwargs.get("pdf_read_kwargs"),
             "html_read_kwargs": self.file_loader_kwargs.get(
                 "html_read_kwargs"
+            ),
+            "pdf_pipeline_options": self.file_loader_kwargs.get(
+                "pdf_pipeline_options"
             ),
         }
         if self.search_params.pytesseract_exe_fp is not None:
@@ -240,7 +250,9 @@ class PipelineRuntime:
             )
 
         if self.search_params.pytesseract_exe_fp is not None:
-            services.append(OCRPDFLoader(max_workers=1))
+            kwargs = deepcopy(runtime_settings.ppe_kwargs or {})
+            kwargs["max_workers"] = 1
+            services.append(OCRPDFLoader(**kwargs))
         return services
 
     @cached_property

@@ -81,26 +81,26 @@ def test_file_loader_preserves_existing_omp_num_threads(monkeypatch):
 #     service.release_resources()
 
 
-# def test_file_loader_preserves_max_tasks_per_child_override(monkeypatch):
-#     """Test process pool respects user task-recycling overrides"""
+def test_file_loader_preserves_max_tasks_per_child_override(monkeypatch):
+    """Test process pool respects user task-recycling overrides"""
 
-#     captured_kwargs = {}
+    captured_kwargs = {}
 
-#     class DummyPool:
-#         def __init__(self, *__, **kwargs):
-#             captured_kwargs.update(kwargs)
+    class DummyPool:
+        def __init__(self, *__, **kwargs):
+            captured_kwargs.update(kwargs)
 
-#         def shutdown(self, wait=True, cancel_futures=True):
-#             return None
+        def shutdown(self, wait=True, cancel_futures=True):
+            return None
 
-#     monkeypatch.setattr("compass.services.cpu.ProcessPoolExecutor", DummyPool)
+    monkeypatch.setattr("compass.services.cpu.ProcessPoolExecutor", DummyPool)
 
-#     service = FileLoader(max_tasks_per_child=7)
-#     service.acquire_resources()
+    service = FileLoader(max_tasks_per_child=7)
+    service.acquire_resources()
 
-#     assert captured_kwargs["max_tasks_per_child"] == 7
+    assert captured_kwargs["max_tasks_per_child"] == 7
 
-#     service.release_resources()
+    service.release_resources()
 
 
 # def test_file_loader_sets_spawn_mp_context(monkeypatch):

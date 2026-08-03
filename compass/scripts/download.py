@@ -272,7 +272,6 @@ async def download_jurisdiction_ordinances_from_website(
     browser_config_kwargs=None,
     crawler_config_kwargs=None,
     max_urls=100,
-    crawl_semaphore=None,
     pb_jurisdiction_name=None,
     return_c4ai_results=False,
 ):
@@ -307,10 +306,6 @@ async def download_jurisdiction_ordinances_from_website(
     max_urls : int, optional
         Max number of URLs to check from the website before terminating
         the search. By default, ``100``.
-    crawl_semaphore : :class:`asyncio.Semaphore`, optional
-        Semaphore instance that can be used to limit the number of
-        website searches happening concurrently. If ``None``, no limits
-        are applied. By default, ``None``.
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
@@ -336,9 +331,6 @@ async def download_jurisdiction_ordinances_from_website(
     Requires :class:`~compass.services.threaded.TempFileCache` service
     to be running.
     """
-
-    if crawl_semaphore is None:
-        crawl_semaphore = AsyncExitStack()
 
     async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
@@ -393,7 +385,7 @@ async def download_jurisdiction_ordinances_from_website(
         cpb = AsyncExitStack()
         ch = None
 
-    async with crawl_semaphore, cpb:
+    async with cpb:
         docs_or_pair = await crawler.run(
             website,
             on_result_hook=ch,
@@ -416,7 +408,6 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     already_visited=None,
     num_link_scores_to_check_per_page=4,
     max_urls=100,
-    crawl_semaphore=None,
     pb_jurisdiction_name=None,
 ):
     """Download ord documents from a website using the COMPASS crawler
@@ -452,10 +443,6 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     max_urls : int, default=100
         Max number of URLs to check from the website before terminating
         the search. By default, ``100``.
-    crawl_semaphore : :class:`asyncio.Semaphore`, optional
-        Semaphore instance that can be used to limit the number of
-        website crawls happening concurrently. If ``None``, no limits
-        are applied. By default, ``None``.
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
@@ -472,8 +459,6 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     Requires :class:`~compass.services.threaded.TempFileCache` service
     to be running.
     """
-    if crawl_semaphore is None:
-        crawl_semaphore = AsyncExitStack()
 
     async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
@@ -515,7 +500,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         cpb = AsyncExitStack()
         ch = None
 
-    async with crawl_semaphore, cpb:
+    async with cpb:
         return await crawler.run(website, on_new_page_visit_hook=ch)
 
 
