@@ -278,7 +278,7 @@
       "description": "Administrative or legal grants recorded in the ordinance code that do not impose a physical or numeric requirement on transmission infrastructure. Extract only when the ordinance text explicitly names the grant and its holder(s).",
       "properties": {
         "franchise": {
-          "description": "Electric utility franchise granted by this jurisdiction to a named company or companies. Extract only when the ordinance explicitly grants (or renews, extends, or amends) an electric franchise, right, or privilege to operate electric infrastructure in the jurisdiction. In summary, name every explicitly named grantee company using its verbatim legal name and quote the granting clause. Do not extract water, gas, cable, telecom, or other non-electric franchises. Do not infer a franchise from operational references to a utility elsewhere in the code. Emit at most one row per jurisdiction; if multiple electric franchises are named, list all grantees in the same summary."
+          "description": "Electric utility franchise granted by this jurisdiction to a named company or companies. Extract when the ordinance explicitly grants (or renews, extends, or amends) an electric franchise, right, or privilege to operate electric infrastructure, or when a codified list of franchises names one or more electric utilities as grantees under an electric-franchise heading, even if the full granting-clause text is omitted; treat such an electric-franchise listing as substantive content to collect and extract, not a citation-only index. In summary, name every electric grantee using its verbatim legal name and quote the granting clause or list entry. Do not extract water, gas, cable, telecom, or other non-electric franchises, even when listed alongside the electric ones. Do not infer a franchise from operational references to a utility elsewhere in the code. Emit at most one row per jurisdiction, listing all electric grantees in the same summary."
         }
       }
     }
@@ -328,6 +328,15 @@
       "section": "5.2.6.2 Building Setback Lines",
       "summary": "In the case of electric transmission lines where easement widths are not definitely established, there shall be a minimum building setback line from the center of the transmission line as follows: Voltage of Line / Minimum Building Setback — 46 KV: 37½ ft; 69 KV: 50 ft; 161 KV & over: 75 ft.",
       "explanation": "Generic 'building setback line' measured from the transmission-line centerline, not qualified as residential, so classified as 'structures distance' rather than 'residential buildings distance'. Ordinance lists three voltage tiers (37½, 50, 75 feet); per numeric_prioritization for setbacks, the largest tier (75 feet) is selected as the row value while the full table is quoted verbatim in summary."
+    },
+    {
+      "feature": "franchise",
+      "subarea": "all",
+      "value": ["Dixie Electric Membership Corporation", "Louisiana Power and Light Company"],
+      "units": null,
+      "section": "Ch. 8 Franchises — List of Franchises",
+      "summary": "Under the 'Electric Franchises' heading of the codified list of franchises: Dixie Electric Membership Corporation (99 years), Ordinance of May 10, 1939; Louisiana Power and Light Company (no time limit), Ordinance of February 10, 1937. The code omits the full text of these franchise ordinances and preserves only this listing of grantees, durations, and originating ordinances.",
+      "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded."
     }
   ],
   "$instructions": {
