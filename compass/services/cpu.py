@@ -37,7 +37,11 @@ from docling.exceptions import ConversionError
 
 from compass.exceptions import COMPASSValueError
 from compass.services.base import Service
-from compass.utilities.logs import configure_subprocess_logging, LQ
+from compass.utilities.logs import (
+    configure_subprocess_logging,
+    configure_docling_subprocess_logging,
+    LQ,
+)
 
 
 logger = logging.getLogger(__name__)
