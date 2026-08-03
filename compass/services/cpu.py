@@ -377,7 +377,7 @@ def _read_docling_catch_error(
     pdf_pipeline_options=None,
     **kwargs,
 ):
-    """Utility to return empty docs on Docling conversion errors"""
+    """Utility to return empty docs on error"""
     try:
         return _read_docling(
             doc_bytes=doc_bytes,
