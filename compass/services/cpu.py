@@ -529,6 +529,7 @@ def _run_docling_in_subprocess(fn, *, args, kwargs, timeout):
 
 def _run_docling_subprocess(sender, fn, args, kwargs):
     """Execute a Docling conversion and send its result to the worker"""
+    configure_docling_subprocess_logging(sender)
     try:
         sender.send(("success", fn(*args, **kwargs)))
     except Exception as error:  # ruff:ignore[blind-except]
@@ -553,6 +554,11 @@ def _receive_docling_result(receiver, process, timeout):
             except EOFError as error:
                 msg = "Docling conversion subprocess exited without a result"
                 raise ConversionError(msg) from error
+
+            if status == "log":
+                logger.handle(payload)
+                continue
+            return status, payload
 
         if not process.is_alive():
             if receiver.poll():
