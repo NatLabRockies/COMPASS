@@ -1,5 +1,6 @@
 """COMPASS web file loader tests"""
 
+import asyncio
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -17,6 +18,11 @@ def _doc(source, doc_type="pdf", empty=False, conversion_status="success"):
         },
         empty=empty,
     )
+
+
+class _Fetcher:
+    async def fetch(self, url):
+        return b"content", "application/pdf", None, {}
 
 
 class _FailedFetcher:
@@ -58,6 +64,34 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
 
     assert [doc.attrs["source"] for doc in docs] == ["kept", "missing"]
     assert failed_fetcher.calls == [("missing",)]
+
+
+@pytest.mark.asyncio
+async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
+    """Configured Docling deadlines should reach the converter"""
+    captured = {}
+    loader = AsyncDoclingWebFileLoader(
+        pdf_pipeline_options={"document_timeout": 120}
+    )
+    loader.content_fetcher = _Fetcher()
+
+    async def _read_docling_web_file(*args, **kwargs):
+        await asyncio.sleep(0)
+        captured.update(kwargs)
+        return _doc("https://example.com/sample.pdf")
+
+    monkeypatch.setattr(
+        "compass.web.file_loader.read_docling_web_file",
+        _read_docling_web_file,
+    )
+
+    doc, raw_content = await loader._fetch_doc(
+        "https://example.com/sample.pdf"
+    )
+
+    assert doc.attrs["doc_type"] == "pdf"
+    assert raw_content == b"content"
+    assert captured["pdf_pipeline_options"] == {"document_timeout": 120}
 
 
 if __name__ == "__main__":

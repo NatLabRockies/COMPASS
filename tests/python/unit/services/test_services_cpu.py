@@ -2,6 +2,7 @@
 
 import logging
 import sys
+import time
 import asyncio
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,7 +11,13 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from compass.services.cpu import ProcessPoolService, _read_docling
+from compass.services.cpu import (
+    TIMEOUT_PARAMS,
+    ProcessPoolService,
+    _read_docling,
+    _read_docling_without_timeout,
+    _run_docling_in_subprocess,
+)
 from compass.services.provider import RunningAsyncServices
 from compass.utilities.logs import LocationFileLog, LogListener
 
@@ -32,6 +39,16 @@ def _write_to_process_streams():
     print("PROCESS STDOUT", flush=True)
     print("PROCESS STDERR", file=sys.stderr, flush=True)
     return "STREAMED"
+
+
+def _return_from_subprocess(value):
+    """Return a serializable value from a child process"""
+    return value
+
+
+def _block_subprocess(seconds):
+    """Block a child process long enough for a deadline to expire"""
+    time.sleep(seconds)
 
 
 @pytest.mark.asyncio
@@ -167,6 +184,69 @@ def test_read_docling_converts_missing_confidences_to_none(monkeypatch):
     assert doc.attrs["low_score_confidence"] is None
 
 
+def test_read_docling_uses_process_deadline(monkeypatch):
+    """Docling deadlines should run outside the process-pool worker"""
+    captured = {}
+    expected = object()
+    configured_options = {"document_timeout": 120}
+
+    def _run_in_subprocess(fn, *, args, kwargs, timeout):
+        captured["fn"] = fn
+        captured["args"] = args
+        captured["kwargs"] = kwargs
+        captured["timeout"] = timeout
+        return expected
+
+    monkeypatch.setattr(
+        "compass.services.cpu._run_docling_in_subprocess",
+        _run_in_subprocess,
+    )
+
+    result = _read_docling(
+        b"%PDF",
+        "sample.pdf",
+        pdf_pipeline_options=configured_options,
+    )
+
+    assert result is expected
+    assert captured["fn"] is _read_docling_without_timeout
+    assert captured["args"] == (b"%PDF", "sample.pdf")
+    assert captured["kwargs"]["pdf_pipeline_options"] == {
+        "document_timeout": 120
+    }
+    assert captured["timeout"] == 132
+    assert configured_options == {"document_timeout": 120}
+
+
+def test_docling_subprocess_returns_result():
+    """The Docling child process should return completed conversions"""
+    result = _run_docling_in_subprocess(
+        _return_from_subprocess,
+        args=("converted",),
+        kwargs={},
+        timeout=5,
+    )
+
+    assert result == "converted"
+
+
+def test_docling_subprocess_enforces_deadline(monkeypatch):
+    """The Docling child process should be stopped at its deadline"""
+    monkeypatch.setitem(TIMEOUT_PARAMS, "shutdown_timeout", 0.1)
+    monkeypatch.setitem(TIMEOUT_PARAMS, "force_shutdown_timeout", 0.1)
+
+    start_time = time.monotonic()
+    with pytest.raises(TimeoutError, match="Docling conversion exceeded"):
+        _run_docling_in_subprocess(
+            _block_subprocess,
+            args=(10,),
+            kwargs={},
+            timeout=0.1,
+        )
+
+    assert time.monotonic() - start_time < 1
+
+
 def test_process_pool_release_resources_graceful_shutdown():  # ruff:ignore[complex-structure]
     """Graceful process-pool shutdown should not force worker exit"""
 
@@ -226,7 +306,7 @@ def test_process_pool_release_resources_graceful_shutdown():  # ruff:ignore[comp
     assert service.pool is None
     assert pool.shutdown_calls == [(False, True)]
     assert pool._executor_manager_thread.join_calls == [
-        service._SHUTDOWN_TIMEOUT
+        TIMEOUT_PARAMS["shutdown_timeout"]
     ]
     process = pool._processes[0]
     assert process.terminate_calls == 0
@@ -295,15 +375,15 @@ def test_process_pool_release_resources_forces_stuck_shutdown():  # ruff:ignore[
     assert service.pool is None
     assert pool.shutdown_calls == [(False, True)]
     assert pool._executor_manager_thread.join_calls == [
-        service._SHUTDOWN_TIMEOUT,
-        service._FORCE_SHUTDOWN_TIMEOUT,
+        TIMEOUT_PARAMS["shutdown_timeout"],
+        TIMEOUT_PARAMS["force_shutdown_timeout"],
     ]
     process = pool._processes[0]
     assert process.terminate_calls == 1
     assert process.kill_calls == 1
     assert process.join_calls == [
-        service._FORCE_SHUTDOWN_TIMEOUT,
-        service._FORCE_SHUTDOWN_TIMEOUT,
+        TIMEOUT_PARAMS["force_shutdown_timeout"],
+        TIMEOUT_PARAMS["force_shutdown_timeout"],
     ]
 
 
