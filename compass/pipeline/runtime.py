@@ -116,13 +116,20 @@ class PipelineRuntime:
         )
 
     @cached_property
-    def crawl_semaphore(self):
-        """Crawl concurrency limiter"""
+    def _crawl_semaphore(self):
+        """Crawl concurrency limiter or None"""
         if not self.search_params.max_num_concurrent_website_searches:
             return None
         return asyncio.Semaphore(
             self.search_params.max_num_concurrent_website_searches
         )
+
+    @property
+    def crawl_semaphore(self):
+        """Crawl concurrency limiter"""
+        if self._crawl_semaphore is None:
+            return AsyncExitStack()
+        return self._crawl_semaphore
 
     @cached_property
     def search_engine_semaphore(self):
