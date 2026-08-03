@@ -1,5 +1,6 @@
 """Fixed collection steps for the process pipeline"""
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 
@@ -267,22 +268,35 @@ class ElmWebsiteCrawlStep(CollectionStep):
             )
             return []
 
+        crawl_timeout_s = (
+            workflow.runtime.search_params.website_crawl_timeout_seconds
+        )
         logger.debug(
             "Collecting documents using ELM web crawl for: %s",
             workflow.jurisdiction.full_name,
         )
         try:
-            out = await download_jurisdiction_ordinances_from_website(
-                workflow.jurisdiction_website,
-                heuristic=await workflow.extractor.get_heuristic(),
-                keyword_points=(
-                    await workflow.extractor.get_website_keywords()
-                ),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                crawl_semaphore=workflow.runtime.crawl_semaphore,
-                pb_jurisdiction_name=workflow.jurisdiction.full_name,
-                return_c4ai_results=True,
+            async with workflow.runtime.crawl_semaphore:
+                async with asyncio.timeout(crawl_timeout_s):
+                    out = await download_jurisdiction_ordinances_from_website(
+                        workflow.jurisdiction_website,
+                        heuristic=await workflow.extractor.get_heuristic(),
+                        keyword_points=(
+                            await workflow.extractor.get_website_keywords()
+                        ),
+                        file_loader_kwargs=workflow.runtime.file_loader_kwargs,
+                        pb_jurisdiction_name=workflow.jurisdiction.full_name,
+                        return_c4ai_results=True,
+                    )
+        except TimeoutError:
+            logger.exception(
+                "ELM Website crawl deadline (%s) exceeded for %s; "
+                "continuing with no crawl docs",
+                f"{int(crawl_timeout_s):,d}s",
+                workflow.jurisdiction.full_name,
             )
+            workflow.last_scrape_results = []
+            return []
         except Exception:
             logger.exception(
                 "Error collecting documents using ELM web crawl for %s",
@@ -358,17 +372,32 @@ class CompassWebsiteCrawlStep(CollectionStep):
         for scrape_result in workflow.last_scrape_results:
             checked_urls.update({sub_res.url for sub_res in scrape_result})
 
+        crawl_timeout_s = (
+            workflow.runtime.search_params.website_crawl_timeout_seconds
+        )
         func = download_jurisdiction_ordinances_from_website_compass_crawl
         try:
-            docs = await func(
-                workflow.jurisdiction_website,
-                heuristic=await workflow.extractor.get_heuristic(),
-                keyword_points=await workflow.extractor.get_website_keywords(),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                already_visited=checked_urls,
-                crawl_semaphore=workflow.runtime.crawl_semaphore,
-                pb_jurisdiction_name=workflow.jurisdiction.full_name,
+            async with workflow.runtime.crawl_semaphore:
+                async with asyncio.timeout(crawl_timeout_s):
+                    docs = await func(
+                        workflow.jurisdiction_website,
+                        heuristic=await workflow.extractor.get_heuristic(),
+                        keyword_points=(
+                            await workflow.extractor.get_website_keywords()
+                        ),
+                        file_loader_kwargs=workflow.runtime.file_loader_kwargs,
+                        already_visited=checked_urls,
+                        pb_jurisdiction_name=workflow.jurisdiction.full_name,
+                    )
+        except TimeoutError:
+            logger.exception(
+                "COMPASS Website crawl deadline (%s) exceeded for %s; "
+                "continuing with no crawl docs",
+                f"{int(crawl_timeout_s):,d}s",
+                workflow.jurisdiction.full_name,
             )
+            workflow.last_scrape_results = []
+            return []
         except Exception:
             logger.exception(
                 "Error collecting documents using COMPASS web crawl for %s",
