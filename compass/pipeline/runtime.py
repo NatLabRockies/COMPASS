@@ -172,6 +172,9 @@ class PipelineRuntime:
             "html_read_kwargs": self.file_loader_kwargs.get(
                 "html_read_kwargs"
             ),
+            "pdf_pipeline_options": self.file_loader_kwargs.get(
+                "pdf_pipeline_options"
+            ),
         }
         if self.search_params.pytesseract_exe_fp is not None:
             self._setup_pytesseract()
