@@ -12,6 +12,7 @@ import copy
 import asyncio
 import logging
 import threading
+import contextlib
 import multiprocessing
 from pathlib import Path
 from functools import partial, partialmethod
@@ -548,6 +549,18 @@ class _JsonExceptionFileHandler(logging.Handler):
         return records
 
 
+class _DoclingLogPipe:
+    """Queue-like object that sends log records through a connection"""
+
+    def __init__(self, sender):
+        self.sender = sender
+
+    def put_nowait(self, record):
+        """Send one prepared log record to the parent process"""
+        with contextlib.suppress(BrokenPipeError, EOFError, OSError):
+            self.sender.send(("log", record))
+
+
 def log_versions(logger):
     """Log COMPASS and dependency package versions
 
@@ -620,6 +633,11 @@ def configure_subprocess_logging(logging_queue, user_initializer, initargs):
     logging.getLogger("compass").info("Subprocess logging initialized")
     if user_initializer is not None:
         user_initializer(*initargs)
+
+
+def configure_docling_subprocess_logging(sender):
+    """[NOT PUBLIC API] Route docling subprocess output through main"""
+    configure_subprocess_logging(_DoclingLogPipe(sender), None, ())
 
 
 def _get_version(pkg_name):
