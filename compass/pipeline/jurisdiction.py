@@ -176,7 +176,7 @@ class SingleJurisdictionRun:
                 "jurisdiction_website", self.jurisdiction_website
             )
             logger.info(
-                "Using existing collection manifest shard for %s",
+                "Resuming collection from manifest shard for %s",
                 self.jurisdiction.full_name,
             )
         return collection_info
