@@ -426,7 +426,8 @@ def _load_collection_manifest_from_shards(manifest_fp, expected_tech):
         collection_info = load_config(
             shard_fp,
             # paths are NOT relative to the shard directory, so should
-            # not be resolved here
+            # not be resolved here; they are resolved using the
+            # `resolve_all_paths` function call below
             resolve_paths=False,
             file_name="Collection manifest shard",
         )
