@@ -85,13 +85,17 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
                             (
                                 manifest_fp.parent
                                 / doc_info["source_fp"].replace("\\", "/")
-                            ).resolve()
+                            )
+                            .resolve()
+                            .as_posix()
                         ),
                         "parsed_fp": str(
                             (
                                 manifest_fp.parent
                                 / doc_info["parsed_fp"].replace("\\", "/")
-                            ).resolve()
+                            )
+                            .resolve()
+                            .as_posix()
                         ),
                     }
                     for doc_info in documents
@@ -143,7 +147,7 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
                     )
                 expected_path = expected_path.replace("\\", "/")
                 assert doc_info[key] == str(
-                    (manifest_fp.parent / expected_path).resolve()
+                    (manifest_fp.parent / expected_path).resolve().as_posix()
                 )
 
 
@@ -185,10 +189,10 @@ async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
 
     document = jurisdictions[0]["documents"][0]
     assert document["source_fp"] == str(
-        (manifest_dir / "downloaded/source.html").resolve()
+        (manifest_dir / "downloaded/source.html").resolve().as_posix()
     )
     assert document["parsed_fp"] == str(
-        (manifest_dir / "parsed/source.txt").resolve()
+        (manifest_dir / "parsed/source.txt").resolve().as_posix()
     )
     assert Path(document["source_fp"]).is_absolute()
     assert Path(document["parsed_fp"]).is_absolute()
