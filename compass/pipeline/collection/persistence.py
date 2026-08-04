@@ -385,18 +385,20 @@ async def _load_single_doc(doc_info):
 
 async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
     """Store collected documents and their parsed text when needed"""
-    tasks = []
-    documents = []
+    document_metadata = []
     left_to_store = []
     for info in collected_docs.values:
         doc = info["doc"]
         if "parsed_fp" in doc.attrs and "source_fp" in doc.attrs:
             doc.attrs["from_steps"] = list(info["from_steps"])
-            documents.append(doc)
+            document_metadata.append(doc.attrs)
         else:
             left_to_store.append(info)
 
-    for index, info in enumerate(left_to_store, start=len(documents) + 1):
+    tasks = []
+    for index, info in enumerate(
+        left_to_store, start=len(document_metadata) + 1
+    ):
         task = asyncio.create_task(
             _persist_doc(
                 doc,
@@ -408,8 +410,8 @@ async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
         )
         tasks.append(task)
 
-    documents.extend(await asyncio.gather(*tasks))
-    return [doc for doc in documents if doc is not None]
+    document_metadata.extend(await asyncio.gather(*tasks))
+    return [doc_info for doc_info in document_metadata if doc_info is not None]
 
 
 async def _persist_doc(doc, out_stem, from_steps, relative_to):
