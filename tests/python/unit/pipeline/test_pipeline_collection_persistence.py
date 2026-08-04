@@ -2,6 +2,7 @@
 
 import json
 from datetime import UTC, datetime
+from operator import itemgetter
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,6 +10,8 @@ import pytest
 
 import compass.pipeline.collection.persistence as persistence_module
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
+from compass.services.provider import RunningAsyncServices
+from compass.services.threaded import GenericFuncRunner
 
 
 def _build_doc(source, pages, *, has_parsed_text=True):
@@ -27,6 +30,67 @@ def _build_doc(source, pages, *, has_parsed_text=True):
 def _build_jurisdiction(full_name="Example Township", code="12345"):
     """Build a minimal jurisdiction for persistence tests"""
     return SimpleNamespace(full_name=full_name, code=code)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("input_type", ["str", "path"])
+@pytest.mark.parametrize("is_relative", [True, False])
+@pytest.mark.parametrize("has_wildcard", [True, False])
+@pytest.mark.parametrize("is_list", [True, False])
+async def test_load_collection_manifest_jurisdictions_path_variants(
+    tmp_path, monkeypatch, input_type, is_relative, has_wildcard, is_list
+):
+    """Manifest paths should support strings, Paths, globs, and lists"""
+    manifest_dir = tmp_path / "manifests"
+    manifest_fps = [
+        manifest_dir / "first" / "manifest_first.json",
+        manifest_dir / "second" / "manifest_second.json",
+    ]
+    expected_jurisdictions = []
+    for index, manifest_fp in enumerate(manifest_fps, start=1):
+        jurisdiction = {"FIPS": f"{index:03d}"}
+        expected_jurisdictions.append(jurisdiction)
+        manifest_fp.parent.mkdir(parents=True)
+        manifest_fp.write_text(
+            json.dumps(
+                {
+                    "tech": "solar",
+                    "jurisdictions": [jurisdiction],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    manifest_inputs = []
+    for manifest_fp in manifest_fps:
+        if is_relative:
+            manifest_input = f"./{manifest_fp.relative_to(tmp_path)}"
+        else:
+            manifest_input = manifest_fp
+        if has_wildcard:
+            manifest_input = str(manifest_input).replace(
+                manifest_fp.name, "*.json"
+            )
+        if input_type == "path":
+            manifest_input = Path(manifest_input)
+        else:
+            manifest_input = str(manifest_input)
+        manifest_inputs.append(manifest_input)
+
+    monkeypatch.chdir(tmp_path)
+    manifest_input = manifest_inputs if is_list else manifest_inputs[0]
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        jurisdictions = (
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_input, "solar"
+            )
+        )
+
+    if not is_list:
+        expected_jurisdictions = expected_jurisdictions[:1]
+    assert sorted(jurisdictions, key=itemgetter("FIPS")) == (
+        expected_jurisdictions
+    )
 
 
 @pytest.mark.asyncio
