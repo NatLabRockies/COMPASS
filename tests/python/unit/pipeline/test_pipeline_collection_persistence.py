@@ -152,6 +152,41 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
 
 
 @pytest.mark.asyncio
+async def test_load_collection_manifest_jurisdictions_recursive_wildcard(
+    tmp_path,
+):
+    """Recursive wildcard inputs should load nested manifests"""
+    manifest_dir = tmp_path / "manifests"
+    manifest_fps = [
+        manifest_dir / "first" / "collection_manifest.json",
+        manifest_dir / "second" / "nested" / "collection_manifest.json",
+    ]
+    for index, manifest_fp in enumerate(manifest_fps, start=1):
+        manifest_fp.parent.mkdir(parents=True)
+        manifest_fp.write_text(
+            json.dumps(
+                {
+                    "tech": "solar",
+                    "jurisdictions": [{"FIPS": f"{index:03d}"}],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        jurisdictions = (
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_dir / "**" / "*.json", "solar"
+            )
+        )
+
+    assert sorted(jurisdictions, key=itemgetter("FIPS")) == [
+        {"FIPS": "001"},
+        {"FIPS": "002"},
+    ]
+
+
+@pytest.mark.asyncio
 async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
     tmp_path,
 ):

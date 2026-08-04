@@ -4,6 +4,7 @@ import os
 import json
 import asyncio
 from pathlib import Path
+from glob import glob
 from itertools import chain
 from statistics import median
 from collections import Counter
@@ -148,9 +149,11 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
 
     task_fps = []
     for maybe_glob in manifest_fp:
-        fp = Path(maybe_glob).expanduser().resolve()
-        new_fps = list(fp.parent.glob(fp.name)) or [fp]
-        task_fps.extend(new_fps)
+        # ruff: ignore[glob]
+        new_fps = [
+            Path(match) for match in glob(str(maybe_glob), recursive=True)
+        ]
+        task_fps.extend(new_fps or [maybe_glob])
 
     tasks = [
         GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
