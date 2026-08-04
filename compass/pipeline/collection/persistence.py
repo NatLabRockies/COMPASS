@@ -290,8 +290,7 @@ async def persist_documents(
     jurisdiction : compass.utilities.jurisdictions.Jurisdiction
         Jurisdiction whose deduplicated documents will be persisted and
         serialized into collection metadata.
-    collected_docs : \
-            compass.pipeline.collection.dedupe.DocumentDeDuplicator
+    collected_docs : compass.pipeline.collection.dedupe.DocumentDeDuplicator
         Deduplicated document collection containing ``{"doc",
         "from_steps"}`` entries for each persisted document.
     completed_steps : iterable of str
@@ -309,7 +308,7 @@ async def persist_documents(
     dict
         Serialized collection metadata for the jurisdiction, including
         jurisdiction identifiers and the persisted document records.
-    """
+    """  # ruff:ignore[doc-line-too-long]
     documents = await _store_docs_as_needed(
         collected_docs, jurisdiction, relative_to
     )
