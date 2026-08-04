@@ -275,7 +275,14 @@ def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
     )
 
 
-async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
+async def persist_documents(
+    jurisdiction,
+    collected_docs,
+    completed_steps,
+    *,
+    relative_to=None,
+    **kwargs,
+):
     """Persist deduplicated documents for one jurisdiction
 
     Parameters
@@ -287,9 +294,15 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
             compass.pipeline.collection.dedupe.DocumentDeDuplicator
         Deduplicated document collection containing ``{"doc",
         "from_steps"}`` entries for each persisted document.
+    completed_steps : iterable of str
+        Collection step names that were completed for this jurisdiction,
+        used to record the ``"completed_step_document_counts"`` in the
+        collection metadata.
     relative_to : path-like, optional
         Base path used to store ``source_fp`` and ``parsed_fp`` as
         relative paths when possible. By default, ``None``.
+    **kwargs
+        Extra keyword-argument pairs to add to the collection metadata.
 
     Returns
     -------
@@ -297,24 +310,14 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         Serialized collection metadata for the jurisdiction, including
         jurisdiction identifiers and the persisted document records.
     """
-    tasks = []
-    for index, info in enumerate(collected_docs.values, start=1):
-        task = asyncio.create_task(
-            _persist_doc(
-                info["doc"],
-                out_stem=f"{jurisdiction.full_name}_{index}",
-                from_steps=info["from_steps"],
-                relative_to=relative_to,
-            ),
-            name=jurisdiction.full_name,
-        )
-        tasks.append(task)
-
-    documents = await asyncio.gather(*tasks)
-    documents = [doc for doc in documents if doc is not None]
-    collection_step_counts = Counter(
+    documents = await _store_docs_as_needed(
+        collected_docs, jurisdiction, relative_to
+    )
+    completed_step_document_counts = Counter(
         step for info in documents for step in info["from_steps"]
     )
+    for step in completed_steps:
+        completed_step_document_counts.setdefault(step, 0)
     return {
         "full_name": jurisdiction.full_name,
         "county": jurisdiction.county,
@@ -323,7 +326,8 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
         "num_docs": len(documents),
-        "collection_step_counts": dict(collection_step_counts),
+        "completed_step_document_counts": dict(completed_step_document_counts),
+        **kwargs,
         "documents": documents,
     }
 
