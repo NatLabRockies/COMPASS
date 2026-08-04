@@ -166,8 +166,17 @@ class SingleJurisdictionRun:
         )
         return collection_info
 
-    async def _load_existing_collection_info(self):
-        """Load saved collection info when a shard already exists"""
+    async def load_existing_collection_shard(self):
+        """Load saved collection shard, if any
+
+        Returns
+        -------
+        dict or None
+            A dictionary containing collection information, including
+            the jurisdiction's full name, county, state, subdivision,
+            type, FIPS code, and a list of collected documents with
+            their associated metadata, or ``None`` if no shard exists.
+        """
         collection_info = await load_specific_collection_manifest_shard(
             self.runtime.dirs.jurisdiction_dbs, self.jurisdiction
         )
@@ -176,7 +185,7 @@ class SingleJurisdictionRun:
                 "jurisdiction_website", self.jurisdiction_website
             )
             logger.info(
-                "Resuming collection from manifest shard for %s",
+                "Loaded collection from manifest shard for %s",
                 self.jurisdiction.full_name,
             )
         return collection_info
