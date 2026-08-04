@@ -223,6 +223,8 @@ def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
 
     return load_config(
         shard_fp,
+        # paths are NOT relative to the shard directory, so should not
+        # be resolved here
         resolve_paths=False,
         file_name="Collection manifest shard",
     )
