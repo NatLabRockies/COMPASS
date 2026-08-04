@@ -191,7 +191,9 @@ def _write_collection_manifest_shard(shard_dir, collection_info):
 def _load_collection_manifest(manifest_fp, expected_tech):
     """Load a collection manifest from disk"""
     try:
-        manifest = load_config(manifest_fp, file_name="Collection manifest")
+        manifest = load_config(
+            manifest_fp, resolve_paths=True, file_name="Collection manifest"
+        )
     except COMPASSFileNotFoundError:
         manifest = _load_collection_manifest_from_shards(
             manifest_fp, expected_tech
