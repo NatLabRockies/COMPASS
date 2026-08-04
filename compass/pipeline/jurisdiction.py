@@ -172,6 +172,9 @@ class SingleJurisdictionRun:
             self.runtime.dirs.jurisdiction_dbs, self.jurisdiction
         )
         if collection_info is not None:
+            self.jurisdiction_website = collection_info.get(
+                "jurisdiction_website", self.jurisdiction_website
+            )
             logger.info(
                 "Using existing collection manifest shard for %s",
                 self.jurisdiction.full_name,
