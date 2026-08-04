@@ -1,8 +1,10 @@
 """Persistence for collected documents"""
 
+import os
 import json
 import asyncio
 from pathlib import Path
+from itertools import chain
 from statistics import median
 from collections import Counter
 from warnings import warn
@@ -123,24 +125,38 @@ async def write_collection_manifest_shard(shard_dir, collection_info):
     )
 
 
-async def load_collection_manifest(manifest_fp, expected_tech):
-    """Load a collection manifest from disk
+async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
+    """Load jurisdictions from one or more collection manifest(s)
 
     Parameters
     ----------
-    manifest_fp : path-like
-        Path to the collection manifest file to be loaded.
+    manifest_fp : path-like or list of path-like
+        Path to the collection manifest file to be loaded. Can be a
+        single path or a list of paths, any of which may include glob
+        patterns.
     expected_tech : str
         Technology specified in the pipeline request, used to validate
         compatibility with the manifest.
 
     Returns
     -------
-    dict
-        Loaded collection manifest as a dictionary.
+    list
+        List of jurisdiction infos from the collection manifest(s).
     """
-    return await GenericFuncRunner.call(
-        _load_collection_manifest, manifest_fp, expected_tech
+    if isinstance(manifest_fp, (str, os.PathLike)):
+        manifest_fp = [str(manifest_fp)]
+
+    manifest_fp = [Path(fp).expanduser().resolve() for fp in manifest_fp]
+    tasks = [
+        GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
+        for maybe_glob in manifest_fp
+        for fp in maybe_glob.parent.glob(maybe_glob.name)
+    ]
+    manifests = await asyncio.gather(*tasks)
+    return list(
+        chain.from_iterable(
+            manifest.get("jurisdictions", []) for manifest in manifests
+        )
     )
 
 
