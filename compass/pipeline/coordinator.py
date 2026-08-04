@@ -25,7 +25,7 @@ from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
     write_collection_manifest,
-    load_collection_manifest,
+    load_collection_manifest_jurisdictions,
 )
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
@@ -300,10 +300,12 @@ class COMPASSExtraction(BaseRunMode):
         logger.debug(
             "Manifest path(s): %s", self.runtime.request.collection_manifest_fp
         )
-        manifest = await load_collection_manifest(
-            self.runtime.request.collection_manifest_fp, self.runtime.tech
+        collection_infos_by_fips = (
+            await load_collection_manifest_jurisdictions(
+                self.runtime.request.collection_manifest_fp, self.runtime.tech
+            )
         )
-        jurisdictions = manifest.get("jurisdictions", [])
+
         logger.info(
             "Extracting structured data for %d jurisdiction(s)",
             len(jurisdictions_df),
@@ -312,12 +314,8 @@ class COMPASSExtraction(BaseRunMode):
         tasks = []
         start_date = datetime.now(UTC)
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            collection_info = [
-                info
-                for info in jurisdictions
-                if info is not None and info.get("FIPS") == jurisdiction.code
-            ]
-            if not collection_info:
+            collection_info = collection_infos_by_fips.get(jurisdiction.code)
+            if collection_info is None:
                 logger.warning(
                     "No collection info found for %s; skipping extraction",
                     jurisdiction.full_name,
@@ -330,7 +328,7 @@ class COMPASSExtraction(BaseRunMode):
             workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
             tasks.append(
                 asyncio.create_task(
-                    workflow.run_extraction_with_logging(collection_info[0]),
+                    workflow.run_extraction_with_logging(collection_info),
                     name=jurisdiction.full_name,
                 )
             )

@@ -8,7 +8,10 @@ from types import SimpleNamespace
 import pytest
 
 import compass.pipeline.collection.persistence as persistence_module
+from compass.exceptions import COMPASSValueError
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
+from compass.services.provider import RunningAsyncServices
+from compass.services.threaded import GenericFuncRunner
 
 
 def _build_doc(source, pages, *, has_parsed_text=True):
@@ -27,6 +30,231 @@ def _build_doc(source, pages, *, has_parsed_text=True):
 def _build_jurisdiction(full_name="Example Township", code="12345"):
     """Build a minimal jurisdiction for persistence tests"""
     return SimpleNamespace(full_name=full_name, code=code)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("input_type", ["str", "path"])
+@pytest.mark.parametrize("is_relative", [True, False])
+@pytest.mark.parametrize("has_wildcard", [True, False])
+@pytest.mark.parametrize("is_list", [True, False])
+# ruff:ignore[complex-structure]
+async def test_load_collection_manifest_jurisdictions_path_variants(
+    tmp_path, monkeypatch, input_type, is_relative, has_wildcard, is_list
+):
+    """Manifest inputs and persisted document paths should resolve"""
+    manifest_dir = tmp_path / "manifests"
+    manifest_fps = [
+        manifest_dir / "first" / "manifest_first.json",
+        manifest_dir / "second" / "manifest_second.json",
+    ]
+    expected_jurisdictions = []
+    for index, manifest_fp in enumerate(manifest_fps, start=1):
+        document_paths = {
+            "dot": "./documents/source.html",
+            "parent": "../shared/source.html",
+            "normalized": "./documents/../normalized/source.html",
+            "windows_dot": r".\documents\source.html",
+            "windows_parent": r"..\shared\source.html",
+        }
+        documents = [
+            {
+                "path_case": path_case,
+                "source_fp": source_fp,
+                "parsed_fp": source_fp.replace("source.html", "parsed.txt"),
+            }
+            for path_case, source_fp in document_paths.items()
+        ]
+        jurisdiction = {"FIPS": f"{index:03d}", "documents": documents}
+        manifest_fp.parent.mkdir(parents=True)
+        manifest_fp.write_text(
+            json.dumps(
+                {
+                    "tech": "solar",
+                    "jurisdictions": [jurisdiction],
+                }
+            ),
+            encoding="utf-8",
+        )
+        expected_jurisdictions.append(
+            {
+                "FIPS": f"{index:03d}",
+                "documents": [
+                    {
+                        "path_case": doc_info["path_case"],
+                        "source_fp": str(
+                            (
+                                manifest_fp.parent
+                                / doc_info["source_fp"].replace("\\", "/")
+                            )
+                            .resolve()
+                            .as_posix()
+                        ),
+                        "parsed_fp": str(
+                            (
+                                manifest_fp.parent
+                                / doc_info["parsed_fp"].replace("\\", "/")
+                            )
+                            .resolve()
+                            .as_posix()
+                        ),
+                    }
+                    for doc_info in documents
+                ],
+            }
+        )
+
+    manifest_inputs = []
+    for manifest_fp in manifest_fps:
+        if is_relative:
+            manifest_input = f"./{manifest_fp.relative_to(tmp_path)}"
+        else:
+            manifest_input = manifest_fp
+        if has_wildcard:
+            manifest_input = str(manifest_input).replace(
+                manifest_fp.name, "*.json"
+            )
+        if input_type == "path":
+            manifest_input = Path(manifest_input)
+        else:
+            manifest_input = str(manifest_input)
+        manifest_inputs.append(manifest_input)
+
+    monkeypatch.chdir(tmp_path)
+    manifest_input = manifest_inputs if is_list else manifest_inputs[0]
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        jurisdictions = (
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_input, "solar"
+            )
+        )
+
+    if not is_list:
+        expected_jurisdictions = expected_jurisdictions[:1]
+    expected_jurisdictions = {
+        jurisdiction["FIPS"]: jurisdiction
+        for jurisdiction in expected_jurisdictions
+    }
+    assert jurisdictions == expected_jurisdictions
+    for fips, jurisdiction in sorted(jurisdictions.items()):
+        manifest_fp = manifest_fps[int(fips) - 1]
+        for doc_info in jurisdiction["documents"]:
+            for key in ("source_fp", "parsed_fp"):
+                assert Path(doc_info[key]).is_absolute()
+                expected_path = document_paths[doc_info["path_case"]]
+                if key == "parsed_fp":
+                    expected_path = expected_path.replace(
+                        "source.html", "parsed.txt"
+                    )
+                expected_path = expected_path.replace("\\", "/")
+                assert doc_info[key] == str(
+                    (manifest_fp.parent / expected_path).resolve().as_posix()
+                )
+
+
+@pytest.mark.asyncio
+async def test_load_collection_manifest_jurisdictions_recursive_wildcard(
+    tmp_path,
+):
+    """Recursive wildcard inputs should load nested manifests"""
+    manifest_dir = tmp_path / "manifests"
+    manifest_fps = [
+        manifest_dir / "first" / "collection_manifest.json",
+        manifest_dir / "second" / "nested" / "collection_manifest.json",
+    ]
+    for index, manifest_fp in enumerate(manifest_fps, start=1):
+        manifest_fp.parent.mkdir(parents=True)
+        manifest_fp.write_text(
+            json.dumps(
+                {
+                    "tech": "solar",
+                    "jurisdictions": [{"FIPS": f"{index:03d}"}],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        jurisdictions = (
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_dir / "**" / "*.json", "solar"
+            )
+        )
+
+    assert jurisdictions == {"001": {"FIPS": "001"}, "002": {"FIPS": "002"}}
+
+
+@pytest.mark.asyncio
+async def test_load_collection_manifest_jurisdictions_rejects_duplicate_fips(
+    tmp_path,
+):
+    """Overlapping manifests should fail instead of discarding an entry"""
+    manifest_fps = [tmp_path / "first.json", tmp_path / "second.json"]
+    for manifest_fp in manifest_fps:
+        manifest_fp.write_text(
+            json.dumps(
+                {
+                    "tech": "solar",
+                    "jurisdictions": [{"FIPS": "12345", "documents": []}],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        with pytest.raises(
+            COMPASSValueError,
+            match="Duplicate collection manifest entry for FIPS '12345'",
+        ):
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_fps, "solar"
+            )
+
+
+@pytest.mark.asyncio
+async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
+    tmp_path,
+):
+    """Shard-recovered document paths should resolve from manifest root"""
+    manifest_dir = tmp_path / "collection"
+    shard_dir = manifest_dir / "shards"
+    shard_dir.mkdir(parents=True)
+    collection_info = {
+        "FIPS": "12345",
+        "full_name": "Example Township",
+        "documents": [
+            {
+                "source_fp": "./downloaded/source.html",
+                "parsed_fp": "./parsed/source.txt",
+            }
+        ],
+    }
+    shard_fp = (
+        shard_dir
+        / persistence_module._collection_manifest_shard_filename(
+            collection_info
+        )
+    )
+    shard_fp.write_text(json.dumps(collection_info), encoding="utf-8")
+
+    manifest_fp = (
+        manifest_dir / persistence_module.COLLECTION_MANIFEST_FILENAME
+    )
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        jurisdictions = (
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_fp, "solar"
+            )
+        )
+
+    document = jurisdictions["12345"]["documents"][0]
+    assert document["source_fp"] == str(
+        (manifest_dir / "downloaded/source.html").resolve().as_posix()
+    )
+    assert document["parsed_fp"] == str(
+        (manifest_dir / "parsed/source.txt").resolve().as_posix()
+    )
+    assert Path(document["source_fp"]).is_absolute()
+    assert Path(document["parsed_fp"]).is_absolute()
 
 
 @pytest.mark.asyncio

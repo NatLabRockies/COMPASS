@@ -1,8 +1,11 @@
 """Persistence for collected documents"""
 
+import os
 import json
 import asyncio
 from pathlib import Path
+from glob import glob
+from itertools import chain
 from statistics import median
 from collections import Counter
 from warnings import warn
@@ -123,13 +126,15 @@ async def write_collection_manifest_shard(shard_dir, collection_info):
     )
 
 
-async def load_collection_manifest(manifest_fp, expected_tech):
-    """Load a collection manifest from disk
+async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
+    """Load jurisdictions from one or more collection manifest(s)
 
     Parameters
     ----------
-    manifest_fp : path-like
-        Path to the collection manifest file to be loaded.
+    manifest_fp : path-like or list of path-like
+        Path to the collection manifest file to be loaded. Can be a
+        single path or a list of paths, any of which may include glob
+        patterns.
     expected_tech : str
         Technology specified in the pipeline request, used to validate
         compatibility with the manifest.
@@ -137,11 +142,45 @@ async def load_collection_manifest(manifest_fp, expected_tech):
     Returns
     -------
     dict
-        Loaded collection manifest as a dictionary.
+        Mapping of FIPS codes to jurisdiction infos from the collection
+        manifest(s).
+
+    Raises
+    ------
+    COMPASSValueError
+        If a duplicate jurisdiction is found in the manifest(s).
     """
-    return await GenericFuncRunner.call(
-        _load_collection_manifest, manifest_fp, expected_tech
-    )
+    if isinstance(manifest_fp, (str, os.PathLike)):
+        manifest_fp = [str(manifest_fp)]
+
+    task_fps = []
+    for maybe_glob in manifest_fp:
+        # ruff: ignore[glob]
+        new_fps = [
+            Path(match) for match in glob(str(maybe_glob), recursive=True)
+        ]
+        task_fps.extend(new_fps or [maybe_glob])
+
+    tasks = [
+        GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
+        for fp in task_fps
+    ]
+    manifests = await asyncio.gather(*tasks)
+
+    jurisdictions_by_fips = {}
+    for jurisdiction in chain.from_iterable(
+        manifest.get("jurisdictions", []) for manifest in manifests
+    ):
+        if jurisdiction is None:
+            continue
+
+        fips = jurisdiction.get("FIPS")
+        if fips in jurisdictions_by_fips:
+            msg = f"Duplicate collection manifest entry for FIPS '{fips}'"
+            raise COMPASSValueError(msg)
+        jurisdictions_by_fips[fips] = jurisdiction
+
+    return jurisdictions_by_fips
 
 
 async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
@@ -191,7 +230,9 @@ def _write_collection_manifest_shard(shard_dir, collection_info):
 def _load_collection_manifest(manifest_fp, expected_tech):
     """Load a collection manifest from disk"""
     try:
-        manifest = load_config(manifest_fp, file_name="Collection manifest")
+        manifest = load_config(
+            manifest_fp, resolve_paths=True, file_name="Collection manifest"
+        )
     except COMPASSFileNotFoundError:
         manifest = _load_collection_manifest_from_shards(
             manifest_fp, expected_tech
@@ -223,6 +264,8 @@ def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
 
     return load_config(
         shard_fp,
+        # paths are NOT relative to the shard directory, so should not
+        # be resolved here
         resolve_paths=False,
         file_name="Collection manifest shard",
     )
@@ -421,6 +464,9 @@ def _load_collection_manifest_from_shards(manifest_fp, expected_tech):
     for shard_fp in shard_fps:
         collection_info = load_config(
             shard_fp,
+            # paths are NOT relative to the shard directory, so should
+            # not be resolved here; they are resolved using the
+            # `resolve_all_paths` function call below
             resolve_paths=False,
             file_name="Collection manifest shard",
         )
