@@ -141,8 +141,14 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
 
     Returns
     -------
-    list
-        List of jurisdiction infos from the collection manifest(s).
+    dict
+        Mapping of FIPS codes to jurisdiction infos from the collection
+        manifest(s).
+
+    Raises
+    ------
+    COMPASSValueError
+        If a duplicate jurisdiction is found in the manifest(s).
     """
     if isinstance(manifest_fp, (str, os.PathLike)):
         manifest_fp = [str(manifest_fp)]
@@ -160,11 +166,21 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
         for fp in task_fps
     ]
     manifests = await asyncio.gather(*tasks)
-    return list(
-        chain.from_iterable(
-            manifest.get("jurisdictions", []) for manifest in manifests
-        )
-    )
+
+    jurisdictions_by_fips = {}
+    for jurisdiction in chain.from_iterable(
+        manifest.get("jurisdictions", []) for manifest in manifests
+    ):
+        if jurisdiction is None:
+            continue
+
+        fips = jurisdiction.get("FIPS")
+        if fips in jurisdictions_by_fips:
+            msg = f"Duplicate collection manifest entry for FIPS '{fips}'"
+            raise COMPASSValueError(msg)
+        jurisdictions_by_fips[fips] = jurisdiction
+
+    return jurisdictions_by_fips
 
 
 async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):

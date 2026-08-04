@@ -2,13 +2,13 @@
 
 import json
 from datetime import UTC, datetime
-from operator import itemgetter
 from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
 
 import compass.pipeline.collection.persistence as persistence_module
+from compass.exceptions import COMPASSValueError
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import GenericFuncRunner
@@ -130,13 +130,13 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
 
     if not is_list:
         expected_jurisdictions = expected_jurisdictions[:1]
-    assert sorted(jurisdictions, key=itemgetter("FIPS")) == (
-        expected_jurisdictions
-    )
-    for index, jurisdiction in enumerate(
-        sorted(jurisdictions, key=itemgetter("FIPS"))
-    ):
-        manifest_fp = manifest_fps[index]
+    expected_jurisdictions = {
+        jurisdiction["FIPS"]: jurisdiction
+        for jurisdiction in expected_jurisdictions
+    }
+    assert jurisdictions == expected_jurisdictions
+    for fips, jurisdiction in sorted(jurisdictions.items()):
+        manifest_fp = manifest_fps[int(fips) - 1]
         for doc_info in jurisdiction["documents"]:
             for key in ("source_fp", "parsed_fp"):
                 assert Path(doc_info[key]).is_absolute()
@@ -180,10 +180,34 @@ async def test_load_collection_manifest_jurisdictions_recursive_wildcard(
             )
         )
 
-    assert sorted(jurisdictions, key=itemgetter("FIPS")) == [
-        {"FIPS": "001"},
-        {"FIPS": "002"},
-    ]
+    assert jurisdictions == {"001": {"FIPS": "001"}, "002": {"FIPS": "002"}}
+
+
+@pytest.mark.asyncio
+async def test_load_collection_manifest_jurisdictions_rejects_duplicate_fips(
+    tmp_path,
+):
+    """Overlapping manifests should fail instead of discarding an entry"""
+    manifest_fps = [tmp_path / "first.json", tmp_path / "second.json"]
+    for manifest_fp in manifest_fps:
+        manifest_fp.write_text(
+            json.dumps(
+                {
+                    "tech": "solar",
+                    "jurisdictions": [{"FIPS": "12345", "documents": []}],
+                }
+            ),
+            encoding="utf-8",
+        )
+
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        with pytest.raises(
+            COMPASSValueError,
+            match="Duplicate collection manifest entry for FIPS '12345'",
+        ):
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_fps, "solar"
+            )
 
 
 @pytest.mark.asyncio
@@ -222,7 +246,7 @@ async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
             )
         )
 
-    document = jurisdictions[0]["documents"][0]
+    document = jurisdictions["12345"]["documents"][0]
     assert document["source_fp"] == str(
         (manifest_dir / "downloaded/source.html").resolve().as_posix()
     )
