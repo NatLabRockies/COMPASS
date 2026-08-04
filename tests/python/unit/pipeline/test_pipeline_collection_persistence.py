@@ -37,10 +37,11 @@ def _build_jurisdiction(full_name="Example Township", code="12345"):
 @pytest.mark.parametrize("is_relative", [True, False])
 @pytest.mark.parametrize("has_wildcard", [True, False])
 @pytest.mark.parametrize("is_list", [True, False])
+# ruff:ignore[complex-structure]
 async def test_load_collection_manifest_jurisdictions_path_variants(
     tmp_path, monkeypatch, input_type, is_relative, has_wildcard, is_list
 ):
-    """Manifest paths should support strings, Paths, globs, and lists"""
+    """Manifest inputs and persisted document paths should resolve"""
     manifest_dir = tmp_path / "manifests"
     manifest_fps = [
         manifest_dir / "first" / "manifest_first.json",
@@ -48,8 +49,22 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
     ]
     expected_jurisdictions = []
     for index, manifest_fp in enumerate(manifest_fps, start=1):
-        jurisdiction = {"FIPS": f"{index:03d}"}
-        expected_jurisdictions.append(jurisdiction)
+        document_paths = {
+            "dot": "./documents/source.html",
+            "parent": "../shared/source.html",
+            "normalized": "./documents/../normalized/source.html",
+            "windows_dot": r".\documents\source.html",
+            "windows_parent": r"..\shared\source.html",
+        }
+        documents = [
+            {
+                "path_case": path_case,
+                "source_fp": source_fp,
+                "parsed_fp": source_fp.replace("source.html", "parsed.txt"),
+            }
+            for path_case, source_fp in document_paths.items()
+        ]
+        jurisdiction = {"FIPS": f"{index:03d}", "documents": documents}
         manifest_fp.parent.mkdir(parents=True)
         manifest_fp.write_text(
             json.dumps(
@@ -59,6 +74,29 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
                 }
             ),
             encoding="utf-8",
+        )
+        expected_jurisdictions.append(
+            {
+                "FIPS": f"{index:03d}",
+                "documents": [
+                    {
+                        "path_case": doc_info["path_case"],
+                        "source_fp": str(
+                            (
+                                manifest_fp.parent
+                                / doc_info["source_fp"].replace("\\", "/")
+                            ).resolve()
+                        ),
+                        "parsed_fp": str(
+                            (
+                                manifest_fp.parent
+                                / doc_info["parsed_fp"].replace("\\", "/")
+                            ).resolve()
+                        ),
+                    }
+                    for doc_info in documents
+                ],
+            }
         )
 
     manifest_inputs = []
@@ -91,6 +129,69 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
     assert sorted(jurisdictions, key=itemgetter("FIPS")) == (
         expected_jurisdictions
     )
+    for index, jurisdiction in enumerate(
+        sorted(jurisdictions, key=itemgetter("FIPS"))
+    ):
+        manifest_fp = manifest_fps[index]
+        for doc_info in jurisdiction["documents"]:
+            for key in ("source_fp", "parsed_fp"):
+                assert Path(doc_info[key]).is_absolute()
+                expected_path = document_paths[doc_info["path_case"]]
+                if key == "parsed_fp":
+                    expected_path = expected_path.replace(
+                        "source.html", "parsed.txt"
+                    )
+                expected_path = expected_path.replace("\\", "/")
+                assert doc_info[key] == str(
+                    (manifest_fp.parent / expected_path).resolve()
+                )
+
+
+@pytest.mark.asyncio
+async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
+    tmp_path,
+):
+    """Shard-recovered document paths should resolve from manifest root"""
+    manifest_dir = tmp_path / "collection"
+    shard_dir = manifest_dir / "shards"
+    shard_dir.mkdir(parents=True)
+    collection_info = {
+        "FIPS": "12345",
+        "full_name": "Example Township",
+        "documents": [
+            {
+                "source_fp": "./downloaded/source.html",
+                "parsed_fp": "./parsed/source.txt",
+            }
+        ],
+    }
+    shard_fp = (
+        shard_dir
+        / persistence_module._collection_manifest_shard_filename(
+            collection_info
+        )
+    )
+    shard_fp.write_text(json.dumps(collection_info), encoding="utf-8")
+
+    manifest_fp = (
+        manifest_dir / persistence_module.COLLECTION_MANIFEST_FILENAME
+    )
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        jurisdictions = (
+            await persistence_module.load_collection_manifest_jurisdictions(
+                manifest_fp, "solar"
+            )
+        )
+
+    document = jurisdictions[0]["documents"][0]
+    assert document["source_fp"] == str(
+        (manifest_dir / "downloaded/source.html").resolve()
+    )
+    assert document["parsed_fp"] == str(
+        (manifest_dir / "parsed/source.txt").resolve()
+    )
+    assert Path(document["source_fp"]).is_absolute()
+    assert Path(document["parsed_fp"]).is_absolute()
 
 
 @pytest.mark.asyncio
