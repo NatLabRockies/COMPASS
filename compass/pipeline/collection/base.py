@@ -28,13 +28,45 @@ class DocumentCollection:
         """
         self.workflow = workflow
         self.de_duplicator = DocumentDeDuplicator()
-        self.steps = [
-            KnownLocalDocumentsStep(),
-            KnownUrlDocumentsStep(),
-            SearchEngineDocumentsStep(),
-            ElmWebsiteCrawlStep(),
-            CompassWebsiteCrawlStep(),
-        ]
+
+    @cached_property
+    def steps(self):
+        """Collection steps in the order they should be executed"""
+        steps = []
+
+        if self.workflow.known_local_docs:
+            steps.append(KnownLocalDocumentsStep())
+        else:
+            logger.debug(
+                "%r processing has no known local docs configured",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.known_doc_urls:
+            steps.append(KnownUrlDocumentsStep())
+        else:
+            logger.debug(
+                "%r processing has no known URLs configured",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.perform_se_search:
+            steps.append(SearchEngineDocumentsStep())
+        else:
+            logger.debug(
+                "%r processing doesn't have SE search enabled",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.perform_website_search:
+            steps.extend([ElmWebsiteCrawlStep(), CompassWebsiteCrawlStep()])
+        else:
+            logger.debug(
+                "%r processing doesn't have website search enabled",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        return self.steps
 
     async def execute(self, *, eager_extract=False, relative_to=None):
         """Run the fixed collection sequence
