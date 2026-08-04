@@ -25,7 +25,7 @@ from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
     write_collection_manifest,
-    load_collection_manifest,
+    load_collection_manifest_jurisdictions,
 )
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
@@ -300,10 +300,9 @@ class COMPASSExtraction(BaseRunMode):
         logger.debug(
             "Manifest path(s): %s", self.runtime.request.collection_manifest_fp
         )
-        manifest = await load_collection_manifest(
+        jurisdictions = await load_collection_manifest_jurisdictions(
             self.runtime.request.collection_manifest_fp, self.runtime.tech
         )
-        jurisdictions = manifest.get("jurisdictions", [])
         logger.info(
             "Extracting structured data for %d jurisdiction(s)",
             len(jurisdictions_df),
