@@ -48,15 +48,15 @@ class DocumentDeDuplicator:
         return bool(self._docs)
 
 
-def _collection_doc_key(doc):
+def _collection_doc_key(doc_info):
     """Build the deduplication key for a collected document"""
     try:
-        return str(doc.attrs["checksum"])
+        return str(doc_info["checksum"])
     except KeyError:
         return str(
-            doc.attrs.get("checksum")
-            or doc.attrs.get("source_fp")
-            or doc.attrs.get("source")
-            or doc.attrs.get("cache_fn")
-            or id(doc)
+            doc_info.get("checksum")
+            or doc_info.get("source_fp")
+            or doc_info.get("source")
+            or doc_info.get("cache_fn")
+            or id(doc_info)
         )
