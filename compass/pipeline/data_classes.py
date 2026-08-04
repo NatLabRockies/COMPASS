@@ -624,14 +624,16 @@ class BaseRequest:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
-        collection_manifest_fp : path-like, optional
+        collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
-            collection step. The manifest must contain the persisted
-            document information needed to reload each collected
-            document for extraction. Only needed if running in
+            collection step. This can be a single path or a list of
+            paths for multiple collection manifests, any of which may
+            include glob patterns. Each collection manifest must contain
+            the persisted document information needed to reload each
+            collected document for extraction. Only needed if running in
             extraction mode with a separate collection step.
             By default, ``None``.
-        """
+        """  # ruff:ignore[doc-line-too-long]
         self.tech = tech
         self.jurisdiction_fp = jurisdiction_fp
         self.perform_se_search = perform_se_search
@@ -1092,11 +1094,13 @@ class ExtractionRequest(BaseRequest):
             name of the subdivision, and the "Jurisdiction Type" should
             be a string identifying the type of subdivision (e.g.,
             "City", "Township", etc.)
-        collection_manifest_fp : path-like
+        collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
-            collection step. The manifest must contain the persisted
-            document information needed to reload each collected
-            document for extraction.
+            collection step. This can be a single path or a list of
+            paths for multiple collection manifests, any of which may
+            include glob patterns. Each collection manifest must contain
+            the persisted document information needed to reload each
+            collected document for extraction. By default, ``None``.
         model : str or list of dict, default="gpt-4o-mini"
             LLM model(s) to use for scraping and parsing ordinance
             documents. If a string is provided, it is assumed to be the
@@ -1228,7 +1232,7 @@ class ExtractionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
-        """
+        """  # ruff:ignore[doc-line-too-long]
 
         super().__init__(
             out_dir=out_dir,
