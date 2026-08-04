@@ -146,11 +146,15 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
     if isinstance(manifest_fp, (str, os.PathLike)):
         manifest_fp = [str(manifest_fp)]
 
-    manifest_fp = [Path(fp).expanduser().resolve() for fp in manifest_fp]
+    task_fps = []
+    for maybe_glob in manifest_fp:
+        fp = Path(maybe_glob).expanduser().resolve()
+        new_fps = list(fp.parent.glob(fp.name)) or [fp]
+        task_fps.extend(new_fps)
+
     tasks = [
         GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
-        for maybe_glob in manifest_fp
-        for fp in maybe_glob.parent.glob(maybe_glob.name)
+        for fp in task_fps
     ]
     manifests = await asyncio.gather(*tasks)
     return list(
