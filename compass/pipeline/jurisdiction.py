@@ -127,14 +127,8 @@ class SingleJurisdictionRun:
             ord_db_fp=extraction_context.attrs.get("ord_db_fp"),
         )
 
-    async def collect(self, *, relative_to=None):
+    async def collect(self):
         """Run collection mode for one jurisdiction
-
-        Parameters
-        ----------
-        relative_to : path-like, optional
-            Optional directory that should be the root of all relative
-            paths. By default, ``None``.
 
         Returns
         -------
@@ -342,14 +336,8 @@ class SingleJurisdictionRun:
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
         )
 
-    async def run_collection_with_logging(self, *, relative_to=None):
+    async def run_collection_with_logging(self):
         """Collect one jurisdiction under location-scoped logging
-
-        Parameters
-        ----------
-        relative_to : path-like, optional
-            Optional directory that should be the root of all relative
-            paths. By default, ``None``.
 
         Returns
         -------
@@ -360,9 +348,7 @@ class SingleJurisdictionRun:
             their associated metadata.
         """
         return await self._run_with_logging_context(
-            partial(self.collect, relative_to=relative_to),
-            error_action="collecting",
-            fallback=None,
+            self.collect, error_action="collecting", fallback=None
         )
 
     async def run_extraction_with_logging(self, collection_info):
