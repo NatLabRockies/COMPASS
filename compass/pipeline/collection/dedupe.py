@@ -12,7 +12,7 @@ class DocumentDeDuplicator:
     def __init__(self):
         self._docs = {}
 
-    def add_docs(self, docs, *, step_name, jurisdiction_name):
+    def add_docs(self, docs, *, step_name=None):
         """Add documents to the collection mapping
 
         Parameters
@@ -20,23 +20,21 @@ class DocumentDeDuplicator:
         docs : list
             Collected document objects to add to the internal
             de-duplicated mapping.
-        step_name : str
+        step_name : str, optional
             Identifier for the collection step that produced the
-            documents.
-        jurisdiction_name : str
-            Full jurisdiction name to attach to documents that do not
-            already include one.
+            documents. If not provided, "from_steps" will not be updated
+            for the added documents. By default, ``None``.
         """
         if not docs:
-            logger.debug("No docs found to add for step %r", step_name)
+            if step_name:
+                logger.debug("No docs found to add for step %r", step_name)
             return
 
         logger.debug("Adding %d doc(s) to collection", len(docs))
         for doc in docs:
-            doc.attrs.setdefault("jurisdiction_name", jurisdiction_name)
             key = _collection_doc_key(doc.attrs)
             entry = self._docs.setdefault(key, {"doc": doc, "from_steps": []})
-            if step_name not in entry["from_steps"]:
+            if step_name and step_name not in entry["from_steps"]:
                 entry["from_steps"].append(step_name)
 
     @property
