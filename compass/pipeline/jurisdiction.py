@@ -2,13 +2,14 @@
 
 import logging
 import time
-from functools import partial
+from functools import partial, cached_property
 
 from compass.services.threaded import JurisdictionUpdater
 from compass.utilities.logs import LocationFileLog
 from compass.pipeline.collection import DocumentCollection
 from compass.pipeline import JurisdictionResult
 from compass.pipeline.collection.persistence import (
+    persist_documents,
     load_collected_docs,
     write_collection_manifest_shard,
     load_specific_collection_manifest_shard,
