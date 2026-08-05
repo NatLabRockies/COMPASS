@@ -60,14 +60,22 @@ def build_collection_manifest(
     """
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
-    jurisdictions = [
-        info
-        for info in jurisdictions
-        if info is not None and info.get("documents")
-    ]
-    document_counts = [
-        len(info.get("documents", [])) for info in jurisdictions
-    ]
+
+    out_jurisdictions = []
+    document_counts = []
+    step_counts = {}
+    for info in jurisdictions:
+        if info is None:
+            continue
+        docs = info.get("documents", [])
+        if not docs:
+            continue
+        out_jurisdictions.append(info)
+        document_counts.append(len(docs))
+        complete_step_counts = info.get("completed_step_document_counts", {})
+        for step, count in complete_step_counts.items():
+            step_counts[step] = step_counts.get(step, 0) + count
+
     return {
         "tech": tech,
         "versions": {"compass": compass_version, "elm": elm_version},
@@ -79,13 +87,14 @@ def build_collection_manifest(
         "num_jurisdictions_found": sum(
             bool(count) for count in document_counts
         ),
+        "completed_step_document_totals": dict(step_counts),
         "num_doc_stats": {
             "min": min(document_counts, default=0),
             "max": max(document_counts, default=0),
             "median": median(document_counts) if document_counts else 0,
             "total": sum(document_counts),
         },
-        "jurisdictions": jurisdictions,
+        "jurisdictions": out_jurisdictions,
     }
 
 
