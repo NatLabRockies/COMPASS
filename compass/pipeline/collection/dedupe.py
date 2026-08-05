@@ -10,7 +10,7 @@ from elm.web.document import BaseDocument
 logger = logging.getLogger(__name__)
 
 
-@dataclass(frozen=True)
+@dataclass
 class _DocInfo:
     """Information about a collected document"""
 
