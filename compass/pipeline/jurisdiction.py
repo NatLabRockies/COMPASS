@@ -322,10 +322,6 @@ class SingleJurisdictionRun:
             If writing the collection manifest shard fails, the
             exception will be logged and no shard will be written.
         """
-        logger.debug(
-            "Persisting the following docs to collection manifest shard:\n%r",
-            docs.values,
-        )
         collection_info = await persist_documents(
             self.jurisdiction,
             docs,
