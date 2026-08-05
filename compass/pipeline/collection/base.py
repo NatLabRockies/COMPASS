@@ -125,7 +125,7 @@ class DocumentCollection:
 
         collection_info = None
         for step in self.steps:
-            if step in completed_steps:
+            if step.STEP_NAME in completed_steps:
                 logger.info(
                     "Skipping completed collection step %r for %s",
                     step.STEP_NAME,
