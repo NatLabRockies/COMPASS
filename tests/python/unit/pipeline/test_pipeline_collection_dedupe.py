@@ -16,12 +16,10 @@ def test_add_docs_keeps_from_steps_unique_for_same_doc_and_step():
     deduplicator.add_docs(
         [doc, doc],
         step_name="Look for document on jurisdiction website",
-        jurisdiction_name="Example Township",
     )
     deduplicator.add_docs(
         [doc],
         step_name="Look for document on jurisdiction website",
-        jurisdiction_name="Example Township",
     )
 
     values = list(deduplicator.values)
