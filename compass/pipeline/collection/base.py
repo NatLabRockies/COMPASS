@@ -88,7 +88,7 @@ class DocumentCollection:
                 self.workflow.jurisdiction.full_name,
             )
 
-        return self.steps
+        return steps
 
     async def execute(self, *, eager_extract=False, relative_to=None):
         """Run the fixed collection sequence
