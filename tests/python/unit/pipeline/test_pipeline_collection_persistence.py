@@ -297,12 +297,12 @@ async def test_persist_documents_filters_docs_without_parsed_text(
     collected_docs.add_docs(
         [valid_doc, missing_parsed_doc],
         step_name="crawl",
-        jurisdiction_name=jurisdiction.full_name,
     )
 
     collection_info = await persistence_module.persist_documents(
         jurisdiction,
         collected_docs,
+        {"crawl"},
         relative_to=tmp_path,
     )
 
@@ -312,7 +312,6 @@ async def test_persist_documents_filters_docs_without_parsed_text(
             "checksum": "https://example.com/valid.html",
             "is_pdf": False,
             "has_parsed_text": True,
-            "jurisdiction_name": "Example Township",
             "source_fp": Path("Example Township_1.html"),
             "parsed_fp": Path("Example Township_1.txt"),
             "check_correct_jurisdiction": True,
@@ -360,22 +359,21 @@ async def test_persist_documents_includes_collection_step_metadata(
     collected_docs.add_docs(
         [shared_doc, search_only_doc],
         step_name="crawl",
-        jurisdiction_name=jurisdiction.full_name,
     )
     collected_docs.add_docs(
         [shared_doc],
         step_name="search",
-        jurisdiction_name=jurisdiction.full_name,
     )
 
     collection_info = await persistence_module.persist_documents(
         jurisdiction,
         collected_docs,
+        {"crawl", "search"},
         relative_to=tmp_path,
     )
 
     assert collection_info["num_docs"] == 2
-    assert collection_info["collection_step_counts"] == {
+    assert collection_info["completed_step_document_counts"] == {
         "crawl": 2,
         "search": 1,
     }
@@ -383,6 +381,69 @@ async def test_persist_documents_includes_collection_step_metadata(
         ["crawl", "search"],
         ["crawl"],
     ]
+
+
+@pytest.mark.asyncio
+async def test_persist_documents_preserves_restored_docs_and_step_counts(
+    monkeypatch, tmp_path
+):
+    """Checkpoint persistence should retain old artifacts without rewrites"""
+
+    async def fake_move(doc, out_stem, _subdir):  # ruff:ignore[unused-async]
+        suffix = Path(doc.attrs["source"]).suffix or ".txt"
+        return tmp_path / f"{out_stem}{suffix}"
+
+    async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
+        return tmp_path / f"{out_stem}.txt"
+
+    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(
+        persistence_module.ParsedFileWriter,
+        "call",
+        fake_write_parsed,
+    )
+    jurisdiction = SimpleNamespace(
+        full_name="Example Township",
+        county="Example County",
+        state="CO",
+        subdivision_name=None,
+        type="Township",
+        code="12345",
+    )
+    restored_doc = SimpleNamespace(
+        attrs={
+            "checksum": "restored",
+            "source": "https://example.com/restored.html",
+            "source_fp": "source_docs/restored.html",
+            "parsed_fp": "parsed_docs/restored.txt",
+            "from_steps": ["known_local_docs"],
+        }
+    )
+    new_doc = _build_doc("https://example.com/new.html", ["page one"])
+    collected_docs = DocumentDeDuplicator()
+    collected_docs.add_docs([restored_doc])
+    collected_docs.add_docs(
+        [new_doc],
+        step_name="search_engine",
+    )
+
+    collection_info = await persistence_module.persist_documents(
+        jurisdiction,
+        collected_docs,
+        {"known_local_docs", "search_engine"},
+        relative_to=tmp_path,
+        jurisdiction_website="https://example.com",
+    )
+
+    assert collection_info["jurisdiction_website"] == "https://example.com"
+    assert collection_info["documents"][0] == restored_doc.attrs
+    assert collection_info["documents"][1]["source_fp"] == Path(
+        "Example Township_2.html"
+    )
+    assert collection_info["completed_step_document_counts"] == {
+        "known_local_docs": 1,
+        "search_engine": 1,
+    }
 
 
 def test_load_specific_collection_manifest_shard_returns_none(tmp_path):
@@ -452,9 +513,33 @@ def test_build_collection_manifest_computes_doc_stats():
         "median": 1.5,
         "total": 3,
     }
+    assert manifest["completed_step_document_totals"] == {}
     assert [
         jurisdiction["full_name"] for jurisdiction in manifest["jurisdictions"]
     ] == ["Alpha", "Beta"]
+
+
+def test_build_collection_manifest_omits_checkpoint_only_jurisdiction():
+    """No-document shards should be retained only as restart artifacts"""
+    manifest = persistence_module.build_collection_manifest(
+        "solar",
+        [
+            {
+                "full_name": "No Documents",
+                "documents": [],
+                "completed_step_document_counts": {
+                    "known_local_docs": 0,
+                    "search_engine": 0,
+                },
+            }
+        ],
+        datetime(2026, 1, 1, tzinfo=UTC),
+        1,
+    )
+
+    assert manifest["num_jurisdictions_found"] == 0
+    assert manifest["completed_step_document_totals"] == {}
+    assert manifest["jurisdictions"] == []
 
 
 if __name__ == "__main__":
