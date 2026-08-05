@@ -90,7 +90,7 @@ class DocumentCollection:
 
         return steps
 
-    async def execute(self, *, eager_extract=False, relative_to=None):
+    async def execute(self, *, eager_extract=False):
         """Run the fixed collection sequence
 
         The document collection has a well-defined order:
@@ -111,9 +111,6 @@ class DocumentCollection:
             found. If the extraction returns any structured data,
             subsequent steps are skipped for that jurisdiction.
             By default, ``False``.
-        relative_to : path-like, optional
-            Optional directory that should be the root of all relative
-            paths. By default, ``None``.
 
         Returns
         -------
@@ -124,13 +121,21 @@ class DocumentCollection:
             structured data was extracted, or ``None`` if no structured
             data was extracted from any of the collected documents.
         """
+        completed_steps = await self._load_persisted_docs()
+
+        collection_info = None
         for step in self.steps:
+            if step in completed_steps:
+                logger.info(
+                    "Skipping completed collection step %r for %s",
+                    step.STEP_NAME,
+                    self.workflow.jurisdiction.full_name,
+                )
+                continue
+
             docs = await step.collect(self.workflow)
-            self.de_duplicator.add_docs(
-                docs,
-                step_name=str(step.STEP_NAME),
-                jurisdiction_name=self.workflow.jurisdiction.full_name,
-            )
+            self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
+            completed_steps.add(step.STEP_NAME)
             if eager_extract:
                 context = (
                     await self.workflow.extraction_workflow.extract_from_docs(
@@ -139,16 +144,25 @@ class DocumentCollection:
                 )
                 if context is not None:
                     return context
+            else:
+                collection_info = (
+                    await self.workflow.write_collection_shard_no_fail(
+                        self.de_duplicator, completed_steps
+                    )
+                )
 
-        if eager_extract:
-            return None
-
-        collection_info = await persist_documents(
-            self.workflow.jurisdiction,
-            self.de_duplicator,
-            relative_to=relative_to,
-        )
-        collection_info["jurisdiction_website"] = (
-            self.workflow.jurisdiction_website
-        )
         return collection_info
+
+    async def _load_persisted_docs(self):
+        """Get any previously persisted documents and completed steps"""
+        existing_collection_info = (
+            await self.workflow.load_existing_collection_shard()
+        ) or {}
+        docs = [
+            _PersistedDocument(doc_info)
+            for doc_info in existing_collection_info.get("documents", [])
+        ]
+        self.de_duplicator.add_docs(docs)
+        return set(
+            existing_collection_info.get("completed_step_document_counts", {})
+        )
