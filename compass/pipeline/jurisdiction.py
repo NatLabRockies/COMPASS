@@ -341,6 +341,15 @@ class SingleJurisdictionRun:
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
         )
 
+    @cached_property
+    def _relative_to(self):
+        """path-like: Dir to be the root of all relative paths | None"""
+        return (
+            self.runtime.dirs.out
+            if self.runtime.request.output_settings.make_paths_relative
+            else None
+        )
+
 
 async def _record_jurisdiction_info(
     jurisdiction, extraction_context, start_time, usage_tracker
