@@ -148,16 +148,8 @@ class SingleJurisdictionRun:
             self.jurisdiction.full_name,
         )
 
-        collection_info = await self._load_existing_collection_info()
-        if collection_info is None:
-            collection_info = await self.collection_workflow.execute(
-                eager_extract=False, relative_to=relative_to
-            )
-
-        await _safe_shard_write(
-            self.runtime.dirs.jurisdiction_dbs,
-            collection_info,
-            self.jurisdiction.full_name,
+        collection_info = await self.collection_workflow.execute(
+            eager_extract=False
         )
 
         logger.info(
