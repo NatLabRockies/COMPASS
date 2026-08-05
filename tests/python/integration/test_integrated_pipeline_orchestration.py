@@ -255,6 +255,28 @@ async def test_collect_then_extract_round_trip_from_manifest(
     }
 
     COMPASS_PB.reset()
+    resumed_collection_msg = await run_compass(
+        CollectionRequest(
+            out_dir=out_dir,
+            tech="roundtrip-test",
+            jurisdiction_fp=jurisdiction_fp,
+            known_local_docs=known_local_docs,
+            make_paths_relative=False,
+            perform_se_search=False,
+            perform_website_search=False,
+        )
+    )
+
+    assert (
+        "2 documents collected for 2 jurisdictions" in resumed_collection_msg
+    )
+    resumed_manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
+    assert {info["FIPS"] for info in resumed_manifest["jurisdictions"]} == {
+        "53073",
+        "3600312243",
+    }
+
+    COMPASS_PB.reset()
     extraction_dir = tmp_path / "extracted"
     extraction_msg = await run_compass(
         ExtractionRequest(

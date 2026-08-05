@@ -121,13 +121,14 @@ class DocumentCollection:
             structured data was extracted, or ``None`` if no structured
             data was extracted from any of the collected documents.
         """
-        completed_steps = await self._load_persisted_docs()
-
-        collection_info = None
+        collection_info = await self._load_persisted_docs()
+        completed_steps = set(
+            collection_info.get("completed_step_document_counts", {})
+        )
         for step in self.steps:
             if step.STEP_NAME in completed_steps:
                 logger.info(
-                    "Skipping completed collection step %r for %s",
+                    "Skipping completed collection step %s for %s",
                     step.STEP_NAME,
                     self.workflow.jurisdiction.full_name,
                 )
@@ -163,6 +164,4 @@ class DocumentCollection:
             for doc_info in existing_collection_info.get("documents", [])
         ]
         self.de_duplicator.add_docs(docs)
-        return set(
-            existing_collection_info.get("completed_step_document_counts", {})
-        )
+        return existing_collection_info

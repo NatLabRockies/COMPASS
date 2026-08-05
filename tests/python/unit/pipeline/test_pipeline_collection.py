@@ -118,7 +118,13 @@ async def test_collection_skips_steps_recorded_in_existing_shard():
 
     collection_info = await collection.execute()
 
-    assert collection_info is None
+    assert collection_info == {
+        "documents": [_doc("known").attrs],
+        "completed_step_document_counts": {
+            "known_local_docs": 1,
+            "search_engine": 0,
+        },
+    }
     assert known_docs.calls == 0
     assert search.calls == 0
     assert workflow.writes == []
