@@ -399,7 +399,7 @@ async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
     """Store collected documents and their parsed text when needed"""
     document_metadata = []
     left_to_store = []
-    for info in collected_docs.values:
+    for info in collected_docs.values():
         doc = info["doc"]
         if "parsed_fp" in doc.attrs and "source_fp" in doc.attrs:
             doc.attrs["from_steps"] = list(info["from_steps"])

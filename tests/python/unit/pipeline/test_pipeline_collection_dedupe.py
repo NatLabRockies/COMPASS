@@ -22,7 +22,7 @@ def test_add_docs_keeps_from_steps_unique_for_same_doc_and_step():
         step_name="Look for document on jurisdiction website",
     )
 
-    values = list(deduplicator.values)
+    values = list(deduplicator.values())
 
     assert len(values) == 1
     assert values[0]["from_steps"] == [
@@ -55,7 +55,7 @@ def test_add_docs_preserves_restored_artifacts_and_merges_provenance():
         step_name="search_engine",
     )
 
-    values = list(deduplicator.values)
+    values = list(deduplicator.values())
 
     assert len(values) == 1
     assert values[0]["doc"] is saved_doc

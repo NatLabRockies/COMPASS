@@ -1,16 +1,14 @@
 """Document deduplication for collected artifacts"""
 
 import logging
+from collections import UserDict
 
 
 logger = logging.getLogger(__name__)
 
 
-class DocumentDeDuplicator:
+class DocumentDeDuplicator(UserDict):
     """Domain Service for deduplicating collected documents"""
-
-    def __init__(self):
-        self._docs = {}
 
     def add_docs(self, docs, *, step_name=None):
         """Add documents to the collection mapping
@@ -33,7 +31,7 @@ class DocumentDeDuplicator:
         logger.debug("Adding %d doc(s) to collection", len(docs))
         for doc in docs:
             key = _collection_doc_key(doc.attrs)
-            entry = self._docs.setdefault(
+            entry = self.data.setdefault(
                 key,
                 {
                     "doc": doc,
@@ -42,14 +40,6 @@ class DocumentDeDuplicator:
             )
             if step_name and step_name not in entry["from_steps"]:
                 entry["from_steps"].append(step_name)
-
-    @property
-    def values(self):
-        """Deduplicated collected docs"""
-        return self._docs.values()
-
-    def __bool__(self):
-        return bool(self._docs)
 
 
 def _collection_doc_key(doc_info):
