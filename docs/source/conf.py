@@ -295,7 +295,7 @@ def _skip_builtin_methods(name, obj):
     if name in {"items", "keys", "values"} and "Mapping" in str(obj):
         return True
 
-    return name in {"copy", "get"} and "UserDict" in str(obj)
+    return name in {"copy", "get", "fromkeys"} and "UserDict" in str(obj)
 
 
 def _skip_internal_api(name, obj):
