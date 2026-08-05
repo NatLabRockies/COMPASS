@@ -246,6 +246,13 @@ async def test_collect_then_extract_round_trip_from_manifest(
     assert caneadea["documents"][0]["is_pdf"] is True
     assert whatcom in shard_payloads
     assert caneadea in shard_payloads
+    for collection_info in (whatcom, caneadea):
+        assert collection_info["completed_step_document_counts"] == {
+            "known_local_docs": 1
+        }
+    assert manifest["completed_step_document_totals"] == {
+        "known_local_docs": 2
+    }
 
     COMPASS_PB.reset()
     extraction_dir = tmp_path / "extracted"
