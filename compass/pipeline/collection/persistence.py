@@ -404,7 +404,7 @@ async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
     ):
         task = asyncio.create_task(
             _persist_doc(
-                doc,
+                info["doc"],
                 out_stem=f"{jurisdiction.full_name}_{index}",
                 from_steps=info["from_steps"],
                 relative_to=relative_to,
