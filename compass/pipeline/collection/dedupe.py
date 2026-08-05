@@ -2,9 +2,30 @@
 
 import logging
 from collections import UserDict
+from dataclasses import dataclass
+
+from elm.web.document import BaseDocument
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class _DocInfo:
+    """Information about a collected document"""
+
+    doc: BaseDocument
+    from_steps: list[str]
+
+    def add_step(self, step_name: str | None):
+        """Add a collection step to the provenance of this document"""
+        if step_name and step_name not in self.from_steps:
+            self.from_steps.append(step_name)
+
+    @classmethod
+    def from_doc(cls, doc: BaseDocument):
+        """Create a new _DocInfo from a document"""
+        return cls(doc=doc, from_steps=list(doc.attrs.get("from_steps", [])))
 
 
 class DocumentDeDuplicator(UserDict):
@@ -31,15 +52,8 @@ class DocumentDeDuplicator(UserDict):
         logger.debug("Adding %d doc(s) to collection", len(docs))
         for doc in docs:
             key = _collection_doc_key(doc.attrs)
-            entry = self.data.setdefault(
-                key,
-                {
-                    "doc": doc,
-                    "from_steps": list(doc.attrs.get("from_steps", [])),
-                },
-            )
-            if step_name and step_name not in entry["from_steps"]:
-                entry["from_steps"].append(step_name)
+            doc_info = self.data.setdefault(key, _DocInfo.from_doc(doc))
+            doc_info.add_step(step_name)
 
 
 def _collection_doc_key(doc_info):

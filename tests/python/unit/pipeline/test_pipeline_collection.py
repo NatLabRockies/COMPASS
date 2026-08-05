@@ -50,8 +50,8 @@ def _workflow(existing_collection_info=None):
         await asyncio.sleep(0)
         documents = []
         for entry in deduplicator.values():
-            document = dict(entry["doc"].attrs)
-            document["from_steps"] = list(entry["from_steps"])
+            document = dict(entry.doc.attrs)
+            document["from_steps"] = list(entry.from_steps)
             documents.append(document)
         collection_info = {
             "documents": documents,

@@ -160,10 +160,7 @@ class DocumentCollection:
                 "Collected the following documents for %s:\n\n%s",
                 self.workflow.jurisdiction.full_name,
                 "\n\n".join(
-                    [
-                        f"{info['doc']!r}"
-                        for info in self.de_duplicator.values()
-                    ]
+                    [f"{info.doc!r}" for info in self.de_duplicator.values()]
                 ),
             )
         else:

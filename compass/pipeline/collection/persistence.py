@@ -300,8 +300,8 @@ async def persist_documents(
         Jurisdiction whose deduplicated documents will be persisted and
         serialized into collection metadata.
     collected_docs : compass.pipeline.collection.dedupe.DocumentDeDuplicator
-        Deduplicated document collection containing ``{"doc",
-        "from_steps"}`` entries for each persisted document.
+        Deduplicated document collection containing document info
+        entries for each persisted document.
     completed_steps : iterable of str
         Collection step names that were completed for this jurisdiction,
         used to record the ``"completed_step_document_counts"`` in the
@@ -400,9 +400,9 @@ async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
     document_metadata = []
     left_to_store = []
     for info in collected_docs.values():
-        doc = info["doc"]
+        doc = info.doc
         if "parsed_fp" in doc.attrs and "source_fp" in doc.attrs:
-            doc.attrs["from_steps"] = list(info["from_steps"])
+            doc.attrs["from_steps"] = list(info.from_steps)
             document_metadata.append(doc.attrs)
         else:
             left_to_store.append(info)
@@ -413,9 +413,9 @@ async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
     ):
         task = asyncio.create_task(
             _persist_doc(
-                info["doc"],
+                info.doc,
                 out_stem=f"{jurisdiction.full_name}_{index}",
-                from_steps=info["from_steps"],
+                from_steps=info.from_steps,
                 relative_to=relative_to,
             ),
             name=jurisdiction.full_name,
