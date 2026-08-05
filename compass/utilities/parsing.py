@@ -261,6 +261,23 @@ def raw_pages_from_doc(
         return []
 
     pages = text_splitter.split_text(text)
+    raw_pages = _down_select_pages(
+        pages, percent_raw_pages_to_keep, max_raw_pages, num_end_pages_to_keep
+    )
+
+    logger.debug(
+        "Document from %s has %d raw %s after splitting and trimming",
+        doc.attrs.get("source", "unknown source"),
+        len(raw_pages),
+        "page" if len(raw_pages) == 1 else "pages",
+    )
+    return raw_pages
+
+
+def _down_select_pages(
+    pages, percent_raw_pages_to_keep, max_raw_pages, num_end_pages_to_keep
+):
+    """Down-select pages based on percentage and max limits"""
     num_to_keep = percent_raw_pages_to_keep / 100 * len(pages)
     num_raw_pages_to_keep = min(max_raw_pages, max(1, int(num_to_keep)))
 
@@ -272,12 +289,6 @@ def raw_pages_from_doc(
     if last_page_index:
         raw_pages += pages[last_page_index:]
 
-    logger.debug(
-        "Document from %s has %d raw %s after splitting and trimming",
-        doc.attrs.get("source", "unknown source"),
-        len(raw_pages),
-        "page" if len(raw_pages) == 1 else "pages",
-    )
     return raw_pages
 
 
