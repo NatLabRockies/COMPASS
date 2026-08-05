@@ -33,7 +33,13 @@ class DocumentDeDuplicator:
         logger.debug("Adding %d doc(s) to collection", len(docs))
         for doc in docs:
             key = _collection_doc_key(doc.attrs)
-            entry = self._docs.setdefault(key, {"doc": doc, "from_steps": []})
+            entry = self._docs.setdefault(
+                key,
+                {
+                    "doc": doc,
+                    "from_steps": list(doc.attrs.get("from_steps", [])),
+                },
+            )
             if step_name and step_name not in entry["from_steps"]:
                 entry["from_steps"].append(step_name)
 
