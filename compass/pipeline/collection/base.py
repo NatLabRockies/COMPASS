@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 class _PersistedDocument(BaseDocument):
-    """Document subclass used to persist collection artifacts"""
+    """Document subclass used to hold collection artifacts"""
 
     WRITE_KWARGS = None
     FILE_EXTENSION = None
