@@ -152,6 +152,20 @@ class DocumentCollection:
                     )
                 )
 
+        if self.de_duplicator:
+            logger.debug(
+                "Collected the following documents for %s:\n\n%s",
+                self.workflow.jurisdiction.full_name,
+                "\n\n".join(
+                    [f"{info['doc']!r}" for info in self.de_duplicator.values]
+                ),
+            )
+        else:
+            logger.debug(
+                "No documents were collected for %s",
+                self.workflow.jurisdiction.full_name,
+            )
+
         return collection_info
 
     async def _load_persisted_docs(self):
