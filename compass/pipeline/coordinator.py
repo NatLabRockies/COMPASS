@@ -234,19 +234,12 @@ class COMPASSCollection(BaseRunMode):
             len(jurisdictions_df),
         )
         start_date = datetime.now(UTC)
-        relative_to = (
-            self.runtime.dirs.out
-            if self.runtime.request.output_settings.make_paths_relative
-            else None
-        )
         tasks = []
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
             workflow = self._create(jurisdiction, usage_tracker=None)
             tasks.append(
                 asyncio.create_task(
-                    workflow.run_collection_with_logging(
-                        relative_to=relative_to
-                    ),
+                    workflow.run_collection_with_logging(),
                     name=jurisdiction.full_name,
                 )
             )
