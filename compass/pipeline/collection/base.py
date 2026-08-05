@@ -1,7 +1,11 @@
 """Collection workflow for the COMPASS pipeline"""
 
+import logging
+from functools import cached_property
+
+from elm.web.document import BaseDocument
+
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
-from compass.pipeline.collection.persistence import persist_documents
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
     ElmWebsiteCrawlStep,
@@ -9,6 +13,24 @@ from compass.pipeline.collection.steps import (
     KnownUrlDocumentsStep,
     SearchEngineDocumentsStep,
 )
+
+logger = logging.getLogger(__name__)
+
+
+class _PersistedDocument(BaseDocument):
+    """Document subclass used to persist collection artifacts"""
+
+    WRITE_KWARGS = None
+    FILE_EXTENSION = None
+
+    def __init__(self, attrs):
+        super().__init__(pages=[], attrs=attrs)
+
+    def _raw_pages(self):
+        """Get raw pages from document"""
+
+    def _cleaned_text(self):
+        """Compute cleaned text from document"""
 
 
 class DocumentCollection:
