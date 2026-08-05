@@ -152,6 +152,9 @@ class DocumentCollection:
                     )
                 )
 
+        if eager_extract:
+            return None
+
         if self.de_duplicator:
             logger.debug(
                 "Collected the following documents for %s:\n\n%s",
