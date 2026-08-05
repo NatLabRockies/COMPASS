@@ -233,14 +233,17 @@ def raw_pages_from_doc(
     num_end_pages_to_keep=2,
 ):
     """[NOT PUBLIC API] Get raw pages from an input doc"""
-    if is_pdf_doc(doc) and hasattr(doc, "raw_pages"):
+    # Do NOT use `is_pdf_doc` here because MDDocuments could have
+    # "doc_type" == "pdf" and be treated as a single page doc
+    if isinstance(doc, PDFDocument) and hasattr(doc, "raw_pages"):
         raw_pages = doc.raw_pages
         logger.debug(
-            "PDF Document from %s has %d raw pages",
+            "PDF Document from %s has %d raw %s",
             doc.attrs.get("source", "unknown source"),
             len(raw_pages),
+            "page" if len(raw_pages) == 1 else "pages",
         )
-        return doc.raw_pages
+        return raw_pages
 
     if text_splitter is None:
         logger.debug(
