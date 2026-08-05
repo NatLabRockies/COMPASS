@@ -18,7 +18,7 @@ from compass.utilities.parsing import (
     ordinances_bool_index,
     raw_pages_from_doc,
 )
-from elm.web.document import MDDocument
+from elm.web.document import MDDocument, PDFDocument
 
 
 @pytest.mark.parametrize(
@@ -39,10 +39,11 @@ def test_clean_backticks_from_llm_response(in_str, expected):
     assert clean_backticks_from_llm_response(in_str) == expected
 
 
-def test_raw_pages_from_pdf_splits_oversized_raw_page():
+@pytest.mark.parametrize("doc_class", [MDDocument, PDFDocument])
+def test_raw_pages_from_pdf_splits_oversized_raw_page(doc_class):
     """Test PDF raw pages respect the supplied splitter budget"""
     page = "word " * 100
-    doc = MDDocument([page], attrs={"doc_type": "pdf"})
+    doc = doc_class([page], attrs={"doc_type": "pdf"})
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=50, chunk_overlap=0
     )
@@ -53,16 +54,15 @@ def test_raw_pages_from_pdf_splits_oversized_raw_page():
     assert all(len(raw_page) <= 50 for raw_page in raw_pages)
 
 
-def test_raw_pages_from_pdf_preserves_page_within_splitter_budget():
+@pytest.mark.parametrize("doc_class", [MDDocument, PDFDocument])
+def test_raw_pages_from_pdf_preserves_page_within_splitter_budget(doc_class):
     """Test PDF raw pages remain unchanged when already within budget"""
-    doc = MDDocument(["Short PDF page"], attrs={"doc_type": "pdf"})
+    doc = doc_class(["Short PDF page"], attrs={"doc_type": "pdf"})
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=50,
-        chunk_overlap=0,
+        chunk_size=50, chunk_overlap=0
     )
 
     raw_pages = raw_pages_from_doc(doc, text_splitter=text_splitter)
-
     assert raw_pages == doc.raw_pages
 
 

@@ -237,6 +237,9 @@ def raw_pages_from_doc(
     # "doc_type" == "pdf" and be treated as a single page doc
     if isinstance(doc, PDFDocument) and hasattr(doc, "raw_pages"):
         raw_pages = doc.raw_pages
+        # failsafe check
+        if text_splitter is not None and len(raw_pages) == 1:
+            raw_pages = text_splitter.split_text(raw_pages[0])
         logger.debug(
             "PDF Document from %s has %d raw %s",
             doc.attrs.get("source", "unknown source"),
