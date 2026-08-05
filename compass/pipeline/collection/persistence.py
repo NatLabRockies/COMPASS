@@ -60,12 +60,22 @@ def build_collection_manifest(
     """
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
-    jurisdictions = [
-        info
-        for info in jurisdictions
-        if info is not None and info.get("documents")
-    ]
-    num_docs = [len(info.get("documents", [])) for info in jurisdictions]
+
+    out_jurisdictions = []
+    document_counts = []
+    step_counts = {}
+    for info in jurisdictions:
+        if info is None:
+            continue
+        docs = info.get("documents", [])
+        if not docs:
+            continue
+        out_jurisdictions.append(info)
+        document_counts.append(len(docs))
+        complete_step_counts = info.get("completed_step_document_counts", {})
+        for step, count in complete_step_counts.items():
+            step_counts[step] = step_counts.get(step, 0) + count
+
     return {
         "tech": tech,
         "versions": {"compass": compass_version, "elm": elm_version},
@@ -74,14 +84,17 @@ def build_collection_manifest(
         "total_time": time_elapsed.total_seconds(),
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
-        "num_jurisdictions_found": len(jurisdictions),
+        "num_jurisdictions_found": sum(
+            bool(count) for count in document_counts
+        ),
+        "completed_step_document_totals": dict(step_counts),
         "num_doc_stats": {
-            "min": min(num_docs, default=0),
-            "max": max(num_docs, default=0),
-            "median": median(num_docs) if num_docs else 0,
-            "total": sum(num_docs),
+            "min": min(document_counts, default=0),
+            "max": max(document_counts, default=0),
+            "median": median(document_counts) if document_counts else 0,
+            "total": sum(document_counts),
         },
-        "jurisdictions": jurisdictions,
+        "jurisdictions": out_jurisdictions,
     }
 
 
@@ -271,7 +284,14 @@ def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
     )
 
 
-async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
+async def persist_documents(
+    jurisdiction,
+    collected_docs,
+    completed_steps,
+    *,
+    relative_to=None,
+    **kwargs,
+):
     """Persist deduplicated documents for one jurisdiction
 
     Parameters
@@ -279,38 +299,33 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
     jurisdiction : compass.utilities.jurisdictions.Jurisdiction
         Jurisdiction whose deduplicated documents will be persisted and
         serialized into collection metadata.
-    collected_docs : \
-            compass.pipeline.collection.dedupe.DocumentDeDuplicator
+    collected_docs : compass.pipeline.collection.dedupe.DocumentDeDuplicator
         Deduplicated document collection containing ``{"doc",
         "from_steps"}`` entries for each persisted document.
+    completed_steps : iterable of str
+        Collection step names that were completed for this jurisdiction,
+        used to record the ``"completed_step_document_counts"`` in the
+        collection metadata.
     relative_to : path-like, optional
         Base path used to store ``source_fp`` and ``parsed_fp`` as
         relative paths when possible. By default, ``None``.
+    **kwargs
+        Extra keyword-argument pairs to add to the collection metadata.
 
     Returns
     -------
     dict
         Serialized collection metadata for the jurisdiction, including
         jurisdiction identifiers and the persisted document records.
-    """
-    tasks = []
-    for index, info in enumerate(collected_docs.values, start=1):
-        task = asyncio.create_task(
-            _persist_doc(
-                info["doc"],
-                out_stem=f"{jurisdiction.full_name}_{index}",
-                from_steps=info["from_steps"],
-                relative_to=relative_to,
-            ),
-            name=jurisdiction.full_name,
-        )
-        tasks.append(task)
-
-    documents = await asyncio.gather(*tasks)
-    documents = [doc for doc in documents if doc is not None]
-    collection_step_counts = Counter(
+    """  # ruff:ignore[doc-line-too-long]
+    documents = await _store_docs_as_needed(
+        collected_docs, jurisdiction, relative_to
+    )
+    completed_step_document_counts = Counter(
         step for info in documents for step in info["from_steps"]
     )
+    for step in completed_steps:
+        completed_step_document_counts.setdefault(step, 0)
     return {
         "full_name": jurisdiction.full_name,
         "county": jurisdiction.county,
@@ -319,7 +334,8 @@ async def persist_documents(jurisdiction, collected_docs, *, relative_to=None):
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
         "num_docs": len(documents),
-        "collection_step_counts": dict(collection_step_counts),
+        "completed_step_document_counts": dict(completed_step_document_counts),
+        **kwargs,
         "documents": documents,
     }
 
@@ -377,6 +393,37 @@ async def _load_single_doc(doc_info):
     doc.remove_comments = False
     doc.attrs["cache_fn"] = await TempFileCacheCopier.call(doc)
     return doc
+
+
+async def _store_docs_as_needed(collected_docs, jurisdiction, relative_to):
+    """Store collected documents and their parsed text when needed"""
+    document_metadata = []
+    left_to_store = []
+    for info in collected_docs.values:
+        doc = info["doc"]
+        if "parsed_fp" in doc.attrs and "source_fp" in doc.attrs:
+            doc.attrs["from_steps"] = list(info["from_steps"])
+            document_metadata.append(doc.attrs)
+        else:
+            left_to_store.append(info)
+
+    tasks = []
+    for index, info in enumerate(
+        left_to_store, start=len(document_metadata) + 1
+    ):
+        task = asyncio.create_task(
+            _persist_doc(
+                info["doc"],
+                out_stem=f"{jurisdiction.full_name}_{index}",
+                from_steps=info["from_steps"],
+                relative_to=relative_to,
+            ),
+            name=jurisdiction.full_name,
+        )
+        tasks.append(task)
+
+    document_metadata.extend(await asyncio.gather(*tasks))
+    return [doc_info for doc_info in document_metadata if doc_info is not None]
 
 
 async def _persist_doc(doc, out_stem, from_steps, relative_to):

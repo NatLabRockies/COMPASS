@@ -1,7 +1,11 @@
 """Collection workflow for the COMPASS pipeline"""
 
+import logging
+from functools import cached_property
+
+from elm.web.document import BaseDocument
+
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
-from compass.pipeline.collection.persistence import persist_documents
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
     ElmWebsiteCrawlStep,
@@ -9,6 +13,24 @@ from compass.pipeline.collection.steps import (
     KnownUrlDocumentsStep,
     SearchEngineDocumentsStep,
 )
+
+logger = logging.getLogger(__name__)
+
+
+class _PersistedDocument(BaseDocument):
+    """Document subclass used to hold collection artifacts"""
+
+    WRITE_KWARGS = None
+    FILE_EXTENSION = None
+
+    def __init__(self, attrs):
+        super().__init__(pages=[], attrs=attrs)
+
+    def _raw_pages(self):
+        """Get raw pages from document"""
+
+    def _cleaned_text(self):
+        """Compute cleaned text from document"""
 
 
 class DocumentCollection:
@@ -28,15 +50,47 @@ class DocumentCollection:
         """
         self.workflow = workflow
         self.de_duplicator = DocumentDeDuplicator()
-        self.steps = [
-            KnownLocalDocumentsStep(),
-            KnownUrlDocumentsStep(),
-            SearchEngineDocumentsStep(),
-            ElmWebsiteCrawlStep(),
-            CompassWebsiteCrawlStep(),
-        ]
 
-    async def execute(self, *, eager_extract=False, relative_to=None):
+    @cached_property
+    def steps(self):
+        """Collection steps in the order they should be executed"""
+        steps = []
+
+        if self.workflow.known_local_docs:
+            steps.append(KnownLocalDocumentsStep())
+        else:
+            logger.debug(
+                "%r processing has no known local docs configured",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.known_doc_urls:
+            steps.append(KnownUrlDocumentsStep())
+        else:
+            logger.debug(
+                "%r processing has no known URLs configured",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.perform_se_search:
+            steps.append(SearchEngineDocumentsStep())
+        else:
+            logger.debug(
+                "%r processing doesn't have SE search enabled",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        if self.workflow.perform_website_search:
+            steps.extend([ElmWebsiteCrawlStep(), CompassWebsiteCrawlStep()])
+        else:
+            logger.debug(
+                "%r processing doesn't have website search enabled",
+                self.workflow.jurisdiction.full_name,
+            )
+
+        return steps
+
+    async def execute(self, *, eager_extract=False):
         """Run the fixed collection sequence
 
         The document collection has a well-defined order:
@@ -57,9 +111,6 @@ class DocumentCollection:
             found. If the extraction returns any structured data,
             subsequent steps are skipped for that jurisdiction.
             By default, ``False``.
-        relative_to : path-like, optional
-            Optional directory that should be the root of all relative
-            paths. By default, ``None``.
 
         Returns
         -------
@@ -70,13 +121,22 @@ class DocumentCollection:
             structured data was extracted, or ``None`` if no structured
             data was extracted from any of the collected documents.
         """
+        collection_info = await self._load_persisted_docs()
+        completed_steps = set(
+            collection_info.get("completed_step_document_counts", {})
+        )
         for step in self.steps:
+            if step.STEP_NAME in completed_steps:
+                logger.info(
+                    "Skipping completed collection step %s for %s",
+                    step.STEP_NAME,
+                    self.workflow.jurisdiction.full_name,
+                )
+                continue
+
             docs = await step.collect(self.workflow)
-            self.de_duplicator.add_docs(
-                docs,
-                step_name=str(step.STEP_NAME),
-                jurisdiction_name=self.workflow.jurisdiction.full_name,
-            )
+            self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
+            completed_steps.add(step.STEP_NAME)
             if eager_extract:
                 context = (
                     await self.workflow.extraction_workflow.extract_from_docs(
@@ -85,16 +145,40 @@ class DocumentCollection:
                 )
                 if context is not None:
                     return context
+            else:
+                collection_info = (
+                    await self.workflow.write_collection_shard_no_fail(
+                        self.de_duplicator, completed_steps
+                    )
+                )
 
         if eager_extract:
             return None
 
-        collection_info = await persist_documents(
-            self.workflow.jurisdiction,
-            self.de_duplicator,
-            relative_to=relative_to,
-        )
-        collection_info["jurisdiction_website"] = (
-            self.workflow.jurisdiction_website
-        )
+        if self.de_duplicator:
+            logger.debug(
+                "Collected the following documents for %s:\n\n%s",
+                self.workflow.jurisdiction.full_name,
+                "\n\n".join(
+                    [f"{info['doc']!r}" for info in self.de_duplicator.values]
+                ),
+            )
+        else:
+            logger.debug(
+                "No documents were collected for %s",
+                self.workflow.jurisdiction.full_name,
+            )
+
         return collection_info
+
+    async def _load_persisted_docs(self):
+        """Get any previously persisted documents and completed steps"""
+        existing_collection_info = (
+            await self.workflow.load_existing_collection_shard()
+        ) or {}
+        docs = [
+            _PersistedDocument(doc_info)
+            for doc_info in existing_collection_info.get("documents", [])
+        ]
+        self.de_duplicator.add_docs(docs)
+        return existing_collection_info
