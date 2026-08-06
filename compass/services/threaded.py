@@ -649,16 +649,22 @@ def _compile_doc_info(doc):
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
         "ord_filename": Path(out_fp or "unknown").name,
+        "doc_type": doc.attrs.get("doc_type"),
         "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),
         "is_pdf": is_pdf_doc(doc),
         "from_ocr": doc.attrs.get("from_ocr", False),
+        "conversion_time_seconds": doc.attrs.get("conversion_time_seconds"),
+        "mean_confidence": doc.attrs.get("mean_confidence"),
+        "low_score_confidence": doc.attrs.get("low_score_confidence"),
+        "collection_step_rank": doc.attrs.get("collection_step_rank"),
         "relevant_text_ngram_score": doc.attrs.get(
             "relevant_text_ngram_score"
         ),
         "permitted_use_text_ngram_score": doc.attrs.get(
             "permitted_use_text_ngram_score"
         ),
+        "from_steps": doc.attrs.get("from_steps"),
     }
 
 
