@@ -10,6 +10,7 @@ from compass.services.openai import (
     count_tokens,
     usage_from_response,
     OpenAIService,
+    _MAX_UNSUPPORTED_KWARG_DROPS,
     _unsupported_call_kwarg,
 )
 from compass.services.usage import UsageTracker
@@ -141,7 +142,8 @@ async def test_openai_service_retries_without_unsupported_kwarg(
                 body={
                     "error": {
                         "message": (
-                            "Unsupported value: 'temperature' does not support 0"
+                            "Unsupported value: 'temperature' does not "
+                            "support 0"
                         ),
                         "type": "invalid_request_error",
                         "param": "temperature",
@@ -169,6 +171,61 @@ async def test_openai_service_retries_without_unsupported_kwarg(
     assert "temperature" in call_kwargs[0]
     assert "temperature" not in call_kwargs[1]
     assert "temperature" in openai_service._unsupported_call_kwargs
+
+
+@pytest.mark.asyncio
+async def test_openai_service_caps_unsupported_kwarg_retries(monkeypatch):
+    """Unsupported kwarg drops are capped to avoid unbounded retries"""
+    call_kwargs = []
+    rejected_kwargs = [
+        "temperature",
+        "top_p",
+        "presence_penalty",
+        "frequency_penalty",
+        "seed",
+    ]
+
+    async def _test_response(*args, **kwargs):  # ruff:ignore[unused-async]
+        call_kwargs.append(kwargs.copy())
+        param = rejected_kwargs[len(call_kwargs) - 1]
+        response = httpx.Response(400)
+        response.request = httpx.Request(method="POST", url="https://test")
+        raise openai.BadRequestError(
+            "unsupported parameter",
+            response=response,
+            body={
+                "error": {
+                    "message": (
+                        f"Unsupported value: {param!r} does not support 0"
+                    ),
+                    "type": "invalid_request_error",
+                    "param": param,
+                    "code": "400",
+                }
+            },
+        )
+
+    client = openai.AsyncOpenAI(api_key="dummy")
+    monkeypatch.setattr(
+        client.chat.completions,
+        "create",
+        _test_response,
+        raising=True,
+    )
+    openai_service = OpenAIService(client, model_name="gpt-5.6-terra")
+
+    with pytest.raises(openai.BadRequestError):
+        await OpenAIService._call_gpt.__wrapped__(
+            openai_service,
+            messages=TEST_MESSAGES_1,
+            temperature=0,
+            top_p=1,
+            presence_penalty=0,
+            frequency_penalty=0,
+            seed=42,
+        )
+
+    assert len(call_kwargs) == _MAX_UNSUPPORTED_KWARG_DROPS + 1
 
 
 def test_unsupported_call_kwarg_ignores_non_recoverable_bad_request():

@@ -1,4 +1,4 @@
-"""COMPASS Ordinances OpenAI service amd utils"""
+"""COMPASS Ordinances OpenAI service and utils"""
 
 import logging
 import re
@@ -23,6 +23,7 @@ _UNSUPPORTED_PARAM_MSG_MARKERS = (
     "only the default",
     "not supported",
 )
+_MAX_UNSUPPORTED_KWARG_DROPS = 3
 
 
 def usage_from_response(current_usage, response):
@@ -234,12 +235,31 @@ class OpenAIService(LLMService):
         """Query Chat GPT with user inputs"""
         active_kwargs = dict(kwargs)
         self._drop_known_unsupported_kwargs(active_kwargs)
+        num_dropped_kwargs = 0
 
         while True:
             try:
-                return await self.client.chat.completions.create(**active_kwargs)
+                return await self.client.chat.completions.create(
+                    **active_kwargs
+                )
             except openai.BadRequestError as error:
-                unsupported_kwarg = _unsupported_call_kwarg(error, active_kwargs)
+                unsupported_kwarg = _unsupported_call_kwarg(
+                    error, active_kwargs
+                )
+                if (
+                    unsupported_kwarg is not None
+                    and num_dropped_kwargs >= _MAX_UNSUPPORTED_KWARG_DROPS
+                ):
+                    logger.warning(
+                        "Exceeded maximum number of unsupported kwarg "
+                        "retries (%d) for %r call; last rejected kwarg "
+                        "was %r",
+                        _MAX_UNSUPPORTED_KWARG_DROPS,
+                        self.model_name,
+                        unsupported_kwarg,
+                    )
+                    unsupported_kwarg = None
+
                 if unsupported_kwarg is None:
                     messages = kwargs.get("messages")
                     if messages:
@@ -254,6 +274,7 @@ class OpenAIService(LLMService):
 
                 self._unsupported_call_kwargs.add(unsupported_kwarg)
                 active_kwargs.pop(unsupported_kwarg, None)
+                num_dropped_kwargs += 1
                 logger.warning(
                     "Retrying %r call without unsupported kwarg %r after "
                     "provider rejected it",
