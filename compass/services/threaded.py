@@ -655,6 +655,7 @@ def _compile_doc_info(doc):
         "is_pdf": is_pdf_doc(doc),
         "from_ocr": doc.attrs.get("from_ocr", False),
         "conversion_time_seconds": doc.attrs.get("conversion_time_seconds"),
+        "conversion_status": doc.attrs.get("conversion_status"),
         "mean_confidence": doc.attrs.get("mean_confidence"),
         "low_score_confidence": doc.attrs.get("low_score_confidence"),
         "collection_step_rank": doc.attrs.get("collection_step_rank"),
