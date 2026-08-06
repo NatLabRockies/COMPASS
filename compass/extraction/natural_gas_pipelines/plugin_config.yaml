@@ -1,0 +1,112 @@
+schema: ./natural_gas_pipelines_schema.json
+
+data_type_short_desc: natural gas pipeline and compressor station ordinance
+
+cache_llm_generated_content: true
+
+query_templates:
+  - "{jurisdiction} natural gas compressor station ordinance"
+  - "{jurisdiction} oil and gas facilities zoning ordinance"
+  - "{jurisdiction} compressor station setback noise ordinance code"
+  - "site:ecode360.com {jurisdiction}"
+  - "site:municode.com {jurisdiction} code of ordinances"
+
+website_keywords:
+  pdf: 92160
+  compressor: 46080
+  pipeline: 46080
+  "natural gas": 46080
+  ordinance: 23040
+  zoning: 11520
+  setback: 5760
+  noise: 5760
+  permit: 2880
+  "conditional use": 2880
+  "special use": 2880
+  enclosure: 1440
+  fencing: 1440
+  "code of ordinances": 1440
+  "municipal code": 1440
+  ecode360: 1440
+  municode: 1440
+  "zoning ordinance": 1440
+  "ordinance adopted": 720
+  "land use code": 720
+  "title xii": 720
+  county: 360
+  municipal: 360
+  chapter: 180
+  "chapter 205": 180
+  section: 180
+
+heuristic_keywords:
+  GOOD_TECH_KEYWORDS:
+    - compressor
+    - pipeline
+    - transmission
+    - gathering
+  GOOD_TECH_PHRASES:
+    - natural gas compressor station
+    - natural gas pipeline
+    - compressor station
+    - gas transmission pipeline
+    - gas gathering line
+    - zoning ordinance
+    - code of ordinances
+    - municipal code
+    - ecode360
+    - pipeline right-of-way
+    - compressor station noise
+    - compressor station setback
+  GOOD_TECH_ACRONYMS:
+    - ROW
+    - MAOP
+    - PHMSA
+  NOT_TECH_WORDS:
+    - well pad
+    - oil well
+    - gas well
+    - hydraulic fracturing
+    - fracking
+    - drilling permit
+    - geothermal
+    - wind turbine
+    - solar farm
+    - electric substation
+    - gas rate tariff
+    - utility billing
+    - residential gas appliance
+
+collection_prompts: true
+text_extraction_prompts: true
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from natural gas
+  pipeline and compressor station ordinances.
+
+  Extract ONLY the following features:
+  - setbacks from structures, front yard, property lines, rear yard,
+    side yard, residential buildings, water bodies, and distance between
+    compressor stations
+  - daytime and nighttime noise limits
+  - zoning districts
+  - conditional/special use permit requirement
+  - fencing
+  - minimum lot size
+  - enclosure
+
+  Extract only enacted local requirements that explicitly govern
+  natural gas compressor stations or natural gas pipeline facilities.
+  The source ordinance may be a general zoning code, municipal code, or
+  code of ordinances rather than a technology-specific title.
+
+  Do not extract text focused only on wells, drilling, fracking,
+  utility tariffs/billing, or unrelated industrial uses unless the same
+  clause directly applies to compressor stations or pipelines.
+
+  For noise, ignore complaint-response monitoring protocol details unless
+  a clause states an explicit numeric day or night dB limit or a targeted
+  ambient-relative standard that can inform post-processing.
+
+  Follow schema feature definitions literally. Keep units exactly as written.
+  Do not invent values.
