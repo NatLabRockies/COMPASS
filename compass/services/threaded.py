@@ -645,6 +645,7 @@ def _compile_doc_info(doc):
     out_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
     return {
         "source": doc.attrs.get("source"),
+        "num_features_extracted": doc.attrs.get("num_features_extracted"),
         "effective_year": year if year is not None and year > 0 else None,
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
