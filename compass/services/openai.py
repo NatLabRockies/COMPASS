@@ -1,6 +1,7 @@
 """COMPASS Ordinances OpenAI service amd utils"""
 
 import logging
+import re
 
 import openai
 from elm.base import ApiBase
@@ -14,6 +15,14 @@ from compass.pb import COMPASS_PB
 
 
 logger = logging.getLogger(__name__)
+_UNSUPPORTED_PARAM_MSG_MARKERS = (
+    "does not support",
+    "unsupported value",
+    "unsupported parameter",
+    "unknown parameter",
+    "only the default",
+    "not supported",
+)
 
 
 def usage_from_response(current_usage, response):
@@ -136,6 +145,7 @@ class OpenAIService(LLMService):
             service_tag=service_tag,
         )
         self.client = client
+        self._unsupported_call_kwargs = set()
 
     async def process(
         self,
@@ -222,18 +232,39 @@ class OpenAIService(LLMService):
     )
     async def _call_gpt(self, **kwargs):
         """Query Chat GPT with user inputs"""
-        try:
-            return await self.client.chat.completions.create(**kwargs)
-        except openai.BadRequestError:
-            messages = kwargs.get("messages")
-            if messages:
-                logger.exception(
-                    "Got 'BadRequestError' for the following messages:\n\t%s",
-                    "\n\t".join([f"{m!r}" for m in messages]),
+        active_kwargs = dict(kwargs)
+        self._drop_known_unsupported_kwargs(active_kwargs)
+
+        while True:
+            try:
+                return await self.client.chat.completions.create(**active_kwargs)
+            except openai.BadRequestError as error:
+                unsupported_kwarg = _unsupported_call_kwarg(error, active_kwargs)
+                if unsupported_kwarg is None:
+                    messages = kwargs.get("messages")
+                    if messages:
+                        logger.exception(
+                            "Got 'BadRequestError' for the following "
+                            "messages:\n\t%s",
+                            "\n\t".join([f"{m!r}" for m in messages]),
+                        )
+                    else:
+                        logger.exception("Got 'BadRequestError'")
+                    raise
+
+                self._unsupported_call_kwargs.add(unsupported_kwarg)
+                active_kwargs.pop(unsupported_kwarg, None)
+                logger.warning(
+                    "Retrying %r call without unsupported kwarg %r after "
+                    "provider rejected it",
+                    self.model_name,
+                    unsupported_kwarg,
                 )
-            else:
-                logger.exception("Got 'BadRequestError'")
-            raise
+
+    def _drop_known_unsupported_kwargs(self, kwargs):
+        """Drop kwargs previously rejected for this service instance"""
+        for kwarg in self._unsupported_call_kwargs:
+            kwargs.pop(kwarg, None)
 
 
 def _get_response_message(response):
@@ -241,3 +272,34 @@ def _get_response_message(response):
     if response is None:
         return None
     return response.choices[0].message.content
+
+
+def _unsupported_call_kwarg(error, request_kwargs):
+    """str | None: Recoverable unsupported top-level call kwarg name"""
+    error_body = getattr(error, "body", {}) or {}
+    kwarg = None
+    message = str(error)
+
+    if isinstance(error_body, dict):
+        error_info = error_body.get("error", {})
+        kwarg = error_info.get("param")
+        message = error_info.get("message") or message
+    elif isinstance(error_body, str):
+        message = error_body or message
+
+    if not isinstance(kwarg, str):
+        match = re.search(r"['\"]param['\"]:\s*['\"]([^'\"]+)['\"]", message)
+        if match:
+            kwarg = match.group(1)
+
+    message = message.casefold()
+
+    if not isinstance(kwarg, str):
+        return None
+    if kwarg not in request_kwargs:
+        return None
+    if kwarg in {"messages", "model"}:
+        return None
+    if any(marker in message for marker in _UNSUPPORTED_PARAM_MSG_MARKERS):
+        return kwarg
+    return None
