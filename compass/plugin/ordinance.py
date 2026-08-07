@@ -835,9 +835,11 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
                     doc_for_extraction, out_fn_stem=self.jurisdiction.full_name
                 )
                 extraction_context.attrs["structured_data"] = data_df
+                n_feats = num_ordinances_dataframe(data_df)
+                extraction_context.attrs["num_features_extracted"] = n_feats
                 logger.info(
                     "%d ordinance value(s) found for %s from doc:\n%s. ",
-                    num_ordinances_dataframe(data_df),
+                    n_feats,
                     self.jurisdiction.full_name,
                     doc_for_extraction,
                 )
@@ -897,9 +899,11 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         )
 
         extraction_context.attrs["structured_data"] = data_df
+        n_feats = num_ordinances_dataframe(data_df)
+        extraction_context.attrs["num_features_extracted"] = n_feats
         logger.info(
             "%d ordinance value(s) found for %s in %d docs. ",
-            num_ordinances_dataframe(data_df),
+            n_feats,
             self.jurisdiction.full_name,
             extraction_context.num_documents,
         )
@@ -938,6 +942,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         data_dfs = await asyncio.gather(*tasks)
 
         all_data = []
+        total_features = 0
         for doc_ind, (data_df, doc) in enumerate(
             zip(data_dfs, extraction_context, strict=True), start=1
         ):
@@ -950,9 +955,11 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             await extraction_context.mark_doc_as_data_source(
                 doc, out_fn_stem=f"{self.jurisdiction.full_name}_{doc_ind}"
             )
+            num_found = num_ordinances_dataframe(data_df)
+            total_features += num_found
             logger.info(
                 "%d ordinance value(s) found for %s from doc:\n%s. ",
-                num_ordinances_dataframe(data_df),
+                num_found,
                 self.jurisdiction.full_name,
                 doc,
             )
@@ -968,6 +975,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         extraction_context.attrs["structured_data"] = pd.concat(
             all_data, ignore_index=True
         )
+        extraction_context.attrs["num_features_extracted"] = total_features
         return extraction_context
 
     async def parse_multi_doc_merge(self, extraction_context):
