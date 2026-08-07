@@ -141,4 +141,33 @@ heuristic_keywords:
     - "cannabis cultivation"
     - "commercial cannabis"
 
-collection_prompts: True
+collection_prompts:
+  - key: contains_relevant_text
+    label: geothermal applicability or governing standards
+    prompt: |-
+      You are validating whether an ordinance text chunk should be retained
+      for utility-scale geothermal electricity extraction.
+
+      Return JSON (not markdown) with exactly two keys:
+      1) "{key}" (boolean)
+      2) "explanation" (string)
+
+      Set "{key}" = true when the chunk contains substantive regulatory text
+      that is likely usable for geothermal electricity extraction, including
+      any of the following:
+      - explicit geothermal electricity language; OR
+      - geothermal exploration/drilling/wells/injection/production terms; OR
+      - operative zoning or development standards, use-table notes, permit
+        requirements, siting constraints, hazard/site-condition requirements,
+        decommissioning, bonding, lighting, fencing, color, or visual-impact
+        requirements that can govern listed geothermal or utility facility uses
+        within the same ordinance structure.
+
+      Treat enforceable table notes and standards as relevant even when the
+      same chunk does not repeat the word "geothermal", as long as the text is
+      substantive ordinance language (not only headings/indexes).
+
+      Set "{key}" = false only when the chunk is clearly irrelevant
+      (e.g., table of contents, navigation text, or content focused on
+      unrelated technologies such as solar, wind, battery storage, cannabis,
+      or geothermal heat pumps/HVAC/direct-use only).
