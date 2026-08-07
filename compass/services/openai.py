@@ -218,6 +218,7 @@ class OpenAIService(LLMService):
             openai.RateLimitError,
             openai.APITimeoutError,
             openai.BadRequestError,
+            openai.APIConnectionError,
         ),
     )
     async def _call_gpt(self, **kwargs):
