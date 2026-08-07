@@ -71,8 +71,8 @@ or check out summaries of the validation results in the `validation report <http
 Where is the extracted ordinance data?
 ======================================
 The National Laboratories of the Rockies (NLR) typically runs the COMPASS pipeline
-annually and publishes refreshed datasets to OpenEI. The latest published ordinance datasets
-are available here:
+annually and publishes refreshed datasets to OpenEI. The latest published ordinance
+datasets are available here:
 
 - Solar: https://data.openei.org/submissions/8602
 - Wind: https://data.openei.org/submissions/8519
@@ -86,14 +86,16 @@ The quickest way to install COMPASS for users is from PyPI:
 
     pip install infra-compass
 
-If you would like to install and run COMPASS from source, we recommend using `pixi <https://pixi.sh/latest/>`_:
+If you would like to install and run COMPASS from source, we recommend using
+`pixi <https://pixi.sh/latest/>`_:
 
 .. code-block:: bash
 
     git clone git@github.com:NatLabRockies/COMPASS.git; cd COMPASS
     pixi run compass
 
-For detailed instructions and troubleshooting, see the `installation documentation <https://natlabrockies.github.io/COMPASS/misc/installation.html>`_.
+For detailed instructions and troubleshooting, see the
+`installation documentation <https://natlabrockies.github.io/COMPASS/misc/installation.html>`_.
 
 
 Quickstart
