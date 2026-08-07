@@ -197,7 +197,7 @@ def num_ordinances_dataframe(data, exclude_features=None):
         mask = ~data["feature"].str.casefold().isin(exclude_features)
         data = data[mask].copy()
 
-    return ordinances_bool_index(data).sum()
+    return int(ordinances_bool_index(data).sum())
 
 
 def ordinances_bool_index(data):

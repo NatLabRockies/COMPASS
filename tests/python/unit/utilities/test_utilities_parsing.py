@@ -150,6 +150,23 @@ def test_num_ordinances_dataframe_with_values():
     assert num_ordinances_dataframe(data) == 3
 
 
+def test_num_ordinances_dataframe_returns_int_with_missing_values():
+    """Test ordinance count type with NaN and None values"""
+
+    data = pd.DataFrame(
+        {
+            "feature": ["setback", "height", "noise"],
+            "value": [100, np.nan, None],
+            "summary": [None, "test", None],
+        }
+    )
+
+    result = num_ordinances_dataframe(data)
+
+    assert result == 2
+    assert type(result) is int
+
+
 def test_num_ordinances_dataframe_with_exclude():
     """Test `num_ordinances_dataframe` with excluded features"""
 
@@ -161,6 +178,25 @@ def test_num_ordinances_dataframe_with_exclude():
         }
     )
     assert num_ordinances_dataframe(data, exclude_features=["height"]) == 2
+
+
+def test_num_ordinances_dataframe_with_exclude_all_features():
+    """Test ordinance count when exclusions remove all features"""
+
+    data = pd.DataFrame(
+        {
+            "feature": ["setback", "HEIGHT", "noise"],
+            "value": [100, 200, 300],
+            "summary": ["test", "test", "test"],
+        }
+    )
+
+    result = num_ordinances_dataframe(
+        data, exclude_features=["setback", "height", "noise"]
+    )
+
+    assert result == 0
+    assert type(result) is int
 
 
 def test_ordinances_bool_index_none():
