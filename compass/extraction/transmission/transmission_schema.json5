@@ -70,7 +70,7 @@
               // prohibition applies to (rural, residential, commercial,
               // light industrial, industrial, agricultural, mixed use,
               // or 'other' for named districts not covered by the enum).
-              "zone use restriction",
+              "district use restriction",
               // -- Exclusions --
               "historic site",
               "critical species habitat",
@@ -224,7 +224,7 @@
           "description": "Extract requirements for abandonment, removal, and site restoration when systems are retired, fail, or towers are abandoned, including obligations to remove facilities and restore the site upon termination, forfeiture, or expiration of a franchise or grant, with responsible party and timeline details when explicitly stated."
         },
         "permit": {
-          "description": "Extract requirements to obtain approval or authorization before constructing, installing, or working on electric transmission lines and related infrastructure, including conditional use permits, special use permits, or other discretionary land-use approvals, as well as street-opening, road-cut, right-of-way, or encroachment permits issued by a road or public-works authority. Include any specific conditions or criteria for approval when explicitly stated."
+          "description": "Extract requirements to obtain approval or authorization before constructing, installing, or working on electric transmission lines and related infrastructure, including conditional use permits, special use permits, or other discretionary land-use approvals, as well as street-opening, road-cut, right-of-way, or encroachment permits issued by a road or public-works authority. Per $instructions.encompassment_scope, also extract a permit governing a broader class that would include transmission (for example 'all development', 'all utilities', or any work within public streets or rights-of-way), even when transmission is not named. Include any specific conditions or criteria for approval when explicitly stated."
         },
         "FAA": {
           "description": "Extract requirements for compliance with Federal Aviation Administration (FAA) regulations and local approvals for transmission lines and related infrastructure near airports. Include any specific FAA standards or local approval processes when explicitly stated."
@@ -237,8 +237,8 @@
     "prohibition_features": {
       "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `subarea` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
       "properties": {
-        "zone use restriction": {
-          "description": "Extract prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission lines and related infrastructure within a specific zoning district. Set `subarea` to the district being restricted (for example 'residential', 'commercial', 'agricultural'). Use subarea='other' when the ordinance names a district that does not match the enumerated categories. Do not emit subarea='all' for this feature; if the restriction is jurisdiction-wide, it is not a zone use restriction and should be captured under a different feature. Emit one row per explicitly restricted district. Include the verbatim ordinance language in summary and cite the restricting clause."
+        "district use restriction": {
+          "description": "Extract prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission lines and related infrastructure within a specific zoning district. Set `subarea` to the district being restricted (for example 'residential', 'commercial', 'agricultural'). Use subarea='other' when the ordinance names a district that does not match the enumerated categories. Do not emit subarea='all' for this feature; if the restriction is jurisdiction-wide, it is not a district use restriction and should be captured under a different feature. Emit one row per explicitly restricted district. Include the verbatim ordinance language in summary and cite the restricting clause."
         }
       }
     },
@@ -312,7 +312,7 @@
       "explanation": "Ordinance explicitly states a distinct noise limit for commercial districts. Other districts are also defined."
     },
     {
-      "feature": "zone use restriction",
+      "feature": "district use restriction",
       "subarea": "residential",
       "value": null,
       "units": null,
@@ -355,7 +355,7 @@
       "Set subarea='other' when the ordinance names a specific district that does not match any enumerated category (for example PUD, aviation overlay, conservation-2).",
       "Do not invent subareas from section headings, chapter titles, or nearby context that does not explicitly bind the requirement to that district.",
       "When the same feature has different requirements in different districts, emit one row per district; do not merge them into a single row.",
-      "For the 'zone use restriction' feature, subarea must be a specific district (never 'all'); emit one row per explicitly restricted district.",
+      "For the 'district use restriction' feature, subarea must be a specific district (never 'all'); emit one row per explicitly restricted district.",
     ],
   },
   "$qualitative_features": [
