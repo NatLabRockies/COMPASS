@@ -113,7 +113,7 @@
           },
           "units": {
             "type": ["string", "null"],
-            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters' when possible. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use null for permit lists and qualitative requirements without measurable units."
+            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters' when possible. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use 'text' for permit lists and qualitative requirements without measurable units."
 
           },
           "section": {
@@ -145,7 +145,7 @@
       "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
     },
     "data_omission": {
-      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units=null only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units='text' only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
     },
     "numeric_prioritization": {
       "description": "When multiple numeric values apply to the same (feature, subarea) pair, keep one row for that pair and select the controlling most restrictive value. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; maximum tower height and maximum structure height -> choose the lowest limit within each feature independently, never combine tower limits with accessory-structure limits; noise -> choose the lowest allowed noise limit. When the ordinance explicitly states different numeric limits per zoning district for the same feature (for example a noise table with distinct limits for residential vs commercial districts), emit one row per district using the appropriate `subarea` value and apply restrictiveness within each row. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same (feature, subarea) pair for electric transmission systems."
@@ -283,7 +283,7 @@
     {
       "feature": "district use restriction",
       "value": null,
-      "units": null,
+      "units": "text",
       "section": "Sec. 12.04 – District Use Restrictions",
       "summary": "Overhead electric transmission lines rated above 69 kV are prohibited outright in all residential districts (R-1, R-2, R-3). In agricultural districts (including irrigated farmland and ranch land) such lines are allowed only by conditional-use permit and must follow existing field boundaries.",
       "explanation": "Ordinance restricts transmission lines in two district types of interest (residential and agricultural); a single row summarizes both. Summarizing districts is not aggregation, so aggregated is false.",
@@ -292,7 +292,7 @@
     {
       "feature": "district use restriction",
       "value": null,
-      "units": null,
+      "units": "text",
       "section": "Sec. 9.11 – Prohibited Utility Infrastructure",
       "summary": "New overhead electric transmission lines rated above 69 kV are prohibited anywhere within the jurisdiction; only underground installation is permitted.",
       "explanation": "The prohibition applies jurisdiction-wide rather than to specific zoning districts; the single summarizing row is not an aggregation, so aggregated is false.",
@@ -310,7 +310,7 @@
     {
       "feature": "franchise",
       "value": ["Dixie Electric Membership Corporation", "Louisiana Power and Light Company"],
-      "units": null,
+      "units": "text",
       "section": "Ch. 8 Franchises — List of Franchises",
       "summary": "Under the 'Electric Franchises' heading of the codified list of franchises: Dixie Electric Membership Corporation (99 years), Ordinance of May 10, 1939; Louisiana Power and Light Company (no time limit), Ordinance of February 10, 1937. The code omits the full text of these franchise ordinances and preserves only this listing of grantees, durations, and originating ordinances.",
       "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded.",
