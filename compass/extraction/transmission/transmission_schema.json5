@@ -225,7 +225,7 @@
       "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `subarea` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
       "properties": {
         "district use restriction": {
-          "description": "Extract prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission lines and related infrastructure within a specific zoning district. Set `subarea` to the district being restricted (for example 'residential', 'commercial', 'agricultural'). Use subarea='other' when the ordinance names a district that does not match the enumerated categories. Do not emit subarea='all' for this feature; if the restriction is jurisdiction-wide, it is not a district use restriction and should be captured under a different feature. Emit one row per explicitly restricted district. Include the verbatim ordinance language in summary and cite the restricting clause."
+          "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission infrastructure, whether tied to specific zoning districts or applied jurisdiction-wide. Emit a single row summarizing every such restriction, with aggregated=false. Districts of particular interest: rural, residential, commercial, light industrial, agricultural (agricultural includes irrigated farmland and ranch land). In summary, name each restricted district (or note that it is jurisdiction-wide) and quote the ordinance language; cite the clause in section. Do not extract exclusions tied to protected land types or sensitive receptors (floodplains, wetlands, historic sites, critical species habitat, residences, hospitals, schools, daycares, higher education); those belong to the excluded_lands features."
         }
       }
     },
@@ -284,9 +284,18 @@
       "feature": "district use restriction",
       "value": null,
       "units": null,
-      "section": "Sec. 12.04.A – Prohibited Uses in Residential Districts",
-      "summary": "Overhead electric transmission lines rated above 69 kV are prohibited in all residential districts (R-1, R-2, R-3).",
-      "explanation": "Ordinance explicitly bans transmission lines from residential districts.",
+      "section": "Sec. 12.04 – District Use Restrictions",
+      "summary": "Overhead electric transmission lines rated above 69 kV are prohibited outright in all residential districts (R-1, R-2, R-3). In agricultural districts (including irrigated farmland and ranch land) such lines are allowed only by conditional-use permit and must follow existing field boundaries.",
+      "explanation": "Ordinance restricts transmission lines in two district types of interest (residential and agricultural); a single row summarizes both. Summarizing districts is not aggregation, so aggregated is false.",
+      "aggregated": false
+    },
+    {
+      "feature": "district use restriction",
+      "value": null,
+      "units": null,
+      "section": "Sec. 9.11 – Prohibited Utility Infrastructure",
+      "summary": "New overhead electric transmission lines rated above 69 kV are prohibited anywhere within the jurisdiction; only underground installation is permitted.",
+      "explanation": "The prohibition applies jurisdiction-wide rather than to specific zoning districts; the single summarizing row is not an aggregation, so aggregated is false.",
       "aggregated": false
     },
     {
@@ -331,6 +340,7 @@
     "bond",
     "color",
     "decommissioning",
+    "district use restriction",
     "fencing",
     "fire prevention",
     "franchise",
