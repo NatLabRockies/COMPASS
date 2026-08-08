@@ -18,7 +18,8 @@
           "units",
           "section",
           "summary",
-          "explanation"
+          "explanation",
+          "aggregated"
         ],
         "additionalProperties": false,
         "properties": {
@@ -144,6 +145,10 @@
           "explanation": {
             "type": "string",
             "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
+          },
+          "aggregated": {
+            "type": "boolean",
+            "description": "True when this row's value was selected from multiple competing explicit values that apply to the same (feature, subarea) pair, keeping the most restrictive one per $core_principles.numeric_prioritization (most restrictive is the largest value for setbacks, the smallest value for noise and height limits, and so on depending on the feature). False when the value comes from a single explicit value with no competing values to reconcile."
           }
         }
       }
@@ -291,7 +296,8 @@
       "units": "dBA",
       "section": "SECTION 1308 – Performance / Construction Standards",
       "summary": "The transmission line and or facility shall not generate noise in excess of Fifty (50) decibel levels at ground level to the property lines or at the nearest residence. Such measurements shall be signed by a qualified engineer, stating that noise levels are being met, per ordinance.",
-      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide with no zone-specific variation, so a single row with subarea='all' is emitted."
+      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide with no zone-specific variation, so a single row with subarea='all' is emitted.",
+      "aggregated": false
     },
     {
       "feature": "noise",
@@ -300,7 +306,8 @@
       "units": "dBA",
       "section": "Table 5-3 – Noise Standards by District",
       "summary": "Maximum permissible operational noise at the property line for transmission facilities in residential districts is 45 dBA.",
-      "explanation": "Ordinance explicitly states a distinct noise limit for residential districts; a companion row with subarea='commercial' captures the 55 dBA limit for commercial districts."
+      "explanation": "Ordinance explicitly states a distinct noise limit for residential districts; a companion row with subarea='commercial' captures the 55 dBA limit for commercial districts.",
+      "aggregated": false
     },
     {
       "feature": "noise",
@@ -309,7 +316,8 @@
       "units": "dBA",
       "section": "Table 5-3 – Noise Standards by District",
       "summary": "Maximum permissible operational noise at the property line for transmission facilities in commercial districts is 55 dBA.",
-      "explanation": "Ordinance explicitly states a distinct noise limit for commercial districts. Other districts are also defined."
+      "explanation": "Ordinance explicitly states a distinct noise limit for commercial districts. Other districts are also defined.",
+      "aggregated": false
     },
     {
       "feature": "district use restriction",
@@ -318,7 +326,8 @@
       "units": null,
       "section": "Sec. 12.04.A – Prohibited Uses in Residential Districts",
       "summary": "Overhead electric transmission lines rated above 69 kV are prohibited in all residential districts (R-1, R-2, R-3).",
-      "explanation": "Ordinance explicitly bans transmission lines from residential districts; subarea='residential' captures the district class."
+      "explanation": "Ordinance explicitly bans transmission lines from residential districts; subarea='residential' captures the district class.",
+      "aggregated": false
     },
     {
       "feature": "structures distance",
@@ -327,7 +336,8 @@
       "units": "feet",
       "section": "5.2.6.2 Building Setback Lines",
       "summary": "In the case of electric transmission lines where easement widths are not definitely established, there shall be a minimum building setback line from the center of the transmission line as follows: Voltage of Line / Minimum Building Setback — 46 KV: 37½ ft; 69 KV: 50 ft; 161 KV & over: 75 ft.",
-      "explanation": "Generic 'building setback line' measured from the transmission-line centerline, not qualified as residential, so classified as 'structures distance' rather than 'residential buildings distance'. Ordinance lists three voltage tiers (37½, 50, 75 feet); per numeric_prioritization for setbacks, the largest tier (75 feet) is selected as the row value while the full table is quoted verbatim in summary."
+      "explanation": "Generic 'building setback line' measured from the transmission-line centerline, not qualified as residential, so classified as 'structures distance' rather than 'residential buildings distance'. Ordinance lists three voltage tiers (37½, 50, 75 feet); per numeric_prioritization for setbacks, the largest tier (75 feet) is selected as the row value while the full table is quoted verbatim in summary.",
+      "aggregated": true
     },
     {
       "feature": "franchise",
@@ -336,7 +346,8 @@
       "units": null,
       "section": "Ch. 8 Franchises — List of Franchises",
       "summary": "Under the 'Electric Franchises' heading of the codified list of franchises: Dixie Electric Membership Corporation (99 years), Ordinance of May 10, 1939; Louisiana Power and Light Company (no time limit), Ordinance of February 10, 1937. The code omits the full text of these franchise ordinances and preserves only this listing of grantees, durations, and originating ordinances.",
-      "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded."
+      "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded.",
+      "aggregated": false
     }
   ],
   "$instructions": {
