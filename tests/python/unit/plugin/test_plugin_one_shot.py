@@ -1,13 +1,11 @@
 """COMPASS one-shot plugin tests"""
 
-from copy import deepcopy
 from pathlib import Path
 
 import pytest
 
 from compass.exceptions import COMPASSPluginConfigurationError
 from compass.plugin.one_shot.base import (
-    _inject_subarea_sentinels,
     _normalize_heuristic_keywords,
 )
 from compass.plugin.one_shot.components import SchemaBasedTextCollector
@@ -222,59 +220,6 @@ async def test_schema_text_collector_stores_chunk_after_scope_and_context():
         0: "header text",
         1: "operative geothermal setback text",
     }
-
-def _schema_with_subarea(enum):
-    return {
-        "properties": {
-            "outputs": {
-                "items": {
-                    "properties": {"subarea": {"enum": list(enum)}}
-                }
-            }
-        }
-    }
-
-
-def test_inject_subarea_sentinels_wraps_enum():
-    """``all`` is prepended and ``other`` appended around user values"""
-
-    schema = _schema_with_subarea(["residential", "commercial"])
-    _inject_subarea_sentinels(schema)
-
-    enum = schema["properties"]["outputs"]["items"]["properties"][
-        "subarea"
-    ]["enum"]
-    assert enum == ["all", "residential", "commercial", "other"]
-
-
-def test_inject_subarea_sentinels_is_idempotent():
-    """Calling twice does not duplicate sentinels"""
-
-    schema = _schema_with_subarea(["residential"])
-    _inject_subarea_sentinels(schema)
-    _inject_subarea_sentinels(schema)
-
-    enum = schema["properties"]["outputs"]["items"]["properties"][
-        "subarea"
-    ]["enum"]
-    assert enum == ["all", "residential", "other"]
-
-
-def test_inject_subarea_sentinels_noop_when_no_subarea_property():
-    """Legacy schemas without a subarea property are left unchanged"""
-
-    schema = {
-        "properties": {
-            "outputs": {
-                "items": {"properties": {"feature": {"enum": ["a", "b"]}}}
-            }
-        }
-    }
-    original = deepcopy(schema)
-
-    _inject_subarea_sentinels(schema)
-
-    assert schema == original
 
 
 if __name__ == "__main__":

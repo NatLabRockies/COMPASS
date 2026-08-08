@@ -8,12 +8,11 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per (feature, subarea) pair**. Emit one row per subarea only when the ordinance text explicitly states different values or requirements per subarea for the same feature; otherwise emit a single row with subarea='all'. Never infer, imply, or guess a requirement from related context.",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**. Never infer, imply, or guess a requirement from related context.",
       "items": {
         "type": "object",
         "required": [
           "feature",
-          "subarea",
           "value",
           "units",
           "section",
@@ -67,10 +66,6 @@
               "FAA",
 
               // -- Prohibited or limited-use districts --
-              // Use the `subarea` field to identify which district the
-              // prohibition applies to (rural, residential, commercial,
-              // light industrial, industrial, agricultural, mixed use,
-              // or 'other' for named districts not covered by the enum).
               "district use restriction",
               // -- Exclusions --
               "historic site",
@@ -101,19 +96,6 @@
               // -- Administrative --
               // Electric utility franchise granted to a named company
               "franchise",
-            ]
-          },
-          "subarea": {
-            "type": "string",
-            "description": "The subset of the jurisdiction to which this row applies. Use 'all' when the requirement applies jurisdiction-wide with no zone-specific variation. Use one of the named zoning categories when the ordinance text explicitly ties the requirement to that district. Use 'other' when the ordinance names a specific district that does not match any of the enumerated categories (for example, 'PUD', 'aviation overlay', 'conservation-2'). Do not invent categories; do not infer a zone from headings or nearby context that does not explicitly bind the requirement to that district.",
-            "enum": [
-              "rural",
-              "residential",
-              "commercial",
-              "light industrial",
-              "industrial",
-              "agricultural",
-              "mixed use"
             ]
           },
           "value": {
@@ -148,7 +130,7 @@
           },
           "aggregated": {
             "type": "boolean",
-            "description": "True when this row's value was selected from multiple competing explicit values that apply to the same (feature, subarea) pair, keeping the most restrictive one per $core_principles.numeric_prioritization (most restrictive is the largest value for setbacks, the smallest value for noise and height limits, and so on depending on the feature). False when the value comes from a single explicit value with no competing values to reconcile."
+            "description": "True when this row's value was selected from multiple competing explicit values for the same feature, keeping the most restrictive one per $core_principles.numeric_prioritization (most restrictive is the largest value for setbacks, the smallest value for noise and height limits, and so on depending on the feature). False when the value comes from a single explicit value with no competing values to reconcile."
           }
         }
       }
@@ -291,47 +273,24 @@
   "$examples": [
     {
       "feature": "noise",
-      "subarea": "all",
       "value": 50,
       "units": "dBA",
       "section": "SECTION 1308 – Performance / Construction Standards",
       "summary": "The transmission line and or facility shall not generate noise in excess of Fifty (50) decibel levels at ground level to the property lines or at the nearest residence. Such measurements shall be signed by a qualified engineer, stating that noise levels are being met, per ordinance.",
-      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide with no zone-specific variation, so a single row with subarea='all' is emitted.",
-      "aggregated": false
-    },
-    {
-      "feature": "noise",
-      "subarea": "residential",
-      "value": 45,
-      "units": "dBA",
-      "section": "Table 5-3 – Noise Standards by District",
-      "summary": "Maximum permissible operational noise at the property line for transmission facilities in residential districts is 45 dBA.",
-      "explanation": "Ordinance explicitly states a distinct noise limit for residential districts; a companion row with subarea='commercial' captures the 55 dBA limit for commercial districts.",
-      "aggregated": false
-    },
-    {
-      "feature": "noise",
-      "subarea": "commercial",
-      "value": 55,
-      "units": "dBA",
-      "section": "Table 5-3 – Noise Standards by District",
-      "summary": "Maximum permissible operational noise at the property line for transmission facilities in commercial districts is 55 dBA.",
-      "explanation": "Ordinance explicitly states a distinct noise limit for commercial districts. Other districts are also defined.",
+      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide, so a single noise row is emitted.",
       "aggregated": false
     },
     {
       "feature": "district use restriction",
-      "subarea": "residential",
       "value": null,
       "units": null,
       "section": "Sec. 12.04.A – Prohibited Uses in Residential Districts",
       "summary": "Overhead electric transmission lines rated above 69 kV are prohibited in all residential districts (R-1, R-2, R-3).",
-      "explanation": "Ordinance explicitly bans transmission lines from residential districts; subarea='residential' captures the district class.",
+      "explanation": "Ordinance explicitly bans transmission lines from residential districts.",
       "aggregated": false
     },
     {
       "feature": "structures distance",
-      "subarea": "all",
       "value": 75,
       "units": "feet",
       "section": "5.2.6.2 Building Setback Lines",
@@ -341,7 +300,6 @@
     },
     {
       "feature": "franchise",
-      "subarea": "all",
       "value": ["Dixie Electric Membership Corporation", "Louisiana Power and Light Company"],
       "units": null,
       "section": "Ch. 8 Franchises — List of Franchises",

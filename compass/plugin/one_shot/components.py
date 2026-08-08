@@ -17,9 +17,6 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 logger = logging.getLogger(__name__)
 
-SUBAREA_SENTINEL_ALL = "all"
-SUBAREA_SENTINEL_OTHER = "other"
-
 _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
 You are a structured extraction scope validator. Given a text chunk, \
 determine whether the chunk is within the given extraction scope. \
@@ -540,7 +537,6 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             {"feature": all_features, "quantitative": quant}
         )
         full_df = full_df.merge(df, on="feature", how="left")
-        full_df = self._apply_subarea_defaults(full_df)
 
         ignore_cols = {
             "county",
@@ -557,12 +553,3 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             if col.name in full_df.columns and col.name not in ignore_cols
         ]
         return full_df[["feature", *out_cols, "quantitative"]]
-
-    @staticmethod
-    def _apply_subarea_defaults(df):
-        """Fill placeholder subarea entries with the 'all' sentinel"""
-
-        if "subarea" not in df.columns:
-            df["subarea"] = SUBAREA_SENTINEL_ALL
-        df["subarea"] = df["subarea"].fillna(SUBAREA_SENTINEL_ALL)
-        return df
