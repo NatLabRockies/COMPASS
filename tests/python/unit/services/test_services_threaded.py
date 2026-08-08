@@ -542,6 +542,7 @@ async def test_jurisdiction_updater_process(tmp_path):
         doc,
         attrs={
             "jurisdiction_website": "http://jurisdiction.gov",
+            "num_features_extracted": 1,
         },
     )
     context.data_docs = [doc]
@@ -572,6 +573,7 @@ async def test_jurisdiction_updater_process(tmp_path):
     second = data["jurisdictions"][1]
     assert second["found"] is True
     assert second["jurisdiction_website"] == "http://jurisdiction.gov"
+    assert second["num_features_extracted"] == 1
     assert pytest.approx(second["cost"]) == 22.5
     assert second["documents"][0]["ord_filename"] == "doc.pdf"
     assert second["documents"][0]["effective_year"] == 2023

@@ -613,11 +613,12 @@ def _dump_jurisdiction_info(
         "subdivision": jurisdiction.subdivision_name,
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
-        "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "jurisdiction_website": None,
         "cost": None,
+        "found": False,
+        "num_features_extracted": None,
         "documents": None,
     }
 
@@ -630,6 +631,9 @@ def _dump_jurisdiction_info(
         new_info["documents"] = [
             _compile_doc_info(doc) for doc in extraction_context.data_docs
         ]
+        new_info["num_features_extracted"] = extraction_context.attrs.get(
+            "num_features_extracted"
+        )
         new_info["jurisdiction_website"] = extraction_context.attrs.get(
             "jurisdiction_website"
         )
@@ -645,7 +649,6 @@ def _compile_doc_info(doc):
     out_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
     return {
         "source": doc.attrs.get("source"),
-        "num_features_extracted": doc.attrs.get("num_features_extracted"),
         "effective_year": year if year is not None and year > 0 else None,
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
