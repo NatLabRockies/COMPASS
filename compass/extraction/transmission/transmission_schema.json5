@@ -331,15 +331,7 @@
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
     ],
-    "subarea": [
-      "Set subarea='all' when the ordinance states a single requirement that applies jurisdiction-wide with no zone-specific variation.",
-      "Set subarea to a named zoning category only when the ordinance text explicitly binds the requirement to that district (for example a table of limits per district, or a clause 'in residential districts, ...').",
-      "Set subarea='other' when the ordinance names a specific district that does not match any enumerated category (for example PUD, aviation overlay, conservation-2).",
-      "Do not invent subareas from section headings, chapter titles, or nearby context that does not explicitly bind the requirement to that district.",
-      "When the same feature has different requirements in different districts, emit one row per district; do not merge them into a single row.",
-      "For the 'district use restriction' feature, subarea must be a specific district (never 'all'); emit one row per explicitly restricted district.",
-    ],
-  },
+  ],
   "$qualitative_features": [
     "bond",
     "color",
