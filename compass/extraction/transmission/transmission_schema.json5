@@ -198,6 +198,13 @@
         }
       }
     },
+    "definition_features": {
+      "properties": {
+        "voltage threshold": {
+          "description": "Extract the minimum voltage at or above which the ordinance explicitly defines a high-voltage electric transmission line (for example a definition of 'transmission line', 'high-voltage line', or equivalent term that sets a voltage floor). This feature captures only the floor that distinguishes high-voltage transmission from lower-voltage lines; do not extract a voltage taken from a definition of a distribution line, service line, secondary line, sub-transmission line, or other lower-voltage line. Extract only from a definitional statement whose primary purpose is to establish that voltage floor (for example 'Transmission Line means an electric line carrying at least 69,000 volts (69 kV)'). Do not infer a threshold from voltage numbers that merely appear as tiers or rows in a setback, height, clearance, or other requirement table, or anywhere a voltage is used to impose a physical requirement rather than to define the term; such tables are rules, not definitions, and must not produce a voltage threshold. If no explicit definitional voltage floor is stated, omit this feature entirely."
+        }
+      }
+    },
     "operational_features": {
       "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
       "properties": {
