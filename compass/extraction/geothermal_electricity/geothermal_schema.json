@@ -246,8 +246,8 @@
           "value": 500,
           "units": "feet",
           "section": "Section 8.4 - Setbacks",
-          "summary": "'Geothermal production wells and associated facilities shall be set back at least 500 feet from all property lines.'",
-          "ordinance_text": "Geothermal production wells and associated facilities shall be set back at least 500 feet from all property lines.",
+          "summary": "Wells and related facilities must sit at least 500 feet from any property line. The setback is measured to the outer edge of the wellhead cellar rather than the well bore itself.",
+          "ordinance_text": "Geothermal production wells and associated facilities shall be set back at least 500 feet from all property lines. ... For purposes of this section, the setback shall be measured from the outer edge of the wellhead cellar.",
           "explanation": "The excerpt states an explicit numeric minimum separation from property lines, so it maps directly to 'property lines distance' with value 500 feet."
         },
         {
@@ -258,7 +258,7 @@
           ],
           "units": null,
           "section": "Table 4 - Allowed Uses",
-          "summary": "'Geothermal power plants may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.'",
+          "summary": "Geothermal power plants are not permitted outright anywhere. They are allowed in the Industrial and Agricultural districts only after conditional-use approval by the county.",
           "ordinance_text": "Geothermal power plants may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.",
           "explanation": "The ordinance explicitly lists two districts where geothermal power plants are allowed only through conditional-use approval, so this belongs under 'special use districts' with the district names preserved as an array."
         },
@@ -270,7 +270,7 @@
           ],
           "units": null,
           "section": "Section 5.2 - Approval Process",
-          "summary": "'A conditional use permit and county drilling permit shall be obtained prior to the construction or operation of any geothermal power plant or exploratory well.'",
+          "summary": "Two separate approvals are needed before work begins: a conditional use permit and a county drilling permit. Both must be in hand prior to construction or operation, including for exploratory wells.",
           "ordinance_text": "A conditional use permit and county drilling permit shall be obtained prior to the construction or operation of any geothermal power plant or exploratory well.",
           "explanation": "The clause explicitly requires two project approvals before geothermal development can start, so it belongs under 'required permits' with both permit names preserved as an array."
         },
@@ -279,7 +279,7 @@
           "value": "07:00",
           "units": "HH:MM (24-hour)",
           "section": "Section 6.7 - Drilling Operations",
-          "summary": "'Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "summary": "Routine drilling may not begin before 7:00 a.m. The window runs Monday through Saturday, with no work on Sundays or legal holidays unless an emergency applies.",
           "ordinance_text": "Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.",
           "explanation": "The ordinance gives an explicit drilling window beginning at 7:00 a.m., normalized to 24-hour time as 07:00."
         },
@@ -288,7 +288,7 @@
           "value": "19:00",
           "units": "HH:MM (24-hour)",
           "section": "Section 6.7 - Drilling Operations",
-          "summary": "'Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "summary": "Routine drilling must stop by 7:00 p.m. The same Monday through Saturday window applies, and emergency work is the only exception to the Sunday and holiday prohibition.",
           "ordinance_text": "Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.",
           "explanation": "The ordinance gives an explicit drilling window ending at 7:00 p.m., normalized to 24-hour time as 19:00."
         },
@@ -297,7 +297,7 @@
           "value": null,
           "units": null,
           "section": "Section 9.3 - Financial Assurance",
-          "summary": "'Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil, gas, and geothermal agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.'",
+          "summary": "Financial assurance is required before a permit issues, but the ordinance sets no dollar figure. The amount is determined by the state agency engineer and must cover plugging, abandonment, reclamation, and decommissioning, so no numeric value can be extracted.",
           "ordinance_text": "Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil, gas, and geothermal agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.",
           "explanation": "The clause imposes an enforceable financial assurance requirement but leaves the amount to an agency-determined formula, so it fits 'bond requirement' with value and units set to null."
         }

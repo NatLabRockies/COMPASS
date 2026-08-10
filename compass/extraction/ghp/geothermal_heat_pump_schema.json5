@@ -243,8 +243,8 @@
           "value": 100,
           "units": "feet",
           "section": "Section 8.3 - Well Siting Standards",
-          "summary": "'No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.'",
-          "ordinance_text": "No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.",
+          "summary": "Boreholes must stay at least 100 feet from any private drinking water well. The separation is measured horizontally at the ground surface, so a slanted bore is judged by its surface location.",
+          "ordinance_text": "No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well. ... All separation distances in this section shall be measured horizontally at the ground surface.",
           "explanation": "The excerpt states an explicit numeric minimum separation from private drinking water wells, so it maps directly to 'private water' with value 100 feet."
         },
         {
@@ -252,7 +252,7 @@
           "value": null,
           "units": null,
           "section": "Section 6.1 - Contractor Qualifications",
-          "summary": "'All geothermal wells shall be drilled by a state-licensed well driller in good standing.'",
+          "summary": "Drilling must be performed by a well driller holding a current state license in good standing.",
           "ordinance_text": "All geothermal wells shall be drilled by a state-licensed well driller in good standing.",
           "explanation": "The clause explicitly ties a licensing credential to the drilling activity itself, which matches 'licensed driller'."
         },
@@ -261,7 +261,7 @@
           "value": null,
           "units": null,
           "section": "Section 12.4 - GEOTHERMAL ENERGY SYSTEM STANDARDS",
-          "summary": "'Only closed loop ground source heat pump systems utilizing heat transfer fluids as defined in this Zoning Code are permitted. Open loop ground source heat pump systems are not permitted.'",
+          "summary": "Open loop systems are banned outright. The ordinance permits only closed loop systems using heat transfer fluids as defined in the Zoning Code, so the prohibition is the operative rule for this feature.",
           "ordinance_text": "Open loop ground source heat pump systems are not permitted.",
           "explanation": "The text states an explicit current ban on open-loop systems, so it matches 'prohibitions ol'."
         }
