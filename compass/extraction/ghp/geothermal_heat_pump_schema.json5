@@ -17,7 +17,7 @@
           "units",
           "section",
           "summary",
-          "ord_text",
+          "ordinance_text",
           "explanation"
         ],
         "additionalProperties": false,
@@ -82,9 +82,9 @@
             "type": "string",
             "description": "A short summary with direct ordinance excerpts/quotes whenever possible. For qualitative features (definitions, permitting, screening, inspection, decommissioning, prohibitions), this is the primary output field and should contain a direct ordinance excerpt. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders (for example, 'No explicit ... found'); omit the feature instead when no requirement is present."
           },
-          "ord_text": {
+          "ordinance_text": {
             "type": "string",
-            "description": "Copy-and-paste directly from the source document the first sentence corresponding to the ordinance being extracted. For quantitative features, this is the full sentence from the source that contains the value being extracted. For qualitative features, this is the first full sentence of the text that relates to the ordinance being extracted. Reproduce the sentence verbatim from the source text with no paraphrasing, summarizing, added context, or commentary. Must be a non-null, non-empty string."
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must be the beginning of the ordinance text pertaining to this extraction, reproduced in full without elision. After that first sentence, you may use an ellipsis ('...') to omit passages that are not relevant to this ordinance, keeping the excerpt focused while preserving all text that supports the extracted value, units, or qualitative requirement. Every character outside of the ellipses must appear exactly as written in the source: no paraphrasing, summarizing, normalization, added context, or commentary. Must be a non-null, non-empty string."
           },
           "explanation": {
             "type": "string",
@@ -244,7 +244,7 @@
           "units": "feet",
           "section": "Section 8.3 - Well Siting Standards",
           "summary": "'No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.'",
-          "ord_text": "No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.",
+          "ordinance_text": "No geothermal borehole shall be located within one hundred (100) feet of any private drinking water well.",
           "explanation": "The excerpt states an explicit numeric minimum separation from private drinking water wells, so it maps directly to 'private water' with value 100 feet."
         },
         {
@@ -253,7 +253,7 @@
           "units": null,
           "section": "Section 6.1 - Contractor Qualifications",
           "summary": "'All geothermal wells shall be drilled by a state-licensed well driller in good standing.'",
-          "ord_text": "All geothermal wells shall be drilled by a state-licensed well driller in good standing.",
+          "ordinance_text": "All geothermal wells shall be drilled by a state-licensed well driller in good standing.",
           "explanation": "The clause explicitly ties a licensing credential to the drilling activity itself, which matches 'licensed driller'."
         },
         {
@@ -262,7 +262,7 @@
           "units": null,
           "section": "Section 12.4 - GEOTHERMAL ENERGY SYSTEM STANDARDS",
           "summary": "'Only closed loop ground source heat pump systems utilizing heat transfer fluids as defined in this Zoning Code are permitted. Open loop ground source heat pump systems are not permitted.'",
-          "ord_text": "Open loop ground source heat pump systems are not permitted.",
+          "ordinance_text": "Open loop ground source heat pump systems are not permitted.",
           "explanation": "The text states an explicit current ban on open-loop systems, so it matches 'prohibitions ol'."
         }
       ]
@@ -276,7 +276,7 @@
       "Feature disambiguation for wastewater vs line infrastructure: sewage/wastewater disposal structures (for example septic tanks, cesspools, leach fields, seepage pits, sludge/septage sites) map only to 'wastewater'; explicit sewer or sewage line wording maps only to 'sewer line'; explicit water service line wording maps only to 'water line'. If one clause explicitly names both sewer/sewage line and water line/service piping with a shared numeric setback, emit both line features with that same value and units. Phrases such as 'water and sewer lines' or 'sewage and water line' count as explicitly naming both line features when the shared noun 'line' or 'lines' applies to both utilities.",
       "Numeric features in this schema are all setback features (driveways, property lines, yards, private water, public water, building foundation, wastewater, water line, sewer line, animal enclosures, roads, row, above ground fuel, below ground fuel, subsurface drains, wetlands, pools, hmat) plus noise, minimum well depth, and maximum well depth.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary. Use as many direct quotes in the summary as possible, and include all relevant ordinance clauses that support the feature. For numeric features, summary must support the same requirement used to extract value and units. For qualitative features, summary must include direct ordinance excerpts that explicitly state the requirement or definition for that feature.",
-      "Every row must include an ord_text that is the first full sentence from the source document corresponding to the ordinance being extracted, copied verbatim. For quantitative features, ord_text is the full source sentence that contains the value being extracted; for qualitative features, ord_text is the first full sentence of the source text that relates to the ordinance being extracted. Unlike summary, ord_text must be a single contiguous sentence reproduced exactly as written, with no paraphrasing, normalization, ellipses, added context, or commentary.",
+      "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. Unlike summary, ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",

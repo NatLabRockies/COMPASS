@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "section", "summary", "ord_text", "source"],
+        "required": ["feature", "value", "units", "section", "summary", "ordinance_text", "source"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -70,9 +70,9 @@
             "description": "Short requirement summary using direct excerpts/quotes whenever possible. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
             "default": null
           },
-          "ord_text": {
+          "ordinance_text": {
             "type": "string",
-            "description": "Copy-and-paste directly from the source document the first sentence corresponding to the requirement being extracted. For quantitative features, this is the full sentence from the source that contains the value being extracted; for qualitative features, this is the first full sentence of the source text that relates to the requirement being extracted. Unlike summary, reproduce this single contiguous sentence verbatim from the source, with no paraphrasing, normalization, ellipses, added context, or commentary. Must be a non-null, non-empty string."
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must be the beginning of the ordinance text pertaining to this extraction, reproduced in full without elision. After that first sentence, you may use an ellipsis ('...') to omit passages that are not relevant to this ordinance, keeping the excerpt focused while preserving all text that supports the extracted value, units, or qualitative requirement. Every character outside of the ellipses must appear exactly as written in the source: no paraphrasing, summarizing, normalization, added context, or commentary. Must be a non-null, non-empty string."
           },
           "source": {
             "type": ["number", "null"],
@@ -180,7 +180,7 @@
       "units": null,
       "section": "Rule 3.2 - Permit Required",
       "summary": "'No person may drill a non-exempt well without first obtaining a permit from the District.' Exempt domestic wells are listed separately under Rule 3.5.",
-      "ord_text": "No person may drill a non-exempt well without first obtaining a permit from the District."
+      "ordinance_text": "No person may drill a non-exempt well without first obtaining a permit from the District."
     },
     {
       "feature": "annual extraction limits",
@@ -188,7 +188,7 @@
       "units": "acre-feet/year",
       "section": "Rule 8.1 - Production Limits",
       "summary": "The district sets an explicit annual production cap of '2 acre-feet per acre per year' for this permit class; text also notes permit-specific adjustments by aquifer conditions.",
-      "ord_text": "Each non-exempt permit is limited to an annual production of 2 acre-feet per acre per year."
+      "ordinance_text": "Each non-exempt permit is limited to an annual production of 2 acre-feet per acre per year."
     },
     {
       "feature": "well spacing",
@@ -196,7 +196,7 @@
       "units": "feet",
       "section": "Rule 8.4 - Well Spacing",
       "summary": "'A new non-exempt well must be at least 500 feet from any existing non-exempt well.' Reduced spacing may be allowed for low-capacity wells below stated gpm threshold.",
-      "ord_text": "A new non-exempt well must be at least 500 feet from any existing non-exempt well."
+      "ordinance_text": "A new non-exempt well must be at least 500 feet from any existing non-exempt well."
     },
     {
       "feature": "production cost",
@@ -204,14 +204,14 @@
       "units": "dollars/acre-foot",
       "section": "Fee Schedule - Production Fees",
       "summary": "Production fees are assessed by permit class and use category rather than one universal rate; schedule provides tiered dollar-per-acre-foot charges.",
-      "ord_text": "Production fees shall be assessed in accordance with the tiered dollar-per-acre-foot rates set out in the Fee Schedule for each permit class and use category."
+      "ordinance_text": "Production fees shall be assessed in accordance with the tiered dollar-per-acre-foot rates set out in the Fee Schedule for each permit class and use category."
     }
   ],
   "$instructions": {
     "general": [
       "Extract only enacted district requirements, not proposed language or general background text.",
       "Use direct excerpts/quotes in summary whenever possible.",
-      "Whenever a feature row is emitted, ord_text must be the first full sentence from the source document corresponding to the requirement being extracted, copied verbatim: for quantitative features the full source sentence containing the extracted value, and for qualitative features the first full source sentence relating to the requirement. Unlike summary, ord_text must be a single contiguous sentence reproduced exactly as written, with no paraphrasing, normalization, ellipses, added context, or commentary. If a feature has no requirement, omit the feature row entirely rather than emitting a row with an empty ord_text.",
+      "Whenever a feature row is emitted, ordinance_text must be the first full sentence from the source document corresponding to the requirement being extracted, copied verbatim: for quantitative features the full source sentence containing the extracted value, and for qualitative features the first full source sentence relating to the requirement. Unlike summary, ordinance_text must be a single contiguous sentence reproduced exactly as written, with no paraphrasing, normalization, ellipses, added context, or commentary. If a feature has no requirement, omit the feature row entirely rather than emitting a row with an empty ordinance_text.",
       "If a feature has no requirement, set value, units, section, and summary to null or omit the feature row.",
       "When multiple values exist for one feature, choose the value applicable to the primary general rule and describe alternatives/conditions in summary.",
       "Preserve distinctions between drilling permits, extraction permits, transfer permits, and reporting obligations.",
