@@ -175,10 +175,12 @@ Final CSV columns: `county`, `state`, `subdivision`, `jurisdiction_type`,
 `ordinance_text`, `explanation`, `year`, `section`, `source`,
 `quantitative`.
 
-Quantitative and qualitative rows share one file; the boolean
-`quantitative` column tells them apart. `ordinance_text` holds the
-verbatim excerpt from the source document and `explanation` the model's
-rationale. The `summary` column is deprecated and no longer written.
+Quantitative and qualitative rows share one file. Either the boolean
+`quantitative` column or `units == "str"` selects the qualitative rows —
+qualitative features have no measurable units, so `units` is set to the
+literal `"str"` for them. `ordinance_text` holds the verbatim excerpt
+from the source document and `explanation` the model's rationale. The
+`summary` column is deprecated and no longer written.
 
 ## Interpreting output status correctly
 

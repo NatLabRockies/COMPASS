@@ -16,6 +16,8 @@ from compass.utilities.parsing import (
 
 
 logger = logging.getLogger(__name__)
+QUALITATIVE_UNITS = "str"
+"""str: ``units`` value used to mark a qualitative ordinance row"""
 
 
 def save_run_meta(
@@ -213,6 +215,7 @@ def save_db(db, out_dir, output_columns):
     out_cols = [col.name for col in output_columns]
 
     db = trim_ordinance_text(db)
+    db = _label_qualitative_units(db)
 
     out_dir = Path(out_dir)
     db[out_cols].to_csv(
@@ -257,8 +260,26 @@ def _formatted_db(db, parsed_cols):
             db[col] = None
 
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
+    db = _label_qualitative_units(db)
     ord_rows = ordinances_bool_index(db)
     return db[ord_rows][parsed_cols].reset_index(drop=True)
+
+
+def _label_qualitative_units(db):
+    """Mark qualitative rows with the ``QUALITATIVE_UNITS`` sentinel
+
+    Qualitative features have no measurable units, so the ``units``
+    column is used to label them instead. This makes selecting one kind
+    of feature a plain column comparison now that both kinds share a
+    single output file.
+    """
+    if "units" not in db.columns:
+        return db
+
+    db.loc[~db["quantitative"].astype("boolean").fillna(True), "units"] = (
+        QUALITATIVE_UNITS
+    )
+    return db
 
 
 def _extract_model_info_from_all_models(models):

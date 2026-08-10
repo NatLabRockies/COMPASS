@@ -502,7 +502,48 @@ def test_save_db_writes_csvs(tmp_path):
     assert "summary" not in out.columns
     assert "ordinance_text" in out.columns
     assert "explanation" in out.columns
-    assert qual_rows.iloc[0]["units"] == "ft"
+    assert quant_rows.iloc[0]["units"] == "ft"
+    assert qual_rows.iloc[0]["units"] == finalize.QUALITATIVE_UNITS
+
+
+def test_save_db_labels_qualitative_units(tmp_path):
+    """Mark qualitative rows with the units sentinel"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, quantitative, units):
+        row = dict.fromkeys(out_cols)
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": quantitative,
+                "units": units,
+                "ordinance_text": "text",
+            }
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Height", True, "ft"),
+            _row("Decommissioning", False, None),
+            # the LLM sometimes invents units for a qualitative feature
+            _row("Signage", False, "bogus"),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv")
+    by_feature = out.set_index("feature")["units"]
+
+    assert by_feature["Height"] == "ft"
+    assert by_feature["Decommissioning"] == finalize.QUALITATIVE_UNITS
+    assert by_feature["Signage"] == finalize.QUALITATIVE_UNITS
+
+    # selecting one kind of feature is a plain column comparison
+    qual = out[out["units"] == finalize.QUALITATIVE_UNITS]
+    assert set(qual["feature"]) == {"Decommissioning", "Signage"}
+    assert not qual["quantitative"].any()
 
 
 def test_save_db_trims_long_ordinance_text(tmp_path):
