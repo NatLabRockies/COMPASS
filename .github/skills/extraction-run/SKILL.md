@@ -182,10 +182,14 @@ The four content columns have distinct jobs:
 
 | Column | Contents |
 |---|---|
-| `value` | The extracted answer. For qualitative features this is the requirement itself, stated in full. |
-| `summary` | Prose restatement of the rule, carrying caveats and conditions that `value` and `units` cannot. Mirrors `value` on qualitative rows, so it is never blank. |
+| `value` | The extracted answer — a number or category for quantitative features. On qualitative rows the LLM returns null and the `summary` text is copied in, so the column is never blank. |
+| `summary` | Prose restatement of the rule. For quantitative features it carries caveats and conditions that `value` and `units` cannot; for qualitative features it *is* the requirement. |
 | `ordinance_text` | Exact quotes copied from the source document, trimmed to 5000 characters. |
 | `explanation` | The model's reasoning about how it interpreted the requirement. |
+
+The LLM only ever writes the requirement once: qualitative rows are
+asked for a `summary` and a null `value`, and the copy happens when the
+output is written.
 
 ## Interpreting output status correctly
 

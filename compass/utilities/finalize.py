@@ -319,14 +319,18 @@ def _normalize_qualitative_rows(db):
     they share a single output file and the ``quantitative`` flag is
     not published.
 
-    Their ``value`` is also copied into ``summary``, because for a
-    qualitative feature the value *is* the summary. Doing it here rather
-    than asking the LLM keeps the two columns identical and saves the
-    model from having to write the same text twice.
+    Their ``summary`` is also copied into ``value``. The schemas ask the
+    LLM for a summary and a null value on these rows, so filling the
+    value here means the model only ever writes the requirement once,
+    while readers still find it in the column they expect.
     """
     qualitative = ~db["quantitative"]
     db.loc[qualitative, "units"] = QUALITATIVE_UNITS
-    db.loc[qualitative, "summary"] = db.loc[qualitative, "value"]
+
+    # a numeric-only "value" column is float-typed, so it has to be
+    # widened before qualitative text can be written into it
+    db["value"] = db["value"].astype(object)
+    db.loc[qualitative, "value"] = db.loc[qualitative, "summary"]
     return db
 
 

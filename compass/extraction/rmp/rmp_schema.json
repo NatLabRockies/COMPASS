@@ -82,7 +82,7 @@
           },
           "summary": {
             "type": ["string", "null"],
-            "description": "A natural-language restatement of the requirement in your own words. Use it to capture caveats, conditions, exceptions, and alternative thresholds that the value and units columns cannot hold on their own (for example tiered limits, conditional reductions, or requirements that vary by district or system size). Do not quote the document here: verbatim text belongs in ordinance_text, and this field should read as prose rather than an excerpt. Always write a summary for quantitative features. For qualitative features you may leave this null; the value column already states the requirement and is copied into summary automatically when the output is written."
+            "description": "A natural-language restatement of the requirement in your own words. For qualitative features this is the primary output field: state the requirement in full here, since the value column is left null and is filled in from this field when the output is written. For quantitative features, use it to capture caveats, conditions, exceptions, and alternative thresholds that the value and units columns cannot hold on their own (for example tiered limits, conditional reductions, or requirements that vary by district or system size). Do not quote the document here: verbatim text belongs in ordinance_text, and this field should read as prose rather than an excerpt. Must be a non-null, non-empty string."
           },
           "ordinance_text": {
             "type": ["string", "null"],

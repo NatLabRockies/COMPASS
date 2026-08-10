@@ -552,8 +552,8 @@ def test_save_db_labels_qualitative_units(tmp_path):
     assert set(qual["feature"]) == {"Decommissioning", "Signage"}
 
 
-def test_save_db_mirrors_value_into_summary_for_qualitative(tmp_path):
-    """Copy value into summary on qualitative rows"""
+def test_save_db_mirrors_summary_into_value_for_qualitative(tmp_path):
+    """Copy summary into value on qualitative rows"""
 
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
 
@@ -571,28 +571,31 @@ def test_save_db_mirrors_value_into_summary_for_qualitative(tmp_path):
         )
         return row
 
+    # the schemas ask for a null value on qualitative rows, so the
+    # requirement arrives in summary only
     df = pd.DataFrame(
         [
             _row("Height", True, 100, "Max 100 ft, 80 ft in AG district."),
-            _row("Decommissioning", False, "Remove within 12 months.", None),
-            # a qualitative summary from the LLM is replaced by the value
-            _row("Signage", False, "Warning signs only.", "something else"),
+            _row("Decommissioning", False, None, "Remove within 12 months."),
+            _row("Signage", False, None, "Warning signs only."),
         ]
     )
     finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
 
     out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
 
-    # quantitative rows keep their prose restatement
+    # quantitative rows keep their number and their prose restatement
+    assert out.loc["Height", "value"] == "100.0"
     assert out.loc["Height", "summary"] == (
         "Max 100 ft, 80 ft in AG district."
     )
 
-    # qualitative rows mirror the value exactly
-    assert out.loc["Decommissioning", "summary"] == "Remove within 12 months."
-    assert out.loc["Signage", "summary"] == "Warning signs only."
+    # qualitative rows get the summary text filled into value
+    assert out.loc["Decommissioning", "value"] == "Remove within 12 months."
+    assert out.loc["Signage", "value"] == "Warning signs only."
 
-    # the column is never blank
+    # neither column is left blank
+    assert out["value"].notna().all()
     assert out["summary"].notna().all()
 
 
