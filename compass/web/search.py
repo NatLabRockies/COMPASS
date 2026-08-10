@@ -1,11 +1,8 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
-from warnings import warn
 
 from elm.web.search.run import search_with_fallback, search_all_se
-
-from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
@@ -112,25 +109,18 @@ async def search_single_jurisdiction(
 async def _run_simple_sort_search(
     queries,
     num_urls,
-    ignore_url_parts,
+    url_ignore_substrings,
     url_keep_substrings,
     search_semaphore,
     jurisdiction_full_name,
     **se_kwargs,
 ):
     """Run search with fallback search engines, applying simple sort"""
-    if url_keep_substrings:
-        msg = (
-            "url_keep_substrings is not currently implemented for simple"
-            "search result sorting. Consider using holistic sorting to "
-            "apply the url whitelist."
-        )
-        warn(msg, COMPASSWarning)
-
     urls = await search_with_fallback(
         queries,
         num_urls=num_urls,
-        ignore_url_parts=ignore_url_parts,
+        url_ignore_substrings=url_ignore_substrings,
+        url_keep_substrings=url_keep_substrings,
         browser_semaphore=search_semaphore,
         task_name=jurisdiction_full_name,
         **se_kwargs,
@@ -151,7 +141,8 @@ async def _run_holistic_sort_search(
     out = await search_all_se(
         queries,
         num_urls=10,  # Need as many results as possible for holistic sort
-        ignore_url_parts=None,  # custom filters applied later
+        url_ignore_substrings=None,  # custom filters applied later
+        url_keep_substrings=None,  # custom filters applied later
         browser_semaphore=browser_semaphore,
         task_name=jurisdiction_full_name,
         **se_kwargs,
@@ -215,10 +206,16 @@ def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
 
 
 def _apply_duplicate_filters(results):
-    """Mark duplicate rows per search engine and URL"""
+    """Mark duplicate rows by URL, across all search engines
+
+    Winner selection follows the priority encoded in
+    :func:`_link_sort_key`, so the engine listed first in the user
+    config only wins among entries that are otherwise tied (same
+    ``query_rank`` and ``query_index``).
+    """
     winners = {}
     for entry in _active_results_sorted(results):
-        key = (entry["search_engine"], entry["url"])
+        key = entry["url"]
         winner = winners.get(key)
         if winner is None:
             winners[key] = entry
@@ -267,7 +264,7 @@ def _link_sort_key(entry):
         entry["query_rank"],
         -duplicate_count,
         entry["query_index"],
-        entry["search_engine"],
+        entry["se_order"],
         entry["_order"],
     )
 

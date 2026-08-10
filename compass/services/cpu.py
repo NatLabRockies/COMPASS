@@ -2,19 +2,23 @@
 
 import ast
 import os
-import sys
 import time
+import math
+import pprint
 import asyncio
 import logging
-import contextlib
 import warnings
+import platform
+import contextlib
+import multiprocessing
+from glob import iglob
 from io import BytesIO
 from pathlib import Path
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
-from logging.handlers import QueueHandler
 
 import numpy as np
+import pandas as pd
 from elm.web.document import PDFDocument, MDDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
 from docling.datamodel.backend_options import HTMLBackendOptions
@@ -31,12 +35,26 @@ from docling.datamodel.pipeline_options import (
 )
 from docling.exceptions import ConversionError
 
+from compass.exceptions import COMPASSValueError
 from compass.services.base import Service
-from compass.utilities.logs import AddLocationFilter, LQ
+from compass.utilities.logs import (
+    configure_subprocess_logging,
+    configure_docling_subprocess_logging,
+    LQ,
+)
+
+
+logger = logging.getLogger(__name__)
+TIMEOUT_PARAMS = {
+    "shutdown_timeout": 5,
+    "force_shutdown_timeout": 1,
+}
 
 
 class ProcessPoolService(Service):
     """Service that contains a ProcessPoolExecutor instance"""
+
+    _DEFAULT_MAX_TASKS_PER_CHILD = 100
 
     def __init__(self, **kwargs):
         """
@@ -55,19 +73,59 @@ class ProcessPoolService(Service):
         """Open thread pool and temp directory"""
         os.environ.setdefault("OMP_NUM_THREADS", "1")
         ppe_kwargs = dict(self._ppe_kwargs)
-        user_initializer = ppe_kwargs.pop("initializer", None)
-        initargs = tuple(ppe_kwargs.pop("initargs", ()))
-        ppe_kwargs["initializer"] = _configure_subprocess_logging
-        ppe_kwargs["initargs"] = (
-            LQ.QUEUE,
-            user_initializer,
-            initargs,
+        # ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)
+        ppe_kwargs = self._set_ppe_initializer(ppe_kwargs)
+        logger.debug(
+            "  - Setting up ProcessPoolExecutor with kwargs:\n%s",
+            pprint.PrettyPrinter().pformat(ppe_kwargs),
         )
         self.pool = ProcessPoolExecutor(**ppe_kwargs)
 
+    def _set_tasks_per_child(self, ppe_kwargs):
+        """Set default ``max_tasks_per_child``"""
+        ppe_kwargs.setdefault(
+            "max_tasks_per_child", self._DEFAULT_MAX_TASKS_PER_CHILD
+        )
+        ppe_kwargs.setdefault(
+            "mp_context", multiprocessing.get_context("spawn")
+        )
+        return ppe_kwargs
+
+    def _set_ppe_initializer(self, ppe_kwargs):  # ruff:ignore[no-self-use]
+        """Set initializer to configure subprocess logging"""
+        user_initializer = ppe_kwargs.pop("initializer", None)
+        initargs = tuple(ppe_kwargs.pop("initargs", ()))
+        ppe_kwargs["initializer"] = configure_subprocess_logging
+        ppe_kwargs["initargs"] = (LQ.QUEUE, user_initializer, initargs)
+        return ppe_kwargs
+
     def release_resources(self):
         """Shutdown thread pool and cleanup temp directory"""
-        self.pool.shutdown(wait=True, cancel_futures=True)
+        pool = self.pool
+        self.pool = None
+        if pool is None:
+            return
+
+        manager_thread = getattr(pool, "_executor_manager_thread", None)
+        processes = list(getattr(pool, "_processes", {}).values())
+        pool.shutdown(wait=False, cancel_futures=True)
+
+        if not _needs_forced_shutdown(
+            manager_thread, processes, TIMEOUT_PARAMS["shutdown_timeout"]
+        ):
+            return
+
+        logger.warning(
+            "Process pool did not shut down within %.1f seconds; "
+            "terminating lingering workers",
+            TIMEOUT_PARAMS["shutdown_timeout"],
+        )
+        _force_shutdown_processes(
+            processes, timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
+        )
+        _join_manager_thread(
+            manager_thread, timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
+        )
 
 
 class FileLoader(ProcessPoolService):
@@ -167,7 +225,7 @@ async def read_pdf_doc_ocr(pdf_bytes, **kwargs):
     elm.web.document.PDFDocument
         PDFDocument instances with pages loaded as text.
     """
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     return await OCRPDFLoader.call(
         _read_pdf_ocr,
@@ -199,7 +257,7 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     bytes
         Raw bytes of the PDF file.
     """
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     return await OCRPDFLoader.call(
         _read_pdf_file_ocr,
@@ -209,7 +267,9 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     )
 
 
-async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
+async def read_docling_web_file(
+    doc_bytes, url, source_uri=None, pdf_pipeline_options=None, **kwargs
+):
     """Read a web file using Docling in a Process Pool
 
     Parameters
@@ -222,6 +282,12 @@ async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
         Original remote URL for the file. If specified, this is used
         as the HTML base URI while ``url`` is still used as the stream
         name for Docling format inference. By default, ``None``.
+    pdf_pipeline_options : dict, optional
+        Dictionary of keyword-value arguments to pass to
+        :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
+        initializer. Table structure defaults to enabled when omitted.
+        OCR defaults to enabled only when ``pytesseract_exe_fp`` is
+        specified. By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
         :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
@@ -237,6 +303,7 @@ async def read_docling_web_file(doc_bytes, url, source_uri=None, **kwargs):
         doc_bytes,
         file_source=url,
         source_uri=source_uri,
+        pdf_pipeline_options=pdf_pipeline_options,
         **kwargs,
     )
 
@@ -282,6 +349,8 @@ def _read_pdf_ocr(pdf_bytes, tesseract_cmd, **kwargs):
 
 def _read_pdf_file(pdf_fp, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
+    kwargs.pop("image_to_string_kwargs", None)
+    kwargs.pop("convert_from_bytes_kwargs", None)
     pdf_bytes = Path(pdf_fp).read_bytes()
     pages = read_pdf(pdf_bytes, verbose=False)
     return PDFDocument(pages, **kwargs), pdf_bytes
@@ -292,8 +361,16 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     if tesseract_cmd:
         _configure_pytesseract(tesseract_cmd)
 
+    image_to_string_kwargs = kwargs.pop("image_to_string_kwargs", None)
+    convert_from_bytes_kwargs = kwargs.pop("convert_from_bytes_kwargs", None)
+
     pdf_bytes = Path(pdf_fp).read_bytes()
-    pages = read_pdf_ocr(pdf_bytes, verbose=False)
+    pages = read_pdf_ocr(
+        pdf_bytes,
+        verbose=True,
+        image_to_string_kwargs=image_to_string_kwargs,
+        convert_from_bytes_kwargs=convert_from_bytes_kwargs,
+    )
     doc = PDFDocument(_try_decode_ocr_pages(pages), **kwargs)
     doc.attrs["from_ocr"] = True
     return doc, pdf_bytes
@@ -305,9 +382,10 @@ def _read_docling_catch_error(
     headers=None,
     pytesseract_exe_fp=None,
     source_uri=None,
+    pdf_pipeline_options=None,
     **kwargs,
 ):
-    """Utility to return empty docs on Docling conversion errors"""
+    """Utility to return empty docs on error"""
     try:
         return _read_docling(
             doc_bytes=doc_bytes,
@@ -315,9 +393,10 @@ def _read_docling_catch_error(
             headers=headers,
             pytesseract_exe_fp=pytesseract_exe_fp,
             source_uri=source_uri,
+            pdf_pipeline_options=pdf_pipeline_options,
             **kwargs,
         )
-    except ConversionError:
+    except Exception:  # ruff:ignore[blind-except]
         return MDDocument(pages=[], attrs={"doc_type": "unknown"})
 
 
@@ -327,16 +406,47 @@ def _read_docling(
     headers=None,
     pytesseract_exe_fp=None,
     source_uri=None,
+    pdf_pipeline_options=None,
     **kwargs,
 ):
-    """Utility func to read documents using Docling"""
+    """Read documents using Docling with an optional hard deadline"""
+
+    pdf_pipeline_options = dict(pdf_pipeline_options or {})
+    docling_timeout = pdf_pipeline_options.get(
+        "document_timeout", 60 * 60 / 1.1
+    )
+    _validate_docling_timeout(docling_timeout)
+    return _run_docling_in_subprocess(
+        _read_docling_without_timeout,
+        args=(doc_bytes, file_source),
+        kwargs={
+            "headers": headers,
+            "pytesseract_exe_fp": pytesseract_exe_fp,
+            "source_uri": source_uri,
+            "pdf_pipeline_options": pdf_pipeline_options,
+            **kwargs,
+        },
+        timeout=docling_timeout * 1.1,
+    )
+
+
+def _read_docling_without_timeout(
+    doc_bytes,
+    file_source,
+    headers=None,
+    pytesseract_exe_fp=None,
+    source_uri=None,
+    pdf_pipeline_options=None,
+    **kwargs,
+):
+    """Read documents using Docling without an in-process deadline"""
 
     file_source = str(file_source)
     source_uri = file_source if source_uri is None else str(source_uri)
     if headers is not None:
         headers = dict(headers)
 
-    pipeline_options = PdfPipelineOptions()
+    pipeline_options = PdfPipelineOptions(**(pdf_pipeline_options or {}))
     pipeline_options.do_table_structure = True
     pipeline_options.table_structure_options = TableStructureOptions(
         do_cell_matching=True
@@ -369,13 +479,16 @@ def _read_docling(
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore", RuntimeWarning)
-        mean_confidence = conv_result.confidence.mean_score
-        low_score_confidence = conv_result.confidence.low_score
+        mean_confidence = _none_if_missing(conv_result.confidence.mean_score)
+        low_score_confidence = _none_if_missing(
+            conv_result.confidence.low_score
+        )
 
     attrs = {
         "doc_filename": conv_result.input.file.stem,
         "doc_type": conv_result.input.format.value,
         "conversion_time_seconds": conversion_time_seconds,
+        "conversion_status": conv_result.status.value,
         "num_pages": len(conv_result.pages),
         "from_ocr": any(
             ~np.isnan(c.ocr_score)
@@ -387,6 +500,96 @@ def _read_docling(
     doc_text = conv_result.document.export_to_markdown(**kwargs)
 
     return MDDocument([doc_text], attrs=attrs, remove_comments=False)
+
+
+def _run_docling_in_subprocess(fn, *, args, kwargs, timeout):
+    """Run one Docling conversion in a disposable child process"""
+    mp_context = multiprocessing.get_context(
+        "fork"
+        if "fork" in multiprocessing.get_all_start_methods()
+        else "spawn"
+    )
+    receiver, sender = mp_context.Pipe(duplex=False)
+    process = mp_context.Process(
+        target=_run_docling_subprocess, args=(sender, fn, args, kwargs)
+    )
+    process.start()
+    sender.close()
+
+    try:
+        status, payload = _receive_docling_result(receiver, process, timeout)
+    finally:
+        receiver.close()
+        _shutdown_docling_process(process)
+
+    if status == "success":
+        logger.info("Docling conversion ran successfully in subprocess")
+        return payload
+
+    msg = f"Docling conversion subprocess failed: {payload}"
+    logger.error(msg)
+    raise ConversionError(msg)
+
+
+def _run_docling_subprocess(sender, fn, args, kwargs):
+    """Execute a Docling conversion and send its result to the worker"""
+    configure_docling_subprocess_logging(sender)
+    try:
+        sender.send(("success", fn(*args, **kwargs)))
+    except Exception as error:  # ruff:ignore[blind-except]
+        with contextlib.suppress(BrokenPipeError, EOFError, OSError):
+            sender.send(("error", f"{type(error).__name__}: {error}"))
+    finally:
+        sender.close()
+
+
+def _receive_docling_result(receiver, process, timeout):
+    """Receive a child conversion result before its deadline expires"""
+    deadline = time.monotonic() + timeout
+    while True:
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            msg = f"Docling conversion exceeded {timeout} seconds"
+            raise TimeoutError(msg)
+
+        if receiver.poll(min(remaining, 10)):
+            try:
+                status, payload = receiver.recv()
+            except EOFError as error:
+                msg = "Docling conversion subprocess exited without a result"
+                raise ConversionError(msg) from error
+
+            if status == "log":
+                logger.handle(payload)
+                continue
+            return status, payload
+
+        if not process.is_alive():
+            if receiver.poll():
+                continue
+            msg = "Docling conversion subprocess exited without a result"
+            raise ConversionError(msg)
+
+
+def _shutdown_docling_process(process):
+    """Join or force-stop a completed or timed-out Docling process"""
+    process.join(timeout=TIMEOUT_PARAMS["shutdown_timeout"])
+    if process.is_alive():
+        _force_shutdown_processes(
+            [process], timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
+        )
+
+
+def _validate_docling_timeout(timeout):
+    """Validate the configured Docling deadline"""
+    if (
+        isinstance(timeout, bool)
+        or not isinstance(timeout, (int, float))
+        or not math.isfinite(timeout)
+        or timeout <= 0
+    ):
+        msg = "`docling_timeout` must be a positive number of seconds"
+        raise COMPASSValueError(msg)
 
 
 def _read_file_docling(fp, **kwargs):
@@ -402,9 +605,30 @@ def _read_file_docling(fp, **kwargs):
 
 def _configure_pytesseract(tesseract_cmd):
     """Set the tesseract_cmd"""
-    import pytesseract  # noqa: PLC0415
+    import pytesseract  # ruff:ignore[import-outside-top-level]
 
     pytesseract.pytesseract.tesseract_cmd = tesseract_cmd
+    if platform.system() == "Windows":
+        pytesseract.pytesseract.cleanup = _pytesseract_cleanup_win
+
+
+def _pytesseract_cleanup_win(temp_name):
+    """Suppress all OSErrors when cleaning up temp files on Windows
+
+    On Windows, Tesseract may still hold the temp PPM file open when
+    pytesseract's cleanup runs, causing WinError 32. This function
+    patches cleanup to suppress all OSErrors so the OCR result is not
+    lost.
+    """
+    # ruff:ignore[glob]
+    for filename in iglob(f"{temp_name}*" if temp_name else temp_name):
+        with contextlib.suppress(OSError):
+            os.remove(filename)  # ruff:ignore[os-remove]
+
+
+def _none_if_missing(value):
+    """Return ``None`` when a scalar confidence value is missing"""
+    return None if pd.isna(value) else value
 
 
 def _try_decode_ocr_pages(pages):
@@ -412,74 +636,53 @@ def _try_decode_ocr_pages(pages):
     decoded_pages = []
     for page in pages:
         with contextlib.suppress(Exception):
-            page = ast.literal_eval(page).decode("utf-8")  # noqa: PLW2901
+            # ruff:ignore[redefined-loop-name]
+            page = ast.literal_eval(page).decode("utf-8")
         decoded_pages.append(page)
     return decoded_pages
 
 
-def _configure_subprocess_logging(logging_queue, user_initializer, initargs):
-    """Route subprocess output through the main process log queue"""
-    queue_handler = QueueHandler(logging_queue)
-    queue_handler.addFilter(AddLocationFilter())
+def _needs_forced_shutdown(manager_thread, processes, shutdown_timeout):
+    """Determine whether graceful shutdown exceeded the timeout"""
+    if manager_thread is not None:
+        return _join_manager_thread(manager_thread, timeout=shutdown_timeout)
 
-    root_logger = logging.getLogger()
-    root_logger.handlers = []
-    root_logger.addHandler(queue_handler)  # root emits to queue handler
-    root_logger.setLevel(logging.INFO)
+    deadline = time.monotonic() + shutdown_timeout
+    while time.monotonic() < deadline:
+        if not any(_is_process_alive(process) for process in processes):
+            return False
+        time.sleep(0.05)
 
-    for lib in ("compass", "elm", "docling", "openai"):
-        lib_logger = logging.getLogger(lib)
-        lib_logger.handlers = []  # no handlers within subprocess
-        lib_logger.propagate = True  # instead, propogate to root logger
-        lib_logger.setLevel(logging.INFO)
-
-    stdout_logger = logging.getLogger("compass.subprocess.stdout")
-    stderr_logger = logging.getLogger("compass.subprocess.stderr")
-    stdout_logger.setLevel(logging.INFO)
-    stderr_logger.setLevel(logging.WARNING)
-    sys.stdout = _LogStream(stdout_logger, logging.INFO)
-    sys.stderr = _LogStream(stderr_logger, logging.WARNING)
-
-    if user_initializer is not None:
-        user_initializer(*initargs)
+    return any(_is_process_alive(process) for process in processes)
 
 
-class _LogStream:
-    """File-like object that forwards writes into a logger"""
-
-    def __init__(self, logger, level):
-        """
-
-        Parameters
-        ----------
-        logger : logging.Logger
-            Logger to emit redirected stream output to.
-        level : int
-            Logging level used for forwarded messages.
-        """
-        self.logger = logger
-        self.level = level
-        self._buffer = ""
-        self.encoding = "utf-8"
-
-    def write(self, message):
-        """Forward complete lines to the configured logger"""
-        if not message:
-            return 0
-
-        self._buffer += message
-        while "\n" in self._buffer:
-            line, self._buffer = self._buffer.split("\n", 1)
-            if line:
-                self.logger.log(self.level, line)
-        return len(message)
-
-    def flush(self):
-        """Flush any partial line buffered from the stream"""
-        if self._buffer:
-            self.logger.log(self.level, self._buffer)
-            self._buffer = ""
-
-    def isatty(self):  # noqa: PLR6301
-        """bool: Redirected subprocess streams are never TTYs"""
+def _join_manager_thread(manager_thread, timeout):
+    """bool: Join a manager thread and report whether it lives"""
+    if manager_thread is None:
         return False
+
+    manager_thread.join(timeout=timeout)
+    return manager_thread.is_alive()
+
+
+def _force_shutdown_processes(processes, timeout=1):
+    """Force lingering worker processes to exit"""
+    for process in processes:
+        if process is None or not _is_process_alive(process):
+            continue
+
+        with contextlib.suppress(Exception):
+            process.terminate()
+            process.join(timeout=timeout)
+
+        if not _is_process_alive(process):
+            continue
+
+        with contextlib.suppress(Exception):
+            process.kill()
+            process.join(timeout=timeout)
+
+
+def _is_process_alive(process):
+    """bool: Check whether a worker process is still alive"""
+    return process is not None and process.is_alive()

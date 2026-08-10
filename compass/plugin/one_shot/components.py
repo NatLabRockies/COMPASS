@@ -16,20 +16,50 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 
 logger = logging.getLogger(__name__)
-_TEXT_COLLECTION_SYSTEM_PROMPT = """\
+_DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
+You are a structured extraction scope validator. Given a text chunk, \
+determine whether the chunk is within the given extraction scope. \
+Focus on any explicit scope limitations, including technology, document \
+type, regulatory subject, exclusions, and similar boundaries. Be strict and \
+literal: only mark the chunk in scope when the text clearly pertains to the \
+intended domain. Note that a broader ordinance can still be in scope \
+when the excerpt contains an explicit definition, permit, prohibition, or \
+requirement for the target technology. Do not infer beyond the text. \
+If the scope match is unclear, return ``true``. Keep the response concise \
+and consistent.\
+"""
+_DEFAULT_TEXT_SCOPE_MAIN_PROMPT = """\
+Determine whether this text excerpt is within the following extraction \
+scope. Only decide whether the chunk matches the scope. Do not decide yet \
+whether it contains enough substantive context for extraction.\
+
+SCOPE:
+
+{scope}
+
+TEXT:
+
+{text}
+
+Think before you answer.\
+"""
+_DEFAULT_TEXT_COLLECTION_SYSTEM_PROMPT = """\
 You are a structured extraction validator. You receive:
 1) A text chunk.
-2) An extraction schema that specifies the exact criteria for relevance \
-(e.g., technology type, document type, required data fields).
+2) An extraction schema that specifies the extraction criteria.
 
-Determine whether the chunk contains content that matches any of the \
-schema's criteria. Be strict and literal: only mark relevant if the chunk \
-clearly addresses the specific technology and document scope described in \
-the schema. Do not infer beyond the text. If relevant, summarize the \
-specific matching content; if not, state why it does not meet the schema's \
-requirements. Keep the response concise and consistent.\
+Determine whether the chunk contains content that matches any of the schema's \
+extraction criteria. Be strict and literal: only mark relevant if the chunk \
+clearly contains at least one extraction component. Do not infer beyond the \
+text. Do not treat chapter titles, section titles, tables of contents, \
+navigation links, cross-reference lists, or citation-only indexes as relevant \
+on their own; mark them relevant only when they also include operative \
+provisions, definitions, prohibitions, or other substantive regulatory text \
+that supports extraction. If relevant, summarize the specific matching \
+content; if not, state why it does not meet the schema's requirements. \
+Keep the response concise and consistent.\
 """
-_TEXT_COLLECTION_MAIN_PROMPT = """\
+_DEFAULT_TEXT_COLLECTION_MAIN_PROMPT = """\
 Determine whether this text excerpt contains any information relevant to \
 the following extraction schema:
 
@@ -41,7 +71,7 @@ TEXT:
 
 Think before you answer.\
 """
-_TEXT_EXTRACTOR_SYSTEM_PROMPT = """\
+_DEFAULT_TEXT_EXTRACTOR_SYSTEM_PROMPT = """\
 You are a text extraction assistant. Your job is to extract only verbatim, \
 **unmodified** excerpts from the provided text. Do not interpret or \
 paraphrase. Do not summarize. Only return exactly copied segments that match \
@@ -49,7 +79,7 @@ the specified extraction scope/domain. If the relevant content appears within \
 a table, return the entire table, including headers and footers, exactly as \
 formatted.\
 """
-_TEXT_EXTRACTOR_MAIN_PROMPT = """\
+_DEFAULT_TEXT_EXTRACTOR_MAIN_PROMPT = """\
 # CONTEXT #
 We want to reduce the provided excerpt to only contain information for the \
 domain relevant to the following extraction schema:
@@ -92,14 +122,14 @@ or modify the text you keep in any way.
 {text}
 
 """
-_DATA_PARSER_MAIN_PROMPT = """\
+_DEFAULT_DATA_PARSER_MAIN_PROMPT = """\
 Extract all applicable {desc}features explicitly supported by following text:
 
 {text}
 
 Think before you answer\
 """
-_DATA_PARSER_SYSTEM_PROMPT = """\
+_DEFAULT_DATA_PARSER_SYSTEM_PROMPT = """\
 You are a legal scholar extracting structured data from {desc}documents. \
 Follow all instructions in the schema descriptions carefully.\
 """
@@ -116,15 +146,27 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
 
     @property
     @abstractmethod
-    def SCHEMA(self):  # noqa: N802
+    def SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Extraction schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def OUTPUT_SCHEMA(self):  # noqa: N802
-        """dict: Validation output schema"""
+    def SCOPE_VALIDATION_OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
+        """dict: Scope validation output schema"""
         raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def CONTENT_VALIDATION_OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
+        """dict: Content validation output schema"""
+        raise NotImplementedError
+
+    _SSP = _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT
+    _SMP = _DEFAULT_TEXT_SCOPE_MAIN_PROMPT
+
+    _SP = _DEFAULT_TEXT_COLLECTION_SYSTEM_PROMPT
+    _MP = _DEFAULT_TEXT_COLLECTION_MAIN_PROMPT
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -165,47 +207,105 @@ class SchemaBasedTextCollector(SchemaOutputLLMCaller, BaseTextCollector, ABC):
             Boolean flag indicating whether or not the text in the chunk
             contains large wind energy conversion system ordinance text.
         """
-        key = "contains_relevant_text"
+        if "$scope" in self.SCHEMA:
+            passed_scope = await chunk_parser.parse_from_ind(
+                ind,
+                key="matches_scope",
+                llm_call_callback=self._check_chunk_scope_with_prompt,
+            )
+
+            if not passed_scope:
+                logger.debug(
+                    "Text at ind %d did not pass collection step: scope match",
+                    ind,
+                )
+                return False
+
+            logger.debug(
+                "Text at ind %d passed collection step: scope match", ind
+            )
+
         passed_filter = await chunk_parser.parse_from_ind(
             ind,
-            key=key,
+            key="contains_relevant_text",
             llm_call_callback=self._check_chunk_with_prompt,
         )
 
         if not passed_filter:
-            logger.debug("Text at ind %d did not pass collection step", ind)
+            logger.debug(
+                "Text at ind %d did not pass collection step: relevant "
+                "context",
+                ind,
+            )
             return False
 
-        logger.debug("Text at ind %d passed collection step ", ind)
+        logger.debug(
+            "Text at ind %d passed collection step: relevant context", ind
+        )
 
         self._store_chunk(chunk_parser, ind)
         logger.debug("Added text chunk at ind %d to extraction text", ind)
         return True
 
-    async def _check_chunk_with_prompt(self, key, text_chunk):
-        """Call LLM on a chunk of text to check for ordinance"""
-        main_prompt = _TEXT_COLLECTION_MAIN_PROMPT.format(
-            schema=self.SCHEMA, text=text_chunk
+    async def _check_chunk_scope_with_prompt(self, key, text_chunk):
+        """Call LLM on a chunk of text to check schema scope"""
+        scope = self.SCHEMA.get("$scope")
+        if not scope:
+            logger.debug(
+                "No $scope defined in schema; skipping scope check for "
+                "text chunk: %s",
+                text_chunk,
+            )
+            return True
+
+        main_prompt = self._SMP.format(
+            schema=self.SCHEMA, scope=scope, text=text_chunk
         )
-        logger.debug("Checking text chunk with LLM: %s", text_chunk)
-        logger.debug_to_file(
-            "\t- System Message:\n%s", _TEXT_COLLECTION_SYSTEM_PROMPT
-        )
+        logger.debug("Checking text chunk scope with LLM: %s", text_chunk)
+        logger.debug_to_file("\t- System Message:\n%s", self._SSP)
         logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
         content = await self.call(
-            sys_msg=_TEXT_COLLECTION_SYSTEM_PROMPT,
+            sys_msg=self._SSP,
+            content=main_prompt,
+            response_format={
+                "type": "json_schema",
+                "json_schema": {
+                    "name": "chunk_scope_validation",
+                    "strict": True,
+                    "schema": self.SCOPE_VALIDATION_OUTPUT_SCHEMA,
+                },
+            },
+            usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
+        )
+        logger.debug("LLM scope response:\n%s", json.dumps(content, indent=4))
+        return content.get(key, False)
+
+    async def _check_chunk_with_prompt(self, key, text_chunk):
+        """Call LLM on a chunk of text to check relevant context"""
+        main_prompt = self._MP.format(schema=self.SCHEMA, text=text_chunk)
+        logger.debug(
+            "Checking text chunk for relevant context with LLM: %s",
+            text_chunk,
+        )
+        logger.debug_to_file("\t- System Message:\n%s", self._SP)
+        logger.debug_to_file("\t- Main prompt:\n%s", main_prompt)
+        content = await self.call(
+            sys_msg=self._SP,
             content=main_prompt,
             response_format={
                 "type": "json_schema",
                 "json_schema": {
                     "name": "chunk_validation",
                     "strict": True,
-                    "schema": self.OUTPUT_SCHEMA,
+                    "schema": self.CONTENT_VALIDATION_OUTPUT_SCHEMA,
                 },
             },
             usage_sub_label=LLMUsageCategory.DOCUMENT_CONTENT_VALIDATION,
         )
-        logger.debug("LLM response:\n%s", json.dumps(content, indent=4))
+        logger.debug(
+            "LLM relevant context response:\n%s",
+            json.dumps(content, indent=4),
+        )
         return content.get(key, False)
 
     def _store_chunk(self, parser, chunk_ind):
@@ -224,15 +324,18 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
 
     @property
     @abstractmethod
-    def SCHEMA(self):  # noqa: N802
+    def SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Extraction schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def OUTPUT_SCHEMA(self):  # noqa: N802
+    def OUTPUT_SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Validation output schema"""
         raise NotImplementedError
+
+    _SP = _DEFAULT_TEXT_EXTRACTOR_SYSTEM_PROMPT
+    _MP = _DEFAULT_TEXT_EXTRACTOR_MAIN_PROMPT
 
     @property
     def parsers(self):
@@ -261,10 +364,8 @@ class SchemaBasedTextExtractor(SchemaOutputLLMCaller, BaseTextExtractor):
         summaries = [
             asyncio.create_task(
                 self.call(
-                    sys_msg=_TEXT_EXTRACTOR_SYSTEM_PROMPT,
-                    content=_TEXT_EXTRACTOR_MAIN_PROMPT.format(
-                        schema=self.SCHEMA, text=chunk
-                    ),
+                    sys_msg=self._SP,
+                    content=self._MP.format(schema=self.SCHEMA, text=chunk),
                     response_format={
                         "type": "json_schema",
                         "json_schema": {
@@ -309,20 +410,28 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
     - "water rights"
     - "resource management plan geothermal restriction"
     """
-    SYSTEM_PROMPT = _DATA_PARSER_SYSTEM_PROMPT
+    SYSTEM_PROMPT = _DEFAULT_DATA_PARSER_SYSTEM_PROMPT
     """System prompt to use for parsing structured data with an LLM"""
 
     @property
     @abstractmethod
-    def SCHEMA(self):  # noqa: N802
+    def SCHEMA(self):  # ruff:ignore[invalid-function-name]
         """dict: Extraction schema"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def QUALITATIVE_FEATURES(self):  # noqa: N802
+    def QUALITATIVE_FEATURES(self):  # ruff:ignore[invalid-function-name]
         """set: **Lowercase** feature names of qualitative features"""
         raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def POSSIBLE_OUT_COLS(self):  # ruff:ignore[invalid-function-name]
+        """list: List of possible output column names"""
+        raise NotImplementedError
+
+    _MP = _DEFAULT_DATA_PARSER_MAIN_PROMPT
 
     async def parse(self, text, jurisdiction):
         """Parse text and extract structured data
@@ -379,7 +488,7 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
             ),
         )
 
-        main_prompt = _DATA_PARSER_MAIN_PROMPT.format(desc=desc, text=text)
+        main_prompt = self._MP.format(desc=desc, text=text)
         logger.debug(
             "Extracting ordinances with LLM: %r", self.llm_service.model_name
         )
@@ -428,14 +537,18 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
         full_df = full_df.merge(df, on="feature", how="left")
 
-        possible_out_cols = [
-            "value",
-            "units",
-            "summary",
-            "ord_text",
-            "year",
-            "section",
-            "source",
+        ignore_cols = {
+            "county",
+            "state",
+            "subdivision",
+            "jurisdiction_type",
+            "FIPS",
+            "feature",
+            "quantitative",
+        }
+        out_cols = [
+            col.name
+            for col in self.POSSIBLE_OUT_COLS
+            if col.name in full_df.columns and col.name not in ignore_cols
         ]
-        out_cols = [col for col in possible_out_cols if col in full_df.columns]
         return full_df[["feature", *out_cols, "quantitative"]]

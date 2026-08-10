@@ -2,13 +2,17 @@
 
 import click
 
-from compass._cli.common import run_async_command, OUT_DIR_POLICY_CHOICES
+from compass._cli.common import (
+    CONFIG_OVERRIDE_CONTEXT_SETTINGS,
+    OUT_DIR_POLICY_CHOICES,
+    run_async_command,
+)
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.pipeline import CollectionRequest
 from compass.utilities.io import load_config
 
 
-@click.command
+@click.command(context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS)
 @click.option(
     "--config",
     "-c",
@@ -16,7 +20,9 @@ from compass.utilities.io import load_config
     type=click.Path(exists=True),
     help="Path to a collection configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":class:`~compass.pipeline.data_classes.CollectionRequest`.",
+    ":class:`~compass.pipeline.data_classes.CollectionRequest`. Any top-level "
+    "config may also be passed as an extra CLI option (using the syntax "
+    "`--my_param=new`) to override the config value.",
 )
 @click.option(
     "-v",
@@ -42,13 +48,16 @@ from compass.utilities.io import load_config
     "-o",
     required=False,
     default=None,
-    type=click.Choice(OUT_DIR_POLICY_CHOICES, case_sensitive=False),
+    type=click.Choice(
+        [*OUT_DIR_POLICY_CHOICES, "continue"], case_sensitive=False
+    ),
     help="How to handle an existing output directory."
-    " Choices: fail, increment, overwrite, prompt."
+    " Choices: continue, fail, increment, overwrite, prompt."
     " If omitted, prompts interactively when running in a terminal,"
     " or fails when running non-interactively (e.g. CI).",
 )
-def collect(config, verbose, no_progress, plugin, out_dir_exists):
+@click.pass_context
+def collect(ctx, config, verbose, no_progress, plugin, out_dir_exists):
     """Collect ordinance documents for a list of jurisdictions
 
     This command runs the "first half" (i.e. the collection portion) of
@@ -67,5 +76,10 @@ def collect(config, verbose, no_progress, plugin, out_dir_exists):
         )
 
     run_async_command(
-        config, CollectionRequest, verbose, no_progress, out_dir_exists
+        config,
+        request_class=CollectionRequest,
+        verbose=verbose,
+        no_progress=no_progress,
+        out_dir_exists=out_dir_exists,
+        override_args=ctx.args,
     )

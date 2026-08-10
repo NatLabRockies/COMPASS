@@ -2,13 +2,17 @@
 
 import click
 
-from compass._cli.common import run_async_command, OUT_DIR_POLICY_CHOICES
+from compass._cli.common import (
+    CONFIG_OVERRIDE_CONTEXT_SETTINGS,
+    OUT_DIR_POLICY_CHOICES,
+    run_async_command,
+)
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.pipeline import ExtractionRequest
 from compass.utilities.io import load_config
 
 
-@click.command
+@click.command(context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS)
 @click.option(
     "--config",
     "-c",
@@ -16,7 +20,9 @@ from compass.utilities.io import load_config
     type=click.Path(exists=True),
     help="Path to an extraction configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":class:`~compass.pipeline.data_classes.ExtractionRequest`.",
+    ":class:`~compass.pipeline.data_classes.ExtractionRequest`. Any top-level "
+    "config may also be passed as an extra CLI option (using the syntax "
+    "`--my_param=new`) to override the config value.",
 )
 @click.option(
     "-v",
@@ -48,7 +54,8 @@ from compass.utilities.io import load_config
     " If omitted, prompts interactively when running in a terminal,"
     " or fails when running non-interactively (e.g. CI).",
 )
-def extract(config, verbose, no_progress, plugin, out_dir_exists):
+@click.pass_context
+def extract(ctx, config, verbose, no_progress, plugin, out_dir_exists):
     """Extract structured data from a saved collection manifest
 
     This command runs the "second half" (i.e. the extraction portion) of
@@ -64,5 +71,10 @@ def extract(config, verbose, no_progress, plugin, out_dir_exists):
         )
 
     run_async_command(
-        config, ExtractionRequest, verbose, no_progress, out_dir_exists
+        config,
+        request_class=ExtractionRequest,
+        verbose=verbose,
+        no_progress=no_progress,
+        out_dir_exists=out_dir_exists,
+        override_args=ctx.args,
     )

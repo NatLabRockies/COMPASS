@@ -86,7 +86,8 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
 class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     """Async web file loader using Docling"""
 
-    def __init__(  # noqa: PLR0913, PLR0917
+    # ruff:ignore[too-many-arguments, too-many-positional-arguments]
+    def __init__(
         self,
         header_template=None,
         verify_ssl=True,
@@ -100,7 +101,9 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         num_pw_html_retries=3,
         to_md_kwargs=None,
         pytesseract_exe_fp=None,
-        **__,  # consume any extra kwargs
+        pdf_pipeline_options=None,
+        re_fetch_failed_with_elm=False,
+        **extra,
     ):
         """
 
@@ -163,6 +166,29 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
             Tesseract.  By default ``None``.
+        pdf_pipeline_options : dict, optional
+            Dictionary of keyword-value arguments to pass to
+            :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
+            initializer. Table structure defaults to enabled when not
+            explicitly specified. OCR defaults to enabled only when a
+            Tesseract executable path is provided. If ``None``, the
+            default options are used.
+        re_fetch_failed_with_elm : bool, default=False
+            Option to re-fetch failed sources using ELM's default
+            fetcher. This can be useful if Docling fails to parse a
+            document, but ELM's fetcher can still retrieve it. To make
+            sure this functions properly, be sure to specify
+            ``pdf_read_kwargs`` and ``pdf_read_coroutine``, in the
+            ``extra`` kwargs as you would for the elm-based
+            :class:`~elm.web.file_loader.AsyncWebFileLoader`.
+
+            .. NOTE::
+
+                This is meant to be a _fast_ fallback option for the
+                longer Docling parse, so OCR PDF parsing is completely
+                disabled for the ELM fallback.
+
+            By default, ``False``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.content_fetcher = AsyncFetchWithRetry(
@@ -180,6 +206,25 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         )
         self.to_md_kwargs = to_md_kwargs or {}
         self.pytesseract_exe_fp = pytesseract_exe_fp
+        self.pdf_pipeline_options = pdf_pipeline_options
+
+        self.failed_fetcher = None
+        if re_fetch_failed_with_elm:
+            self.failed_fetcher = AsyncWebFileLoader(
+                header_template=header_template,
+                verify_ssl=verify_ssl,
+                aget_kwargs=aget_kwargs,
+                pw_launch_kwargs=pw_launch_kwargs,
+                pdf_read_kwargs=extra.get("pdf_read_kwargs"),
+                html_read_kwargs=html_read_kwargs,
+                pdf_read_coroutine=extra.get("pdf_read_coroutine"),
+                html_read_coroutine=html_read_coroutine,
+                pdf_ocr_read_coroutine=None,
+                file_cache_coroutine=file_cache_coroutine,
+                browser_semaphore=browser_semaphore,
+                use_scrapling_stealth=use_scrapling_stealth,
+                num_pw_html_retries=num_pw_html_retries,
+            )
 
     async def fetch_all(self, *sources):
         """Fetch documents for all requested sources.
@@ -195,6 +240,12 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         list
             List of parsed documents.
         """
+        docs = await self._fetch_docs_with_docling(sources)
+        docs = await self._fetch_html_docs_again_using_playwright(docs)
+        return await self._maybe_fetch_failed_docs_with_elm(docs, sources)
+
+    async def _fetch_docs_with_docling(self, sources):
+        """Fetch docs using Docling"""
         outer_task_name = asyncio.current_task().get_name()
         fetches = [
             asyncio.create_task(self.fetch(source), name=outer_task_name)
@@ -212,20 +263,72 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
                     ]
                 ),
             )
+        return docs
 
+    async def _fetch_html_docs_again_using_playwright(self, docs):
+        """Fetch HTML docs using Playwright"""
         to_re_fetch = [
             doc.attrs["source"]
             for doc in docs
             if doc.attrs["doc_type"].casefold() == "html"
         ]
-        if to_re_fetch:
-            logger.debug(
-                "Loading HTML with Playwright for %d source(s):\n%r",
-                len(to_re_fetch),
-                to_re_fetch,
-            )
-            docs += await self.html_loader.fetch_all(*to_re_fetch)
+        if not to_re_fetch:
+            return docs
+
+        logger.debug(
+            "Loading HTML with Playwright for %d source(s):\n%r",
+            len(to_re_fetch),
+            to_re_fetch,
+        )
+        docs += await self.html_loader.fetch_all(*to_re_fetch)
         return docs
+
+    async def _maybe_fetch_failed_docs_with_elm(self, docs, sources):
+        """Fetch failed docs using ELM (if enabled)"""
+        if self.failed_fetcher is None:
+            return docs
+
+        out_docs = []
+        partial_fail_docs = {}
+        failed_searches = []
+        for source in sources:
+            source_docs = [
+                doc for doc in docs if doc.attrs["source"] == source
+            ]
+            if not source_docs:
+                failed_searches.append(source)
+                continue
+
+            if len(source_docs) > 1:
+                out_docs.extend(source_docs)
+                continue
+
+            doc = source_docs[0]
+            if doc.attrs.get("conversion_status") != "success":
+                failed_searches.append(source)
+                partial_fail_docs[source] = doc
+            else:
+                out_docs.append(doc)
+
+        if not failed_searches:
+            return out_docs
+
+        logger.debug(
+            "Re-fetching %d failed source(s) with ELM:\n%r",
+            len(failed_searches),
+            failed_searches,
+        )
+        elm_docs = await self.failed_fetcher.fetch_all(*failed_searches)
+
+        for elm_doc in elm_docs:
+            docling_doc = partial_fail_docs.get(elm_doc.attrs["source"])
+            elm_doc_failed = elm_doc.empty or "cache_fn" not in elm_doc.attrs
+            if elm_doc_failed and docling_doc is not None:
+                out_docs.append(docling_doc)
+            else:
+                out_docs.append(elm_doc)
+
+        return out_docs
 
     async def _fetch_doc(self, url):
         """Fetch a doc using Docling"""
@@ -239,18 +342,34 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         resolved_filename = resolve_remote_filename(
             http_url=AnyHttpUrl(url), response_headers=dict(headers)
         )
-        doc = await read_docling_web_file(
-            raw_content,
-            url=resolved_filename,
-            source_uri=url,
-            headers=dict(headers),
-            pytesseract_exe_fp=self.pytesseract_exe_fp,
-            **self.to_md_kwargs,
-        )
+        logger.debug("Docling is starting content read from %r", url)
+        try:
+            doc = await read_docling_web_file(
+                raw_content,
+                url=resolved_filename,
+                source_uri=url,
+                headers=dict(headers),
+                pytesseract_exe_fp=self.pytesseract_exe_fp,
+                pdf_pipeline_options=self.pdf_pipeline_options,
+                **self.to_md_kwargs,
+            )
+        except TimeoutError:
+            logger.info("Docling parsing timed out for %r", url)
+            return MDDocument(pages=[]), None
+
         if doc.empty:
             logger.info("Docling could not parse content from %s", url)
             return doc, None
 
+        logger.debug(
+            "Docling finished parsing %r:\n\t- Status: %r\n\t- "
+            "Conversion time (s): %.2f\n\t- Num pages: %r\n\t- From OCR: %r",
+            url,
+            doc.attrs.get("conversion_status", "unknown"),
+            doc.attrs.get("conversion_time_seconds", -1),
+            doc.attrs.get("num_pages", "unknown"),
+            doc.attrs.get("from_ocr", "unknown"),
+        )
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
             doc.FILE_EXTENSION = doc.attrs["doc_type"]
@@ -268,6 +387,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
         doc_attrs=None,
         to_md_kwargs=None,
         pytesseract_exe_fp=None,
+        pdf_pipeline_options=None,
         **__,  # consume any extra kwargs
     ):
         """
@@ -296,23 +416,47 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
             Tesseract.  By default ``None``.
+        pdf_pipeline_options : dict, optional
+            Dictionary of keyword-value arguments to pass to
+            :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
+            initializer. Table structure defaults to enabled when not
+            explicitly specified. OCR defaults to enabled only when a
+            Tesseract executable path is provided. If ``None``, the
+            default options are used.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.to_md_kwargs = to_md_kwargs or {}
         self.doc_attrs = doc_attrs or {}
         self.pytesseract_exe_fp = pytesseract_exe_fp
+        self.pdf_pipeline_options = pdf_pipeline_options
 
     async def _fetch_doc(self, source):
         """Load a doc by reading file based on extension"""
-        doc, raw_content = await read_docling_local_file(
-            source,
-            pytesseract_exe_fp=self.pytesseract_exe_fp,
-            **self.to_md_kwargs,
-        )
+        logger.debug("Docling is starting content read from %s", source)
+        try:
+            doc, raw_content = await read_docling_local_file(
+                source,
+                pytesseract_exe_fp=self.pytesseract_exe_fp,
+                pdf_pipeline_options=self.pdf_pipeline_options,
+                **self.to_md_kwargs,
+            )
+        except TimeoutError:
+            logger.info("Docling parsing timed out for %s", source)
+            return MDDocument(pages=[]), None
+
         if doc.empty:
             logger.info("Docling could not parse content from %s", source)
             return doc, None
 
+        logger.debug(
+            "Docling finished parsing %s:\n\t- Status: %r\n\t- "
+            "Conversion time (s): %.2f\n\t- Num pages: %r\n\t- From OCR: %r",
+            source,
+            doc.attrs.get("conversion_status", "unknown"),
+            doc.attrs.get("conversion_time_seconds", -1),
+            doc.attrs.get("num_pages", "unknown"),
+            doc.attrs.get("from_ocr", "unknown"),
+        )
         if doc.attrs["doc_type"].casefold() != "html":
             doc.WRITE_KWARGS = {"mode": "wb"}
             doc.FILE_EXTENSION = doc.attrs["doc_type"]

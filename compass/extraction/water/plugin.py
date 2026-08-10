@@ -55,7 +55,7 @@ BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS = {
 class WaterRightsHeuristic:
     """NoOp heuristic check"""
 
-    def check(self, *__, **___):  # noqa: PLR6301
+    def check(self, *__, **___):  # ruff:ignore[no-self-use]
         """Always return ``True`` for water rights documents"""
         return True
 
@@ -73,7 +73,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
     )
     """:term:`path-like <path-like object>`: Path to Texas GCW names"""
 
-    async def get_query_templates(self):  # noqa: PLR6301
+    async def get_query_templates(self):  # ruff:ignore[no-self-use]
         """Get a list of search engine query templates for extraction
 
         Query templates can contain the placeholder ``{jurisdiction}``
@@ -82,7 +82,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         """
         return WATER_RIGHTS_QUERY_TEMPLATES
 
-    async def get_website_keywords(self):  # noqa: PLR6301
+    async def get_website_keywords(self):  # ruff:ignore[no-self-use]
         """Get a dict of website search keyword scores
 
         Dictionary mapping keywords to scores that indicate links which
@@ -91,7 +91,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         """
         return BEST_WATER_RIGHTS_ORDINANCE_WEBSITE_URL_KEYWORDS
 
-    async def get_heuristic(self):  # noqa: PLR6301
+    async def get_heuristic(self):  # ruff:ignore[no-self-use]
         """Get a `BaseHeuristic` instance with a `check()` method
 
         The ``check()`` method should accept a string of text and return
@@ -100,7 +100,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
         """
         return WaterRightsHeuristic()
 
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, __):
         """Filter down candidate documents before parsing
 
         Parameters
@@ -140,7 +140,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
                         "Embeddings are ``None`` when building corpus for "
                         "water rights extraction!"
                     )
-                    raise COMPASSRuntimeError(msg)  # noqa: TRY301
+                    raise COMPASSRuntimeError(msg)  # ruff:ignore[raise-within-try]
 
                 corpus.append(
                     pd.DataFrame(
@@ -151,7 +151,7 @@ class TexasWaterRightsExtractor(BaseExtractionPlugin):
                     )
                 )
 
-            except Exception as e:  # noqa: BLE001
+            except Exception as e:  # ruff:ignore[blind-except]
                 logger.info("could not embed %r with error: %s", url, e)
                 continue
 

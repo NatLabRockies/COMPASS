@@ -1,5 +1,6 @@
 """Fixed collection steps for the process pipeline"""
 
+import asyncio
 import logging
 from abc import ABC, abstractmethod
 
@@ -13,8 +14,8 @@ from compass.scripts.download import (
     find_jurisdiction_website,
     load_known_docs,
 )
-from compass.validation.location import JurisdictionWebsiteValidator
-from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
+from compass.utilities.enums import COMPASSDocumentCollectionStep
+from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
 
 
@@ -26,7 +27,7 @@ class CollectionStep(ABC):
 
     @property
     @abstractmethod
-    def STEP_NAME(self):  # noqa: N802
+    def STEP_NAME(self):  # ruff:ignore[invalid-function-name]
         """Identifier for step (e.g. "known_local_docs")"""
         raise NotImplementedError
 
@@ -42,7 +43,7 @@ class KnownLocalDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_LOCAL_DOCS
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect known local documents for this jurisdiction
 
         Parameters
@@ -76,7 +77,9 @@ class KnownLocalDocumentsStep(CollectionStep):
             docs = await load_known_docs(
                 workflow.jurisdiction,
                 [info["source_fp"] for info in workflow.known_local_docs],
-                local_file_loader_kwargs=workflow.runtime.local_file_loader_kwargs,
+                local_file_loader_kwargs=(
+                    workflow.runtime.local_file_loader_kwargs
+                ),
             )
         except Exception:
             logger.exception(
@@ -96,7 +99,7 @@ class KnownUrlDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.KNOWN_DOC_URLS
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents from known URL's for this jurisdiction
 
         Parameters
@@ -150,7 +153,7 @@ class SearchEngineDocumentsStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_ENGINE
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents based on a search engine search
 
         Parameters
@@ -221,7 +224,7 @@ class ElmWebsiteCrawlStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_ELM
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents based on an ELM website crawl
 
         Parameters
@@ -255,35 +258,45 @@ class ElmWebsiteCrawlStep(CollectionStep):
 
         if not workflow.perform_website_search:
             return []
-        if not workflow.jurisdiction_website:
-            await try_set_website_from_jurisdiction(workflow)
-            if not workflow.jurisdiction_website:
-                logger.debug(
-                    "No jurisdiction website found for %r; skipping "
-                    "website document collection",
-                    workflow.jurisdiction.full_name,
-                )
-                return []
 
+        await _resolve_jurisdiction_website(workflow)
+        if not workflow.jurisdiction_website:
+            logger.debug(
+                "No jurisdiction website found for %r; skipping "
+                "ELM website document collection",
+                workflow.jurisdiction.full_name,
+            )
+            return []
+
+        crawl_timeout_s = (
+            workflow.runtime.search_params.website_crawl_timeout_seconds
+        )
         logger.debug(
             "Collecting documents using ELM web crawl for: %s",
             workflow.jurisdiction.full_name,
         )
         try:
-            workflow.jurisdiction_website = await get_redirected_url(
-                workflow.jurisdiction_website, timeout=30
+            async with workflow.runtime.crawl_semaphore:
+                async with asyncio.timeout(crawl_timeout_s):
+                    out = await download_jurisdiction_ordinances_from_website(
+                        workflow.jurisdiction_website,
+                        heuristic=await workflow.extractor.get_heuristic(),
+                        keyword_points=(
+                            await workflow.extractor.get_website_keywords()
+                        ),
+                        file_loader_kwargs=workflow.runtime.file_loader_kwargs,
+                        pb_jurisdiction_name=workflow.jurisdiction.full_name,
+                        return_c4ai_results=True,
+                    )
+        except TimeoutError:
+            logger.exception(
+                "ELM Website crawl deadline (%s) exceeded for %s; "
+                "continuing with no crawl docs",
+                f"{int(crawl_timeout_s):,d}s",
+                workflow.jurisdiction.full_name,
             )
-            out = await download_jurisdiction_ordinances_from_website(
-                workflow.jurisdiction_website,
-                heuristic=await workflow.extractor.get_heuristic(),
-                keyword_points=(
-                    await workflow.extractor.get_website_keywords()
-                ),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                crawl_semaphore=workflow.runtime.crawl_semaphore,
-                pb_jurisdiction_name=workflow.jurisdiction.full_name,
-                return_c4ai_results=True,
-            )
+            workflow.last_scrape_results = []
+            return []
         except Exception:
             logger.exception(
                 "Error collecting documents using ELM web crawl for %s",
@@ -293,6 +306,8 @@ class ElmWebsiteCrawlStep(CollectionStep):
             return []
 
         docs, scrape_results = out
+        logger.debug("Found the following docs with ELM crawl:\n%r", docs)
+
         workflow.last_scrape_results = scrape_results
         for doc in docs:
             doc.attrs["compass_crawl"] = False
@@ -306,7 +321,7 @@ class CompassWebsiteCrawlStep(CollectionStep):
     STEP_NAME = COMPASSDocumentCollectionStep.WEBSITE_SEARCH_COMPASS
     """Identifier for step"""
 
-    async def collect(self, workflow):  # noqa: PLR6301
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
         """Collect documents based on a COMPASS website crawl
 
         Parameters
@@ -339,15 +354,15 @@ class CompassWebsiteCrawlStep(CollectionStep):
         """
         if not workflow.perform_website_search:
             return []
+
+        await _resolve_jurisdiction_website(workflow)
         if not workflow.jurisdiction_website:
-            await try_set_website_from_jurisdiction(workflow)
-            if not workflow.jurisdiction_website:
-                logger.debug(
-                    "No jurisdiction website found for %r; skipping "
-                    "website document collection",
-                    workflow.jurisdiction.full_name,
-                )
-                return []
+            logger.debug(
+                "No jurisdiction website found for %r; skipping "
+                "COMPASS website document collection",
+                workflow.jurisdiction.full_name,
+            )
+            return []
 
         logger.debug(
             "Collecting documents using COMPASS web crawl for: %s",
@@ -357,17 +372,32 @@ class CompassWebsiteCrawlStep(CollectionStep):
         for scrape_result in workflow.last_scrape_results:
             checked_urls.update({sub_res.url for sub_res in scrape_result})
 
+        crawl_timeout_s = (
+            workflow.runtime.search_params.website_crawl_timeout_seconds
+        )
         func = download_jurisdiction_ordinances_from_website_compass_crawl
         try:
-            docs = await func(
-                workflow.jurisdiction_website,
-                heuristic=await workflow.extractor.get_heuristic(),
-                keyword_points=await workflow.extractor.get_website_keywords(),
-                file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-                already_visited=checked_urls,
-                crawl_semaphore=workflow.runtime.crawl_semaphore,
-                pb_jurisdiction_name=workflow.jurisdiction.full_name,
+            async with workflow.runtime.crawl_semaphore:
+                async with asyncio.timeout(crawl_timeout_s):
+                    docs = await func(
+                        workflow.jurisdiction_website,
+                        heuristic=await workflow.extractor.get_heuristic(),
+                        keyword_points=(
+                            await workflow.extractor.get_website_keywords()
+                        ),
+                        file_loader_kwargs=workflow.runtime.file_loader_kwargs,
+                        already_visited=checked_urls,
+                        pb_jurisdiction_name=workflow.jurisdiction.full_name,
+                    )
+        except TimeoutError:
+            logger.exception(
+                "COMPASS Website crawl deadline (%s) exceeded for %s; "
+                "continuing with no crawl docs",
+                f"{int(crawl_timeout_s):,d}s",
+                workflow.jurisdiction.full_name,
             )
+            workflow.last_scrape_results = []
+            return []
         except Exception:
             logger.exception(
                 "Error collecting documents using COMPASS web crawl for %s",
@@ -375,68 +405,37 @@ class CompassWebsiteCrawlStep(CollectionStep):
             )
             return []
 
+        logger.debug("Found the following docs with COMPASS crawl:\n%r", docs)
         for doc in docs:
             doc.attrs["compass_crawl"] = True
             doc.attrs["check_correct_jurisdiction"] = True
         return docs
 
 
-async def try_set_website_from_jurisdiction(workflow):
-    """Resolve the website URL for this jurisdiction
-
-    Parameters
-    ----------
-    workflow : compass.pipeline.jurisdiction.SingleJurisdictionRun
-        The workflow for the jurisdiction being processed, which may or
-        may not have a user-supplied website URL. If the workflow
-        doesn't have a website URL, this function will attempt to find
-        one.
-    """
+async def _resolve_jurisdiction_website(workflow):
+    """Try to set and resolve the website URL for this jurisdiction"""
     if workflow.jurisdiction_website:
-        if workflow.validate_user_website_input:
-            await _validate_jurisdiction_website(workflow)
-        else:
-            workflow.jurisdiction_website = await get_redirected_url(
-                workflow.jurisdiction_website, timeout=30
-            )
+        workflow.jurisdiction_website = await _get_base_website(
+            workflow.jurisdiction_website
+        )
 
-    if not workflow.jurisdiction_website:
-        website = await _find_jurisdiction_website_for_workflow(workflow)
-        if website:
-            workflow.jurisdiction_website = website
-
-
-async def _validate_jurisdiction_website(workflow):
-    """Validate a user-supplied jurisdiction website"""
-    if workflow.jurisdiction_website is None:
+    # only try to find a website if we don't have one and we have LLMs
+    # we can use for validation
+    if workflow.jurisdiction_website or not workflow.runtime.models:
         return
 
-    workflow.jurisdiction_website = await get_redirected_url(
-        workflow.jurisdiction_website, timeout=30
-    )
-    COMPASS_PB.update_jurisdiction_task(
-        workflow.jurisdiction.full_name,
-        description=(
-            f"Validating user input website: {workflow.jurisdiction_website}"
-        ),
-    )
-    model_config = workflow.runtime.models.get(
-        LLMTasks.DOCUMENT_JURISDICTION_VALIDATION,
-        workflow.runtime.models[LLMTasks.DEFAULT],
-    )
-    validator = JurisdictionWebsiteValidator(
-        browser_semaphore=workflow.runtime.browser_semaphore,
-        file_loader_kwargs=workflow.runtime.file_loader_kwargs_no_ocr,
-        usage_tracker=workflow.usage_tracker,
-        llm_service=model_config.llm_service,
-        **model_config.llm_call_kwargs,
-    )
-    is_website_correct = await validator.check(
-        workflow.jurisdiction_website,
-        workflow.jurisdiction,
-    )
-    if not is_website_correct:
-        workflow.jurisdiction_website = None
+    if website := await _find_jurisdiction_website_for_workflow(workflow):
+        workflow.jurisdiction_website = await _get_base_website(website)
+
+
+async def _get_base_website(website):
+    """Get the base URL for a website, following redirects if needed"""
+    try:
+        website = await get_redirected_url(website, timeout=30)
+    except Exception:
+        logger.exception("Error getting redirected URL for %s", website)
+        return None
+    return base_website_url(website)
 
 
 async def _find_jurisdiction_website_for_workflow(workflow):
@@ -452,7 +451,6 @@ async def _find_jurisdiction_website_for_workflow(workflow):
         search_semaphore=workflow.runtime.search_engine_semaphore,
         browser_semaphore=workflow.runtime.browser_semaphore,
         usage_tracker=workflow.usage_tracker,
-        validate=workflow.validate_user_website_input,
         url_ignore_substrings=(
             workflow.runtime.search_params.url_ignore_substrings
         ),

@@ -17,11 +17,8 @@ from compass.pipeline import (
 )
 from compass.pipeline.coordinator import run_compass
 from compass.pipeline.runtime import PipelineRuntime
-from compass.plugin.base import BaseExtractionPlugin
-from compass.plugin.registry import PLUGIN_REGISTRY, register_plugin
+
 from compass.pb import COMPASS_PB
-from compass.services.base import Service
-from compass.utilities.enums import LLMTasks
 
 
 @pytest.fixture(autouse=True)
@@ -69,11 +66,7 @@ def patched_workflow(monkeypatch):
             DummyWorkflow.LAST_MODE_USED = self.runtime.mode
             return f"processed {self.runtime.mode}"
 
-    monkeypatch.setattr(
-        data_classes_module,
-        "_build_models",
-        lambda __: {},
-    )
+    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
     monkeypatch.setattr(
         coordinator_module,
         "_load_jurisdictions_to_process",
@@ -123,159 +116,26 @@ def test_known_local_docs_logs_missing_file(tmp_path, testing_log_file):
     )
 
 
-class _DummyLLMService(Service):
-    """No-op service used to satisfy extraction orchestration in tests"""
-
-    @property
-    def can_process(self):
-        """bool: Always ready to process"""
-        return True
-
-    async def process(self, *args, **kwargs):
-        """Return a no-op response"""
-        return
-
-
-class _DummyModelConfig:
-    """Minimal model config for deterministic extraction tests"""
-
-    def __init__(self):
-        self.name = "dummy-model"
-        self.llm_service = _DummyLLMService()
-        self.llm_call_kwargs = {}
-        self.llm_service_rate_limit = 1
-        self.text_splitter_chunk_size = 1000
-        self.text_splitter_chunk_overlap = 0
-        self.client_type = "test"
-
-
-class _RoundtripTestPlugin(BaseExtractionPlugin):
-    """Deterministic plugin for collection and extraction round trips"""
-
-    IDENTIFIER = "roundtrip-test"
-
-    async def get_query_templates(self):
-        """Return empty query templates for local-doc tests"""
-        return []
-
-    async def get_website_keywords(self):
-        """Return empty website keywords for local-doc tests"""
-        return {}
-
-    async def get_heuristic(self):
-        """Return a heuristic that keeps all docs"""
-
-        class _KeepEverything:
-            def check(self, text):
-                return bool(text)
-
-        return _KeepEverything()
-
-    async def filter_docs(self, extraction_context):
-        """Keep all docs for deterministic round-trip tests"""
-        if not extraction_context:
-            return None
-        return extraction_context
-
-    async def parse_docs_for_structured_data(self, extraction_context):
-        """Turn each source doc into one structured row"""
-        rows = []
-        for doc in extraction_context.documents:
-            await extraction_context.mark_doc_as_data_source(doc)
-            rows.append(
-                {
-                    "jurisdiction": self.jurisdiction.full_name,
-                    "source": doc.attrs.get("source"),
-                    "source_kind": (
-                        "pdf"
-                        if str(doc.attrs.get("source", "")).endswith(".pdf")
-                        else "text"
-                    ),
-                    "user_label": doc.attrs.get("user_label"),
-                    "num_pages": len(doc.pages),
-                }
-            )
-
-        extraction_context.attrs["structured_data"] = pd.DataFrame(rows)
-        extraction_context.attrs["out_data_fn"] = (
-            f"{self.jurisdiction.full_name} Ordinances.csv"
-        )
-        return extraction_context
-
-    @classmethod
-    def save_structured_data(cls, doc_infos, out_dir):
-        """Write a simple combined CSV and return the row count"""
-        frames = []
-        for doc_info in doc_infos:
-            if doc_info.get("ord_db_fp") is None:
-                continue
-            frames.append(pd.read_csv(doc_info["ord_db_fp"]))
-
-        if not frames:
-            return 0
-
-        combined = pd.concat(frames, ignore_index=True)
-        combined.to_csv(
-            Path(out_dir) / "roundtrip_test_combined.csv",
-            index=False,
-            encoding="utf-8-sig",
-        )
-        return len(frames)
-
-
-@pytest.fixture
-def registered_roundtrip_plugin():
-    """Register a deterministic plugin for process round-trip tests"""
-    plugin_id = _RoundtripTestPlugin.IDENTIFIER.casefold()
-    already_registered = plugin_id in PLUGIN_REGISTRY
-    if not already_registered:
-        register_plugin(_RoundtripTestPlugin)
-
-    yield _RoundtripTestPlugin
-
-    if not already_registered:
-        PLUGIN_REGISTRY.pop(plugin_id, None)
-
-
-@pytest.fixture
-def patched_model_configs(monkeypatch):
-    """Replace pipeline model config setup with a deterministic stub"""
-
-    def _dummy_build_models(request):
-        return {LLMTasks.DEFAULT: _DummyModelConfig()}
-
-    monkeypatch.setattr(
-        data_classes_module, "_build_models", _dummy_build_models
+def test_runtime_passes_docling_pipeline_options_to_local_loader(tmp_path):
+    """Pass Docling configuration to known-local document loaders"""
+    request = CollectionRequest(
+        out_dir=tmp_path / "outputs",
+        tech="solar",
+        jurisdiction_fp=tmp_path / "jurisdictions.csv",
+        file_loader_kwargs={
+            "pdf_pipeline_options": {
+                "document_timeout": 120,
+                "do_table_structure": True,
+            },
+        },
     )
 
+    runtime = PipelineRuntime(request)
 
-@pytest.fixture
-def roundtrip_local_docs_inputs(tmp_path, test_data_files_dir):
-    """Create jurisdiction and local-doc inputs for round-trip tests"""
-    jurisdiction_fp = tmp_path / "jurisdictions.csv"
-    jurisdiction_fp.write_text(
-        "State,County,Subdivision,Jurisdiction Type\n"
-        "Washington,Whatcom,,county\n"
-        "New York,Allegany,Caneadea,town\n",
-        encoding="utf-8",
-    )
-
-    known_local_docs = {
-        "53073": [
-            {
-                "source_fp": test_data_files_dir / "Whatcom.txt",
-                "user_label": "whatcom-text",
-            }
-        ],
-        "3600312243": [
-            {
-                "source_fp": test_data_files_dir / "Caneadea New York.pdf",
-                "user_label": "caneadea-pdf",
-            }
-        ],
+    assert runtime.local_file_loader_kwargs["pdf_pipeline_options"] == {
+        "document_timeout": 120,
+        "do_table_structure": True,
     }
-
-    return jurisdiction_fp, known_local_docs
 
 
 @pytest.mark.asyncio
@@ -295,6 +155,29 @@ async def test_collect_request_uses_collection_workflow(
 
     assert result == f"processed {request.MODE}"
     assert patched_workflow.LAST_MODE_USED == request.MODE
+
+
+@pytest.mark.asyncio
+async def test_collect_request_allows_existing_output_dir(
+    tmp_path, patched_workflow
+):
+    """Collection requests may reuse an existing output directory"""
+    out_dir = tmp_path / "outputs"
+    out_dir.mkdir()
+
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+
+    request = CollectionRequest(
+        out_dir=out_dir,
+        tech="solar",
+        jurisdiction_fp=jurisdiction_fp,
+    )
+    result = await run_compass(request)
+
+    assert result == f"processed {request.MODE}"
+    assert patched_workflow.LAST_MODE_USED == request.MODE
+    assert out_dir.exists()
 
 
 @pytest.mark.asyncio
@@ -341,11 +224,7 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
         "_load_jurisdictions_to_process",
         _load_single_jurisdiction,
     )
-    monkeypatch.setattr(
-        data_classes_module,
-        "_build_models",
-        lambda __: {},
-    )
+    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
     monkeypatch.setattr(
         coordinator_module,
         "_select_workflow",

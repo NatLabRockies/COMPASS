@@ -58,9 +58,9 @@ def test_jurisdiction_websites():
     assert isinstance(websites, dict)
 
     # Spot checks:
-    assert 18031 in websites  # Decatur Indiana
-    assert 8041 in websites  # El Paso, Colorado
-    assert 49003 in websites  # Box Elder, Utah
+    assert "18031" in websites  # Decatur Indiana
+    assert "08041" in websites  # El Paso, Colorado
+    assert "49003" in websites  # Box Elder, Utah
 
 
 def test_load_jurisdictions_from_fp(tmp_path):

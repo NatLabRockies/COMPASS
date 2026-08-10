@@ -42,6 +42,7 @@ class MergePlugin(OrdinanceExtractionPlugin):
     WEBSITE_KEYWORDS = ["test"]
     QUERY_TEMPLATES = ["test"]
     HEURISTIC = None
+    OUTPUT_COLUMNS = []
 
     async def parse_docs_for_structured_data(self, extraction_context):
         return extraction_context
@@ -131,6 +132,7 @@ def test_plugin_validation_parse_key_same():
         WEBSITE_KEYWORDS = ["test"]
         QUERY_TEMPLATES = ["test"]
         HEURISTIC = None
+        OUTPUT_COLUMNS = []
 
         async def parse_docs_for_structured_data(self, extraction_context):
             return extraction_context
@@ -173,6 +175,7 @@ def test_plugin_validation_extract_key_same():
         WEBSITE_KEYWORDS = ["test"]
         QUERY_TEMPLATES = ["test"]
         HEURISTIC = None
+        OUTPUT_COLUMNS = []
 
         async def parse_docs_for_structured_data(self, extraction_context):
             return extraction_context
@@ -215,6 +218,7 @@ def test_plugin_validation_no_in_key_for_extract():
         WEBSITE_KEYWORDS = ["test"]
         QUERY_TEMPLATES = ["test"]
         HEURISTIC = None
+        OUTPUT_COLUMNS = []
 
         async def parse_docs_for_structured_data(self, extraction_context):
             return extraction_context
@@ -261,6 +265,7 @@ def test_plugin_validation_no_in_key_for_parse():
         WEBSITE_KEYWORDS = ["test"]
         QUERY_TEMPLATES = ["test"]
         HEURISTIC = None
+        OUTPUT_COLUMNS = []
 
         async def parse_docs_for_structured_data(self, extraction_context):
             return extraction_context
@@ -290,6 +295,7 @@ async def test_parse_docs_for_structured_data_accepts_enum_value():
         QUERY_TEMPLATES = ["test"]
         HEURISTIC = None
         DOC_SELECTION_METHOD = DocSelectionMethod.MULTI_DOC_ALL
+        OUTPUT_COLUMNS = []
 
         async def parse_single_doc_for_structured_data(
             self, extraction_context

@@ -2,6 +2,7 @@
 
 from pathlib import Path
 from types import SimpleNamespace
+from contextlib import AsyncExitStack
 
 import pytest
 
@@ -38,25 +39,33 @@ class _DummyValidator:
         return True
 
 
-def _build_workflow():
+def _build_workflow(*, website="https://example.com", models=None):
     """Build a minimal workflow for collection-step tests"""
     model_config = SimpleNamespace(llm_service=object(), llm_call_kwargs={})
+    if models is None:
+        models = {
+            LLMTasks.DEFAULT: model_config,
+            LLMTasks.DOCUMENT_JURISDICTION_VALIDATION: model_config,
+        }
     runtime = SimpleNamespace(
         file_loader_kwargs={
             "pdf_ocr_read_coroutine": object(),
             "loader_mode": "ocr",
         },
         file_loader_kwargs_no_ocr={"loader_mode": "no-ocr"},
-        crawl_semaphore=None,
+        crawl_semaphore=AsyncExitStack(),
         browser_semaphore=None,
-        models={
-            LLMTasks.DEFAULT: model_config,
-            LLMTasks.DOCUMENT_JURISDICTION_VALIDATION: model_config,
-        },
+        search_engine_semaphore=None,
+        search_params=SimpleNamespace(
+            url_ignore_substrings=(),
+            se_kwargs={},
+            website_crawl_timeout_seconds=3600,
+        ),
+        models=models,
     )
     return SimpleNamespace(
         perform_website_search=True,
-        jurisdiction_website="https://example.com",
+        jurisdiction_website=website,
         jurisdiction=SimpleNamespace(full_name="Example Township"),
         extractor=_DummyExtractor(),
         runtime=runtime,
@@ -71,10 +80,10 @@ async def test_elm_website_crawl_uses_ocr_loader(monkeypatch):
     workflow = _build_workflow()
     captured = {}
 
-    async def fake_redirect(url, **kwargs):  # noqa
+    async def fake_redirect(url, **kwargs):  # ruff:ignore[unused-async]
         return url
 
-    async def fake_download(url, **kwargs):  # noqa
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
         captured.update(kwargs)
         return [], []
 
@@ -102,7 +111,7 @@ async def test_compass_website_crawl_uses_ocr_loader(monkeypatch):
     ]
     captured = {}
 
-    async def fake_download(url, **kwargs):  # noqa
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
         captured.update(kwargs)
         return []
 
@@ -119,6 +128,115 @@ async def test_compass_website_crawl_uses_ocr_loader(monkeypatch):
         captured["file_loader_kwargs"] is workflow.runtime.file_loader_kwargs
     )
     assert captured["already_visited"] == {"https://seen.example"}
+
+
+@pytest.mark.asyncio
+async def test_elm_website_crawl_uses_provided_website_without_discovery(
+    monkeypatch,
+):
+    """Provided jurisdiction websites should bypass discovery"""
+    workflow = _build_workflow(website="https://user-provided.example/path")
+    captured = {}
+
+    async def fake_get_base_website(url):  # ruff:ignore[unused-async]
+        return "https://user-provided.example"
+
+    async def fail_if_discovery_called(workflow):  # ruff:ignore[unused-async]
+        raise AssertionError("website discovery should not be attempted")
+
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
+        captured["url"] = url
+        return [], []
+
+    monkeypatch.setattr(
+        steps_module, "_get_base_website", fake_get_base_website
+    )
+    monkeypatch.setattr(
+        steps_module,
+        "_find_jurisdiction_website_for_workflow",
+        fail_if_discovery_called,
+    )
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website",
+        fake_download,
+    )
+
+    docs = await ElmWebsiteCrawlStep().collect(workflow)
+
+    assert docs == []
+    assert captured["url"] == "https://user-provided.example"
+    assert workflow.jurisdiction_website == "https://user-provided.example"
+
+
+@pytest.mark.asyncio
+async def test_elm_website_crawl_attempts_discovery_when_models_present(
+    monkeypatch,
+):
+    """Missing jurisdiction websites should be discovered when models exist"""
+    workflow = _build_workflow(website=None)
+    calls = {"discover": 0}
+    captured = {}
+
+    async def fake_discover(workflow):  # ruff:ignore[unused-async]
+        calls["discover"] += 1
+        return "https://discovered.example/home"
+
+    async def fake_get_base_website(url):  # ruff:ignore[unused-async]
+        return "https://discovered.example"
+
+    async def fake_download(url, **kwargs):  # ruff:ignore[unused-async]
+        captured["url"] = url
+        return [], []
+
+    monkeypatch.setattr(
+        steps_module,
+        "_find_jurisdiction_website_for_workflow",
+        fake_discover,
+    )
+    monkeypatch.setattr(
+        steps_module, "_get_base_website", fake_get_base_website
+    )
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website",
+        fake_download,
+    )
+
+    docs = await ElmWebsiteCrawlStep().collect(workflow)
+
+    assert docs == []
+    assert calls["discover"] == 1
+    assert captured["url"] == "https://discovered.example"
+    assert workflow.jurisdiction_website == "https://discovered.example"
+
+
+@pytest.mark.asyncio
+async def test_elm_website_crawl_skips_discovery_without_models(monkeypatch):
+    """Missing websites should short-circuit when no models are available"""
+    workflow = _build_workflow(website=None, models={})
+
+    async def fail_if_discovery_called(workflow):  # ruff:ignore[unused-async]
+        raise AssertionError("website discovery should not be attempted")
+
+    async def fail_if_download_called(url, **kwargs):  # ruff:ignore[unused-async]
+        raise AssertionError("website crawl should not be attempted")
+
+    monkeypatch.setattr(
+        steps_module,
+        "_find_jurisdiction_website_for_workflow",
+        fail_if_discovery_called,
+    )
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website",
+        fail_if_download_called,
+    )
+
+    docs = await ElmWebsiteCrawlStep().collect(workflow)
+
+    assert docs == []
+    assert workflow.jurisdiction_website is None
 
 
 if __name__ == "__main__":

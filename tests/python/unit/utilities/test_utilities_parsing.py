@@ -6,6 +6,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
 from compass.utilities.parsing import (
     clean_backticks_from_llm_response,
@@ -15,7 +16,9 @@ from compass.utilities.parsing import (
     merge_overlapping_texts,
     num_ordinances_dataframe,
     ordinances_bool_index,
+    raw_pages_from_doc,
 )
+from elm.web.document import MDDocument, PDFDocument
 
 
 @pytest.mark.parametrize(
@@ -34,6 +37,33 @@ def test_clean_backticks_from_llm_response(in_str, expected):
     """Test the `clean_backticks_from_llm_response` function"""
 
     assert clean_backticks_from_llm_response(in_str) == expected
+
+
+@pytest.mark.parametrize("doc_class", [MDDocument, PDFDocument])
+def test_raw_pages_from_pdf_splits_oversized_raw_page(doc_class):
+    """Test PDF raw pages respect the supplied splitter budget"""
+    page = "word " * 100
+    doc = doc_class([page], attrs={"doc_type": "pdf"})
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=50, chunk_overlap=0
+    )
+
+    raw_pages = raw_pages_from_doc(doc, text_splitter=text_splitter)
+
+    assert len(raw_pages) > 1
+    assert all(len(raw_page) <= 50 for raw_page in raw_pages)
+
+
+@pytest.mark.parametrize("doc_class", [MDDocument, PDFDocument])
+def test_raw_pages_from_pdf_preserves_page_within_splitter_budget(doc_class):
+    """Test PDF raw pages remain unchanged when already within budget"""
+    doc = doc_class(["Short PDF page"], attrs={"doc_type": "pdf"})
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=50, chunk_overlap=0
+    )
+
+    raw_pages = raw_pages_from_doc(doc, text_splitter=text_splitter)
+    assert raw_pages == doc.raw_pages
 
 
 @pytest.mark.parametrize(
@@ -120,6 +150,23 @@ def test_num_ordinances_dataframe_with_values():
     assert num_ordinances_dataframe(data) == 3
 
 
+def test_num_ordinances_dataframe_returns_int_with_missing_values():
+    """Test ordinance count type with NaN and None values"""
+
+    data = pd.DataFrame(
+        {
+            "feature": ["setback", "height", "noise"],
+            "value": [100, np.nan, None],
+            "summary": [None, "test", None],
+        }
+    )
+
+    result = num_ordinances_dataframe(data)
+
+    assert result == 2
+    assert type(result) is int
+
+
 def test_num_ordinances_dataframe_with_exclude():
     """Test `num_ordinances_dataframe` with excluded features"""
 
@@ -131,6 +178,25 @@ def test_num_ordinances_dataframe_with_exclude():
         }
     )
     assert num_ordinances_dataframe(data, exclude_features=["height"]) == 2
+
+
+def test_num_ordinances_dataframe_with_exclude_all_features():
+    """Test ordinance count when exclusions remove all features"""
+
+    data = pd.DataFrame(
+        {
+            "feature": ["setback", "HEIGHT", "noise"],
+            "value": [100, 200, 300],
+            "summary": ["test", "test", "test"],
+        }
+    )
+
+    result = num_ordinances_dataframe(
+        data, exclude_features=["setback", "height", "noise"]
+    )
+
+    assert result == 0
+    assert type(result) is int
 
 
 def test_ordinances_bool_index_none():
@@ -190,7 +256,7 @@ def test_convert_paths_to_strings_all_structures():
     """Test `convert_paths_to_strings` across nested containers"""
 
     def rel(value):
-        return os.path.join(".", value)  # noqa PTH118
+        return os.path.join(".", value)  # ruff:ignore[os-path-join] PTH118
 
     input_obj = {
         Path("path_key"): {

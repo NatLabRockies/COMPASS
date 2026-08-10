@@ -29,6 +29,7 @@ tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov
 tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=50 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=40 tests/python/integration"
 evals = { cmd = "pytest -rapP -vv -n auto --dist=load -m evals --log-cli-level=INFO evals/test_run_{{ name }}_evals.py", args = ["name"], default-environment = "ptest" }
+codespell = "codespell --toml pyproject.toml compass/extraction"
 
 [feature.python-doc.tasks]
 python-docs = { cmd = "make clean html", cwd = "docs", env = { SPHINXOPTS = "--fail-on-warning --keep-going --nitpicky" }}
@@ -91,7 +92,7 @@ playwright = ">=1.49.1,<1.50"  # version range required for c4ai is >=1.49.0,<1.
 platformdirs = ">=4.5.1,<5"
 pypdf2 = ">=3.0.1,<4"
 pytesseract = ">=0.3.13,<0.4"
-python-dotenv = ">=1.0.1,<2"
+python-dotenv = ">=1.2.2,<2"
 python-slugify = ">=8.0.4,<9"
 rich = ">=13.9.4,<14"
 scipy = ">=1.14.1,<2"
@@ -144,14 +145,14 @@ geopandas = ">=1.0.1,<2"
 ipykernel = ">=7.1.0,<8"
 jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
-ruff = ">=0.15.5,<0.16"
-ruff-lsp = ">=0.0.62,<0.0.63"
+ruff = ">=0.16,<0.17"
 seaborn = ">=0.13.2,<0.14"
 
 [feature.python-test.dependencies]
+codespell = ">=2.4,<3"
 flaky = ">=3.8.1,<4"
 git-lfs = ">=3.7.1,<4"  # tracks PDFs/TXTs under evals/data/
-pytest = ">=9.0.3,<10"
+pytest = ">=9.0.3,<9.1"
 pytest-asyncio = ">=1.3.0,<2"
 pytest-cases = ">=3.10.1,<4"
 pytest-cov = ">=7.1.0,<8"

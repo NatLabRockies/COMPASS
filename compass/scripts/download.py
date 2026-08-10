@@ -6,10 +6,11 @@ from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
 from elm.web.website_crawl import (
-    _SCORE_KEY,  # noqa: PLC2701
+    _SCORE_KEY,  # ruff:ignore[import-private-name]
     ELMWebsiteCrawler,
     ELMLinkScorer,
 )
+from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.web.search import search_single_jurisdiction
@@ -25,7 +26,7 @@ from compass.web.file_loader import (
     COMPASSLocalFileLoader,
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
-from compass.web.url_utils import sanitize_url
+from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
@@ -173,7 +174,6 @@ async def find_jurisdiction_website(
     browser_semaphore=None,
     usage_tracker=None,
     url_ignore_substrings=None,
-    validate=True,
     **kwargs,
 ):
     """Search for the main landing page of a given jurisdiction
@@ -213,12 +213,6 @@ async def find_jurisdiction_website(
     url_ignore_substrings : list of str, optional
         URL substrings that should be excluded from search results.
         Substrings are applied case-insensitively. By default, ``None``.
-    validate : bool, default=True
-        If ``True``, each potential jurisdiction website will be checked
-        for validity using the
-        :class:`~compass.validation.location.JurisdictionWebsiteValidator`
-        before being returned. If ``False``, the first potential website
-        will be returned without validation. By default, ``True``.
     **kwargs
         Additional arguments forwarded to
         :func:`elm.web.search.run.search_with_fallback`.
@@ -238,17 +232,17 @@ async def find_jurisdiction_website(
     potential_website_links = await search_with_fallback(
         queries=[query_1, query_2],
         num_urls=3,
-        ignore_url_parts=url_ignore_substrings,
+        url_ignore_substrings=url_ignore_substrings,
         browser_semaphore=search_semaphore,
         task_name=jurisdiction.full_name,
         **kwargs,
     )
+    potential_website_links = _normalize_website_candidates(
+        potential_website_links
+    )
 
     if not potential_website_links:
         return None
-
-    if not validate:
-        return potential_website_links.pop()
 
     model_config = model_configs.get(
         LLMTasks.JURISDICTION_MAIN_WEBSITE_VALIDATION,
@@ -278,7 +272,6 @@ async def download_jurisdiction_ordinances_from_website(
     browser_config_kwargs=None,
     crawler_config_kwargs=None,
     max_urls=100,
-    crawl_semaphore=None,
     pb_jurisdiction_name=None,
     return_c4ai_results=False,
 ):
@@ -313,10 +306,6 @@ async def download_jurisdiction_ordinances_from_website(
     max_urls : int, optional
         Max number of URLs to check from the website before terminating
         the search. By default, ``100``.
-    crawl_semaphore : :class:`asyncio.Semaphore`, optional
-        Semaphore instance that can be used to limit the number of
-        website searches happening concurrently. If ``None``, no limits
-        are applied. By default, ``None``.
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
@@ -343,10 +332,7 @@ async def download_jurisdiction_ordinances_from_website(
     to be running.
     """
 
-    if crawl_semaphore is None:
-        crawl_semaphore = AsyncExitStack()
-
-    async def _doc_heuristic(doc):  # noqa: RUF029
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
         is_valid_document = heuristic.check(doc.text.lower())
         if is_valid_document and pb_jurisdiction_name:
@@ -354,7 +340,7 @@ async def download_jurisdiction_ordinances_from_website(
 
         return is_valid_document
 
-    async def _crawl_hook(*__, **___):  # noqa: RUF029
+    async def _crawl_hook(*__, **___):  # ruff:ignore[unused-async]
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_website_crawl_task(pb_jurisdiction_name, advance=1)
 
@@ -370,10 +356,16 @@ async def download_jurisdiction_ordinances_from_website(
         "kwargs for COMPASSWebFileLoader:\n%s",
         pprint.PrettyPrinter().pformat(flk),
     )
-    afl = COMPASSWebFileLoader(**flk)
+
+    # Fast file loader that always uses poppler
+    fast_afl = AsyncWebFileLoader(**flk)
+
+    # best parsing file loader selected by user
+    final_afl = COMPASSWebFileLoader(**flk)
+
     crawler = ELMWebsiteCrawler(
         validator=_doc_heuristic,
-        async_file_loader=afl,
+        async_file_loader=fast_afl,
         url_scorer=ELMLinkScorer(keyword_points).score,
         browser_config_kwargs=browser_config_kwargs,
         crawler_config_kwargs=crawler_config_kwargs,
@@ -393,7 +385,7 @@ async def download_jurisdiction_ordinances_from_website(
         cpb = AsyncExitStack()
         ch = None
 
-    async with crawl_semaphore, cpb:
+    async with cpb:
         docs_or_pair = await crawler.run(
             website,
             on_result_hook=ch,
@@ -402,11 +394,10 @@ async def download_jurisdiction_ordinances_from_website(
 
     if return_c4ai_results:
         docs, c4ai_results = docs_or_pair
-        _sanitize_doc_sources(docs)
+        docs = await _finalize_doc_sources(docs, final_afl)
         return docs, c4ai_results
 
-    _sanitize_doc_sources(docs_or_pair)
-    return docs_or_pair
+    return await _finalize_doc_sources(docs_or_pair, final_afl)
 
 
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
@@ -417,7 +408,6 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     already_visited=None,
     num_link_scores_to_check_per_page=4,
     max_urls=100,
-    crawl_semaphore=None,
     pb_jurisdiction_name=None,
 ):
     """Download ord documents from a website using the COMPASS crawler
@@ -453,10 +443,6 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     max_urls : int, default=100
         Max number of URLs to check from the website before terminating
         the search. By default, ``100``.
-    crawl_semaphore : :class:`asyncio.Semaphore`, optional
-        Semaphore instance that can be used to limit the number of
-        website crawls happening concurrently. If ``None``, no limits
-        are applied. By default, ``None``.
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
@@ -473,10 +459,8 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     Requires :class:`~compass.services.threaded.TempFileCache` service
     to be running.
     """
-    if crawl_semaphore is None:
-        crawl_semaphore = AsyncExitStack()
 
-    async def _doc_heuristic(doc):  # noqa: RUF029
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
         """Heuristic check for wind ordinance documents"""
         is_valid_document = heuristic.check(doc.text.lower())
         if is_valid_document and pb_jurisdiction_name:
@@ -485,7 +469,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
             )
         return is_valid_document
 
-    async def _crawl_hook(*__, **___):  # noqa: RUF029
+    async def _crawl_hook(*__, **___):  # ruff:ignore[unused-async]
         """Update progress bar as pages are searched"""
         COMPASS_PB.update_compass_website_crawl_task(
             pb_jurisdiction_name, advance=1
@@ -516,7 +500,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         cpb = AsyncExitStack()
         ch = None
 
-    async with crawl_semaphore, cpb:
+    async with cpb:
         return await crawler.run(website, on_new_page_visit_hook=ch)
 
 
@@ -599,7 +583,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             num_urls=num_urls,
             search_semaphore=search_semaphore,
             browser_semaphore=browser_semaphore,
-            ignore_url_parts=url_ignore_substrings,
+            url_ignore_substrings=url_ignore_substrings,
             jurisdiction=jurisdiction,
             simple_se_result_sort=simple_se_result_sort,
             **kwargs,
@@ -687,17 +671,19 @@ async def filter_ordinance_docs(
             model_configs[LLMTasks.DEFAULT],
         ),
     )
+    sources_as_str = "\n\t- ".join(
+        [doc.attrs.get("source", "Unknown source") for doc in docs]
+    )
     logger.info(
-        "%d document(s) remaining after jurisdiction filter for %s\n\t- %s",
+        "%d document(s) remaining after jurisdiction filter for %s %s",
         len(docs),
         jurisdiction.full_name,
-        "\n\t- ".join(
-            [doc.attrs.get("source", "Unknown source") for doc in docs]
-        ),
+        f"\n\t- {sources_as_str}" if sources_as_str else "",
     )
 
     COMPASS_PB.update_jurisdiction_task(
-        jurisdiction.full_name, description="Checking files for legal text..."
+        jurisdiction.full_name,
+        description="Checking files for extraction-relevant text...",
     )
     docs = await filter_documents(
         docs,
@@ -726,12 +712,26 @@ async def filter_ordinance_docs(
     return docs
 
 
+def _normalize_website_candidates(urls):
+    """Normalize website candidates to canonical root URLs"""
+    seen = set()
+    normalized_urls = []
+    for url in urls:
+        normalized_url = base_website_url(url)
+        url_key = normalized_url.casefold()
+        if url_key in seen:
+            continue
+        seen.add(url_key)
+        normalized_urls.append(normalized_url)
+    return normalized_urls
+
+
 async def _docs_from_web_search(
     query_templates,
     num_urls,
     search_semaphore,
     browser_semaphore,
-    ignore_url_parts,
+    url_ignore_substrings,
     jurisdiction,
     simple_se_result_sort,
     **kwargs,
@@ -743,7 +743,7 @@ async def _docs_from_web_search(
         jurisdiction,
         num_urls,
         search_semaphore,
-        ignore_url_parts,
+        url_ignore_substrings,
         simple=simple_se_result_sort,
         **kwargs,
     )
@@ -859,8 +859,8 @@ async def _contains_relevant_text(
     return found_text
 
 
-def _sanitize_doc_sources(docs):
-    """Rewrite source attrs on documents returned by ELMWebsiteCrawler
+async def _finalize_doc_sources(docs, final_afl):
+    """Finalize documents returned by ELMWebsiteCrawler
 
     crawl4ai can surface PDF URLs containing raw spaces (e.g. filenames
     like "Land Use Code.pdf").  These fail when the file loader issues
@@ -872,6 +872,35 @@ def _sanitize_doc_sources(docs):
         source = doc.attrs.get("source")
         if source and " " in source:
             doc.attrs["source"] = sanitize_url(source)
+
+    return await _reload_using_final_afl(docs, final_afl)
+
+
+async def _reload_using_final_afl(docs, final_afl):
+    """Reload documents using the final AsyncFileLoader"""
+    out_docs = []
+    for old_doc in docs:
+        link = old_doc.attrs.get("source")
+        if not link:
+            out_docs.append(old_doc)
+            continue
+
+        try:
+            doc = await final_afl.fetch(link)
+            doc.attrs[_SCORE_KEY] = old_doc.attrs[_SCORE_KEY]
+            out_docs.append(doc)
+        except KeyboardInterrupt:
+            raise
+        except Exception as e:
+            msg = (
+                "Encountered error of type %r while trying "
+                "to fetch content from %s"
+            )
+            err_type = type(e)
+            logger.exception(msg, err_type, link)
+            out_docs.append(old_doc)
+
+    return out_docs
 
 
 def _sort_final_ord_docs(all_ord_docs):

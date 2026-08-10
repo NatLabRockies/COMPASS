@@ -56,10 +56,10 @@ class _DummyListener:
         self.added_handlers = []
         self.removed_handlers = []
 
-    def addHandler(self, handler):  # noqa: N802
+    def addHandler(self, handler):  # ruff:ignore[invalid-function-name]
         self.added_handlers.append(handler)
 
-    def removeHandler(self, handler):  # noqa: N802
+    def removeHandler(self, handler):  # ruff:ignore[invalid-function-name]
         self.removed_handlers.append(handler)
 
 
@@ -174,7 +174,7 @@ async def test_location_file_log_async_context(tmp_path):
         await task
 
     text_log = log_dir / "async_loc.log"
-    json_log = log_dir / "async_loc exceptions.json"
+    json_log = log_dir / "async_loc_exceptions.json"
     assert text_log.exists()
     assert json_log.exists()
 

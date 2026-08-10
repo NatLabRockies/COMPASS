@@ -68,7 +68,7 @@ class BaseExtractionPlugin(ABC):
 
     @property
     @abstractmethod
-    def IDENTIFIER(self):  # noqa: N802
+    def IDENTIFIER(self):  # ruff:ignore[invalid-function-name]
         """str: Identifier for extraction task (e.g. "water rights")"""
         raise NotImplementedError
 
@@ -103,7 +103,7 @@ class BaseExtractionPlugin(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, max_num_docs=None):
         """Filter down candidate documents before parsing
 
         Parameters
@@ -112,6 +112,10 @@ class BaseExtractionPlugin(ABC):
             Context containing candidate documents to be filtered.
             Set the ``.documents`` attribute of this object to be the
             iterable of documents that should be kept for parsing.
+        max_num_docs : int, optional
+            Maximum number of documents to parse (regardless of the
+            collection method). If ``None``, all collected documents are
+            parsed. By default, ``None``.
 
         Returns
         -------
@@ -172,5 +176,5 @@ class BaseExtractionPlugin(ABC):
         total_cost = compute_total_cost_from_usage(total_usage)
         COMPASS_PB.update_total_cost(total_cost, replace=True)
 
-    def validate_plugin_configuration(self):  # noqa: B027
+    def validate_plugin_configuration(self):  # ruff:ignore[empty-method-without-abstract-decorator]
         """[NOT PUBLIC API] Validate plugin is properly configured"""

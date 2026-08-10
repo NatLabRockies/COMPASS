@@ -1,0 +1,41 @@
+{
+    out_dir: "./outputs",
+    tech: "geo_rmp",
+    jurisdiction_fp: "../jurisdictions.csv",
+    // Point this at your local_docs.json5 to use pre-downloaded RMP PDFs.
+    // Remove or set to null to let COMPASS search the web instead.
+    "known_local_docs": "./local_docs.json5",
+
+    // Disable web/search-engine document discovery when using local PDFs.
+    "perform_se_search": false,
+    "perform_website_search": false,
+
+    "log_level": "DEBUG",
+
+    // Path to Tesseract OCR executable (required for scanned PDF text extraction).
+    "pytesseract_exe_fp": "<path to tesseract.exe>",
+
+    model: [
+        {
+            name: "<your Azure OpenAI deployment name>",
+            llm_call_kwargs: {timeout: 300},
+            llm_service_rate_limit: 400000,  // Tokens per minute - match your Azure quota
+            text_splitter_chunk_size: 10000,
+            text_splitter_chunk_overlap: 500,
+            "client_kwargs": {
+                // Credentials loaded from env vars:
+                //   AZURE_OPENAI_API_KEY, AZURE_OPENAI_API_VERSION, AZURE_OPENAI_ENDPOINT
+            },
+        },
+    ],
+
+    "file_loader_kwargs": {
+        "verify_ssl": false,
+    },
+    "ppe_kwargs": {
+        "max_workers": 1,  // Prevent concurrent subprocess race on browserforge model files
+    },
+    "td_kwargs": {
+        "dir": "./",
+    },
+}

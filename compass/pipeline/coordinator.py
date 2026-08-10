@@ -25,7 +25,7 @@ from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
     write_collection_manifest,
-    load_collection_manifest,
+    load_collection_manifest_jurisdictions,
 )
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
@@ -122,13 +122,7 @@ class BaseRunMode(ABC):
         """
         self.runtime = runtime
 
-    def _create(
-        self,
-        jurisdiction,
-        *,
-        usage_tracker=None,
-        validate_user_website_input=True,
-    ):
+    def _create(self, jurisdiction, *, usage_tracker=None):
         """Create one configured jurisdiction workflow"""
         extractor = self.runtime.extractor_class(
             jurisdiction=jurisdiction,
@@ -148,7 +142,6 @@ class BaseRunMode(ABC):
             perform_website_search=(
                 self.runtime.request.perform_website_search
             ),
-            validate_user_website_input=validate_user_website_input,
         )
 
     @abstractmethod
@@ -195,11 +188,7 @@ class COMPASSFullProcessing(BaseRunMode):
             usage_tracker = UsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(
-                jurisdiction,
-                usage_tracker=usage_tracker,
-                validate_user_website_input=True,
-            )
+            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
             tasks.append(
                 asyncio.create_task(
                     workflow.run_process_with_logging(),
@@ -245,23 +234,12 @@ class COMPASSCollection(BaseRunMode):
             len(jurisdictions_df),
         )
         start_date = datetime.now(UTC)
-        relative_to = (
-            self.runtime.dirs.out
-            if self.runtime.request.output_settings.make_paths_relative
-            else None
-        )
         tasks = []
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            workflow = self._create(
-                jurisdiction,
-                usage_tracker=None,
-                validate_user_website_input=False,
-            )
+            workflow = self._create(jurisdiction, usage_tracker=None)
             tasks.append(
                 asyncio.create_task(
-                    workflow.run_collection_with_logging(
-                        relative_to=relative_to
-                    ),
+                    workflow.run_collection_with_logging(),
                     name=jurisdiction.full_name,
                 )
             )
@@ -269,7 +247,7 @@ class COMPASSCollection(BaseRunMode):
         collection_infos = await asyncio.gather(*tasks)
         manifest = build_collection_manifest(
             self.runtime.tech,
-            list(filter(None, collection_infos)),
+            collection_infos,
             start_date,
             len(jurisdictions_df),
         )
@@ -311,24 +289,26 @@ class COMPASSExtraction(BaseRunMode):
             content of the message may vary depending on the results of
             the processing.
         """
-        manifest = await load_collection_manifest(
-            self.runtime.request.collection_manifest_fp, self.runtime.tech
+        logger.info("Loading collection manifest...")
+        logger.debug(
+            "Manifest path(s): %s", self.runtime.request.collection_manifest_fp
         )
-        jurisdictions = manifest.get("jurisdictions", [])
+        collection_infos_by_fips = (
+            await load_collection_manifest_jurisdictions(
+                self.runtime.request.collection_manifest_fp, self.runtime.tech
+            )
+        )
+
         logger.info(
             "Extracting structured data for %d jurisdiction(s)",
-            len(jurisdictions),
+            len(jurisdictions_df),
         )
 
         tasks = []
         start_date = datetime.now(UTC)
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            collection_info = [
-                info
-                for info in jurisdictions
-                if info is not None and info.get("FIPS") == jurisdiction.code
-            ]
-            if not collection_info:
+            collection_info = collection_infos_by_fips.get(jurisdiction.code)
+            if collection_info is None:
                 logger.warning(
                     "No collection info found for %s; skipping extraction",
                     jurisdiction.full_name,
@@ -338,14 +318,10 @@ class COMPASSExtraction(BaseRunMode):
             usage_tracker = UsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(
-                jurisdiction,
-                usage_tracker=usage_tracker,
-                validate_user_website_input=True,
-            )
+            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
             tasks.append(
                 asyncio.create_task(
-                    workflow.run_extraction_with_logging(collection_info[0]),
+                    workflow.run_extraction_with_logging(collection_info),
                     name=jurisdiction.full_name,
                 )
             )

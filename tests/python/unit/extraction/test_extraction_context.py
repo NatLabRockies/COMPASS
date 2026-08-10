@@ -296,7 +296,7 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
     """Test marking document with file moving"""
     out_file = tmp_path / "output.pdf"
 
-    async def fake_file_mover(doc_arg, out_fn):  # noqa
+    async def fake_file_mover(doc_arg, out_fn):  # ruff:ignore[unused-async]
         assert out_fn == "output.pdf"
         return out_file
 
@@ -318,7 +318,7 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
     """Test _move_file_to_out_dir helper"""
     output_path = tmp_path / "moved.pdf"
 
-    async def fake_mover(doc_arg, out_fn):  # noqa
+    async def fake_mover(doc_arg, out_fn):  # ruff:ignore[unused-async]
         assert out_fn == "output_name.pdf"
         return output_path
 

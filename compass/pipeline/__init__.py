@@ -10,5 +10,5 @@ from compass.pipeline.data_classes import (
     RuntimeSettings,
     JurisdictionResult,
     WebSearchParams,
-    _build_models,
+    build_models,
 )

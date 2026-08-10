@@ -354,7 +354,7 @@ def _is_formattable(q):
     """True if the query template is formattable with a jurisdiction"""
     try:
         q.format(jurisdiction="test")
-    except Exception:  # noqa: BLE001
+    except Exception:  # ruff:ignore[blind-except]
         return False
 
     return True

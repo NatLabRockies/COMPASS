@@ -79,7 +79,7 @@ class _RoundtripTestPlugin(BaseExtractionPlugin):
 
         return _KeepEverything()
 
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, __):
         """Keep all docs for deterministic round-trip tests"""
         if not extraction_context:
             return None
@@ -153,7 +153,7 @@ def patched_model_configs(monkeypatch):
         return {LLMTasks.DEFAULT: _DummyModelConfig()}
 
     monkeypatch.setattr(
-        data_classes_module, "_build_models", _dummy_build_models
+        data_classes_module, "build_models", _dummy_build_models
     )
 
 
@@ -246,6 +246,35 @@ async def test_collect_then_extract_round_trip_from_manifest(
     assert caneadea["documents"][0]["is_pdf"] is True
     assert whatcom in shard_payloads
     assert caneadea in shard_payloads
+    for collection_info in (whatcom, caneadea):
+        assert collection_info["completed_step_document_counts"] == {
+            "known_local_docs": 1
+        }
+    assert manifest["completed_step_document_totals"] == {
+        "known_local_docs": 2
+    }
+
+    COMPASS_PB.reset()
+    resumed_collection_msg = await run_compass(
+        CollectionRequest(
+            out_dir=out_dir,
+            tech="roundtrip-test",
+            jurisdiction_fp=jurisdiction_fp,
+            known_local_docs=known_local_docs,
+            make_paths_relative=False,
+            perform_se_search=False,
+            perform_website_search=False,
+        )
+    )
+
+    assert (
+        "2 documents collected for 2 jurisdictions" in resumed_collection_msg
+    )
+    resumed_manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
+    assert {info["FIPS"] for info in resumed_manifest["jurisdictions"]} == {
+        "53073",
+        "3600312243",
+    }
 
     COMPASS_PB.reset()
     extraction_dir = tmp_path / "extracted"

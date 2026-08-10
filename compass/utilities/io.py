@@ -74,7 +74,7 @@ class Handler(ABC):
 
     @property
     @abstractmethod
-    def FILE_EXTENSION(self):  # noqa: N802
+    def FILE_EXTENSION(self):  # ruff:ignore[invalid-function-name]
         """str: Enum name to use"""
 
 
@@ -339,3 +339,14 @@ def resolve_path(path, base_dir):
         path = path.expanduser().resolve().as_posix()
 
     return path
+
+
+def normalize_output_stem(out_stem):
+    """[NOT PUBLIC API] Normalize an output file name stem"""
+    return (
+        out_stem.replace(".", "")
+        .replace(",", "")
+        .replace("/", "_")
+        .replace("\\", "_")
+        .replace(" ", "_")
+    )

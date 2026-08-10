@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 class _TimeElapsedColumn(ProgressColumn):
     """Renders time elapsed"""
 
-    def render(self, task):  # noqa: PLR6301
+    def render(self, task):  # ruff:ignore[no-self-use]
         """Show time elapsed"""
         elapsed = task.finished_time if task.finished else task.elapsed
         if elapsed is None:
@@ -66,7 +66,7 @@ class _MofNCompleteColumn(ProgressColumn):
 class _TotalCostColumn(ProgressColumn):
     """Renders total cost '($1.23)'"""
 
-    def render(self, task):  # noqa: PLR6301
+    def render(self, task):  # ruff:ignore[no-self-use]
         """Show completed/total"""
         total_cost = task.fields.get("total_cost", 0)
         if not total_cost:

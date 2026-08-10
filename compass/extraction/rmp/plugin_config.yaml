@@ -1,0 +1,104 @@
+# One-shot plugin configuration for geothermal restriction extraction from
+# BLM Resource Management Plan (RMP) documents.
+#
+# Usage:
+#   compass process -c config.json5 -p plugin_config.yaml
+#
+# Or with pixi:
+#   pixi run --manifest-path "<path-to-COMPASS>/pixi.toml" \
+#       compass process -c config.json5 -p plugin_config.yaml
+
+schema: ./rmp_schema.json
+
+data_type_short_desc: geothermal leasing restriction in BLM Resource Management Plan
+
+# Keyword-based heuristic for quickly filtering text chunks before LLM calls.
+heuristic_keywords:
+  good_tech_keywords:
+    - "geothermal"
+    - "leasing"
+    - "stipulation"
+    - "closure"
+    - "drilling"
+    - "mineral"
+    - "nso"
+    - "energy"
+    - "map"
+  good_tech_acronyms:
+    - "nso"
+    - "rmp"
+    - "blm"
+    - "tlm"
+    - "esa"
+  good_tech_phrases:
+    - "no surface occupancy"
+    - "surface disturbance"
+    - "geothermal leasing"
+    - "geothermal development"
+    - "geothermal exploration"
+    - "mineral leasing"
+    - "no surface occupancy"
+    - "surface-disturbing activities"
+    - "timing limitation"
+    - "lease stipulation"
+    - "closed to leasing"
+    - "open to leasing"
+    - "geothermal resources"
+    - "resource management plan"
+    - "land withdrawal"
+    - "mineral rights"
+    - "energy development"
+    - "minerals and energy"
+    - "fluid mineral"
+    - "fluid minerals"
+    - "fluid mineral leasing"
+    - "fluid mineral development"
+    - "fluid leasable minerals"
+  not_tech_words:
+    - "grazing allotment"
+    - "livestock"
+    - "recreation permit"
+    - "campground"
+    - "trail maintenance"
+    - "off-highway vehicle"
+    - "ohv route"
+    - "land disposal"
+    - "land sale"
+    - "residential"
+    - "wildfire"
+    - "prescribed burn"
+    - "hunting permit"
+    - "fishing"
+
+# Collection prompts filter individual text chunks extracted from the PDF.
+# Chunks that pass are passed to the text extraction step.
+# Setting to True auto-generates prompts from the schema.
+collection_prompts: True
+
+# System prompt used during the final structured extraction LLM call.
+extraction_system_prompt: |-
+  You are an expert analyst specializing in BLM Resource Management Plans (RMPs)
+  and federal mineral leasing regulations. Your task is to extract structured data
+  about geothermal leasing restrictions from RMP document text.
+  Follow all instructions in the schema field descriptions carefully.
+  Only extract restrictions that directly constrain geothermal leasing, exploration,
+  drilling, or facility construction on BLM lands. Each distinct restriction should
+  be its own row in the outputs array. Use direct text excerpts and quotes in the
+  summary field wherever possible.
+  IMPORTANT: "Fluid minerals" is the BLM/Mineral Leasing Act regulatory term that
+  collectively covers oil, gas, AND geothermal resources. RMPs very frequently use
+  "fluid minerals" or "fluid mineral leasing/development" instead of spelling out
+  "oil, gas, and geothermal" — treat any restriction, closure, or stipulation on
+  fluid minerals as encompassing geothermal (geothermal_applicability = 'broad')
+  exactly as you would for an "oil, gas, and geothermal" or "mineral leasing" group
+  closure, unless the document explicitly excludes geothermal from the fluid
+  minerals category.
+
+cache_llm_generated_content: true
+
+# Allows a single jurisdiction entry to span multiple PDF documents,
+# which is typical for RMPs that are split across many files.
+doc_selection_method: multi-doc-all
+
+post_processing_steps:
+  - "add_document_name"

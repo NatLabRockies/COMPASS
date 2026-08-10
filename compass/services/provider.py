@@ -133,9 +133,9 @@ class RunningAsyncServices:
             logger.debug("Initializing Service: %s", service.name)
             with contextlib.suppress(AttributeError):
                 logger.debug(
-                    "    ↪ model_name=%r, rate_limit=%d",
+                    "    ↪ model_name=%r, rate_limit=%s",
                     service.model_name,
-                    service.rate_limit,
+                    f"{int(service.rate_limit):,d}",
                 )
             queue = initialize_service_queue(service.name)
             service.acquire_resources()

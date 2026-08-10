@@ -17,6 +17,7 @@ from elm.web.document import HTMLDocument
 from elm.web.utilities import write_url_doc_to_file
 
 from compass.services.base import Service
+from compass.utilities.io import normalize_output_stem
 from compass.utilities.parsing import is_pdf_doc
 from compass.utilities import compute_cost_from_totals
 from compass.pb import COMPASS_PB
@@ -51,7 +52,13 @@ def _compute_sha256(file_path):
     return f"sha256:{m.hexdigest()}"
 
 
-def _move_file(doc, out_dir, out_fn=None, verb="processed"):
+def _ensure_output_suffix(out_dir, out_stem, suffix):
+    """Build output path"""
+    out_stem = normalize_output_stem(out_stem)
+    return Path(out_dir) / f"{out_stem}{suffix}"
+
+
+def _move_file(doc, out_dir, out_stem=None, verb="processed"):
     """Move a file from a temp directory to an output directory"""
     cached_fp = doc.attrs.get("cache_fn")
     if cached_fp is None:
@@ -59,13 +66,9 @@ def _move_file(doc, out_dir, out_fn=None, verb="processed"):
 
     cached_fp = Path(cached_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_fn = out_fn or cached_fp.stem
-    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
-    out_fn = f"{out_fn}_{verb}_{date}"
-    out_fp = Path(out_dir) / out_fn
-
-    if out_fp.suffix != cached_fp.suffix:
-        out_fp = out_fp.with_suffix(cached_fp.suffix)
+    out_stem = out_stem or cached_fp.stem
+    out_stem = f"{out_stem}_{verb}_{date}"
+    out_fp = _ensure_output_suffix(out_dir, out_stem, cached_fp.suffix)
 
     shutil.move(cached_fp, out_fp)
     return out_fp
@@ -92,15 +95,12 @@ def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
     return out_paths
 
 
-def _write_parsed_text(doc, out_dir, out_fn=None):
+def _write_parsed_text(doc, out_dir, out_stem=None):
     """Write parsed document text to directory"""
-    if not doc.text or out_fn is None:
+    if not doc.text or out_stem is None:
         return None
 
-    out_fn = out_fn.replace(",", "").replace("/", "_").replace(" ", "_")
-    out_fp = Path(out_dir) / out_fn
-    if out_fp.suffix != ".txt":
-        out_fp = out_fp.with_suffix(".txt")
+    out_fp = _ensure_output_suffix(out_dir, out_stem, ".txt")
     out_fp.write_text(doc.text, encoding="utf-8")
     return out_fp
 
@@ -363,7 +363,7 @@ class StoreFileOnDisk(ThreadedService):
 
     @property
     @abstractmethod
-    def _PROCESS(self):  # noqa: N802
+    def _PROCESS(self):  # ruff:ignore[invalid-function-name]
         """str: Key in `_PROCESSING_FUNCTIONS` defining the doc func"""
         raise NotImplementedError
 
@@ -613,11 +613,12 @@ def _dump_jurisdiction_info(
         "subdivision": jurisdiction.subdivision_name,
         "jurisdiction_type": jurisdiction.type,
         "FIPS": jurisdiction.code,
-        "found": False,
         "total_time": seconds_elapsed,
         "total_time_string": str(timedelta(seconds=seconds_elapsed)),
         "jurisdiction_website": None,
         "cost": None,
+        "found": False,
+        "num_features_extracted": None,
         "documents": None,
     }
 
@@ -630,6 +631,9 @@ def _dump_jurisdiction_info(
         new_info["documents"] = [
             _compile_doc_info(doc) for doc in extraction_context.data_docs
         ]
+        new_info["num_features_extracted"] = extraction_context.attrs.get(
+            "num_features_extracted"
+        )
         new_info["jurisdiction_website"] = extraction_context.attrs.get(
             "jurisdiction_website"
         )
@@ -649,16 +653,23 @@ def _compile_doc_info(doc):
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
         "ord_filename": Path(out_fp or "unknown").name,
+        "doc_type": doc.attrs.get("doc_type"),
         "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),
         "is_pdf": is_pdf_doc(doc),
         "from_ocr": doc.attrs.get("from_ocr", False),
+        "conversion_time_seconds": doc.attrs.get("conversion_time_seconds"),
+        "conversion_status": doc.attrs.get("conversion_status"),
+        "mean_confidence": doc.attrs.get("mean_confidence"),
+        "low_score_confidence": doc.attrs.get("low_score_confidence"),
+        "collection_step_rank": doc.attrs.get("collection_step_rank"),
         "relevant_text_ngram_score": doc.attrs.get(
             "relevant_text_ngram_score"
         ),
         "permitted_use_text_ngram_score": doc.attrs.get(
             "permitted_use_text_ngram_score"
         ),
+        "from_steps": doc.attrs.get("from_steps"),
     }
 
 

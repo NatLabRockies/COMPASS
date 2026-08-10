@@ -6,14 +6,19 @@ import click
 from rich.theme import Theme
 from rich.console import Console
 
+from compass._cli.common import (
+    CONFIG_OVERRIDE_CONTEXT_SETTINGS,
+    apply_cli_config_overrides,
+)
+from compass.plugin.registry import PLUGIN_REGISTRY
 from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
-from compass.pipeline import _build_models
+from compass.pipeline import build_models
 
 
-@click.command
+@click.command(context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS)
 @click.option(
     "--config",
     "-c",
@@ -21,12 +26,17 @@ from compass.pipeline import _build_models
     type=click.Path(exists=True),
     help="Path to COMPASS run configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
-    ":class:`~compass.pipeline.data_classes.ProcessRequest`. "
-    "The output directory that this config points to will be finalized.",
+    ":class:`~compass.pipeline.data_classes.ProcessRequest`. Any top-level "
+    "config may also be passed as an extra CLI option (using the syntax "
+    "`--my_param=new`) to override the config value. The output directory "
+    "that this config points to will be finalized.",
 )
-def finalize(config):
+@click.pass_context
+def finalize(ctx, config):
     """Finalize a partially-completed COMPASS run"""
     config = load_config(config)
+    if ctx.args:
+        config = apply_cli_config_overrides(config, ctx.args)
     tech = config["tech"]  # fail early
 
     dirs = Directories(
@@ -57,7 +67,7 @@ def finalize(config):
     console = Console(theme=custom_theme)
     console.print(f"Finalizing COMPASS run in {dirs.out!s}...")
 
-    models = _build_models(config.get("model", "gpt-4o-mini"))
+    models = build_models(config.get("model", "gpt-4o-mini"))
     start_datetime = datetime.fromtimestamp(dirs.out.stat().st_ctime)
     end_datetime = datetime.fromtimestamp(jurisdictions_fp.stat().st_mtime)
 
@@ -66,7 +76,7 @@ def finalize(config):
     console.print("Compiling databases...")
     jurisdictions = jurisdictions.get("jurisdictions", [])
 
-    _compile_db(jurisdictions, dirs)
+    _compile_db(jurisdictions, dirs, tech)
 
     console.print("Saving meta info...")
     num_jurisdictions_searched = len(jurisdictions)
@@ -88,7 +98,7 @@ def finalize(config):
     console.print(f"✅ Finalized COMPASS run in {dirs.out!s}!")
 
 
-def _compile_db(jurisdictions, dirs):
+def _compile_db(jurisdictions, dirs, tech):
     """Merge all jurisdiction dbs into one"""
     all_doc_infos = []
     for jur_info in jurisdictions:
@@ -117,5 +127,6 @@ def _compile_db(jurisdictions, dirs):
             {"ord_db_fp": ord_db_fp, "jurisdiction": jurisdiction}
         )
 
-    db, __ = doc_infos_to_db(all_doc_infos)
-    save_db(db, dirs.out)
+    out_cols = PLUGIN_REGISTRY[tech].OUTPUT_COLUMNS
+    db, __ = doc_infos_to_db(all_doc_infos, out_cols)
+    save_db(db, dirs.out, out_cols)

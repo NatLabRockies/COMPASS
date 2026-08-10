@@ -197,7 +197,7 @@ def num_ordinances_dataframe(data, exclude_features=None):
         mask = ~data["feature"].str.casefold().isin(exclude_features)
         data = data[mask].copy()
 
-    return ordinances_bool_index(data).sum()
+    return int(ordinances_bool_index(data).sum())
 
 
 def ordinances_bool_index(data):
@@ -233,14 +233,34 @@ def raw_pages_from_doc(
     num_end_pages_to_keep=2,
 ):
     """[NOT PUBLIC API] Get raw pages from an input doc"""
-    if is_pdf_doc(doc) and hasattr(doc, "raw_pages"):
+    # Do NOT use `is_pdf_doc` here because MDDocuments could have
+    # "doc_type" == "pdf" and be treated as a single page doc
+    if isinstance(doc, PDFDocument) and hasattr(doc, "raw_pages"):
         raw_pages = doc.raw_pages
-        logger.debug(
-            "PDF Document from %s has %d raw pages",
-            doc.attrs.get("source", "unknown source"),
-            len(raw_pages),
-        )
-        return doc.raw_pages
+        # failsafe check
+        if text_splitter is not None and len(raw_pages) == 1:
+            raw_pages = text_splitter.split_text(raw_pages[0])
+            raw_pages = _down_select_pages(
+                raw_pages,
+                percent_raw_pages_to_keep,
+                max_raw_pages,
+                num_end_pages_to_keep,
+            )
+            logger.debug(
+                "PDF Document from %s had 1 raw page; "
+                "has %d raw %s after splitting",
+                doc.attrs.get("source", "unknown source"),
+                len(raw_pages),
+                "page" if len(raw_pages) == 1 else "pages",
+            )
+        else:
+            logger.debug(
+                "PDF Document from %s has %d raw %s",
+                doc.attrs.get("source", "unknown source"),
+                len(raw_pages),
+                "page" if len(raw_pages) == 1 else "pages",
+            )
+        return raw_pages
 
     if text_splitter is None:
         logger.debug(
@@ -255,6 +275,23 @@ def raw_pages_from_doc(
         return []
 
     pages = text_splitter.split_text(text)
+    raw_pages = _down_select_pages(
+        pages, percent_raw_pages_to_keep, max_raw_pages, num_end_pages_to_keep
+    )
+
+    logger.debug(
+        "Document from %s has %d raw %s after splitting and trimming",
+        doc.attrs.get("source", "unknown source"),
+        len(raw_pages),
+        "page" if len(raw_pages) == 1 else "pages",
+    )
+    return raw_pages
+
+
+def _down_select_pages(
+    pages, percent_raw_pages_to_keep, max_raw_pages, num_end_pages_to_keep
+):
+    """Down-select pages based on percentage and max limits"""
     num_to_keep = percent_raw_pages_to_keep / 100 * len(pages)
     num_raw_pages_to_keep = min(max_raw_pages, max(1, int(num_to_keep)))
 
@@ -266,12 +303,6 @@ def raw_pages_from_doc(
     if last_page_index:
         raw_pages += pages[last_page_index:]
 
-    logger.debug(
-        "Document from %s has %d raw %s after splitting and trimming",
-        doc.attrs.get("source", "unknown source"),
-        len(raw_pages),
-        "page" if len(raw_pages) == 1 else "pages",
-    )
     return raw_pages
 
 
@@ -281,7 +312,7 @@ def convert_paths_to_strings(obj):
     if isinstance(obj, Path):
         out = os.fspath(obj)
         if not obj.is_absolute():
-            out = os.path.join(".", out)  # noqa PTH118
+            out = os.path.join(".", out)  # ruff:ignore[os-path-join] PTH118
         return out
     if isinstance(obj, dict):
         return {

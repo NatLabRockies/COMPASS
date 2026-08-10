@@ -2,15 +2,17 @@
 
 import logging
 import time
-from functools import partial
+from functools import partial, cached_property
 
 from compass.services.threaded import JurisdictionUpdater
 from compass.utilities.logs import LocationFileLog
 from compass.pipeline.collection import DocumentCollection
 from compass.pipeline import JurisdictionResult
 from compass.pipeline.collection.persistence import (
+    persist_documents,
     load_collected_docs,
     write_collection_manifest_shard,
+    load_specific_collection_manifest_shard,
 )
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pb import COMPASS_PB
@@ -34,7 +36,6 @@ class SingleJurisdictionRun:
         known_doc_urls=None,
         perform_se_search=True,
         perform_website_search=True,
-        validate_user_website_input=True,
     ):
         """
 
@@ -69,10 +70,6 @@ class SingleJurisdictionRun:
         perform_website_search : bool, optional
             Whether website-specific search and crawl steps should be
             performed for this jurisdiction. By default, ``True``.
-        validate_user_website_input : bool, optional
-            Whether user-supplied jurisdiction website inputs should be
-            validated before being used in collection. By default,
-            ``True``.
         """
         self.runtime = runtime
         self.jurisdiction = jurisdiction
@@ -82,7 +79,6 @@ class SingleJurisdictionRun:
         self.known_doc_urls = known_doc_urls
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
-        self.validate_user_website_input = validate_user_website_input
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
         self.extraction_workflow = DocumentExtraction(self)
@@ -131,14 +127,8 @@ class SingleJurisdictionRun:
             ord_db_fp=extraction_context.attrs.get("ord_db_fp"),
         )
 
-    async def collect(self, *, relative_to=None):
+    async def collect(self):
         """Run collection mode for one jurisdiction
-
-        Parameters
-        ----------
-        relative_to : path-like, optional
-            Optional directory that should be the root of all relative
-            paths. By default, ``None``.
 
         Returns
         -------
@@ -152,14 +142,9 @@ class SingleJurisdictionRun:
             "Kicking off collection for jurisdiction: %s",
             self.jurisdiction.full_name,
         )
-        collection_info = await self.collection_workflow.execute(
-            eager_extract=False, relative_to=relative_to
-        )
 
-        await _safe_shard_write(
-            self.runtime.dirs.jurisdiction_dbs,
-            collection_info,
-            self.jurisdiction.full_name,
+        collection_info = await self.collection_workflow.execute(
+            eager_extract=False
         )
 
         logger.info(
@@ -194,6 +179,10 @@ class SingleJurisdictionRun:
         )
         self.jurisdiction_website = collection_info.get("jurisdiction_website")
         try:
+            COMPASS_PB.update_jurisdiction_task(
+                self.jurisdiction.full_name,
+                description="Loading pre-parsed documents...",
+            )
             docs = await load_collected_docs(
                 collection_info, task_name=self.jurisdiction.full_name
             )
@@ -268,14 +257,8 @@ class SingleJurisdictionRun:
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
         )
 
-    async def run_collection_with_logging(self, *, relative_to=None):
+    async def run_collection_with_logging(self):
         """Collect one jurisdiction under location-scoped logging
-
-        Parameters
-        ----------
-        relative_to : path-like, optional
-            Optional directory that should be the root of all relative
-            paths. By default, ``None``.
 
         Returns
         -------
@@ -286,9 +269,7 @@ class SingleJurisdictionRun:
             their associated metadata.
         """
         return await self._run_with_logging_context(
-            partial(self.collect, relative_to=relative_to),
-            error_action="collecting",
-            fallback=None,
+            self.collect, error_action="collecting", fallback=None
         )
 
     async def run_extraction_with_logging(self, collection_info):
@@ -315,6 +296,90 @@ class SingleJurisdictionRun:
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
         )
 
+    async def write_collection_shard_no_fail(self, docs, completed_steps):
+        """Safely write a collection manifest shard
+
+        Parameters
+        ----------
+        docs : dict
+            Dictionary where values are documents obtained from the
+            collection step.
+        completed_steps : iterable of str
+            Iterable of collection step names completed during
+            collection.
+
+        Returns
+        -------
+        dict
+            A dictionary containing collection information, including
+            the jurisdiction's full name, county, state, subdivision,
+            type, FIPS code, and a list of collected documents with
+            their associated metadata.
+
+        Raises
+        ------
+        Exception
+            If writing the collection manifest shard fails, the
+            exception will be logged and no shard will be written.
+        """
+        collection_info = await persist_documents(
+            self.jurisdiction,
+            docs,
+            completed_steps=completed_steps,
+            relative_to=self._relative_to,
+            jurisdiction_website=self.jurisdiction_website,
+        )
+
+        try:
+            shard_fp = await write_collection_manifest_shard(
+                self.runtime.dirs.jurisdiction_dbs, collection_info
+            )
+            logger.info(
+                "Collection manifest shard for %s stored here: '%s'",
+                self.jurisdiction.full_name,
+                shard_fp,
+            )
+        except Exception:
+            logger.exception(
+                "Failed to write collection manifest shard for %s",
+                self.jurisdiction.full_name,
+            )
+
+        return collection_info
+
+    async def load_existing_collection_shard(self):
+        """Load saved collection shard, if any
+
+        Returns
+        -------
+        dict or None
+            A dictionary containing collection information, including
+            the jurisdiction's full name, county, state, subdivision,
+            type, FIPS code, and a list of collected documents with
+            their associated metadata, or ``None`` if no shard exists.
+        """
+        collection_info = await load_specific_collection_manifest_shard(
+            self.runtime.dirs.jurisdiction_dbs, self.jurisdiction
+        )
+        if collection_info is not None:
+            self.jurisdiction_website = collection_info.get(
+                "jurisdiction_website", self.jurisdiction_website
+            )
+            logger.info(
+                "Loaded collection from manifest shard for %s",
+                self.jurisdiction.full_name,
+            )
+        return collection_info
+
+    @cached_property
+    def _relative_to(self):
+        """path-like: Dir to be the root of all relative paths | None"""
+        return (
+            self.runtime.dirs.out
+            if self.runtime.request.output_settings.make_paths_relative
+            else None
+        )
+
 
 async def _record_jurisdiction_info(
     jurisdiction, extraction_context, start_time, usage_tracker
@@ -325,20 +390,3 @@ async def _record_jurisdiction_info(
     await JurisdictionUpdater.call(
         jurisdiction, extraction_context, seconds_elapsed, usage_tracker
     )
-
-
-async def _safe_shard_write(shard_dir, collection_info, jur_name):
-    """Safely write a collection manifest shard"""
-    try:
-        shard_fp = await write_collection_manifest_shard(
-            shard_dir, collection_info
-        )
-        logger.info(
-            "Collection manifest shard for %s stored here: '%s'",
-            jur_name,
-            shard_fp,
-        )
-    except Exception:
-        logger.exception(
-            "Failed to write collection manifest shard for %s", jur_name
-        )

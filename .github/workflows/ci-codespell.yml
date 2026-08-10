@@ -1,0 +1,44 @@
+name: Codespell
+permissions:
+  contents: read
+
+concurrency:
+  group: codespell-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - compass/extraction/**
+      - .github/workflows/ci-codespell.yml
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+  pull_request:
+    paths:
+      - compass/extraction/**
+      - .github/workflows/ci-codespell.yml
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+  workflow_dispatch:
+
+jobs:
+  codespell:
+    name: Spell-check compass/extraction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f # v0.10.0
+        with:
+          pixi-version: v0.73.0
+          locked: true
+          cache: true
+          cache-write: false
+          environments: ptest
+
+      - name: Run codespell
+        run: pixi run -e ptest --locked codespell

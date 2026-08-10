@@ -2,8 +2,10 @@
 
 import logging
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 from compass.plugin.base import BaseExtractionPlugin
+from compass.plugin.post_processing import POST_PROCESSING_REGISTRY
 from compass.llm.calling import BaseLLMCaller
 from compass.extraction import extract_relevant_text_with_ngram_validation
 from compass.scripts.download import filter_ordinance_docs
@@ -13,6 +15,20 @@ from compass.exceptions import COMPASSPluginConfigurationError
 
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class OutputColumn:
+    """Column expected to appear in a structured CSV output"""
+
+    name: str
+    """Name of column in output CSV"""
+
+    include_in_quant_output: bool = True
+    """Flag indicating whether to include in the quantitative output"""
+
+    include_in_qual_output: bool = True
+    """Flag indicating whether to include in the qualitative output"""
 
 
 class BaseHeuristic(ABC):
@@ -42,7 +58,7 @@ class BaseTextCollector(BaseLLMCaller, ABC):
 
     @property
     @abstractmethod
-    def OUT_LABEL(self):  # noqa: N802
+    def OUT_LABEL(self):  # ruff:ignore[invalid-function-name]
         """str: Identifier for text collected by this class"""
         raise NotImplementedError
 
@@ -113,15 +129,23 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
     methods as needed.
     """
 
+    POST_PROCESSING_STEPS = None
+    """List of post-processing steps to apply to the extracted data
+
+    Each entry should correspond to a key in the
+    `POST_PROCESSING_REGISTRY`. If `None`, no post-processing steps will
+    be applied. By default, `None`.
+    """
+
     @property
     @abstractmethod
-    def IDENTIFIER(self):  # noqa: N802
+    def IDENTIFIER(self):  # ruff:ignore[invalid-function-name]
         """str: Identifier for extraction task (e.g. "water rights")"""
         raise NotImplementedError
 
     @property
     @abstractmethod
-    def QUERY_TEMPLATES(self):  # noqa: N802
+    def QUERY_TEMPLATES(self):  # ruff:ignore[invalid-function-name]
         """list: List of search engine query templates for extraction
 
         Query templates can contain the placeholder ``{jurisdiction}``
@@ -132,7 +156,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def WEBSITE_KEYWORDS(self):  # noqa: N802
+    def WEBSITE_KEYWORDS(self):  # ruff:ignore[invalid-function-name]
         """list: List of keywords
 
         List of keywords that indicate links which should be prioritized
@@ -142,7 +166,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def TEXT_COLLECTORS(self):  # noqa: N802
+    def TEXT_COLLECTORS(self):  # ruff:ignore[invalid-function-name]
         """list of BaseTextCollector: Classes to collect text
 
         Should be an iterable of one or more classes to collect text
@@ -152,12 +176,22 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
 
     @property
     @abstractmethod
-    def HEURISTIC(self):  # noqa: N802
+    def HEURISTIC(self):  # ruff:ignore[invalid-function-name]
         """BaseHeuristic: Class with a ``check()`` method
 
         The ``check()`` method should accept a string of text and
         return ``True`` if the text passes the heuristic check and
         ``False`` otherwise.
+        """
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
+    def OUTPUT_COLUMNS(self):  # ruff:ignore[invalid-function-name]
+        """list: List of output columns for the extracted data
+
+        Each entry should be an
+        :class:`compass.plugin.interface.OutputColumn` instance.
         """
         raise NotImplementedError
 
@@ -184,11 +218,30 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
             Number of unique jurisdictions that information was
             found/written for.
         """
-        db, num_docs_found = doc_infos_to_db(doc_infos)
-        save_db(db, out_dir)
+        db, num_docs_found = doc_infos_to_db(doc_infos, cls.OUTPUT_COLUMNS)
+        db = cls._apply_post_processing(db)
+        save_db(db, out_dir, cls.OUTPUT_COLUMNS)
         return num_docs_found
 
-    async def pre_filter_docs_hook(self, extraction_context):  # noqa: PLR6301
+    @classmethod
+    def _apply_post_processing(cls, db):
+        """Apply post-processing steps to the extracted data"""
+        if db.empty or not cls.POST_PROCESSING_STEPS:
+            return db
+
+        for step in cls.POST_PROCESSING_STEPS:
+            normalized_step = step.strip().casefold().replace(" ", "_")
+            if normalized_step in POST_PROCESSING_REGISTRY:
+                db = POST_PROCESSING_REGISTRY[normalized_step](db)
+            else:
+                logger.warning(
+                    "Post-processing step '%s' not found in registry. "
+                    "Skipping this step.",
+                    step,
+                )
+        return db
+
+    async def pre_filter_docs_hook(self, extraction_context):  # ruff:ignore[no-self-use]
         """Pre-process documents before running them through the filter
 
         Parameters
@@ -203,7 +256,7 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         return extraction_context
 
-    async def post_filter_docs_hook(self, extraction_context):  # noqa: PLR6301
+    async def post_filter_docs_hook(self, extraction_context):  # ruff:ignore[no-self-use]
         """Post-process documents after running them through the filter
 
         Parameters
@@ -278,13 +331,17 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         """
         return self.HEURISTIC()
 
-    async def filter_docs(self, extraction_context):
+    async def filter_docs(self, extraction_context, max_num_docs=None):
         """Filter down candidate documents before parsing
 
         Parameters
         ----------
         extraction_context : ExtractionContext
             Context containing candidate documents to be filtered.
+        max_num_docs : int, optional
+            Maximum number of documents to parse (regardless of the
+            collection method). If ``None``, all collected documents are
+            parsed. By default, ``None``.
 
         Returns
         -------
@@ -339,6 +396,12 @@ class FilteredExtractionPlugin(BaseExtractionPlugin):
         )
         if not docs:
             return None
+
+        if max_num_docs is not None:
+            logger.debug(
+                "Sub-setting to %d document(s) for parsing", max_num_docs
+            )
+            docs = docs[:max_num_docs]
 
         extraction_context.documents = docs
         return extraction_context

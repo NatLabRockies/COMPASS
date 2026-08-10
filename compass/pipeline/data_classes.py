@@ -181,6 +181,7 @@ class WebSearchParams:
         num_urls_to_check_per_jurisdiction=5,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=None,
+        website_crawl_timeout_seconds=3600,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         search_engines=None,
@@ -205,6 +206,11 @@ class WebSearchParams:
             simultaneously. Increasing this value can speed up searches,
             but may lead to timeouts or performance issues on machines
             with limited resources. By default, ``10``.
+        website_crawl_timeout_seconds : int, default=3600
+            Maximum number of seconds to allow for a website crawl to
+            complete before timing out. If the crawl exceeds this time,
+            it will be terminated and no documents will be returned for
+            the crawl step for the jurisdiction. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -273,6 +279,7 @@ class WebSearchParams:
         self.max_num_concurrent_website_searches = (
             max_num_concurrent_website_searches
         )
+        self.website_crawl_timeout_seconds = website_crawl_timeout_seconds
         self.url_ignore_substrings = _DOMAINS["blacklist"]
         self.url_ignore_substrings += url_ignore_substrings or []
         self.url_keep_substrings = _DOMAINS["whitelist"]
@@ -299,13 +306,29 @@ class WebSearchParams:
         return extra_kwargs
 
 
+class DocParsingParams:
+    """Value Object for document parsing settings"""
+
+    def __init__(self, max_num_docs_per_jurisdiction=None):
+        """
+
+        Parameters
+        ----------
+        max_num_docs_per_jurisdiction : int, optional
+            Maximum number of documents to parse for each jurisdiction
+            (regardless of the collection method). If ``None``, all
+            collected documents are parsed. By default, ``None``.
+        """
+        self.max_num_docs_per_jurisdiction = max_num_docs_per_jurisdiction
+
+
 class BaseRequest:
     """Parameter Object base class for pipeline requests"""
 
     MODE = None
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         out_dir,
         tech,
@@ -314,9 +337,11 @@ class BaseRequest:
         model="gpt-4o-mini",
         llm_costs=None,
         num_urls_to_check_per_jurisdiction=5,
+        max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
+        website_crawl_timeout_seconds=3600,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         known_local_docs=None,
@@ -439,6 +464,10 @@ class BaseRequest:
             Number of unique Google search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        max_num_docs_to_parse_per_jurisdiction : int, optional
+            Maximum number of documents to parse for each jurisdiction
+            (regardless of the collection method). If ``None``, all
+            collected documents are parsed. By default, ``None``.
         max_num_concurrent_browsers : int, default=10
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -453,6 +482,11 @@ class BaseRequest:
             Maximum number of jurisdictions to process concurrently.
             Limiting this can help manage memory usage when dealing with
             a large number of documents. By default, ``25``.
+        website_crawl_timeout_seconds : int, default=3600
+            Maximum number of seconds to allow for a website crawl to
+            complete before timing out. If the crawl exceeds this time,
+            it will be terminated and no documents will be returned for
+            the crawl step for the jurisdiction. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -590,14 +624,16 @@ class BaseRequest:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
-        collection_manifest_fp : path-like, optional
+        collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
-            collection step. The manifest must contain the persisted
-            document information needed to reload each collected
-            document for extraction. Only needed if running in
+            collection step. This can be a single path or a list of
+            paths for multiple collection manifests, any of which may
+            include glob patterns. Each collection manifest must contain
+            the persisted document information needed to reload each
+            collected document for extraction. Only needed if running in
             extraction mode with a separate collection step.
             By default, ``None``.
-        """
+        """  # ruff:ignore[doc-line-too-long]
         self.tech = tech
         self.jurisdiction_fp = jurisdiction_fp
         self.perform_se_search = perform_se_search
@@ -613,11 +649,17 @@ class BaseRequest:
             max_num_concurrent_website_searches=(
                 max_num_concurrent_website_searches
             ),
+            website_crawl_timeout_seconds=website_crawl_timeout_seconds,
             url_ignore_substrings=url_ignore_substrings,
             url_keep_substrings=url_keep_substrings,
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
             pytesseract_exe_fp=pytesseract_exe_fp,
+        )
+        self.parsing_settings = DocParsingParams(
+            max_num_docs_per_jurisdiction=(
+                max_num_docs_to_parse_per_jurisdiction
+            )
         )
         self.runtime_settings = RuntimeSettings(
             td_kwargs=td_kwargs,
@@ -647,9 +689,9 @@ class BaseRequest:
     @cached_property
     def models(self):
         """dict: Mapping of LLM task to OpenAIConfig for this request"""
-        if not self.user_model_input or self.MODE == COMPASSRunMode.COLLECT:
+        if not self.user_model_input:
             return {}
-        return _build_models(self.user_model_input)
+        return build_models(self.user_model_input)
 
 
 class ProcessRequest(BaseRequest):
@@ -665,7 +707,7 @@ class CollectionRequest(BaseRequest):
     MODE = COMPASSRunMode.COLLECT
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         out_dir,
         tech,
@@ -676,6 +718,7 @@ class CollectionRequest(BaseRequest):
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
+        website_crawl_timeout_seconds=3600,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         known_local_docs=None,
@@ -724,13 +767,57 @@ class CollectionRequest(BaseRequest):
             "City", "Township", etc.)
         model : str or list of dict, optional
             Optional model configuration used only for collection-side
-            LLM tasks, such as validating a user-supplied jurisdiction
-            website. If provided as a string, it is treated as the
-            default model name. If provided as a list, each entry
-            should contain keyword arguments used to initialize
-            :class:`~compass.llm.config.OpenAIConfig`, along with a
-            ``tasks`` key describing which LLM tasks that configuration
-            should handle. By default, ``None``.
+            LLM tasks, such as:
+
+                - Searching for and validating a jurisdiction website
+                  before website crawl
+
+            If this key is left out, these steps are skipped completely.
+            If provided as a string, it is assumed to be the name of the
+            default model (e.g., "gpt-5-mini"), and environment
+            variables are used for authentication.
+
+            If a list is provided, it should contain dictionaries of
+            arguments that can initialize instances of
+            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
+            can specify the model name, client type, and initialization
+            arguments.
+
+            Each dictionary must also include a ``tasks`` key, which
+            maps to a string or list of strings indicating the tasks
+            that instance should handle. Exactly one of the instances
+            **must** include "default" as a task, which will be used
+            when no specific task is matched. For example::
+
+                "model": [
+                    {
+                        "model": "gpt-4o-mini",
+                        "llm_call_kwargs": {
+                            "temperature": 0,
+                            "timeout": 300,
+                        },
+                        "client_kwargs": {
+                            "api_key": "<your_api_key>",
+                            "api_version": "<your_api_version>",
+                            "azure_endpoint": "<your_azure_endpoint>",
+                        },
+                        "tasks": ["default", "date_extraction"],
+                    },
+                    {
+                        "model": "gpt-4o",
+                        "client_type": "openai",
+                        "tasks": ["ordinance_text_extraction"],
+                    }
+                ]
+
+            .. IMPORTANT::
+                You will need to ensure that the model name used here
+                matches your deployment if you are using Azure OpenAI.
+                For example, if you deployed the GPT-4o-mini model under
+                the name ``"gpt-4o-mini-2025-04-11"``, you would want to
+                set ``"model": "gpt-4o-mini-2025-04-11"``.
+
+            By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
             Number of unique Google search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
@@ -749,6 +836,11 @@ class CollectionRequest(BaseRequest):
             Maximum number of jurisdictions to process concurrently.
             Limiting this can help manage memory usage when dealing with
             a large number of documents. By default, ``25``.
+        website_crawl_timeout_seconds : int, default=3600
+            Maximum number of seconds to allow for a website crawl to
+            complete before timing out. If the crawl exceeds this time,
+            it will be terminated and no documents will be returned for
+            the crawl step for the jurisdiction. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -926,6 +1018,7 @@ class CollectionRequest(BaseRequest):
                 max_num_concurrent_website_searches
             ),
             max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
+            website_crawl_timeout_seconds=website_crawl_timeout_seconds,
             url_ignore_substrings=url_ignore_substrings,
             url_keep_substrings=url_keep_substrings,
             known_local_docs=known_local_docs,
@@ -955,7 +1048,7 @@ class ExtractionRequest(BaseRequest):
     MODE = COMPASSRunMode.EXTRACT
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(  # noqa: PLR0913
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         out_dir,
         tech,
@@ -963,6 +1056,7 @@ class ExtractionRequest(BaseRequest):
         collection_manifest_fp,
         *,
         model="gpt-4o-mini",
+        max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_jurisdictions=25,
         file_loader_kwargs=None,
         td_kwargs=None,
@@ -1000,11 +1094,13 @@ class ExtractionRequest(BaseRequest):
             name of the subdivision, and the "Jurisdiction Type" should
             be a string identifying the type of subdivision (e.g.,
             "City", "Township", etc.)
-        collection_manifest_fp : path-like
+        collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
-            collection step. The manifest must contain the persisted
-            document information needed to reload each collected
-            document for extraction.
+            collection step. This can be a single path or a list of
+            paths for multiple collection manifests, any of which may
+            include glob patterns. Each collection manifest must contain
+            the persisted document information needed to reload each
+            collected document for extraction. By default, ``None``.
         model : str or list of dict, default="gpt-4o-mini"
             LLM model(s) to use for scraping and parsing ordinance
             documents. If a string is provided, it is assumed to be the
@@ -1052,6 +1148,10 @@ class ExtractionRequest(BaseRequest):
                 set ``"model": "gpt-4o-mini-2025-04-11"``.
 
             By default, ``"gpt-4o-mini"``.
+        max_num_docs_to_parse_per_jurisdiction : int, optional
+            Maximum number of documents to parse for each jurisdiction
+            (regardless of the collection method). If ``None``, all
+            collected documents are parsed. By default, ``None``.
         max_num_concurrent_jurisdictions : int, default=25
             Maximum number of jurisdictions to process concurrently.
             Limiting this can help manage memory usage when dealing with
@@ -1132,13 +1232,16 @@ class ExtractionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
-        """
+        """  # ruff:ignore[doc-line-too-long]
 
         super().__init__(
             out_dir=out_dir,
             tech=tech,
             jurisdiction_fp=jurisdiction_fp,
             model=model,
+            max_num_docs_to_parse_per_jurisdiction=(
+                max_num_docs_to_parse_per_jurisdiction
+            ),
             max_num_concurrent_jurisdictions=max_num_concurrent_jurisdictions,
             file_loader_kwargs=file_loader_kwargs,
             td_kwargs=td_kwargs,
@@ -1177,8 +1280,8 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def _build_models(user_input, *, allow_empty=False):
-    """Build configured model registry"""
+def build_models(user_input, *, allow_empty=False):
+    """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
 

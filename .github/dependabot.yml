@@ -5,6 +5,8 @@ updates:
   directory: "/"
   schedule:
     interval: weekly
+  cooldown:
+    default-days: 3
   allow:
     - dependency-type: "direct"
   open-pull-requests-limit: 0
@@ -14,6 +16,17 @@ updates:
   schedule:
     interval: weekly
     day: monday
+  cooldown:
+    default-days: 7
+  groups:
+    codeql:
+      patterns:
+        - "github/codeql-action*"
+    other-actions:
+      patterns:
+        - "*"
+      exclude-patterns:
+        - "github/codeql-action*"
   open-pull-requests-limit: 10
   labels:
     - "chore"

@@ -10,6 +10,7 @@ import multiprocessing
 from pathlib import Path
 
 import click
+import pyjson5
 from rich.console import Console
 from rich.live import Live
 from rich.logging import RichHandler
@@ -17,14 +18,24 @@ from rich.theme import Theme
 
 from compass.pb import COMPASS_PB
 from compass.utilities.logs import AddLocationFilter
+from compass.utilities.io import JSON5Handler
 from compass.pipeline.coordinator import run_compass
 
 
 OUT_DIR_POLICY_CHOICES = ["fail", "increment", "overwrite", "prompt"]
+CONFIG_OVERRIDE_CONTEXT_SETTINGS = {
+    "ignore_unknown_options": True,
+    "allow_extra_args": True,
+}
 
 
 def run_async_command(
-    config, request_class, verbose, no_progress, out_dir_exists=None
+    config,
+    request_class,
+    verbose,
+    no_progress,
+    out_dir_exists=None,
+    override_args=None,
 ):
     """Run a COMPASS async command with shared CLI behavior
 
@@ -49,11 +60,14 @@ def run_async_command(
         progress bars.
     out_dir_exists : str, optional
         Policy controlling how an existing output directory should be
-        handled. Supported values are ``"fail"``, ``"increment"``,
+        handled. Supported values are ``"continue"``, ``"increment"``,
         ``"overwrite"``, and ``"prompt"``. If ``None``, the policy is
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
     """
+    if override_args:
+        config = apply_cli_config_overrides(config, override_args)
+
     custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
     console = Console(theme=custom_theme)
 
@@ -97,11 +111,11 @@ def setup_cli_logging(console, verbosity_level, log_level="INFO"):
     libs = []
     if verbosity_level >= 1:
         libs.append("compass")
-    if verbosity_level >= 2:  # noqa: PLR2004
+    if verbosity_level >= 2:  # ruff:ignore[magic-value-comparison]
         libs.extend(("elm", "docling"))
-    if verbosity_level >= 3:  # noqa: PLR2004
+    if verbosity_level >= 3:  # ruff:ignore[magic-value-comparison]
         libs.append("openai")
-    if verbosity_level >= 4:  # noqa: PLR2004
+    if verbosity_level >= 4:  # ruff:ignore[magic-value-comparison]
         libs.extend(("networkx", "pytesseract", "pdf2image", "pdftotext"))
 
     for lib in libs:
@@ -128,14 +142,21 @@ def _resolve_out_dir_conflict(out_dir, policy):
     out_dir = Path(out_dir)
     policy = _resolve_out_dir_policy(policy)
 
-    if not out_dir.exists() or policy == "fail":
+    if not out_dir.exists() or policy == "continue":
         return out_dir
+
+    if policy == "fail":
+        msg = (
+            f"Output directory '{out_dir!s}' already exists. "
+            "Use --out_dir_exists increment/overwrite to continue."
+        )
+        raise click.ClickException(msg)
 
     if policy == "increment":
         new_out_dir = _next_versioned_directory(out_dir)
         click.echo(
-            "Output directory exists. "
-            f"Using incremented directory: {new_out_dir!s}"
+            f"Output directory exists. Using incremented directory: "
+            f"{new_out_dir!s}"
         )
         return new_out_dir
 
@@ -216,3 +237,68 @@ def _resolve_prompt_out_dir_conflict(out_dir):
         "--out_dir_exists increment/overwrite."
     )
     raise click.ClickException(msg)
+
+
+def apply_cli_config_overrides(config, extra_args):
+    """[NOT PUBLIC API] Apply top-level CLI overrides onto config"""
+    if not extra_args:
+        return config
+
+    config.update(_parse_cli_config_overrides(extra_args))
+    return config
+
+
+def _parse_cli_config_overrides(extra_args):
+    """Parse free-form CLI options into config overrides"""
+    overrides = {}
+    idx = 0
+    while idx < len(extra_args):
+        arg = extra_args[idx]
+        if not arg.startswith("--"):
+            msg = f"Unexpected extra CLI argument: {arg!r}"
+            raise click.ClickException(msg)
+
+        key_text, has_inline_value, inline_value = arg[2:].partition("=")
+        if not key_text:
+            msg = "Invalid empty override option '--'"
+            raise click.ClickException(msg)
+
+        key_name = key_text.replace("-", "_")
+        if has_inline_value:
+            value = _parse_cli_override_value(inline_value)
+        elif value := _arg_value(extra_args, idx):
+            idx += 1
+            value = _parse_cli_override_value(value)
+        else:
+            msg = f"Override '{arg}' requires a value."
+            raise click.ClickException(msg)
+
+        overrides[key_name] = value
+        idx += 1
+
+    return overrides
+
+
+def _arg_value(extra_args, arg_idx):
+    """Get the value for a CLI option argument, if present"""
+    if arg_idx + 1 >= len(extra_args):
+        return None
+
+    arg_value = extra_args[arg_idx + 1]
+    return None if arg_value.startswith("--") else arg_value
+
+
+def _parse_cli_override_value(raw_value):
+    """Parse a CLI override value using JSON5 when possible"""
+    lowered = raw_value.lower()
+    if lowered == "true":
+        return True
+    if lowered == "false":
+        return False
+    if lowered == "null":
+        return None
+
+    try:
+        return JSON5Handler.loads(raw_value)
+    except pyjson5.Json5DecoderException:
+        return raw_value

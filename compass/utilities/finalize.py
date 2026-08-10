@@ -16,30 +16,6 @@ from compass.utilities.parsing import (
 
 
 logger = logging.getLogger(__name__)
-_PARSED_COLS = [
-    # TODO: Put these in an enum
-    "county",
-    "state",
-    "subdivision",
-    "jurisdiction_type",
-    "FIPS",
-    "feature",
-    "value",
-    "units",
-    "adder",
-    "min_dist",
-    "max_dist",
-    "summary",
-    "ord_text",
-    "year",
-    "section",
-    "source",
-    "quantitative",
-]
-QUANT_OUT_COLS = _PARSED_COLS[:-1]
-"""Output columns in quantitative ordinance file"""
-QUAL_OUT_COLS = _PARSED_COLS[:6] + _PARSED_COLS[-6:-1]
-"""Output columns in qualitative ordinance file"""
 
 
 def save_run_meta(
@@ -99,7 +75,7 @@ def save_run_meta(
     time_elapsed = end_date - start_date
     meta_data = {
         "username": username,
-        "versions": {"elm": elm_version, "compass": compass_version},
+        "versions": {"compass": compass_version, "elm": elm_version},
         "technology": tech,
         "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date.isoformat(),
@@ -136,7 +112,7 @@ def save_run_meta(
     return time_elapsed.total_seconds()
 
 
-def doc_infos_to_db(doc_infos):
+def doc_infos_to_db(doc_infos, output_columns):
     """Aggregate parsed ordinance CSV files into a normalized database
 
     Parameters
@@ -148,6 +124,13 @@ def doc_infos_to_db(doc_infos):
         year, month, day, with ``None`` allowed), and ``"jurisdiction"``
         (a :class:`~compass.utilities.jurisdictions.Jurisdiction`
         instance).
+    output_columns : list
+        List of expected output columns (as
+        :class:`compass.plugin.interface.OutputColumn` instances)
+        for the consolidated database. The function enforces the
+        presence of these columns in the output
+        :class:`pandas.DataFrame`, filling in missing columns with null
+        values as needed.
 
     Returns
     -------
@@ -165,6 +148,7 @@ def doc_infos_to_db(doc_infos):
     layout and casts the ``quantitative`` flag to nullable boolean.
     """
     db = []
+    parsed_cols = [col.name for col in output_columns]
     for doc_info in doc_infos:
         if doc_info is None:
             continue
@@ -179,32 +163,39 @@ def doc_infos_to_db(doc_infos):
             continue
 
         results = _db_results(ord_db, doc_info["jurisdiction"])
-        results = _formatted_db(results)
+        results = _formatted_db(results, parsed_cols=parsed_cols)
         db.append(results)
 
     if not db:
-        return pd.DataFrame(columns=_PARSED_COLS), 0
+        return pd.DataFrame(columns=parsed_cols), 0
 
     logger.info("Compiling final database for %d jurisdiction(s)", len(db))
     num_jurisdictions_found = len(db)
     db = pd.concat([df.dropna(axis=1, how="all") for df in db], axis=0)
     db = _empirical_adjustments(db)
-    return _formatted_db(db), num_jurisdictions_found
+    return _formatted_db(db, parsed_cols=parsed_cols), num_jurisdictions_found
 
 
-def save_db(db, out_dir):
+def save_db(db, out_dir, output_columns):
     """Write qualitative and quantitative ordinance outputs to disk
 
     Parameters
     ----------
     db : pandas.DataFrame
-        Ordinance dataset containing the full set of columns listed in
-        :data:`QUANT_OUT_COLS` and :data:`QUAL_OUT_COLS`, plus the
-        ``quantitative`` boolean flag that dictates output routing.
+        Ordinance dataset containing the full set of output columns,
+        plus the ``quantitative`` boolean flag that dictates output
+        routing.
     out_dir : path-like
         Directory where ``qualitative_ordinances.csv`` and
         ``quantitative_ordinances.csv`` should be written. The directory
         is created by :class:`pathlib.Path` if necessary.
+    output_columns : list
+        List of expected output columns (as
+        :class:`compass.plugin.interface.OutputColumn` instances)
+        for the consolidated database. The function enforces the
+        presence of these columns in the output
+        :class:`pandas.DataFrame`, filling in missing columns with null
+        values as needed.
 
     Notes
     -----
@@ -215,9 +206,16 @@ def save_db(db, out_dir):
     if db.empty:
         return
 
+    qual_out_cols = [
+        col.name for col in output_columns if col.include_in_qual_output
+    ]
+    quant_out_cols = [
+        col.name for col in output_columns if col.include_in_quant_output
+    ]
+
     out_dir = Path(out_dir)
-    qual_db = db[~db["quantitative"]][QUAL_OUT_COLS]
-    quant_db = db[db["quantitative"]][QUANT_OUT_COLS]
+    qual_db = db[~db["quantitative"]][qual_out_cols]
+    quant_db = db[db["quantitative"]][quant_out_cols]
     qual_db.to_csv(
         out_dir / "qualitative_ordinances.csv",
         index=False,
@@ -254,19 +252,19 @@ def _empirical_adjustments(db):
 
     """
     if "adder" in db.columns:
-        db.loc[db["adder"] > 250, "adder"] = None  # noqa: PLR2004
+        db.loc[db["adder"] > 250, "adder"] = None  # ruff:ignore[magic-value-comparison]
     return db
 
 
-def _formatted_db(db):
+def _formatted_db(db, parsed_cols):
     """Format DataFrame for output"""
-    for col in _PARSED_COLS:
+    for col in parsed_cols:
         if col not in db.columns:
             db[col] = None
 
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
     ord_rows = ordinances_bool_index(db)
-    return db[ord_rows][_PARSED_COLS].reset_index(drop=True)
+    return db[ord_rows][parsed_cols].reset_index(drop=True)
 
 
 def _extract_model_info_from_all_models(models):

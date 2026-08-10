@@ -81,7 +81,7 @@ class LLMConfig(ABC):
 
     @cached_property
     def text_splitter(self):
-        """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # noqa: W505, E501
+        """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # ruff:ignore[doc-line-too-long, line-too-long]
         return _PrintableRecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
@@ -209,6 +209,14 @@ class OpenAIConfig(LLMConfig):
                 ("api_key", "AZURE_OPENAI_API_KEY"),
                 ("api_version", "AZURE_OPENAI_VERSION"),
                 ("azure_endpoint", "AZURE_OPENAI_ENDPOINT"),
+            ]
+            for key, env_var in arg_env_pairs:
+                if self._client_kwargs.get(key) is None:
+                    self._client_kwargs[key] = os.environ.get(env_var)
+        elif self.client_type == "openai":
+            arg_env_pairs = [
+                ("api_key", "OPENAI_API_KEY"),
+                ("base_url", "OPENAI_BASE_URL"),
             ]
             for key, env_var in arg_env_pairs:
                 if self._client_kwargs.get(key) is None:
