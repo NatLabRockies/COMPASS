@@ -68,17 +68,8 @@
               // -- Prohibited or limited-use districts --
               "district use restriction",
               // -- Exclusions --
-              "historic site",
-              "critical species habitat",
-              "wetland",
-              "floodplain",
-              "residence",
-              "hospital",
-              "school",
-              // Daycare centers
-              "daycare",
-              // institutions of higher education
-              "higher education",
+              // Excluded lands (protected land types and sensitive receptors)
+              "excluded lands",
 
               // -- Qualitative --
               "color",
@@ -236,32 +227,8 @@
     "excluded_lands": {
       "description": "Lands excluded from transmission line siting. Do not extract as prohibitions or setbacks. Only extract when the ordinance explicitly states that transmission lines and related infrastructure are prohibited from being sited, built, or installed in these areas.",
       "properties": {
-        "historic site": {
-          "description": "Extract exclusions for historic sites, landmarks, or districts."
-        },
-        "critical species habitat": {
-          "description": "Extract exclusions for critical species habitat, protected wildlife areas, or similar conservation lands."
-        },
-        "wetland": {
-          "description": "Extract exclusions for wetlands, marshes, swamps, or similar aquatic habitats."
-        },
-        "floodplain": {
-          "description": "Extract exclusions for floodplains, flood zones, or similar areas prone to flooding."
-        },
-        "residence": {
-          "description": "Extract exclusions for residences, homes, occupied dwellings, or similar occupied buildings."
-        },
-        "hospital": {
-          "description": "Extract exclusions for hospitals, medical centers, healthcare facilities, or similar critical community facilities."
-        },
-        "school": {
-          "description": "Extract exclusions for schools, educational institutions, daycare centers, institutions of higher education, or similar educational facilities."
-        },
-        "daycare": {
-          "description": "Extract exclusions for daycare centers, childcare facilities, or similar child-focused facilities."
-        },
-        "higher education": {
-          "description": "Extract exclusions for institutions of higher education, colleges, universities, or similar post-secondary educational facilities."
+        "excluded lands": {
+          "description": "Exclusions barring transmission siting on specific protected land types or sensitive receptors. Extract only when the ordinance explicitly excludes at least one type from this list of interest: historic sites, critical species habitat, wetlands, floodplains, residences, hospitals, schools, daycare centers, institutions of higher education; a match may use different wording when it clearly refers to one of these (for example 'wetland' matches 'wetlands'). Emit a single row that names every excluded type in summary, including other explicitly defined exclusions that do not overlap with the 'district use restriction' feature. Set aggregated=true when more than one land type is excluded in total (a listed type plus any other), and aggregated=false when only one is. Do not extract zoning-district-based or jurisdiction-wide prohibitions; those belong to the 'district use restriction' feature."
         }
       }
     },
@@ -303,6 +270,15 @@
       "aggregated": false
     },
     {
+      "feature": "excluded lands",
+      "value": null,
+      "units": "text",
+      "section": "Sec. 7.03 – Protected Areas and Sensitive Receptors",
+      "summary": "Electric transmission lines rated above 69 kV may not be sited within designated wetlands or the 100-year floodplain, and no transmission structure may be placed within 500 feet of any school, daycare center, or hospital. Sites listed on the local historic register are likewise excluded from transmission siting.",
+      "explanation": "More than one land type or receptor of interest is excluded (wetlands, floodplains, schools, daycares, hospitals, historic sites), so aggregated is true; a single row summarizes all of them.",
+      "aggregated": true
+    },
+    {
       "feature": "structures distance",
       "value": 75,
       "units": "feet",
@@ -337,6 +313,7 @@
     "color",
     "decommissioning",
     "district use restriction",
+    "excluded lands",
     "fencing",
     "fire prevention",
     "franchise",
