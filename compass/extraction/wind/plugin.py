@@ -112,6 +112,7 @@ class COMPASSWindExtractor(OrdinanceExtractionPlugin):
         OutputColumn("adder"),
         OutputColumn("min_dist"),
         OutputColumn("max_dist"),
+        OutputColumn("summary"),
         OutputColumn("ordinance_text"),
         OutputColumn("explanation"),
         OutputColumn("year"),

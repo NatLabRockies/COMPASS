@@ -39,8 +39,6 @@ from compass.warn import COMPASSPluginConfigurationWarning
 
 logger = logging.getLogger(__name__)
 _SCHEMA_DIR = importlib.resources.files("compass.plugin.one_shot.schemas")
-_DEPRECATED_OUT_COLS = {"summary"}
-"""Schema fields extracted by the LLM but kept out of the output CSV"""
 _QT_SEMAPHORE = Semaphore(1)
 _WK_SEMAPHORE = Semaphore(1)
 _HK_SEMAPHORE = Semaphore(1)
@@ -582,11 +580,7 @@ def _out_cols_from_config(config):
         msg = f"Error parsing output columns from schema: {e}"
         raise COMPASSPluginConfigurationError(msg) from e
 
-    cols.extend(
-        OutputColumn(name)
-        for name in schema_props
-        if name not in _DEPRECATED_OUT_COLS
-    )
+    cols.extend(OutputColumn(name) for name in schema_props)
 
     source_col_ind = next(
         (ind for ind, col in enumerate(cols) if col.name == "source"), None

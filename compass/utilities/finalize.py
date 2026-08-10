@@ -214,7 +214,7 @@ def save_db(db, out_dir, output_columns):
     out_cols = [col.name for col in output_columns]
 
     db = trim_ordinance_text(db)
-    db = _label_qualitative_units(db)
+    db = _normalize_qualitative_rows(db)
 
     out_dir = Path(out_dir)
     db[out_cols].to_csv(
@@ -291,16 +291,18 @@ def _empirical_adjustments(db):
 
 
 def _formatted_db(db, parsed_cols):
-    """Format DataFrame for output"""
+    """Format DataFrame for output
+
+    ``db`` must carry a ``quantitative`` column; every parser sets one
+    on each row it emits. It is not an output column, but it drives the
+    qualitative-row conventions applied here.
+    """
     for col in parsed_cols:
         if col not in db.columns:
             db[col] = None
 
-    if "quantitative" not in db.columns:
-        db["quantitative"] = None
-
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
-    db = _label_qualitative_units(db)
+    db = _normalize_qualitative_rows(db)
     ord_rows = ordinances_bool_index(db)
     # "quantitative" is not an output column, but it is needed
     # downstream to label qualitative rows, so it rides along here
@@ -308,21 +310,23 @@ def _formatted_db(db, parsed_cols):
     return db[ord_rows][keep].reset_index(drop=True)
 
 
-def _label_qualitative_units(db):
-    """Mark qualitative rows with the ``QUALITATIVE_UNITS`` sentinel
+def _normalize_qualitative_rows(db):
+    """Apply the qualitative-row conventions to a database
 
-    Qualitative features have no measurable units, so the ``units``
-    column is used to label them instead. This lets a reader tell the
-    two kinds of feature apart with a plain column comparison, now that
-    they share a single output file and the ``quantitative`` flag is no
-    longer published.
+    Qualitative features have no measurable units, so ``units`` is set
+    to :data:`QUALITATIVE_UNITS` instead. That lets a reader tell the
+    two kinds of feature apart with a plain column comparison, since
+    they share a single output file and the ``quantitative`` flag is
+    not published.
+
+    Their ``value`` is also copied into ``summary``, because for a
+    qualitative feature the value *is* the summary. Doing it here rather
+    than asking the LLM keeps the two columns identical and saves the
+    model from having to write the same text twice.
     """
-    if "units" not in db.columns or "quantitative" not in db.columns:
-        return db
-
-    db.loc[~db["quantitative"].astype("boolean").fillna(True), "units"] = (
-        QUALITATIVE_UNITS
-    )
+    qualitative = ~db["quantitative"]
+    db.loc[qualitative, "units"] = QUALITATIVE_UNITS
+    db.loc[qualitative, "summary"] = db.loc[qualitative, "value"]
     return db
 
 

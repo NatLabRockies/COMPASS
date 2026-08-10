@@ -55,6 +55,7 @@ def test_out_cols_from_config_uses_schema_output_properties():
         "value",
         "units",
         "location",
+        "summary",
         "ordinance_text",
         "explanation",
         "section",
@@ -64,8 +65,8 @@ def test_out_cols_from_config_uses_schema_output_properties():
     assert "quantitative" not in [col.name for col in cols]
 
 
-def test_out_cols_from_config_drops_deprecated_summary():
-    """Test the deprecated summary field is kept out of the output"""
+def test_out_cols_from_config_keeps_summary():
+    """Test summary reaches the output alongside ordinance_text"""
 
     config = {
         "schema": {
@@ -86,7 +87,7 @@ def test_out_cols_from_config_drops_deprecated_summary():
 
     col_names = [col.name for col in _out_cols_from_config(config)]
 
-    assert "summary" not in col_names
+    assert "summary" in col_names
     assert "ordinance_text" in col_names
 
 

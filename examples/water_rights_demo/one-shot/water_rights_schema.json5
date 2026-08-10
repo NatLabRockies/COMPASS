@@ -67,7 +67,7 @@
           },
           "summary": {
             "type": ["string", "null"],
-            "description": "Short requirement summary using direct excerpts/quotes whenever possible. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
+            "description": "A natural-language restatement of the requirement in your own words. Use it to capture caveats, conditions, exceptions, and alternative thresholds that the value and units columns cannot hold on their own (for example tiered limits, conditional reductions, or requirements that vary by district or system size). Do not quote the document here: verbatim text belongs in ordinance_text, and this field should read as prose rather than an excerpt. Always write a summary for quantitative features. For qualitative features you may leave this null; the value column already states the requirement and is copied into summary automatically when the output is written.",
             "default": null
           },
           "ordinance_text": {

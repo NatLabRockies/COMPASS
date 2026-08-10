@@ -393,7 +393,9 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
     """Compile document info into formatted DataFrame"""
 
     empty_csv = tmp_path / "empty.csv"
-    pd.DataFrame(columns=["feature", "summary"]).to_csv(empty_csv, index=False)
+    pd.DataFrame(columns=["feature", "ordinance_text"]).to_csv(
+        empty_csv, index=False
+    )
 
     valid_csv = tmp_path / "valid.csv"
     pd.DataFrame(
@@ -401,11 +403,13 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
             {
                 "feature": "Height Limit",
                 "summary": "Maximum 100 ft",
+                "ordinance_text": "No turbine shall exceed 100 ft.",
                 "value": 100,
                 "units": "ft",
                 "adder": 300,
                 "source": "http://example.com/valid",
                 "year": 2022,
+                "quantitative": True,
             }
         ]
     ).to_csv(valid_csv, index=False)
@@ -500,8 +504,8 @@ def test_save_db_writes_csvs(tmp_path):
     assert list(quant_rows["feature"]) == ["Height"]
     assert list(qual_rows["feature"]) == ["Setback"]
 
-    # value/units are retained for qualitative rows, summary is gone
-    assert "summary" not in out.columns
+    # value/units are retained for qualitative rows
+    assert "summary" in out.columns
     assert "ordinance_text" in out.columns
     assert "explanation" in out.columns
     assert quant_rows.iloc[0]["units"] == "ft"
@@ -546,6 +550,50 @@ def test_save_db_labels_qualitative_units(tmp_path):
     assert "quantitative" not in out.columns
     qual = out[out["units"] == finalize.QUALITATIVE_UNITS]
     assert set(qual["feature"]) == {"Decommissioning", "Signage"}
+
+
+def test_save_db_mirrors_value_into_summary_for_qualitative(tmp_path):
+    """Copy value into summary on qualitative rows"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, quantitative, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": quantitative,
+                "value": value,
+                "summary": summary,
+                "units": "ft" if quantitative else None,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Height", True, 100, "Max 100 ft, 80 ft in AG district."),
+            _row("Decommissioning", False, "Remove within 12 months.", None),
+            # a qualitative summary from the LLM is replaced by the value
+            _row("Signage", False, "Warning signs only.", "something else"),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    # quantitative rows keep their prose restatement
+    assert out.loc["Height", "summary"] == (
+        "Max 100 ft, 80 ft in AG district."
+    )
+
+    # qualitative rows mirror the value exactly
+    assert out.loc["Decommissioning", "summary"] == "Remove within 12 months."
+    assert out.loc["Signage", "summary"] == "Warning signs only."
+
+    # the column is never blank
+    assert out["summary"].notna().all()
 
 
 def test_save_db_trims_long_ordinance_text(tmp_path):
@@ -627,7 +675,8 @@ def test_formatted_db_adds_missing_columns():
         [
             {
                 "feature": "Height",
-                "summary": "Max height",
+                "ordinance_text": "Max height is 100 ft.",
+                "quantitative": True,
             }
         ]
     )

@@ -172,15 +172,20 @@ A successful run produces these files under `out_dir`:
 
 Final CSV columns: `county`, `state`, `subdivision`, `jurisdiction_type`,
 `FIPS`, `feature`, `value`, `units`, `adder`, `min_dist`, `max_dist`,
-`ordinance_text`, `explanation`, `year`, `section`, `source`,
-`quantitative`.
+`summary`, `ordinance_text`, `explanation`, `year`, `section`, `source`.
 
-Quantitative and qualitative rows share one file. Either the boolean
-`quantitative` column or `units == "str"` selects the qualitative rows —
-qualitative features have no measurable units, so `units` is set to the
-literal `"str"` for them. `ordinance_text` holds the verbatim excerpt
-from the source document and `explanation` the model's rationale. The
-`summary` column is deprecated and no longer written.
+Quantitative and qualitative rows share one file. Select the qualitative
+rows with `units == "str"` — qualitative features have no measurable
+units, so `units` carries that literal instead.
+
+The four content columns have distinct jobs:
+
+| Column | Contents |
+|---|---|
+| `value` | The extracted answer. For qualitative features this is the requirement itself, stated in full. |
+| `summary` | Prose restatement of the rule, carrying caveats and conditions that `value` and `units` cannot. Mirrors `value` on qualitative rows, so it is never blank. |
+| `ordinance_text` | Exact quotes copied from the source document, trimmed to 5000 characters. |
+| `explanation` | The model's reasoning about how it interpreted the requirement. |
 
 ## Interpreting output status correctly
 

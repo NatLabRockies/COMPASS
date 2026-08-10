@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "location", "restriction_type", "restriction_level", "geothermal_applicability", "rights_status", "binding_status", "value", "units", "section", "map_reference", "ordinance_text", "explanation", "source"],
+        "required": ["feature", "location", "restriction_type", "restriction_level", "geothermal_applicability", "rights_status", "binding_status", "value", "units", "section", "map_reference", "summary", "ordinance_text", "explanation", "source"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -79,6 +79,10 @@
           "map_reference": {
             "type": ["string", "null"],
             "description": "Map identifier(s) or figure reference(s) that support this restriction row (e.g., 'Map 2-3', 'Figure 2-31', 'Appendix A Map 4'). Keep as written in the document. If multiple references support the same row, separate with semicolons. Use null when no map is cited."
+          },
+          "summary": {
+            "type": ["string", "null"],
+            "description": "A natural-language restatement of the requirement in your own words. Use it to capture caveats, conditions, exceptions, and alternative thresholds that the value and units columns cannot hold on their own (for example tiered limits, conditional reductions, or requirements that vary by district or system size). Do not quote the document here: verbatim text belongs in ordinance_text, and this field should read as prose rather than an excerpt. Always write a summary for quantitative features. For qualitative features you may leave this null; the value column already states the requirement and is copied into summary automatically when the output is written."
           },
           "ordinance_text": {
             "type": ["string", "null"],

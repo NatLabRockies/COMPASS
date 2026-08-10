@@ -85,7 +85,7 @@
           },
           "summary": {
             "type": "string",
-            "description": "A short summary with direct ordinance excerpts or quotes whenever possible. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should contain direct ordinance language. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
+            "description": "A natural-language restatement of the requirement in your own words. Use it to capture caveats, conditions, exceptions, and alternative thresholds that the value and units columns cannot hold on their own (for example tiered limits, conditional reductions, or requirements that vary by district or system size). Do not quote the document here: verbatim text belongs in ordinance_text, and this field should read as prose rather than an excerpt. Always write a summary for quantitative features. For qualitative features you may leave this null; the value column already states the requirement and is copied into summary automatically when the output is written."
           },
           "ordinance_text": {
             "type": "string",
