@@ -596,7 +596,6 @@ def _out_cols_from_config(config):
     else:
         cols.insert(source_col_ind, OutputColumn("year"))
 
-    cols.append(OutputColumn("quantitative"))
     return cols
 
 

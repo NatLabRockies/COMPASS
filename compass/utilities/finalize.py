@@ -18,6 +18,8 @@ from compass.utilities.parsing import (
 logger = logging.getLogger(__name__)
 QUALITATIVE_UNITS = "str"
 """str: ``units`` value used to mark a qualitative ordinance row"""
+MAX_ORDINANCE_TEXT_CHARS = 5000
+"""int: Max characters kept in the ``ordinance_text`` column"""
 
 
 def save_run_meta(
@@ -206,9 +208,6 @@ def save_db(db, out_dir, output_columns):
     function assumes the boolean ``quantitative`` column has already
     been sanitized by :func:`doc_infos_to_db`.
     """
-    # imported here to avoid a circular import at module load time
-    from compass.plugin.post_processing import trim_ordinance_text
-
     if db.empty:
         return
 
@@ -223,6 +222,44 @@ def save_db(db, out_dir, output_columns):
         index=False,
         encoding="utf-8-sig",
     )
+
+
+def trim_ordinance_text(db):
+    """Trim the ``ordinance_text`` column to a maximum character count
+
+    LLMs occasionally return a very long excerpt for ``ordinance_text``,
+    which makes the output CSV unwieldy. Any excerpt longer than
+    :data:`MAX_ORDINANCE_TEXT_CHARS` is cut back to the last whole word
+    that fits and marked with a trailing ellipsis, matching the ellipsis
+    convention already used for elided text within an excerpt.
+
+    Parameters
+    ----------
+    db : pandas.DataFrame
+        The database containing extraction results, which may include
+        an ``"ordinance_text"`` column.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The updated database, with any over-long ``ordinance_text``
+        entries trimmed. Databases without that column are returned
+        unchanged.
+    """
+    if db.empty or "ordinance_text" not in db.columns:
+        return db
+
+    db["ordinance_text"] = db["ordinance_text"].apply(_trim_excerpt)
+    return db
+
+
+def _trim_excerpt(text):
+    """Cut an excerpt to the last whole word within the char limit"""
+    if not isinstance(text, str) or len(text) <= MAX_ORDINANCE_TEXT_CHARS:
+        return text
+
+    kept = text[:MAX_ORDINANCE_TEXT_CHARS].rsplit(" ", 1)[0].rstrip()
+    return f"{kept} ..."
 
 
 def _db_results(results, jurisdiction):
@@ -259,21 +296,28 @@ def _formatted_db(db, parsed_cols):
         if col not in db.columns:
             db[col] = None
 
+    if "quantitative" not in db.columns:
+        db["quantitative"] = None
+
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
     db = _label_qualitative_units(db)
     ord_rows = ordinances_bool_index(db)
-    return db[ord_rows][parsed_cols].reset_index(drop=True)
+    # "quantitative" is not an output column, but it is needed
+    # downstream to label qualitative rows, so it rides along here
+    keep = [*parsed_cols, "quantitative"]
+    return db[ord_rows][keep].reset_index(drop=True)
 
 
 def _label_qualitative_units(db):
     """Mark qualitative rows with the ``QUALITATIVE_UNITS`` sentinel
 
     Qualitative features have no measurable units, so the ``units``
-    column is used to label them instead. This makes selecting one kind
-    of feature a plain column comparison now that both kinds share a
-    single output file.
+    column is used to label them instead. This lets a reader tell the
+    two kinds of feature apart with a plain column comparison, now that
+    they share a single output file and the ``quantitative`` flag is no
+    longer published.
     """
-    if "units" not in db.columns:
+    if "units" not in db.columns or "quantitative" not in db.columns:
         return db
 
     db.loc[~db["quantitative"].astype("boolean").fillna(True), "units"] = (

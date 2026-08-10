@@ -60,8 +60,8 @@ def test_out_cols_from_config_uses_schema_output_properties():
         "section",
         "year",
         "source",
-        "quantitative",
     ]
+    assert "quantitative" not in [col.name for col in cols]
 
 
 def test_out_cols_from_config_drops_deprecated_summary():

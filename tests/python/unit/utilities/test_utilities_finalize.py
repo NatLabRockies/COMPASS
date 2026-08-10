@@ -451,7 +451,7 @@ def test_save_db_writes_csvs(tmp_path):
     """Write qualitative and quantitative rows to one combined file"""
 
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
-    row_true = dict.fromkeys(out_cols)
+    row_true = dict.fromkeys([*out_cols, "quantitative"])
     row_true.update(
         {
             "county": "County A",
@@ -492,9 +492,11 @@ def test_save_db_writes_csvs(tmp_path):
     assert list(out.columns) == out_cols
     assert len(out) == 2
 
-    # both kinds of row land in the same file, told apart by the flag
-    quant_rows = out[out["quantitative"]]
-    qual_rows = out[~out["quantitative"]]
+    # both kinds of row land in the same file, told apart by the units
+    # sentinel; the internal quantitative flag is not published
+    assert "quantitative" not in out.columns
+    quant_rows = out[out["units"] != finalize.QUALITATIVE_UNITS]
+    qual_rows = out[out["units"] == finalize.QUALITATIVE_UNITS]
     assert list(quant_rows["feature"]) == ["Height"]
     assert list(qual_rows["feature"]) == ["Setback"]
 
@@ -503,7 +505,6 @@ def test_save_db_writes_csvs(tmp_path):
     assert "ordinance_text" in out.columns
     assert "explanation" in out.columns
     assert quant_rows.iloc[0]["units"] == "ft"
-    assert qual_rows.iloc[0]["units"] == finalize.QUALITATIVE_UNITS
 
 
 def test_save_db_labels_qualitative_units(tmp_path):
@@ -512,7 +513,7 @@ def test_save_db_labels_qualitative_units(tmp_path):
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
 
     def _row(feature, quantitative, units):
-        row = dict.fromkeys(out_cols)
+        row = dict.fromkeys([*out_cols, "quantitative"])
         row.update(
             {
                 "feature": feature,
@@ -540,17 +541,18 @@ def test_save_db_labels_qualitative_units(tmp_path):
     assert by_feature["Decommissioning"] == finalize.QUALITATIVE_UNITS
     assert by_feature["Signage"] == finalize.QUALITATIVE_UNITS
 
-    # selecting one kind of feature is a plain column comparison
+    # selecting one kind of feature is a plain column comparison, and the
+    # internal quantitative flag stays out of the published file
+    assert "quantitative" not in out.columns
     qual = out[out["units"] == finalize.QUALITATIVE_UNITS]
     assert set(qual["feature"]) == {"Decommissioning", "Signage"}
-    assert not qual["quantitative"].any()
 
 
 def test_save_db_trims_long_ordinance_text(tmp_path):
     """Trim over-long excerpts on the way out to disk"""
 
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
-    row = dict.fromkeys(out_cols)
+    row = dict.fromkeys([*out_cols, "quantitative"])
     row.update(
         {
             "feature": "Height",
@@ -631,7 +633,9 @@ def test_formatted_db_adds_missing_columns():
     )
     expected_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
     formatted = finalize._formatted_db(df, expected_cols)
-    assert list(formatted.columns) == expected_cols
+    # "quantitative" rides along for downstream labeling even though it is
+    # not one of the published output columns
+    assert list(formatted.columns) == [*expected_cols, "quantitative"]
     assert len(formatted) == 1
     assert bool(formatted.iloc[0]["quantitative"]) is True
 

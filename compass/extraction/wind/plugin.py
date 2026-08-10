@@ -117,7 +117,6 @@ class COMPASSWindExtractor(OrdinanceExtractionPlugin):
         OutputColumn("year"),
         OutputColumn("section"),
         OutputColumn("source"),
-        OutputColumn("quantitative"),
     ]
     """list: List of output columns for the extracted data"""
 
