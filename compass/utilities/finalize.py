@@ -94,8 +94,7 @@ def save_run_meta(
         "ORDINANCE_FILES_DIR": dirs.ordinance_files,
         "USAGE_FILE": dirs.out / "usage.json",
         "JURISDICTION_FILE": dirs.out / "jurisdictions.json",
-        "QUANT_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
-        "QUAL_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
+        "DATA_FILE": dirs.out / "ordinances.csv",
     }
     for name, file_path in manifest.items():
         if file_path.exists():
@@ -177,18 +176,20 @@ def doc_infos_to_db(doc_infos, output_columns):
 
 
 def save_db(db, out_dir, output_columns):
-    """Write qualitative and quantitative ordinance outputs to disk
+    """Write the combined ordinance output to disk
+
+    Qualitative and quantitative ordinances are written to a single
+    ``ordinances.csv`` file. The ``quantitative`` flag is retained as a
+    column so the two kinds of row remain distinguishable.
 
     Parameters
     ----------
     db : pandas.DataFrame
         Ordinance dataset containing the full set of output columns,
-        plus the ``quantitative`` boolean flag that dictates output
-        routing.
+        plus the ``quantitative`` boolean flag.
     out_dir : path-like
-        Directory where ``qualitative_ordinances.csv`` and
-        ``quantitative_ordinances.csv`` should be written. The directory
-        is created by :class:`pathlib.Path` if necessary.
+        Directory where ``ordinances.csv`` should be written. The
+        directory is created by :class:`pathlib.Path` if necessary.
     output_columns : list
         List of expected output columns (as
         :class:`compass.plugin.interface.OutputColumn` instances)
@@ -200,29 +201,22 @@ def save_db(db, out_dir, output_columns):
     Notes
     -----
     Empty DataFrames short-circuit without creating output files. The
-    function respects the boolean ``quantitative`` column and assumes it
-    has already been sanitized by :func:`doc_infos_to_db`.
+    function assumes the boolean ``quantitative`` column has already
+    been sanitized by :func:`doc_infos_to_db`.
     """
+    # imported here to avoid a circular import at module load time
+    from compass.plugin.post_processing import trim_ordinance_text
+
     if db.empty:
         return
 
-    qual_out_cols = [
-        col.name for col in output_columns if col.include_in_qual_output
-    ]
-    quant_out_cols = [
-        col.name for col in output_columns if col.include_in_quant_output
-    ]
+    out_cols = [col.name for col in output_columns]
+
+    db = trim_ordinance_text(db)
 
     out_dir = Path(out_dir)
-    qual_db = db[~db["quantitative"]][qual_out_cols]
-    quant_db = db[db["quantitative"]][quant_out_cols]
-    qual_db.to_csv(
-        out_dir / "qualitative_ordinances.csv",
-        index=False,
-        encoding="utf-8-sig",
-    )
-    quant_db.to_csv(
-        out_dir / "quantitative_ordinances.csv",
+    db[out_cols].to_csv(
+        out_dir / "ordinances.csv",
         index=False,
         encoding="utf-8-sig",
     )

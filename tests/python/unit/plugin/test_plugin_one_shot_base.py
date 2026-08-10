@@ -21,6 +21,8 @@ def test_out_cols_from_config_uses_schema_output_properties():
                             "units",
                             "location",
                             "summary",
+                            "ordinance_text",
+                            "explanation",
                             "section",
                             "source",
                         ],
@@ -30,6 +32,8 @@ def test_out_cols_from_config_uses_schema_output_properties():
                             "units": {},
                             "location": {},
                             "summary": {},
+                            "ordinance_text": {},
+                            "explanation": {},
                             "section": {},
                             "source": {},
                         },
@@ -51,26 +55,58 @@ def test_out_cols_from_config_uses_schema_output_properties():
         "value",
         "units",
         "location",
-        "summary",
+        "ordinance_text",
+        "explanation",
         "section",
         "year",
         "source",
         "quantitative",
     ]
-    assert (
-        next(col for col in cols if col.name == "value").include_in_qual_output
-        is False
-    )
-    assert (
-        next(col for col in cols if col.name == "units").include_in_qual_output
-        is False
-    )
-    assert (
-        next(
-            col for col in cols if col.name == "location"
-        ).include_in_qual_output
-        is True
-    )
+
+
+def test_out_cols_from_config_drops_deprecated_summary():
+    """Test the deprecated summary field is kept out of the output"""
+
+    config = {
+        "schema": {
+            "properties": {
+                "outputs": {
+                    "items": {
+                        "required": ["feature", "summary", "ordinance_text"],
+                        "properties": {
+                            "feature": {},
+                            "summary": {},
+                            "ordinance_text": {},
+                        },
+                    }
+                }
+            }
+        }
+    }
+
+    col_names = [col.name for col in _out_cols_from_config(config)]
+
+    assert "summary" not in col_names
+    assert "ordinance_text" in col_names
+
+
+def test_out_cols_from_config_keeps_explanation():
+    """Test the explanation field reaches the output columns"""
+
+    config = {
+        "schema": {
+            "properties": {
+                "outputs": {
+                    "items": {
+                        "required": ["feature", "explanation"],
+                        "properties": {"feature": {}, "explanation": {}},
+                    }
+                }
+            }
+        }
+    }
+
+    assert "explanation" in [col.name for col in _out_cols_from_config(config)]
 
 
 if __name__ == "__main__":

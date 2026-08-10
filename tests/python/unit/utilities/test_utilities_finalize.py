@@ -72,7 +72,7 @@ def test_save_run_meta_writes_meta_file(tmp_path, monkeypatch):
 
     (tmp_path / "usage.json").write_text("{}", encoding="utf-8")
     (tmp_path / "jurisdictions.json").write_text("{}", encoding="utf-8")
-    (tmp_path / "quantitative_ordinances.csv").write_text(
+    (tmp_path / "ordinances.csv").write_text(
         "header\n",
         encoding="utf-8",
     )
@@ -126,7 +126,7 @@ def test_save_run_meta_writes_meta_file(tmp_path, monkeypatch):
     assert manifest["ORDINANCE_FILES_DIR"] == "ordinances"
     assert manifest["USAGE_FILE"] == "usage.json"
     assert manifest["JURISDICTION_FILE"] == "jurisdictions.json"
-    assert manifest["QUAL_DATA_FILE"] == "quantitative_ordinances.csv"
+    assert manifest["DATA_FILE"] == "ordinances.csv"
     assert manifest["META_FILE"] == "meta.json"
 
     model_info = meta["models"][0]
@@ -448,7 +448,7 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
 
 
 def test_save_db_writes_csvs(tmp_path):
-    """Split qualitative and quantitative outputs"""
+    """Write qualitative and quantitative rows to one combined file"""
 
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
     row_true = dict.fromkeys(out_cols)
@@ -462,7 +462,8 @@ def test_save_db_writes_csvs(tmp_path):
             "feature": "Height",
             "value": 100,
             "units": "ft",
-            "summary": "Maximum height",
+            "ordinance_text": "Turbines shall not exceed 100 ft.",
+            "explanation": "States an explicit numeric height cap.",
             "year": 2020,
             "source": "http://source",
             "quantitative": True,
@@ -473,7 +474,8 @@ def test_save_db_writes_csvs(tmp_path):
     row_false.update(
         {
             "feature": "Setback",
-            "summary": "Setback distance",
+            "ordinance_text": "Turbines shall be set back from lot lines.",
+            "explanation": "States a setback requirement without a number.",
             "quantitative": False,
         }
     )
@@ -481,30 +483,50 @@ def test_save_db_writes_csvs(tmp_path):
     df = pd.DataFrame([row_true, row_false])
     finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
 
-    quant_path = tmp_path / "quantitative_ordinances.csv"
-    qual_path = tmp_path / "qualitative_ordinances.csv"
-    assert quant_path.exists()
-    assert qual_path.exists()
+    out_path = tmp_path / "ordinances.csv"
+    assert out_path.exists()
+    assert not (tmp_path / "quantitative_ordinances.csv").exists()
+    assert not (tmp_path / "qualitative_ordinances.csv").exists()
 
-    quant = pd.read_csv(quant_path)
-    qual = pd.read_csv(qual_path)
-    expected_cols = [
-        col.name
-        for col in COMPASSWindExtractor.OUTPUT_COLUMNS
-        if col.include_in_quant_output
-    ]
-    assert list(quant.columns) == expected_cols
-    assert len(quant) == 1
+    out = pd.read_csv(out_path)
+    assert list(out.columns) == out_cols
+    assert len(out) == 2
 
-    expected_cols = [
-        col.name
-        for col in COMPASSWindExtractor.OUTPUT_COLUMNS
-        if col.include_in_qual_output
-    ]
-    assert list(qual.columns) == expected_cols
-    assert len(qual) == 1
-    assert quant.iloc[0]["feature"] == "Height"
-    assert qual.iloc[0]["feature"] == "Setback"
+    # both kinds of row land in the same file, told apart by the flag
+    quant_rows = out[out["quantitative"]]
+    qual_rows = out[~out["quantitative"]]
+    assert list(quant_rows["feature"]) == ["Height"]
+    assert list(qual_rows["feature"]) == ["Setback"]
+
+    # value/units are retained for qualitative rows, summary is gone
+    assert "summary" not in out.columns
+    assert "ordinance_text" in out.columns
+    assert "explanation" in out.columns
+    assert qual_rows.iloc[0]["units"] == "ft"
+
+
+def test_save_db_trims_long_ordinance_text(tmp_path):
+    """Trim over-long excerpts on the way out to disk"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+    row = dict.fromkeys(out_cols)
+    row.update(
+        {
+            "feature": "Height",
+            "ordinance_text": "word " * 4000,
+            "quantitative": True,
+        }
+    )
+
+    finalize.save_db(
+        pd.DataFrame([row]), tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS
+    )
+
+    written = pd.read_csv(tmp_path / "ordinances.csv")
+    text = written.iloc[0]["ordinance_text"]
+
+    assert len(text) < 4000 * len("word ")
+    assert text.endswith(" ...")
 
 
 def test_save_db_with_empty_df(tmp_path):
@@ -513,8 +535,7 @@ def test_save_db_with_empty_df(tmp_path):
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
     empty_df = pd.DataFrame(columns=out_cols)
     finalize.save_db(empty_df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
-    assert not (tmp_path / "qualitative_ordinances.csv").exists()
-    assert not (tmp_path / "quantitative_ordinances.csv").exists()
+    assert not (tmp_path / "ordinances.csv").exists()
 
 
 def test_db_results_populates_jurisdiction_fields():

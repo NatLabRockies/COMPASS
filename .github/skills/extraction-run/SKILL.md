@@ -166,14 +166,19 @@ A successful run produces these files under `out_dir`:
 | `ordinance_files/*.pdf` | Downloaded source documents |
 | `cleaned_text/*.txt` | Heuristic-filtered extracted text |
 | `jurisdiction_dbs/*.csv` | Per-jurisdiction raw extraction rows |
-| `quantitative_ordinances.csv` | Final compiled numeric features |
-| `qualitative_ordinances.csv` | Final compiled qualitative features |
+| `ordinances.csv` | Final compiled features (quantitative and qualitative) |
 | `usage.json` | Per-jurisdiction LLM token and request counts |
 | `meta.json` | Run metadata (cost, timing, version) |
 
 Final CSV columns: `county`, `state`, `subdivision`, `jurisdiction_type`,
 `FIPS`, `feature`, `value`, `units`, `adder`, `min_dist`, `max_dist`,
-`summary`, `year`, `section`, `source`.
+`ordinance_text`, `explanation`, `year`, `section`, `source`,
+`quantitative`.
+
+Quantitative and qualitative rows share one file; the boolean
+`quantitative` column tells them apart. `ordinance_text` holds the
+verbatim excerpt from the source document and `explanation` the model's
+rationale. The `summary` column is deprecated and no longer written.
 
 ## Interpreting output status correctly
 
@@ -186,8 +191,7 @@ Check in order:
 
 1. `outputs/*/cleaned_text/*.txt` (text extraction present)
 2. `outputs/*/jurisdiction_dbs/*.csv` (per-jurisdiction parsed rows)
-3. `outputs/*/quantitative_ordinances.csv` and
-   `outputs/*/qualitative_ordinances.csv` (final compiled results)
+3. `outputs/*/ordinances.csv` (final compiled results)
 
 Treat the run as **failed for extraction quality** when either is true:
 - `Number of jurisdictions with extracted data: 0`
