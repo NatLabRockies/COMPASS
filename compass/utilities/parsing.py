@@ -10,7 +10,7 @@ from elm.web.document import PDFDocument
 
 
 logger = logging.getLogger(__name__)
-_ORD_CHECK_COLS = ["value", "ordinance_text"]
+_ORD_CHECK_COLS = ["value", "summary", "ordinance_text"]
 
 
 def is_pdf_doc(doc):

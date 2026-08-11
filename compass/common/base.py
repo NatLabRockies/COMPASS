@@ -18,21 +18,25 @@ _SECTION_PROMPT = (
     "and `null` otherwise."
 )
 _SUMMARY_PROMPT = (
-    "The value of the 'summary' key should be a short summary of the relevant "
-    "ordinance, **using direct text excerpts as much as possible.** "
+    "The value of the 'summary' key should be a short summary of the "
+    "relevant ordinance, capturing the gist of the requirement along with "
+    "all of its specifics and details. Do not copy the ordinance wording "
+    "here; the verbatim excerpt belongs in 'ordinance_text'. "
     "If you had to make a selection when reporting the ordinance, be sure to "
     "list out all the other options and their conditions in the summary."
 )
 _ORDINANCE_TEXT_PROMPT = (
     "The value of the 'ordinance_text' key should be the complete relevant "
     "text excerpt containing the ordinance information, copied verbatim from "
-    "the document. The first sentence must be the beginning of the ordinance "
-    "text pertaining to this extraction, reproduced in full without "
-    "elision. After that first sentence, you may use an ellipsis ('...') to "
-    "omit passages that are not relevant to this ordinance. Do not "
-    "paraphrase, summarize, normalize, or add commentary of your own; every "
-    "character outside of the ellipses must appear exactly as written in the "
-    "document."
+    "the document. The first sentence must be the one that corresponds to "
+    "the extracted value and summary, reproduced in full without elision. "
+    "After that first sentence, gather any other passages in the document "
+    "that bear on this same requirement, whether they appear before or "
+    "after it, and join them with an ellipsis ('...') in the order they "
+    "appear in the document. Use the ellipsis to skip over text that is not "
+    "relevant. Do not paraphrase, summarize, normalize, or add commentary "
+    "of your own; every character outside of the ellipses must appear "
+    "exactly as written in the document."
 )
 _EXPLANATION_PROMPT = (
     "The value of the 'explanation' key should be a brief rationale "

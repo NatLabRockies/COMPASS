@@ -432,7 +432,7 @@ async def test_merge_multi_doc_data_limits_to_prohibition_documents(
             {
                 "feature": "prohibitions",
                 "value": None,
-                "ordinance_text": "older prohibition",
+                "summary": "older prohibition",
             },
             {"feature": "height", "value": 90, "summary": "older"},
         ),
@@ -440,7 +440,7 @@ async def test_merge_multi_doc_data_limits_to_prohibition_documents(
             {
                 "feature": "Prohibitions",
                 "value": None,
-                "ordinance_text": "newer prohibition",
+                "summary": "newer prohibition",
             },
             {"feature": "setback", "value": 300, "summary": "newer"},
         ),
@@ -621,10 +621,10 @@ def test_has_prohibitions_requires_ordinance_content():
     """Prohibition helper should only flag rows with actual ordinance data"""
 
     with_prohibition = _data_df(
-        {"feature": "Prohibitions", "ordinance_text": "Wind is prohibited."}
+        {"feature": "Prohibitions", "summary": "Wind is prohibited."}
     )
     without_prohibition = _data_df(
-        {"feature": "Prohibitions", "ordinance_text": None, "value": None}
+        {"feature": "Prohibitions", "summary": None, "value": None}
     )
 
     assert _has_prohibitions(with_prohibition)
@@ -637,14 +637,14 @@ def test_filter_to_prohibition_candidates_only_when_present():
     candidates = [
         {
             "data_df": _data_df(
-                {"feature": "setback", "ordinance_text": "Regular standard"}
+                {"feature": "setback", "summary": "Regular standard"}
             )
         },
         {
             "data_df": _data_df(
                 {
                     "feature": "prohibitions",
-                    "ordinance_text": "Wind systems are prohibited.",
+                    "summary": "Wind systems are prohibited.",
                 }
             )
         },

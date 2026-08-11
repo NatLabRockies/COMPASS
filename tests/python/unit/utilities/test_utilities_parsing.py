@@ -144,7 +144,7 @@ def test_num_ordinances_dataframe_with_values():
         {
             "feature": ["setback", "height", "noise"],
             "value": [100, 200, None],
-            "ordinance_text": ["test", None, "test"],
+            "summary": ["test", None, "test"],
         }
     )
     assert num_ordinances_dataframe(data) == 3
@@ -157,7 +157,7 @@ def test_num_ordinances_dataframe_returns_int_with_missing_values():
         {
             "feature": ["setback", "height", "noise"],
             "value": [100, np.nan, None],
-            "ordinance_text": [None, "test", None],
+            "summary": [None, "test", None],
         }
     )
 
@@ -174,7 +174,7 @@ def test_num_ordinances_dataframe_with_exclude():
         {
             "feature": ["setback", "HEIGHT", "noise"],
             "value": [100, 200, 300],
-            "ordinance_text": ["test", "test", "test"],
+            "summary": ["test", "test", "test"],
         }
     )
     assert num_ordinances_dataframe(data, exclude_features=["height"]) == 2
@@ -187,7 +187,7 @@ def test_num_ordinances_dataframe_with_exclude_all_features():
         {
             "feature": ["setback", "HEIGHT", "noise"],
             "value": [100, 200, 300],
-            "ordinance_text": ["test", "test", "test"],
+            "summary": ["test", "test", "test"],
         }
     )
 
@@ -233,7 +233,7 @@ def test_ordinances_bool_index_with_values():
         {
             "feature": ["setback", "height", "noise", "extra"],
             "value": [100, None, None, 400],
-            "ordinance_text": [None, "test", None, "test"],
+            "summary": [None, "test", None, "test"],
         }
     )
     result = ordinances_bool_index(data)
