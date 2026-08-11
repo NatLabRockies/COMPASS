@@ -220,7 +220,7 @@
       "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `subarea` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
       "properties": {
         "district use restriction": {
-          "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on electric transmission infrastructure, whether tied to specific zoning districts or applied jurisdiction-wide. Emit a single row summarizing every such restriction, with aggregated=false. Districts of particular interest: rural, residential, commercial, light industrial, agricultural (agricultural includes irrigated farmland and ranch land). In summary, name each restricted district (or note that it is jurisdiction-wide) and quote the ordinance language; cite the clause in section. Do not extract exclusions tied to protected land types or sensitive receptors (floodplains, wetlands, historic sites, critical species habitat, residences, hospitals, schools, daycares, higher education); those belong to the excluded_lands features."
+          "description": "Siting restrictions on electric transmission infrastructure whose basis is a zoning or use district, or that apply jurisdiction-wide, including prohibitions, bans, moratoria, or conditional-use limits. What distinguishes this feature from 'excluded lands' is that basis: use it when the restriction is keyed to a named or typed district, or to the whole jurisdiction, rather than to a protected land type or sensitive receptor. Districts of particular interest: rural, residential, commercial, light industrial, agricultural (agricultural includes irrigated farmland and ranch land). Emit a single row that names each restricted district (or notes that it is jurisdiction-wide) in summary, with aggregated=false. Do not extract exclusions tied to protected land types or sensitive receptors (floodplains, wetlands, historic sites, critical species habitat, residences, hospitals, schools, daycares, higher education); those belong to the 'excluded lands' feature."
         }
       }
     },
@@ -307,7 +307,7 @@
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
     ],
-  ],
+  },
   "$qualitative_features": [
     "bond",
     "color",
