@@ -5,9 +5,7 @@ from pathlib import Path
 import pytest
 
 from compass.exceptions import COMPASSPluginConfigurationError
-from compass.plugin.one_shot.base import (
-    _normalize_heuristic_keywords,
-)
+from compass.plugin.one_shot.base import _normalize_heuristic_keywords
 from compass.plugin.one_shot.components import SchemaBasedTextCollector
 from compass.validation.content import ParseChunksWithMemory
 from compass.warn import COMPASSPluginConfigurationWarning
