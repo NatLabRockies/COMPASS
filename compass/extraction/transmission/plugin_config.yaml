@@ -115,6 +115,7 @@ heuristic_keywords:
     - "electric power line"
     - "power line"
     - "electric utility"
+    - "voltage threshold"
   not_tech_words:
     - "local distribution"
     - "transmission fluid"
