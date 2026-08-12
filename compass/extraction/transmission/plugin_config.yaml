@@ -12,7 +12,6 @@ query_templates:
   - '"{jurisdiction}" overhead electric utility line zoning'
   - '"{jurisdiction}" power line'
   - 'filetype:pdf "{jurisdiction}" electric transmission line ordinance'
-  - 'Where can I find the legal text for electric transmission line zoning ordinances in "{jurisdiction}"?'
   - '"{jurisdiction}" electric utility franchise ordinance'
   - '"{jurisdiction}" code of ordinances electric franchise'
   - 'filetype:pdf "{jurisdiction}" electric franchise agreement'
