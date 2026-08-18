@@ -188,12 +188,17 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
             continue
 
         fips = jurisdiction.get("FIPS")
-        if fips in jurisdictions_by_fips:
-            msg = f"Duplicate collection manifest entry for FIPS '{fips}'"
-            raise COMPASSValueError(msg)
+        _validate_not_duplicate_jurisdiction(fips, jurisdictions_by_fips)
         jurisdictions_by_fips[fips] = jurisdiction
 
     return jurisdictions_by_fips
+
+
+def _validate_not_duplicate_jurisdiction(fips, jurisdictions_by_fips):
+    """Validate that a jurisdiction is not duplicated in the manifest"""
+    if fips in jurisdictions_by_fips:
+        msg = f"Duplicate collection manifest entry for FIPS '{fips}'"
+        raise COMPASSValueError(msg)
 
 
 async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
