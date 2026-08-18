@@ -1,6 +1,7 @@
 """Ordinances LLM Configurations"""
 
 import os
+import logging
 from collections import Counter
 from abc import ABC, abstractmethod
 from functools import partial, cached_property
@@ -12,6 +13,9 @@ from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 from compass.services.openai import OpenAIService
 from compass.utilities import RTS_SEPARATORS
 from compass.exceptions import COMPASSValueError
+
+
+logger = logging.getLogger(__name__)
 
 
 class _PrintableRecursiveCharacterTextSplitter(RecursiveCharacterTextSplitter):
@@ -86,7 +90,7 @@ class LLMConfig(ABC):
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
             chunk_overlap=self.text_splitter_chunk_overlap,
-            length_function=partial(ApiBase.count_tokens, model=self.name),
+            length_function=partial(_count_tokens_safely, model=self.name),
             is_separator_regex=True,
         )
 
@@ -234,3 +238,23 @@ class OpenAIConfig(LLMConfig):
             rate_limit=self.llm_service_rate_limit,
             service_tag=self._tag,
         )
+
+
+def _count_tokens_safely(text, model):
+    """Count tokens with a conservative fallback
+
+    ``len(text.encode("utf-8"))`` is a conservative upper bound on BPE
+    token count, so it will not permit oversized chunks
+    """
+    try:
+        return ApiBase.count_tokens(text, model=model)
+    except ValueError as err:
+        if "Max stack size exceeded for backtracking" not in str(err):
+            raise
+
+        logger.warning(
+            "Using byte length after tokenizer backtracking failure "
+            "for %d characters",
+            len(text),
+        )
+        return len(text.encode("utf-8"))
