@@ -61,6 +61,7 @@ ocr = [
   "pytesseract>=0.3.13,<0.4"
 ]
 dev = [
+  "complexipy>=7.0.1,<8",
   "jupyter>=1.0.0,<1.1",
   "pipreqs>=0.4.13,<0.5",
   "ruff>=0.16,<0.17",
@@ -106,6 +107,7 @@ homepage = "https://github.com/NatLabRockies/COMPASS"
 documentation = "https://natlabrockies.github.io/COMPASS/"
 repository = "https://github.com/NatLabRockies/COMPASS"
 
+
 [tool.setuptools.packages]
 find = { include = ["compass*"] }
 
@@ -115,6 +117,7 @@ fallback_version = "9999"
 # This spec below forces setuptools_scm to look strictly for vX.X.X tags
 git_describe_command = [ "git", "describe", "--dirty", "--tags", "--long", "--match", "v*[0-9]*" ]
 version_file = "compass/_version.py"
+
 
 [tool.ruff]
 line-length = 79
@@ -217,6 +220,7 @@ convention = "numpy"
 max-args = 10
 max-positional-args = 10
 
+
 [tool.coverage.run]
 branch = true
 
@@ -251,7 +255,6 @@ exclude_also = [
   "def print_logging_info*",
   "def __cls_name",
 ]
-
 omit = [
   # omit test files
   "tests/*",
@@ -276,6 +279,7 @@ omit = [
 skip = "*.lock,*.min.js,*.svg,*.pdf,*.png,*.jpg,*.jpeg,*.gif,*.ico"
 # ignore-words-list = "word1,word2"
 
+
 [tool.pytest.ini_options]
 addopts = '--durations=10 --disable-warnings -m "not evals"'
 asyncio_mode="auto"
@@ -287,3 +291,12 @@ testpaths = [
   "tests/python/unit",
   "tests/python/integration",
 ]
+
+
+[tool.complexipy]
+paths = ["compass"]
+max-complexity-allowed = 10
+exclude = ["tests/**"]
+failed = true
+sort = "desc"
+check-script = true
