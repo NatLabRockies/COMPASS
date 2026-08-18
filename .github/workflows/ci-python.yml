@@ -28,20 +28,30 @@ on:
 
 jobs:
   lint:
-    name: Lint Python Code Base with Ruff
+    name: Lint Python Code Base
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
+      - name: Lint Python Code (Ruff)
+        uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
         with:
           version: "latest"
           args: "check"
           src: "./compass"
-      - uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
+      - name: Check Python Code Format (Ruff)
+        uses: astral-sh/ruff-action@278981a28ce3188b1e39527901f38254bf3aac89 # v4.1.0
         with:
           version: "latest"
           args: "format --check"
           src: "./compass"
+      - name: Check Python Code Complexity (Complexipy)
+        uses: rohaquinlop/complexipy-action@e2b05bcc06d899a24e2b6bb8b1354ac42800a95e # v7.0.1
+        with:
+          paths: "./compass"
+          max_complexity_allowed: 10
+          failed: false  # true
+          sort: desc
+          ignore_complexity: false  # Set to true to ignore complexity checks
 
   locked-tests:
     needs: lint
