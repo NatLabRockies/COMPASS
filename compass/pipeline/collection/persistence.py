@@ -166,19 +166,7 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
     if isinstance(manifest_fp, (str, os.PathLike)):
         manifest_fp = [str(manifest_fp)]
 
-    task_fps = []
-    for maybe_glob in manifest_fp:
-        # ruff: ignore[glob]
-        new_fps = [
-            Path(match) for match in glob(str(maybe_glob), recursive=True)
-        ]
-        task_fps.extend(new_fps or [maybe_glob])
-
-    tasks = [
-        GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
-        for fp in task_fps
-    ]
-    manifests = await asyncio.gather(*tasks)
+    manifests = await _load_jur_manifests(manifest_fp, expected_tech)
 
     jurisdictions_by_fips = {}
     for jurisdiction in chain.from_iterable(
@@ -192,6 +180,23 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
         jurisdictions_by_fips[fips] = jurisdiction
 
     return jurisdictions_by_fips
+
+
+async def _load_jur_manifests(manifest_fp, expected_tech):
+    """Load one or more collection manifest(s) for jurisdictions"""
+    task_fps = []
+    for maybe_glob in manifest_fp:
+        # ruff: ignore[glob]
+        new_fps = [
+            Path(match) for match in glob(str(maybe_glob), recursive=True)
+        ]
+        task_fps.extend(new_fps or [maybe_glob])
+
+    tasks = [
+        GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
+        for fp in task_fps
+    ]
+    return await asyncio.gather(*tasks)
 
 
 def _validate_not_duplicate_jurisdiction(fips, jurisdictions_by_fips):
