@@ -1290,22 +1290,39 @@ def build_models(user_input, *, allow_empty=False):
 
     caller_instances = {}
     for raw_kwargs in user_input:
-        kwargs = dict(raw_kwargs)
-        tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
-        if isinstance(tasks, str):
-            tasks = [tasks]
-
-        model_config = OpenAIConfig(**kwargs)
-        for task in tasks:
-            if task in caller_instances:
-                msg = (
-                    f"Found duplicated task: {task!r}. Please ensure "
-                    "each LLM caller definition has uniquely-assigned "
-                    "tasks."
-                )
-                raise COMPASSValueError(msg)
+        for task, model_config in _config_for_tasks(raw_kwargs):
+            _verify_task_not_duplicate(task, caller_instances)
             caller_instances[task] = model_config
 
+    _verify_default_case_handled(caller_instances, allow_empty)
+    return caller_instances
+
+
+def _config_for_tasks(kwargs):
+    """Yield (task, model_config) pairs for the given raw kwargs"""
+    kwargs = dict(kwargs)
+    tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
+    if isinstance(tasks, str):
+        tasks = [tasks]
+
+    model_config = OpenAIConfig(**kwargs)
+    for task in tasks:
+        yield task, model_config
+
+
+def _verify_task_not_duplicate(task, caller_instances):
+    """Verify that the given task has not already been defined"""
+    if task in caller_instances:
+        msg = (
+            f"Found duplicated task: {task!r}. Please ensure "
+            "each LLM caller definition has uniquely-assigned "
+            "tasks."
+        )
+        raise COMPASSValueError(msg)
+
+
+def _verify_default_case_handled(caller_instances, allow_empty):
+    """Verify that the default LLM task is handled correctly"""
     if not allow_empty and LLMTasks.DEFAULT not in caller_instances:
         msg = (
             "No 'default' LLM caller defined in the `model` portion "
@@ -1314,5 +1331,3 @@ def build_models(user_input, *, allow_empty=False):
             f"unspecified. Found tasks: {list(caller_instances)}"
         )
         raise COMPASSValueError(msg)
-
-    return caller_instances
