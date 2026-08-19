@@ -394,7 +394,10 @@ class COMPASSCrawler:
             return False
 
         logger.debug("Loading Link: %s", link)
+        return await self._loaded_link_is_pdf(link, depth, score, parsed)
 
+    async def _loaded_link_is_pdf(self, link, depth, score, parsed):
+        """Check if the loaded link is a PDF document"""
         try:
             doc = await self.fast_afl.fetch(link.href)
         except KeyboardInterrupt:
