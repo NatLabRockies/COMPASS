@@ -50,6 +50,8 @@ class DocumentCollection:
         """
         self.workflow = workflow
         self.de_duplicator = DocumentDeDuplicator()
+        self._collection_info = {}
+        self._completed_steps = set()
 
     @cached_property
     def steps(self):
@@ -121,22 +123,9 @@ class DocumentCollection:
             structured data was extracted, or ``None`` if no structured
             data was extracted from any of the collected documents.
         """
-        collection_info = await self._load_persisted_docs()
-        completed_steps = set(
-            collection_info.get("completed_step_document_counts", {})
-        )
-        for step in self.steps:
-            if step.STEP_NAME in completed_steps:
-                logger.info(
-                    "Skipping completed collection step %s for %s",
-                    step.STEP_NAME,
-                    self.workflow.jurisdiction.full_name,
-                )
-                continue
-
-            docs = await step.collect(self.workflow)
-            self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
-            completed_steps.add(step.STEP_NAME)
+        await self._load_persisted_docs()
+        for step in self._unfinished_steps():
+            docs = await self._run_collection_step(step)
             if eager_extract:
                 context = (
                     await self.workflow.extraction_workflow.extract_from_docs(
@@ -146,15 +135,55 @@ class DocumentCollection:
                 if context is not None:
                     return context
             else:
-                collection_info = (
+                self._collection_info = (
                     await self.workflow.write_collection_shard_no_fail(
-                        self.de_duplicator, completed_steps
+                        self.de_duplicator, self._completed_steps
                     )
                 )
 
         if eager_extract:
             return None
 
+        self._log_execute_results()
+        return self._collection_info
+
+    async def _load_persisted_docs(self):
+        """Get any previously persisted documents and completed steps"""
+        self._collection_info = (
+            await self.workflow.load_existing_collection_shard()
+        ) or {}
+
+        docs = [
+            _PersistedDocument(doc_info)
+            for doc_info in self._collection_info.get("documents", [])
+        ]
+        self.de_duplicator.add_docs(docs)
+
+        self._completed_steps |= set(
+            self._collection_info.get("completed_step_document_counts", {})
+        )
+
+    def _unfinished_steps(self):
+        """Yield unfinished collection steps"""
+        for step in self.steps:
+            if step.STEP_NAME in self._completed_steps:
+                logger.info(
+                    "Skipping completed collection step %s for %s",
+                    step.STEP_NAME,
+                    self.workflow.jurisdiction.full_name,
+                )
+                continue
+            yield step
+
+    async def _run_collection_step(self, step):
+        """Run collection step and record results"""
+        docs = await step.collect(self.workflow)
+        self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
+        self._completed_steps.add(step.STEP_NAME)
+        return docs
+
+    def _log_execute_results(self):
+        """Log the results of the collection execution"""
         if self.de_duplicator:
             logger.debug(
                 "Collected the following documents for %s:\n\n%s",
@@ -168,17 +197,3 @@ class DocumentCollection:
                 "No documents were collected for %s",
                 self.workflow.jurisdiction.full_name,
             )
-
-        return collection_info
-
-    async def _load_persisted_docs(self):
-        """Get any previously persisted documents and completed steps"""
-        existing_collection_info = (
-            await self.workflow.load_existing_collection_shard()
-        ) or {}
-        docs = [
-            _PersistedDocument(doc_info)
-            for doc_info in existing_collection_info.get("documents", [])
-        ]
-        self.de_duplicator.add_docs(docs)
-        return existing_collection_info
