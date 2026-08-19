@@ -190,7 +190,7 @@ def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
 
     for entry in results:
         url_cf = entry["url"].casefold()
-        if _is_whitelisted(url_cf, whitelist_terms):
+        if _url_is_whitelisted(url_cf, whitelist_terms):
             continue
 
         match_index = _blacklist_match_index(url_cf, blacklist_terms)
@@ -204,7 +204,7 @@ def _parsed_list(url_list):
     return [sub.casefold() for sub in url_list or [] if sub]
 
 
-def _is_whitelisted(url_cf, whitelist_terms):
+def _url_is_whitelisted(url_cf, whitelist_terms):
     """Check if the URL matches any whitelist substring"""
     return any(sub in url_cf for sub in whitelist_terms)
 
