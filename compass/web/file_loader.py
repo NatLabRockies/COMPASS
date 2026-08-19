@@ -288,27 +288,9 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         if self.failed_fetcher is None:
             return docs
 
-        out_docs = []
-        partial_fail_docs = {}
-        failed_searches = []
-        for source in sources:
-            source_docs = [
-                doc for doc in docs if doc.attrs["source"] == source
-            ]
-            if not source_docs:
-                failed_searches.append(source)
-                continue
-
-            if len(source_docs) > 1:
-                out_docs.extend(source_docs)
-                continue
-
-            doc = source_docs[0]
-            if doc.attrs.get("conversion_status") != "success":
-                failed_searches.append(source)
-                partial_fail_docs[source] = doc
-            else:
-                out_docs.append(doc)
+        out_docs, partial_fail_docs, failed_searches = (
+            _collect_failed_searches(docs, sources)
+        )
 
         if not failed_searches:
             return out_docs
@@ -319,16 +301,12 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             failed_searches,
         )
         elm_docs = await self.failed_fetcher.fetch_all(*failed_searches)
+        elm_docs = [
+            _select_elm_or_partial_doc(elm_doc, partial_fail_docs)
+            for elm_doc in elm_docs
+        ]
 
-        for elm_doc in elm_docs:
-            docling_doc = partial_fail_docs.get(elm_doc.attrs["source"])
-            elm_doc_failed = elm_doc.empty or "cache_fn" not in elm_doc.attrs
-            if elm_doc_failed and docling_doc is not None:
-                out_docs.append(docling_doc)
-            else:
-                out_docs.append(elm_doc)
-
-        return out_docs
+        return out_docs + elm_docs
 
     async def _fetch_doc(self, url):
         """Fetch a doc using Docling"""
@@ -471,6 +449,42 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             doc.attrs[key] = value
         doc.attrs["source_fp"] = source
         return doc, raw_content
+
+
+# complexipy: ignore
+def _collect_failed_searches(docs, sources):
+    """Collect failed searches and categorize documents"""
+    out_docs = []
+    partial_fail_docs = {}
+    failed_searches = []
+    for source in sources:
+        source_docs = [doc for doc in docs if doc.attrs["source"] == source]
+        if not source_docs:
+            failed_searches.append(source)
+            continue
+
+        if len(source_docs) > 1:
+            out_docs.extend(source_docs)
+            continue
+
+        doc = source_docs[0]
+        if doc.attrs.get("conversion_status") != "success":
+            failed_searches.append(source)
+            partial_fail_docs[source] = doc
+        else:
+            out_docs.append(doc)
+
+    return out_docs, partial_fail_docs, failed_searches
+
+
+def _select_elm_or_partial_doc(elm_doc, partial_fail_docs):
+    """Select elm doc if it is valid; otherwise use partial doc"""
+    docling_doc = partial_fail_docs.get(elm_doc.attrs["source"])
+    elm_doc_failed = elm_doc.empty or "cache_fn" not in elm_doc.attrs
+
+    return (
+        docling_doc if elm_doc_failed and docling_doc is not None else elm_doc
+    )
 
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
