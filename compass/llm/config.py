@@ -208,23 +208,23 @@ class OpenAIConfig(LLMConfig):
     @cached_property
     def client_kwargs(self):
         """dict: Parameters to pass to client initializer"""
+
+        arg_env_pairs = []
         if self.client_type == "azure":
             arg_env_pairs = [
                 ("api_key", "AZURE_OPENAI_API_KEY"),
                 ("api_version", "AZURE_OPENAI_VERSION"),
                 ("azure_endpoint", "AZURE_OPENAI_ENDPOINT"),
             ]
-            for key, env_var in arg_env_pairs:
-                if self._client_kwargs.get(key) is None:
-                    self._client_kwargs[key] = os.environ.get(env_var)
         elif self.client_type == "openai":
             arg_env_pairs = [
                 ("api_key", "OPENAI_API_KEY"),
                 ("base_url", "OPENAI_BASE_URL"),
             ]
-            for key, env_var in arg_env_pairs:
-                if self._client_kwargs.get(key) is None:
-                    self._client_kwargs[key] = os.environ.get(env_var)
+
+        for key, env_var in arg_env_pairs:
+            val = self._client_kwargs.get(key)
+            self._client_kwargs[key] = val or os.environ.get(env_var)
 
         return self._client_kwargs
 
