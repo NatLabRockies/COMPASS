@@ -571,31 +571,30 @@ def _extract_links_from_html(text, base_url):
         (a.get_text().strip(), a["href"])
         for a in soup.find_all("a", href=True)
     ]
+    return set(_sanitized_links(links, base_url))
 
-    out_links = set()
+
+def _sanitized_links(links, base_url):
+    """Sanitized links from the given list of (title, path) tuples"""
     for title, path in links:
         if not title or not path:
             continue
 
-        if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
-            continue
-
-        if any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS):
+        if _is_blacklisted(title, path):
             continue
 
         href = sanitize_url(urljoin(base_url, path))
         if urlsplit(href).scheme not in {"http", "https"}:
             continue
 
-        out_links.add(
-            _Link(
-                title=title,
-                href=href,
-                base_domain=base_url,
-            )
-        )
+        yield _Link(title=title, href=href, base_domain=base_url)
 
-    return out_links
+
+def _is_blacklisted(title, path):
+    """Check if a link is blacklisted based on title or path"""
+    if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
+        return True
+    return any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS)
 
 
 async def _get_text_from_all_locators(page):
