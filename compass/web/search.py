@@ -185,24 +185,36 @@ def _flatten_results(results):
 
 def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
     """Mark rows that match any blacklist substring"""
-    blacklist_terms = [sub.casefold() for sub in url_blacklist or [] if sub]
-    whitelist_terms = [sub.casefold() for sub in url_whitelist or [] if sub]
+    blacklist_terms = _parsed_list(url_blacklist)
+    whitelist_terms = _parsed_list(url_whitelist)
+
     for entry in results:
         url_cf = entry["url"].casefold()
-        if any(sub in url_cf for sub in whitelist_terms):
+        if _is_whitelisted(url_cf, whitelist_terms):
             continue
 
-        match_index = next(
-            (
-                i
-                for i, sub_cf in enumerate(blacklist_terms)
-                if sub_cf in url_cf
-            ),
-            None,
-        )
+        match_index = _blacklist_match_index(url_cf, blacklist_terms)
         if match_index is None:
             continue
         entry["filtered_reason"] = f"blacklist:{blacklist_terms[match_index]}"
+
+
+def _parsed_list(url_list):
+    """Parse a list of URL substrings; normalize each non-empty entry"""
+    return [sub.casefold() for sub in url_list or [] if sub]
+
+
+def _is_whitelisted(url_cf, whitelist_terms):
+    """Check if the URL matches any whitelist substring"""
+    return any(sub in url_cf for sub in whitelist_terms)
+
+
+def _blacklist_match_index(url_cf, blacklist_terms):
+    """Return the index of the first matching blacklist substring"""
+    return next(
+        (i for i, sub_cf in enumerate(blacklist_terms) if sub_cf in url_cf),
+        None,
+    )
 
 
 def _apply_duplicate_filters(results):
