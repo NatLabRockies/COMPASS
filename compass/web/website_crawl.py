@@ -242,6 +242,7 @@ class COMPASSCrawler:
 
         return self._out_docs
 
+    # complexipy: ignore
     async def _run(
         self,
         base_url,
