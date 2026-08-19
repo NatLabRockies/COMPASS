@@ -471,7 +471,7 @@ async def parse_by_chunks(
     callbacks = callbacks or []
     outer_task_name = asyncio.current_task().get_name()
 
-    for ind in await _chunks_to_check(
+    async for ind in _chunks_to_check(
         chunk_parser,
         heuristic,
         text_kind_validator,
