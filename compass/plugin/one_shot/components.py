@@ -16,6 +16,7 @@ from compass.utilities.parsing import merge_overlapping_texts
 
 
 logger = logging.getLogger(__name__)
+
 _DEFAULT_TEXT_SCOPE_SYSTEM_PROMPT = """\
 You are a structured extraction scope validator. Given a text chunk, \
 determine whether the chunk is within the given extraction scope. \
