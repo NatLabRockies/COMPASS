@@ -89,7 +89,7 @@ async def test_docling_web_file_loader_handles_sourceless_elm_failure(
     docs = await loader.fetch_all("failed")
 
     assert docs == [partial_doc]
-    assert fallback_doc.attrs["source"] == "failed"
+    assert docs[0].attrs["source"] == "failed"
     assert failed_fetcher.calls == [("failed",)]
 
 
