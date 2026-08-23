@@ -1,0 +1,173 @@
+schema: ./transmission_schema.json5
+
+data_type_short_desc: high-voltage transmission lines ordinance
+
+doc_selection_method: "multi doc mixed"
+
+query_templates:
+  - 'site:municode.com {jurisdiction} electrical transmission line'
+  - 'site:codelibrary.amlegal.com {jurisdiction} electrical transmission line'
+  - '"{jurisdiction}" zoning code electric transmission line setback'
+  - '"{jurisdiction}" high voltage transmission line ordinance'
+  - '"{jurisdiction}" overhead electric utility line zoning'
+  - '"{jurisdiction}" power line'
+  - 'filetype:pdf "{jurisdiction}" electric transmission line ordinance'
+  - '"{jurisdiction}" electric utility franchise ordinance'
+  - '"{jurisdiction}" code of ordinances electric franchise'
+  - 'filetype:pdf "{jurisdiction}" electric franchise agreement'
+
+website_keywords:
+  pdf: 92160
+  transmission: 46080
+  ordinance: 23040
+  zoning: 11520
+  utility: 5760
+  electric: 5760
+  franchise: 5760
+  code: 2880
+  right-of-way: 1440
+  easement: 1440
+  siting: 1440
+  franchise agreement: 1440
+  overhead: 720
+  substation: 720
+  permit: 720
+  land use: 720
+  planning: 720
+  grantee: 720
+  municipal: 360
+  county: 360
+  code of ordinances: 360
+  ordinance code: 360
+  land use code: 360
+  use table: 360
+  conditional use permit: 180
+  special use permit: 180
+  chapter: 180
+  article: 180
+  title: 180
+  statute: 180
+  administrative code: 180
+  government: 180
+
+heuristic_keywords:
+  good_tech_acronyms:
+    - "kv"
+    - "hvdc"
+    - "ehv"
+    - "uhv"
+    - "cpcn" #  Certificate of Public Convenience and Necessity
+    - "hv"
+    - "kva"
+  good_tech_keywords:
+    - "transmission"
+    - "kilovolt"
+    - "powerline"
+    - "franchise"
+    - "grantee"
+    - "substation"
+    - "pole"
+    - "overhead"
+    - "right-of-way"
+    - "right of way"
+    - "rights-of-way"
+    - "utility line"
+  good_tech_phrases:
+    - "certificate of public convenience and necessity"
+    - "high voltage"
+    - "extra high voltage"
+    - "bulk electric"
+    - "bulk transmission"
+    - "electric franchise"
+    - "electric utility franchise"
+    - "electric transmission"
+    - "69 kv"
+    - "115 kv"
+    - "138 kv"
+    - "161 kv"
+    - "230 kv"
+    - "345 kv"
+    - "500 kv"
+    - "765 kv"
+    - "transmission line"
+    - "transmission pole"
+    - "electric line"
+    - "utility easement"
+    - "transmission or distribution"
+    - "electric transmission facilities"
+    - "overhead line"
+    - "overhead electric"
+    - "aerial line"
+    - "high-voltage line"
+    - "overhead electric line"
+    - "overhead transmission"
+    - "overhead power line"
+    - "transmission tower"
+    - "transmission facility"
+    - "utility transmission"
+    - "transmission corridor"
+    - "transmission right-of-way"
+    - "transmission right of way"
+    - "transmission easement"
+    - "transmission structure"
+    - "transmission infrastructure"
+    - "electric power line"
+    - "power line"
+    - "electric utility"
+    - "voltage threshold"
+  not_tech_words:
+    - "local distribution"
+    - "transmission fluid"
+    - "auto transmission"
+    - "automatic transmission"
+    - "communication transmission"
+    - "manual transmission"
+    - "data transmission"
+    - "radio transmission"
+    - "wireless transmission"
+    - "telephone line"
+    - "disease transmission"
+    - "virus transmission"
+    - "heat transmission"
+    - "natural gas transmission"
+    - "gas transmission"
+    - "oil transmission"
+
+collection_prompts: true
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from
+  ordinance documents. A document may contain two kinds of
+  content, which can appear separately or together in the same
+  document:
+  (1) high-voltage electric transmission line requirements, and
+  (2) an electric utility franchise that grants a named company
+  the right to operate electric infrastructure in this
+  jurisdiction.
+
+  For transmission-line content (1), be focused and literal:
+  extract only enacted, explicit, in-scope requirements that
+  apply to high-voltage (typically 69 kV or higher) electric
+  transmission lines, towers, poles, substations, and their
+  rights-of-way. Do not extract requirements that apply only to
+  local electric distribution, telecommunications, gas or oil
+  pipelines, or low-voltage service lines.
+
+  For franchise content (2), the "franchise" feature is the
+  primary output: name every explicitly named grantee company
+  using its verbatim legal name and quote the granting clause.
+  Do not extract non-electric franchises (water, gas, cable,
+  telecom). If the same document also contains transmission-line
+  content (1), extract those features as well under the rules
+  above, including provisions that apply to the grantee's
+  electric infrastructure generally and, by encompassment, would
+  apply to its high-voltage transmission lines.
+
+  Be thorough and complete: review all relevant sections,
+  including tables and lists, so no explicitly stated in-scope
+  feature is missed. Before finalizing, perform a feature-coverage
+  check against the schema and ensure each explicitly supported
+  feature is captured exactly once.
+  Pay extra attention to any descriptions, instructions, examples,
+  and definitions in the schema, and follow all schema
+  instructions carefully.

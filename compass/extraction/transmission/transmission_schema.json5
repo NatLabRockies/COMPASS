@@ -1,0 +1,327 @@
+{
+  "title": "Transmission Ordinance Extraction Schema",
+  "description": "Single-shot structured extraction schema for energy transmission ordinances. This schema guides an LLM to extract all relevant features in one call and returns an outputs array where each object represents one row in the extracted long-form table.",
+  "version": "0.2.0",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "description": "Sparse long-form extraction table. Include only features with an enacted, explicit requirement and emit **at most one row per feature**. Never infer, imply, or guess a requirement from related context.",
+      "items": {
+        "type": "object",
+        "required": [
+          "feature",
+          "value",
+          "units",
+          "section",
+          "summary",
+          "explanation",
+          "aggregated"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
+            "enum": [
+              // -- Setbacks --
+              // Do I need to include participating and non-participating
+              "structures distance",
+              // Occupied Dwellings or Residential Buildings
+              "residential buildings distance",
+              "property lines distance",
+              // Roads of freeways
+              "roads distance",
+              // Heliports and Airport Runways
+              "airport distance",
+              // Ordinary High Water Mark (OHWM)
+              "OHWM distance",
+              "railroads distance",
+
+              // -- Definitions --
+              // Definition /voltage threshold to qualify as a "transmission line"
+              "voltage threshold",
+
+              // -- Numerical Restrictions --
+              // Electric Fields Strength at Property Line
+              "electric field",
+              // Maximum allowed height for transmission towers, poles,
+              // or monopoles that carry high-voltage conductors.
+              "maximum tower height",
+              // Maximum allowed height for accessory or support
+              // structures (substations, control buildings, etc.).
+              "maximum structure height",
+              "noise",
+
+              // -- Operational --
+              // Bond Requirement
+              "bond",
+              // Decommissioning or Remediation Requirements
+              "decommissioning",
+              // Conditional Use or Special Use Permit Requirement
+              "permit",
+              // Compliance with Federal Aviation Administration and local approvals near airports
+              "FAA",
+
+              // -- Prohibited or limited-use districts --
+              "district use restriction",
+              // -- Exclusions --
+              // Excluded lands (protected land types and sensitive receptors)
+              "excluded lands",
+
+              // -- Qualitative --
+              "color",
+              "fencing",
+              // Fire Prevention or Fire Protection
+              "fire prevention",
+              "lighting",
+              // Identification or Signage ("Danger", "No Trespassing",etc.)
+              "signage",
+              // Traffic Disruption
+              "traffic disruption",
+              // Vegetation Protection or Landscaping Requirements
+              "vegetation",
+
+              // -- Administrative --
+              // Electric utility franchise granted to a named company
+              "franchise",
+            ]
+          },
+          "value": {
+            "description": "The extracted ordinance value. For numerical distance thresholds and limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
+            "anyOf": [
+              {"type": "number"},
+              {"type": "string"},
+              {
+                "type": "array",
+                "items": {"type": "string"},
+                "additionalProperties": false
+              },
+              {"type": "null"}
+            ]
+          },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters' when possible. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use 'text' for permit lists and qualitative requirements without measurable units."
+
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "The section title or number from the ordinance where this requirement appears. Include numerical labels if provided. Null if no section identifier is available."
+          },
+          "summary": {
+            "type": "string",
+            "description": "A short summary of the relevant ordinance requirements."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
+          },
+          "aggregated": {
+            "type": "boolean",
+            "description": "True when this row's value was selected from multiple competing explicit values for the same feature, keeping the most restrictive one per $core_principles.numeric_prioritization (most restrictive is the largest value for setbacks, the smallest value for noise and height limits, and so on depending on the feature). False when the value comes from a single explicit value with no competing values to reconcile."
+          }
+        }
+      }
+    }
+  },
+  "$scope": "Definitions for 'electric transmission line', 'transmission right-of-way', 'transmission easement', 'transmission tower', 'transmission substation', 'high-voltage line', or similar terms **OR** any legally enacted requirements, prohibitions, or permitting conditions that apply to high-voltage electric transmission lines, towers, poles, substations, or their rights-of-way/easements, **OR** any electric-utility franchise ordinance granting a named company the right to operate electric infrastructure in this jurisdiction. Provisions that by silence or by general wording (for example 'all public utilities', 'all utility lines and easements', 'all subdivision improvements', or a building-setback table tiered by voltage that includes any tier at or above 69 kV) would apply to electric transmission are IN SCOPE. **OUT OF SCOPE**: provisions explicitly and exclusively limited to electric distribution, service drops, secondary lines, or sub-transmission lines with no HV applicability; provisions scoped solely to non-electric utilities (water, gas, sewer, storm, telecom, cable); rules for other energy technologies (geothermal, solar PV, wind, hydro) unless the same clause also governs electric transmission. Proposed, future, draft, or contingent requirements that are not currently effective as written are also out of scope.",
+  "$core_principles": {
+    "scope_context": {
+      "description": "Only extract features that apply to high-voltage electric transmission lines and related infrastructure. Provisions scoped only to other energy systems (geothermal, solar PV, wind turbines) or only to lower-voltage electric infrastructure (distribution lines, service lines, service drops, secondary lines, sub-transmission) are out of scope unless the ordinance explicitly extends them to transmission. Encompassment rule: provisions that regulate a broader class which includes high-voltage transmission — for example 'all development', 'all construction activity', 'all public utilities', 'all utility infrastructure', 'all subdivision improvements', or 'electric utility lines' without a voltage qualifier — are in scope. If the ordinance defines 'transmission line' by a minimum voltage, treat that threshold as the cutoff: provisions explicitly restricted to voltages at or below it are out of scope even when phrased as electric utility infrastructure."
+    },
+    "strict_evidence_gate": {
+      "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
+    },
+    "data_omission": {
+      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units='text' only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+    },
+    "numeric_prioritization": {
+      "description": "When multiple numeric values apply to the same (feature, subarea) pair, keep one row for that pair and select the controlling most restrictive value. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; maximum tower height and maximum structure height -> choose the lowest limit within each feature independently, never combine tower limits with accessory-structure limits; noise -> choose the lowest allowed noise limit. When the ordinance explicitly states different numeric limits per zoning district for the same feature (for example a noise table with distinct limits for residential vs commercial districts), emit one row per district using the appropriate `subarea` value and apply restrictiveness within each row. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same (feature, subarea) pair for electric transmission systems."
+    },
+    "definition_v_rule_test": {
+      "description": "Apply a primary-purpose routing test before classifying a clause as a definition. If the excerpt's main function is to state what a term means and it does not impose an enforceable obligation, extract it as a definition feature with value=null and units=null. If the excerpt imposes standards, applicability limits, permitting conditions, performance requirements, or prohibitions, classify it under the relevant operational or prohibition feature instead, even if the clause also names or restates a term."
+    }
+  },
+  "$definitions": {
+    "setback_features": {
+      "description": "Setback features for electrical transmission lines and related infrastructure. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in summary. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
+      "properties": {
+        "structures distance": {
+          "description": "Minimum required separation from structures and buildings that do not match the definition of 'residential buildings distance'. Includes generic 'building setback line' clauses tied to a transmission-line easement, right-of-way, or centerline when the ordinance does not explicitly qualify the building as residential (for example 'residential', 'dwelling', 'home', 'residence')."
+        },
+        "residential buildings distance": {
+          "description": "Minimum required separation from residential buildings, occupied dwellings, occupied buildings, residences, homes, residential receptors, or residential uses. Do not classify a generic unqualified 'building setback line' from a transmission-line easement as residential; that belongs under 'structures distance'."
+        },
+        "property lines distance": {
+          "description": "Minimum required separation from property lines, lot lines, parcel boundaries, or lease boundaries when the ordinance explicitly states the distance is measured from that boundary. Do not remap property-line distances to roads or residential zones unless the text explicitly makes them equivalent for that requirement. Distances to official plan lines or specific plan lines for public highways do not belong here unless the ordinance expressly defines those lines as property boundaries for the same requirement."
+        },
+        "roads distance": {
+          "description": "Minimum required separation from public road rights-of-way, including freeways. Property-line setbacks do NOT count for this feature unless the ordinance text explicitly states that the property line is the road right-of-way or otherwise makes them the same boundary for that requirement. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as utility easements, etc."
+        },
+        "airport distance": {
+          "description":"Minimum required separation from airport runways and heliports."
+        },
+        "OHWM distance": {
+          "description":"Minimum required separation from Ordinary High Water Mark (OHWM)."
+        },
+        "railroads distance": {
+          "description": "Minimum required separation from railroads, railroad rights-of-way, rail corridors, or active rail lines. Extract only when rail infrastructure is explicitly named."
+        }
+      }
+    },
+    "numerical_features": {
+      "description": "Non-setback numerical restriction features. Only extract if numerical values are explicitly given in the text.",
+      "properties": {
+        "electric field": {
+          "description": "Extract maximum electric field strength allowed at a property line."
+        },
+        "maximum tower height": {
+          "description": "Extract the maximum allowed height for transmission towers, poles, monopoles, or other vertical structures that carry high-voltage conductors. Do not conflate with accessory structures such as substations, switchyards, control buildings, or equipment enclosures; those belong under 'maximum structure height'. If the ordinance states a single maximum height that applies to all transmission-related vertical elements without distinguishing towers from accessory structures, emit only 'maximum tower height'."
+        },
+        "maximum structure height": {
+          "description": "Extract the maximum allowed height for accessory or support structures related to transmission infrastructure that do not carry conductors, including substations, switchyards, control buildings, equipment enclosures, and similar auxiliary facilities. Do not conflate with the towers, poles, or monopoles carrying the conductors; those belong under 'maximum tower height'. Extract only when the ordinance explicitly states a height limit for such accessory structures separate from the tower limit."
+        },
+        "noise": {
+          "description": "Extract maximum allowable operational noise for electric transmission lines and related facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in summary. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
+        }
+      }
+    },
+    "definition_features": {
+      "properties": {
+        "voltage threshold": {
+          "description": "Extract the minimum voltage at or above which the ordinance explicitly defines a high-voltage electric transmission line (for example a definition of 'transmission line', 'high-voltage line', or equivalent term that sets a voltage floor). This feature captures only the floor that distinguishes high-voltage transmission from lower-voltage lines; do not extract a voltage taken from a definition of a distribution line, service line, secondary line, sub-transmission line, or other lower-voltage line. Extract only from a definitional statement whose primary purpose is to establish that voltage floor (for example 'Transmission Line means an electric line carrying at least 69,000 volts (69 kV)'). Do not infer a threshold from voltage numbers that merely appear as tiers or rows in a setback, height, clearance, or other requirement table, or anywhere a voltage is used to impose a physical requirement rather than to define the term; such tables are rules, not definitions, and must not produce a voltage threshold. If no explicit definitional voltage floor is stated, omit this feature entirely."
+        }
+      }
+    },
+    "operational_features": {
+      "description": "Operational, licensing, permitting, inspection, and abandonment requirements. These features require text extraction only.",
+      "properties": {
+        "bond": {
+          "description": "Extract requirements for bonds, sureties, or financial assurance instruments related to construction, operation, maintenance, or decommissioning of electric transmission lines and related infrastructure. Include any specific conditions, amounts, or criteria for bond release when explicitly stated. Also includes bond, surety, or financial-assurance provisions covering subdivision-scale utility-infrastructure completion when the provision does not carve out electric infrastructure and is not restricted to lower-voltage electric infrastructure only (distribution, service, secondary, sub-transmission lines). A numeric amount is not required; qualitative bond rows (for example 'sufficiency determined by the utility agency') are permitted when the provision imposes an enforceable obligation."
+        },
+        "decommissioning": {
+          "description": "Extract requirements for abandonment, removal, and site restoration when systems are retired, fail, or towers are abandoned, including obligations to remove facilities and restore the site upon termination, forfeiture, or expiration of a franchise or grant, with responsible party and timeline details when explicitly stated."
+        },
+        "permit": {
+          "description": "Extract requirements to obtain approval or authorization before constructing, installing, or working on electric transmission lines and related infrastructure, including conditional use permits, special use permits, or other discretionary land-use approvals, as well as street-opening, road-cut, right-of-way, or encroachment permits issued by a road or public-works authority. Per $instructions.encompassment_scope, also extract a permit governing a broader class that would include transmission (for example 'all development', 'all utilities', or any work within public streets or rights-of-way), even when transmission is not named. Include any specific conditions or criteria for approval when explicitly stated."
+        },
+        "FAA": {
+          "description": "Extract requirements for compliance with Federal Aviation Administration (FAA) regulations and local approvals for transmission lines and related infrastructure near airports. Include any specific FAA standards or local approval processes when explicitly stated."
+        },
+        "traffic disruption": {
+          "description": "Extract requirements for how transmission infrastructure and related work affect public travel ways, temporarily or permanently: construction-period obligations not to obstruct traffic and to restore the right-of-way after excavation, road cuts, or street openings; and permanent effects of new construction such as line or crossing clearances over roadways, sight-distance at intersections and driveways, and limits on obstruction of the traveled way. Include timing and responsible-party details when explicitly stated."
+        }
+      }
+    },
+    "prohibition_features": {
+      "description": "Prohibitions, bans, moratoria, or explicit siting restrictions on building, installing, or otherwise deploying electric transmission lines and related infrastructure within a specific zoning district. Use the `subarea` field to identify the district. Extract only when the ordinance explicitly states that the restriction applies to transmission lines or related infrastructure. These features require text extraction only.",
+      "properties": {
+        "district use restriction": {
+          "description": "Siting restrictions on electric transmission infrastructure whose basis is a zoning or use district, or that apply jurisdiction-wide, including prohibitions, bans, moratoria, or conditional-use limits. What distinguishes this feature from 'excluded lands' is that basis: use it when the restriction is keyed to a named or typed district, or to the whole jurisdiction, rather than to a protected land type or sensitive receptor. Districts of particular interest: rural, residential, commercial, light industrial, agricultural (agricultural includes irrigated farmland and ranch land). Emit a single row that names each restricted district (or notes that it is jurisdiction-wide) in summary, with aggregated=false. Do not extract exclusions tied to protected land types or sensitive receptors (floodplains, wetlands, historic sites, critical species habitat, residences, hospitals, schools, daycares, higher education); those belong to the 'excluded lands' feature."
+        }
+      }
+    },
+    "excluded_lands": {
+      "description": "Lands excluded from transmission line siting. Do not extract as prohibitions or setbacks. Only extract when the ordinance explicitly states that transmission lines and related infrastructure are prohibited from being sited, built, or installed in these areas.",
+      "properties": {
+        "excluded lands": {
+          "description": "Exclusions barring transmission siting on specific protected land types or sensitive receptors. Extract only when the ordinance explicitly excludes at least one type from this list of interest: historic sites, critical species habitat, wetlands, floodplains, residences, hospitals, schools, daycare centers, institutions of higher education; a match may use different wording when it clearly refers to one of these (for example 'wetland' matches 'wetlands'). Emit a single row that names every excluded type in summary, including other explicitly defined exclusions that do not overlap with the 'district use restriction' feature. Set aggregated=true when more than one land type is excluded in total (a listed type plus any other), and aggregated=false when only one is. Do not extract zoning-district-based or jurisdiction-wide prohibitions; those belong to the 'district use restriction' feature."
+        }
+      }
+    },
+    "administrative_features": {
+      "description": "Administrative or legal grants recorded in the ordinance code that do not impose a physical or numeric requirement on transmission infrastructure. Extract only when the ordinance text explicitly names the grant and its holder(s).",
+      "properties": {
+        "franchise": {
+          "description": "Electric utility franchise granted by this jurisdiction to a named company or companies. Extract when the ordinance explicitly grants (or renews, extends, or amends) an electric franchise, right, or privilege to operate electric infrastructure, or when a codified list of franchises names one or more electric utilities as grantees under an electric-franchise heading, even if the full granting-clause text is omitted; treat such an electric-franchise listing as substantive content to collect and extract, not a citation-only index. In summary, name every electric grantee using its verbatim legal name and quote the granting clause or list entry. Do not extract water, gas, cable, telecom, or other non-electric franchises, even when listed alongside the electric ones. Do not infer a franchise from operational references to a utility elsewhere in the code. Emit at most one row per jurisdiction, listing all electric grantees in the same summary."
+        }
+      }
+    }
+  },
+  "$examples": [
+    {
+      "feature": "noise",
+      "value": 50,
+      "units": "dBA",
+      "section": "SECTION 1308 – Performance / Construction Standards",
+      "summary": "The transmission line and or facility shall not generate noise in excess of Fifty (50) decibel levels at ground level to the property lines or at the nearest residence. Such measurements shall be signed by a qualified engineer, stating that noise levels are being met, per ordinance.",
+      "explanation": "Ordinance sets a single numeric noise limit that applies to the transmission line jurisdiction-wide, so a single noise row is emitted.",
+      "aggregated": false
+    },
+    {
+      "feature": "district use restriction",
+      "value": null,
+      "units": "text",
+      "section": "Sec. 12.04 – District Use Restrictions",
+      "summary": "Overhead electric transmission lines rated above 69 kV are prohibited outright in all residential districts (R-1, R-2, R-3). In agricultural districts (including irrigated farmland and ranch land) such lines are allowed only by conditional-use permit and must follow existing field boundaries.",
+      "explanation": "Ordinance restricts transmission lines in two district types of interest (residential and agricultural); a single row summarizes both. Summarizing districts is not aggregation, so aggregated is false.",
+      "aggregated": false
+    },
+    {
+      "feature": "district use restriction",
+      "value": null,
+      "units": "text",
+      "section": "Sec. 9.11 – Prohibited Utility Infrastructure",
+      "summary": "New overhead electric transmission lines rated above 69 kV are prohibited anywhere within the jurisdiction; only underground installation is permitted.",
+      "explanation": "The prohibition applies jurisdiction-wide rather than to specific zoning districts; the single summarizing row is not an aggregation, so aggregated is false.",
+      "aggregated": false
+    },
+    {
+      "feature": "excluded lands",
+      "value": null,
+      "units": "text",
+      "section": "Sec. 7.03 – Protected Areas and Sensitive Receptors",
+      "summary": "Electric transmission lines rated above 69 kV may not be sited within designated wetlands or the 100-year floodplain, and no transmission structure may be placed within 500 feet of any school, daycare center, or hospital. Sites listed on the local historic register are likewise excluded from transmission siting.",
+      "explanation": "More than one land type or receptor of interest is excluded (wetlands, floodplains, schools, daycares, hospitals, historic sites), so aggregated is true; a single row summarizes all of them.",
+      "aggregated": true
+    },
+    {
+      "feature": "structures distance",
+      "value": 75,
+      "units": "feet",
+      "section": "5.2.6.2 Building Setback Lines",
+      "summary": "In the case of electric transmission lines where easement widths are not definitely established, there shall be a minimum building setback line from the center of the transmission line as follows: Voltage of Line / Minimum Building Setback — 46 KV: 37½ ft; 69 KV: 50 ft; 161 KV & over: 75 ft.",
+      "explanation": "Generic 'building setback line' measured from the transmission-line centerline, not qualified as residential, so classified as 'structures distance' rather than 'residential buildings distance'. Ordinance lists three voltage tiers (37½, 50, 75 feet); per numeric_prioritization for setbacks, the largest tier (75 feet) is selected as the row value while the full table is quoted verbatim in summary.",
+      "aggregated": true
+    },
+    {
+      "feature": "franchise",
+      "value": ["Dixie Electric Membership Corporation", "Louisiana Power and Light Company"],
+      "units": "text",
+      "section": "Ch. 8 Franchises — List of Franchises",
+      "summary": "Under the 'Electric Franchises' heading of the codified list of franchises: Dixie Electric Membership Corporation (99 years), Ordinance of May 10, 1939; Louisiana Power and Light Company (no time limit), Ordinance of February 10, 1937. The code omits the full text of these franchise ordinances and preserves only this listing of grantees, durations, and originating ordinances.",
+      "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded.",
+      "aggregated": false
+    }
+  ],
+  "$instructions": {
+    "general": [
+      "Use direct text excerpts and quotes in summary whenever possible.",
+    ],
+    "setbacks": [
+      "Setbacks should be extracted as minimum separation distances.",
+      "Prefer numeric values with units ('feet', 'meters').",
+      "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
+      "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
+    ],
+  },
+  "$qualitative_features": [
+    "bond",
+    "color",
+    "decommissioning",
+    "district use restriction",
+    "excluded lands",
+    "fencing",
+    "fire prevention",
+    "franchise",
+    "lighting",
+    "permit",
+    "signage",
+    "traffic disruption",
+    "vegetation",
+    "FAA"
+  ]
+}
