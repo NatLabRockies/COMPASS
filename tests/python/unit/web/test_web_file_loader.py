@@ -67,6 +67,37 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
 
 
 @pytest.mark.asyncio
+async def test_docling_web_file_loader_handles_sourceless_elm_failure(
+    monkeypatch,
+):
+    """Keep partial Docling output when ELM fails before adding source"""
+    loader = AsyncDoclingWebFileLoader()
+    partial_doc = _doc("failed", conversion_status="partial_success")
+    fallback_doc = SimpleNamespace(attrs={}, empty=True)
+    failed_fetcher = _FailedFetcher({"failed": fallback_doc})
+    loader.failed_fetcher = failed_fetcher
+
+    async def _fetch(source):  # ruff:ignore[unused-async]
+        return partial_doc
+
+    async def _fetch_html_docs(docs):  # ruff:ignore[unused-async]
+        return docs
+
+    monkeypatch.setattr(loader, "fetch", _fetch)
+    monkeypatch.setattr(
+        loader,
+        "_fetch_html_docs_again_using_playwright",
+        _fetch_html_docs,
+    )
+
+    docs = await loader.fetch_all("failed")
+
+    assert docs == [partial_doc]
+    assert fallback_doc.attrs["source"] == "failed"
+    assert failed_fetcher.calls == [("failed",)]
+
+
+@pytest.mark.asyncio
 async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     """Configured Docling deadlines should reach the converter"""
     captured = {}
