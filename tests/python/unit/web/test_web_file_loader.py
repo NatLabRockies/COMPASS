@@ -55,9 +55,7 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
 
     monkeypatch.setattr(loader, "fetch", _fetch)
     monkeypatch.setattr(
-        loader,
-        "_fetch_html_docs_again_using_playwright",
-        _fetch_html_docs,
+        loader, "_fetch_html_docs_again_using_playwright", _fetch_html_docs
     )
 
     docs = await loader.fetch_all("kept", "missing")
@@ -85,9 +83,7 @@ async def test_docling_web_file_loader_handles_sourceless_elm_failure(
 
     monkeypatch.setattr(loader, "fetch", _fetch)
     monkeypatch.setattr(
-        loader,
-        "_fetch_html_docs_again_using_playwright",
-        _fetch_html_docs,
+        loader, "_fetch_html_docs_again_using_playwright", _fetch_html_docs
     )
 
     docs = await loader.fetch_all("failed")
@@ -112,8 +108,7 @@ async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
         return _doc("https://example.com/sample.pdf")
 
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file",
-        _read_docling_web_file,
+        "compass.web.file_loader.read_docling_web_file", _read_docling_web_file
     )
 
     doc, raw_content = await loader._fetch_doc(
