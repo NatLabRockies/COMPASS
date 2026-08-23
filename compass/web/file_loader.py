@@ -302,8 +302,8 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         )
         elm_docs = await self.failed_fetcher.fetch_all(*failed_searches)
         elm_docs = [
-            _select_elm_or_partial_doc(elm_doc, partial_fail_docs)
-            for elm_doc in elm_docs
+            _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source)
+            for source, elm_doc in zip(failed_searches, elm_docs, strict=True)
         ]
 
         return out_docs + elm_docs
@@ -477,14 +477,18 @@ def _collect_failed_searches(docs, sources):
     return out_docs, partial_fail_docs, failed_searches
 
 
-def _select_elm_or_partial_doc(elm_doc, partial_fail_docs):
+def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
     """Select elm doc if it is valid; otherwise use partial doc"""
-    docling_doc = partial_fail_docs.get(elm_doc.attrs["source"])
-    elm_doc_failed = elm_doc.empty or "cache_fn" not in elm_doc.attrs
+    source = elm_doc.attrs.get("source", source)
+    docling_doc = partial_fail_docs.get(source)
 
-    return (
-        docling_doc if elm_doc_failed and docling_doc is not None else elm_doc
-    )
+    elm_doc_failed = elm_doc.empty or "cache_fn" not in elm_doc.attrs
+    if elm_doc_failed and docling_doc is not None:
+        docling_doc.attrs.setdefault("source", source)
+        return docling_doc
+
+    elm_doc.attrs.setdefault("source", source)
+    return elm_doc
 
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
