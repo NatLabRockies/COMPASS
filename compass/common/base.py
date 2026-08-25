@@ -417,6 +417,7 @@ def setup_participating_owner(**kwargs):
     return G
 
 
+# complexipy: ignore
 def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     """Setup Graph to extract non-setback ordinance values from text
 
@@ -434,9 +435,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
     kwargs.setdefault("unit_clarification", "")
     kwargs.setdefault("feature_clarifications", "")
     feature_id = kwargs.get("feature_id", "")
-    G = setup_graph_no_nodes(  # ruff:ignore[non-lowercase-variable-in-function]
-        d_tree_name="Extra restriction", **kwargs
-    )
+    # ruff:ignore[non-lowercase-variable-in-function]
+    G = setup_graph_no_nodes(d_tree_name="Extra restriction", **kwargs)
 
     G.add_node(
         "init",

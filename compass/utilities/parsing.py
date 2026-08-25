@@ -236,31 +236,13 @@ def raw_pages_from_doc(
     # Do NOT use `is_pdf_doc` here because MDDocuments could have
     # "doc_type" == "pdf" and be treated as a single page doc
     if isinstance(doc, PDFDocument) and hasattr(doc, "raw_pages"):
-        raw_pages = doc.raw_pages
-        # failsafe check
-        if text_splitter is not None and len(raw_pages) == 1:
-            raw_pages = text_splitter.split_text(raw_pages[0])
-            raw_pages = _down_select_pages(
-                raw_pages,
-                percent_raw_pages_to_keep,
-                max_raw_pages,
-                num_end_pages_to_keep,
-            )
-            logger.debug(
-                "PDF Document from %s had 1 raw page; "
-                "has %d raw %s after splitting",
-                doc.attrs.get("source", "unknown source"),
-                len(raw_pages),
-                "page" if len(raw_pages) == 1 else "pages",
-            )
-        else:
-            logger.debug(
-                "PDF Document from %s has %d raw %s",
-                doc.attrs.get("source", "unknown source"),
-                len(raw_pages),
-                "page" if len(raw_pages) == 1 else "pages",
-            )
-        return raw_pages
+        return _raw_pages_from_pdf_doc(
+            doc,
+            text_splitter,
+            percent_raw_pages_to_keep,
+            max_raw_pages,
+            num_end_pages_to_keep,
+        )
 
     if text_splitter is None:
         logger.debug(
@@ -288,6 +270,42 @@ def raw_pages_from_doc(
     return raw_pages
 
 
+def _raw_pages_from_pdf_doc(
+    doc,
+    text_splitter,
+    percent_raw_pages_to_keep,
+    max_raw_pages,
+    num_end_pages_to_keep,
+):
+    """Get raw pages from an input PDF doc"""
+    raw_pages = doc.raw_pages
+    # failsafe check
+    if text_splitter is not None and len(raw_pages) == 1:
+        raw_pages = text_splitter.split_text(raw_pages[0])
+        raw_pages = _down_select_pages(
+            raw_pages,
+            percent_raw_pages_to_keep,
+            max_raw_pages,
+            num_end_pages_to_keep,
+        )
+        logger.debug(
+            "PDF Document from %s had 1 raw page; "
+            "has %d raw %s after splitting",
+            doc.attrs.get("source", "unknown source"),
+            len(raw_pages),
+            "page" if len(raw_pages) == 1 else "pages",
+        )
+        return raw_pages
+
+    logger.debug(
+        "PDF Document from %s has %d raw %s",
+        doc.attrs.get("source", "unknown source"),
+        len(raw_pages),
+        "page" if len(raw_pages) == 1 else "pages",
+    )
+    return raw_pages
+
+
 def _down_select_pages(
     pages, percent_raw_pages_to_keep, max_raw_pages, num_end_pages_to_keep
 ):
@@ -306,6 +324,7 @@ def _down_select_pages(
     return raw_pages
 
 
+# complexipy: ignore
 def convert_paths_to_strings(obj):
     """[NOT PUBLIC API] Convert all Path instances to strings"""
     logger.trace("Converting paths to strings in object: %s", obj)

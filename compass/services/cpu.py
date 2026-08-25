@@ -543,6 +543,7 @@ def _run_docling_subprocess(sender, fn, args, kwargs):
         sender.close()
 
 
+# complexipy: ignore
 def _receive_docling_result(receiver, process, timeout):
     """Receive a child conversion result before its deadline expires"""
     deadline = time.monotonic() + timeout

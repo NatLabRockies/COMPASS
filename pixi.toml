@@ -148,6 +148,9 @@ pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.16,<0.17"
 seaborn = ">=0.13.2,<0.14"
 
+[feature.python-dev.pypi-dependencies]
+complexipy = ">=7.0.1,<8"
+
 [feature.python-test.dependencies]
 codespell = ">=2.4,<3"
 flaky = ">=3.8.1,<4"

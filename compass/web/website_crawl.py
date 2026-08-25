@@ -242,6 +242,7 @@ class COMPASSCrawler:
 
         return self._out_docs
 
+    # complexipy: ignore
     async def _run(
         self,
         base_url,
@@ -394,7 +395,10 @@ class COMPASSCrawler:
             return False
 
         logger.debug("Loading Link: %s", link)
+        return await self._loaded_link_is_pdf(link, depth, score, parsed)
 
+    async def _loaded_link_is_pdf(self, link, depth, score, parsed):
+        """Check if the loaded link is a PDF document"""
         try:
             doc = await self.fast_afl.fetch(link.href)
         except KeyboardInterrupt:
@@ -571,31 +575,30 @@ def _extract_links_from_html(text, base_url):
         (a.get_text().strip(), a["href"])
         for a in soup.find_all("a", href=True)
     ]
+    return set(_sanitized_links(links, base_url))
 
-    out_links = set()
+
+def _sanitized_links(links, base_url):
+    """Sanitized links from the given list of (title, path) tuples"""
     for title, path in links:
         if not title or not path:
             continue
 
-        if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
-            continue
-
-        if any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS):
+        if _is_blacklisted(title, path):
             continue
 
         href = sanitize_url(urljoin(base_url, path))
         if urlsplit(href).scheme not in {"http", "https"}:
             continue
 
-        out_links.add(
-            _Link(
-                title=title,
-                href=href,
-                base_domain=base_url,
-            )
-        )
+        yield _Link(title=title, href=href, base_domain=base_url)
 
-    return out_links
+
+def _is_blacklisted(title, path):
+    """Check if a link is blacklisted based on title or path"""
+    if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
+        return True
+    return any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS)
 
 
 async def _get_text_from_all_locators(page):

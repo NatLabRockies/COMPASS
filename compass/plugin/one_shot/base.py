@@ -52,7 +52,9 @@ class _CacheKey(StrEnum):
     HEURISTIC_KEYWORDS = auto()
 
 
-def create_schema_based_one_shot_extraction_plugin(config, tech):  # ruff:ignore[complex-structure]
+# ruff:ignore[complex-structure]
+# complexipy: ignore
+def create_schema_based_one_shot_extraction_plugin(config, tech):
     """Create a one-shot extraction plugin based on a configuration
 
     Parameters
@@ -641,6 +643,18 @@ def _normalize_heuristic_keywords(raw):
         "GOOD_TECH_PHRASES",
     }
 
+    normalized = _normalize_input_kw(raw, expected_keys)
+
+    _verify_expected_kw_are_not_missing(normalized, expected_keys)
+    _verify_kw_list_not_empty(normalized)
+    _verify_min_number_of_kw_provided(normalized)
+    _warn_if_not_enough_kw_provided(normalized)
+
+    return normalized
+
+
+def _normalize_input_kw(raw, expected_keys):
+    """Normalize the input keyword dictionary"""
     normalized = {}
     for raw_key, value in raw.items():
         if not isinstance(raw_key, str):
@@ -656,6 +670,11 @@ def _normalize_heuristic_keywords(raw):
 
         normalized[target_key] = _normalize_keyword_list(value)
 
+    return normalized
+
+
+def _verify_expected_kw_are_not_missing(normalized, expected_keys):
+    """Verify that all expected keyword lists are present"""
     missing = expected_keys - set(normalized)
     if missing:
         msg = (
@@ -663,11 +682,17 @@ def _normalize_heuristic_keywords(raw):
         )
         raise COMPASSPluginConfigurationError(msg)
 
+
+def _verify_kw_list_not_empty(normalized):
+    """Verify that no keyword list is empty"""
     empty = [key for key, value in normalized.items() if not value]
     if empty:
         msg = f"Heuristic keyword lists must not be empty: {sorted(empty)}"
         raise COMPASSPluginConfigurationError(msg)
 
+
+def _verify_min_number_of_kw_provided(normalized):
+    """Verify that the minimum number of "Good" keywords is provided"""
     num_good_kw = sum(
         len(kw_list)
         for key, kw_list in normalized.items()
@@ -683,6 +708,14 @@ def _normalize_heuristic_keywords(raw):
         )
         raise COMPASSPluginConfigurationError(msg)
 
+
+def _warn_if_not_enough_kw_provided(normalized):
+    """Warn if the number of "Good" keywords is too low"""
+    num_good_kw = sum(
+        len(kw_list)
+        for key, kw_list in normalized.items()
+        if key != "NOT_TECH_WORDS"
+    )
     if num_good_kw < 10:  # ruff:ignore[magic-value-comparison]
         msg = (
             'It is recommended to provide at least 10 total "Good" '
@@ -691,8 +724,6 @@ def _normalize_heuristic_keywords(raw):
             "more effective heuristic."
         )
         warn(msg, COMPASSPluginConfigurationWarning)
-
-    return normalized
 
 
 def _normalize_keyword_list(items):
