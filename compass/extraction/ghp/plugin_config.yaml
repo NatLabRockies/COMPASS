@@ -10,18 +10,16 @@ query_templates:
     - "What is the specific legal information regarding zoning ordinances for private heat exchange wells in {jurisdiction}?"
 
 website_keywords:
-    # These still need massaging
-    #   - e.g. include something about open loop or closed loop?
-    pdf: 92160
-    pump: 46080
-    geothermal: 23040
-    ordinance: 11520
-    zoning: 5760
-    regulation: 2880
-    code: 1440
-    heating: 1440
-    planning: 720
-    government: 180
+  - "pdf"
+  - ["geothermal", "heat exchange"]
+  - ["heat pump", "open loop", "closed loop", "vertical loop", "horizontal loop"]
+  - "ordinance"
+  - "zoning"
+  - "regulation"
+  - ["setback", "noise"]
+  - ["code", "heating"]
+  - ["plan", "planning", "permit", "land", "municipal", "department", "development"]
+  - "government"
 
 heuristic_keywords:
   good_tech_acronyms:
@@ -95,6 +93,7 @@ heuristic_keywords:
     - "injection well"
     - "wellbeing"
     - "well-being"
+    - "wellness"
     - "as well as"
 
 collection_prompts: True

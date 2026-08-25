@@ -12,32 +12,19 @@ query_templates:
   - "site:municode.com {jurisdiction} code of ordinances"
 
 website_keywords:
-  pdf: 92160
-  compressor: 46080
-  pipeline: 46080
-  "natural gas": 46080
-  ordinance: 23040
-  zoning: 11520
-  setback: 5760
-  noise: 5760
-  permit: 2880
-  "conditional use": 2880
-  "special use": 2880
-  enclosure: 1440
-  fencing: 1440
-  "code of ordinances": 1440
-  "municipal code": 1440
-  ecode360: 1440
-  municode: 1440
-  "zoning ordinance": 1440
-  "ordinance adopted": 720
-  "land use code": 720
-  "title xii": 720
-  county: 360
-  municipal: 360
-  chapter: 180
-  "chapter 205": 180
-  section: 180
+  - "pdf"
+  - ["compressor", "pipeline", "natural gas"]
+  - "ordinance"
+  - "zoning"
+  - "regulation"
+  - ["setback", "noise"]
+  - ["permit", "conditional use", "special use"]
+  - ["enclosure", "fencing", "code of ordinances", "zoning ordinance"]
+  - ["plan", "planning", "permit", "land", "municipal", "department", "development"]
+  - "government"
+  - ["ordinance adopted", "land use code", "title xii"]
+  - ["county", "municipal"]
+  - ["chapter", "section"]
 
 heuristic_keywords:
   GOOD_TECH_KEYWORDS:
