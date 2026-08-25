@@ -12,6 +12,7 @@ from .apply import (
 # Can drop once plugins register themselves
 from .ghp import COMPASSGeoHeatPumpExtractor
 from .geothermal_electricity import COMPASSGeoElectricityExtractor
+from .natural_gas import COMPASSNaturalGasExtractor
 from .natural_gas_pipelines import COMPASSNaturalGasPipelinesExtractor
 from .rmp import COMPASSGeoRMPExtractor
 from .small_wind import COMPASSSmallWindExtractor

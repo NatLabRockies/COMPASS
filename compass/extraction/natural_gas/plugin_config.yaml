@@ -1,0 +1,243 @@
+schema: ./natural_gas_schema.json
+
+data_type_short_desc: natural gas electric generating facility ordinance
+
+query_templates:
+  - "filetype:pdf {jurisdiction} electric generating facility zoning ordinance"
+  - "{jurisdiction} gas-fired electric generating facility ordinance"
+  - "{jurisdiction} power plant zoning ordinance setbacks"
+  - "{jurisdiction} heavy industrial district setback requirements zoning"
+  - "Where can I find the legal text for zoning ordinances governing electric generating facilities or power plants in {jurisdiction}?"
+  - "What are the zoning district regulations and setback requirements for public utility or power generation facilities in {jurisdiction}?"
+
+website_keywords:
+  pdf: 92160
+  zoning: 46080
+  ordinance: 23040
+  generating facility: 11520
+  power plant: 11520
+  electric: 5760
+  industrial district: 2880
+  planning: 720
+  plan: 360
+  government: 180
+  code: 60
+  area: 60
+  land development: 15
+  land: 3
+  utility: 3
+  energy: 3
+  municipal: 1
+  department: 1
+
+heuristic_keywords:
+  good_tech_keywords:
+    - "setback"
+    - "generating"
+    - "electric"
+  good_tech_acronyms:
+    - "mw"
+    - "ccgt"
+    - "chp"
+  good_tech_phrases:
+    - "electric generating facility"
+    - "gas-fired electric generating"
+    - "gas fired power plant"
+    - "electric generating plant"
+    - "electric generation facility"
+    - "power generating facility"
+    - "power generation plant"
+    - "combined cycle"
+    - "simple cycle"
+    - "peaking plant"
+    - "public utility facility"
+  not_tech_words:
+    - "oil and gas well"
+    - "gas well"
+    - "well pad"
+    - "drilling"
+    - "fracking"
+    - "hydraulic fracturing"
+    - "wellhead"
+    - "mineral extraction"
+    - "gas extraction"
+    - "gas production"
+    - "pipeline"
+    - "compressor station"
+    - "metering station"
+    - "regulator station"
+    - "gas storage"
+    - "underground storage"
+    - "lng"
+    - "cng"
+    - "liquefied natural gas"
+    - "compressed natural gas"
+    - "fueling station"
+    - "filling station"
+    - "propane"
+    - "gas service line"
+    - "gas meter"
+    - "gas appliance"
+    - "gas furnace"
+    - "water heater"
+    - "gas fireplace"
+    - "gas grill"
+    - "gas station"
+    - "emergency generator"
+    - "standby generator"
+    - "backup generator"
+    - "portable generator"
+    - "gas main"
+    - "gas line"
+
+collection_prompts:
+  - key: contains_ord_info
+    label: contains ordinance info
+    prompt: |-
+      You extract structured data from text. Return your answer in JSON
+      format (not markdown). Your JSON file must include exactly two keys.
+      The first key is 'gas_gen_reqs', which is a string that summarizes all
+      zoning, siting, setback, design, and operational
+      requirements/restrictions that are explicitly enacted in the text
+      for a natural gas-fired electric generating facility (or power plant)
+      for a given jurisdiction. Note that outright bans are an important
+      restriction to track. Requirements that apply to the facility through a
+      general zoning district (such as heavy industrial) count, even if the
+      text never names natural gas generation specifically. Include any
+      **closely related provisions** if they clearly pertain to the
+      **development, operation, modification, or removal** of an electric
+      generating facility. All restrictions should be enforceable - ignore any
+      text that only provides a legal definition of the regulation. If the text
+      does not specify any concrete zoning, siting, setback, design, or
+      operational requirements/restrictions for an electric generating facility,
+      set this key to `null`. The last key is '{key}', which is a boolean that is
+      set to True if the text excerpt explicitly details zoning, siting, setback,
+      design, or operational requirements/restrictions for an electric generating
+      facility and False otherwise.
+
+  - key: x
+    label: for gas-fired generation
+    prompt: |-
+      You are a legal scholar that reads ordinance text and determines whether
+      any of it applies to zoning, siting, setback, design, or operational
+      requirements/restrictions for **natural gas-fired electric generating
+      facilities**. These may also be referred to as gas-fired electric
+      generating facilities, electric generating plants, electric generation
+      facilities, power plants, power generating facilities, energy generation
+      facilities, combined cycle plants, simple cycle plants, peaking plants,
+      cogeneration facilities, or public utility facilities. Your client is a
+      developer of utility-scale natural gas generation that sells power
+      offsite. Your client does NOT care about ordinances related to: natural
+      gas extraction, drilling, or well operations; pipelines, compressor
+      stations, metering stations, or gas storage; LNG or CNG facilities
+      including fueling stations; propane distribution; gas service lines,
+      meters, or appliances within buildings; or emergency, standby, or backup
+      generators serving a single onsite building. Ignore any text related to
+      such uses. Note that many jurisdictions regulate these facilities only
+      through general zoning districts such as heavy industrial rather than
+      through a technology-specific section - such text IS relevant and should
+      be treated as applying to the client. Return your answer as a dictionary
+      in JSON format (not markdown). Your JSON file must include exactly two
+      keys. The first key is 'summary' which contains a string that lists all of
+      the types of facilities or uses the text applies to (if any). The second
+      key is '{key}', which is a boolean that is set to True if any part of the
+      text excerpt details zoning, siting, setback, design, or operational
+      requirements/restrictions for the **natural gas-fired electric generating
+      facilities** (or similar) that the client is interested in and False
+      otherwise.
+
+text_extraction_prompts:
+  - key: gas_generation_text
+    out_fn: "{jurisdiction} Gas Generation Ordinance.txt"
+    prompt: |-
+      # CONTEXT #
+      We want to reduce the provided excerpt to only contain information about
+      **electric generating facilities**. The extracted text will be used for
+      structured data extraction, so it must be both **comprehensive** (retaining
+      all relevant details) and **focused** (excluding unrelated content), with
+      **zero rewriting or paraphrasing**. Ensure that all retained information is
+      **directly applicable to electric generating facilities** while preserving
+      full context and accuracy.
+
+      # OBJECTIVE #
+      Extract all text **pertaining to electric generating facilities** from the provided excerpt.
+
+      # RESPONSE #
+      Follow these guidelines carefully:
+
+      1. ## Scope of Extraction ##:
+      - Include all text that pertains to **electric generating facilities or power plants**.
+      - Include zoning district tables and setback tables that would apply to such a facility, even where the facility is not named explicitly.
+      - Explicitly include any text related to **bans or prohibitions** on electric generating facilities.
+      - Explicitly include any text related to the adoption or enactment date of the ordinance (if any).
+
+      2. ## Exclusions ##:
+      - Do **not** include text that does not pertain to electric generating facilities.
+
+      3. ## Formatting & Structure ##:
+      - **Preserve _all_ section titles, headers, and numberings** for reference.
+      - **Maintain the original wording, formatting, and structure** to ensure accuracy.
+
+      4. ## Output Handling ##:
+      - This is a strict extraction task — act like a text filter, **not** a summarizer or writer.
+      - Do not add, explain, reword, or summarize anything.
+      - The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**
+      - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
+      - If **no relevant text** is found, return the response: 'No relevant text.'
+
+  - key: cleaned_text_for_extraction
+    out_fn: "{jurisdiction} Natural Gas Generation Ordinance.txt"
+    prompt: |-
+      # CONTEXT #
+      We want to reduce the provided excerpt to only contain information about
+      **natural gas-fired electric generating facilities**. The extracted text
+      will be used for structured data extraction, so it must be both
+      **comprehensive** (retaining all relevant details) and **focused**
+      (excluding unrelated content), with **zero rewriting or paraphrasing**.
+
+      # OBJECTIVE #
+      Extract all text **pertaining to natural gas-fired electric generating facilities** from the provided excerpt.
+
+      # RESPONSE #
+      Follow these guidelines carefully:
+
+      1. ## Scope of Extraction ##:
+      - Include all text that pertains to **electric generating facilities**, even if referred to by different names such as: gas-fired electric generating facilities, electric generating plants, electric generation facilities, power plants, power generating facilities, energy generation facilities, combined cycle plants, simple cycle plants, peaking plants, cogeneration facilities, or public utility facilities.
+      - Include zoning district requirements and setback tables that apply to the district in which such a facility is permitted, even where the facility is not named explicitly in the table.
+      - Explicitly include any text related to **bans or prohibitions** on electric generating facilities.
+      - Explicitly include any text related to the adoption or enactment date of the ordinance (if any).
+      - **Retain all relevant technical, design, operational, safety, environmental, and infrastructure-related provisions** that apply to the topic, such as (but not limited to):
+          - Compliance with legal or regulatory standards.
+          - Site, structural, or design specifications.
+          - Noise, air quality, and water use provisions.
+          - Environmental impact considerations.
+          - Safety and risk mitigation measures.
+          - Infrastructure, implementation, operation, and maintenance details.
+          - All other **closely related provisions**.
+
+      2. ## Exclusions ##:
+      - Do **not** include text that applies **only** to natural gas extraction, drilling, or well operations.
+      - Do **not** include text that applies **only** to pipelines, compressor stations, metering stations, or gas storage.
+      - Do **not** include text that applies **only** to LNG, CNG, or propane facilities, including fueling stations.
+      - Do **not** include text that applies **only** to gas service lines, meters, or appliances within buildings.
+      - Do **not** include text that applies **only** to emergency, standby, or backup generators serving a single onsite building.
+      - Do **not** include text that does not pertain at all to electric generating facilities.
+
+      3. ## Formatting & Structure ##:
+      - **Preserve _all_ section titles, headers, and numberings** for reference.
+      - **Maintain the original wording, formatting, and structure** to ensure accuracy.
+
+      4. ## Output Handling ##:
+      - This is a strict extraction task — act like a text filter, **not** a summarizer or writer.
+      - Do not add, explain, reword, or summarize anything.
+      - The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**
+      - The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.
+      - If **no relevant text** is found, return the response: 'No relevant text.'
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from natural gas electric
+  generating facility ordinances. Follow all instructions in the schema
+  descriptions carefully.
+  Only extract requirements for natural gas-fired electric generating facilities
+  that produce electricity for offsite sale, not for gas extraction, pipelines,
+  storage, fueling, building appliances, or backup generators.
