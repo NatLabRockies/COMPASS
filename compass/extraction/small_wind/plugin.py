@@ -4,6 +4,7 @@ from compass.plugin import (
     OrdinanceExtractionPlugin,
     OutputColumn,
     register_plugin,
+    normalize_website_keywords,
 )
 from compass.extraction.small_wind.ordinance import (
     SmallWindHeuristic,
@@ -65,7 +66,9 @@ class COMPASSSmallWindExtractor(OrdinanceExtractionPlugin):
     QUERY_TEMPLATES = SMALL_WIND_QUERY_TEMPLATES
     """list: List of search engine query templates for extraction"""
 
-    WEBSITE_KEYWORDS = BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS
+    WEBSITE_KEYWORDS = normalize_website_keywords(
+        BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS
+    )
     """list: List of keywords
 
     Keywords indicate links which should be prioritized when performing

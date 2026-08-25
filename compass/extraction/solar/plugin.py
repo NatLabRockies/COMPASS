@@ -4,6 +4,7 @@ from compass.plugin import (
     OrdinanceExtractionPlugin,
     OutputColumn,
     register_plugin,
+    normalize_website_keywords,
 )
 from compass.extraction.solar.ordinance import (
     SolarHeuristic,
@@ -65,7 +66,9 @@ class COMPASSSolarExtractor(OrdinanceExtractionPlugin):
     QUERY_TEMPLATES = SOLAR_QUERY_TEMPLATES
     """list: List of search engine query templates for extraction"""
 
-    WEBSITE_KEYWORDS = BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS
+    WEBSITE_KEYWORDS = normalize_website_keywords(
+        BEST_SOLAR_ORDINANCE_WEBSITE_URL_KEYWORDS
+    )
     """list: List of keywords
 
     Keywords indicate links which should be prioritized when performing
