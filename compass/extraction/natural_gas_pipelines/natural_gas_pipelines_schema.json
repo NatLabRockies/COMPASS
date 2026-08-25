@@ -1,0 +1,143 @@
+{
+  "title": "Natural Gas Pipeline and Compressor Station Ordinance Schema",
+  "description": "One-shot extraction schema focused on stakeholder-priority siting and permitting requirements for natural gas pipelines and compressor stations.",
+  "version": "2.1.1",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "value", "units", "section", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "enum": [
+              "structures distance",
+              "front yard distance",
+              "property lines distance",
+              "rear yard distance",
+              "side yard distance",
+              "residential buildings distance",
+              "water bodies distance",
+              "distance between compressor stations",
+              "noise daytime limit",
+              "noise nighttime limit",
+              "zoning districts",
+              "conditional/special use permit requirement",
+              "fencing",
+              "minimum lot size",
+              "enclosure"
+            ]
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "type": ["string", "null"]
+          },
+          "section": {
+            "type": ["string", "null"]
+          },
+          "summary": {
+            "type": ["string", "null"]
+          }
+        }
+      }
+    }
+  },
+  "$definitions": {
+    "setbacks": {
+      "structures distance": {
+        "description": "Minimum setback from structures generally for compressor stations or pipeline facilities. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written, such as feet, meters, or miles. IGNORE: setbacks that are explicitly to property lines, yard lines, residential buildings, or water bodies."
+      },
+      "front yard distance": {
+        "description": "Minimum front yard setback for compressor stations or pipeline facilities. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: side-yard, rear-yard, and non-yard setbacks."
+      },
+      "property lines distance": {
+        "description": "Minimum setback from lot lines, parcel lines, tract boundaries, or property lines. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: setbacks explicitly tied to front yard, side yard, rear yard, structures, or water bodies."
+      },
+      "rear yard distance": {
+        "description": "Minimum rear yard setback for compressor stations or pipeline facilities. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: front-yard, side-yard, and non-yard setbacks."
+      },
+      "side yard distance": {
+        "description": "Minimum side yard setback for compressor stations or pipeline facilities. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: front-yard, rear-yard, and non-yard setbacks."
+      },
+      "residential buildings distance": {
+        "description": "Minimum setback from homes, dwellings, occupied residences, or residential buildings. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: residential zoning district setbacks where no building/structure receptor is specified."
+      },
+      "water bodies distance": {
+        "description": "Minimum setback from rivers, streams, lakes, ponds, wetlands, reservoirs, or other water bodies. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: non-distance environmental text or domestic-well-only requirements."
+      },
+      "distance between compressor stations": {
+        "description": "Minimum required distance separating one compressor station from another compressor station. VALUE: numerical minimum distance only. UNITS: source distance units exactly as written. IGNORE: spacing requirements for wells, well pads, or unrelated facilities."
+      }
+    },
+    "noise": {
+      "noise daytime limit": {
+        "description": "Daytime noise standard applying to compressor stations or pipeline facilities. VALUE: a numerical maximum decibel limit when stated, or the enforceable ambient-relative threshold phrase when the ordinance uses a day standard without a standalone numeric cap. UNITS: source noise units exactly as written, such as dBA, dB, or dBC, or null when the clause is qualitative only. IGNORE: complaint-response protocol language, health-monitoring programs, and report-submission timelines unless the same clause contains a targeted daytime standard."
+      },
+      "noise nighttime limit": {
+        "description": "Nighttime noise standard applying to compressor stations or pipeline facilities. VALUE: a numerical maximum decibel limit when stated, or the enforceable ambient-relative threshold phrase when the ordinance uses a night standard without a standalone numeric cap. UNITS: source noise units exactly as written, such as dBA, dB, or dBC, or null when the clause is qualitative only. IGNORE: complaint-response protocol language, health-monitoring programs, and report-submission timelines unless the same clause contains a targeted nighttime standard."
+      }
+    },
+    "zoning_and_permitting": {
+      "zoning districts": {
+        "description": "Districts where natural gas compressor stations or natural gas pipeline facilities are allowed, conditionally allowed, specially allowed, or prohibited. VALUE: array of district names/codes. UNITS: null. IGNORE: district names mentioned only as setback measurement references unless the same evidence also states use authorization."
+      },
+      "conditional/special use permit requirement": {
+        "description": "Requirement to obtain a conditional use permit, special use permit, special exception, or equivalent discretionary land-use approval. VALUE: array of permit/approval names, or boolean true if required but unnamed. UNITS: null. IGNORE: generic permit administration, fee schedules, and approvals not explicitly tied to compressor stations or pipeline facilities."
+      }
+    },
+    "site_design": {
+      "fencing": {
+        "description": "Fencing requirement for compressor stations or pipeline facilities. VALUE: numerical fence height when explicitly stated, otherwise boolean true if fencing is required. UNITS: source distance unit if numerical, otherwise null. IGNORE: security procedures that do not impose a fencing requirement."
+      },
+      "minimum lot size": {
+        "description": "Minimum lot/parcel/site area required for compressor stations or pipeline facilities. VALUE: numerical minimum area only. UNITS: source area units exactly as written, such as acres or square feet. IGNORE: residential lot standards for unrelated uses, permit fees, insurance, hearing logistics, and qualitative lot-platting procedures without numeric area."
+      },
+      "enclosure": {
+        "description": "Requirement to enclose compressor station equipment in a building or structure. VALUE: boolean true if enclosure is required, or numerical only if a specific enclosure dimension threshold is stated. UNITS: source unit if numerical, otherwise null. IGNORE: architectural styling details that do not impose an enforceable enclosure requirement."
+      }
+    }
+  },
+  "$instructions": {
+    "scope": "Extract only enacted local requirements explicitly applicable to natural gas compressor stations and natural gas pipeline facilities. Exclude provisions focused only on drilling, fracking, wells, well pads, and unrelated industrial uses unless the same clause explicitly governs compressor stations or pipelines.",
+    "null_handling": "Use sparse output. Emit rows only for explicitly found in-scope features. Do not emit placeholder rows for missing features. Use null values only when a present targeted feature is qualitative and has no numeric value.",
+    "verbatim_quotes": "In summary fields, prefer verbatim ordinance text and enclose direct excerpts in double quotation marks.",
+    "units_discipline": "Do not convert units. Record units exactly as they appear in the ordinance.",
+    "priority_logic": "Prioritize quantitative build-driving requirements first (setbacks, lot size, day/night noise limits). Preserve targeted ambient-relative noise standards even when the clause does not state a standalone dB cap, and capture the enforceable threshold phrase in value when needed. If a targeted feature is present but only qualitative, capture it with allowed value/units conventions.",
+    "screening_gate": "If a clause is primarily post-construction complaint protocol, monitoring workflow, administrative reporting, insurance, or hearing process and lacks an explicit targeted numeric requirement or targeted ambient-relative noise standard, do not emit a row."
+  },
+  "$qa_checklist": [
+    "All output rows use only the 15 allowed feature IDs.",
+    "Numeric setbacks and lot size include numeric values and non-null units when explicitly present.",
+    "Noise rows capture explicit numeric day/night dB limits and targeted ambient-relative standards.",
+    "Do not emit complaint-protocol-only noise rows without explicit day/night numeric caps or targeted ambient-relative standards.",
+    "Zoning districts are arrays of district names/codes.",
+    "Conditional/special permit rows are tied to explicit discretionary permit language.",
+    "No off-target extraction from well-only drilling/fracking language."
+  ]
+}
