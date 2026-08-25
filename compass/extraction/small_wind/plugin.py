@@ -39,7 +39,7 @@ SMALL_WIND_QUERY_TEMPLATES = [
     ),
 ]
 
-BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
+BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = [
     "pdf",
     "wecs",
     "wind",
@@ -54,7 +54,7 @@ BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
     ["land development", "land use"],
     ["land", "environment", "energy", "renewable"],
     ["municipal", "department", "development", "board"],
-}
+]
 
 
 class COMPASSSmallWindExtractor(OrdinanceExtractionPlugin):
