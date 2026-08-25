@@ -85,10 +85,15 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
               that is being processed. If not provided, the LLM will be
               used to generate search engine queries based on the
               schema input.
-            - `website_keywords`: A dictionary mapping keywords to
-              scores for filtering websites during document retrieval.
-              If not provided, the LLM will be used to generate
-              website keywords based on the schema input.
+            - `website_keywords`: Ordered keyword tiers for website
+              document search prioritization. Each tier can be a string
+              or a list of strings; list the highest-priority tier
+              first. COMPASS computes scores so one match in a tier
+              outweighs all matches in lower tiers and adds URL-encoded
+              variants for multi-word keywords. You can also provide
+              your own keyword-to-score mappings instead. If not
+              provided, the LLM will be used to generate keywords based
+              on the schema input.
             - `heuristic_keywords`: A dictionary containing the keyword
               lists used by the heuristic document filter. The
               dictionary must include ``not_tech_words``,
