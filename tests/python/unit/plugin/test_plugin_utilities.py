@@ -1,4 +1,4 @@
-"""COMPASS one-shot plugin configuration tests"""
+"""COMPASS plugin utilities tests"""
 
 from pathlib import Path
 from warnings import catch_warnings, simplefilter
