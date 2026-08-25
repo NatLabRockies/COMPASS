@@ -12,14 +12,17 @@ query_templates:
 website_keywords:
   - "pdf"
   - ["geothermal", "heat exchange"]
-  - ["heat pump", "open loop", "closed loop", "vertical loop", "horizontal loop"]
-  - "ordinance"
-  - "zoning"
-  - "regulation"
-  - ["setback", "noise"]
-  - ["code", "heating"]
-  - ["plan", "planning", "permit", "land", "municipal", "department", "development"]
+  - ["heat pump", "open loop", "closed loop", "vertical loop", "horizontal loop", "heating"]
+  - ["zoning", "ordinance", "regulation"]
+  - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
+  - ["power", "electricity"]
+  - ["plan", "planning", "permit"]
   - "government"
+  - ["setback", "noise"]
+  - ["code", "area"]
+  - ["land development", "land use"]
+  - ["land", "environment"]
+  - ["municipal", "department", "development"]
 
 heuristic_keywords:
   good_tech_acronyms:

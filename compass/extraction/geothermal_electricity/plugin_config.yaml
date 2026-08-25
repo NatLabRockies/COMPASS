@@ -14,12 +14,16 @@ query_templates:
 website_keywords:
    - "pdf"
    - "geothermal"
-   - "ordinance"
-   - "zoning"
-   - "regulation"
-   - "code"
+   - ["zoning", "ordinance", "regulation"]
+   - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
    - ["power", "electricity"]
-   - ["plan", "planning", "permit", "land use", "municipal"]
+   - ["plan", "planning", "permit"]
+   - "government"
+   - ["setback", "noise"]
+   - ["code", "area"]
+   - ["land development", "land use"]
+   - ["land", "environment"]
+   - ["municipal", "department", "development"]
    - ["county", "ordinance code", "code of ordinances", "land use code", "use table"]
    - ["chapter", "article", "title", "statute", "administrative code", "conditional use permit", "special use permit", "drilling permit", "resource development", "government"]
 

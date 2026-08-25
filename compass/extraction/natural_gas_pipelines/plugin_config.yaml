@@ -14,14 +14,18 @@ query_templates:
 website_keywords:
   - "pdf"
   - ["compressor", "pipeline", "natural gas"]
-  - "ordinance"
-  - "zoning"
-  - "regulation"
+  - ["zoning", "ordinance", "regulation"]
+  - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
+  - ["power", "electricity"]
+  - ["plan", "planning", "permit"]
+  - "government"
   - ["setback", "noise"]
+  - ["code", "area"]
+  - ["land development", "land use"]
+  - ["land", "environment"]
+  - ["municipal", "department", "development"]
   - ["permit", "conditional use", "special use"]
   - ["enclosure", "fencing", "code of ordinances", "zoning ordinance"]
-  - ["plan", "planning", "permit", "land", "municipal", "department", "development"]
-  - "government"
   - ["ordinance adopted", "land use code", "title xii"]
   - ["county", "municipal"]
   - ["chapter", "section"]

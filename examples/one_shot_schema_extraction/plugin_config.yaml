@@ -13,14 +13,16 @@ website_keywords:
   - "pdf"
   - "wecs"
   - "wind"
-  - "zoning"
-  - "ordinance"
+  - ["zoning", "ordinance", "regulation"]
+  - ["dsireusa", "windaction"]
+  - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
   - "renewable energy"
   - ["plan", "planning", "permit"]
   - "government"
+  - ["setback", "noise"]
   - ["code", "area"]
-  - "land development"
-  - ["land", "environment", 'energy', "renewable"]
+  - ["land development", "land use"]
+  - ["land", "environment", "energy", "renewable"]
   - ["municipal", "department", "development"]
 
 heuristic_keywords:
