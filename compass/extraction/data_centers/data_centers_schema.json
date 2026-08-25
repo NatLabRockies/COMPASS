@@ -68,7 +68,7 @@
               "string",
               "null"
             ],
-            "description": "The class of facility the provision governs, recorded in the jurisdiction's own vocabulary rather than a normalized taxonomy (for example 'Hyperscale', 'Data Center, Medium', 'Large-Scale Data Center', 'Data Processing Center', 'Small urban data center', 'Accessory use'). Use null when the ordinance applies one standard to data centers generally without tiering by facility class."
+            "description": "The class of facility the provision governs, recorded in the jurisdiction's own vocabulary rather than a normalized taxonomy (for example 'Hyperscale', 'Data Center, Medium', 'Large-Scale Data Center', 'Data Processing Center', 'Small urban data center', 'Accessory use'). Where the ordinance sets a single standard for data centers generally rather than tiering by facility class, record the generic term it uses for the use, such as 'Data Center'. Use null only where the provision attaches no term to the use at all."
           },
           "value": {
             "description": "The extracted requirement. Numerical value for quantitative features, array of district names/codes for district features, boolean true where a requirement exists but is not numeric, or null where the provision is qualitative and the substance lives in the summary. When a single provision sets several related numbers (for example day and night noise limits, or front/side/rear setbacks), record them in one row as a single compound string in a fixed order and describe that same order, component by component, in the units field.",
@@ -245,7 +245,7 @@
     ],
     "size_tiering": [
       "Data center ordinances frequently set different standards for different size classes of facility. When they do, emit one row per class and record the jurisdiction's own class name in data_center_type.",
-      "Where one standard applies to data centers generally, emit a single row and set data_center_type to the term the ordinance uses for the use, or null when it uses none.",
+      "Where one standard applies to data centers generally, emit a single row and record the generic term the ordinance uses for the use. Use null only where the provision attaches no term to the use at all.",
       "Do not merge tiered standards into a single row, and do not map a local class name onto another jurisdiction's taxonomy."
     ],
     "setbacks": [
@@ -268,7 +268,7 @@
   },
   "$qa_checklist": [
     "All output rows use only the 34 allowed feature IDs.",
-    "Tiered standards are split into one row per size class, each with the jurisdiction's own class name in data_center_type.",
+    "Every row records the jurisdiction's own term for the use in data_center_type, and tiered standards are split into one row per size class.",
     "Numeric setbacks, lot standards, and building size rows carry numeric values and non-null units.",
     "Compound values list their components in the same order as the units string.",
     "Noise rows carry explicit numeric limits with their time period and receiving use, and no row is emitted from complaint-protocol language alone.",
