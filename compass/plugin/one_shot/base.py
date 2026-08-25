@@ -368,7 +368,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 return self.WEBSITE_KEYWORDS
 
             if wk := config.get("website_keywords"):
-                wk = _augment_website_keywords(wk)
+                wk = _normalize_website_keywords(wk)
                 self.__class__.WEBSITE_KEYWORDS = wk
                 return wk
 
@@ -378,7 +378,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 key=_CacheKey.WEBSITE_KEYWORDS,
             )
             if wk:
-                wk = _augment_website_keywords(wk)
+                wk = _normalize_website_keywords(wk)
                 self.__class__.WEBSITE_KEYWORDS = wk
                 return wk
 
@@ -412,7 +412,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                         value=wk,
                     )
 
-                wk = _augment_website_keywords(wk)
+                wk = _normalize_website_keywords(wk)
                 self.__class__.WEBSITE_KEYWORDS = wk
 
             return wk
