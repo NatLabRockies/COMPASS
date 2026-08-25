@@ -42,6 +42,15 @@ _SCHEMA_DIR = importlib.resources.files("compass.plugin.one_shot.schemas")
 _QT_SEMAPHORE = Semaphore(1)
 _WK_SEMAPHORE = Semaphore(1)
 _HK_SEMAPHORE = Semaphore(1)
+_ORDINANCE_WEBSITE_KEYWORDS = {
+    "planning",
+    "plan",
+    "government",
+    "zoning",
+    "land",
+    "municipal",
+    "department",
+}
 
 
 class _CacheKey(StrEnum):
@@ -647,6 +656,8 @@ def _normalize_website_keywords(raw):
             "keyword tiers."
         )
         raise COMPASSPluginConfigurationError(msg)
+
+    _warn_if_ordinance_website_keywords_are_missing(keywords)
     return keywords
 
 
@@ -712,6 +723,22 @@ def _expand_website_keyword_tier(tier, tier_ind):
         expanded.update(variants)
 
     return expanded
+
+
+def _warn_if_ordinance_website_keywords_are_missing(keywords):
+    """Warn when ordinance-oriented crawl keywords are absent"""
+    missing = _ORDINANCE_WEBSITE_KEYWORDS - set(keywords)
+    if not missing:
+        return
+
+    msg = (
+        "Website keywords are missing ordinance-oriented terms: "
+        f"{sorted(missing)}. These keywords help push link prioritization "
+        "toward ordinance documents. Add the missing keywords to silence "
+        "this warning. If they are intentionally excluded, set their scores "
+        "to 0 in a flat score mapping so they have no influence."
+    )
+    warn(msg, COMPASSPluginConfigurationWarning)
 
 
 def _normalize_heuristic_keywords(raw):
