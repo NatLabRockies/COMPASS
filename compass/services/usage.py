@@ -29,16 +29,16 @@ class TimedEntry:
             Some value to store as an entry.
         """
         self.value = value
-        self._time = time.perf_counter()
+        self.time = time.perf_counter()
 
     def __eq__(self, other):
-        return self._time == other
+        return self.time == other
 
     def __lt__(self, other):
-        return self._time < other
+        return self.time < other
 
     def __hash__(self):
-        return hash((self.value, self._time))
+        return hash((self.value, self.time))
 
 
 class TimeBoundedUsageTracker:
