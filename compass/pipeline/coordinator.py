@@ -128,6 +128,7 @@ class BaseRunMode(ABC):
             jurisdiction=jurisdiction,
             model_configs=self.runtime.models,
             usage_tracker=usage_tracker,
+            rate_tracker=self.runtime.rate_tracker,
         )
         return SingleJurisdictionRun(
             self.runtime,
@@ -419,7 +420,9 @@ async def _finalize_extraction(
     runtime, results, start_date, num_jurisdictions
 ):
     """Finalize process or extraction mode outputs"""
-    total_cost = await _compute_total_cost()
+    total_cost, llm_usage_rates = await _compute_total_cost(
+        runtime.rate_tracker
+    )
     doc_infos = [
         {
             "jurisdiction": result.jurisdiction,
@@ -445,6 +448,7 @@ async def _finalize_extraction(
         num_jurisdictions_found=num_docs_found,
         total_cost=total_cost,
         models=runtime.models,
+        llm_usage_rates=llm_usage_rates,
     )
     run_msg = compile_run_summary_message(
         total_seconds=total_time,
@@ -457,9 +461,13 @@ async def _finalize_extraction(
     return run_msg
 
 
-async def _compute_total_cost():
-    """Compute total cost from tracked usage"""
-    total_usage = await UsageUpdater.call(None)
+async def _compute_total_cost(rate_tracker):
+    """Compute total cost and load LLM rate statistics from usage"""
+    total_usage = await UsageUpdater.call(None, rate_tracker)
     if not total_usage:
-        return 0
-    return compute_total_cost_from_usage(total_usage)
+        return 0, None
+
+    return (
+        compute_total_cost_from_usage(total_usage),
+        total_usage.get(rate_tracker.label),
+    )
