@@ -188,5 +188,6 @@ class BaseExtractionPlugin(ABC):
         total_cost = compute_total_cost_from_usage(total_usage)
         COMPASS_PB.update_total_cost(total_cost, replace=True)
 
-    def validate_plugin_configuration(self):  # ruff:ignore[empty-method-without-abstract-decorator]
+    # ruff:ignore[empty-method-without-abstract-decorator]
+    def validate_plugin_configuration(self):
         """[NOT PUBLIC API] Validate plugin is properly configured"""
