@@ -28,13 +28,18 @@ class TimedEntry:
         value : object
             Some value to store as an entry.
         """
-        self.value = value
+        self._value = value
         self._time = time.perf_counter()
 
     @property
     def time(self):
         """float: Time the entry was added to the tracker"""
         return self._time
+
+    @property
+    def value(self):
+        """object: Value that was added to the tracker"""
+        return self._value
 
     def __eq__(self, other):
         return self.time == other
