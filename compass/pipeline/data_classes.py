@@ -698,6 +698,11 @@ class BaseRequest:
             self.user_model_input, rate_tracker=self._rate_tracker
         )
 
+    @property
+    def rate_tracker(self):
+        """LLMRateTracker: Rate tracker for LLM calls"""
+        return self._rate_tracker
+
 
 class ProcessRequest(BaseRequest):
     """Parameter Object for full process mode"""
