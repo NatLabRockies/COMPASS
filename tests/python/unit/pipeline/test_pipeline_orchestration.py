@@ -66,7 +66,11 @@ def patched_workflow(monkeypatch):
             DummyWorkflow.LAST_MODE_USED = self.runtime.mode
             return f"processed {self.runtime.mode}"
 
-    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
+    monkeypatch.setattr(
+        data_classes_module,
+        "build_models",
+        lambda model_input, rate_tracker: {},
+    )
     monkeypatch.setattr(
         coordinator_module,
         "_load_jurisdictions_to_process",
@@ -224,7 +228,11 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
         "_load_jurisdictions_to_process",
         _load_single_jurisdiction,
     )
-    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
+    monkeypatch.setattr(
+        data_classes_module,
+        "build_models",
+        lambda model_input, rate_tracker: {},
+    )
     monkeypatch.setattr(
         coordinator_module,
         "_select_workflow",
