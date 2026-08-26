@@ -14,7 +14,13 @@ class BaseExtractionPlugin(ABC):
     implementer must define most functionality on their own.
     """
 
-    def __init__(self, jurisdiction, model_configs, usage_tracker=None):
+    def __init__(
+        self,
+        jurisdiction,
+        model_configs,
+        usage_tracker=None,
+        rate_tracker=None,
+    ):
         """
 
         Parameters
@@ -29,10 +35,14 @@ class BaseExtractionPlugin(ABC):
         usage_tracker : UsageTracker, optional
             Usage tracker instance that can be used to record the LLM
             call cost. By default, ``None``.
+        rate_tracker : LLMRateTracker, optional
+            Run-level LLM rate tracker used to persist LLM request and
+            token rate statistics. By default, ``None``.
         """
         self.jurisdiction = jurisdiction
         self.model_configs = model_configs
         self.usage_tracker = usage_tracker
+        self.rate_tracker = rate_tracker
 
     JURISDICTION_DATA_FP = None
     """:term:`path-like <path-like object>`: Path to jurisdiction CSV
@@ -169,10 +179,12 @@ class BaseExtractionPlugin(ABC):
 
     async def record_usage(self):
         """Persist usage tracking data when a tracker is available"""
-        if self.usage_tracker is None:
+        if self.usage_tracker is None and self.rate_tracker is None:
             return
 
-        total_usage = await UsageUpdater.call(self.usage_tracker)
+        total_usage = await UsageUpdater.call(
+            self.usage_tracker, self.rate_tracker
+        )
         total_cost = compute_total_cost_from_usage(total_usage)
         COMPASS_PB.update_total_cost(total_cost, replace=True)
 
