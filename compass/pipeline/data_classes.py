@@ -7,6 +7,7 @@ from functools import cached_property
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass.llm import OpenAIConfig
+from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
@@ -685,13 +686,17 @@ class BaseRequest:
         )
         self.user_model_input = model
         self.llm_costs = llm_costs
+        self._rate_tracker = LLMRateTracker()
 
     @cached_property
     def models(self):
         """dict: Mapping of LLM task to OpenAIConfig for this request"""
         if not self.user_model_input:
             return {}
-        return build_models(self.user_model_input)
+
+        return build_models(
+            self.user_model_input, rate_tracker=self._rate_tracker
+        )
 
 
 class ProcessRequest(BaseRequest):
@@ -1280,7 +1285,7 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def build_models(user_input, *, allow_empty=False):
+def build_models(user_input, *, allow_empty=False, rate_tracker=None):
     """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
@@ -1290,6 +1295,8 @@ def build_models(user_input, *, allow_empty=False):
 
     caller_instances = {}
     for raw_kwargs in user_input:
+        if rate_tracker is not None:
+            raw_kwargs["rate_tracker"] = rate_tracker
         for task, model_config in _config_for_tasks(raw_kwargs):
             _verify_task_not_duplicate(task, caller_instances)
             caller_instances[task] = model_config
