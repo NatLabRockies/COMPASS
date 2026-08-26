@@ -175,9 +175,11 @@ class OpenAIService(LLMService):
             Chat GPT response as a string, or ``None`` if the call
             failed.
         """
-        self._record_prompt_tokens(kwargs)
+        prompt_timestamp = self._record_prompt_tokens(kwargs)
+        self._record_request_rate(prompt_timestamp)
         response = await self._call_gpt(model=self.model_name, **kwargs)
-        self._record_completion_tokens(response)
+        completion_timestamp = self._record_completion_tokens(response)
+        self._record_token_rate(response, completion_timestamp)
         self._record_usage(response, usage_tracker, usage_sub_label)
         self._update_pb_cost(response)
         return _get_response_message(response)
@@ -185,13 +187,25 @@ class OpenAIService(LLMService):
     def _record_prompt_tokens(self, kwargs):
         """Add prompt token count to rate tracker"""
         num_tokens = count_tokens(kwargs.get("messages", []), self.model_name)
-        self.rate_tracker.add(num_tokens)
+        return self.rate_tracker.add(num_tokens)
 
     def _record_completion_tokens(self, response):
         """Add completion token count to rate tracker"""
         if response is None:
+            return None
+        return self.rate_tracker.add(response.usage.completion_tokens)
+
+    def _record_token_rate(self, response, timestamp):
+        """Record successful-response tokens in rate statistics"""
+        if response is None or self.rate_stats_tracker is None:
             return
-        self.rate_tracker.add(response.usage.completion_tokens)
+
+        tokens = (
+            response.usage.prompt_tokens + response.usage.completion_tokens
+        )
+        self.rate_stats_tracker.record_tokens(
+            self.model_name, tokens, timestamp
+        )
 
     def _record_usage(self, response, usage_tracker, usage_sub_label):
         """Record token usage for user"""
