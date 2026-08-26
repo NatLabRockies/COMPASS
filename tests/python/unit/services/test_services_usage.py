@@ -8,9 +8,9 @@ import pytest
 from compass.services.usage import (
     LLM_USAGE_RATES_KEY,
     LLMRateTracker,
+    LLMUsageTracker,
     TimedEntry,
     TimeBoundedUsageTracker,
-    UsageTracker,
 )
 
 
@@ -172,9 +172,9 @@ def test_rate_tracker_snapshot_does_not_mutate(patched_clock):
 
 
 def test_usage_tracker():
-    """Test the `UsageTracker` class"""
+    """Test the `LLMUsageTracker` class"""
 
-    tracker = UsageTracker("test", response_parser=_sample_response_parser)
+    tracker = LLMUsageTracker("test", response_parser=_sample_response_parser)
     assert tracker == {}
     assert tracker.totals == {}
 
@@ -184,12 +184,12 @@ def test_usage_tracker():
 
     tracker.update_from_model(response={})
     assert tracker == {
-        UsageTracker.UNKNOWN_MODEL_LABEL: {
+        LLMUsageTracker.UNKNOWN_MODEL_LABEL: {
             "default": {"requests": 1, "inputs": 0}
         }
     }
     assert tracker.totals == {
-        UsageTracker.UNKNOWN_MODEL_LABEL: {"requests": 1, "inputs": 0}
+        LLMUsageTracker.UNKNOWN_MODEL_LABEL: {"requests": 1, "inputs": 0}
     }
 
     tracker.update_from_model(response={"inputs": 100}, sub_label="parsing")
@@ -199,28 +199,28 @@ def test_usage_tracker():
     tracker.update_from_model()
 
     assert tracker == {
-        UsageTracker.UNKNOWN_MODEL_LABEL: {
+        LLMUsageTracker.UNKNOWN_MODEL_LABEL: {
             "default": {"requests": 1, "inputs": 0},
             "parsing": {"requests": 1, "inputs": 100},
         },
         "my_model": {"parsing": {"requests": 1, "inputs": 200}},
     }
     assert tracker.totals == {
-        UsageTracker.UNKNOWN_MODEL_LABEL: {"requests": 2, "inputs": 100},
+        LLMUsageTracker.UNKNOWN_MODEL_LABEL: {"requests": 2, "inputs": 100},
         "my_model": {"requests": 1, "inputs": 200},
     }
 
     tracker.update_from_model(response={"tokens": 5})
 
     assert tracker == {
-        UsageTracker.UNKNOWN_MODEL_LABEL: {
+        LLMUsageTracker.UNKNOWN_MODEL_LABEL: {
             "default": {"requests": 2, "inputs": 0, "tokens": 5},
             "parsing": {"requests": 1, "inputs": 100},
         },
         "my_model": {"parsing": {"requests": 1, "inputs": 200}},
     }
     assert tracker.totals == {
-        UsageTracker.UNKNOWN_MODEL_LABEL: {
+        LLMUsageTracker.UNKNOWN_MODEL_LABEL: {
             "requests": 3,
             "inputs": 100,
             "tokens": 5,

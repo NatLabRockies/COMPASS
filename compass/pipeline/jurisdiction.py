@@ -52,7 +52,7 @@ class SingleJurisdictionRun:
             Configured extraction plugin instance responsible for
             parsing collected documents and persisting structured
             output for this jurisdiction.
-        usage_tracker : UsageTracker, optional
+        usage_tracker : LLMUsageTracker, optional
             Optional tracker instance used to accumulate token usage
             and cost information for LLM calls made during the
             jurisdiction workflow. By default, ``None``.

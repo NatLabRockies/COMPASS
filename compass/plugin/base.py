@@ -32,7 +32,7 @@ class BaseExtractionPlugin(ABC):
             :class:`~compass.utilities.enums.LLMTasks` and values are
             :class:`~compass.llm.config.LLMConfig` instances to be used
             for those tasks.
-        usage_tracker : UsageTracker, optional
+        usage_tracker : LLMUsageTracker, optional
             Usage tracker instance that can be used to record the LLM
             call cost. By default, ``None``.
         rate_tracker : LLMRateTracker, optional

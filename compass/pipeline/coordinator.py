@@ -7,7 +7,7 @@ from datetime import datetime, UTC
 from abc import ABC, abstractmethod
 
 from compass.services.openai import usage_from_response
-from compass.services.usage import UsageTracker
+from compass.services.usage import LLMUsageTracker
 from compass.exceptions import COMPASSError, COMPASSValueError
 from compass.utilities import (
     compile_collection_summary_message,
@@ -186,7 +186,7 @@ class COMPASSFullProcessing(BaseRunMode):
         )
         tasks = []
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            usage_tracker = UsageTracker(
+            usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
             workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
@@ -316,7 +316,7 @@ class COMPASSExtraction(BaseRunMode):
                 )
                 continue
 
-            usage_tracker = UsageTracker(
+            usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
             workflow = self._create(jurisdiction, usage_tracker=usage_tracker)

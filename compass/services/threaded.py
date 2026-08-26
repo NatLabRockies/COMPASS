@@ -425,7 +425,7 @@ class UsageUpdater(ThreadedService):
 
         Parameters
         ----------
-        usage_tracker : UsageTracker
+        usage_tracker : LLMUsageTracker
             A usage tracker instance that contains usage info to be
             added to output file. Can also be ``None`` to not record
             usage.
@@ -502,7 +502,7 @@ class JurisdictionUpdater(ThreadedService):
         seconds_elapsed : int or float
             Total number of seconds it took to look for (and possibly
             parse) this document.
-        usage_tracker : UsageTracker, optional
+        usage_tracker : LLMUsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         """

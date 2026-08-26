@@ -153,9 +153,9 @@ class OpenAIService(LLMService):
         ----------
         model : str
             OpenAI GPT model to query.
-        usage_tracker : UsageTracker, optional
-            UsageTracker instance. Providing this input will update your
-            tracker with this call's token usage info.
+        usage_tracker : LLMUsageTracker, optional
+            LLMUsageTracker instance. Providing this input will update
+            your tracker with this call's token usage info.
             By default, ``None``.
         rate_tracker : LLMRateTracker, optional
             Run-wide tracker that records request and token rate

@@ -16,7 +16,7 @@ from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.document import HTMLDocument
 from flaky import flaky
 
-from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
+from compass.services.usage import TimeBoundedUsageTracker, LLMUsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
 from compass.services.threaded import TempFileCache
 from compass.services.provider import RunningAsyncServices
@@ -115,7 +115,7 @@ async def test_openai_query(
         client, model_name="gpt-4", rate_limit=3, rate_tracker=rate_tracker
     )
 
-    usage_tracker = UsageTracker("my_county", usage_from_response)
+    usage_tracker = LLMUsageTracker("my_county", usage_from_response)
     async with RunningAsyncServices([openai_service]):
         start_time = time.perf_counter()
         message = await openai_service.call(usage_tracker=usage_tracker)

@@ -317,7 +317,7 @@ class LLMRateTracker(UserDict):
         other.update({self.label: dict(self.snapshot())})
 
 
-class UsageTracker(UserDict):
+class LLMUsageTracker(UserDict):
     """Rate or API usage tracker"""
 
     UNKNOWN_MODEL_LABEL = "unknown_model"
@@ -383,7 +383,7 @@ class UsageTracker(UserDict):
         model : str, optional
             Name of model that usage is being recorded for. If ``None``
             or empty string, the usage will be placed under the
-            :obj:`UsageTracker.UNKNOWN_MODEL_LABEL` label.
+            :obj:`LLMUsageTracker.UNKNOWN_MODEL_LABEL` label.
         response : object, optional
             Model call response, which either contains usage information
             or can be used to infer/compute usage. If ``None``, no

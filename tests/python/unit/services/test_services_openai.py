@@ -11,7 +11,7 @@ from compass.services.openai import (
     usage_from_response,
     OpenAIService,
 )
-from compass.services.usage import LLMRateTracker, UsageTracker
+from compass.services.usage import LLMRateTracker, LLMUsageTracker
 from compass.utilities.enums import LLMUsageCategory
 
 
@@ -81,7 +81,7 @@ async def test_openai_service(
     rate_tracker = LLMRateTracker()
     openai_service = OpenAIService(client, model_name="gpt-4")
 
-    usage_tracker = UsageTracker("my_county", usage_from_response)
+    usage_tracker = LLMUsageTracker("my_county", usage_from_response)
 
     message = await openai_service.process(
         usage_tracker=usage_tracker, rate_tracker=rate_tracker

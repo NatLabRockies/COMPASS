@@ -34,7 +34,7 @@ from compass.scripts.download import find_jurisdiction_website
 from compass.services.cpu import FileLoader
 from compass.services.openai import usage_from_response
 from compass.services.provider import RunningAsyncServices
-from compass.services.usage import UsageTracker
+from compass.services.usage import LLMUsageTracker
 from compass.utilities.costs import (
     compute_cost_from_totals,
     compute_total_cost_from_usage,
@@ -472,7 +472,7 @@ async def _process_one_jurisdiction(
     search_semaphore,
 ):
     """Validate or discover one jurisdiction website"""
-    usage_tracker = UsageTracker(
+    usage_tracker = LLMUsageTracker(
         f"row_{row_index + 1}_{jurisdiction.full_name}",
         usage_from_response,
     )
