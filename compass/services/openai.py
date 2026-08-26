@@ -129,7 +129,7 @@ class OpenAIService(LLMService):
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
             the same name are run concurrently. By default, ``None``.
-        rate_stats_tracker : LLMUsageRateTracker, optional
+        rate_stats_tracker : LLMRateTracker, optional
             Run-wide tracker that records request and token rate
             summaries. By default, ``None``.
         """
