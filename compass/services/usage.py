@@ -225,14 +225,11 @@ class _ModelUsageRateTracker:
 class LLMRateTracker(UserDict):
     """Track run-wide and per-model LLM usage rates on calls"""
 
-    def __init__(self, models=None, label=LLM_USAGE_RATES_KEY):
+    def __init__(self, label=LLM_USAGE_RATES_KEY):
         """
 
         Parameters
         ----------
-        models : iterable of str, optional
-            Model names to include in output even when they receive no
-            calls. By default, ``None``.
         label : str, optional
             Top-level label to use when persisting rate statistics.
             By default, ``"_llm_usage_rates"``.
@@ -242,27 +239,21 @@ class LLMRateTracker(UserDict):
         self._start_time = time.perf_counter()
         self._overall = _ModelUsageRateTracker(self._start_time)
         self._models = {}
-        for model in models or []:
-            self.register_model(model)
-
-    def register_model(self, model):
-        """Register a model for per-model reporting"""
-        self._models.setdefault(
-            model, _ModelUsageRateTracker(self._start_time)
-        )
 
     def record_request(self, model, timestamp):
         """Record a submitted LLM request"""
-        self.register_model(model)
         self._overall.record_request(timestamp)
-        self._models[model].record_request(timestamp)
+        self._models.setdefault(
+            model, _ModelUsageRateTracker(self._start_time)
+        ).record_request(timestamp)
         return timestamp
 
     def record_tokens(self, model, tokens, timestamp):
         """Record actual tokens from a completed LLM request"""
-        self.register_model(model)
         self._overall.record_tokens(tokens, timestamp)
-        self._models[model].record_tokens(tokens, timestamp)
+        self._models.setdefault(
+            model, _ModelUsageRateTracker(self._start_time)
+        ).record_tokens(tokens, timestamp)
         return timestamp
 
     def snapshot(self):
