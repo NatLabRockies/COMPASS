@@ -646,7 +646,7 @@ def _dump_jurisdiction_info(
 def _compile_doc_info(doc):
     """Put together meta information about a single document"""
     year, month, day = doc.attrs.get("date") or (None, None, None)
-    out_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
+    out_fp = doc.attrs.get("out_fp", doc.attrs.get("source_fp"))
     return {
         "source": doc.attrs.get("source"),
         "effective_year": year if year is not None and year > 0 else None,
