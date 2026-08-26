@@ -138,14 +138,7 @@ class LLMService(Service):
         LLM service for OpenAI models.
     """
 
-    def __init__(
-        self,
-        model_name,
-        rate_limit,
-        rate_tracker,
-        service_tag=None,
-        rate_stats_tracker=None,
-    ):
+    def __init__(self, model_name, rate_limit, rate_tracker, service_tag=None):
         """
 
         Parameters
@@ -164,15 +157,11 @@ class LLMService(Service):
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
             the same name are run concurrently. By default, ``None``.
-        rate_stats_tracker : LLMRateTracker, optional
-            Run-wide tracker that records request and token rate
-            summaries. By default, ``None``.
         """
         self.model_name = model_name
         self.rate_limit = rate_limit
         self.rate_tracker = rate_tracker
         self.service_tag = service_tag or ""
-        self.rate_stats_tracker = rate_stats_tracker
 
     @property
     def can_process(self):
@@ -183,12 +172,6 @@ class LLMService(Service):
     def name(self):
         """str: Unique service name used to pull the correct queue"""
         return f"{self.__class__.__name__}-{self.model_name}{self.service_tag}"
-
-    def _record_request_rate(self, timestamp):
-        """Record the submitted request in rate statistics"""
-        if self.rate_stats_tracker is None:
-            return
-        self.rate_stats_tracker.record_request(self.model_name, timestamp)
 
     def _queue(self):
         """Return the service queue for this instance"""
