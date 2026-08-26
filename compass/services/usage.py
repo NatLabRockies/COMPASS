@@ -196,6 +196,29 @@ class _FixedWindowUsageTracker:
         return summary.as_dict()
 
 
+class _ConcurrentRequestsTracker:
+    """Track the number of concurrent requests"""
+
+    def __init__(self):
+        self._active_requests = 0
+        self._summary = _OnlineUsageSummary()
+
+    def start_request(self):
+        """Start tracking a new concurrent request"""
+        self._active_requests += 1
+        self._summary.add(self._active_requests)
+
+    def end_request(self):
+        """Stop tracking an active concurrent request"""
+        self._active_requests = max(0, self._active_requests - 1)
+
+    def snapshot(self):
+        """dict: Snapshot of concurrent requests summary"""
+        summary = self._summary.copy()
+        summary.add(self._active_requests)
+        return summary.as_dict()
+
+
 class _ModelUsageRateTracker:
     """Track fixed-window request and token rates for one scope"""
 
@@ -203,6 +226,7 @@ class _ModelUsageRateTracker:
         self.requests_per_second = _FixedWindowUsageTracker(1, start_time)
         self.requests_per_minute = _FixedWindowUsageTracker(60, start_time)
         self.tokens_per_minute = _FixedWindowUsageTracker(60, start_time)
+        self.concurrent_requests = _ConcurrentRequestsTracker()
 
     def record_request(self, timestamp):
         """Record a submitted request"""
@@ -213,12 +237,21 @@ class _ModelUsageRateTracker:
         """Record tokens returned by a completed request"""
         self.tokens_per_minute.add(tokens, timestamp)
 
+    def start_request_attempt(self):
+        """Record the concurrency when a request attempt starts"""
+        self.concurrent_requests.start_request()
+
+    def end_request_attempt(self):
+        """Record that an active request attempt ended"""
+        self.concurrent_requests.end_request()
+
     def snapshot(self):
         """dict: Serialized rate summaries"""
         return {
             "requests_per_second": self.requests_per_second.snapshot(),
             "requests_per_minute": self.requests_per_minute.snapshot(),
             "tokens_per_minute": self.tokens_per_minute.snapshot(),
+            "concurrent_requests": self.concurrent_requests.snapshot(),
         }
 
 
@@ -243,18 +276,30 @@ class LLMRateTracker(UserDict):
     def record_request(self, model, timestamp):
         """Record a submitted LLM request"""
         self._overall.record_request(timestamp)
-        self._models.setdefault(
-            model, _ModelUsageRateTracker(self._start_time)
-        ).record_request(timestamp)
+        self._model_tracker(model).record_request(timestamp)
         return timestamp
 
     def record_tokens(self, model, tokens, timestamp):
         """Record actual tokens from a completed LLM request"""
         self._overall.record_tokens(tokens, timestamp)
-        self._models.setdefault(
-            model, _ModelUsageRateTracker(self._start_time)
-        ).record_tokens(tokens, timestamp)
+        self._model_tracker(model).record_tokens(tokens, timestamp)
         return timestamp
+
+    def start_request_attempt(self, model):
+        """Record the start of an LLM request attempt"""
+        self._overall.start_request_attempt()
+        self._model_tracker(model).start_request_attempt()
+
+    def end_request_attempt(self, model):
+        """Record the end of an LLM request attempt"""
+        self._overall.end_request_attempt()
+        self._model_tracker(model).end_request_attempt()
+
+    def _model_tracker(self, model):
+        """Return the rate tracker for a model"""
+        return self._models.setdefault(
+            model, _ModelUsageRateTracker(self._start_time)
+        )
 
     def snapshot(self):
         """dict: Run-wide and per-model rate summaries"""

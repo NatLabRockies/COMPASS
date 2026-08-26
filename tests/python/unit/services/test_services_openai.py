@@ -102,6 +102,7 @@ async def test_openai_service(
         "requests_per_second": {"min": 1, "mean": 1, "max": 1},
         "requests_per_minute": {"min": 1, "mean": 1, "max": 1},
         "tokens_per_minute": {"min": 110, "mean": 110, "max": 110},
+        "concurrent_requests": {"min": 0, "mean": 0.5, "max": 1},
     }
 
     with pytest.raises(openai.NotFoundError):
@@ -125,6 +126,11 @@ async def test_openai_service(
         "requests_per_second": {"min": 2, "mean": 2, "max": 2},
         "requests_per_minute": {"min": 2, "mean": 2, "max": 2},
         "tokens_per_minute": {"min": 110, "mean": 110, "max": 110},
+        "concurrent_requests": {
+            "min": 0,
+            "mean": pytest.approx(2 / 3),
+            "max": 1,
+        },
     }
 
     await openai_service.process()

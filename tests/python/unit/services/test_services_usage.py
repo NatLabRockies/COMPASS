@@ -75,10 +75,12 @@ def test_rate_tracker(patched_clock):
     expected_requests_per_second = {"min": 1, "mean": 1, "max": 1}
     expected_requests_per_minute = {"min": 2, "mean": 2, "max": 2}
     expected_tokens_per_minute = {"min": 10, "mean": 10, "max": 10}
+    expected_concurrent_requests = {"min": 0, "mean": 0, "max": 0}
     expected = {
         "requests_per_second": expected_requests_per_second,
         "requests_per_minute": expected_requests_per_minute,
         "tokens_per_minute": expected_tokens_per_minute,
+        "concurrent_requests": expected_concurrent_requests,
     }
 
     assert rates == {"overall": expected, "models": {"model_a": expected}}
@@ -87,6 +89,51 @@ def test_rate_tracker(patched_clock):
     output = {"some": "value"}
     tracker.add_to(output)
     assert output == {"some": "value", LLM_USAGE_RATES_KEY: tracker.data}
+
+
+def test_rate_tracker_tracks_concurrent_request_attempts():
+    """Track concurrent requests run-wide and per model"""
+
+    tracker = LLMRateTracker()
+    tracker.start_request_attempt("model_a")
+    tracker.start_request_attempt("model_b")
+
+    active_rates = tracker.snapshot()
+    assert active_rates["overall"]["concurrent_requests"] == {
+        "min": 1,
+        "mean": pytest.approx(5 / 3),
+        "max": 2,
+    }
+    assert active_rates["models"]["model_a"]["concurrent_requests"] == {
+        "min": 1,
+        "mean": 1,
+        "max": 1,
+    }
+    assert active_rates["models"]["model_b"]["concurrent_requests"] == {
+        "min": 1,
+        "mean": 1,
+        "max": 1,
+    }
+
+    tracker.end_request_attempt("model_a")
+    tracker.end_request_attempt("model_b")
+
+    completed_rates = tracker.snapshot()
+    assert completed_rates["overall"]["concurrent_requests"] == {
+        "min": 0,
+        "mean": 1,
+        "max": 2,
+    }
+    assert completed_rates["models"]["model_a"]["concurrent_requests"] == {
+        "min": 0,
+        "mean": pytest.approx(0.5),
+        "max": 1,
+    }
+    assert completed_rates["models"]["model_b"]["concurrent_requests"] == {
+        "min": 0,
+        "mean": pytest.approx(0.5),
+        "max": 1,
+    }
 
 
 def test_rate_tracker_snapshot_does_not_mutate(patched_clock):

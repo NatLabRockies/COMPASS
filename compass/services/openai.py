@@ -176,7 +176,9 @@ class OpenAIService(LLMService):
         """
         prompt_timestamp = self._record_prompt_tokens(kwargs)
         self._record_request_rate(prompt_timestamp, rate_tracker)
-        response = await self._call_gpt(model=self.model_name, **kwargs)
+        response = await self._call_gpt(
+            model=self.model_name, rate_tracker=rate_tracker, **kwargs
+        )
         completion_timestamp = self._record_completion_tokens(response)
         self._record_token_rate(response, completion_timestamp, rate_tracker)
         self._record_usage(response, usage_tracker, usage_sub_label)
@@ -243,8 +245,10 @@ class OpenAIService(LLMService):
             openai.APIConnectionError,
         ),
     )
-    async def _call_gpt(self, **kwargs):
+    async def _call_gpt(self, rate_tracker=None, **kwargs):
         """Query Chat GPT with user inputs"""
+        if rate_tracker is not None:
+            rate_tracker.start_request_attempt(self.model_name)
         try:
             return await self.client.chat.completions.create(**kwargs)
         except openai.BadRequestError:
@@ -257,6 +261,9 @@ class OpenAIService(LLMService):
             else:
                 logger.exception("Got 'BadRequestError'")
             raise
+        finally:
+            if rate_tracker is not None:
+                rate_tracker.end_request_attempt(self.model_name)
 
 
 def _get_response_message(response):
