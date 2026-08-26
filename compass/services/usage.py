@@ -5,8 +5,11 @@ import logging
 from collections import UserDict, deque
 from functools import total_ordering
 
+from compass.exceptions import COMPASSValueError
+
 
 logger = logging.getLogger(__name__)
+LLM_USAGE_RATES_KEY = "_llm_usage_rates"
 
 
 @total_ordering
@@ -110,6 +113,172 @@ class TimeBoundedUsageTracker:
                 self._total -= self._q.popleft().value
         except IndexError:
             pass
+
+
+class _OnlineUsageSummary:
+    """Track online minimum, mean, and maximum values"""
+
+    def __init__(self, count=0, total=0, minimum=None, maximum=None):
+        self._count = count
+        self._total = total
+        self._minimum = minimum
+        self._maximum = maximum
+
+    def add(self, value):
+        """Add one value to the summary"""
+        self._count += 1
+        self._total += value
+        self._minimum = (
+            value if self._minimum is None else min(self._minimum, value)
+        )
+        self._maximum = (
+            value if self._maximum is None else max(self._maximum, value)
+        )
+
+    def copy(self):
+        """Return an independent copy of this summary"""
+        return self.__class__(
+            self._count, self._total, self._minimum, self._maximum
+        )
+
+    def as_dict(self):
+        """dict: Serialized minimum, mean, and maximum values"""
+        if self._count == 0:
+            return {"min": 0, "mean": 0, "max": 0}
+
+        return {
+            "min": self._minimum,
+            "mean": self._total / self._count,
+            "max": self._maximum,
+        }
+
+
+class _FixedWindowUsageTracker:
+    """Track values in fixed windows with constant-size state"""
+
+    def __init__(self, window_seconds, start_time):
+        self.window_seconds = window_seconds
+        self.start_time = start_time
+        self._bucket_index = 0
+        self._current_value = 0
+        self._summary = _OnlineUsageSummary()
+
+    def add(self, value, timestamp=None):
+        """Add a value at a monotonic timestamp"""
+        if timestamp is None:
+            timestamp = time.perf_counter()
+
+        bucket_index = int(
+            (timestamp - self.start_time) // self.window_seconds
+        )
+        if bucket_index < self._bucket_index:
+            msg = "Usage timestamps must be monotonically increasing"
+            raise COMPASSValueError(msg)
+
+        if bucket_index == self._bucket_index:
+            self._current_value += value
+            return
+
+        self._summary.add(self._current_value)
+        self._bucket_index = bucket_index
+        self._current_value = value
+
+    def snapshot(self):
+        """dict: Summary including the current partial time window"""
+        timestamp = time.perf_counter()
+
+        bucket_index = int(
+            (timestamp - self.start_time) // self.window_seconds
+        )
+        bucket_index = max(bucket_index, self._bucket_index)
+        summary = self._summary.copy()
+        summary.add(self._current_value)
+        return summary.as_dict()
+
+
+class _ModelUsageRateTracker:
+    """Track fixed-window request and token rates for one scope"""
+
+    def __init__(self, start_time):
+        self.requests_per_second = _FixedWindowUsageTracker(1, start_time)
+        self.requests_per_minute = _FixedWindowUsageTracker(60, start_time)
+        self.tokens_per_minute = _FixedWindowUsageTracker(60, start_time)
+
+    def record_request(self, timestamp):
+        """Record a submitted request"""
+        self.requests_per_second.add(1, timestamp)
+        self.requests_per_minute.add(1, timestamp)
+
+    def record_tokens(self, tokens, timestamp):
+        """Record tokens returned by a completed request"""
+        self.tokens_per_minute.add(tokens, timestamp)
+
+    def snapshot(self):
+        """dict: Serialized rate summaries"""
+        return {
+            "requests_per_second": self.requests_per_second.snapshot(),
+            "requests_per_minute": self.requests_per_minute.snapshot(),
+            "tokens_per_minute": self.tokens_per_minute.snapshot(),
+        }
+
+
+class LLMRateTracker(UserDict):
+    """Track run-wide and per-model LLM usage rates on calls"""
+
+    def __init__(self, models=None, label=LLM_USAGE_RATES_KEY):
+        """
+
+        Parameters
+        ----------
+        models : iterable of str, optional
+            Model names to include in output even when they receive no
+            calls. By default, ``None``.
+        label : str, optional
+            Top-level label to use when persisting rate statistics.
+            By default, ``"_llm_usage_rates"``.
+        """
+        super().__init__()
+        self.label = label
+        self._start_time = time.perf_counter()
+        self._overall = _ModelUsageRateTracker(self._start_time)
+        self._models = {}
+        for model in models or []:
+            self.register_model(model)
+
+    def register_model(self, model):
+        """Register a model for per-model reporting"""
+        self._models.setdefault(
+            model, _ModelUsageRateTracker(self._start_time)
+        )
+
+    def record_request(self, model, timestamp):
+        """Record a submitted LLM request"""
+        self.register_model(model)
+        self._overall.record_request(timestamp)
+        self._models[model].record_request(timestamp)
+        return timestamp
+
+    def record_tokens(self, model, tokens, timestamp):
+        """Record actual tokens from a completed LLM request"""
+        self.register_model(model)
+        self._overall.record_tokens(tokens, timestamp)
+        self._models[model].record_tokens(tokens, timestamp)
+        return timestamp
+
+    def snapshot(self):
+        """dict: Run-wide and per-model rate summaries"""
+        self.data = {
+            "overall": self._overall.snapshot(),
+            "models": {
+                model: tracker.snapshot()
+                for model, tracker in self._models.items()
+            },
+        }
+        return self
+
+    def add_to(self, other):
+        """Add the current rate statistics to another dictionary"""
+        other.update({self.label: dict(self.snapshot())})
 
 
 class UsageTracker(UserDict):
