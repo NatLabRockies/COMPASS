@@ -104,6 +104,7 @@ class OpenAIService(LLMService):
         rate_limit=1e3,
         rate_tracker=None,
         service_tag=None,
+        rate_stats_tracker=None,
     ):
         """
 
@@ -128,12 +129,16 @@ class OpenAIService(LLMService):
             Optional tag to use to distinguish service (i.e. make unique
             from other services). Must set this if multiple models with
             the same name are run concurrently. By default, ``None``.
+        rate_stats_tracker : LLMUsageRateTracker, optional
+            Run-wide tracker that records request and token rate
+            summaries. By default, ``None``.
         """
         super().__init__(
             model_name=model_name,
             rate_limit=rate_limit,
             rate_tracker=rate_tracker or TimeBoundedUsageTracker(),
             service_tag=service_tag,
+            rate_stats_tracker=rate_stats_tracker,
         )
         self.client = client
 
