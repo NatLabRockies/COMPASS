@@ -91,9 +91,16 @@ class TimeBoundedUsageTracker:
             A new value to add to the queue. It's total will be added to
             the running total, and it will live for `max_seconds` before
             being discarded.
+
+        Returns
+        -------
+        float
+            Timestamp stored with the value.
         """
-        self._q.append(TimedEntry(value))
+        entry = TimedEntry(value)
+        self._q.append(entry)
         self._total += value
+        return entry.time
 
     def _discard_old_values(self):
         """Discard 'old' values from the queue"""
