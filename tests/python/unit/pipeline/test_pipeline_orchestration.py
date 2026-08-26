@@ -69,7 +69,7 @@ def patched_workflow(monkeypatch):
     monkeypatch.setattr(
         data_classes_module,
         "build_models",
-        lambda model_input, rate_tracker: {},
+        lambda _model_input: {},
     )
     monkeypatch.setattr(
         coordinator_module,
@@ -231,7 +231,7 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
     monkeypatch.setattr(
         data_classes_module,
         "build_models",
-        lambda model_input, rate_tracker: {},
+        lambda _model_input: {},
     )
     monkeypatch.setattr(
         coordinator_module,

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from compass.pipeline import ProcessRequest
 from compass.pipeline.data_classes import WebSearchParams
 
 
@@ -64,6 +65,21 @@ def test_wsp_se_kwargs():
         ).se_kwargs
         == expected
     )
+
+
+def test_request_models_accepts_runtime_rate_tracker(tmp_path):
+    """Build model configs without passing runtime state to them"""
+    request = ProcessRequest(
+        out_dir=tmp_path / "outputs",
+        tech="solar",
+        jurisdiction_fp=tmp_path / "jurisdictions.csv",
+        model=[{"name": "gpt-4o-mini", "client_type": "openai"}],
+    )
+
+    models = request.models
+
+    assert models["default"].name == "gpt-4o-mini"
+    assert request.rate_tracker is not None
 
 
 if __name__ == "__main__":

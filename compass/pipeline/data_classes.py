@@ -694,9 +694,7 @@ class BaseRequest:
         if not self.user_model_input:
             return {}
 
-        return build_models(
-            self.user_model_input, rate_tracker=self._rate_tracker
-        )
+        return build_models(self.user_model_input)
 
     @property
     def rate_tracker(self):
@@ -1290,7 +1288,7 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def build_models(user_input, *, allow_empty=False, rate_tracker=None):
+def build_models(user_input, *, allow_empty=False):
     """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
@@ -1300,8 +1298,6 @@ def build_models(user_input, *, allow_empty=False, rate_tracker=None):
 
     caller_instances = {}
     for raw_kwargs in user_input:
-        if rate_tracker is not None:
-            raw_kwargs["rate_tracker"] = rate_tracker
         for task, model_config in _config_for_tasks(raw_kwargs):
             _verify_task_not_duplicate(task, caller_instances)
             caller_instances[task] = model_config
