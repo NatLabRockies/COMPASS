@@ -27,6 +27,7 @@ def save_run_meta(
     num_jurisdictions_found,
     total_cost,
     models,
+    llm_usage_rates=None,
 ):
     """Persist metadata describing an ordinance collection run
 
@@ -54,6 +55,9 @@ def save_run_meta(
         objects (:class:`~compass.llm.config.OpenAIConfig`) used
         throughout the run. The function records a condensed summary of
         each configuration.
+    llm_usage_rates : dict, optional
+        Run-wide and per-model LLM request and token rate summaries.
+        By default, ``None``.
 
     Returns
     -------
@@ -77,7 +81,6 @@ def save_run_meta(
         "username": username,
         "versions": {"compass": compass_version, "elm": elm_version},
         "technology": tech,
-        "models": _extract_model_info_from_all_models(models),
         "time_start_utc": start_date.isoformat(),
         "time_end_utc": end_date.isoformat(),
         "total_time": time_elapsed.total_seconds(),
@@ -85,6 +88,8 @@ def save_run_meta(
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": num_jurisdictions_found,
         "cost": total_cost or None,
+        "models": _extract_model_info_from_all_models(models),
+        "llm_usage_rates": llm_usage_rates,
         "manifest": {},
     }
     manifest = {
