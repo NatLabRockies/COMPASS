@@ -391,10 +391,7 @@ async def download_jurisdiction_ordinances_from_website(
 
     async with cpb:
         crawl_result = await crawler.run_with_timeout(
-            website,
-            crawl_timeout_s=timeout_seconds,
-            on_result_hook=ch,
-            return_c4ai_results=return_c4ai_results,
+            website, crawl_timeout_s=timeout_seconds, on_result_hook=ch
         )
 
     docs = await _finalize_doc_sources(crawl_result.documents, final_afl)
