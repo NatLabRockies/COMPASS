@@ -210,8 +210,8 @@ class WebSearchParams:
         website_crawl_timeout_seconds : int, default=3600
             Maximum number of seconds to allow for a website crawl to
             complete before timing out. If the crawl exceeds this time,
-            it will be terminated and no documents will be returned for
-            the crawl step for the jurisdiction. By default, ``3600``
+            it will be terminated and documents accepted before the
+            timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -486,8 +486,8 @@ class BaseRequest:
         website_crawl_timeout_seconds : int, default=3600
             Maximum number of seconds to allow for a website crawl to
             complete before timing out. If the crawl exceeds this time,
-            it will be terminated and no documents will be returned for
-            the crawl step for the jurisdiction. By default, ``3600``
+            it will be terminated and documents accepted before the
+            timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used
@@ -849,8 +849,8 @@ class CollectionRequest(BaseRequest):
         website_crawl_timeout_seconds : int, default=3600
             Maximum number of seconds to allow for a website crawl to
             complete before timing out. If the crawl exceeds this time,
-            it will be terminated and no documents will be returned for
-            the crawl step for the jurisdiction. By default, ``3600``
+            it will be terminated and documents accepted before the
+            timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from consideration. This can be used

@@ -274,6 +274,7 @@ async def download_jurisdiction_ordinances_from_website(
     max_urls=100,
     pb_jurisdiction_name=None,
     return_c4ai_results=False,
+    timeout_seconds=3600,
 ):
     """Download ordinance documents from a jurisdiction website
 
@@ -314,6 +315,9 @@ async def download_jurisdiction_ordinances_from_website(
         return value. This is useful for debugging and examining the
         crawled URLs. If ``False``, only the documents will be returned.
         By default, ``False``.
+    timeout_seconds : float, default=3600
+        Maximum number of seconds to allow for the crawl before timing
+        out. By default, ``3600`` (1 hour).
 
     Returns
     -------
@@ -386,18 +390,15 @@ async def download_jurisdiction_ordinances_from_website(
         ch = None
 
     async with cpb:
-        docs_or_pair = await crawler.run(
-            website,
-            on_result_hook=ch,
-            return_c4ai_results=return_c4ai_results,
+        crawl_result = await crawler.run_with_timeout(
+            website, crawl_timeout_s=timeout_seconds, on_result_hook=ch
         )
 
+    docs = await _finalize_doc_sources(crawl_result.documents, final_afl)
     if return_c4ai_results:
-        docs, c4ai_results = docs_or_pair
-        docs = await _finalize_doc_sources(docs, final_afl)
-        return docs, c4ai_results
+        return docs, crawl_result.raw_results
 
-    return await _finalize_doc_sources(docs_or_pair, final_afl)
+    return docs
 
 
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
@@ -409,6 +410,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     num_link_scores_to_check_per_page=4,
     max_urls=100,
     pb_jurisdiction_name=None,
+    timeout_seconds=3600,
 ):
     """Download ord documents from a website using the COMPASS crawler
 
@@ -446,6 +448,9 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
+    timeout_seconds : float, default=3600
+        Maximum number of seconds to allow for the crawl before timing
+        out. By default, ``3600`` (1 hour).
 
     Returns
     -------
@@ -501,7 +506,9 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         ch = None
 
     async with cpb:
-        return await crawler.run(website, on_new_page_visit_hook=ch)
+        return await crawler.run(
+            website, crawl_timeout_s=timeout_seconds, on_new_page_visit_hook=ch
+        )
 
 
 async def download_jurisdiction_ordinance_using_search_engine(

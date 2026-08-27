@@ -911,7 +911,9 @@ async def test_run_sorts_documents_and_resets_state(
         return False
 
     docs = await crawler.run(
-        "https://example.com", termination_callback=stopper
+        "https://example.com",
+        crawl_timeout_s=3600,
+        termination_callback=stopper,
     )
 
     assert docs == [html_doc, pdf_doc]

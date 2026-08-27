@@ -605,6 +605,40 @@ async def test_jurisdiction_updater_process(tmp_path):
     updater.release_resources()
 
 
+def test_compile_doc_info_prefers_output_file_path(tmp_path):
+    """Document info should use final output path for its filename"""
+
+    doc = HTMLDocument(["page"])
+    doc.attrs.update(
+        {
+            "source_fp": tmp_path / "source.pdf",
+            "out_fp": tmp_path / "processed.pdf",
+        }
+    )
+
+    doc_info = threaded._compile_doc_info(doc)
+
+    assert doc_info["ord_filename"] == "processed.pdf"
+
+
+def test_compile_doc_info_uses_source_path_when_output_path_is_none(
+    tmp_path,
+):
+    """Document info should fall back to source path when needed"""
+
+    doc = HTMLDocument(["page"])
+    doc.attrs.update(
+        {
+            "source_fp": tmp_path / "source.pdf",
+            "out_fp": None,
+        }
+    )
+
+    doc_info = threaded._compile_doc_info(doc)
+
+    assert doc_info["ord_filename"] == "source.pdf"
+
+
 def test_dump_usage_without_tracker_returns_existing_data(tmp_path):
     """_dump_usage should return existing data unchanged when tracker absent"""
 

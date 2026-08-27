@@ -2,6 +2,8 @@
 
 from urllib.parse import quote, urlsplit, urlunsplit
 
+from elm.web.utilities import clean_json_escaped_url
+
 
 _PATH_SAFE_CHARS = "/:@-._~!$&'()*+,;=%"
 _QUERY_SAFE_CHARS = "=&;%:@-._~!$&'()*+,;/?"
@@ -20,6 +22,7 @@ def sanitize_url(url):
     str
         URL with path, query, and fragment percent-encoded.
     """
+    url = clean_json_escaped_url(url)
     parsed = urlsplit(url)
     path = quote(parsed.path, safe=_PATH_SAFE_CHARS)
     query = quote(parsed.query, safe=_QUERY_SAFE_CHARS)
