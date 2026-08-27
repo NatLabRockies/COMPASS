@@ -265,7 +265,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0d/9b/a997b638fcd068ad6e4d53b8551a7d30fe8b404d6f1804abf1df69838932/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/11/c8/26f2e4aae92f11522a96043892ba39a90eac610d5242523aa863212bc1c7/cuda_pathfinder-1.5.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1f/13/ee4e00f30e676b66ae65b4f08cb5bcbb8392c03f54f2d5413ea99a5d1c80/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -648,7 +647,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0d/14/13db550d7b892aefe80f8581c6557a17cbfc2e084383cd09d25fdd488f6e/playwright-1.51.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/d8/55638d89ffd27799d5cc3d8aa28e12f4ce7a64d67b285114dbedc8ea4136/kiwisolver-1.5.0-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
@@ -1095,7 +1093,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/55/d62c85fff36e9e9e515ee92407b02acb556e6832d4fbcc8624b638cf70bb/patchright-1.51.3-py3-none-macosx_11_0_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2f/dd/63d1d2fddcaaee040745ea58d13b54c0b1483260ddae52eb59abf691f757/tavily_python-0.5.4-py3-none-any.whl
@@ -1498,7 +1495,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0f/8d/d8fec3dcde2963f8c908fb315e5ff2cd0ac34f82394bbbf73a2aa5145ce3/fonttools-4.63.0-cp313-cp313-macosx_10_13_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2f/dd/63d1d2fddcaaee040745ea58d13b54c0b1483260ddae52eb59abf691f757/tavily_python-0.5.4-py3-none-any.whl
@@ -1822,7 +1818,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/19/55/da7223d4202b2461f4f889b0baf10dddec3db7f88e6fd8c52db4a516eecd/pypdfium2-5.8.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/1b/b3/5d0e77ea774bd3224321c248880ea0c0379000ac5c2bb6d77609549de247/chardet-7.4.3-cp313-cp313-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
@@ -2193,7 +2188,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0d/9b/a997b638fcd068ad6e4d53b8551a7d30fe8b404d6f1804abf1df69838932/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/11/c8/26f2e4aae92f11522a96043892ba39a90eac610d5242523aa863212bc1c7/cuda_pathfinder-1.5.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1f/13/ee4e00f30e676b66ae65b4f08cb5bcbb8392c03f54f2d5413ea99a5d1c80/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -2605,7 +2599,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/ec/e1db9922bceb168197a558a2b8c03a7963f1afe93517ddd3cf99f202f996/jsonref-1.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0d/14/13db550d7b892aefe80f8581c6557a17cbfc2e084383cd09d25fdd488f6e/playwright-1.51.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
@@ -3071,7 +3064,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/55/d62c85fff36e9e9e515ee92407b02acb556e6832d4fbcc8624b638cf70bb/patchright-1.51.3-py3-none-macosx_11_0_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2f/dd/63d1d2fddcaaee040745ea58d13b54c0b1483260ddae52eb59abf691f757/tavily_python-0.5.4-py3-none-any.whl
@@ -3498,7 +3490,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2f/dd/63d1d2fddcaaee040745ea58d13b54c0b1483260ddae52eb59abf691f757/tavily_python-0.5.4-py3-none-any.whl
@@ -3854,7 +3845,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/19/55/da7223d4202b2461f4f889b0baf10dddec3db7f88e6fd8c52db4a516eecd/pypdfium2-5.8.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/1b/b3/5d0e77ea774bd3224321c248880ea0c0379000ac5c2bb6d77609549de247/chardet-7.4.3-cp313-cp313-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
@@ -4357,7 +4347,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0d/9b/a997b638fcd068ad6e4d53b8551a7d30fe8b404d6f1804abf1df69838932/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/11/c8/26f2e4aae92f11522a96043892ba39a90eac610d5242523aa863212bc1c7/cuda_pathfinder-1.5.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1f/13/ee4e00f30e676b66ae65b4f08cb5bcbb8392c03f54f2d5413ea99a5d1c80/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -4919,7 +4908,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/ec/e1db9922bceb168197a558a2b8c03a7963f1afe93517ddd3cf99f202f996/jsonref-1.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0d/14/13db550d7b892aefe80f8581c6557a17cbfc2e084383cd09d25fdd488f6e/playwright-1.51.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
@@ -5533,7 +5521,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/10/9c/49ccd33634d155bfb4c98a6c8be392d2beb9aa6e10e0ce16ba66864ce993/complexipy-7.0.1-cp313-cp313-macosx_10_12_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/1a/55/d62c85fff36e9e9e515ee92407b02acb556e6832d4fbcc8624b638cf70bb/patchright-1.51.3-py3-none-macosx_11_0_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2e/45/6adc5efeb19fd5fed4027e520b5c668ce58236a2b271ade5533c4c116276/sphinx_tabs-3.5.0-py3-none-any.whl
@@ -6105,7 +6092,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2e/45/6adc5efeb19fd5fed4027e520b5c668ce58236a2b271ade5533c4c116276/sphinx_tabs-3.5.0-py3-none-any.whl
@@ -6610,7 +6596,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/19/55/da7223d4202b2461f4f889b0baf10dddec3db7f88e6fd8c52db4a516eecd/pypdfium2-5.8.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/1b/b3/5d0e77ea774bd3224321c248880ea0c0379000ac5c2bb6d77609549de247/chardet-7.4.3-cp313-cp313-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
@@ -6966,7 +6951,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0d/9b/a997b638fcd068ad6e4d53b8551a7d30fe8b404d6f1804abf1df69838932/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/11/c8/26f2e4aae92f11522a96043892ba39a90eac610d5242523aa863212bc1c7/cuda_pathfinder-1.5.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1f/13/ee4e00f30e676b66ae65b4f08cb5bcbb8392c03f54f2d5413ea99a5d1c80/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -7378,7 +7362,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/ec/e1db9922bceb168197a558a2b8c03a7963f1afe93517ddd3cf99f202f996/jsonref-1.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0d/14/13db550d7b892aefe80f8581c6557a17cbfc2e084383cd09d25fdd488f6e/playwright-1.51.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
@@ -7846,7 +7829,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/55/d62c85fff36e9e9e515ee92407b02acb556e6832d4fbcc8624b638cf70bb/patchright-1.51.3-py3-none-macosx_11_0_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2e/45/6adc5efeb19fd5fed4027e520b5c668ce58236a2b271ade5533c4c116276/sphinx_tabs-3.5.0-py3-none-any.whl
@@ -8275,7 +8257,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2e/45/6adc5efeb19fd5fed4027e520b5c668ce58236a2b271ade5533c4c116276/sphinx_tabs-3.5.0-py3-none-any.whl
@@ -8632,7 +8613,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/19/55/da7223d4202b2461f4f889b0baf10dddec3db7f88e6fd8c52db4a516eecd/pypdfium2-5.8.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/1b/b3/5d0e77ea774bd3224321c248880ea0c0379000ac5c2bb6d77609549de247/chardet-7.4.3-cp313-cp313-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
@@ -8995,7 +8975,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0d/9b/a997b638fcd068ad6e4d53b8551a7d30fe8b404d6f1804abf1df69838932/nvidia_cuda_runtime_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
       - pypi: https://files.pythonhosted.org/packages/11/c8/26f2e4aae92f11522a96043892ba39a90eac610d5242523aa863212bc1c7/cuda_pathfinder-1.5.5-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1f/13/ee4e00f30e676b66ae65b4f08cb5bcbb8392c03f54f2d5413ea99a5d1c80/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl
@@ -9413,7 +9392,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/0c/ec/e1db9922bceb168197a558a2b8c03a7963f1afe93517ddd3cf99f202f996/jsonref-1.1.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0d/14/13db550d7b892aefe80f8581c6557a17cbfc2e084383cd09d25fdd488f6e/playwright-1.51.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
@@ -9888,7 +9866,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1a/55/d62c85fff36e9e9e515ee92407b02acb556e6832d4fbcc8624b638cf70bb/patchright-1.51.3-py3-none-macosx_11_0_universal2.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2f/dd/63d1d2fddcaaee040745ea58d13b54c0b1483260ddae52eb59abf691f757/tavily_python-0.5.4-py3-none-any.whl
@@ -10324,7 +10301,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/00/b7/e3bf5133d697a08128598c8d0abc5e16377b51465a33756de24fa7dee953/aiosqlite-0.22.1-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/05/98/716a473cfb24750858ddd5d14e6527539dd206583a46408d08eeb2844a75/trimesh-4.12.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/0a/21/b48b9e8408b3faec9fb7cb2f68352c7724add35a980c948eaceb29ac41e4/language_tags-1.3.1-py3-none-any.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2a/21/f691fb2613100a62b3fa91e9988c991e9ca5b89ea31c0d3152a3210344f9/rank_bm25-0.2.2-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/2f/dd/63d1d2fddcaaee040745ea58d13b54c0b1483260ddae52eb59abf691f757/tavily_python-0.5.4-py3-none-any.whl
@@ -10688,7 +10664,6 @@ environments:
       - pypi: https://files.pythonhosted.org/packages/18/79/1b8fa1bb3568781e84c9200f951c735f3f157429f44be0495da55894d620/filetype-1.2.0-py2.py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/19/55/da7223d4202b2461f4f889b0baf10dddec3db7f88e6fd8c52db4a516eecd/pypdfium2-5.8.0-py3-none-win_amd64.whl
       - pypi: https://files.pythonhosted.org/packages/1b/b3/5d0e77ea774bd3224321c248880ea0c0379000ac5c2bb6d77609549de247/chardet-7.4.3-cp313-cp313-win_amd64.whl
-      - pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/1e/d3/26bf1008eb3d2daa8ef4cacc7f3bfdc11818d111f7e2d0201bc6e3b49d45/annotated_doc-0.0.4-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0c/7bb51e3acfafd16c48875bf3db03607674df16f5b6ef8d056586af7e2b8b/cssselect-1.4.0-py3-none-any.whl
       - pypi: https://files.pythonhosted.org/packages/20/0f/098488de02e3d52fc77e8d55c1467f6703701b6ea6788f40409bb8c00dd4/playwright-1.51.0-py3-none-win_amd64.whl
@@ -11453,7 +11428,7 @@ packages:
   - zstd >=1.5.7,<1.6.0a0
   license: BSD-3-Clause AND MIT AND EPL-2.0
   purls:
-  - pkg:pypi/backports-zstd?source=compressed-mapping
+  - pkg:pypi/backports-zstd?source=hash-mapping
   size: 242514
   timestamp: 1778594045042
 - conda: https://conda.anaconda.org/conda-forge/linux-64/binutils-2.45.1-default_h4852527_102.conda
@@ -13390,7 +13365,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numpy?source=compressed-mapping
+  - pkg:pypi/numpy?source=hash-mapping
   size: 8864096
   timestamp: 1779169199037
 - conda: https://conda.anaconda.org/conda-forge/linux-64/openjpeg-2.5.4-h55fea9a_0.conda
@@ -13900,7 +13875,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
+  - pkg:pypi/ruff?source=hash-mapping
   run_exports: {}
   size: 9384917
   timestamp: 1784938279462
@@ -13959,7 +13934,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/scipy?source=compressed-mapping
+  - pkg:pypi/scipy?source=hash-mapping
   size: 17184702
   timestamp: 1779874789436
 - conda: https://conda.anaconda.org/conda-forge/linux-64/secretstorage-3.4.1-py313h78bf25f_0.conda
@@ -14464,7 +14439,7 @@ packages:
   license: Apache-2.0
   license_family: Apache
   purls:
-  - pkg:pypi/yarl?source=compressed-mapping
+  - pkg:pypi/yarl?source=hash-mapping
   size: 155105
   timestamp: 1779246217985
 - conda: https://conda.anaconda.org/conda-forge/linux-64/zeromq-4.3.5-h09e67af_11.conda
@@ -17526,7 +17501,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
+  - pkg:pypi/ruff?source=hash-mapping
   run_exports: {}
   size: 9112931
   timestamp: 1784938289859
@@ -18172,7 +18147,7 @@ packages:
   license: PSF-2.0
   license_family: PSF
   purls:
-  - pkg:pypi/aiohappyeyeballs?source=compressed-mapping
+  - pkg:pypi/aiohappyeyeballs?source=hash-mapping
   size: 20727
   timestamp: 1779297825279
 - conda: https://conda.anaconda.org/conda-forge/noarch/aiosignal-1.4.0-pyhd8ed1ab_0.conda
@@ -18537,7 +18512,7 @@ packages:
   - python >=3.10
   license: ISC
   purls:
-  - pkg:pypi/certifi?source=compressed-mapping
+  - pkg:pypi/certifi?source=hash-mapping
   size: 134201
   timestamp: 1779285131141
 - conda: https://conda.anaconda.org/conda-forge/noarch/charset-normalizer-3.4.7-pyhd8ed1ab_0.conda
@@ -18562,7 +18537,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/click?source=compressed-mapping
+  - pkg:pypi/click?source=hash-mapping
   size: 104080
   timestamp: 1779900586237
 - conda: https://conda.anaconda.org/conda-forge/noarch/click-8.4.1-pyhc90fa1f_0.conda
@@ -18575,7 +18550,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/click?source=compressed-mapping
+  - pkg:pypi/click?source=hash-mapping
   size: 104999
   timestamp: 1779900548735
 - conda: https://conda.anaconda.org/conda-forge/noarch/codespell-2.4.3-pyhd8ed1ab_0.conda
@@ -18750,7 +18725,7 @@ packages:
   license: BSD-2-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/decorator?source=compressed-mapping
+  - pkg:pypi/decorator?source=hash-mapping
   size: 16102
   timestamp: 1779115228886
 - conda: https://conda.anaconda.org/conda-forge/noarch/defusedxml-0.7.1-pyhd8ed1ab_0.tar.bz2
@@ -19204,7 +19179,7 @@ packages:
   - uritemplate >=3.0.1,<5
   license: Apache-2.0 and MIT
   purls:
-  - pkg:pypi/google-api-python-client?source=compressed-mapping
+  - pkg:pypi/google-api-python-client?source=hash-mapping
   size: 7760676
   timestamp: 1780022756365
 - conda: https://conda.anaconda.org/conda-forge/noarch/google-auth-2.53.0-pyhcf101f3_0.conda
@@ -19423,7 +19398,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/idna?source=compressed-mapping
+  - pkg:pypi/idna?source=hash-mapping
   size: 56858
   timestamp: 1779999227630
 - conda: https://conda.anaconda.org/conda-forge/noarch/imagesize-2.0.0-pyhd8ed1ab_0.conda
@@ -20773,7 +20748,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/pip?source=compressed-mapping
+  - pkg:pypi/pip?source=hash-mapping
   size: 1202377
   timestamp: 1780262809860
 - conda: https://conda.anaconda.org/conda-forge/noarch/pipreqs-0.4.13-pyhd8ed1ab_0.conda
@@ -20809,7 +20784,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/platformdirs?source=compressed-mapping
+  - pkg:pypi/platformdirs?source=hash-mapping
   size: 26308
   timestamp: 1779972894916
 - conda: https://conda.anaconda.org/conda-forge/noarch/pluggy-1.6.0-pyhf9edf01_1.conda
@@ -21000,7 +20975,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/pycparser?source=compressed-mapping
+  - pkg:pypi/pycparser?source=hash-mapping
   size: 55886
   timestamp: 1779293633166
 - conda: https://conda.anaconda.org/conda-forge/noarch/pydantic-2.13.4-pyhcf101f3_0.conda
@@ -21589,7 +21564,7 @@ packages:
   license: Apache-2.0
   license_family: APACHE
   purls:
-  - pkg:pypi/requests?source=compressed-mapping
+  - pkg:pypi/requests?source=hash-mapping
   size: 68709
   timestamp: 1778851103479
 - conda: https://conda.anaconda.org/conda-forge/noarch/requests-toolbelt-1.0.0-pyhd8ed1ab_1.conda
@@ -21952,7 +21927,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/soupsieve?source=compressed-mapping
+  - pkg:pypi/soupsieve?source=hash-mapping
   size: 38802
   timestamp: 1779635534390
 - conda: https://conda.anaconda.org/conda-forge/noarch/sphinx-9.1.0-pyhd8ed1ab_0.conda
@@ -22679,7 +22654,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/zipp?source=compressed-mapping
+  - pkg:pypi/zipp?source=hash-mapping
   size: 24190
   timestamp: 1779159948016
 - conda: https://conda.anaconda.org/conda-forge/osx-64/_openmp_mutex-4.5-7_kmp_llvm.conda
@@ -23699,7 +23674,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/jiter?source=compressed-mapping
+  - pkg:pypi/jiter?source=hash-mapping
   size: 271834
   timestamp: 1779917703365
 - conda: https://conda.anaconda.org/conda-forge/osx-64/json-c-0.18-hc62ec3d_0.conda
@@ -26066,7 +26041,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/rpds-py?source=compressed-mapping
+  - pkg:pypi/rpds-py?source=hash-mapping
   size: 311909
   timestamp: 1779977312121
 - conda: https://conda.anaconda.org/conda-forge/osx-64/ruff-0.16.0-hcca44e8_0.conda
@@ -26081,7 +26056,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/ruff?source=compressed-mapping
+  - pkg:pypi/ruff?source=hash-mapping
   run_exports: {}
   size: 9338197
   timestamp: 1784938409044
@@ -27651,7 +27626,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/jiter?source=compressed-mapping
+  - pkg:pypi/jiter?source=hash-mapping
   size: 266328
   timestamp: 1779917859588
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/json-c-0.18-he4178ee_0.conda
@@ -30029,7 +30004,7 @@ packages:
   license: MIT
   license_family: MIT
   purls:
-  - pkg:pypi/rpds-py?source=compressed-mapping
+  - pkg:pypi/rpds-py?source=hash-mapping
   size: 293990
   timestamp: 1779977082789
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/ruff-0.16.0-h828de30_0.conda
@@ -30113,7 +30088,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/scipy?source=compressed-mapping
+  - pkg:pypi/scipy?source=hash-mapping
   size: 14049103
   timestamp: 1779874780525
 - conda: https://conda.anaconda.org/conda-forge/osx-arm64/sdl2-2.32.56-h248ca61_0.conda
@@ -32926,7 +32901,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/numpy?source=compressed-mapping
+  - pkg:pypi/numpy?source=hash-mapping
   size: 7258468
   timestamp: 1779169226389
 - conda: https://conda.anaconda.org/conda-forge/win-64/openjpeg-2.5.4-h0e57b4f_0.conda
@@ -33649,7 +33624,7 @@ packages:
   license: BSD-3-Clause
   license_family: BSD
   purls:
-  - pkg:pypi/scipy?source=compressed-mapping
+  - pkg:pypi/scipy?source=hash-mapping
   size: 15055761
   timestamp: 1779876196348
 - conda: https://conda.anaconda.org/conda-forge/win-64/shapely-2.1.2-py313hae85795_0.conda
@@ -34163,7 +34138,7 @@ packages:
   license: Apache-2.0
   license_family: Apache
   purls:
-  - pkg:pypi/yarl?source=compressed-mapping
+  - pkg:pypi/yarl?source=hash-mapping
   size: 151505
   timestamp: 1779246206706
 - conda: https://conda.anaconda.org/conda-forge/win-64/zeromq-4.3.5-h3a581c9_11.conda
@@ -34977,76 +34952,6 @@ packages:
   name: chardet
   version: 7.4.3
   sha256: e1b98790c284ff813f18f7cf7de5f05ea2435a080030c7f1a8318f3a4f80b131
-  requires_python: '>=3.10'
-- pypi: https://files.pythonhosted.org/packages/1e/2f/aaf15c88c7324ad195ae61f68de148047fbcd5b3aa757086eaf67c3afc07/nlr_elm-0.0.45-py3-none-any.whl
-  name: nlr-elm
-  version: 0.0.45
-  sha256: 737aec8a5403b7635d7887a007d5dc4ff3ce56aa5c8b4802c2a0179b1adef90a
-  requires_dist:
-  - openai>=1.1.0
-  - aiohttp
-  - beautifulsoup4
-  - camoufox
-  - click
-  - crawl4ai>=0.8.6
-  - ddgs
-  - fake-useragent>=2.0.3
-  - google-api-python-client
-  - google-search-results
-  - html2text
-  - html5lib
-  - httpx
-  - langchain-text-splitters
-  - lxml
-  - matplotlib
-  - networkx
-  - nltk
-  - numpy
-  - pandas
-  - playwright-stealth
-  - pypdf2
-  - python-slugify
-  - rebrowser-playwright
-  - scipy
-  - scrapling<0.3
-  - tabulate
-  - tavily-python
-  - tiktoken
-  - openai>=1.1.0 ; extra == 'dev'
-  - aiohttp ; extra == 'dev'
-  - beautifulsoup4 ; extra == 'dev'
-  - camoufox ; extra == 'dev'
-  - click ; extra == 'dev'
-  - crawl4ai>=0.8.6 ; extra == 'dev'
-  - ddgs ; extra == 'dev'
-  - fake-useragent>=2.0.3 ; extra == 'dev'
-  - google-api-python-client ; extra == 'dev'
-  - google-search-results ; extra == 'dev'
-  - html2text ; extra == 'dev'
-  - html5lib ; extra == 'dev'
-  - httpx ; extra == 'dev'
-  - langchain-text-splitters ; extra == 'dev'
-  - lxml ; extra == 'dev'
-  - matplotlib ; extra == 'dev'
-  - networkx ; extra == 'dev'
-  - nltk ; extra == 'dev'
-  - numpy ; extra == 'dev'
-  - pandas ; extra == 'dev'
-  - playwright-stealth ; extra == 'dev'
-  - pypdf2 ; extra == 'dev'
-  - python-slugify ; extra == 'dev'
-  - rebrowser-playwright ; extra == 'dev'
-  - scipy ; extra == 'dev'
-  - scrapling<0.3 ; extra == 'dev'
-  - tabulate ; extra == 'dev'
-  - tavily-python ; extra == 'dev'
-  - tiktoken ; extra == 'dev'
-  - nlr-rex>=0.5.0 ; extra == 'dev'
-  - pytest>=5.2 ; extra == 'dev'
-  - pytest-mock ; extra == 'dev'
-  - pytest-asyncio ; extra == 'dev'
-  - pytest-cov ; extra == 'dev'
-  - flaky>=3.8.1 ; extra == 'dev'
   requires_python: '>=3.10'
 - pypi: https://files.pythonhosted.org/packages/1e/77/dc8c558f7593132cf8fefec57c4f60c83b16941c574ac5f619abb3ae7933/dill-0.4.1-py3-none-any.whl
   name: dill
