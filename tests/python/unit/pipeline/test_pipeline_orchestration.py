@@ -69,7 +69,7 @@ def patched_workflow(monkeypatch):
     monkeypatch.setattr(
         data_classes_module,
         "build_models",
-        lambda _model_input: {},
+        lambda _model_input, **_kwargs: {},
     )
     monkeypatch.setattr(
         coordinator_module,

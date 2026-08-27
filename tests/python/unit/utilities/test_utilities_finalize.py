@@ -638,7 +638,7 @@ def test_extract_model_info_from_all_models_groups_tasks():
     first, second = info
     assert first["name"] == "gpt"
     assert first["tasks"] == ["task_one", "task_two"]
-    assert first["llm_call_kwargs"] is None
+    assert first["llm_call_kwargs"] == {}
 
     assert second["name"] == "gpt-4"
     assert second["tasks"] == ["task_three"]
