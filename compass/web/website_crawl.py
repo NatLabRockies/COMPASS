@@ -6,6 +6,7 @@ interface).
 """
 
 import math
+import asyncio
 import logging
 import operator
 from collections import Counter
@@ -201,7 +202,11 @@ class COMPASSCrawler:
         self._should_stop = None
 
     async def run(
-        self, base_url, termination_callback=None, on_new_page_visit_hook=None
+        self,
+        base_url,
+        crawl_timeout_s,
+        termination_callback=None,
+        on_new_page_visit_hook=None,
     ):
         """Run the COMPASS website crawler
 
@@ -209,6 +214,9 @@ class COMPASSCrawler:
         ----------
         base_url : str
             URL of the website to start crawling from.
+        crawl_timeout_s : float, optional
+            A float representing the maximum time in seconds to allow
+            the crawl to run.
         termination_callback : callable, optional
             An async callable that takes a list of documents and returns
             a boolean indicating whether to stop crawling. If ``None``,
@@ -230,16 +238,30 @@ class COMPASSCrawler:
             This list may be empty if no documents are found.
         """
         self._should_stop = termination_callback or _default_found_enough_docs
-        await self._run(
-            base_url, on_new_page_visit_hook=on_new_page_visit_hook
-        )
+        try:
+            async with asyncio.timeout(crawl_timeout_s):
+                await self._run(
+                    base_url, on_new_page_visit_hook=on_new_page_visit_hook
+                )
+        except TimeoutError:
+            logger.exception(
+                "COMPASS Website crawl deadline (%s) exceeded for %r; "
+                "returning %d collected crawl docs",
+                f"{int(crawl_timeout_s):,d}s",
+                base_url,
+                len(self._out_docs),
+            )
+        except Exception:
+            logger.exception(
+                "Error collecting documents using COMPASS web crawl for %r; "
+                "returning %d collected crawl docs",
+                base_url,
+                len(self._out_docs),
+            )
+
         self._should_stop = None
-
         self._log_crawl_stats()
-
-        if self._out_docs:
-            self._out_docs.sort(key=lambda x: -1 * x.attrs[_SCORE_KEY])
-
+        self._out_docs.sort(key=lambda x: -1 * x.attrs[_SCORE_KEY])
         return self._out_docs
 
     # complexipy: ignore
