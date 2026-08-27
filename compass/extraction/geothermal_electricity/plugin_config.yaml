@@ -25,7 +25,7 @@ website_keywords:
    - ["land", "environment"]
    - ["municipal", "department", "development", "board"]
    - ["county", "ordinance code", "code of ordinances", "land use code", "use table"]
-   - ["chapter", "article", "title", "statute", "administrative code", "conditional use permit", "special use permit", "drilling permit", "resource development", "government"]
+   - ["chapter", "article", "title", "statute", "administrative code", "conditional use permit", "special use permit", "drilling permit", "resource development"]
 
 heuristic_keywords:
   good_tech_keywords:
