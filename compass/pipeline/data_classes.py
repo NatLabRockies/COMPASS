@@ -694,7 +694,9 @@ class BaseRequest:
         if not self.user_model_input:
             return {}
 
-        return build_models(self.user_model_input)
+        return build_models(
+            self.user_model_input, rate_tracker=self._rate_tracker
+        )
 
     @property
     def rate_tracker(self):
@@ -1288,7 +1290,7 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def build_models(user_input, *, allow_empty=False):
+def build_models(user_input, *, allow_empty=False, rate_tracker=None):
     """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
@@ -1298,7 +1300,7 @@ def build_models(user_input, *, allow_empty=False):
 
     caller_instances = {}
     for raw_kwargs in user_input:
-        for task, model_config in _config_for_tasks(raw_kwargs):
+        for task, model_config in _config_for_tasks(raw_kwargs, rate_tracker):
             _verify_task_not_duplicate(task, caller_instances)
             caller_instances[task] = model_config
 
@@ -1306,7 +1308,7 @@ def build_models(user_input, *, allow_empty=False):
     return caller_instances
 
 
-def _config_for_tasks(kwargs):
+def _config_for_tasks(kwargs, rate_tracker=None):
     """Yield (task, model_config) pairs for the given raw kwargs"""
     kwargs = dict(kwargs)
     tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
@@ -1314,6 +1316,7 @@ def _config_for_tasks(kwargs):
         tasks = [tasks]
 
     model_config = OpenAIConfig(**kwargs)
+    model_config.llm_call_kwargs.update({"rate_tracker": rate_tracker})
     for task in tasks:
         yield task, model_config
 
