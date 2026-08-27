@@ -278,10 +278,15 @@ def _extract_model_info_from_all_models(models):
     for task, caller_args in models.items():
         models_to_tasks.setdefault(caller_args, []).append(task)
 
+    llm_call_kwargs = {
+        k: v
+        for k, v in (caller_args.llm_call_kwargs or {}).items()
+        if k != "rate_tracker"
+    }
     return [
         {
             "name": caller_args.name,
-            "llm_call_kwargs": caller_args.llm_call_kwargs or None,
+            "llm_call_kwargs": llm_call_kwargs,
             "llm_service_rate_limit": caller_args.llm_service_rate_limit,
             "text_splitter_chunk_size": caller_args.text_splitter_chunk_size,
             "text_splitter_chunk_overlap": (
