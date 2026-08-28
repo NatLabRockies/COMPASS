@@ -104,7 +104,7 @@ class _Link(c4AILink):
             return NotImplemented
         return self.href.casefold() == other.href.casefold()
 
-    @property
+    @cached_property
     def consistent_domain(self):
         """bool: ``True`` if the link is from the base domain"""
         norm_b = normalize_domain(self.base_domain)
