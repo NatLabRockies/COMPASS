@@ -127,10 +127,8 @@ class DocumentCollection:
         for step in self._unfinished_steps():
             docs = await self._run_collection_step(step)
             if eager_extract:
-                context = (
-                    await self.workflow.extraction_workflow.extract_from_docs(
-                        docs
-                    )
+                context = await self.workflow.extraction.extract_from_docs(
+                    docs
                 )
                 if context is not None:
                     return self._context_with_documented_steps(context)

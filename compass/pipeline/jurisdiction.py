@@ -81,8 +81,8 @@ class SingleJurisdictionRun:
         self.perform_website_search = perform_website_search
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
-        self.extraction_workflow = DocumentExtraction(self)
-        self.collection_workflow = DocumentCollection(self)
+        self.collection = DocumentCollection(self)
+        self.extraction = DocumentExtraction(self)
 
     async def process(self):
         """Run process mode for one jurisdiction
@@ -101,8 +101,8 @@ class SingleJurisdictionRun:
             self.jurisdiction.code,
         )
         try:
-            extraction_context = await self.collection_workflow.execute(
-                eager_extract=True,
+            extraction_context = await self.collection.execute(
+                eager_extract=True
             )
         finally:
             await self.extractor.record_usage()
@@ -143,9 +143,7 @@ class SingleJurisdictionRun:
             self.jurisdiction.full_name,
         )
 
-        collection_info = await self.collection_workflow.execute(
-            eager_extract=False
-        )
+        collection_info = await self.collection.execute(eager_extract=False)
 
         logger.info(
             "Completed collection for jurisdiction: %s",
@@ -187,9 +185,7 @@ class SingleJurisdictionRun:
                 collection_info, task_name=self.jurisdiction.full_name
             )
             docs = [doc for doc in docs if doc is not None]
-            extraction_context = (
-                await self.extraction_workflow.extract_from_docs(docs)
-            )
+            extraction_context = await self.extraction.extract_from_docs(docs)
         finally:
             await self.extractor.record_usage()
             await _record_jurisdiction_info(
