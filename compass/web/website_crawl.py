@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # ruff:ignore[import-private-name]
-from elm.web.utilities import pw_page
+from elm.web.utilities import pw_page, PWKwargs, get_redirected_url
 from elm.web.document import HTMLDocument
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # ruff:ignore[import-private-name]
@@ -275,7 +275,7 @@ class COMPASSCrawler:
     ):
         """Recursive web crawl function"""
         if link is None:
-            base_url, link = self._reset_crawl(base_url)
+            base_url, link = await self._reset_crawl(base_url)
             logger.debug(
                 "Starting COMPASS crawl for base URL: %s\nLink: %r",
                 base_url,
@@ -298,11 +298,14 @@ class COMPASSCrawler:
         curr_url_score = None
         for next_link in await self._get_links_from_page(link, base_url):
             prev_len = len(self._out_docs)
+            next_href = await get_redirected_url(
+                next_link["href"], verify=False
+            )
             await self._run(
                 base_url,
                 link=_Link(
                     title=next_link["title"],
-                    href=next_link["href"],
+                    href=next_href,
                     base_domain=base_url,
                 ),
                 depth=depth + 1,
@@ -361,12 +364,13 @@ class COMPASSCrawler:
             err_type = type(e)
             logger.exception(msg, err_type, link)
 
-    def _reset_crawl(self, base_url):
+    async def _reset_crawl(self, base_url):
         """Reset crawl state and initialize crawling link"""
         self._out_docs = []
         self._already_visited = {}
         self._failed_external_domains = set()
         base_url = sanitize_url(base_url)
+        base_url = await get_redirected_url(base_url, verify=False)
         return base_url, _Link(
             title="Landing Page",
             href=sanitize_url(urljoin(base_url, base_url.split(" ")[0])),
