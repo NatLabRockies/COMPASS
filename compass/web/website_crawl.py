@@ -107,7 +107,16 @@ class _Link(c4AILink):
     @property
     def consistent_domain(self):
         """bool: ``True`` if the link is from the base domain"""
-        return self.base_domain.casefold() in self.href.casefold()
+        norm_b = normalize_domain(self.base_domain)
+        norm_href = normalize_domain(self.href)
+        is_consistent = norm_b == norm_href
+        logger.trace(
+            "Consistent domain between %s and %s: %r",
+            norm_href,
+            norm_b,
+            is_consistent,
+        )
+        return is_consistent
 
     @property
     def resembles_pdf(self):
