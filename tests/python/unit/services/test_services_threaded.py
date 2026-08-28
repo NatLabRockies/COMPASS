@@ -550,6 +550,8 @@ async def test_jurisdiction_updater_process(tmp_path):
             "out_fp": tmp_path / "ord" / "doc.pdf",
             "checksum": "sha256:abc",
             "from_ocr": True,
+            "from_steps": ["search_engine"],
+            "search_engines": ["SerpAPIGoogleSearch"],
             "relevant_text_ngram_score": 0.9,
             "permitted_use_text_ngram_score": 0.8,
             "ordinance_values": pd.DataFrame(
@@ -601,6 +603,8 @@ async def test_jurisdiction_updater_process(tmp_path):
     assert second["documents"][0]["ord_filename"] == "doc.pdf"
     assert second["documents"][0]["effective_year"] == 2023
     assert second["documents"][0]["num_pages"] == len(doc.pages)
+    assert second["documents"][0]["from_steps"] == ["search_engine"]
+    assert second["documents"][0]["search_engines"] == ["SerpAPIGoogleSearch"]
 
     updater.release_resources()
 
