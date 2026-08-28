@@ -225,6 +225,9 @@ def _apply_duplicate_filters(results):
     config only wins among entries that are otherwise tied (same
     ``query_rank`` and ``query_index``).
     """
+    for entry in results:
+        entry["search_engines"] = [entry["search_engine"]]
+
     winners = {}
     for entry in _active_results_sorted(results):
         key = entry["url"]
@@ -241,6 +244,8 @@ def _apply_duplicate_filters(results):
                 "query_rank": entry["query_rank"],
             }
         )
+        if entry["search_engine"] not in winner["search_engines"]:
+            winner["search_engines"].append(entry["search_engine"])
 
         entry["filtered_reason"] = "duplicate"
 
