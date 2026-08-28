@@ -676,6 +676,7 @@ def _compile_doc_info(doc):
         "mean_confidence": doc.attrs.get("mean_confidence"),
         "low_score_confidence": doc.attrs.get("low_score_confidence"),
         "collection_step_rank": doc.attrs.get("collection_step_rank"),
+        "search_engines": doc.attrs.get("search_engines"),
         "relevant_text_ngram_score": doc.attrs.get(
             "relevant_text_ngram_score"
         ),
