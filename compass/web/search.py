@@ -2,7 +2,7 @@
 
 import logging
 
-from elm.web.search.run import search_with_fallback, search_all_se
+from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
 
 logger = logging.getLogger(__name__)
@@ -116,7 +116,7 @@ async def _run_simple_sort_search(
     **se_kwargs,
 ):
     """Run search with fallback search engines, applying simple sort"""
-    urls = await search_with_fallback(
+    return await search_with_fallback_with_attrs(
         queries,
         num_urls=num_urls,
         url_ignore_substrings=url_ignore_substrings,
@@ -125,7 +125,6 @@ async def _run_simple_sort_search(
         task_name=jurisdiction_full_name,
         **se_kwargs,
     )
-    return [{"url": url} for url in urls]
 
 
 async def _run_holistic_sort_search(
