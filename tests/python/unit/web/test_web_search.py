@@ -5,6 +5,73 @@ from pathlib import Path
 import pytest
 
 import compass.web.search as search_module
+from compass.utilities.jurisdictions import Jurisdiction
+
+
+@pytest.mark.asyncio
+async def test_search_formats_query_with_known_jurisdiction_website(
+    monkeypatch,
+):
+    """Include website query when the jurisdiction website is known"""
+    submitted_queries = None
+
+    async def capture_queries(queries, *args, **kwargs):
+        nonlocal submitted_queries
+        submitted_queries = queries
+        return []
+
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", capture_queries
+    )
+    jurisdiction = Jurisdiction(
+        "county",
+        "Colorado",
+        county="Adams",
+        website_url="https://www.adcogov.org",
+    )
+    query_templates = [
+        "{jurisdiction} zoning ordinance",
+        "site:{jurisdiction_website} zoning ordinance",
+    ]
+
+    output = await search_module.search_single_jurisdiction(
+        query_templates, jurisdiction
+    )
+
+    assert submitted_queries == [
+        "Adams County, Colorado zoning ordinance",
+        "site:https://www.adcogov.org zoning ordinance",
+    ]
+    assert output["queries"] == submitted_queries
+
+
+@pytest.mark.asyncio
+async def test_search_discards_website_query_without_known_website(
+    monkeypatch,
+):
+    """Discard website query when the jurisdiction website is unknown"""
+    submitted_queries = None
+
+    async def capture_queries(queries, *args, **kwargs):
+        nonlocal submitted_queries
+        submitted_queries = queries
+        return []
+
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", capture_queries
+    )
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+    query_templates = [
+        "{jurisdiction} zoning ordinance",
+        "site:{jurisdiction_website} zoning ordinance",
+    ]
+
+    output = await search_module.search_single_jurisdiction(
+        query_templates, jurisdiction
+    )
+
+    assert submitted_queries == ["Adams County, Colorado zoning ordinance"]
+    assert output["queries"] == submitted_queries
 
 
 def test_apply_blacklist_filters_is_case_insensitive():
