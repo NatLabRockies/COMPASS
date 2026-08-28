@@ -134,9 +134,10 @@ class COMPASSCrawler:
         url_scorer,
         file_loader_kwargs=None,
         already_visited=None,
+        browser_semaphore=None,
         num_link_scores_to_check_per_page=4,
         max_pages=100,
-        browser_semaphore=None,
+        max_same_score_links_per_page=20,
     ):
         """
 
@@ -168,7 +169,11 @@ class COMPASSCrawler:
             that have already been visited. This is used to avoid
             re-visiting links that have already been checked.
             By default, ``None``.
-        num_link_scores_to_check_per_page : int, default=3
+        browser_semaphore : :class:`asyncio.Semaphore`, optional
+            Semaphore instance that can be used to limit the number of
+            playwright browsers open concurrently. If ``None``, no
+            limits are applied. By default, ``None``.
+        num_link_scores_to_check_per_page : int, default=4
             Number of top unique-scoring links per page to use for
             recursive crawling. This helps the crawl stay focused on the
             most likely links to contain documents of interest.
@@ -176,16 +181,18 @@ class COMPASSCrawler:
             Maximum number of pages to crawl before terminating,
             regardless of whether the document was found or not.
             By default, ``100``.
-        browser_semaphore : :class:`asyncio.Semaphore`, optional
-            Semaphore instance that can be used to limit the number of
-            playwright browsers open concurrently. If ``None``, no
-            limits are applied. By default, ``None``.
+        max_same_score_links_per_page : int, default=20
+            Maximum number of links with the same score to check per
+            page. This helps prevent the crawler from spending too much
+            time on links that have identical scores.
+            By default, ``20``.
         """
         self.validator = validator
         self.url_scorer = url_scorer
         self.num_scores_to_check_per_page = num_link_scores_to_check_per_page
         self.checked_previously = already_visited or set()
         self.max_pages = max_pages
+        self.max_same_score_links_per_page = max_same_score_links_per_page
 
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
@@ -305,9 +312,8 @@ class COMPASSCrawler:
         if await self._website_link_is_doc(link, depth, score):
             return
 
-        num_urls_checked_on_this_page = 0
-        curr_url_score = None
-        for next_link in await self._get_links_from_page(link, base_url):
+        page_links = await self._get_links_from_page(link, base_url)
+        for next_link in self._top_scored_links(page_links, link):
             prev_len = len(self._out_docs)
             next_href = await get_redirected_url(
                 next_link["href"], verify=False
@@ -336,21 +342,8 @@ class COMPASSCrawler:
                     self._load_last_doc_with_final_afl(next_link["href"])
                 else:
                     self._out_docs = self._out_docs[:-1]
-            elif (
-                not link.resembles_pdf and curr_url_score != next_link["score"]
-            ):
-                logger.trace(
-                    "Finished checking score %d at depth %d. Next score: %d",
-                    curr_url_score or -1,
-                    depth,
-                    next_link["score"],
-                )
-                num_urls_checked_on_this_page += 1
-                curr_url_score = next_link["score"]
 
-            if await self._should_terminate_crawl(
-                num_urls_checked_on_this_page, link
-            ):
+            if await self._should_terminate_crawl():
                 break
 
         return
@@ -494,6 +487,47 @@ class COMPASSCrawler:
         _debug_info_on_links(page_links)
         return page_links
 
+    def _top_scored_links(self, page_links, link):
+        """Yield the configured number of links from each top score"""
+        num_link_scores_checked = 0
+        num_same_score_links_checked = 0
+        has_warned = False
+        curr_url_score = None
+        for page_link in page_links:
+            page_link_score = page_link["score"]
+            if curr_url_score != page_link_score:
+                if (
+                    num_link_scores_checked
+                    >= self.num_scores_to_check_per_page
+                ):
+                    logger.debug(
+                        "Reached score categories (%d) to check for page: %s",
+                        self.num_scores_to_check_per_page,
+                        link.href,
+                    )
+                    return
+                curr_url_score = page_link_score
+                num_link_scores_checked += 1
+                num_same_score_links_checked = 0
+                has_warned = False
+
+            if (
+                num_same_score_links_checked
+                >= self.max_same_score_links_per_page
+            ):
+                if not has_warned:
+                    logger.warning(
+                        "Reached max links (%d) to check for score %d "
+                        "for page: %s",
+                        self.max_same_score_links_per_page,
+                        curr_url_score,
+                        link.href,
+                    )
+                    has_warned = True
+                continue
+            num_same_score_links_checked += 1
+            yield page_link
+
     async def _get_text_no_err(self, url):
         """Get all text from a page; return empty string if pw error"""
         try:
@@ -530,18 +564,8 @@ class COMPASSCrawler:
 
         return "\n".join(all_text)
 
-    async def _should_terminate_crawl(
-        self, num_urls_checked_on_this_page, link
-    ):
+    async def _should_terminate_crawl(self):
         """Check if crawl should terminate"""
-        if num_urls_checked_on_this_page >= self.num_scores_to_check_per_page:
-            logger.debug(
-                "Already checked %d links from %s",
-                self.num_scores_to_check_per_page,
-                link.href,
-            )
-            return True
-
         if await self._should_stop(self._out_docs):
             logger.debug("Exiting crawl early due to user condition")
             return True
