@@ -227,6 +227,14 @@ def test_link_consistent_domain():
     assert _Link(
         href="example.com/test", base_domain="example.com"
     ).consistent_domain
+    assert _Link(
+        href="https://example.com/test",
+        base_domain="http://www.example.com/",
+    ).consistent_domain
+    assert not _Link(
+        href="https://example.com.evil.test/",
+        base_domain="https://example.com/",
+    ).consistent_domain
 
 
 def test_link_resembles_pdf():
