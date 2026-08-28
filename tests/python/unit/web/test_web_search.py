@@ -75,6 +75,7 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
             "query_rank": 2,
         }
     ]
+    assert winner["search_engines"] == ["SerpAPIGoogleSearch"]
     assert loser["filtered_reason"] == "duplicate"
 
 
@@ -117,6 +118,10 @@ def test_apply_duplicate_filters_collapses_across_search_engines():
 
     assert winner["filtered_reason"] is None
     assert winner["search_engine"] == "SerpAPIGoogleSearch"
+    assert winner["search_engines"] == [
+        "SerpAPIGoogleSearch",
+        "TestSearch",
+    ]
     assert winner["duplicates"] == [
         {
             "url": "https://example.com/a.pdf",
