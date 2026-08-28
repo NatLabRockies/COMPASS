@@ -9,6 +9,7 @@ import math
 import asyncio
 import logging
 import operator
+from functools import cached_property
 from collections import Counter
 from contextlib import AsyncExitStack
 from urllib.parse import urljoin, urlsplit
