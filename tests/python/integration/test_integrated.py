@@ -112,7 +112,7 @@ async def test_openai_query(
         max_seconds=time_limit * sleep_mult * 0.8
     )
     openai_service = OpenAIService(
-        client, model_name="gpt-4", rate_limit=3, rate_tracker=rate_tracker
+        client, model_name="gpt-4", rate_limit=3, timed_tracker=rate_tracker
     )
 
     usage_tracker = LLMUsageTracker("my_county", usage_from_response)
@@ -122,7 +122,7 @@ async def test_openai_query(
         patched_clock.advance(time_limit * 3)
         message2 = await openai_service.call()
 
-        assert openai_service.rate_tracker.total == 13
+        assert openai_service.timed_tracker.total == 13
         assert message == "test_response"
         assert message2 == "test_response"
         assert len(elapsed_times) == 3
@@ -141,7 +141,7 @@ async def test_openai_query(
         }
 
         patched_clock.advance(time_limit * sleep_mult)
-        assert openai_service.rate_tracker.total == 0
+        assert openai_service.timed_tracker.total == 0
 
         start_time = time.perf_counter() - time_limit - 1
         await openai_service.call()
@@ -155,14 +155,14 @@ async def test_openai_query(
 
         patched_clock.advance(time_limit * sleep_mult)
         start_time = time.perf_counter() - time_limit - 1
-        assert openai_service.rate_tracker.total == 0
+        assert openai_service.timed_tracker.total == 0
 
         with pytest.raises(openai.NotFoundError):
             message = await openai_service.call(
                 usage_tracker=usage_tracker, bad_request=True
             )
 
-        assert openai_service.rate_tracker.total <= 3
+        assert openai_service.timed_tracker.total <= 3
         assert usage_tracker == {
             "gpt-4": {
                 LLMUsageCategory.DEFAULT: {
