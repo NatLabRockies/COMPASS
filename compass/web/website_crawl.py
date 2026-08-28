@@ -503,7 +503,8 @@ class COMPASSCrawler:
                     >= self.num_scores_to_check_per_page
                 ):
                     logger.debug(
-                        "Reached score categories (%d) to check for page: %s",
+                        "Reached max score categories (%d) to check for "
+                        "page: %s",
                         self.num_scores_to_check_per_page,
                         link.href,
                     )
