@@ -255,6 +255,7 @@ this pipeline."
            "battery energy storage ordinance {jurisdiction}",
            "{jurisdiction} battery storage regulations",
            "{jurisdiction} BESS zoning",
+           "site:{jurisdiction_website} battery storage ordinance",
        ]
 
        WEBSITE_KEYWORDS = {
@@ -272,6 +273,13 @@ this pipeline."
        PARSERS = [BatteryStorageParser]
 
    register_plugin(BatteryStorageExtractor)
+
+Query templates must use ``{jurisdiction}`` where the jurisdiction's full
+name should appear. They may also use the exact placeholder
+``{jurisdiction_website}`` to restrict a query to the jurisdiction's known
+website, as shown by the ``site:`` query above. COMPASS submits templates
+containing this website placeholder only when the jurisdiction has a known
+website URL; otherwise, it discards those templates before searching.
 
 Step 6: Run it
 --------------
