@@ -25,7 +25,10 @@ async def search_single_jurisdiction(
     query_templates : iterable of str
         Query templates to format with the jurisdiction name and search.
         Each template should include a ``{jurisdiction}`` placeholder
-        for the jurisdiction name.
+        for the jurisdiction name. Templates may include a
+        ``{jurisdiction_website}`` placeholder for the jurisdiction's
+        known website URL. Website templates are skipped when the
+        jurisdiction does not have a known website.
     jurisdiction : Jurisdiction
         Jurisdiction instance representing the jurisdiction to search
         documents for.
@@ -72,8 +75,12 @@ async def search_single_jurisdiction(
     """
 
     queries = [
-        query.format(jurisdiction=jurisdiction.full_name)
+        query.format(
+            jurisdiction=jurisdiction.full_name,
+            jurisdiction_website=jurisdiction.website_url,
+        )
         for query in query_templates
+        if "{jurisdiction_website}" not in query or jurisdiction.website_url
     ]
     base = {
         "jurisdiction": jurisdiction.full_name,
