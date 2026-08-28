@@ -525,7 +525,7 @@ class COMPASSCrawler:
         """Check if crawl should terminate"""
         if num_urls_checked_on_this_page >= self.num_scores_to_check_per_page:
             logger.debug(
-                "Already checked %d unique link scores from %s",
+                "Already checked %d links from %s",
                 self.num_scores_to_check_per_page,
                 link.href,
             )
