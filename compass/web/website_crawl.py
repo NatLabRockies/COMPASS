@@ -498,38 +498,51 @@ class COMPASSCrawler:
         for page_link in page_links:
             page_link_score = page_link["score"]
             if curr_url_score != page_link_score:
-                if (
-                    num_link_scores_checked
-                    >= self.num_scores_to_check_per_page
-                ):
-                    logger.debug(
-                        "Reached max score categories (%d) to check for "
-                        "page: %s",
-                        self.num_scores_to_check_per_page,
-                        link.href,
-                    )
+                if self._max_score_cats_checked(num_link_scores_checked, link):
                     return
                 curr_url_score = page_link_score
                 num_link_scores_checked += 1
                 num_same_score_links_checked = 0
                 has_warned = False
 
-            if (
+            if self._max_same_score_links_checked(
                 num_same_score_links_checked
-                >= self.max_same_score_links_per_page
             ):
-                if not has_warned:
-                    logger.warning(
-                        "Reached max links (%d) to check for score %d "
-                        "for page: %s",
-                        self.max_same_score_links_per_page,
-                        curr_url_score,
-                        link.href,
-                    )
-                    has_warned = True
+                has_warned = self._warn_about_max_links(
+                    has_warned, curr_url_score, link
+                )
                 continue
+
             num_same_score_links_checked += 1
             yield page_link
+
+    def _max_score_cats_checked(self, num_link_scores_checked, link):
+        """Determine if the max score categories limit is reached"""
+        if num_link_scores_checked >= self.num_scores_to_check_per_page:
+            logger.debug(
+                "Reached max score categories (%d) to check for page: %s",
+                self.num_scores_to_check_per_page,
+                link.href,
+            )
+            return True
+        return False
+
+    def _max_same_score_links_checked(self, num_same_score_links_checked):
+        """Determine if the same-score-link limit has been reached"""
+        return (
+            num_same_score_links_checked >= self.max_same_score_links_per_page
+        )
+
+    def _warn_about_max_links(self, has_warned, curr_url_score, link):
+        """Log a warning for max links for the current score"""
+        if not has_warned:
+            logger.warning(
+                "Reached max links (%d) to check for score %d for page: %s",
+                self.max_same_score_links_per_page,
+                curr_url_score,
+                link.href,
+            )
+        return True
 
     async def _get_text_no_err(self, url):
         """Get all text from a page; return empty string if pw error"""
