@@ -133,6 +133,10 @@ class DocumentCollection:
                     )
                 )
                 if context is not None:
+                    for doc in context.data_docs:
+                        doc.attrs["from_steps"] = list(
+                            self.de_duplicator.info(doc).from_steps
+                        )
                     return context
             else:
                 self._collection_info = (
