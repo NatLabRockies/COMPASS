@@ -157,6 +157,13 @@ def crawler_setup(monkeypatch):
     monkeypatch.setattr(website_crawl, "AsyncWebFileLoader", DummyLoader)
     monkeypatch.setattr(website_crawl, "COMPASSWebFileLoader", DummyLoader)
 
+    async def get_redirected_url(url, **_kwargs):
+        return url
+
+    monkeypatch.setattr(
+        website_crawl, "get_redirected_url", get_redirected_url
+    )
+
     async def validator(doc):
         await asyncio.sleep(0)
         return "keep" in getattr(doc, "text", "")
@@ -230,6 +237,10 @@ def test_link_consistent_domain():
     assert _Link(
         href="https://example.com/test",
         base_domain="http://www.example.com/",
+    ).consistent_domain
+    assert _Link(
+        href="https://planning.example.com/test",
+        base_domain="https://example.com/",
     ).consistent_domain
     assert not _Link(
         href="https://example.com.evil.test/",

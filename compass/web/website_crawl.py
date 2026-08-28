@@ -110,7 +110,9 @@ class _Link(c4AILink):
         """bool: ``True`` if the link is from the base domain"""
         norm_b = normalize_domain(self.base_domain)
         norm_href = normalize_domain(self.href)
-        is_consistent = norm_b == norm_href
+        is_consistent = norm_href == norm_b or (
+            bool(norm_b) and norm_href.endswith(f".{norm_b}")
+        )
         logger.trace(
             "Consistent domain between %s and %s: %r",
             norm_href,
