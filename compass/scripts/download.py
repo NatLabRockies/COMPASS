@@ -755,11 +755,14 @@ async def _docs_from_web_search(
         **kwargs,
     )
     ranked_results = {
-        res.get("url"): res.get("overall_rank") or 1
+        res.get("url"): res
         for res in out["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
-    urls = sorted(ranked_results, key=ranked_results.get)
+    urls = sorted(
+        ranked_results,
+        key=lambda url: ranked_results[url].get("overall_rank") or 1,
+    )
     if not urls:
         return []
 
