@@ -197,7 +197,8 @@ class COMPASSCrawler:
         # best parsing file loader selected by user
         self.final_afl = COMPASSWebFileLoader(**flk)
 
-        self.pw_launch_kwargs = (
+        self.pw_launch_kwargs = PWKwargs.launch_kwargs()
+        self.pw_launch_kwargs.update(
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )
         self.browser_semaphore = (
