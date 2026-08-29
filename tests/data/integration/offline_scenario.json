@@ -1,5 +1,5 @@
 {
-  "website": "https://example.test/whatcom",
+  "website": "https://example.test",
   "known_urls": [
     {
       "source": "https://documents.test/known.html",

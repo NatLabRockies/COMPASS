@@ -122,8 +122,7 @@ async def test_offline_collection_and_extraction_harness(
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.write_text(
         "State,County,Subdivision,Jurisdiction Type,FIPS,Website\n"
-        "Washington,Whatcom,,county,53073,"
-        "https://example.test/whatcom\n",
+        "Washington,Whatcom,,county,53073,https://example.test\n",
         encoding="utf-8",
     )
     known_doc_urls = {
@@ -146,7 +145,7 @@ async def test_offline_collection_and_extraction_harness(
         )
     )
 
-    assert "4 documents collected for 1 jurisdictions" in collection_message
+    assert "4 documents collected for 1 jurisdiction" in collection_message
     manifest_fp = collection_dir / COLLECTION_MANIFEST_FILENAME
     manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
     assert manifest["completed_step_document_totals"] == {
@@ -178,7 +177,10 @@ async def test_offline_collection_and_extraction_harness(
         )
     )
 
-    assert "Number of jurisdictions with extracted data: 1" in extraction_message
+    assert (
+        "Number of jurisdictions with extracted data: 1"
+        in extraction_message
+    )
     output = pd.read_csv(extraction_dir / "offline_harness_combined.csv")
     assert set(output["ordinance_id"]) == {
         "known-url",
@@ -191,4 +193,3 @@ async def test_offline_collection_and_extraction_harness(
 
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
-

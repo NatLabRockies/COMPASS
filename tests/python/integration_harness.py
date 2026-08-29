@@ -2,6 +2,7 @@
 
 import hashlib
 import json
+import socket
 from collections import Counter
 from pathlib import Path
 
@@ -105,6 +106,26 @@ class OfflineScenario:
 
     def install(self, monkeypatch):
         """Patch every network and LLM boundary used by collection"""
+        original_connect = socket.socket.connect
+
+        def guarded_connect(sock, address):
+            host = address[0] if isinstance(address, tuple) else None
+            is_network_socket = sock.family in {
+                socket.AF_INET,
+                socket.AF_INET6,
+            }
+            is_localhost = host in {
+                "127.0.0.1",
+                "::1",
+                "localhost",
+            }
+            if is_network_socket and not is_localhost:
+                msg = (
+                    "Unexpected network connection in offline test: "
+                    f"{address}"
+                )
+                raise AssertionError(msg)
+            return original_connect(sock, address)
 
         def build_models(*args, **kwargs):
             return {
@@ -139,6 +160,7 @@ class OfflineScenario:
             return url
 
         monkeypatch.setattr(data_classes, "build_models", build_models)
+        monkeypatch.setattr(socket.socket, "connect", guarded_connect)
         monkeypatch.setattr(
             collection_steps, "download_known_urls", download_known_urls
         )
@@ -163,17 +185,18 @@ class OfflineScenario:
 
     def assert_consumed(self):
         """Assert all configured external interactions occurred"""
-        expected = {
-            channel: 1
-            for channel in self.CHANNELS
-            if channel in self.config
-        }
-        actual = {channel: self.calls[channel] for channel in expected}
-        assert actual == expected
+        expected = Counter(
+            {
+                channel: 1
+                for channel in self.CHANNELS
+                if channel in self.config
+            }
+        )
         if any(
             channel.endswith("website_crawl") for channel in self.config
         ):
-            assert self.calls["redirect"] == 1
+            expected["redirect"] = 1
+        assert self.calls == expected
         self.llm_service.assert_consumed()
 
     def _documents(self, channel):
@@ -200,4 +223,3 @@ class OfflineScenario:
     def _assert_website(self, website):
         """Assert a website call matches the scenario"""
         assert website.rstrip("/") == self.config["website"].rstrip("/")
-
