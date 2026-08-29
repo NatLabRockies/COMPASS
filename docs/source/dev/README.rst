@@ -170,6 +170,18 @@ with pytest's ``monkeypatch`` fixture before creating a request, then call
 unexpected, ambiguous, or unused interactions, so fixture drift is visible
 instead of silently returning generic mocks.
 
+Each scenario owns its jurisdiction, acquisition channels, LLM responses,
+and expected values. Use ``write_jurisdictions()`` and
+``collection_request_kwargs()`` for direct pipeline tests, or
+``process_config()`` for CLI tests. Acquisition channels are enabled by
+including their keys. The ``offline_scenario_factory`` pytest fixture
+accepts either a scenario dictionary or a path to a JSON scenario, installs
+all replay adapters, and gives each test an isolated cache. Website search
+always runs both crawler stages, so
+configure both ``elm_website_crawl`` and ``compass_website_crawl``; use an
+empty list when a crawler should find nothing. The optional
+``expected_calls`` mapping can describe retries or multi-call cases.
+
 Keep scenarios small and deterministic. Use synthetic ordinance text and
 reserved domains such as ``example.test`` rather than captured sensitive
 documents or credentials. Add new adapters to the harness when a pipeline

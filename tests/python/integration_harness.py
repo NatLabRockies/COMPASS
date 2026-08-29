@@ -3,6 +3,7 @@
 import hashlib
 import json
 import socket
+from csv import DictWriter
 from collections import Counter
 from pathlib import Path
 
@@ -93,6 +94,7 @@ class OfflineScenario:
 
     def __init__(self, config, cache_dir):
         self.config = config
+        self._validate()
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.calls = Counter()
@@ -183,20 +185,96 @@ class OfflineScenario:
             collection_steps, "get_redirected_url", redirected_url
         )
 
+    def write_jurisdictions(self, output_fp):
+        """Write the scenario jurisdiction as a pipeline CSV input"""
+        jurisdiction = self.config["jurisdiction"]
+        field_map = {
+            "State": "state",
+            "County": "county",
+            "Subdivision": "subdivision",
+            "Jurisdiction Type": "jurisdiction_type",
+            "FIPS": "fips",
+            "Website": "website",
+        }
+        output_fp = Path(output_fp)
+        with output_fp.open("w", encoding="utf-8", newline="") as file:
+            writer = DictWriter(file, fieldnames=field_map)
+            writer.writeheader()
+            writer.writerow(
+                {
+                    heading: jurisdiction.get(key) or ""
+                    for heading, key in field_map.items()
+                }
+            )
+        return output_fp
+
+    def collection_request_kwargs(self, out_dir, tech):
+        """Build collection request inputs from scenario data"""
+        jurisdiction = self.config["jurisdiction"]
+        settings = self.config.get("settings", {})
+        kwargs = {
+            "out_dir": out_dir,
+            "tech": tech,
+            "perform_se_search": settings.get(
+                "perform_se_search", "search_engine" in self.config
+            ),
+            "perform_website_search": settings.get(
+                "perform_website_search",
+                any(
+                    channel in self.config
+                    for channel in (
+                        "elm_website_crawl",
+                        "compass_website_crawl",
+                    )
+                ),
+            ),
+        }
+        if "known_urls" in self.config:
+            kwargs["known_doc_urls"] = {
+                str(jurisdiction["fips"]): [
+                    {"source": item["source"]}
+                    for item in self.config["known_urls"]
+                ]
+            }
+        return kwargs
+
+    def process_config(self, out_dir, tech, jurisdiction_fp):
+        """Build a serializable process CLI configuration"""
+        config = self.collection_request_kwargs(out_dir, tech)
+        config["out_dir"] = str(config["out_dir"])
+        config["jurisdiction_fp"] = str(jurisdiction_fp)
+        config["model"] = "offline-replay"
+        return config
+
+    @property
+    def expected_document_count(self):
+        """int: Number of documents configured across active channels"""
+        return sum(
+            len(self.config.get(channel, [])) for channel in self.CHANNELS
+        )
+
     def assert_consumed(self):
         """Assert all configured external interactions occurred"""
         expected = Counter(
             {
-                channel: 1
+                channel: self.config.get("expected_calls", {}).get(channel, 1)
                 for channel in self.CHANNELS
                 if channel in self.config
             }
         )
-        if any(
-            channel.endswith("website_crawl") for channel in self.config
-        ):
-            expected["redirect"] = 1
-        assert self.calls == expected
+        expected["redirect"] = self.config.get("expected_calls", {}).get(
+            "redirect",
+            sum(
+                channel.endswith("website_crawl")
+                for channel in self.config
+                if channel in self.CHANNELS
+            ),
+        )
+        expected += Counter()
+        assert self.calls == expected, (
+            f"External call mismatch: actual={self.calls!r}, "
+            f"expected={expected!r}"
+        )
         self.llm_service.assert_consumed()
 
     def _documents(self, channel):
@@ -222,4 +300,56 @@ class OfflineScenario:
 
     def _assert_website(self, website):
         """Assert a website call matches the scenario"""
-        assert website.rstrip("/") == self.config["website"].rstrip("/")
+        expected = self.config.get(
+            "website", self.config["jurisdiction"].get("website")
+        )
+        assert website.rstrip("/") == expected.rstrip("/")
+
+    def _validate(self):
+        """Validate required and coupled scenario fields"""
+        jurisdiction = self.config.get("jurisdiction", {})
+        required = {"state", "jurisdiction_type", "fips"}
+        missing = required - jurisdiction.keys()
+        if missing:
+            raise ValueError(
+                f"Scenario jurisdiction is missing fields: {sorted(missing)}"
+            )
+
+        crawl_channels = {
+            "elm_website_crawl",
+            "compass_website_crawl",
+        }
+        configured_crawls = crawl_channels & self.config.keys()
+        if configured_crawls and configured_crawls != crawl_channels:
+            raise ValueError(
+                "Website scenarios must configure both crawl channels; "
+                "use an empty list when one should return no documents"
+            )
+
+        settings = self.config.get("settings", {})
+        website_search = settings.get(
+            "perform_website_search", bool(configured_crawls)
+        )
+        if website_search and not configured_crawls:
+            raise ValueError(
+                "Website search requires both crawl channel fixtures"
+            )
+        if not website_search and configured_crawls:
+            raise ValueError(
+                "Website crawl fixtures require website search to be enabled"
+            )
+        if configured_crawls and not (
+            self.config.get("website") or jurisdiction.get("website")
+        ):
+            raise ValueError(
+                "Website crawl fixtures require a jurisdiction website"
+            )
+
+        search_configured = "search_engine" in self.config
+        search_enabled = settings.get(
+            "perform_se_search", search_configured
+        )
+        if search_enabled != search_configured:
+            raise ValueError(
+                "Search engine settings and fixtures must be enabled together"
+            )

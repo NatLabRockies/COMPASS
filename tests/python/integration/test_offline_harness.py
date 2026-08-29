@@ -105,14 +105,11 @@ def offline_harness_plugin():
 
 
 @pytest.fixture
-def offline_scenario(monkeypatch, tmp_path, test_data_dir):
+def offline_scenario(offline_scenario_factory, test_data_dir):
     """Install the external service replay scenario"""
-    scenario = OfflineScenario.from_file(
-        test_data_dir / "integration" / "offline_scenario.json",
-        tmp_path / "replay_cache",
+    return offline_scenario_factory(
+        test_data_dir / "integration" / "offline_scenario.json"
     )
-    scenario.install(monkeypatch)
-    return scenario
 
 
 @pytest.mark.asyncio
@@ -120,33 +117,27 @@ async def test_offline_collection_and_extraction_harness(
     tmp_path, offline_harness_plugin, offline_scenario
 ):
     """Replay web acquisition and LLM extraction without external calls"""
-    jurisdiction_fp = tmp_path / "jurisdictions.csv"
-    jurisdiction_fp.write_text(
-        "State,County,Subdivision,Jurisdiction Type,FIPS,Website\n"
-        "Washington,Whatcom,,county,53073,https://www.whatcomcounty.us\n",
-        encoding="utf-8",
+    jurisdiction_fp = offline_scenario.write_jurisdictions(
+        tmp_path / "jurisdictions.csv"
     )
-    known_doc_urls = {
-        "53073": [
-            {"source": item["source"]}
-            for item in offline_scenario.config["known_urls"]
-        ]
-    }
     collection_dir = tmp_path / "collection"
+    collection_kwargs = offline_scenario.collection_request_kwargs(
+        collection_dir, "offline-harness"
+    )
 
     collection_message = await run_compass(
         CollectionRequest(
-            out_dir=collection_dir,
-            tech="offline-harness",
             jurisdiction_fp=jurisdiction_fp,
-            known_doc_urls=known_doc_urls,
-            perform_se_search=True,
-            perform_website_search=True,
             make_paths_relative=True,
+            **collection_kwargs,
         )
     )
 
-    assert "4 documents collected for 1 jurisdiction" in collection_message
+    assert (
+        f"{offline_scenario.expected_document_count} documents collected "
+        "for 1 jurisdiction"
+        in collection_message
+    )
     manifest_fp = collection_dir / COLLECTION_MANIFEST_FILENAME
     manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
     assert manifest["completed_step_document_totals"] == {
@@ -183,28 +174,24 @@ async def test_offline_collection_and_extraction_harness(
         in extraction_message
     )
     output = pd.read_csv(extraction_dir / "offline_harness_combined.csv")
-    assert set(output["ordinance_id"]) == {
-        "known-url",
-        "search",
-        "elm-crawl",
-        "compass-crawl",
-    }
+    expected_ids = set(offline_scenario.config["expected_ordinance_ids"])
+    assert set(output["ordinance_id"]) == expected_ids
     offline_scenario.assert_consumed()
 
 
 def test_offline_process_cli_end_to_end(
-    tmp_path, monkeypatch, cli_runner, offline_harness_plugin
+    tmp_path, cli_runner, offline_harness_plugin, offline_scenario_factory
 ):
     """Run the process CLI from configuration to structured output"""
-    jurisdiction_fp = tmp_path / "jurisdictions.csv"
-    jurisdiction_fp.write_text(
-        "State,County,Subdivision,Jurisdiction Type,FIPS,Website\n"
-        "Washington,Whatcom,,county,53073,\n",
-        encoding="utf-8",
-    )
     source = "https://documents.test/process-ordinance.html"
-    scenario = OfflineScenario(
+    scenario = offline_scenario_factory(
         {
+            "jurisdiction": {
+                "state": "Washington",
+                "county": "Whatcom",
+                "jurisdiction_type": "county",
+                "fips": "53073",
+            },
             "known_urls": [
                 {
                     "source": source,
@@ -220,23 +207,18 @@ def test_offline_process_cli_end_to_end(
                 }
             ],
         },
-        tmp_path / "cli_replay_cache",
     )
-    scenario.install(monkeypatch)
 
+    jurisdiction_fp = scenario.write_jurisdictions(
+        tmp_path / "jurisdictions.csv"
+    )
     out_dir = tmp_path / "cli_output"
     config_fp = tmp_path / "process_config.json"
     config_fp.write_text(
         json.dumps(
-            {
-                "out_dir": str(out_dir),
-                "tech": "offline-harness",
-                "jurisdiction_fp": str(jurisdiction_fp),
-                "known_doc_urls": {"53073": [{"source": source}]},
-                "perform_se_search": False,
-                "perform_website_search": False,
-                "model": "offline-replay",
-            }
+            scenario.process_config(
+                out_dir, "offline-harness", jurisdiction_fp
+            )
         ),
         encoding="utf-8",
     )
@@ -261,6 +243,72 @@ def test_offline_process_cli_end_to_end(
     assert (out_dir / "jurisdictions.json").exists()
     assert (out_dir / "usage.json").exists()
     scenario.assert_consumed()
+
+
+def test_offline_scenario_builds_selected_collection_steps(tmp_path):
+    """Build request inputs for a scenario containing only search"""
+    scenario = OfflineScenario(
+        {
+            "jurisdiction": {
+                "state": "Colorado",
+                "county": "Logan",
+                "jurisdiction_type": "county",
+                "fips": "08075",
+            },
+            "search_engine": [],
+        },
+        tmp_path / "cache",
+    )
+
+    kwargs = scenario.collection_request_kwargs(
+        tmp_path / "output", "offline-harness"
+    )
+
+    assert kwargs["perform_se_search"] is True
+    assert kwargs["perform_website_search"] is False
+    assert "known_doc_urls" not in kwargs
+    assert scenario.expected_document_count == 0
+
+
+@pytest.mark.parametrize(
+    ("scenario_update", "error_match"),
+    [
+        (
+            {"elm_website_crawl": []},
+            "both crawl channels",
+        ),
+        (
+            {
+                "elm_website_crawl": [],
+                "compass_website_crawl": [],
+            },
+            "jurisdiction website",
+        ),
+        (
+            {
+                "search_engine": [],
+                "settings": {"perform_se_search": False},
+            },
+            "enabled together",
+        ),
+    ],
+)
+def test_offline_scenario_rejects_incomplete_cases(
+    tmp_path, scenario_update, error_match
+):
+    """Reject scenarios that could escape the replay boundaries"""
+    config = {
+        "jurisdiction": {
+            "state": "Colorado",
+            "county": "Logan",
+            "jurisdiction_type": "county",
+            "fips": "08075",
+        },
+        **scenario_update,
+    }
+
+    with pytest.raises(ValueError, match=error_match):
+        OfflineScenario(config, tmp_path / "cache")
 
 
 if __name__ == "__main__":

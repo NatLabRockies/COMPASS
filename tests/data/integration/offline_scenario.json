@@ -1,5 +1,12 @@
 {
-  "website": "https://www.whatcomcounty.us",
+  "jurisdiction": {
+    "state": "Washington",
+    "county": "Whatcom",
+    "subdivision": null,
+    "jurisdiction_type": "county",
+    "fips": "53073",
+    "website": "https://www.whatcomcounty.us"
+  },
   "known_urls": [
     {
       "source": "https://documents.test/known.html",
@@ -41,5 +48,11 @@
       "prompt_contains": "COMPASS crawl ordinance",
       "response": "{\"ordinance_id\": \"compass-crawl\"}"
     }
+  ],
+  "expected_ordinance_ids": [
+    "known-url",
+    "search",
+    "elm-crawl",
+    "compass-crawl"
   ]
 }
