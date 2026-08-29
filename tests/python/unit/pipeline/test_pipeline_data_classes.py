@@ -66,5 +66,19 @@ def test_wsp_se_kwargs():
     )
 
 
+def test_wsp_url_filter_defaults_are_isolated():
+    """Custom URL filters should not leak into later requests"""
+    custom = WebSearchParams(
+        url_ignore_substrings=["blocked.example"],
+        url_keep_substrings=["trusted.example"],
+    )
+    defaults = WebSearchParams()
+
+    assert "blocked.example" in custom.url_ignore_substrings
+    assert "trusted.example" in custom.url_keep_substrings
+    assert "blocked.example" not in defaults.url_ignore_substrings
+    assert "trusted.example" not in defaults.url_keep_substrings
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
