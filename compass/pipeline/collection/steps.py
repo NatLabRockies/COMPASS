@@ -380,6 +380,12 @@ class CompassWebsiteCrawlStep(CollectionStep):
                     already_visited=checked_urls,
                     pb_jurisdiction_name=workflow.jurisdiction.full_name,
                     timeout_seconds=crawl_timeout_s,
+                    url_ignore_substrings=(
+                        workflow.runtime.search_params.url_ignore_substrings
+                    ),
+                    url_keep_substrings=(
+                        workflow.runtime.search_params.url_keep_substrings
+                    ),
                 )
         except Exception:
             logger.exception(
