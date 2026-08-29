@@ -123,7 +123,7 @@ async def test_offline_collection_and_extraction_harness(
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.write_text(
         "State,County,Subdivision,Jurisdiction Type,FIPS,Website\n"
-        "Washington,Whatcom,,county,53073,https://example.test\n",
+        "Washington,Whatcom,,county,53073,https://www.whatcomcounty.us\n",
         encoding="utf-8",
     )
     known_doc_urls = {

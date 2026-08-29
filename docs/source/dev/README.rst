@@ -155,7 +155,7 @@ Offline integration scenarios
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Use ``tests/python/integration_harness.py`` for end-to-end pipeline tests
-that must not call external services. An :class:`OfflineScenario` replaces
+that must not call external services. An ``OfflineScenario`` replaces
 the known-URL downloader, search engine, both website crawlers, redirect
 resolution, and the LLM service with strict fixture-driven replays. Local
 parsing, service queues, collection persistence, manifest loading,
