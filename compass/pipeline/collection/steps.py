@@ -414,7 +414,7 @@ async def _resolve_jurisdiction_website(workflow):
 async def _get_base_website(website):
     """Get the base URL for a website, following redirects if needed"""
     try:
-        website = await get_redirected_url(website, timeout=30)
+        website = await get_redirected_url(website, timeout=30, verify=False)
     except Exception:
         logger.exception("Error getting redirected URL for %s", website)
         return None

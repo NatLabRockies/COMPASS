@@ -381,7 +381,7 @@ async def download_jurisdiction_ordinances_from_website(
     if pb_jurisdiction_name:
         COMPASS_PB.update_jurisdiction_task(
             pb_jurisdiction_name,
-            description=f"Searching for documents from {website} ...",
+            description=f"Crawling (ELM) {website} for documents ...",
         )
         cpb = COMPASS_PB.website_crawl_prog_bar(pb_jurisdiction_name, max_urls)
         ch = _crawl_hook
@@ -495,7 +495,7 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     if pb_jurisdiction_name:
         COMPASS_PB.update_jurisdiction_task(
             pb_jurisdiction_name,
-            description=f"Double-checking {website} for documents ...",
+            description=f"Crawling (COMPASS) {website} for documents ...",
         )
         cpb = COMPASS_PB.compass_website_crawl_prog_bar(
             pb_jurisdiction_name, max_urls
