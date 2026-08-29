@@ -497,6 +497,9 @@ class COMPASSCrawler:
         curr_url_score = None
         for page_link in page_links:
             page_link_score = page_link["score"]
+            if page_link_score == 0:
+                continue
+
             if curr_url_score != page_link_score:
                 if self._max_score_cats_checked(num_link_scores_checked, link):
                     return

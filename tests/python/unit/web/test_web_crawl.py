@@ -894,6 +894,20 @@ async def test_run_checks_top_scores_and_limits_links_per_score(
     assert f"{base_url}score-96-link-0" not in visited_urls
 
 
+def test_top_scored_links_excludes_zero_scores(crawler_setup):
+    """Do not crawl links that have no keyword relevance"""
+
+    crawler = crawler_setup["crawler"]
+    crawler.num_scores_to_check_per_page = 4
+    page = _Link(title="Page", href="https://example.com")
+    page_links = [
+        {"title": "Relevant", "href": "https://example.com/a", "score": 1},
+        {"title": "Unscored", "href": "https://example.com/b", "score": 0},
+    ]
+
+    assert list(crawler._top_scored_links(page_links, page)) == page_links[:1]
+
+
 def test_compute_avg_score_and_depth_counts(crawler_setup):
     """Average score and depth counts reflect visited pages"""
 
