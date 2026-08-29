@@ -151,6 +151,31 @@ coverage at ``build/coverage`` by running:
     firefox build/coverage/index.html
 
 
+Offline integration scenarios
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Use ``tests/python/integration_harness.py`` for end-to-end pipeline tests
+that must not call external services. An :class:`OfflineScenario` replaces
+the known-URL downloader, search engine, both website crawlers, redirect
+resolution, and the LLM service with strict fixture-driven replays. Local
+parsing, service queues, collection persistence, manifest loading,
+extraction, and output writing continue to use production code.
+
+Create a JSON scenario like
+``tests/data/integration/offline_scenario.json``. Each acquisition channel
+contains documents with a source and content. The ``llm_responses`` entries
+match a unique prompt substring to a recorded response. Install the scenario
+with pytest's ``monkeypatch`` fixture before creating a request, then call
+``assert_consumed()`` after the run. The assertion fails for missing,
+unexpected, ambiguous, or unused interactions, so fixture drift is visible
+instead of silently returning generic mocks.
+
+Keep scenarios small and deterministic. Use synthetic ordinance text and
+reserved domains such as ``example.test`` rather than captured sensitive
+documents or credentials. Add new adapters to the harness when a pipeline
+introduces another external boundary.
+
+
 Documentation
 -------------
 
