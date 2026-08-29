@@ -611,6 +611,9 @@ class COMPASSCrawler:
 
     def _compute_avg_link_score(self):
         """Compute the average score of the crawled results"""
+        if not self._already_visited:
+            return 0
+
         return sum(
             score for __, score in self._already_visited.values()
         ) / len(self._already_visited)
