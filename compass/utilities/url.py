@@ -27,7 +27,7 @@ class URLPartFilter:
         self.whitelist = _normalize_url_parts(whitelist)
 
     def blacklist_match(self, url):
-        """Return the first blacklist match unless URL is whitelisted
+        """Return the first blacklist match not covered by the whitelist
 
         Parameters
         ----------
@@ -37,13 +37,20 @@ class URLPartFilter:
         Returns
         -------
         str or None
-            The first matching blacklist part if found and not
-            whitelisted, otherwise ``None``.
+            The first matching blacklist part not contained in a
+            matching whitelist part, otherwise ``None``.
         """
         url = url.casefold()
-        if self.is_whitelisted(url):
-            return None
-        return next((part for part in self.blacklist if part in url), None)
+        whitelist_matches = [part for part in self.whitelist if part in url]
+        return next(
+            (
+                part
+                for part in self.blacklist
+                if part in url
+                and not any(part in match for match in whitelist_matches)
+            ),
+            None,
+        )
 
     def is_whitelisted(self, url):
         """Check whether any whitelist part occurs in a URL
