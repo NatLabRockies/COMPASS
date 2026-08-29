@@ -1,11 +1,13 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
+from urllib.parse import urlsplit, urlunsplit
 
 from elm.web.search.run import search_with_fallback, search_all_se
 
 
 logger = logging.getLogger(__name__)
+_JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
 
 
 async def search_single_jurisdiction(
@@ -25,7 +27,10 @@ async def search_single_jurisdiction(
     query_templates : iterable of str
         Query templates to format with the jurisdiction name and search.
         Each template should include a ``{jurisdiction}`` placeholder
-        for the jurisdiction name.
+        for the jurisdiction name. Templates may include a
+        ``{jurisdiction_website}`` placeholder for the jurisdiction's
+        known website URL. Website templates are skipped when the
+        jurisdiction does not have a known website.
     jurisdiction : Jurisdiction
         Jurisdiction instance representing the jurisdiction to search
         documents for.
@@ -71,10 +76,7 @@ async def search_single_jurisdiction(
 
     """
 
-    queries = [
-        query.format(jurisdiction=jurisdiction.full_name)
-        for query in query_templates
-    ]
+    queries = _format_queries(jurisdiction, query_templates)
     base = {
         "jurisdiction": jurisdiction.full_name,
         "state": jurisdiction.state,
@@ -84,6 +86,9 @@ async def search_single_jurisdiction(
         "results": [],
         "error": None,
     }
+    if not queries:
+        return base
+
     run_meth = _run_simple_sort_search if simple else _run_holistic_sort_search
 
     try:
@@ -104,6 +109,33 @@ async def search_single_jurisdiction(
 
     base["results"] = out
     return base
+
+
+def _format_queries(jurisdiction, query_templates):
+    """Format query templates for a given jurisdiction"""
+    jurisdiction_website = _format_jurisdiction_website(jurisdiction)
+    return [
+        query.format(
+            jurisdiction=jurisdiction.full_name,
+            jurisdiction_website=jurisdiction_website,
+        )
+        for query in query_templates
+        if _JURISDICTION_WEBSITE_PLACEHOLDER not in query
+        or jurisdiction.website_url
+    ]
+
+
+def _format_jurisdiction_website(jurisdiction):
+    """Strip paths and ensure a valid URL scheme for a jur website"""
+    jurisdiction_website = jurisdiction.website_url
+    if jurisdiction_website:
+        website_parts = urlsplit(jurisdiction_website)
+        if not website_parts.netloc:
+            website_parts = urlsplit(f"//{jurisdiction_website}")
+        jurisdiction_website = urlunsplit(
+            (website_parts.scheme, website_parts.netloc, "", "", "")
+        ).removeprefix("//")
+    return jurisdiction_website
 
 
 async def _run_simple_sort_search(
