@@ -24,7 +24,7 @@ from elm.web.document import HTMLDocument
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # ruff:ignore[import-private-name]
 
-from compass.utilities.url import normalize_domain, sanitize_url
+from compass.utilities.url import URLPartFilter, normalize_domain, sanitize_url
 from compass.services.threaded import TempFileCache
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
@@ -140,6 +140,8 @@ class COMPASSCrawler:
         num_link_scores_to_check_per_page=4,
         max_pages=100,
         max_same_score_links_per_page=20,
+        url_ignore_substrings=None,
+        url_keep_substrings=None,
     ):
         """
 
@@ -188,6 +190,12 @@ class COMPASSCrawler:
             page. This helps prevent the crawler from spending too much
             time on links that have identical scores.
             By default, ``20``.
+        url_ignore_substrings : iterable of str, optional
+            URL parts that exclude matching crawl candidates. By
+            default, ``None``.
+        url_keep_substrings : iterable of str, optional
+            URL parts that override all crawl blacklist matches. By
+            default, ``None``.
         """
         self.validator = validator
         self.url_scorer = url_scorer
@@ -195,6 +203,10 @@ class COMPASSCrawler:
         self.checked_previously = already_visited or set()
         self.max_pages = max_pages
         self.max_same_score_links_per_page = max_same_score_links_per_page
+        self.url_filter = URLPartFilter(
+            [*_BLACKLIST_SUBSTRINGS, *(url_ignore_substrings or [])],
+            url_keep_substrings,
+        )
 
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
@@ -301,6 +313,10 @@ class COMPASSCrawler:
                 base_url,
                 link,
             )
+
+        if self.url_filter.blacklist_match(link.href) is not None:
+            logger.debug("Skipping blacklisted URL: %s", link.href)
+            return
 
         if link in self._already_visited:
             return
@@ -479,7 +495,9 @@ class COMPASSCrawler:
         html_text = await self._get_text_no_err(link.href)
         page_links = []
         if html_text:
-            page_links = _extract_links_from_html(html_text, base_url=base_url)
+            page_links = _extract_links_from_html(
+                html_text, base_url=base_url, url_filter=self.url_filter
+            )
             page_links = await self.url_scorer(
                 [dict(link) for link in page_links]
             )
@@ -651,37 +669,43 @@ def _debug_info_on_links(links):
         logger.debug("    ...")
 
 
-def _extract_links_from_html(text, base_url):
+def _extract_links_from_html(text, base_url, url_filter=None):
     """Parse HTML and extract all links"""
     soup = BeautifulSoup(text, "html.parser")
     links = [
         (a.get_text().strip(), a["href"])
         for a in soup.find_all("a", href=True)
     ]
-    return set(_sanitized_links(links, base_url))
+    return set(_sanitized_links(links, base_url, url_filter=url_filter))
 
 
-def _sanitized_links(links, base_url):
+def _sanitized_links(links, base_url, url_filter=None):
     """Sanitized links from the given list of (title, path) tuples"""
+    url_filter = url_filter or URLPartFilter(_BLACKLIST_SUBSTRINGS)
     for title, path in links:
         if not title or not path:
-            continue
-
-        if _is_blacklisted(title, path):
             continue
 
         href = sanitize_url(urljoin(base_url, path))
         if urlsplit(href).scheme not in {"http", "https"}:
             continue
 
+        if _is_blacklisted(title, path, href, url_filter):
+            continue
+
         yield _Link(title=title, href=href, base_domain=base_url)
 
 
-def _is_blacklisted(title, path):
-    """Check if a link is blacklisted based on title or path"""
-    if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
+def _is_blacklisted(title, path, url, url_filter):
+    """Check whether a link title or URL is blacklisted"""
+    if url_filter.is_whitelisted(url):
+        return False
+
+    title_and_path = f"{title}\n{path}".casefold()
+    if any(substr in title_and_path for substr in _BLACKLIST_SUBSTRINGS):
         return True
-    return any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS)
+
+    return url_filter.blacklist_match(url) is not None
 
 
 async def _get_text_from_all_locators(page):
