@@ -213,9 +213,10 @@ class WebSearchParams:
             timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -233,15 +234,15 @@ class WebSearchParams:
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         search_engines : list, optional
@@ -280,10 +281,14 @@ class WebSearchParams:
             max_num_concurrent_website_searches
         )
         self.website_crawl_timeout_seconds = website_crawl_timeout_seconds
-        self.url_ignore_substrings = _DOMAINS["blacklist"]
-        self.url_ignore_substrings += url_ignore_substrings or []
-        self.url_keep_substrings = _DOMAINS["whitelist"]
-        self.url_keep_substrings += url_keep_substrings or []
+        self.url_ignore_substrings = [
+            *_DOMAINS["blacklist"],
+            *(url_ignore_substrings or []),
+        ]
+        self.url_keep_substrings = [
+            *_DOMAINS["whitelist"],
+            *(url_keep_substrings or []),
+        ]
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
         self.pytesseract_exe_fp = pytesseract_exe_fp
@@ -489,9 +494,10 @@ class BaseRequest:
             timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -509,15 +515,15 @@ class BaseRequest:
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
@@ -843,9 +849,10 @@ class CollectionRequest(BaseRequest):
             timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -863,15 +870,15 @@ class CollectionRequest(BaseRequest):
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
