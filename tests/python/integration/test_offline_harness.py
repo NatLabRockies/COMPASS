@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
+from compass._cli.main import main
 from compass.pipeline import CollectionRequest, ExtractionRequest
 from compass.pipeline.collection.persistence import (
     COLLECTION_MANIFEST_FILENAME,
@@ -189,6 +190,77 @@ async def test_offline_collection_and_extraction_harness(
         "compass-crawl",
     }
     offline_scenario.assert_consumed()
+
+
+def test_offline_process_cli_end_to_end(
+    tmp_path, monkeypatch, cli_runner, offline_harness_plugin
+):
+    """Run the process CLI from configuration to structured output"""
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.write_text(
+        "State,County,Subdivision,Jurisdiction Type,FIPS,Website\n"
+        "Washington,Whatcom,,county,53073,\n",
+        encoding="utf-8",
+    )
+    source = "https://documents.test/process-ordinance.html"
+    scenario = OfflineScenario(
+        {
+            "known_urls": [
+                {
+                    "source": source,
+                    "content": (
+                        "CLI process ordinance with identifier cli-process."
+                    ),
+                }
+            ],
+            "llm_responses": [
+                {
+                    "prompt_contains": "CLI process ordinance",
+                    "response": '{"ordinance_id": "cli-process"}',
+                }
+            ],
+        },
+        tmp_path / "cli_replay_cache",
+    )
+    scenario.install(monkeypatch)
+
+    out_dir = tmp_path / "cli_output"
+    config_fp = tmp_path / "process_config.json"
+    config_fp.write_text(
+        json.dumps(
+            {
+                "out_dir": str(out_dir),
+                "tech": "offline-harness",
+                "jurisdiction_fp": str(jurisdiction_fp),
+                "known_doc_urls": {"53073": [{"source": source}]},
+                "perform_se_search": False,
+                "perform_website_search": False,
+                "model": "offline-replay",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = cli_runner.invoke(
+        main,
+        [
+            "process",
+            "--config",
+            str(config_fp),
+            "--no-progress",
+            "--out-dir-exists",
+            "fail",
+        ],
+    )
+
+    assert result.exit_code == 0, result.output
+    output = pd.read_csv(out_dir / "offline_harness_combined.csv")
+    assert output.to_dict(orient="records") == [
+        {"ordinance_id": "cli-process", "source": source}
+    ]
+    assert (out_dir / "jurisdictions.json").exists()
+    assert (out_dir / "usage.json").exists()
+    scenario.assert_consumed()
 
 
 if __name__ == "__main__":
