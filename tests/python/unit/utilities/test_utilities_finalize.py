@@ -174,6 +174,38 @@ def test_save_run_meta_handles_getuser_error(tmp_path, monkeypatch):
     assert meta["models"] == []
 
 
+def test_save_run_meta_writes_llm_usage_rates(tmp_path, monkeypatch):
+    """Write LLM usage rates into run metadata"""
+
+    monkeypatch.setattr(finalize.getpass, "getuser", lambda: "testuser")
+    dirs = SimpleNamespace(
+        logs=tmp_path / "logs",
+        clean_files=tmp_path / "clean",
+        jurisdiction_dbs=tmp_path / "jurisdictions",
+        ordinance_files=tmp_path / "ordinances",
+        out=tmp_path,
+    )
+    llm_usage_rates = {
+        "overall": {"requests_per_second": {"min": 0}},
+        "models": {"gpt-4o": {"requests_per_second": {"max": 2}}},
+    }
+
+    finalize.save_run_meta(
+        dirs,
+        "solar",
+        datetime(2025, 1, 1),
+        datetime(2025, 1, 1, 0, 1),
+        num_jurisdictions_searched=1,
+        num_jurisdictions_found=0,
+        total_cost=0,
+        models={},
+        llm_usage_rates=llm_usage_rates,
+    )
+
+    meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
+    assert meta["llm_usage_rates"] == llm_usage_rates
+
+
 def test_save_run_meta_manifest_walks_up_for_sibling_dirs(
     tmp_path, monkeypatch
 ):
@@ -606,7 +638,7 @@ def test_extract_model_info_from_all_models_groups_tasks():
     first, second = info
     assert first["name"] == "gpt"
     assert first["tasks"] == ["task_one", "task_two"]
-    assert first["llm_call_kwargs"] is None
+    assert first["llm_call_kwargs"] == {}
 
     assert second["name"] == "gpt-4"
     assert second["tasks"] == ["task_three"]

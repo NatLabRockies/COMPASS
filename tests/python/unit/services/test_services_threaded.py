@@ -15,6 +15,7 @@ from elm.web.document import HTMLDocument
 from compass.extraction.context import ExtractionContext
 from compass.services import threaded
 from compass.services.provider import RunningAsyncServices
+from compass.services.usage import LLM_USAGE_RATES_KEY, LLMRateTracker
 from compass.services.threaded import (
     CLEANED_FP_REGISTRY,
     CleanedFileWriter,
@@ -449,7 +450,7 @@ async def test_ord_db_file_writer_process(tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_usage_updater_process(tmp_path):
+async def test_usage_updater_process(tmp_path, patched_clock):
     """UsageUpdater should serialize tracker info to json"""
 
     class StubTracker:
@@ -468,11 +469,13 @@ async def test_usage_updater_process(tmp_path):
 
     usage_fp = tmp_path / "usage.json"
     tracker = StubTracker()
+    rate_tracker = LLMRateTracker()
+    rate_tracker.record_request("gpt-4o", patched_clock())
     updater = UsageUpdater(usage_fp)
     updater.acquire_resources()
 
     assert updater.can_process is True
-    usage_info = await updater.process(tracker)
+    usage_info = await updater.process(tracker, rate_tracker)
     assert updater.can_process is True
     assert tracker.add_called is True
 
@@ -482,10 +485,30 @@ async def test_usage_updater_process(tmp_path):
         persisted = json.load(fh)
 
     assert "stub" in persisted
+    assert LLM_USAGE_RATES_KEY in persisted
     assert persisted == usage_info
 
     # Existing data path without tracker
-    assert threaded._dump_usage(usage_fp, tracker=None) == persisted
+    assert (
+        threaded._dump_usage(usage_fp, usage_tracker=None, rate_tracker=None)
+        == persisted
+    )
+
+
+@pytest.mark.asyncio
+async def test_usage_updater_persists_llm_usage_rates(tmp_path, patched_clock):
+    """Persist rate snapshots without jurisdiction-specific usage"""
+
+    rate_tracker = LLMRateTracker()
+    rate_tracker.record_request("gpt-4o", patched_clock())
+    usage_fp = tmp_path / "usage.json"
+    updater = UsageUpdater(usage_fp)
+    updater.acquire_resources()
+
+    persisted = await updater.process(None, rate_tracker)
+    updater.release_resources()
+
+    assert persisted == {LLM_USAGE_RATES_KEY: rate_tracker.snapshot()}
 
 
 @pytest.mark.asyncio
@@ -623,7 +646,10 @@ def test_dump_usage_without_tracker_returns_existing_data(tmp_path):
     initial = {"existing": True}
     usage_fp.write_text(json.dumps(initial), encoding="utf-8")
 
-    assert threaded._dump_usage(usage_fp, tracker=None) == initial
+    assert (
+        threaded._dump_usage(usage_fp, usage_tracker=None, rate_tracker=None)
+        == initial
+    )
 
 
 @pytest.mark.asyncio

@@ -11,7 +11,7 @@ from compass.services.openai import (
     usage_from_response,
     OpenAIService,
 )
-from compass.services.usage import UsageTracker
+from compass.services.usage import LLMRateTracker, LLMUsageTracker
 from compass.utilities.enums import LLMUsageCategory
 
 
@@ -55,7 +55,9 @@ def test_usage_from_response(
 
 
 @pytest.mark.asyncio
-async def test_openai_service(sample_openai_response, monkeypatch):
+async def test_openai_service(
+    sample_openai_response, monkeypatch, patched_clock
+):
     """Test querying OpenAI while tracking limits and usage"""
 
     async def _test_response(*args, **kwargs):  # ruff:ignore[unused-async]
@@ -76,12 +78,15 @@ async def test_openai_service(sample_openai_response, monkeypatch):
         _test_response,
         raising=True,
     )
+    rate_tracker = LLMRateTracker()
     openai_service = OpenAIService(client, model_name="gpt-4")
 
-    usage_tracker = UsageTracker("my_county", usage_from_response)
+    usage_tracker = LLMUsageTracker("my_county", usage_from_response)
 
-    message = await openai_service.process(usage_tracker=usage_tracker)
-    assert openai_service.rate_tracker.total == 13
+    message = await openai_service.process(
+        usage_tracker=usage_tracker, rate_tracker=rate_tracker
+    )
+    assert openai_service.timed_tracker.total == 13
     assert message == "test_response"
 
     assert usage_tracker == {
@@ -93,13 +98,21 @@ async def test_openai_service(sample_openai_response, monkeypatch):
             }
         }
     }
+    assert rate_tracker.snapshot()["overall"] == {
+        "requests_per_second": {"min": 1, "mean": 1, "max": 1},
+        "requests_per_minute": {"min": 1, "mean": 1, "max": 1},
+        "tokens_per_minute": {"min": 110, "mean": 110, "max": 110},
+        "concurrent_requests": {"min": 0, "mean": 0.5, "max": 1},
+    }
 
     with pytest.raises(openai.NotFoundError):
         message = await openai_service.process(
-            usage_tracker=usage_tracker, bad_request=True
+            usage_tracker=usage_tracker,
+            rate_tracker=rate_tracker,
+            bad_request=True,
         )
 
-    assert openai_service.rate_tracker.total == 16
+    assert openai_service.timed_tracker.total == 16
     assert usage_tracker == {
         "gpt-4": {
             LLMUsageCategory.DEFAULT: {
@@ -108,6 +121,16 @@ async def test_openai_service(sample_openai_response, monkeypatch):
                 "response_tokens": 10,
             }
         }
+    }
+    assert rate_tracker.snapshot()["overall"] == {
+        "requests_per_second": {"min": 2, "mean": 2, "max": 2},
+        "requests_per_minute": {"min": 2, "mean": 2, "max": 2},
+        "tokens_per_minute": {"min": 110, "mean": 110, "max": 110},
+        "concurrent_requests": {
+            "min": 0,
+            "mean": pytest.approx(2 / 3),
+            "max": 1,
+        },
     }
 
     await openai_service.process()

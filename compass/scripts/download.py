@@ -207,7 +207,7 @@ async def find_jurisdiction_website(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
     url_ignore_substrings : list of str, optional
@@ -653,7 +653,7 @@ async def filter_ordinance_docs(
         If the document already contains text collected by a given
         collector (i.e. the collector's ``OUT_LABEL`` is found in
         ``doc.attrs``), that collector will be skipped.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 

@@ -15,6 +15,7 @@ from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
 from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
+from compass.services.usage import LLM_USAGE_RATES_KEY
 from compass.pipeline import build_models
 
 
@@ -94,8 +95,17 @@ def finalize(ctx, config):
         num_jurisdictions_found=num_jurisdictions_found,
         total_cost=total_cost,
         models=models,
+        llm_usage_rates=_load_llm_usage_rates(dirs.out),
     )
     console.print(f"✅ Finalized COMPASS run in {dirs.out!s}!")
+
+
+def _load_llm_usage_rates(out_dir):
+    """Load persisted LLM rate statistics when available"""
+    usage_fp = out_dir / "usage.json"
+    if not usage_fp.exists():
+        return None
+    return load_config(usage_fp).get(LLM_USAGE_RATES_KEY)
 
 
 def _compile_db(jurisdictions, dirs, tech):

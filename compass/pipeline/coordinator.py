@@ -7,7 +7,7 @@ from datetime import datetime, UTC
 from abc import ABC, abstractmethod
 
 from compass.services.openai import usage_from_response
-from compass.services.usage import UsageTracker
+from compass.services.usage import LLMUsageTracker
 from compass.exceptions import COMPASSError, COMPASSValueError
 from compass.utilities import (
     compile_collection_summary_message,
@@ -128,6 +128,7 @@ class BaseRunMode(ABC):
             jurisdiction=jurisdiction,
             model_configs=self.runtime.models,
             usage_tracker=usage_tracker,
+            rate_tracker=self.runtime.rate_tracker,
         )
         return SingleJurisdictionRun(
             self.runtime,
@@ -185,7 +186,7 @@ class COMPASSFullProcessing(BaseRunMode):
         )
         tasks = []
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            usage_tracker = UsageTracker(
+            usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
             workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
@@ -315,7 +316,7 @@ class COMPASSExtraction(BaseRunMode):
                 )
                 continue
 
-            usage_tracker = UsageTracker(
+            usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
             workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
@@ -419,7 +420,9 @@ async def _finalize_extraction(
     runtime, results, start_date, num_jurisdictions
 ):
     """Finalize process or extraction mode outputs"""
-    total_cost = await _compute_total_cost()
+    total_cost, llm_usage_rates = await _compute_total_cost(
+        runtime.rate_tracker
+    )
     doc_infos = [
         {
             "jurisdiction": result.jurisdiction,
@@ -445,6 +448,7 @@ async def _finalize_extraction(
         num_jurisdictions_found=num_docs_found,
         total_cost=total_cost,
         models=runtime.models,
+        llm_usage_rates=llm_usage_rates,
     )
     run_msg = compile_run_summary_message(
         total_seconds=total_time,
@@ -457,9 +461,13 @@ async def _finalize_extraction(
     return run_msg
 
 
-async def _compute_total_cost():
-    """Compute total cost from tracked usage"""
-    total_usage = await UsageUpdater.call(None)
+async def _compute_total_cost(rate_tracker):
+    """Compute total cost and load LLM rate statistics from usage"""
+    total_usage = await UsageUpdater.call(None, rate_tracker)
     if not total_usage:
-        return 0
-    return compute_total_cost_from_usage(total_usage)
+        return 0, None
+
+    return (
+        compute_total_cost_from_usage(total_usage),
+        total_usage.get(rate_tracker.label),
+    )

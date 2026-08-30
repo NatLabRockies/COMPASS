@@ -102,7 +102,7 @@ class OpenAIService(LLMService):
         client,
         model_name,
         rate_limit=1e3,
-        rate_tracker=None,
+        timed_tracker=None,
         service_tag=None,
     ):
         """
@@ -119,7 +119,7 @@ class OpenAIService(LLMService):
             Token rate limit (typically per minute, but the time
             interval is ultimately controlled by the `rate_tracker`
             instance). By default, ``1e3``.
-        rate_tracker : TimeBoundedUsageTracker, optional
+        timed_tracker : TimeBoundedUsageTracker, optional
             Instance used to track usage per time interval and compare
             to `rate_limit` input. If ``None``, a
             TimeBoundedUsageTracker instance is created with default
@@ -132,7 +132,7 @@ class OpenAIService(LLMService):
         super().__init__(
             model_name=model_name,
             rate_limit=rate_limit,
-            rate_tracker=rate_tracker or TimeBoundedUsageTracker(),
+            timed_tracker=timed_tracker or TimeBoundedUsageTracker(),
             service_tag=service_tag,
         )
         self.client = client
@@ -140,6 +140,7 @@ class OpenAIService(LLMService):
     async def process(
         self,
         usage_tracker=None,
+        rate_tracker=None,
         usage_sub_label=LLMUsageCategory.DEFAULT,
         **kwargs,
     ):
@@ -152,10 +153,13 @@ class OpenAIService(LLMService):
         ----------
         model : str
             OpenAI GPT model to query.
-        usage_tracker : UsageTracker, optional
-            UsageTracker instance. Providing this input will update your
-            tracker with this call's token usage info.
+        usage_tracker : LLMUsageTracker, optional
+            LLMUsageTracker instance. Providing this input will update
+            your tracker with this call's token usage info.
             By default, ``None``.
+        rate_tracker : LLMRateTracker, optional
+            Run-wide tracker that records request and token rate
+            summaries. By default, ``None``.
         usage_sub_label : str, optional
             Optional label to categorize usage under. This can be used
             to track usage related to certain categories.
@@ -170,9 +174,13 @@ class OpenAIService(LLMService):
             Chat GPT response as a string, or ``None`` if the call
             failed.
         """
-        self._record_prompt_tokens(kwargs)
-        response = await self._call_gpt(model=self.model_name, **kwargs)
-        self._record_completion_tokens(response)
+        prompt_timestamp = self._record_prompt_tokens(kwargs)
+        self._record_request_rate(prompt_timestamp, rate_tracker)
+        response = await self._call_gpt(
+            model=self.model_name, rate_tracker=rate_tracker, **kwargs
+        )
+        completion_timestamp = self._record_completion_tokens(response)
+        self._record_token_rate(response, completion_timestamp, rate_tracker)
         self._record_usage(response, usage_tracker, usage_sub_label)
         self._update_pb_cost(response)
         return _get_response_message(response)
@@ -180,13 +188,29 @@ class OpenAIService(LLMService):
     def _record_prompt_tokens(self, kwargs):
         """Add prompt token count to rate tracker"""
         num_tokens = count_tokens(kwargs.get("messages", []), self.model_name)
-        self.rate_tracker.add(num_tokens)
+        return self.timed_tracker.add(num_tokens)
+
+    def _record_request_rate(self, timestamp, rate_tracker):
+        """Record the submitted request in rate statistics"""
+        if rate_tracker is None:
+            return
+        rate_tracker.record_request(self.model_name, timestamp)
 
     def _record_completion_tokens(self, response):
         """Add completion token count to rate tracker"""
         if response is None:
+            return None
+        return self.timed_tracker.add(response.usage.completion_tokens)
+
+    def _record_token_rate(self, response, timestamp, rate_tracker):
+        """Record successful-response tokens in rate statistics"""
+        if response is None or rate_tracker is None:
             return
-        self.rate_tracker.add(response.usage.completion_tokens)
+
+        tokens = (
+            response.usage.prompt_tokens + response.usage.completion_tokens
+        )
+        rate_tracker.record_tokens(self.model_name, tokens, timestamp)
 
     def _record_usage(self, response, usage_tracker, usage_sub_label):
         """Record token usage for user"""
@@ -221,8 +245,10 @@ class OpenAIService(LLMService):
             openai.APIConnectionError,
         ),
     )
-    async def _call_gpt(self, **kwargs):
+    async def _call_gpt(self, rate_tracker=None, **kwargs):
         """Query Chat GPT with user inputs"""
+        if rate_tracker is not None:
+            rate_tracker.start_request_attempt(self.model_name)
         try:
             return await self.client.chat.completions.create(**kwargs)
         except openai.BadRequestError:
@@ -235,6 +261,9 @@ class OpenAIService(LLMService):
             else:
                 logger.exception("Got 'BadRequestError'")
             raise
+        finally:
+            if rate_tracker is not None:
+                rate_tracker.end_request_attempt(self.model_name)
 
 
 def _get_response_message(response):

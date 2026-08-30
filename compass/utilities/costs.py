@@ -86,8 +86,7 @@ def compute_cost_from_totals(totals):
         should contain "prompt_tokens" and "response_tokens" keys
         indicating the number of tokens used for prompts and responses,
         respectively. This dictionary is typically obtained from the
-        `tracker_totals` property of a
-        :class:`compass.services.usage.UsageTracker` instance.
+        `tracker_totals` property of a LLMUsageTracker instance.
 
     Returns
     -------
@@ -149,7 +148,7 @@ def compute_total_cost_from_usage(tracked_usage):
 
     Parameters
     ----------
-    tracked_usage : compass.services.usage.UsageTracker or dict
+    tracked_usage : LLMUsageTracker or dict
         Dictionary where keys are usage categories (typically
         jurisdiction names) and values are dictionaries containing usage
         details. The usage details dictionaries should have a
