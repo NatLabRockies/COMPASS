@@ -399,8 +399,7 @@ async def _validate_jurisdiction_website(
 
     try:
         jurisdiction_website = await get_redirected_url(
-            jurisdiction_website,
-            timeout=30,
+            jurisdiction_website, timeout=30, verify=False
         )
         jurisdiction_website = base_website_url(jurisdiction_website)
     except Exception:

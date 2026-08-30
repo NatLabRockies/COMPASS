@@ -9,6 +9,61 @@ _PATH_SAFE_CHARS = "/:@-._~!$&'()*+,;=%"
 _QUERY_SAFE_CHARS = "=&;%:@-._~!$&'()*+,;/?"
 
 
+class URLPartFilter:
+    """Match URL parts with whitelist precedence"""
+
+    def __init__(self, blacklist=None, whitelist=None):
+        """
+
+        Parameters
+        ----------
+        blacklist : iterable of str, optional
+            URL parts that exclude matching URLs. By default, ``None``.
+        whitelist : iterable of str, optional
+            URL parts that override blacklist matches. By default,
+            ``None``.
+        """
+        self.blacklist = _normalize_url_parts(blacklist)
+        self.whitelist = _normalize_url_parts(whitelist)
+
+    def blacklist_match(self, url):
+        """Return the first blacklist match unless URL is whitelisted
+
+        Parameters
+        ----------
+        url : str
+            URL string to check against the blacklist.
+
+        Returns
+        -------
+        str or None
+            The first matching blacklist part if found and not
+            whitelisted, otherwise ``None``.
+        """
+        url = url.casefold()
+        if self.is_whitelisted(url):
+            return None
+        return next((part for part in self.blacklist if part in url), None)
+
+    def is_whitelisted(self, url):
+        """Check whether any whitelist part occurs in a URL
+
+        Parameters
+        ----------
+        url : str
+            URL string to check against the whitelist.
+
+        Returns
+        -------
+        bool
+            ``True`` if any whitelist part occurs in the URL, otherwise
+            ``False``.
+
+        """
+        url = url.casefold()
+        return any(part in url for part in self.whitelist)
+
+
 def sanitize_url(url):
     """Encode unsafe URL characters while preserving URL semantics
 
@@ -72,3 +127,8 @@ def normalize_domain(url):
     if domain.startswith("www."):
         return domain[4:]
     return domain
+
+
+def _normalize_url_parts(parts):
+    """Normalize non-empty URL parts for matching"""
+    return [part.casefold() for part in parts or [] if part]

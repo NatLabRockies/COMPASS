@@ -11,6 +11,7 @@ from crawl4ai.models import Link as TestLink
 
 from compass.web import website_crawl
 from compass.utilities.url import (
+    URLPartFilter,
     normalize_domain,
     sanitize_url,
     base_website_url,
@@ -157,6 +158,13 @@ def crawler_setup(monkeypatch):
     monkeypatch.setattr(website_crawl, "AsyncWebFileLoader", DummyLoader)
     monkeypatch.setattr(website_crawl, "COMPASSWebFileLoader", DummyLoader)
 
+    async def get_redirected_url(url, **_kwargs):
+        return url
+
+    monkeypatch.setattr(
+        website_crawl, "get_redirected_url", get_redirected_url
+    )
+
     async def validator(doc):
         await asyncio.sleep(0)
         return "keep" in getattr(doc, "text", "")
@@ -226,6 +234,18 @@ def test_link_consistent_domain():
     assert not _Link(base_domain="example.com").consistent_domain
     assert _Link(
         href="example.com/test", base_domain="example.com"
+    ).consistent_domain
+    assert _Link(
+        href="https://example.com/test",
+        base_domain="http://www.example.com/",
+    ).consistent_domain
+    assert _Link(
+        href="https://planning.example.com/test",
+        base_domain="https://example.com/",
+    ).consistent_domain
+    assert not _Link(
+        href="https://example.com.evil.test/",
+        base_domain="https://example.com/",
     ).consistent_domain
 
 
@@ -313,6 +333,61 @@ def test_extract_links_from_html_filters_blacklist():
     assert "https://example.com/keep" in test_refs
     assert all("facebook" not in link.href for link in links)
     assert "https://example.com/ok.pdf" in test_refs
+
+
+def test_extract_links_from_html_applies_shared_url_filters():
+    """Custom URL parts should filter links with whitelist precedence"""
+    html = """
+    <a href="/BLOCKED/drop.pdf">Blocked</a>
+    <a href="/blocked/keep.pdf">Whitelisted</a>
+    <a href="/events-allowed">Events</a>
+    """
+    url_filter = URLPartFilter(
+        [*website_crawl._BLACKLIST_SUBSTRINGS, "blocked"],
+        ["blocked/keep", "events-allowed"],
+    )
+
+    links = _extract_links_from_html(
+        html, base_url="https://example.com", url_filter=url_filter
+    )
+    test_refs = {link.href for link in links}
+
+    assert "https://example.com/BLOCKED/drop.pdf" not in test_refs
+    assert "https://example.com/blocked/keep.pdf" in test_refs
+    assert "https://example.com/events-allowed" in test_refs
+
+
+def test_url_part_filter_blacklist_match_returns_first_match():
+    """Return the first matching term in blacklist order"""
+    url_filter = URLPartFilter(["second", "first"])
+
+    match = url_filter.blacklist_match(
+        "https://example.com/first/second/document.pdf"
+    )
+
+    assert match == "second"
+
+
+def test_url_part_filter_whitelist_overrides_blacklist():
+    """Whitelist matches should override blacklist matches"""
+    url_filter = URLPartFilter(["blocked"], ["blocked/allowed"])
+
+    match = url_filter.blacklist_match(
+        "https://example.com/blocked/allowed/document.pdf"
+    )
+
+    assert match is None
+
+
+def test_url_part_filter_returns_non_whitelisted_blacklist_match():
+    """Return later blacklist matches not covered by the whitelist"""
+    url_filter = URLPartFilter(["first", "second"], ["first/allowed"])
+
+    match = url_filter.blacklist_match(
+        "https://example.com/first/allowed/second/document.pdf"
+    )
+
+    assert match is None
 
 
 def test_extract_links_from_html_sets_title_from_anchor():
@@ -432,17 +507,42 @@ async def test_get_text_from_all_locators_ignores_errors():
     assert await _get_text_from_all_locators(page) == []
 
 
-def test_reset_crawl_sanitizes_and_initializes(crawler_setup):
+@pytest.mark.asyncio
+async def test_reset_crawl_sanitizes_and_initializes(crawler_setup):
     """Resetting the crawler should clear state and sanitize URLs"""
 
     crawler = crawler_setup["crawler"]
-    base_url, start_link = crawler._reset_crawl(
+    base_url, start_link = await crawler._reset_crawl(
         "https://example.com/path with space/"
     )
     assert " " not in base_url
     assert start_link.href.startswith("https://example.com")
     assert crawler._out_docs == []
     assert crawler._already_visited == {}
+
+
+@pytest.mark.asyncio
+async def test_blacklisted_landing_url_does_not_count_as_visited(
+    crawler_setup,
+):
+    """A blacklisted landing URL should consume no crawl capacity"""
+    crawler = crawler_setup["crawler"]
+    crawler.url_filter = URLPartFilter(["blocked.example"])
+    visit_hook_urls = []
+
+    async def visit_hook(link):
+        await asyncio.sleep(0)
+        visit_hook_urls.append(link.href)
+
+    docs = await crawler.run(
+        "https://blocked.example",
+        crawl_timeout_s=10,
+        on_new_page_visit_hook=visit_hook,
+    )
+
+    assert docs == []
+    assert crawler._already_visited == {}
+    assert visit_hook_urls == []
 
 
 @pytest.mark.asyncio
@@ -798,7 +898,7 @@ async def test_get_text_uses_playwright_and_collects_content(
 
 @pytest.mark.asyncio
 async def test_should_terminate_crawl_conditions(crawler_setup):
-    """Cover termination branches for score limits, callback, and max pages"""
+    """Cover termination branches for callback and max pages"""
 
     crawler = crawler_setup["crawler"]
     test_link = _Link(
@@ -807,15 +907,12 @@ async def test_should_terminate_crawl_conditions(crawler_setup):
         base_domain="https://example.com",
     )
 
-    assert await crawler._should_terminate_crawl(1, test_link)
-
     async def stop_true(out_docs):
         await asyncio.sleep(0)
         return True
 
     crawler._should_stop = stop_true
-    crawler.num_scores_to_check_per_page = 99
-    assert await crawler._should_terminate_crawl(0, test_link)
+    assert await crawler._should_terminate_crawl()
 
     async def stop_false(out_docs):
         await asyncio.sleep(0)
@@ -824,11 +921,130 @@ async def test_should_terminate_crawl_conditions(crawler_setup):
     crawler._should_stop = stop_false
     crawler.max_pages = 1
     crawler._already_visited = {test_link: (0, 0)}
-    assert await crawler._should_terminate_crawl(0, test_link)
+    assert await crawler._should_terminate_crawl()
 
     crawler.max_pages = 5
     crawler._already_visited = {test_link: (0, 10)}
-    assert not await crawler._should_terminate_crawl(0, test_link)
+    assert not await crawler._should_terminate_crawl()
+
+
+@pytest.mark.asyncio
+async def test_run_checks_top_scores_and_limits_links_per_score(
+    crawler_setup, monkeypatch
+):
+    """Check only the first links within each top unique score"""
+
+    crawler = crawler_setup["crawler"]
+    crawler.num_scores_to_check_per_page = 4
+    crawler.max_same_score_links_per_page = 20
+    crawler.max_pages = 1000
+    base_url = "https://example.com/"
+    root_links = [
+        {
+            "title": f"Score {score} link {index}",
+            "href": f"{base_url}score-{score}-link-{index}",
+            "score": score,
+        }
+        for score in range(100, 95, -1)
+        for index in range(22)
+    ]
+
+    async def fake_is_doc(_link, _depth, _score):  # ruff:ignore[unused-async]
+        return False
+
+    async def fake_get_links(link, _base_url):  # ruff:ignore[unused-async]
+        if link.title == "Landing Page":
+            return root_links
+        return []
+
+    async def fake_redirect(url, **_kwargs):  # ruff:ignore[unused-async]
+        return url
+
+    monkeypatch.setattr(crawler, "_website_link_is_doc", fake_is_doc)
+    monkeypatch.setattr(crawler, "_get_links_from_page", fake_get_links)
+    monkeypatch.setattr(website_crawl, "get_redirected_url", fake_redirect)
+
+    await crawler.run(base_url, crawl_timeout_s=10)
+
+    visited_urls = {link.href for link in crawler._already_visited}
+    assert len(visited_urls) == 81
+    for score in range(100, 96, -1):
+        assert f"{base_url}score-{score}-link-19" in visited_urls
+        assert f"{base_url}score-{score}-link-20" not in visited_urls
+    assert f"{base_url}score-96-link-0" not in visited_urls
+
+
+@pytest.mark.asyncio
+async def test_blacklisted_redirect_does_not_consume_crawl_limit(
+    crawler_setup, monkeypatch
+):
+    """Rejected redirects should not count as visits or progress"""
+    crawler = crawler_setup["crawler"]
+    crawler.url_filter = URLPartFilter(["blocked.example"])
+    crawler.max_pages = 2
+    crawler.num_scores_to_check_per_page = 2
+    root_links = [
+        {
+            "title": "Redirected",
+            "href": "https://example.com/outbound",
+            "score": 20,
+        },
+        {
+            "title": "Allowed",
+            "href": "https://example.com/allowed",
+            "score": 10,
+        },
+    ]
+    progress_urls = []
+
+    async def fake_is_doc(_link, _depth, _score):  # ruff:ignore[unused-async]
+        return False
+
+    async def fake_get_links(link, _base_url):  # ruff:ignore[unused-async]
+        return root_links if link.title == "Landing Page" else []
+
+    async def fake_redirect(url, **_kwargs):  # ruff:ignore[unused-async]
+        if url == "https://example.com/outbound":
+            return "https://blocked.example/document.pdf"
+        return url
+
+    async def visit_hook(link):
+        await asyncio.sleep(0)
+        progress_urls.append(link.href)
+
+    monkeypatch.setattr(crawler, "_website_link_is_doc", fake_is_doc)
+    monkeypatch.setattr(crawler, "_get_links_from_page", fake_get_links)
+    monkeypatch.setattr(website_crawl, "get_redirected_url", fake_redirect)
+
+    await crawler.run(
+        "https://example.com/",
+        crawl_timeout_s=10,
+        on_new_page_visit_hook=visit_hook,
+    )
+
+    visited_urls = {link.href for link in crawler._already_visited}
+    assert visited_urls == {
+        "https://example.com/",
+        "https://example.com/allowed",
+    }
+    assert progress_urls == [
+        "https://example.com/",
+        "https://example.com/allowed",
+    ]
+
+
+def test_top_scored_links_excludes_zero_scores(crawler_setup):
+    """Do not crawl links that have no keyword relevance"""
+
+    crawler = crawler_setup["crawler"]
+    crawler.num_scores_to_check_per_page = 4
+    page = _Link(title="Page", href="https://example.com")
+    page_links = [
+        {"title": "Relevant", "href": "https://example.com/a", "score": 1},
+        {"title": "Unscored", "href": "https://example.com/b", "score": 0},
+    ]
+
+    assert list(crawler._top_scored_links(page_links, page)) == page_links[:1]
 
 
 def test_compute_avg_score_and_depth_counts(crawler_setup):

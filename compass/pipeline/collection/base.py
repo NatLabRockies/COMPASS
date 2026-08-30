@@ -83,7 +83,7 @@ class DocumentCollection:
             )
 
         if self.workflow.perform_website_search:
-            steps.extend([ElmWebsiteCrawlStep(), CompassWebsiteCrawlStep()])
+            steps.extend([CompassWebsiteCrawlStep(), ElmWebsiteCrawlStep()])
         else:
             logger.debug(
                 "%r processing doesn't have website search enabled",

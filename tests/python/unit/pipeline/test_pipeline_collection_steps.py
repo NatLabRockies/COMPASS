@@ -58,7 +58,8 @@ def _build_workflow(*, website="https://example.com", models=None):
         browser_semaphore=None,
         search_engine_semaphore=None,
         search_params=SimpleNamespace(
-            url_ignore_substrings=(),
+            url_ignore_substrings=("blocked.example",),
+            url_keep_substrings=("trusted.example",),
             se_kwargs={},
             website_crawl_timeout_seconds=3600,
         ),
@@ -129,6 +130,14 @@ async def test_compass_website_crawl_uses_ocr_loader(monkeypatch):
         captured["file_loader_kwargs"] is workflow.runtime.file_loader_kwargs
     )
     assert captured["already_visited"] == {"https://seen.example"}
+    assert (
+        captured["url_ignore_substrings"]
+        is workflow.runtime.search_params.url_ignore_substrings
+    )
+    assert (
+        captured["url_keep_substrings"]
+        is workflow.runtime.search_params.url_keep_substrings
+    )
 
 
 @pytest.mark.asyncio
