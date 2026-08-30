@@ -83,7 +83,7 @@
     // futures to sit idly, awaiting their turn to query the LLM
     "max_num_concurrent_jurisdictions": 25,
     "url_ignore_substrings": [
-        // ignore any URLs with these strings
+        // ignore search results and COMPASS crawl URLs with these strings
         // useful to filter out known noise
         "wiki",
         "nrel.gov",
@@ -93,6 +93,10 @@
         // but can also be very specific if needed
         // e.g. a giant file with generic ordinances that should be skipped
         "www.co.delaware.in.us/egov/documents/1649699794_0382.pdf",
+    ],
+    "url_keep_substrings": [
+        // override default and configured URL exclusions in both phases
+        "my_ordinance_collection.edu",
     ],
     "known_doc_urls": {
         "18017": "https://www.in.gov/counties/cass/files/Cass-County-Zoning-Ordinance-2024.pdf",
