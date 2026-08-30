@@ -117,7 +117,7 @@ class OpenAIService(LLMService):
             Name of model being used.
         rate_limit : int or float, optional
             Token rate limit (typically per minute, but the time
-            interval is ultimately controlled by the `rate_tracker`
+            interval is ultimately controlled by the `timed_tracker`
             instance). By default, ``1e3``.
         timed_tracker : TimeBoundedUsageTracker, optional
             Instance used to track usage per time interval and compare
@@ -186,7 +186,7 @@ class OpenAIService(LLMService):
         return _get_response_message(response)
 
     def _record_prompt_tokens(self, kwargs):
-        """Add prompt token count to rate tracker"""
+        """Add prompt token count to timed tracker"""
         num_tokens = count_tokens(kwargs.get("messages", []), self.model_name)
         return self.timed_tracker.add(num_tokens)
 
@@ -197,7 +197,7 @@ class OpenAIService(LLMService):
         rate_tracker.record_request(self.model_name, timestamp)
 
     def _record_completion_tokens(self, response):
-        """Add completion token count to rate tracker"""
+        """Add completion token count to timed tracker"""
         if response is None:
             return None
         return self.timed_tracker.add(response.usage.completion_tokens)
