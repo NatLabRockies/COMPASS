@@ -1,10 +1,113 @@
 """Tests for compass.scripts.search"""
 
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import pytest
 
 import compass.web.search as search_module
+from compass.utilities.jurisdictions import Jurisdiction
+
+
+_JURISDICTION_QUERY_TEMPLATE = "{jurisdiction} zoning ordinance"
+_WEBSITE_QUERY_TEMPLATE = "site:{jurisdiction_website} zoning ordinance"
+
+
+@pytest.mark.asyncio
+async def test_search_formats_query_with_known_jurisdiction_website(
+    monkeypatch,
+):
+    """Include website query when the jurisdiction website is known"""
+    search_backend = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", search_backend
+    )
+    jurisdiction = Jurisdiction(
+        "county",
+        "Colorado",
+        county="Adams",
+        website_url="https://www.adcogov.org/government?lang=en#offices",
+    )
+    query_templates = [
+        _JURISDICTION_QUERY_TEMPLATE,
+        _WEBSITE_QUERY_TEMPLATE,
+    ]
+
+    output = await search_module.search_single_jurisdiction(
+        query_templates, jurisdiction
+    )
+
+    submitted_queries = search_backend.await_args.args[0]
+    assert submitted_queries == [
+        "Adams County, Colorado zoning ordinance",
+        "site:https://www.adcogov.org zoning ordinance",
+    ]
+    assert output["queries"] == submitted_queries
+
+
+@pytest.mark.asyncio
+async def test_search_discards_website_query_without_known_website(
+    monkeypatch,
+):
+    """Discard website query when the jurisdiction website is unknown"""
+    search_backend = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", search_backend
+    )
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+    query_templates = [
+        _JURISDICTION_QUERY_TEMPLATE,
+        _WEBSITE_QUERY_TEMPLATE,
+    ]
+
+    output = await search_module.search_single_jurisdiction(
+        query_templates, jurisdiction
+    )
+
+    submitted_queries = search_backend.await_args.args[0]
+    assert submitted_queries == ["Adams County, Colorado zoning ordinance"]
+    assert output["queries"] == submitted_queries
+
+
+@pytest.mark.asyncio
+async def test_search_skips_backend_when_no_queries_remain(monkeypatch):
+    """Return an empty result when all query templates are discarded"""
+    search_backend = AsyncMock()
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", search_backend
+    )
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+
+    output = await search_module.search_single_jurisdiction(
+        [_WEBSITE_QUERY_TEMPLATE], jurisdiction
+    )
+
+    search_backend.assert_not_awaited()
+    assert output["queries"] == []
+    assert output["results"] == []
+    assert output["error"] is None
+
+
+@pytest.mark.asyncio
+async def test_search_formats_bare_jurisdiction_website(monkeypatch):
+    """Strip paths from jurisdiction websites without a URL scheme"""
+    search_backend = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", search_backend
+    )
+    jurisdiction = Jurisdiction(
+        "county",
+        "Colorado",
+        county="Adams",
+        website_url="www.adcogov.org/government?lang=en#offices",
+    )
+
+    await search_module.search_single_jurisdiction(
+        [_WEBSITE_QUERY_TEMPLATE], jurisdiction
+    )
+
+    submitted_queries = search_backend.await_args.args[0]
+    assert submitted_queries == ["site:www.adcogov.org zoning ordinance"]
 
 
 @pytest.mark.asyncio
@@ -75,6 +178,29 @@ def test_apply_blacklist_filters_is_case_insensitive():
     search_module._apply_blacklist_filters(results, ["wikipedia.org"], None)
 
     assert results[0]["filtered_reason"] == "blacklist:wikipedia.org"
+    assert results[1]["filtered_reason"] is None
+
+
+def test_apply_blacklist_filters_honors_whitelist_and_first_match():
+    """Whitelist matches should override the first matching blacklist part"""
+    results = [
+        {
+            "url": "https://example.com/drop",
+            "filtered_reason": None,
+        },
+        {
+            "url": "https://example.com/trusted/drop",
+            "filtered_reason": None,
+        },
+    ]
+
+    search_module._apply_blacklist_filters(
+        results,
+        ["", "EXAMPLE.COM", "drop"],
+        ["TRUSTED"],
+    )
+
+    assert results[0]["filtered_reason"] == "blacklist:example.com"
     assert results[1]["filtered_reason"] is None
 
 

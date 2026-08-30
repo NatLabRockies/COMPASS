@@ -159,10 +159,12 @@ async def test_elm_crawl_tracks_accepted_partial_results(monkeypatch):
 @pytest.mark.asyncio
 async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     """COMPASS crawl should retain accepted docs before an early exit"""
+    crawler_kwargs = {}
 
     class DummyCrawler:
-        def __init__(self, validator, **_kwargs):
+        def __init__(self, validator, **kwargs):
             self.validator = validator
+            crawler_kwargs.update(kwargs)
 
         async def run(self, _website, crawl_timeout_s, **_kwargs):
             assert crawl_timeout_s == 3600
@@ -175,14 +177,20 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     monkeypatch.setattr(download_module, "COMPASSCrawler", DummyCrawler)
 
     heuristic = SimpleNamespace(check=lambda text: text == "keep")
+    url_ignore_substrings = ["blocked.example"]
+    url_keep_substrings = ["trusted.example"]
 
     docs = await crawl(
         "https://example.com",
         heuristic,
         {"ordinance": 1},
+        url_ignore_substrings=url_ignore_substrings,
+        url_keep_substrings=url_keep_substrings,
     )
 
     assert [doc.text for doc in docs] == ["keep"]
+    assert crawler_kwargs["url_ignore_substrings"] is url_ignore_substrings
+    assert crawler_kwargs["url_keep_substrings"] is url_keep_substrings
 
 
 if __name__ == "__main__":
