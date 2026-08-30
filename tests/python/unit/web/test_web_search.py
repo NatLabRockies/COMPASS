@@ -137,6 +137,29 @@ def test_apply_blacklist_filters_is_case_insensitive():
     assert results[1]["filtered_reason"] is None
 
 
+def test_apply_blacklist_filters_honors_whitelist_and_first_match():
+    """Whitelist matches should override the first matching blacklist part"""
+    results = [
+        {
+            "url": "https://example.com/drop",
+            "filtered_reason": None,
+        },
+        {
+            "url": "https://example.com/trusted/drop",
+            "filtered_reason": None,
+        },
+    ]
+
+    search_module._apply_blacklist_filters(
+        results,
+        ["", "EXAMPLE.COM", "drop"],
+        ["TRUSTED"],
+    )
+
+    assert results[0]["filtered_reason"] == "blacklist:example.com"
+    assert results[1]["filtered_reason"] is None
+
+
 def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
     """Keep best duplicate candidate and track collapsed rows"""
     results = [
