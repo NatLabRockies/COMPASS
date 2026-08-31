@@ -1,5 +1,6 @@
 """COMPASS plugin tools"""
 
+from .utilities import normalize_website_keywords
 from .base import BaseExtractionPlugin
 from .interface import (
     OutputColumn,
