@@ -86,7 +86,7 @@ def compute_cost_from_totals(totals):
         should contain "prompt_tokens" and "response_tokens" keys
         indicating the number of tokens used for prompts and responses,
         respectively. This dictionary is typically obtained from the
-        `tracker_totals` property of a LLMUsageTracker instance.
+        `tracker_totals` entry of a LLMUsageTracker instance.
 
     Returns
     -------

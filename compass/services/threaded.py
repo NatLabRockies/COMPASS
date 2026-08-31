@@ -683,6 +683,7 @@ def _compile_doc_info(doc):
             "permitted_use_text_ngram_score"
         ),
         "from_steps": doc.attrs.get("from_steps"),
+        "search_engines": doc.attrs.get("search_engines"),
     }
 
 

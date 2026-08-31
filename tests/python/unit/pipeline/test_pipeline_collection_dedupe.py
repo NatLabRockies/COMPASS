@@ -28,6 +28,9 @@ def test_add_docs_keeps_from_steps_unique_for_same_doc_and_step():
     assert values[0].from_steps == [
         "Look for document on jurisdiction website"
     ]
+    assert deduplicator.info(doc).from_steps == [
+        "Look for document on jurisdiction website"
+    ]
 
 
 def test_add_docs_preserves_restored_artifacts_and_merges_provenance():
@@ -60,6 +63,14 @@ def test_add_docs_preserves_restored_artifacts_and_merges_provenance():
     assert len(values) == 1
     assert values[0].doc is saved_doc
     assert values[0].from_steps == ["known_local_docs", "search_engine"]
+    assert deduplicator.info(saved_doc).from_steps == [
+        "known_local_docs",
+        "search_engine",
+    ]
+    assert deduplicator.info(duplicate_doc).from_steps == [
+        "known_local_docs",
+        "search_engine",
+    ]
 
 
 if __name__ == "__main__":

@@ -89,7 +89,7 @@ async def test_collect_executes_collection_workflow(jurisdiction_run):
             captured.update(kwargs)
             return collection_info
 
-    jurisdiction_run.collection_workflow = _CollectionWorkflow()
+    jurisdiction_run.collection = _CollectionWorkflow()
 
     out = await jurisdiction_run.collect()
 

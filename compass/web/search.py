@@ -3,7 +3,7 @@
 import logging
 from urllib.parse import urlsplit, urlunsplit
 
-from elm.web.search.run import search_with_fallback, search_all_se
+from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
 from compass.utilities.url import URLPartFilter
 
@@ -150,7 +150,7 @@ async def _run_simple_sort_search(
     **se_kwargs,
 ):
     """Run search with fallback search engines, applying simple sort"""
-    urls = await search_with_fallback(
+    return await search_with_fallback_with_attrs(
         queries,
         num_urls=num_urls,
         url_ignore_substrings=url_ignore_substrings,
@@ -159,7 +159,6 @@ async def _run_simple_sort_search(
         task_name=jurisdiction_full_name,
         **se_kwargs,
     )
-    return [{"url": url} for url in urls]
 
 
 async def _run_holistic_sort_search(
@@ -236,6 +235,9 @@ def _apply_duplicate_filters(results):
     config only wins among entries that are otherwise tied (same
     ``query_rank`` and ``query_index``).
     """
+    for entry in results:
+        entry["search_engines"] = [entry["search_engine"]]
+
     winners = {}
     for entry in _active_results_sorted(results):
         key = entry["url"]
@@ -252,6 +254,8 @@ def _apply_duplicate_filters(results):
                 "query_rank": entry["query_rank"],
             }
         )
+        if entry["search_engine"] not in winner["search_engines"]:
+            winner["search_engines"].append(entry["search_engine"])
 
         entry["filtered_reason"] = "duplicate"
 

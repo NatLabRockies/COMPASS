@@ -110,6 +110,50 @@ async def test_search_formats_bare_jurisdiction_website(monkeypatch):
     assert submitted_queries == ["site:www.adcogov.org zoning ordinance"]
 
 
+@pytest.mark.asyncio
+async def test_run_simple_sort_search_preserves_search_engine_attributes(
+    monkeypatch,
+):
+    """Simple search should retain Elm's engine metadata"""
+    expected = [
+        {
+            "url": "https://example.com/ordinance.pdf",
+            "search_engines": ["SerpAPIGoogleSearch"],
+        }
+    ]
+
+    async def fake_search_with_fallback_with_attrs(  # ruff:ignore[unused-async]
+        queries, **kwargs
+    ):
+        assert queries == ["Example, CO ordinance"]
+        assert kwargs == {
+            "num_urls": 5,
+            "url_ignore_substrings": ["ignore"],
+            "url_keep_substrings": ["keep"],
+            "browser_semaphore": "semaphore",
+            "task_name": "Example, CO",
+        }
+        return expected
+
+    monkeypatch.setattr(
+        search_module,
+        "search_with_fallback_with_attrs",
+        fake_search_with_fallback_with_attrs,
+    )
+
+    result = await search_module._run_simple_sort_search(
+        ["Example, CO ordinance"],
+        5,
+        ["ignore"],
+        ["keep"],
+        "semaphore",
+        "Example, CO",
+    )
+
+    assert result == expected
+    assert result[0]["search_engines"] == ["SerpAPIGoogleSearch"]
+
+
 def test_apply_blacklist_filters_is_case_insensitive():
     """Blacklist should match URL substrings regardless of case"""
     results = [
@@ -201,6 +245,7 @@ def test_apply_duplicate_filters_keeps_best_and_tracks_duplicates():
             "query_rank": 2,
         }
     ]
+    assert winner["search_engines"] == ["SerpAPIGoogleSearch"]
     assert loser["filtered_reason"] == "duplicate"
 
 
@@ -243,6 +288,10 @@ def test_apply_duplicate_filters_collapses_across_search_engines():
 
     assert winner["filtered_reason"] is None
     assert winner["search_engine"] == "SerpAPIGoogleSearch"
+    assert winner["search_engines"] == [
+        "SerpAPIGoogleSearch",
+        "TestSearch",
+    ]
     assert winner["duplicates"] == [
         {
             "url": "https://example.com/a.pdf",

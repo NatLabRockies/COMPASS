@@ -127,13 +127,11 @@ class DocumentCollection:
         for step in self._unfinished_steps():
             docs = await self._run_collection_step(step)
             if eager_extract:
-                context = (
-                    await self.workflow.extraction_workflow.extract_from_docs(
-                        docs
-                    )
+                context = await self.workflow.extraction.extract_from_docs(
+                    docs
                 )
                 if context is not None:
-                    return context
+                    return self._context_with_documented_steps(context)
             else:
                 self._collection_info = (
                     await self.workflow.write_collection_shard_no_fail(
@@ -181,6 +179,14 @@ class DocumentCollection:
         self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
         self._completed_steps.add(step.STEP_NAME)
         return docs
+
+    def _context_with_documented_steps(self, context):
+        """Attach collection steps to each document in the context"""
+        for doc in context.data_docs:
+            doc.attrs["from_steps"] = list(
+                self.de_duplicator.info(doc).from_steps
+            )
+        return context
 
     def _log_execute_results(self):
         """Log the results of the collection execution"""

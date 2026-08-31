@@ -767,11 +767,14 @@ async def _docs_from_web_search(
         **kwargs,
     )
     ranked_results = {
-        res.get("url"): res.get("overall_rank") or 1
+        res.get("url"): res
         for res in out["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
-    urls = sorted(ranked_results, key=ranked_results.get)
+    urls = sorted(
+        ranked_results,
+        key=lambda url: ranked_results[url].get("overall_rank") or 1,
+    )
     if not urls:
         return []
 
@@ -779,9 +782,14 @@ async def _docs_from_web_search(
         urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
     for doc in docs:
-        doc.attrs[_COLLECTION_SCORE_KEY] = ranked_results.get(
-            doc.attrs.get("source")
-        )
+        result = ranked_results.get(doc.attrs.get("source"))
+        if result is None:
+            doc.attrs[_COLLECTION_SCORE_KEY] = None
+            continue
+
+        doc.attrs[_COLLECTION_SCORE_KEY] = result.get("overall_rank") or 1
+        if "search_engines" in result:
+            doc.attrs["search_engines"] = list(result["search_engines"])
     return docs
 
 
