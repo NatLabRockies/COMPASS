@@ -16,6 +16,10 @@ from compass.utilities.parsing import (
 
 
 logger = logging.getLogger(__name__)
+QUALITATIVE_UNITS = "str"
+"""str: ``units`` value used to mark a qualitative ordinance row"""
+MAX_ORDINANCE_TEXT_CHARS = 5000
+"""int: Max characters kept in the ``ordinance_text`` column"""
 
 
 def save_run_meta(
@@ -99,8 +103,7 @@ def save_run_meta(
         "ORDINANCE_FILES_DIR": dirs.ordinance_files,
         "USAGE_FILE": dirs.out / "usage.json",
         "JURISDICTION_FILE": dirs.out / "jurisdictions.json",
-        "QUANT_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
-        "QUAL_DATA_FILE": dirs.out / "quantitative_ordinances.csv",
+        "DATA_FILE": dirs.out / "ordinances.csv",
     }
     for name, file_path in manifest.items():
         if file_path.exists():
@@ -182,18 +185,20 @@ def doc_infos_to_db(doc_infos, output_columns):
 
 
 def save_db(db, out_dir, output_columns):
-    """Write qualitative and quantitative ordinance outputs to disk
+    """Write the combined ordinance output to disk
+
+    Qualitative and quantitative ordinances are written to a single
+    ``ordinances.csv`` file. The ``quantitative`` flag is retained as a
+    column so the two kinds of row remain distinguishable.
 
     Parameters
     ----------
     db : pandas.DataFrame
         Ordinance dataset containing the full set of output columns,
-        plus the ``quantitative`` boolean flag that dictates output
-        routing.
+        plus the ``quantitative`` boolean flag.
     out_dir : path-like
-        Directory where ``qualitative_ordinances.csv`` and
-        ``quantitative_ordinances.csv`` should be written. The directory
-        is created by :class:`pathlib.Path` if necessary.
+        Directory where ``ordinances.csv`` should be written. The
+        directory is created by :class:`pathlib.Path` if necessary.
     output_columns : list
         List of expected output columns (as
         :class:`compass.plugin.interface.OutputColumn` instances)
@@ -205,32 +210,61 @@ def save_db(db, out_dir, output_columns):
     Notes
     -----
     Empty DataFrames short-circuit without creating output files. The
-    function respects the boolean ``quantitative`` column and assumes it
-    has already been sanitized by :func:`doc_infos_to_db`.
+    function assumes the boolean ``quantitative`` column has already
+    been sanitized by :func:`doc_infos_to_db`.
     """
     if db.empty:
         return
 
-    qual_out_cols = [
-        col.name for col in output_columns if col.include_in_qual_output
-    ]
-    quant_out_cols = [
-        col.name for col in output_columns if col.include_in_quant_output
-    ]
+    out_cols = [col.name for col in output_columns]
+
+    db = trim_ordinance_text(db)
+    db = _normalize_qualitative_rows(db)
 
     out_dir = Path(out_dir)
-    qual_db = db[~db["quantitative"]][qual_out_cols]
-    quant_db = db[db["quantitative"]][quant_out_cols]
-    qual_db.to_csv(
-        out_dir / "qualitative_ordinances.csv",
+    db[out_cols].to_csv(
+        out_dir / "ordinances.csv",
         index=False,
         encoding="utf-8-sig",
     )
-    quant_db.to_csv(
-        out_dir / "quantitative_ordinances.csv",
-        index=False,
-        encoding="utf-8-sig",
-    )
+
+
+def trim_ordinance_text(db):
+    """Trim the ``ordinance_text`` column to a maximum character count
+
+    LLMs occasionally return a very long excerpt for ``ordinance_text``,
+    which makes the output CSV unwieldy. Any excerpt longer than
+    :data:`MAX_ORDINANCE_TEXT_CHARS` is cut back to the last whole word
+    that fits and marked with a trailing ellipsis, matching the ellipsis
+    convention already used for elided text within an excerpt.
+
+    Parameters
+    ----------
+    db : pandas.DataFrame
+        The database containing extraction results, which may include
+        an ``"ordinance_text"`` column.
+
+    Returns
+    -------
+    pandas.DataFrame
+        The updated database, with any over-long ``ordinance_text``
+        entries trimmed. Databases without that column are returned
+        unchanged.
+    """
+    if db.empty or "ordinance_text" not in db.columns:
+        return db
+
+    db["ordinance_text"] = db["ordinance_text"].apply(_trim_excerpt)
+    return db
+
+
+def _trim_excerpt(text):
+    """Cut an excerpt to the last whole word within the char limit"""
+    if not isinstance(text, str) or len(text) <= MAX_ORDINANCE_TEXT_CHARS:
+        return text
+
+    kept = text[:MAX_ORDINANCE_TEXT_CHARS].rsplit(" ", 1)[0].rstrip()
+    return f"{kept} ..."
 
 
 def _db_results(results, jurisdiction):
@@ -262,14 +296,47 @@ def _empirical_adjustments(db):
 
 
 def _formatted_db(db, parsed_cols):
-    """Format DataFrame for output"""
+    """Format DataFrame for output
+
+    ``db`` must carry a ``quantitative`` column; every parser sets one
+    on each row it emits. It is not an output column, but it drives the
+    qualitative-row conventions applied here.
+    """
     for col in parsed_cols:
         if col not in db.columns:
             db[col] = None
 
     db["quantitative"] = db["quantitative"].astype("boolean").fillna(True)
+    db = _normalize_qualitative_rows(db)
     ord_rows = ordinances_bool_index(db)
-    return db[ord_rows][parsed_cols].reset_index(drop=True)
+    # "quantitative" is not an output column, but it is needed
+    # downstream to label qualitative rows, so it rides along here
+    keep = [*parsed_cols, "quantitative"]
+    return db[ord_rows][keep].reset_index(drop=True)
+
+
+def _normalize_qualitative_rows(db):
+    """Apply the qualitative-row conventions to a database
+
+    Qualitative features have no measurable units, so ``units`` is set
+    to :data:`QUALITATIVE_UNITS` instead. That lets a reader tell the
+    two kinds of feature apart with a plain column comparison, since
+    they share a single output file and the ``quantitative`` flag is
+    not published.
+
+    Their ``summary`` is also copied into ``value``. The schemas ask the
+    LLM for a summary and a null value on these rows, so filling the
+    value here means the model only ever writes the requirement once,
+    while readers still find it in the column they expect.
+    """
+    qualitative = ~db["quantitative"]
+    db.loc[qualitative, "units"] = QUALITATIVE_UNITS
+
+    # a numeric-only "value" column is float-typed, so it has to be
+    # widened before qualitative text can be written into it
+    db["value"] = db["value"].astype(object)
+    db.loc[qualitative, "value"] = db.loc[qualitative, "summary"]
+    return db
 
 
 def _extract_model_info_from_all_models(models):

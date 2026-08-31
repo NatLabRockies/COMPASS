@@ -110,19 +110,16 @@ class COMPASSSolarExtractor(OrdinanceExtractionPlugin):
         OutputColumn("FIPS"),
         OutputColumn("feature"),
         OutputColumn("value"),
-        OutputColumn("units", include_in_qual_output=False),
-        OutputColumn("adder", include_in_qual_output=False),
-        OutputColumn("min_dist", include_in_qual_output=False),
-        OutputColumn("max_dist", include_in_qual_output=False),
+        OutputColumn("units"),
+        OutputColumn("adder"),
+        OutputColumn("min_dist"),
+        OutputColumn("max_dist"),
         OutputColumn("summary"),
+        OutputColumn("ordinance_text"),
+        OutputColumn("explanation"),
         OutputColumn("year"),
         OutputColumn("section"),
         OutputColumn("source"),
-        OutputColumn(
-            "quantitative",
-            include_in_quant_output=False,
-            include_in_qual_output=False,
-        ),
     ]
     """list: List of output columns for the extracted data"""
 

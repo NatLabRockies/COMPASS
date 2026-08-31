@@ -3,6 +3,11 @@
 import inspect
 from pathlib import Path
 
+from compass.utilities.finalize import (
+    MAX_ORDINANCE_TEXT_CHARS,  # ruff: ignore[unused-import]
+    trim_ordinance_text,
+)
+
 
 def add_document_name(db):
     """Add a document_name column to the database
@@ -37,4 +42,7 @@ POST_PROCESSING_REGISTRY = {
     and func.__module__ == __name__
     and not name.startswith("_")
 }
+# defined in compass.utilities.finalize (where it is also applied
+# unconditionally), so it is registered here by hand
+POST_PROCESSING_REGISTRY["trim_ordinance_text"] = trim_ordinance_text
 """[NOT PUBLIC API] Post-processing step registry"""
