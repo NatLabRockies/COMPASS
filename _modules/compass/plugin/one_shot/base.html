@@ -1,0 +1,1683 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.plugin.one_shot.base &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/plugin/one_shot/base';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../../../_static/searchtools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script src="../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.plugin.one_shot.base</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.plugin.one_shot.base</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;COMPASS one-shot extraction plugin&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">asyncio</span><span class="w"> </span><span class="kn">import</span> <span class="n">Semaphore</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span><span class="p">,</span> <span class="n">auto</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.llm.calling</span><span class="w"> </span><span class="kn">import</span> <span class="n">SchemaOutputLLMCaller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">register_plugin</span><span class="p">,</span>
+    <span class="n">OutputColumn</span><span class="p">,</span>
+    <span class="n">NoOpHeuristic</span><span class="p">,</span>
+    <span class="n">NoOpTextCollector</span><span class="p">,</span>
+    <span class="n">NoOpTextExtractor</span><span class="p">,</span>
+    <span class="n">DocSelectionMethod</span><span class="p">,</span>
+    <span class="n">PromptBasedTextCollector</span><span class="p">,</span>
+    <span class="n">PromptBasedTextExtractor</span><span class="p">,</span>
+    <span class="n">OrdinanceExtractionPlugin</span><span class="p">,</span>
+    <span class="n">KeywordBasedHeuristic</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.one_shot.generators</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">generate_query_templates</span><span class="p">,</span>
+    <span class="n">generate_website_keywords</span><span class="p">,</span>
+    <span class="n">generate_heuristic_keywords</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.one_shot.components</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SchemaBasedTextCollector</span><span class="p">,</span>
+    <span class="n">SchemaBasedTextExtractor</span><span class="p">,</span>
+    <span class="n">SchemaOrdinanceParser</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.one_shot.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">key_from_cache</span><span class="p">,</span> <span class="n">key_to_cache</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.threaded</span><span class="w"> </span><span class="kn">import</span> <span class="n">CLEANED_FP_REGISTRY</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMTasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSPluginConfigurationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.warn</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSPluginConfigurationWarning</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">_SCHEMA_DIR</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;compass.plugin.one_shot.schemas&quot;</span><span class="p">)</span>
+<span class="n">_QT_SEMAPHORE</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_WK_SEMAPHORE</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">_HK_SEMAPHORE</span> <span class="o">=</span> <span class="n">Semaphore</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_CacheKey</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM generated content cache keys&quot;&quot;&quot;</span>
+
+    <span class="n">QUERY_TEMPLATES</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+    <span class="n">HEURISTIC_KEYWORDS</span> <span class="o">=</span> <span class="n">auto</span><span class="p">()</span>
+
+
+<span class="c1"># ruff:ignore[complex-structure]</span>
+<span class="c1"># complexipy: ignore</span>
+<div class="viewcode-block" id="create_schema_based_one_shot_extraction_plugin">
+<a class="viewcode-back" href="../../../../_autosummary/compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_schema_based_one_shot_extraction_plugin</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a one-shot extraction plugin based on a configuration</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : dict or path-like</span>
+<span class="sd">        One-shot configuration dictionary. If not a dictionary, should</span>
+<span class="sd">        be a path to a file containing the configuration (supported</span>
+<span class="sd">        formats: JSON, JSON5, YAML, TOML). See the</span>
+<span class="sd">        `wind ordinance schema &lt;https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json&gt;`_</span>
+<span class="sd">        for an example. The configuration must include the following</span>
+<span class="sd">        keys:</span>
+
+<span class="sd">            - `schema`: A dictionary representing the schema of the</span>
+<span class="sd">              output. Can also be a path to a file that contains the</span>
+<span class="sd">              schema (supported formats: JSON, JSON5, YAML, TOML). See</span>
+<span class="sd">              the wind ordinance schema for an example.</span>
+
+<span class="sd">        The configuration can also include the following optional keys:</span>
+
+<span class="sd">            - `data_type_short_desc`: Short description of the type of</span>
+<span class="sd">              data being extracted with this plugin, in the format</span>
+<span class="sd">              `wind energy ordinance`, `solar energy ordinance`,</span>
+<span class="sd">              `water rights`. This is used to enhance the prompts for</span>
+<span class="sd">              the structured data extraction.</span>
+<span class="sd">            - `query_templates`: A list of search engine query</span>
+<span class="sd">              templates for document retrieval. Templates should include</span>
+<span class="sd">              ``{jurisdiction}`` as a placeholder for the jurisdiction</span>
+<span class="sd">              that is being processed. If not provided, the LLM will be</span>
+<span class="sd">              used to generate search engine queries based on the</span>
+<span class="sd">              schema input.</span>
+<span class="sd">            - `website_keywords`: A dictionary mapping keywords to</span>
+<span class="sd">              scores for filtering websites during document retrieval.</span>
+<span class="sd">              If not provided, the LLM will be used to generate</span>
+<span class="sd">              website keywords based on the schema input.</span>
+<span class="sd">            - `heuristic_keywords`: A dictionary containing the keyword</span>
+<span class="sd">              lists used by the heuristic document filter. The</span>
+<span class="sd">              dictionary must include ``not_tech_words``,</span>
+<span class="sd">              ``good_tech_keywords``, ``good_tech_acronyms``, and</span>
+<span class="sd">              ``good_tech_phrases`` keys. Alternatively, this input can</span>
+<span class="sd">              simply be ``True``, in which case the LLM will be used to</span>
+<span class="sd">              generate heuristic keyword lists based on the schema</span>
+<span class="sd">              input. If ``False``, ``None``, or not provided, a `NoOp`</span>
+<span class="sd">              heuristic that always returns ``True`` will be used (not</span>
+<span class="sd">              recommended if doing website crawling).</span>
+<span class="sd">            - `collection_prompts`: A list of prompts to use for</span>
+<span class="sd">              collecting relevant text from documents. Alternatively,</span>
+<span class="sd">              this input can simply be ``True``, in which case the LLM</span>
+<span class="sd">              will be used to generate the collection prompts. If</span>
+<span class="sd">              ``False``, ``None``, or not provided, the entire document</span>
+<span class="sd">              text will be used for extraction (no text collection).</span>
+<span class="sd">            - `text_extraction_prompts`: A list of prompts to use for</span>
+<span class="sd">              consolidating and extracting relevant text from the</span>
+<span class="sd">              documents. Alternatively, this input can simply be</span>
+<span class="sd">              ``True``, in which case the LLM will be used to generate</span>
+<span class="sd">              the text extraction prompts. If ``False``, ``None``, or</span>
+<span class="sd">              not provided, the entire document text will be used for</span>
+<span class="sd">              extraction (no text consolidation).</span>
+<span class="sd">            - `cache_llm_generated_content`: Boolean flag indicating</span>
+<span class="sd">              whether or not to cache generated query templates and</span>
+<span class="sd">              website keywords for future use. By default, ``True``.</span>
+<span class="sd">              Caching is recommended since the generation of query</span>
+<span class="sd">              templates and website keywords can be costly, but if you</span>
+<span class="sd">              are iterating on the configuration and want to see the</span>
+<span class="sd">              effect of changes to the schema on the generated query</span>
+<span class="sd">              templates and website keywords in real time, you may want</span>
+<span class="sd">              to set this flag to ``False`` to avoid caching generated</span>
+<span class="sd">              templates/keywords until you have finalized the schema.</span>
+<span class="sd">            - `extraction_system_prompt`: Custom system prompt to use</span>
+<span class="sd">              for the structured data extraction step. If not provided,</span>
+<span class="sd">              a default prompt will be used that instructs the LLM to</span>
+<span class="sd">              extract structured data from the given document(s). You</span>
+<span class="sd">              may provide a custom system prompt if you want more</span>
+<span class="sd">              specific instructions for this extraction step. Custom</span>
+<span class="sd">              prompts may include the following jurisdiction</span>
+<span class="sd">              placeholders, which are populated from the active</span>
+<span class="sd">              `Jurisdiction` object:</span>
+
+<span class="sd">                - ``{jur_full_name}``: Full jurisdiction name.</span>
+<span class="sd">                - ``{jur_full_name_the_prefixed}``: Full jurisdiction</span>
+<span class="sd">                    name with a leading ``the`` when needed.</span>
+<span class="sd">                - ``{jur_type}``: Jurisdiction type.</span>
+<span class="sd">                - ``{jur_state}``: State name.</span>
+<span class="sd">                - ``{jur_county}``: County name, if available.</span>
+<span class="sd">                - ``{jur_subdivision_name}``: Subdivision or</span>
+<span class="sd">                    municipality name, if available.</span>
+<span class="sd">                - ``{jur_full_subdivision_phrase}``: Full subdivision</span>
+<span class="sd">                    phrase, if available.</span>
+<span class="sd">                - ``{jur_full_subdivision_phrase_the_prefixed}``:</span>
+<span class="sd">                    Full subdivision phrase with a leading ``the`` when</span>
+<span class="sd">                    needed.</span>
+<span class="sd">                - ``{jur_full_county_phrase}``: Full county phrase,</span>
+<span class="sd">                    if available.</span>
+<span class="sd">                - ``{jur_code}``: Jurisdiction code, if available.</span>
+<span class="sd">                - ``{jur_website_url}``: Official website URL, if</span>
+<span class="sd">                    available.</span>
+
+<span class="sd">            - `doc_selection_method`: String defining the multi-doc</span>
+<span class="sd">              selection option. Specifically, if multiple documents pass</span>
+<span class="sd">              the filter, this method determines how the documents are</span>
+<span class="sd">              submitted to the extraction context. Allowed options are:</span>
+
+<span class="sd">                - &quot;single doc&quot;: Use the first document that returns some</span>
+<span class="sd">                  extracted data as the source document for the</span>
+<span class="sd">                  extraction context.</span>
+<span class="sd">                - &quot;multi doc context&quot;: Submit text from multiple</span>
+<span class="sd">                  documents to the extraction context simultaneously.</span>
+<span class="sd">                - &quot;multi doc all&quot;: Each document is extracted separately</span>
+<span class="sd">                  and the results concatenated. This may give duplicated</span>
+<span class="sd">                  feature results if the same feature is mentioned in</span>
+<span class="sd">                  multiple documents.</span>
+<span class="sd">                - &quot;multi doc mixed&quot;: Each document is extracted</span>
+<span class="sd">                  separately and the results are merged together at the</span>
+<span class="sd">                  end. In this approach, each feature is reported at</span>
+<span class="sd">                  most once.</span>
+
+<span class="sd">              By default, ``&quot;single doc&quot;``.</span>
+<span class="sd">            - `post_processing_steps`: Optional list of post-processing</span>
+<span class="sd">              steps to apply to the extracted data. Each entry should</span>
+<span class="sd">              be a string of the name of a post processing function in</span>
+<span class="sd">              the :mod:`compass.plugin.post_processing` module. If</span>
+<span class="sd">              not provided, no post-processing steps will be applied.</span>
+<span class="sd">              By default, ``None``.</span>
+
+<span class="sd">    tech : str</span>
+<span class="sd">        Technology identifier to use for the plugin (e.g., &quot;wind&quot;,</span>
+<span class="sd">        &quot;solar&quot;). Must be unique from the identifiers of any existing</span>
+<span class="sd">        plugins.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    callable</span>
+<span class="sd">        A `SchemaBasedExtractionPlugin` subclass configured according to</span>
+<span class="sd">        the input configuration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">])</span>
+
+    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;qual_feats&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;$qualitative_features&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="p">}</span>
+    <span class="n">text_collectors</span> <span class="o">=</span> <span class="n">_collectors_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">text_extractors</span> <span class="o">=</span> <span class="n">_extractors_from_config</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">in_label</span><span class="o">=</span><span class="n">text_collectors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">OUT_LABEL</span><span class="p">,</span> <span class="n">tech</span><span class="o">=</span><span class="n">tech</span>
+    <span class="p">)</span>
+    <span class="n">out_cols</span> <span class="o">=</span> <span class="n">_out_cols_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">parsers</span> <span class="o">=</span> <span class="n">_parser_from_config</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span>
+        <span class="n">in_label</span><span class="o">=</span><span class="n">text_extractors</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">OUT_LABEL</span><span class="p">,</span>
+        <span class="n">possible_out_cols</span><span class="o">=</span><span class="n">out_cols</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">SchemaBasedExtractionPlugin</span><span class="p">(</span><span class="n">OrdinanceExtractionPlugin</span><span class="p">):</span>
+        <span class="n">SCHEMA</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: Schema for the output of the text extraction step&quot;&quot;&quot;</span>
+
+        <span class="n">DOC_SELECTION_METHOD</span> <span class="o">=</span> <span class="n">DocSelectionMethod</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;doc_selection_method&quot;</span><span class="p">,</span> <span class="s2">&quot;single doc&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Method for selecting documents for extraction context</span>
+
+<span class="sd">        Allowed options:</span>
+
+<span class="sd">            - &quot;single doc&quot;: Use the first document that returns some</span>
+<span class="sd">              extracted data as the source document for the extraction</span>
+<span class="sd">              context.</span>
+<span class="sd">            - &quot;multi doc context&quot;: Submit text from multiple documents</span>
+<span class="sd">              to the extraction context simultaneously.</span>
+<span class="sd">            - &quot;multi doc all&quot;: Each document is extracted separately</span>
+<span class="sd">              and the results concatenated. This may give duplicated</span>
+<span class="sd">              feature results if the same feature is mentioned in</span>
+<span class="sd">              multiple documents.</span>
+<span class="sd">            - &quot;multi doc mixed&quot;: Each document is extracted separately</span>
+<span class="sd">              and the results are merged together at the end. In this</span>
+<span class="sd">              approach, each feature is reported at most once.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">IDENTIFIER</span> <span class="o">=</span> <span class="n">tech</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Identifier for extraction task &quot;&quot;&quot;</span>
+
+        <span class="n">HEURISTIC</span> <span class="o">=</span> <span class="n">NoOpHeuristic</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BaseHeuristic: Class with a ``check()`` method&quot;&quot;&quot;</span>
+
+        <span class="n">HEURISTIC_KEYWORDS</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: Keyword lists for heuristic content filtering&quot;&quot;&quot;</span>
+
+        <span class="n">TEXT_COLLECTORS</span> <span class="o">=</span> <span class="n">text_collectors</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Classes for collecting text chunks from docs&quot;&quot;&quot;</span>
+
+        <span class="n">TEXT_EXTRACTORS</span> <span class="o">=</span> <span class="n">text_extractors</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Classes for extracting cleaned text from collected text&quot;&quot;&quot;</span>
+
+        <span class="n">PARSERS</span> <span class="o">=</span> <span class="n">parsers</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Classes for parsing structured ordinance data from text&quot;&quot;&quot;</span>
+
+        <span class="n">QUERY_TEMPLATES</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># set by user or LLM-generated</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list: List of search engine query templates&quot;&quot;&quot;</span>
+
+        <span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># set by user or LLM-generated</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: Keyword weight mapping for link crawl prioritization&quot;&quot;&quot;</span>
+
+        <span class="n">OUTPUT_COLUMNS</span> <span class="o">=</span> <span class="n">out_cols</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list: List of output columns for the extracted data&quot;&quot;&quot;</span>
+
+        <span class="n">POST_PROCESSING_STEPS</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;post_processing_steps&quot;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list: Post-processing steps to apply to the extracted data&quot;&quot;&quot;</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_heuristic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get a `BaseHeuristic` instance with a `check()` method</span>
+
+<span class="sd">            The ``check()`` method should accept a string of text and</span>
+<span class="sd">            return ``True`` if the text passes the heuristic check and</span>
+<span class="sd">            ``False`` otherwise.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">NoOpHeuristic</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;heuristic_keywords&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">NoOpHeuristic</span><span class="p">()</span>
+
+            <span class="n">hk</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_heuristic_keywords</span><span class="p">()</span>
+
+            <span class="k">class</span><span class="w"> </span><span class="nc">SchemaBasedHeuristic</span><span class="p">(</span><span class="n">KeywordBasedHeuristic</span><span class="p">):</span>
+                <span class="n">NOT_TECH_WORDS</span> <span class="o">=</span> <span class="n">hk</span><span class="p">[</span><span class="s2">&quot;NOT_TECH_WORDS&quot;</span><span class="p">]</span>
+                <span class="n">GOOD_TECH_KEYWORDS</span> <span class="o">=</span> <span class="n">hk</span><span class="p">[</span><span class="s2">&quot;GOOD_TECH_KEYWORDS&quot;</span><span class="p">]</span>
+                <span class="n">GOOD_TECH_ACRONYMS</span> <span class="o">=</span> <span class="n">hk</span><span class="p">[</span><span class="s2">&quot;GOOD_TECH_ACRONYMS&quot;</span><span class="p">]</span>
+                <span class="n">GOOD_TECH_PHRASES</span> <span class="o">=</span> <span class="n">hk</span><span class="p">[</span><span class="s2">&quot;GOOD_TECH_PHRASES&quot;</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span> <span class="o">=</span> <span class="n">hk</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">HEURISTIC</span> <span class="o">=</span> <span class="n">SchemaBasedHeuristic</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC</span><span class="p">()</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_query_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get a list of query templates for document retrieval</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            list</span>
+<span class="sd">                List of search engine query templates for document</span>
+<span class="sd">                retrieval. Templates may include ``{jurisdiction}`` as</span>
+<span class="sd">                a placeholder for the jurisdiction that is being</span>
+<span class="sd">                processed.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span>
+
+            <span class="k">if</span> <span class="n">qt</span> <span class="o">:=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;query_templates&quot;</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span> <span class="o">=</span> <span class="n">qt</span>
+                <span class="k">return</span> <span class="n">qt</span>
+
+            <span class="n">qt</span> <span class="o">=</span> <span class="n">key_from_cache</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">_CacheKey</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">qt</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span> <span class="o">=</span> <span class="n">qt</span>
+                <span class="k">return</span> <span class="n">qt</span>
+
+            <span class="k">async</span> <span class="k">with</span> <span class="n">_QT_SEMAPHORE</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span>
+
+                <span class="n">model_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">LLMTasks</span><span class="o">.</span><span class="n">PLUGIN_GENERATION</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">schema_llm</span> <span class="o">=</span> <span class="n">SchemaOutputLLMCaller</span><span class="p">(</span>
+                    <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">,</span>
+                    <span class="n">usage_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_tracker</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating query templates...&quot;</span><span class="p">)</span>
+                <span class="n">qt</span> <span class="o">=</span> <span class="k">await</span> <span class="n">generate_query_templates</span><span class="p">(</span>
+                    <span class="n">schema_llm</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span> <span class="n">add_think_prompt</span><span class="o">=</span><span class="kc">True</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Generated the following query templates:</span><span class="se">\n</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">qt</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span> <span class="o">=</span> <span class="n">qt</span>
+
+                <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_llm_generated_content&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="n">key_to_cache</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+                        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                        <span class="n">key</span><span class="o">=</span><span class="n">_CacheKey</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">qt</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">qt</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_website_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get a dict of website search keyword scores</span>
+
+<span class="sd">            Returns</span>
+<span class="sd">            -------</span>
+<span class="sd">            dict</span>
+<span class="sd">                Dictionary mapping keywords to scores that indicate</span>
+<span class="sd">                links which should be prioritized when performing a</span>
+<span class="sd">                website scrape for a document.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span>
+
+            <span class="k">if</span> <span class="n">wk</span> <span class="o">:=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;website_keywords&quot;</span><span class="p">):</span>
+                <span class="n">wk</span> <span class="o">=</span> <span class="n">_augment_website_keywords</span><span class="p">(</span><span class="n">wk</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="n">wk</span>
+                <span class="k">return</span> <span class="n">wk</span>
+
+            <span class="n">wk</span> <span class="o">=</span> <span class="n">key_from_cache</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">_CacheKey</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">wk</span><span class="p">:</span>
+                <span class="n">wk</span> <span class="o">=</span> <span class="n">_augment_website_keywords</span><span class="p">(</span><span class="n">wk</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="n">wk</span>
+                <span class="k">return</span> <span class="n">wk</span>
+
+            <span class="k">async</span> <span class="k">with</span> <span class="n">_WK_SEMAPHORE</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span>
+
+                <span class="n">model_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">LLMTasks</span><span class="o">.</span><span class="n">PLUGIN_GENERATION</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">schema_llm</span> <span class="o">=</span> <span class="n">SchemaOutputLLMCaller</span><span class="p">(</span>
+                    <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">,</span>
+                    <span class="n">usage_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_tracker</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating website keywords...&quot;</span><span class="p">)</span>
+                <span class="n">wk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">generate_website_keywords</span><span class="p">(</span>
+                    <span class="n">schema_llm</span><span class="p">,</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                    <span class="n">add_think_prompt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Generated the following website keywords:</span><span class="se">\n</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">wk</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_llm_generated_content&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="n">key_to_cache</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+                        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                        <span class="n">key</span><span class="o">=</span><span class="n">_CacheKey</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">wk</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="n">wk</span> <span class="o">=</span> <span class="n">_augment_website_keywords</span><span class="p">(</span><span class="n">wk</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="n">wk</span>
+
+            <span class="k">return</span> <span class="n">wk</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_get_heuristic_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;Get keyword lists for the heuristic document filter&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hk</span> <span class="o">:=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;heuristic_keywords&quot;</span><span class="p">),</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">hk</span> <span class="o">=</span> <span class="n">_normalize_heuristic_keywords</span><span class="p">(</span><span class="n">hk</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span> <span class="o">=</span> <span class="n">hk</span>
+                <span class="k">return</span> <span class="n">hk</span>
+
+            <span class="n">hk</span> <span class="o">=</span> <span class="n">key_from_cache</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+                <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                <span class="n">key</span><span class="o">=</span><span class="n">_CacheKey</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">hk</span><span class="p">:</span>
+                <span class="n">hk</span> <span class="o">=</span> <span class="n">_normalize_heuristic_keywords</span><span class="p">(</span><span class="n">hk</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span> <span class="o">=</span> <span class="n">hk</span>
+                <span class="k">return</span> <span class="n">hk</span>
+
+            <span class="k">async</span> <span class="k">with</span> <span class="n">_HK_SEMAPHORE</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span>
+
+                <span class="n">model_config</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">LLMTasks</span><span class="o">.</span><span class="n">PLUGIN_GENERATION</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="p">[</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">],</span>
+                <span class="p">)</span>
+                <span class="n">schema_llm</span> <span class="o">=</span> <span class="n">SchemaOutputLLMCaller</span><span class="p">(</span>
+                    <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">,</span>
+                    <span class="n">usage_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_tracker</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Generating heuristic keywords...&quot;</span><span class="p">)</span>
+                <span class="n">hk</span> <span class="o">=</span> <span class="k">await</span> <span class="n">generate_heuristic_keywords</span><span class="p">(</span>
+                    <span class="n">schema_llm</span><span class="p">,</span>
+                    <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                    <span class="n">add_think_prompt</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">hk</span> <span class="o">=</span> <span class="n">_normalize_heuristic_keywords</span><span class="p">(</span><span class="n">hk</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                    <span class="s2">&quot;Generated the following heuristic keywords:</span><span class="se">\n</span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">hk</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cache_llm_generated_content&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+                    <span class="n">key_to_cache</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+                        <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">],</span>
+                        <span class="n">key</span><span class="o">=</span><span class="n">_CacheKey</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span><span class="p">,</span>
+                        <span class="n">value</span><span class="o">=</span><span class="n">hk</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="n">HEURISTIC_KEYWORDS</span> <span class="o">=</span> <span class="n">hk</span>
+
+            <span class="k">return</span> <span class="n">hk</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_validate_query_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;NoOp validation for query templates</span>
+
+<span class="sd">            Since templates can be generated by LLM, we don&#39;t know until</span>
+<span class="sd">            runtime whether or not they will be valid.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">_validate_website_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">            </span><span class="sd">&quot;&quot;&quot;NoOp validation for website keywords</span>
+
+<span class="sd">            Since keywords can be generated by LLM, we don&#39;t know until</span>
+<span class="sd">            runtime whether or not they will be valid.</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+
+    <span class="n">register_plugin</span><span class="p">(</span><span class="n">SchemaBasedExtractionPlugin</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">SchemaBasedExtractionPlugin</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collectors_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a TextCollector subclass based on a config dict&quot;&quot;&quot;</span>
+    <span class="n">cp</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;collection_prompts&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cp</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">scope_schema_fp</span> <span class="o">=</span> <span class="n">_SCHEMA_DIR</span> <span class="o">/</span> <span class="s2">&quot;validate_chunk_scope.json5&quot;</span>
+        <span class="n">content_schema_fp</span> <span class="o">=</span> <span class="n">_SCHEMA_DIR</span> <span class="o">/</span> <span class="s2">&quot;validate_chunk_content.json5&quot;</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">PluginTextCollector</span><span class="p">(</span><span class="n">SchemaBasedTextCollector</span><span class="p">):</span>
+            <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="n">NoOpTextCollector</span><span class="o">.</span><span class="n">OUT_LABEL</span>  <span class="c1"># reuse label</span>
+            <span class="n">SCHEMA</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span>
+            <span class="n">SCOPE_VALIDATION_OUTPUT_SCHEMA</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">scope_schema_fp</span><span class="p">)</span>
+            <span class="n">CONTENT_VALIDATION_OUTPUT_SCHEMA</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">content_schema_fp</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">PluginTextCollector</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">cp</span><span class="p">:</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">PluginTextCollector</span><span class="p">(</span><span class="n">PromptBasedTextCollector</span><span class="p">):</span>
+            <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="n">NoOpTextCollector</span><span class="o">.</span><span class="n">OUT_LABEL</span>  <span class="c1"># reuse label</span>
+            <span class="n">PROMPTS</span> <span class="o">=</span> <span class="n">cp</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">PluginTextCollector</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">NoOpTextCollector</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extractors_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">in_label</span><span class="p">,</span> <span class="n">tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a TextExtractor subclass based on a config dict&quot;&quot;&quot;</span>
+    <span class="n">tep</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text_extraction_prompts&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">tep</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">schema_fp</span> <span class="o">=</span> <span class="n">_SCHEMA_DIR</span> <span class="o">/</span> <span class="s2">&quot;extract_text.json5&quot;</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">PluginTextExtractor</span><span class="p">(</span><span class="n">SchemaBasedTextExtractor</span><span class="p">):</span>
+            <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="n">in_label</span>
+            <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="s2">&quot;copied_relevant_text&quot;</span>
+            <span class="n">SCHEMA</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span>
+            <span class="n">OUTPUT_SCHEMA</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span><span class="n">schema_fp</span><span class="p">)</span>
+
+        <span class="n">CLEANED_FP_REGISTRY</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">tech</span><span class="o">.</span><span class="n">casefold</span><span class="p">(),</span> <span class="p">{})[</span>
+            <span class="s2">&quot;copied_relevant_text&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;Text for Extraction.txt&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">PluginTextExtractor</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">tep</span><span class="p">:</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">PluginTextExtractor</span><span class="p">(</span><span class="n">PromptBasedTextExtractor</span><span class="p">):</span>
+            <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="n">in_label</span>
+            <span class="n">PROMPTS</span> <span class="o">=</span> <span class="n">tep</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">PluginTextExtractor</span><span class="p">]</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">PluginTextExtractor</span><span class="p">(</span><span class="n">NoOpTextExtractor</span><span class="p">):</span>
+        <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="n">in_label</span>
+        <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="s2">&quot;copied_relevant_text&quot;</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">PluginTextExtractor</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parser_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">in_label</span><span class="p">,</span> <span class="n">possible_out_cols</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a TextExtractor subclass based on a config dict&quot;&quot;&quot;</span>
+
+    <span class="n">new_sys_prompt</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;extraction_system_prompt&quot;</span><span class="p">,</span> <span class="n">SchemaOrdinanceParser</span><span class="o">.</span><span class="n">SYSTEM_PROMPT</span>
+    <span class="p">)</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">PluginParser</span><span class="p">(</span><span class="n">SchemaOrdinanceParser</span><span class="p">):</span>
+        <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="n">in_label</span>
+        <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="s2">&quot;structured_data&quot;</span>
+        <span class="n">SCHEMA</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">]</span>
+        <span class="n">QUALITATIVE_FEATURES</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;qual_feats&quot;</span><span class="p">]</span>
+        <span class="n">DATA_TYPE_SHORT_DESC</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data_type_short_desc&quot;</span><span class="p">)</span>
+        <span class="n">SYSTEM_PROMPT</span> <span class="o">=</span> <span class="n">new_sys_prompt</span>
+        <span class="n">POSSIBLE_OUT_COLS</span> <span class="o">=</span> <span class="n">possible_out_cols</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">PluginParser</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_out_cols_from_config</span><span class="p">(</span><span class="n">config</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a list of OutputColumn instances for the output CSV&quot;&quot;&quot;</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;county&quot;</span><span class="p">),</span>
+        <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">),</span>
+        <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;subdivision&quot;</span><span class="p">),</span>
+        <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;jurisdiction_type&quot;</span><span class="p">),</span>
+        <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;FIPS&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">schema_props</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;schema&quot;</span><span class="p">][</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="s2">&quot;outputs&quot;</span><span class="p">][</span><span class="s2">&quot;items&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;required&quot;</span>
+        <span class="p">]</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Error parsing output columns from schema: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="n">cols</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="n">OutputColumn</span><span class="p">(</span>
+            <span class="n">name</span><span class="p">,</span>
+            <span class="n">include_in_qual_output</span><span class="o">=</span><span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;units&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">schema_props</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;explanation&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">source_col_ind</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">ind</span> <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cols</span><span class="p">)</span> <span class="k">if</span> <span class="n">col</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;source&quot;</span><span class="p">),</span> <span class="kc">None</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">source_col_ind</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cols</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">),</span> <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">)))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cols</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">source_col_ind</span><span class="p">,</span> <span class="n">OutputColumn</span><span class="p">(</span><span class="s2">&quot;year&quot;</span><span class="p">))</span>
+
+    <span class="n">cols</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">OutputColumn</span><span class="p">(</span>
+            <span class="s2">&quot;quantitative&quot;</span><span class="p">,</span>
+            <span class="n">include_in_quant_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">include_in_qual_output</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cols</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_augment_website_keywords</span><span class="p">(</span><span class="n">keywords</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add URL-encoded variants for multi-word keywords&quot;&quot;&quot;</span>
+    <span class="n">augmented</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">keywords</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">keyword</span><span class="p">,</span> <span class="n">score</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">augmented</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keyword</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="s2">&quot; &quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keyword</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">encoded</span> <span class="o">=</span> <span class="n">keyword</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;%20&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">encoded</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">augmented</span><span class="p">:</span>
+            <span class="n">augmented</span><span class="p">[</span><span class="n">encoded</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+
+        <span class="n">plus_encoded</span> <span class="o">=</span> <span class="n">keyword</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;+&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plus_encoded</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">augmented</span><span class="p">:</span>
+            <span class="n">augmented</span><span class="p">[</span><span class="n">plus_encoded</span><span class="p">]</span> <span class="o">=</span> <span class="n">score</span>
+
+    <span class="k">return</span> <span class="n">augmented</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_heuristic_keywords</span><span class="p">(</span><span class="n">raw</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize heuristic keyword lists into required structure&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Heuristic keywords must be a dictionary of keyword lists.&quot;</span>
+        <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="n">expected_keys</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;NOT_TECH_WORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GOOD_TECH_KEYWORDS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GOOD_TECH_ACRONYMS&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;GOOD_TECH_PHRASES&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">normalized</span> <span class="o">=</span> <span class="n">_normalize_input_kw</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">expected_keys</span><span class="p">)</span>
+
+    <span class="n">_verify_expected_kw_are_not_missing</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">expected_keys</span><span class="p">)</span>
+    <span class="n">_verify_kw_list_not_empty</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+    <span class="n">_verify_min_number_of_kw_provided</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+    <span class="n">_warn_if_not_enough_kw_provided</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normalized</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_input_kw</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">expected_keys</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize the input keyword dictionary&quot;&quot;&quot;</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">raw_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">raw</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_key</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Heuristic keyword keys must be strings.&quot;</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">target_key</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">raw_key</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">target_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">expected_keys</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Unexpected heuristic keyword list: </span><span class="si">{</span><span class="n">raw_key</span><span class="si">!r}</span><span class="s2">.&quot;</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="n">normalized</span><span class="p">[</span><span class="n">target_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_normalize_keyword_list</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">normalized</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_verify_expected_kw_are_not_missing</span><span class="p">(</span><span class="n">normalized</span><span class="p">,</span> <span class="n">expected_keys</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify that all expected keyword lists are present&quot;&quot;&quot;</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">expected_keys</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Heuristic keywords are missing required lists: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_verify_kw_list_not_empty</span><span class="p">(</span><span class="n">normalized</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify that no keyword list is empty&quot;&quot;&quot;</span>
+    <span class="n">empty</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">normalized</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">value</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">empty</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Heuristic keyword lists must not be empty: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">empty</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_verify_min_number_of_kw_provided</span><span class="p">(</span><span class="n">normalized</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify that the minimum number of &quot;Good&quot; keywords is provided&quot;&quot;&quot;</span>
+    <span class="n">num_good_kw</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">kw_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">kw_list</span> <span class="ow">in</span> <span class="n">normalized</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;NOT_TECH_WORDS&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_good_kw</span> <span class="o">&lt;</span> <span class="n">KeywordBasedHeuristic</span><span class="o">.</span><span class="n">MIN_DEFAULT_MATCHES</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Must provide at least &quot;</span>
+            <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">KeywordBasedHeuristic</span><span class="o">.</span><span class="n">MIN_DEFAULT_MATCHES</span><span class="si">}</span><span class="s1"> &quot;Good&quot; &#39;</span>
+            <span class="s2">&quot;heuristic values across the GOOD_TECH_KEYWORDS, &quot;</span>
+            <span class="s2">&quot;GOOD_TECH_ACRONYMS, and GOOD_TECH_PHRASES lists to ensure &quot;</span>
+            <span class="s2">&quot;an effective heuristic.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_if_not_enough_kw_provided</span><span class="p">(</span><span class="n">normalized</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Warn if the number of &quot;Good&quot; keywords is too low&quot;&quot;&quot;</span>
+    <span class="n">num_good_kw</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">kw_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">kw_list</span> <span class="ow">in</span> <span class="n">normalized</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;NOT_TECH_WORDS&quot;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">num_good_kw</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>  <span class="c1"># ruff:ignore[magic-value-comparison]</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s1">&#39;It is recommended to provide at least 10 total &quot;Good&quot; &#39;</span>
+            <span class="s2">&quot;heuristic values across the GOOD_TECH_KEYWORDS, &quot;</span>
+            <span class="s2">&quot;GOOD_TECH_ACRONYMS, and GOOD_TECH_PHRASES lists for a &quot;</span>
+            <span class="s2">&quot;more effective heuristic.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">COMPASSPluginConfigurationWarning</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_keyword_list</span><span class="p">(</span><span class="n">items</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize keyword list entries&quot;&quot;&quot;</span>
+    <span class="n">normalized</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">keyword</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">keyword</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">keyword</span> <span class="o">=</span> <span class="n">keyword</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="n">normalized</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">normalized</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">keyword</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">normalized</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

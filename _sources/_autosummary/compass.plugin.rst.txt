@@ -1,0 +1,36 @@
+compass.plugin
+==============
+
+.. automodule:: compass.plugin
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   base
+   interface
+   noop
+   one_shot
+   ordinance
+   post_processing
+   registry
+

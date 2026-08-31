@@ -1,0 +1,40 @@
+compass.pipeline.data\_classes
+==============================
+
+.. automodule:: compass.pipeline.data_classes
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BaseRequest
+      CollectionRequest
+      DocParsingParams
+      ExtractionRequest
+      JurisdictionResult
+      KnownSourcesInput
+      OutputSettings
+      ProcessRequest
+      RuntimeSettings
+      WebSearchParams
+   
+   
+
+   
+   
+   
+
+
+

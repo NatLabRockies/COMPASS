@@ -1,0 +1,38 @@
+compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor
+========================================================================
+
+.. currentmodule:: compass.extraction.wind.ordinance
+
+.. autoclass:: WindPermittedUseDistrictsTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WindPermittedUseDistrictsTextExtractor.call
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WindPermittedUseDistrictsTextExtractor.FORMATTING_PROMPT
+      ~WindPermittedUseDistrictsTextExtractor.IN_LABEL
+      ~WindPermittedUseDistrictsTextExtractor.OUTPUT_PROMPT
+      ~WindPermittedUseDistrictsTextExtractor.OUT_LABEL
+      ~WindPermittedUseDistrictsTextExtractor.PROMPTS
+      ~WindPermittedUseDistrictsTextExtractor.SYSTEM_MESSAGE
+      ~WindPermittedUseDistrictsTextExtractor.TASK_DESCRIPTION
+      ~WindPermittedUseDistrictsTextExtractor.TASK_ID
+      ~WindPermittedUseDistrictsTextExtractor.parsers
+   
+   

@@ -1,0 +1,6 @@
+compass.extraction.apply.check\_for\_relevant\_text
+===================================================
+
+.. currentmodule:: compass.extraction.apply
+
+.. autofunction:: check_for_relevant_text

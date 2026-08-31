@@ -1,0 +1,729 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>What is COMPASS? &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'misc/about';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="INFRA-COMPASS documentation" href="../index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">What is COMPASS?</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="what-is-compass">
+<h1>What is COMPASS?<a class="headerlink" href="#what-is-compass" title="Link to this heading">#</a></h1>
+<p>COMPASS (formally the Infrastructure Continuous Ordinance Mapping for Planning and Siting Systems, or “INFRA-COMPASS”)
+is an innovative software tool that harnesses the power of Large Language
+Models (LLMs) to automate the compilation and continued maintenance of an inventory of
+state and local codes and ordinances pertaining to energy infrastructure.</p>
+<p>At a high level, COMPASS does two things: it <em>retrieves</em> the right ordinance
+documents for each jurisdiction you ask about, and then <em>extracts</em> structured data from
+those documents into a versioned database that downstream users can query as a CSV, Excel
+workbook, or GeoPackage.</p>
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png"><img alt="High-level overview of the COMPASS pipeline" class="align-center" src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/overview.png" style="width: 100%;" />
+</a>
+<p>What makes COMPASS different from simply asking ChatGPT for ordinance data is the
+architecture around the LLM call:</p>
+<ul class="simple">
+<li><p><strong>Structured, downstream-ready output</strong> — consistent CSV rows with stable column
+names, units, and feature labels that drop straight into siting and capacity-modeling
+tools like <a class="reference external" href="https://github.com/NREL/reV">reV</a>, GIS workflows, or any pipeline that
+needs setbacks, height limits, and noise thresholds as numbers rather than prose.</p></li>
+<li><p><strong>Hallucination guardrails</strong> — cleaned text is checked against the source and dropped
+if it drifts too far, so fabricated values never reach the database.</p></li>
+<li><p><strong>Source-URL traceability</strong> — every record carries a URL back to the original
+ordinance document, so any value can be audited or spot-checked.</p></li>
+<li><p><strong>Cost control</strong> — cheap heuristic filters reject obviously irrelevant text before
+any LLM call runs, making it tractable to extract data across hundreds of
+jurisdictions.</p></li>
+</ul>
+</section>
+<section id="which-local-codes-and-ordinances-does-infra-compass-support">
+<h1>Which local codes and ordinances does INFRA-COMPASS support?<a class="headerlink" href="#which-local-codes-and-ordinances-does-infra-compass-support" title="Link to this heading">#</a></h1>
+<p>INFRA-COMPASS supports several extraction plugins (the value you set as <code class="docutils literal notranslate"><span class="pre">tech</span></code> in the
+input config). Each plugin defines its own search queries, keyword heuristics, and field
+set. Example fields extracted are listed below:</p>
+<ol class="arabic simple">
+<li><p><strong>Solar</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;solar&quot;</span></code>) — utility-scale solar siting ordinances. Examples:
+setbacks (from structures, property lines, roads, railroads, transmission, water,
+conservation lands), maximum structure height, minimum/maximum lot size, maximum
+project size, panel spacing, land-use density, land coverage, noise, glare, visual
+impact, fencing, signage, screening, decommissioning, repowering, prohibitions, plus
+permitted-use district lists.</p></li>
+<li><p><strong>Wind</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;wind&quot;</span></code>) — utility-scale wind siting ordinances. Examples: setbacks
+(same feature set as solar), maximum turbine height, minimum/maximum lot size, maximum
+project size, separation from other wind energy conversion systems (WECS), shadow
+flicker, tower density, blade clearance, noise, color, lighting, decommissioning,
+repowering, climbing prevention, signage, visual impact, prohibitions.</p></li>
+<li><p><strong>Small wind</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;small</span> <span class="pre">wind&quot;</span></code>) — distributed / residential-scale wind ordinances.
+Examples: setbacks (extended to also include unoccupied structures), maximum turbine
+height, minimum/maximum lot size, rated capacity, blade clearance, tower density, shadow
+flicker, noise, color, lighting, decommissioning, climbing prevention, signage,
+prohibitions, permitting fees.</p></li>
+<li><p><strong>Geothermal heat pumps</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;ghp&quot;</span></code>) — GHP / ground-source heat-pump local codes.
+Examples: setbacks from driveways, property lines, yards, private/public water, building
+foundations, wastewater, water/sewer lines, animal enclosures, roads, rights-of-way (ROW),
+above/below-ground fuel, subsurface drains, wetlands, pools, hazardous materials;
+minimum/maximum well depth, noise, well/geothermal/GHP definitions, licensed-driller and
+certification requirements, screening, permits, inspections, decommissioning,
+prohibitions.</p></li>
+<li><p><strong>Texas water rights</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;tx</span> <span class="pre">water</span> <span class="pre">rights&quot;</span></code>) — multi-document extraction tailored
+to TX water-rights filings. Examples: permit requirements, extraction requirements, well
+spacing, drilling window, metering devices, district/well drought-management plans,
+plugging requirements, external-transfer requirements, production reporting, production
+cost, setbacks, redrilling, plus daily/monthly/annual withdrawal limits.</p></li>
+</ol>
+<p>The following plugins are under active development:</p>
+<ol class="arabic simple" start="6">
+<li><p><strong>Geothermal electricity</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;geothermal&quot;</span></code>) — Coming Soon.</p></li>
+<li><p><strong>Transmission lines</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;transmission&quot;</span></code>) — Coming Soon.</p></li>
+<li><p><strong>Data centers</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;data</span> <span class="pre">centers&quot;</span></code>) — Coming Soon.</p></li>
+<li><p><strong>Natural gas</strong> (<code class="docutils literal notranslate"><span class="pre">tech:</span> <span class="pre">&quot;natural</span> <span class="pre">gas&quot;</span></code>) — Coming Soon.</p></li>
+</ol>
+<p>In addition, INFRA-COMPASS supports a <strong>one-shot, schema-driven plugin</strong> for arbitrary
+ordinance types: provide a JSON schema for the fields you want and INFRA-COMPASS will use
+LLM structured outputs to do a single-call extraction without writing decision trees. See
+the <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/tree/main/examples/one_shot_schema_extraction">one-shot schema extraction example</a>
+for a walkthrough.</p>
+</section>
+<section id="how-does-infra-compass-find-the-codes-and-ordinances">
+<h1>How does INFRA-COMPASS find the codes and ordinances?<a class="headerlink" href="#how-does-infra-compass-find-the-codes-and-ordinances" title="Link to this heading">#</a></h1>
+<p>A <em>jurisdiction</em> in INFRA-COMPASS is the place that issues the ordinance — typically a
+U.S. county (or equivalent), e.g. “Boulder County, Colorado.” Each run is driven by a CSV
+of jurisdictions you want covered.</p>
+<p>The retrieval flow is summarized below. INFRA-COMPASS first gathers candidate documents
+from several possible sources, then uses an LLM-driven filter to keep only those that are
+legally binding, pertain to the correct jurisdiction, and contain the relevant technology
+regulations.</p>
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_retrieval.png"><img alt="Document retrieval flow. From a user-supplied jurisdiction (e.g. 'Jefferson County, Colorado'), Step 1 web-scrapes via search engine or website crawl; Step 2 downloads the document collection; Step 3 runs an LLM filter as a series of decision-tree questions ('Is the document a legal ordinance?', 'Does it pertain to the correct jurisdiction?', 'Does it contain relevant technology regulations?') to produce a confirmed ordinance document." class="align-center" src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_retrieval.png" style="width: 100%;" />
+</a>
+<p>In practice, INFRA-COMPASS can find source documents in four different ways:</p>
+<ol class="arabic simple">
+<li><p><strong>Known local docs</strong> — any documents you already have on hand for the jurisdiction.</p></li>
+<li><p><strong>Known URLs</strong> — links containing documents from which you want to pull data.</p></li>
+<li><p><strong>Targeted document search</strong> — plugin-defined queries that directly look for the
+<strong>ordinance document itself</strong>. Best for ordinances that are well-indexed by search
+engines as standalone PDFs or pages.</p></li>
+<li><p><strong>Jurisdiction-website crawl</strong> — for ordinances buried inside a county or municipal
+website. INFRA-COMPASS first finds the jurisdiction’s official website, then crawls it
+for ordinance text using plugin-defined heuristics.</p></li>
+</ol>
+</section>
+<section id="how-does-infra-compass-extract-the-data">
+<h1>How does INFRA-COMPASS extract the data?<a class="headerlink" href="#how-does-infra-compass-extract-the-data" title="Link to this heading">#</a></h1>
+<p>Once a candidate document is in hand, INFRA-COMPASS reduces it to just the passages that
+actually pertain to the target technology, and then walks a small decision tree per
+ordinance feature to read structured values out of those passages.</p>
+<a class="reference internal image-reference" href="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_extraction.png"><img alt="Document extraction flow. Step 1 (Ordinance Text Extraction) takes an ordinance document, splits it into text chunks, runs each chunk through an LLM content filter, and concatenates the relevant chunks into a single cleaned 'ordinance text.' Step 2 (Ordinance Value Extraction) feeds that cleaned text to a separate decision tree for each ordinance feature (e.g. Max Shadow Flicker, Property Line Setback, Road Setback, Structure Setback), producing structured ordinance data." class="align-center" src="https://raw.githubusercontent.com/NatLabRockies/COMPASS/main/docs/source/_static/document_extraction.png" style="width: 100%;" />
+</a>
+<p>The full pipeline is designed to keep cost down and hallucinations out:</p>
+<ol class="arabic simple">
+<li><p><strong>Cheap keyword filter</strong> — rejects sections that obviously aren’t ordinance text <em>before</em>
+any LLM call.</p></li>
+<li><p><strong>Legal-text validation</strong> — an LLM classifies each surviving section as legally-binding
+regulation or not, with surrounding context for borderline cases.</p></li>
+<li><p><strong>Relevant-text extraction</strong> — each document is filtered down to just the passages that
+actually pertain to the target technology, producing a much shorter cleaned text that
+later steps work from.</p></li>
+<li><p><strong>Hallucination guardrail</strong> — the cleaned text is compared back to the original; if too
+much has been invented or paraphrased away, INFRA-COMPASS retries and ultimately drops
+the document rather than passing fabricated text to the next step.</p></li>
+<li><p><strong>Decision-tree prompting</strong> — rather than asking the LLM to fill out a whole row of
+values in one mega-prompt, INFRA-COMPASS extracts each value by walking a small decision
+tree of focused yes/no questions over the cleaned text. For a setback value, that might
+look like: “Does this text mention a setback from property lines for utility-scale
+solar?” → if yes, “Is the value given as a fixed distance, a multiple of system height,
+or relative to another feature?” → “What are the units?” → “What is the numeric value?”
+Each answer narrows the next question, and the conversation history carries forward so
+later prompts know what was already decided. This breaks an ambiguous extraction task
+into a sequence of unambiguous ones — which is what keeps structured output accurate
+even on messy ordinance language.</p></li>
+<li><p><strong>Structured parsing</strong> — extracted values are assembled into a tidy per-jurisdiction CSV
+row (one row of setbacks, height limits, lot sizes, and the rest), then merged across all
+jurisdictions into the final ordinance database — published as CSV, Excel workbook, and
+GeoPackage. Each row records the <strong>source URL</strong> of the document it came from, so any
+extracted value can be traced back to the original ordinance text and independently
+verified.</p></li>
+</ol>
+<p>Jurisdictions are processed concurrently while respecting your API provider’s rate limits,
+with live cost tracking on a progress bar.</p>
+</section>
+<section id="obtaining-ordinance-data">
+<h1>Obtaining ordinance data<a class="headerlink" href="#obtaining-ordinance-data" title="Link to this heading">#</a></h1>
+<p>The National Laboratories of the Rockies (NLR) typically runs the INFRA-COMPASS pipeline
+annually and publishes refreshed datasets to OpenEI.</p>
+<p>If the technology or jurisdictions you need aren’t in a published release — or you don’t
+want to wait for the next annual refresh — you can <strong>run INFRA-COMPASS yourself</strong>
+on just the jurisdictions and technologies you care about.</p>
+<p><strong>You bring your own LLM API key.</strong> INFRA-COMPASS is built around OpenAI
+(<code class="docutils literal notranslate"><span class="pre">client_type:</span> <span class="pre">&quot;openai&quot;</span></code>) and Azure OpenAI (<code class="docutils literal notranslate"><span class="pre">client_type:</span> <span class="pre">&quot;azure&quot;</span></code>). Set
+<code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code> (or the <code class="docutils literal notranslate"><span class="pre">AZURE_OPENAI_*</span></code> trio) in your environment before starting a
+run. Support for other LLM providers is under consideration.</p>
+</section>
+<section id="how-can-i-expand-infra-compass-to-cover-other-ordinances">
+<h1>How can I expand INFRA-COMPASS to cover other ordinances?<a class="headerlink" href="#how-can-i-expand-infra-compass-to-cover-other-ordinances" title="Link to this heading">#</a></h1>
+<p>Two paths, depending on how much customization you need:</p>
+<ul class="simple">
+<li><p><strong>Schema-driven (fastest)</strong> — write a JSON schema describing the fields you want and pass
+it to <code class="docutils literal notranslate"><span class="pre">compass</span> <span class="pre">process</span> <span class="pre">--plugin</span> <span class="pre">path/to/schema.json</span></code>. No Python required. Walkthrough:
+<a class="reference external" href="https://github.com/NatLabRockies/COMPASS/tree/main/examples/one_shot_schema_extraction">one-shot schema extraction example</a>.</p></li>
+<li><p><strong>Full plugin (most control)</strong> — implement a custom extraction plugin with your own search
+queries, heuristics, text collectors, and structured-data parsers. The
+<a class="reference external" href="https://github.com/NatLabRockies/COMPASS/tree/main/compass/extraction/solar">solar plugin</a>
+is the cleanest reference to copy and adapt.</p></li>
+</ul>
+<p>See the development guides for full details:
+<a class="reference external" href="https://natlabrockies.github.io/COMPASS/dev/plugin_development.html">plugin development</a>
+and
+<a class="reference external" href="https://natlabrockies.github.io/COMPASS/dev/advanced_plugin_development.html">advanced plugin development</a>.</p>
+</section>
+<section id="validation">
+<h1>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h1>
+<p>Take a look at some high-level validation results in the <a class="reference external" href="https://natlabrockies.github.io/COMPASS/val/validation.html">validation report</a>.</p>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">INFRA-COMPASS documentation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="installation.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">What is COMPASS?</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#which-local-codes-and-ordinances-does-infra-compass-support">Which local codes and ordinances does INFRA-COMPASS support?</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#how-does-infra-compass-find-the-codes-and-ordinances">How does INFRA-COMPASS find the codes and ordinances?</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#how-does-infra-compass-extract-the-data">How does INFRA-COMPASS extract the data?</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#obtaining-ordinance-data">Obtaining ordinance data</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#how-can-i-expand-infra-compass-to-cover-other-ordinances">How can I expand INFRA-COMPASS to cover other ordinances?</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+</ul>
+
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

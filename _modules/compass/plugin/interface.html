@@ -1,0 +1,1488 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.plugin.interface &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/plugin/interface';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.plugin.interface</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.plugin.interface</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;COMPASS extraction plugin base class&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExtractionPlugin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.post_processing</span><span class="w"> </span><span class="kn">import</span> <span class="n">POST_PROCESSING_REGISTRY</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.llm.calling</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseLLMCaller</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_relevant_text_with_ngram_validation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.scripts.download</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_ordinance_docs</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.threaded</span><span class="w"> </span><span class="kn">import</span> <span class="n">CLEANED_FP_REGISTRY</span><span class="p">,</span> <span class="n">CleanedFileWriter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities</span><span class="w"> </span><span class="kn">import</span> <span class="n">doc_infos_to_db</span><span class="p">,</span> <span class="n">save_db</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSPluginConfigurationError</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="OutputColumn">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.OutputColumn.html#compass.plugin.interface.OutputColumn">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputColumn</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Column expected to appear in a structured CSV output&quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Name of column in output CSV&quot;&quot;&quot;</span>
+
+    <span class="n">include_in_quant_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag indicating whether to include in the quantitative output&quot;&quot;&quot;</span>
+
+    <span class="n">include_in_qual_output</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag indicating whether to include in the qualitative output&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="BaseHeuristic">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.BaseHeuristic.html#compass.plugin.interface.BaseHeuristic">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseHeuristic</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for a heuristic check&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BaseHeuristic.check">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.BaseHeuristic.html#compass.plugin.interface.BaseHeuristic.check">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check for mention of a tech in text (or text chunk)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        text : str</span>
+<span class="sd">            Input text that may or may not mention the technology of</span>
+<span class="sd">            interest.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            ``True`` if the text passes the heuristic check and</span>
+<span class="sd">            ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="BaseTextCollector">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.BaseTextCollector.html#compass.plugin.interface.BaseTextCollector">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseTextCollector</span><span class="p">(</span><span class="n">BaseLLMCaller</span><span class="p">,</span> <span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for text collectors that gather relevant text&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">OUT_LABEL</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Identifier for text collected by this class&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">relevant_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Combined relevant text from the individual chunks&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="BaseTextCollector.check_chunk">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.BaseTextCollector.html#compass.plugin.interface.BaseTextCollector.check_chunk">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">check_chunk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chunk_parser</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if a text chunk is relevant for extraction</span>
+
+<span class="sd">        You should validate chunks like so::</span>
+
+<span class="sd">            is_correct_kind_of_text = await chunk_parser.parse_from_ind(</span>
+<span class="sd">                ind,</span>
+<span class="sd">                key=&quot;my_unique_validation_key&quot;,</span>
+<span class="sd">                llm_call_callback=my_async_llm_call_function,</span>
+<span class="sd">            )</span>
+
+<span class="sd">        where the `&quot;key&quot;` is unique to this particular validation (it</span>
+<span class="sd">        will be used to cache the validation result in the chunk</span>
+<span class="sd">        parser&#39;s memory) and `my_async_llm_call_function` is an async</span>
+<span class="sd">        function that takes in a key and text chunk and returns a</span>
+<span class="sd">        boolean indicating whether or not the text chunk passes the</span>
+<span class="sd">        validation. You can call `chunk_parser.parse_from_ind` as many</span>
+<span class="sd">        times as you want within this method, but be sure to use unique</span>
+<span class="sd">        keys for each validation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        chunk_parser : ParseChunksWithMemory</span>
+<span class="sd">            Instance that contains a ``parse_from_ind`` method.</span>
+<span class="sd">        ind : int</span>
+<span class="sd">            Index of the chunk to check.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            Boolean flag indicating whether or not the text in the chunk</span>
+<span class="sd">            contains information relevant to the extraction task.</span>
+
+<span class="sd">        See Also</span>
+<span class="sd">        --------</span>
+<span class="sd">        :func:`~compass.validation.content.ParseChunksWithMemory.parse_from_ind`</span>
+<span class="sd">            Method used to parse text from a chunk with memory of prior</span>
+<span class="sd">            chunk validations.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FilteredExtractionPlugin</span><span class="p">(</span><span class="n">BaseExtractionPlugin</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for COMPASS extraction plugins</span>
+
+<span class="sd">    This class provides the standard COMPASS document filtering and text</span>
+<span class="sd">    collection pipeline, allowing implementers to focus primarily on the</span>
+<span class="sd">    structured data extraction step. Filtering and text collection is</span>
+<span class="sd">    provided by subclassing the `BaseTextCollector` class and setting</span>
+<span class="sd">    the `TEXT_COLLECTORS` property to a list of the desired text</span>
+<span class="sd">    collectors.</span>
+
+<span class="sd">    Plugins can hook into various stages of the extraction pipeline</span>
+<span class="sd">    to modify behavior, add custom processing, or integrate with</span>
+<span class="sd">    external systems.</span>
+
+<span class="sd">    Subclasses should implement the desired hooks and override</span>
+<span class="sd">    methods as needed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">POST_PROCESSING_STEPS</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;List of post-processing steps to apply to the extracted data</span>
+
+<span class="sd">    Each entry should correspond to a key in the</span>
+<span class="sd">    `POST_PROCESSING_REGISTRY`. If `None`, no post-processing steps will</span>
+<span class="sd">    be applied. By default, `None`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">IDENTIFIER</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;str: Identifier for extraction task (e.g. &quot;water rights&quot;)&quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">QUERY_TEMPLATES</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list: List of search engine query templates for extraction</span>
+
+<span class="sd">        Query templates can contain the placeholder ``{jurisdiction}``</span>
+<span class="sd">        which will be replaced with the full jurisdiction name during</span>
+<span class="sd">        the search engine query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">WEBSITE_KEYWORDS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list: List of keywords</span>
+
+<span class="sd">        List of keywords that indicate links which should be prioritized</span>
+<span class="sd">        when performing a website scrape for a document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">TEXT_COLLECTORS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list of BaseTextCollector: Classes to collect text</span>
+
+<span class="sd">        Should be an iterable of one or more classes to collect text</span>
+<span class="sd">        for the extraction task.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">HEURISTIC</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;BaseHeuristic: Class with a ``check()`` method</span>
+
+<span class="sd">        The ``check()`` method should accept a string of text and</span>
+<span class="sd">        return ``True`` if the text passes the heuristic check and</span>
+<span class="sd">        ``False`` otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="nd">@property</span>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">OUTPUT_COLUMNS</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># ruff:ignore[invalid-function-name]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;list: List of output columns for the extracted data</span>
+
+<span class="sd">        Each entry should be an</span>
+<span class="sd">        :class:`compass.plugin.interface.OutputColumn` instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.save_structured_data">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.save_structured_data">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_structured_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write extracted water rights data to disk</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        doc_infos : list of dict</span>
+<span class="sd">            List of dictionaries containing the following keys:</span>
+
+<span class="sd">                - &quot;jurisdiction&quot;: An initialized Jurisdiction object</span>
+<span class="sd">                  representing the jurisdiction that was extracted.</span>
+<span class="sd">                - &quot;ord_db_fp&quot;: A path to the extracted structured data</span>
+<span class="sd">                  stored on disk, or ``None`` if no data was extracted.</span>
+
+<span class="sd">        out_dir : path-like</span>
+<span class="sd">            Path to the output directory for the data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Number of unique jurisdictions that information was</span>
+<span class="sd">            found/written for.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">db</span><span class="p">,</span> <span class="n">num_docs_found</span> <span class="o">=</span> <span class="n">doc_infos_to_db</span><span class="p">(</span><span class="n">doc_infos</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">OUTPUT_COLUMNS</span><span class="p">)</span>
+        <span class="n">db</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_apply_post_processing</span><span class="p">(</span><span class="n">db</span><span class="p">)</span>
+        <span class="n">save_db</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="n">OUTPUT_COLUMNS</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">num_docs_found</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_apply_post_processing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">db</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply post-processing steps to the extracted data&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">db</span><span class="o">.</span><span class="n">empty</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">POST_PROCESSING_STEPS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">db</span>
+
+        <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">POST_PROCESSING_STEPS</span><span class="p">:</span>
+            <span class="n">normalized_step</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">casefold</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">normalized_step</span> <span class="ow">in</span> <span class="n">POST_PROCESSING_REGISTRY</span><span class="p">:</span>
+                <span class="n">db</span> <span class="o">=</span> <span class="n">POST_PROCESSING_REGISTRY</span><span class="p">[</span><span class="n">normalized_step</span><span class="p">](</span><span class="n">db</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s2">&quot;Post-processing step &#39;</span><span class="si">%s</span><span class="s2">&#39; not found in registry. &quot;</span>
+                    <span class="s2">&quot;Skipping this step.&quot;</span><span class="p">,</span>
+                    <span class="n">step</span><span class="p">,</span>
+                <span class="p">)</span>
+        <span class="k">return</span> <span class="n">db</span>
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.pre_filter_docs_hook">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.pre_filter_docs_hook">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pre_filter_docs_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">):</span>  <span class="c1"># ruff:ignore[no-self-use]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-process documents before running them through the filter</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extraction_context : ExtractionContext</span>
+<span class="sd">            Context with downloaded documents to process.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ExtractionContext</span>
+<span class="sd">            Context with documents to be passed onto the filtering step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">extraction_context</span></div>
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.post_filter_docs_hook">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.post_filter_docs_hook">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">post_filter_docs_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">):</span>  <span class="c1"># ruff:ignore[no-self-use]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Post-process documents after running them through the filter</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extraction_context : ExtractionContext</span>
+<span class="sd">            Context with documents that passed the filtering step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ExtractionContext</span>
+<span class="sd">            Context with documents to be passed onto the parsing step.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">extraction_context</span></div>
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.extract_relevant_text">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.extract_relevant_text">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract_relevant_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">,</span> <span class="n">extractor_class</span><span class="p">,</span> <span class="n">model_config</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Condense text for extraction task</span>
+
+<span class="sd">        This method takes a text extractor and applies it to the</span>
+<span class="sd">        collected document chunks to get a concise version of the text</span>
+<span class="sd">        that can be used for structured data extraction.</span>
+
+<span class="sd">        The extracted text will be stored in the ``.attrs`` dictionary</span>
+<span class="sd">        of the input document under the ``extractor_class.OUT_LABEL``</span>
+<span class="sd">        key.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        doc : BaseDocument</span>
+<span class="sd">            Document containing text chunks to condense.</span>
+<span class="sd">        extractor_class : BaseTextExtractor</span>
+<span class="sd">            Class to use for text extraction.</span>
+<span class="sd">        model_config : LLMConfig</span>
+<span class="sd">            Configuration for the LLM model to use for text extraction.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">extractor</span> <span class="o">=</span> <span class="n">extractor_class</span><span class="p">(</span>
+            <span class="n">llm_service</span><span class="o">=</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_service</span><span class="p">,</span>
+            <span class="n">usage_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_tracker</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="k">await</span> <span class="n">extract_relevant_text_with_ngram_validation</span><span class="p">(</span>
+            <span class="n">doc</span><span class="p">,</span>
+            <span class="n">model_config</span><span class="o">.</span><span class="n">text_splitter</span><span class="p">,</span>
+            <span class="n">extractor</span><span class="p">,</span>
+            <span class="n">original_text_key</span><span class="o">=</span><span class="n">extractor_class</span><span class="o">.</span><span class="n">IN_LABEL</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">_write_cleaned_text</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.get_query_templates">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.get_query_templates">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_query_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of search engine query templates for extraction</span>
+
+<span class="sd">        Query templates can contain the placeholder ``{jurisdiction}``</span>
+<span class="sd">        which will be replaced with the full jurisdiction name during</span>
+<span class="sd">        the search engine query.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span></div>
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.get_website_keywords">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.get_website_keywords">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_website_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a dict of website search keyword scores</span>
+
+<span class="sd">        Dictionary mapping keywords to scores that indicate links which</span>
+<span class="sd">        should be prioritized when performing a website scrape for a</span>
+<span class="sd">        document.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span></div>
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.get_heuristic">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.get_heuristic">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_heuristic</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a `BaseHeuristic` instance with a `check()` method</span>
+
+<span class="sd">        The ``check()`` method should accept a string of text and return</span>
+<span class="sd">        ``True`` if the text passes the heuristic check and ``False``</span>
+<span class="sd">        otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">HEURISTIC</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="FilteredExtractionPlugin.filter_docs">
+<a class="viewcode-back" href="../../../_autosummary/compass.plugin.interface.FilteredExtractionPlugin.html#compass.plugin.interface.FilteredExtractionPlugin.filter_docs">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">filter_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">,</span> <span class="n">max_num_docs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Filter down candidate documents before parsing</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        extraction_context : ExtractionContext</span>
+<span class="sd">            Context containing candidate documents to be filtered.</span>
+<span class="sd">        max_num_docs : int, optional</span>
+<span class="sd">            Maximum number of documents to parse (regardless of the</span>
+<span class="sd">            collection method). If ``None``, all collected documents are</span>
+<span class="sd">            parsed. By default, ``None``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        iterable of BaseDocument</span>
+<span class="sd">            Filtered documents or ``None`` if no documents remain.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">extraction_context</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Passing </span><span class="si">%d</span><span class="s2"> document(s) in to `pre_filter_docs_hook` &quot;</span><span class="p">,</span>
+            <span class="n">extraction_context</span><span class="o">.</span><span class="n">num_documents</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">docs</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">pre_filter_docs_hook</span><span class="p">(</span><span class="n">extraction_context</span><span class="o">.</span><span class="n">documents</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> document(s) remaining after `pre_filter_docs_hook` for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n\t</span><span class="s2">- </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">- &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown source&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="n">heuristic</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_heuristic</span><span class="p">()</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="k">await</span> <span class="n">filter_ordinance_docs</span><span class="p">(</span>
+            <span class="n">docs</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">model_configs</span><span class="p">,</span>
+            <span class="n">heuristic</span><span class="o">=</span><span class="n">heuristic</span><span class="p">,</span>
+            <span class="n">tech</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span>
+            <span class="n">text_collectors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">TEXT_COLLECTORS</span><span class="p">,</span>
+            <span class="n">usage_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">usage_tracker</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;Passing </span><span class="si">%d</span><span class="s2"> document(s) in to `post_filter_docs_hook` &quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">post_filter_docs_hook</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">%d</span><span class="s2"> document(s) remaining after `post_filter_docs_hook` for &quot;</span>
+            <span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n\t</span><span class="s2">- </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+            <span class="s2">&quot;</span><span class="se">\n\t</span><span class="s2">- &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown source&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span><span class="p">]</span>
+            <span class="p">),</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docs</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">max_num_docs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Sub-setting to </span><span class="si">%d</span><span class="s2"> document(s) for parsing&quot;</span><span class="p">,</span> <span class="n">max_num_docs</span>
+            <span class="p">)</span>
+            <span class="n">docs</span> <span class="o">=</span> <span class="n">docs</span><span class="p">[:</span><span class="n">max_num_docs</span><span class="p">]</span>
+
+        <span class="n">extraction_context</span><span class="o">.</span><span class="n">documents</span> <span class="o">=</span> <span class="n">docs</span>
+        <span class="k">return</span> <span class="n">extraction_context</span></div>
+
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_write_cleaned_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Write cleaned text to `clean_files` dir&quot;&quot;&quot;</span>
+        <span class="n">out_fp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">CleanedFileWriter</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+            <span class="n">doc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span>
+        <span class="p">)</span>
+        <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cleaned_fps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_fp</span>
+        <span class="k">return</span> <span class="n">doc</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_plugin_configuration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;[NOT PUBLIC API] Validate plugin is properly configured&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_plugin_identifier</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_query_templates</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_website_keywords</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_text_collectors</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_register_collected_text_file_names</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_plugin_identifier</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that the plugin has a valid IDENTIFIER property&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">__</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is missing required &quot;</span>
+                <span class="s2">&quot;property &#39;IDENTIFIER&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_query_templates</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that the plugin has valid QUERY_TEMPLATES&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">num_q_templates</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">QUERY_TEMPLATES</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is missing required &quot;</span>
+                <span class="s2">&quot;property &#39;QUERY_TEMPLATES&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">num_q_templates</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has an empty &quot;</span>
+                <span class="s2">&quot;&#39;QUERY_TEMPLATES&#39; property! Please provide at least &quot;</span>
+                <span class="s2">&quot;one query template.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_website_keywords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that the plugin has valid WEBSITE_KEYWORDS&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">num_website_keywords</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is missing required &quot;</span>
+                <span class="s2">&quot;property &#39;WEBSITE_KEYWORDS&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">num_website_keywords</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has an empty &quot;</span>
+                <span class="s2">&quot;&#39;WEBSITE_KEYWORDS&#39; property! Please provide at least &quot;</span>
+                <span class="s2">&quot;one website keyword.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_validate_text_collectors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate that the plugin has valid TEXT_COLLECTORS&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">collectors</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">TEXT_COLLECTORS</span>
+        <span class="k">except</span> <span class="ne">NotImplementedError</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is missing required &quot;</span>
+                <span class="s2">&quot;property &#39;TEXT_COLLECTORS&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">collectors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has an empty &quot;</span>
+                <span class="s2">&quot;&#39;TEXT_COLLECTORS&#39; property! Please provide at least &quot;</span>
+                <span class="s2">&quot;one text collector class.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">collector_class</span> <span class="ow">in</span> <span class="n">collectors</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">collector_class</span><span class="p">,</span> <span class="n">BaseTextCollector</span><span class="p">):</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Plugin class </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> has invalid &quot;</span>
+                    <span class="s2">&quot;entry in &#39;TEXT_COLLECTORS&#39; property: All entries must &quot;</span>
+                    <span class="s2">&quot;be subclasses of &quot;</span>
+                    <span class="s2">&quot;compass.plugin.interface.BaseTextCollector, but &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">collector_class</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> is not!&quot;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="n">COMPASSPluginConfigurationError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_register_collected_text_file_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Register file names for writing cleaned text outputs&quot;&quot;&quot;</span>
+
+        <span class="n">CLEANED_FP_REGISTRY</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="o">.</span><span class="n">casefold</span><span class="p">(),</span> <span class="p">{})</span>
+        <span class="n">collected_text_key</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">TEXT_COLLECTORS</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">OUT_LABEL</span>
+
+        <span class="n">CLEANED_FP_REGISTRY</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">IDENTIFIER</span><span class="o">.</span><span class="n">casefold</span><span class="p">()][</span><span class="n">collected_text_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> Collected Text.txt&quot;</span>
+        <span class="p">)</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

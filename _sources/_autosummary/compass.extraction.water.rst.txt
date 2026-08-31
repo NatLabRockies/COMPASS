@@ -1,0 +1,32 @@
+compass.extraction.water
+========================
+
+.. automodule:: compass.extraction.water
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   graphs
+   parse
+   plugin
+

@@ -1,0 +1,6 @@
+compass.scripts.search.write\_search\_report
+============================================
+
+.. currentmodule:: compass.scripts.search
+
+.. autofunction:: write_search_report

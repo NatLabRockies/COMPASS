@@ -1,0 +1,30 @@
+compass.llm.config.LLMConfig
+============================
+
+.. currentmodule:: compass.llm.config
+
+.. autoclass:: LLMConfig
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMConfig.llm_service
+      ~LLMConfig.text_splitter
+   
+   

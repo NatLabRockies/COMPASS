@@ -1,0 +1,30 @@
+compass.validation.content.TextKindValidator
+============================================
+
+.. currentmodule:: compass.validation.content
+
+.. autoclass:: TextKindValidator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TextKindValidator.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TextKindValidator.is_correct_kind_of_text
+   
+   

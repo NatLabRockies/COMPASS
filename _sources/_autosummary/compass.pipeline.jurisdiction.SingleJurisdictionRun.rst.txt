@@ -1,0 +1,31 @@
+compass.pipeline.jurisdiction.SingleJurisdictionRun
+===================================================
+
+.. currentmodule:: compass.pipeline.jurisdiction
+
+.. autoclass:: SingleJurisdictionRun
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SingleJurisdictionRun.collect
+      ~SingleJurisdictionRun.extract_from_collection_info
+      ~SingleJurisdictionRun.load_existing_collection_shard
+      ~SingleJurisdictionRun.process
+      ~SingleJurisdictionRun.run_collection_with_logging
+      ~SingleJurisdictionRun.run_extraction_with_logging
+      ~SingleJurisdictionRun.run_process_with_logging
+      ~SingleJurisdictionRun.write_collection_shard_no_fail
+   
+   
+
+   
+   
+   

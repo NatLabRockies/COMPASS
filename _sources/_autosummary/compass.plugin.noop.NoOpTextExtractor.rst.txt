@@ -1,0 +1,34 @@
+compass.plugin.noop.NoOpTextExtractor
+=====================================
+
+.. currentmodule:: compass.plugin.noop
+
+.. autoclass:: NoOpTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NoOpTextExtractor.return_original
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NoOpTextExtractor.IN_LABEL
+      ~NoOpTextExtractor.OUT_LABEL
+      ~NoOpTextExtractor.TASK_DESCRIPTION
+      ~NoOpTextExtractor.TASK_ID
+      ~NoOpTextExtractor.parsers
+   
+   

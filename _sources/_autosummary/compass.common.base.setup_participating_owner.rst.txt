@@ -1,0 +1,6 @@
+compass.common.base.setup\_participating\_owner
+===============================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: setup_participating_owner

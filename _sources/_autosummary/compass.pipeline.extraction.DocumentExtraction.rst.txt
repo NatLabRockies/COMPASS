@@ -1,0 +1,30 @@
+compass.pipeline.extraction.DocumentExtraction
+==============================================
+
+.. currentmodule:: compass.pipeline.extraction
+
+.. autoclass:: DocumentExtraction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DocumentExtraction.extract_from_docs
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~DocumentExtraction.max_docs_to_parse
+   
+   

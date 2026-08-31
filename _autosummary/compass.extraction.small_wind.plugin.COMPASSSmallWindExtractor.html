@@ -1,0 +1,1714 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_autosummary/compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="compass.extraction.solar" href="compass.extraction.solar.html" />
+    <link rel="prev" title="compass.extraction.small_wind.plugin" href="compass.extraction.small_wind.plugin.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.common.html">compass.common</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.common.base.html">compass.common.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.empty_output.html">compass.common.base.empty_output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_does_not_start_with_no.html">compass.common.base.llm_response_does_not_start_with_no</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_starts_with_no.html">compass.common.base.llm_response_starts_with_no</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.llm_response_starts_with_yes.html">compass.common.base.llm_response_starts_with_yes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.run_async_tree.html">compass.common.base.run_async_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.run_async_tree_with_bm.html">compass.common.base.run_async_tree_with_bm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_async_decision_tree.html">compass.common.base.setup_async_decision_tree</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_base_setback_graph.html">compass.common.base.setup_base_setback_graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_extra_restriction.html">compass.common.base.setup_graph_extra_restriction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_no_nodes.html">compass.common.base.setup_graph_no_nodes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_graph_permitted_use_districts.html">compass.common.base.setup_graph_permitted_use_districts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.base.setup_participating_owner.html">compass.common.base.setup_participating_owner</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.common.tree.html">compass.common.tree</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.common.tree.AsyncDecisionTree.html">compass.common.tree.AsyncDecisionTree</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.exceptions.html">compass.exceptions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSError.html">compass.exceptions.COMPASSError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSFileNotFoundError.html">compass.exceptions.COMPASSFileNotFoundError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSNotInitializedError.html">compass.exceptions.COMPASSNotInitializedError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSPluginConfigurationError.html">compass.exceptions.COMPASSPluginConfigurationError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSRuntimeError.html">compass.exceptions.COMPASSRuntimeError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSTypeError.html">compass.exceptions.COMPASSTypeError</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.exceptions.COMPASSValueError.html">compass.exceptions.COMPASSValueError</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="compass.extraction.html">compass.extraction</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.apply.html">compass.extraction.apply</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.check_for_relevant_text.html">compass.extraction.apply.check_for_relevant_text</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_date.html">compass.extraction.apply.extract_date</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_ordinance_values.html">compass.extraction.apply.extract_ordinance_values</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_relevant_text_with_llm.html">compass.extraction.apply.extract_relevant_text_with_llm</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.apply.extract_relevant_text_with_ngram_validation.html">compass.extraction.apply.extract_relevant_text_with_ngram_validation</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.context.html">compass.extraction.context</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.context.ExtractionContext.html">compass.extraction.context.ExtractionContext</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.date.html">compass.extraction.date</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.date.DateExtractor.html">compass.extraction.date.DateExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.features.html">compass.extraction.features</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.extraction.features.SetbackFeatures.html">compass.extraction.features.SetbackFeatures</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.extraction.geothermal_electricity.html">compass.extraction.geothermal_electricity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.extraction.ghp.html">compass.extraction.ghp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.extraction.natural_gas_pipelines.html">compass.extraction.natural_gas_pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.extraction.oil_gas_wells.html">compass.extraction.oil_gas_wells</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.extraction.rmp.html">compass.extraction.rmp</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="compass.extraction.small_wind.html">compass.extraction.small_wind</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.graphs.html">compass.extraction.small_wind.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_conditional_max.html">compass.extraction.small_wind.graphs.setup_conditional_max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_conditional_min.html">compass.extraction.small_wind.graphs.setup_conditional_min</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_graph_wes_types.html">compass.extraction.small_wind.graphs.setup_graph_wes_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.graphs.setup_multiplier.html">compass.extraction.small_wind.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.ordinance.html">compass.extraction.small_wind.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindHeuristic.html">compass.extraction.small_wind.ordinance.SmallWindHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector.html">compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor.html">compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector.html">compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor.html">compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.small_wind.parse.html">compass.extraction.small_wind.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.SmallWindSetbackFeatures.html">compass.extraction.small_wind.parse.SmallWindSetbackFeatures</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser.html">compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindParser.html">compass.extraction.small_wind.parse.StructuredSmallWindParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser.html">compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="compass.extraction.small_wind.plugin.html">compass.extraction.small_wind.plugin</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.solar.html">compass.extraction.solar</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.graphs.html">compass.extraction.solar.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.graphs.setup_graph_sef_types.html">compass.extraction.solar.graphs.setup_graph_sef_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.graphs.setup_multiplier.html">compass.extraction.solar.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.ordinance.html">compass.extraction.solar.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarHeuristic.html">compass.extraction.solar.ordinance.SolarHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarOrdinanceTextCollector.html">compass.extraction.solar.ordinance.SolarOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor.html">compass.extraction.solar.ordinance.SolarOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector.html">compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor.html">compass.extraction.solar.ordinance.SolarPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.parse.html">compass.extraction.solar.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarOrdinanceParser.html">compass.extraction.solar.parse.StructuredSolarOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarParser.html">compass.extraction.solar.parse.StructuredSolarParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser.html">compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.solar.plugin.html">compass.extraction.solar.plugin</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.solar.plugin.COMPASSSolarExtractor.html">compass.extraction.solar.plugin.COMPASSSolarExtractor</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.extraction.transmission.html">compass.extraction.transmission</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.water.html">compass.extraction.water</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.water.graphs.html">compass.extraction.water.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_contingency.html">compass.extraction.water.graphs.setup_graph_contingency</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_drought.html">compass.extraction.water.graphs.setup_graph_drought</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_external_transfer.html">compass.extraction.water.graphs.setup_graph_external_transfer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_extraction.html">compass.extraction.water.graphs.setup_graph_extraction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_geothermal.html">compass.extraction.water.graphs.setup_graph_geothermal</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_limits.html">compass.extraction.water.graphs.setup_graph_limits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_metering_device.html">compass.extraction.water.graphs.setup_graph_metering_device</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_oil_and_gas.html">compass.extraction.water.graphs.setup_graph_oil_and_gas</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_permits.html">compass.extraction.water.graphs.setup_graph_permits</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_plugging_reqs.html">compass.extraction.water.graphs.setup_graph_plugging_reqs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_production_cost.html">compass.extraction.water.graphs.setup_graph_production_cost</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_production_reporting.html">compass.extraction.water.graphs.setup_graph_production_reporting</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_redrilling.html">compass.extraction.water.graphs.setup_graph_redrilling</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_setback_features.html">compass.extraction.water.graphs.setup_graph_setback_features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_time.html">compass.extraction.water.graphs.setup_graph_time</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.graphs.setup_graph_well_spacing.html">compass.extraction.water.graphs.setup_graph_well_spacing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.water.parse.html">compass.extraction.water.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.parse.StructuredWaterParser.html">compass.extraction.water.parse.StructuredWaterParser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.water.plugin.html">compass.extraction.water.plugin</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.plugin.TexasWaterRightsExtractor.html">compass.extraction.water.plugin.TexasWaterRightsExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.water.plugin.WaterRightsHeuristic.html">compass.extraction.water.plugin.WaterRightsHeuristic</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.extraction.wind.html">compass.extraction.wind</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.graphs.html">compass.extraction.wind.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_conditional_max.html">compass.extraction.wind.graphs.setup_conditional_max</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_conditional_min.html">compass.extraction.wind.graphs.setup_conditional_min</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_graph_wes_types.html">compass.extraction.wind.graphs.setup_graph_wes_types</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.graphs.setup_multiplier.html">compass.extraction.wind.graphs.setup_multiplier</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.ordinance.html">compass.extraction.wind.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindHeuristic.html">compass.extraction.wind.ordinance.WindHeuristic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindOrdinanceTextCollector.html">compass.extraction.wind.ordinance.WindOrdinanceTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindOrdinanceTextExtractor.html">compass.extraction.wind.ordinance.WindOrdinanceTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector.html">compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor.html">compass.extraction.wind.ordinance.WindPermittedUseDistrictsTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.parse.html">compass.extraction.wind.parse</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindOrdinanceParser.html">compass.extraction.wind.parse.StructuredWindOrdinanceParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindParser.html">compass.extraction.wind.parse.StructuredWindParser</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser.html">compass.extraction.wind.parse.StructuredWindPermittedUseDistrictsParser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.extraction.wind.plugin.html">compass.extraction.wind.plugin</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.extraction.wind.plugin.COMPASSWindExtractor.html">compass.extraction.wind.plugin.COMPASSWindExtractor</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.llm.html">compass.llm</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.llm.calling.html">compass.llm.calling</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.BaseLLMCaller.html">compass.llm.calling.BaseLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.ChatLLMCaller.html">compass.llm.calling.ChatLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.JSONFromTextLLMCaller.html">compass.llm.calling.JSONFromTextLLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.LLMCaller.html">compass.llm.calling.LLMCaller</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.calling.SchemaOutputLLMCaller.html">compass.llm.calling.SchemaOutputLLMCaller</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.llm.config.html">compass.llm.config</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.config.LLMConfig.html">compass.llm.config.LLMConfig</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.llm.config.OpenAIConfig.html">compass.llm.config.OpenAIConfig</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.pb.html">compass.pb</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.pb.COMPASS_PB.html">compass.pb.COMPASS_PB</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.pipeline.html">compass.pipeline</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.pipeline.collection.html">compass.pipeline.collection</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.pipeline.collection.base.html">compass.pipeline.collection.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.base.DocumentCollection.html">compass.pipeline.collection.base.DocumentCollection</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.pipeline.collection.dedupe.html">compass.pipeline.collection.dedupe</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.dedupe.DocumentDeDuplicator.html">compass.pipeline.collection.dedupe.DocumentDeDuplicator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.pipeline.collection.persistence.html">compass.pipeline.collection.persistence</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.build_collection_manifest.html">compass.pipeline.collection.persistence.build_collection_manifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.load_collected_docs.html">compass.pipeline.collection.persistence.load_collected_docs</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.load_collection_manifest_jurisdictions.html">compass.pipeline.collection.persistence.load_collection_manifest_jurisdictions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.load_specific_collection_manifest_shard.html">compass.pipeline.collection.persistence.load_specific_collection_manifest_shard</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.persist_documents.html">compass.pipeline.collection.persistence.persist_documents</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.write_collection_manifest.html">compass.pipeline.collection.persistence.write_collection_manifest</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.persistence.write_collection_manifest_shard.html">compass.pipeline.collection.persistence.write_collection_manifest_shard</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.pipeline.collection.steps.html">compass.pipeline.collection.steps</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.steps.CollectionStep.html">compass.pipeline.collection.steps.CollectionStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.steps.CompassWebsiteCrawlStep.html">compass.pipeline.collection.steps.CompassWebsiteCrawlStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.steps.ElmWebsiteCrawlStep.html">compass.pipeline.collection.steps.ElmWebsiteCrawlStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.steps.KnownLocalDocumentsStep.html">compass.pipeline.collection.steps.KnownLocalDocumentsStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.steps.KnownUrlDocumentsStep.html">compass.pipeline.collection.steps.KnownUrlDocumentsStep</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.pipeline.collection.steps.SearchEngineDocumentsStep.html">compass.pipeline.collection.steps.SearchEngineDocumentsStep</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.pipeline.coordinator.html">compass.pipeline.coordinator</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.coordinator.run_compass.html">compass.pipeline.coordinator.run_compass</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.coordinator.BaseRunMode.html">compass.pipeline.coordinator.BaseRunMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.coordinator.COMPASSCollection.html">compass.pipeline.coordinator.COMPASSCollection</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.coordinator.COMPASSExtraction.html">compass.pipeline.coordinator.COMPASSExtraction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.coordinator.COMPASSFullProcessing.html">compass.pipeline.coordinator.COMPASSFullProcessing</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.pipeline.data_classes.html">compass.pipeline.data_classes</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.BaseRequest.html">compass.pipeline.data_classes.BaseRequest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.CollectionRequest.html">compass.pipeline.data_classes.CollectionRequest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.DocParsingParams.html">compass.pipeline.data_classes.DocParsingParams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.ExtractionRequest.html">compass.pipeline.data_classes.ExtractionRequest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.JurisdictionResult.html">compass.pipeline.data_classes.JurisdictionResult</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.KnownSourcesInput.html">compass.pipeline.data_classes.KnownSourcesInput</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.OutputSettings.html">compass.pipeline.data_classes.OutputSettings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.ProcessRequest.html">compass.pipeline.data_classes.ProcessRequest</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.RuntimeSettings.html">compass.pipeline.data_classes.RuntimeSettings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.data_classes.WebSearchParams.html">compass.pipeline.data_classes.WebSearchParams</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.pipeline.extraction.html">compass.pipeline.extraction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.extraction.DocumentExtraction.html">compass.pipeline.extraction.DocumentExtraction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.pipeline.jurisdiction.html">compass.pipeline.jurisdiction</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.jurisdiction.SingleJurisdictionRun.html">compass.pipeline.jurisdiction.SingleJurisdictionRun</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.pipeline.runtime.html">compass.pipeline.runtime</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.pipeline.runtime.PipelineRuntime.html">compass.pipeline.runtime.PipelineRuntime</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.plugin.html">compass.plugin</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.base.html">compass.plugin.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.base.BaseExtractionPlugin.html">compass.plugin.base.BaseExtractionPlugin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.interface.html">compass.plugin.interface</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.interface.BaseHeuristic.html">compass.plugin.interface.BaseHeuristic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.interface.BaseTextCollector.html">compass.plugin.interface.BaseTextCollector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.interface.FilteredExtractionPlugin.html">compass.plugin.interface.FilteredExtractionPlugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.interface.OutputColumn.html">compass.plugin.interface.OutputColumn</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.noop.html">compass.plugin.noop</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.noop.NoOpHeuristic.html">compass.plugin.noop.NoOpHeuristic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.noop.NoOpTextCollector.html">compass.plugin.noop.NoOpTextCollector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.noop.NoOpTextExtractor.html">compass.plugin.noop.NoOpTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.one_shot.html">compass.plugin.one_shot</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.plugin.one_shot.base.html">compass.plugin.one_shot.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html">compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.one_shot.cache.html">compass.plugin.one_shot.cache</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.plugin.one_shot.components.html">compass.plugin.one_shot.components</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.components.SchemaBasedTextCollector.html">compass.plugin.one_shot.components.SchemaBasedTextCollector</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.components.SchemaBasedTextExtractor.html">compass.plugin.one_shot.components.SchemaBasedTextExtractor</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.components.SchemaOrdinanceParser.html">compass.plugin.one_shot.components.SchemaOrdinanceParser</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compass.plugin.one_shot.generators.html">compass.plugin.one_shot.generators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.generators.generate_heuristic_keywords.html">compass.plugin.one_shot.generators.generate_heuristic_keywords</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.generators.generate_query_templates.html">compass.plugin.one_shot.generators.generate_query_templates</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compass.plugin.one_shot.generators.generate_website_keywords.html">compass.plugin.one_shot.generators.generate_website_keywords</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.ordinance.html">compass.plugin.ordinance</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.BaseParser.html">compass.plugin.ordinance.BaseParser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.BaseTextExtractor.html">compass.plugin.ordinance.BaseTextExtractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.DocSelectionMethod.html">compass.plugin.ordinance.DocSelectionMethod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.KeywordBasedHeuristic.html">compass.plugin.ordinance.KeywordBasedHeuristic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.OrdinanceExtractionPlugin.html">compass.plugin.ordinance.OrdinanceExtractionPlugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.OrdinanceParser.html">compass.plugin.ordinance.OrdinanceParser</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.PromptBasedTextCollector.html">compass.plugin.ordinance.PromptBasedTextCollector</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.ordinance.PromptBasedTextExtractor.html">compass.plugin.ordinance.PromptBasedTextExtractor</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.post_processing.html">compass.plugin.post_processing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.post_processing.POST_PROCESSING_REGISTRY.html">compass.plugin.post_processing.POST_PROCESSING_REGISTRY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.post_processing.add_document_name.html">compass.plugin.post_processing.add_document_name</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.plugin.registry.html">compass.plugin.registry</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.registry.PLUGIN_REGISTRY.html">compass.plugin.registry.PLUGIN_REGISTRY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.registry.register_plugin.html">compass.plugin.registry.register_plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.plugin.registry.resolve_plugin.html">compass.plugin.registry.resolve_plugin</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.scripts.html">compass.scripts</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.scripts.download.html">compass.scripts.download</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinance_using_search_engine.html">compass.scripts.download.download_jurisdiction_ordinance_using_search_engine</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinances_from_website.html">compass.scripts.download.download_jurisdiction_ordinances_from_website</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl.html">compass.scripts.download.download_jurisdiction_ordinances_from_website_compass_crawl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.download_known_urls.html">compass.scripts.download.download_known_urls</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.filter_ordinance_docs.html">compass.scripts.download.filter_ordinance_docs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.find_jurisdiction_website.html">compass.scripts.download.find_jurisdiction_website</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.download.load_known_docs.html">compass.scripts.download.load_known_docs</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.scripts.search.html">compass.scripts.search</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.search.run_search.html">compass.scripts.search.run_search</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.search.summary.html">compass.scripts.search.summary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.scripts.search.write_search_report.html">compass.scripts.search.write_search_report</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.services.html">compass.services</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.base.html">compass.services.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.base.LLMService.html">compass.services.base.LLMService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.base.Service.html">compass.services.base.Service</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.cpu.html">compass.services.cpu</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_docling_local_file.html">compass.services.cpu.read_docling_local_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_docling_web_file.html">compass.services.cpu.read_docling_web_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_doc.html">compass.services.cpu.read_pdf_doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_doc_ocr.html">compass.services.cpu.read_pdf_doc_ocr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_file.html">compass.services.cpu.read_pdf_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.read_pdf_file_ocr.html">compass.services.cpu.read_pdf_file_ocr</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.FileLoader.html">compass.services.cpu.FileLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.OCRPDFLoader.html">compass.services.cpu.OCRPDFLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.cpu.ProcessPoolService.html">compass.services.cpu.ProcessPoolService</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.openai.html">compass.services.openai</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.count_tokens.html">compass.services.openai.count_tokens</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.usage_from_response.html">compass.services.openai.usage_from_response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.openai.OpenAIService.html">compass.services.openai.OpenAIService</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.provider.html">compass.services.provider</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.provider.RunningAsyncServices.html">compass.services.provider.RunningAsyncServices</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.queues.html">compass.services.queues</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.get_service_queue.html">compass.services.queues.get_service_queue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.initialize_service_queue.html">compass.services.queues.initialize_service_queue</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.queues.tear_down_service_queue.html">compass.services.queues.tear_down_service_queue</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.threaded.html">compass.services.threaded</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.read_html_file.html">compass.services.threaded.read_html_file</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.CleanedFileWriter.html">compass.services.threaded.CleanedFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.FileMover.html">compass.services.threaded.FileMover</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.GenericFuncRunner.html">compass.services.threaded.GenericFuncRunner</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.HTMLFileLoader.html">compass.services.threaded.HTMLFileLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.JurisdictionUpdater.html">compass.services.threaded.JurisdictionUpdater</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.OrdDBFileWriter.html">compass.services.threaded.OrdDBFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.ParsedFileWriter.html">compass.services.threaded.ParsedFileWriter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.StoreFileOnDisk.html">compass.services.threaded.StoreFileOnDisk</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCache.html">compass.services.threaded.TempFileCache</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCacheCopier.html">compass.services.threaded.TempFileCacheCopier</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.TempFileCachePB.html">compass.services.threaded.TempFileCachePB</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.ThreadedService.html">compass.services.threaded.ThreadedService</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.threaded.UsageUpdater.html">compass.services.threaded.UsageUpdater</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.services.usage.html">compass.services.usage</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.LLMRateTracker.html">compass.services.usage.LLMRateTracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.LLMUsageTracker.html">compass.services.usage.LLMUsageTracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.TimeBoundedUsageTracker.html">compass.services.usage.TimeBoundedUsageTracker</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.services.usage.TimedEntry.html">compass.services.usage.TimedEntry</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.utilities.html">compass.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.base.html">compass.utilities.base</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.title_preserving_caps.html">compass.utilities.base.title_preserving_caps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.base.Directories.html">compass.utilities.base.Directories</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.costs.html">compass.utilities.costs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.costs.LLM_COST_REGISTRY.html">compass.utilities.costs.LLM_COST_REGISTRY</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.costs.compute_cost_from_totals.html">compass.utilities.costs.compute_cost_from_totals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.costs.compute_total_cost_and_token_from_totals.html">compass.utilities.costs.compute_total_cost_and_token_from_totals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.costs.compute_total_cost_from_usage.html">compass.utilities.costs.compute_total_cost_from_usage</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.costs.compute_total_tokens_from_totals.html">compass.utilities.costs.compute_total_tokens_from_totals</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.costs.cost_for_model.html">compass.utilities.costs.cost_for_model</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.enums.html">compass.utilities.enums</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.COMPASSDocumentCollectionStep.html">compass.utilities.enums.COMPASSDocumentCollectionStep</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.COMPASSRunMode.html">compass.utilities.enums.COMPASSRunMode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.CaseInsensitiveEnum.html">compass.utilities.enums.CaseInsensitiveEnum</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.LLMTasks.html">compass.utilities.enums.LLMTasks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.enums.LLMUsageCategory.html">compass.utilities.enums.LLMUsageCategory</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.finalize.html">compass.utilities.finalize</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.compile_collection_summary_message.html">compass.utilities.finalize.compile_collection_summary_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.compile_run_summary_message.html">compass.utilities.finalize.compile_run_summary_message</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.doc_infos_to_db.html">compass.utilities.finalize.doc_infos_to_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.save_db.html">compass.utilities.finalize.save_db</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.finalize.save_run_meta.html">compass.utilities.finalize.save_run_meta</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.io.html">compass.utilities.io</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.ConfigType.html">compass.utilities.io.ConfigType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.load_config.html">compass.utilities.io.load_config</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.resolve_all_paths.html">compass.utilities.io.resolve_all_paths</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.resolve_path.html">compass.utilities.io.resolve_path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.ConfigType.html">compass.utilities.io.ConfigType</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.Handler.html">compass.utilities.io.Handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.JSON5Handler.html">compass.utilities.io.JSON5Handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.JSONHandler.html">compass.utilities.io.JSONHandler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.TOMLHandler.html">compass.utilities.io.TOMLHandler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.io.YAMLHandler.html">compass.utilities.io.YAMLHandler</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.jurisdictions.html">compass.utilities.jurisdictions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.jurisdiction_websites.html">compass.utilities.jurisdictions.jurisdiction_websites</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.jurisdictions_from_df.html">compass.utilities.jurisdictions.jurisdictions_from_df</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_all_jurisdiction_info.html">compass.utilities.jurisdictions.load_all_jurisdiction_info</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_jurisdictions_from_fp.html">compass.utilities.jurisdictions.load_jurisdictions_from_fp</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.load_jurisdictions_from_subdivision_names.html">compass.utilities.jurisdictions.load_jurisdictions_from_subdivision_names</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.jurisdictions.Jurisdiction.html">compass.utilities.jurisdictions.Jurisdiction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.logs.html">compass.utilities.logs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.log_versions.html">compass.utilities.logs.log_versions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.AddLocationFilter.html">compass.utilities.logs.AddLocationFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.ExceptionOnlyFilter.html">compass.utilities.logs.ExceptionOnlyFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LQ.html">compass.utilities.logs.LQ</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LocationFileLog.html">compass.utilities.logs.LocationFileLog</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LocationFilter.html">compass.utilities.logs.LocationFilter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.LogListener.html">compass.utilities.logs.LogListener</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.logs.NoLocationFilter.html">compass.utilities.logs.NoLocationFilter</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.ngrams.html">compass.utilities.ngrams</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.ngrams.convert_text_to_sentence_ngrams.html">compass.utilities.ngrams.convert_text_to_sentence_ngrams</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.ngrams.sentence_ngram_containment.html">compass.utilities.ngrams.sentence_ngram_containment</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.parsing.html">compass.utilities.parsing</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.clean_backticks_from_llm_response.html">compass.utilities.parsing.clean_backticks_from_llm_response</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.extract_year_from_doc_attrs.html">compass.utilities.parsing.extract_year_from_doc_attrs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.is_pdf_doc.html">compass.utilities.parsing.is_pdf_doc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.llm_response_as_json.html">compass.utilities.parsing.llm_response_as_json</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.merge_overlapping_texts.html">compass.utilities.parsing.merge_overlapping_texts</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.num_ordinances_dataframe.html">compass.utilities.parsing.num_ordinances_dataframe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.parsing.ordinances_bool_index.html">compass.utilities.parsing.ordinances_bool_index</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.utilities.url.html">compass.utilities.url</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.url.base_website_url.html">compass.utilities.url.base_website_url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.url.normalize_domain.html">compass.utilities.url.normalize_domain</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.url.sanitize_url.html">compass.utilities.url.sanitize_url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.utilities.url.URLPartFilter.html">compass.utilities.url.URLPartFilter</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.validation.html">compass.validation</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.content.html">compass.validation.content</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.parse_by_chunks.html">compass.validation.content.parse_by_chunks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.Heuristic.html">compass.validation.content.Heuristic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.LegalTextValidator.html">compass.validation.content.LegalTextValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.ParseChunksWithMemory.html">compass.validation.content.ParseChunksWithMemory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.content.TextKindValidator.html">compass.validation.content.TextKindValidator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.graphs.html">compass.validation.graphs</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_document_type.html">compass.validation.graphs.setup_graph_correct_document_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_jurisdiction_from_url.html">compass.validation.graphs.setup_graph_correct_jurisdiction_from_url</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.graphs.setup_graph_correct_jurisdiction_type.html">compass.validation.graphs.setup_graph_correct_jurisdiction_type</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.location.html">compass.validation.location</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.DTreeJurisdictionValidator.html">compass.validation.location.DTreeJurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.DTreeURLJurisdictionValidator.html">compass.validation.location.DTreeURLJurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.JurisdictionValidator.html">compass.validation.location.JurisdictionValidator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.location.JurisdictionWebsiteValidator.html">compass.validation.location.JurisdictionWebsiteValidator</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.validation.utilities.html">compass.validation.utilities</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.validation.utilities.step_based_threshold.html">compass.validation.utilities.step_based_threshold</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.warn.html">compass.warn</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="compass.warn.COMPASSPluginConfigurationWarning.html">compass.warn.COMPASSPluginConfigurationWarning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="compass.warn.COMPASSWarning.html">compass.warn.COMPASSWarning</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="compass.web.html">compass.web</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.web.file_loader.html">compass.web.file_loader</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.file_loader.AsyncDoclingWebFileLoader.html">compass.web.file_loader.AsyncDoclingWebFileLoader</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.file_loader.AsyncLocalDoclingFileLoader.html">compass.web.file_loader.AsyncLocalDoclingFileLoader</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.web.search.html">compass.web.search</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.search.search_single_jurisdiction.html">compass.web.search.search_single_jurisdiction</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="compass.web.website_crawl.html">compass.web.website_crawl</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.DOC_THRESHOLD.html">compass.web.website_crawl.DOC_THRESHOLD</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.COMPASSCrawler.html">compass.web.website_crawl.COMPASSCrawler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compass.web.website_crawl.COMPASSLinkScorer.html">compass.web.website_crawl.COMPASSLinkScorer</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="compass.html" class="nav-link">compass</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.extraction.html" class="nav-link">compass.extraction</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.extraction.small_wind.html" class="nav-link">compass.extraction.small_wind</a></li>
+    
+    
+    <li class="breadcrumb-item"><a href="compass.extraction.small_wind.plugin.html" class="nav-link">compass.extraction.small_wind.plugin</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="compass-extraction-small-wind-plugin-compasssmallwindextractor">
+<h1>compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor<a class="headerlink" href="#compass-extraction-small-wind-plugin-compasssmallwindextractor" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">COMPASSSmallWindExtractor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">jurisdiction</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_configs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">usage_tracker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_tracker</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/compass/extraction/small_wind/plugin.html#COMPASSSmallWindExtractor"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="compass.plugin.ordinance.OrdinanceExtractionPlugin.html#compass.plugin.ordinance.OrdinanceExtractionPlugin" title="compass.plugin.ordinance.OrdinanceExtractionPlugin"><code class="xref py py-class docutils literal notranslate"><span class="pre">OrdinanceExtractionPlugin</span></code></a></p>
+<p>COMPASS small wind extraction plugin</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>jurisdiction</strong> (<a class="reference internal" href="compass.utilities.jurisdictions.Jurisdiction.html#compass.utilities.jurisdictions.Jurisdiction" title="compass.utilities.jurisdictions.Jurisdiction"><code class="xref py py-class docutils literal notranslate"><span class="pre">Jurisdiction</span></code></a>) – Jurisdiction for which extraction is being performed.</p></li>
+<li><p><strong>model_configs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – Dictionary where keys are
+<a class="reference internal" href="compass.utilities.enums.LLMTasks.html#compass.utilities.enums.LLMTasks" title="compass.utilities.enums.LLMTasks"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMTasks</span></code></a> and values are
+<a class="reference internal" href="compass.llm.config.LLMConfig.html#compass.llm.config.LLMConfig" title="compass.llm.config.LLMConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMConfig</span></code></a> instances to be used
+for those tasks.</p></li>
+<li><p><strong>usage_tracker</strong> (<a class="reference internal" href="compass.services.usage.LLMUsageTracker.html#compass.services.usage.LLMUsageTracker" title="compass.services.usage.LLMUsageTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMUsageTracker</span></code></a>, <em>optional</em>) – Usage tracker instance that can be used to record the LLM
+call cost. By default, <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>rate_tracker</strong> (<a class="reference internal" href="compass.services.usage.LLMRateTracker.html#compass.services.usage.LLMRateTracker" title="compass.services.usage.LLMRateTracker"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMRateTracker</span></code></a>, <em>optional</em>) – Run-level LLM rate tracker used to persist LLM request and
+token rate statistics. By default, <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_ordinances_from_text" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_ordinances_from_text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_ordinances_from_text</span></code></a>(doc, ...)</p></td>
+<td><p>Extract structured data from input text</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_relevant_text" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_relevant_text"><code class="xref py py-obj docutils literal notranslate"><span class="pre">extract_relevant_text</span></code></a>(doc, extractor_class, ...)</p></td>
+<td><p>Condense text for extraction task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.filter_docs" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.filter_docs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter_docs</span></code></a>(extraction_context[, max_num_docs])</p></td>
+<td><p>Filter down candidate documents before parsing</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_heuristic" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_heuristic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_heuristic</span></code></a>()</p></td>
+<td><p>Get a <cite>BaseHeuristic</cite> instance with a <cite>check()</cite> method</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_query_templates" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_query_templates"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_query_templates</span></code></a>()</p></td>
+<td><p>Get a list of search engine query templates for extraction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_structured_data_row_count" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_structured_data_row_count"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_structured_data_row_count</span></code></a>(data_df)</p></td>
+<td><p>Get the number of data rows extracted from a document</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_website_keywords" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_website_keywords"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_website_keywords</span></code></a>()</p></td>
+<td><p>Get a dict of website search keyword scores</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_docs_for_structured_data" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_docs_for_structured_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_docs_for_structured_data</span></code></a>(...)</p></td>
+<td><p>Parse documents to extract structured data/information</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_for_structured_data" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_for_structured_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_for_structured_data</span></code></a>(source)</p></td>
+<td><p>Extract all possible structured data from a document</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_concat" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_concat"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_multi_doc_concat</span></code></a>(extraction_context)</p></td>
+<td><p>Parse all documents and concatenate extracted data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_multi_doc_context_for_structured_data</span></code></a>(...)</p></td>
+<td><p>Parse all documents to extract structured data/information</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_merge" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_merge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_multi_doc_merge</span></code></a>(extraction_context)</p></td>
+<td><p>Parse all documents and merge the extracted data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_single_doc_for_structured_data" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_single_doc_for_structured_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parse_single_doc_for_structured_data</span></code></a>(...)</p></td>
+<td><p>Parse documents one at a time to extract structured data</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.post_filter_docs_hook" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.post_filter_docs_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">post_filter_docs_hook</span></code></a>(extraction_context)</p></td>
+<td><p>Post-process documents after running them through the filter</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.pre_filter_docs_hook" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.pre_filter_docs_hook"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pre_filter_docs_hook</span></code></a>(extraction_context)</p></td>
+<td><p>Pre-process documents before running them through the filter</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.record_usage" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.record_usage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">record_usage</span></code></a>()</p></td>
+<td><p>Persist usage tracking data when a tracker is available</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.save_structured_data" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.save_structured_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_structured_data</span></code></a>(doc_infos, out_dir)</p></td>
+<td><p>Write extracted water rights data to disk</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="rubric">Attributes</p>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.DOC_SELECTION_METHOD" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.DOC_SELECTION_METHOD"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DOC_SELECTION_METHOD</span></code></a></p></td>
+<td><p>Only allow one document to be output</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.IDENTIFIER" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.IDENTIFIER"><code class="xref py py-obj docutils literal notranslate"><span class="pre">IDENTIFIER</span></code></a></p></td>
+<td><p>Identifier for extraction task</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.JURISDICTION_DATA_FP" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.JURISDICTION_DATA_FP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">JURISDICTION_DATA_FP</span></code></a></p></td>
+<td><p>Path to jurisdiction CSV</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.OUTPUT_COLUMNS" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.OUTPUT_COLUMNS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OUTPUT_COLUMNS</span></code></a></p></td>
+<td><p>List of output columns for the extracted data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.PARSERS" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.PARSERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PARSERS</span></code></a></p></td>
+<td><p>Class for parsing structured ordinance data from text</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.POST_PROCESSING_STEPS" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.POST_PROCESSING_STEPS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">POST_PROCESSING_STEPS</span></code></a></p></td>
+<td><p>List of post-processing steps to apply to the extracted data</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.QUERY_TEMPLATES" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.QUERY_TEMPLATES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QUERY_TEMPLATES</span></code></a></p></td>
+<td><p>List of search engine query templates for extraction</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_COLLECTORS" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_COLLECTORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TEXT_COLLECTORS</span></code></a></p></td>
+<td><p>Classes for collecting wind ordinance text chunks from docs</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_EXTRACTORS" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_EXTRACTORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TEXT_EXTRACTORS</span></code></a></p></td>
+<td><p>Class for extracting cleaned ord text from collected text</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.WEBSITE_KEYWORDS" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.WEBSITE_KEYWORDS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WEBSITE_KEYWORDS</span></code></a></p></td>
+<td><p>List of keywords</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.consumer_producer_pairs" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.consumer_producer_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">consumer_producer_pairs</span></code></a></p></td>
+<td><p>Pairs of (consumer, producer) for IN/OUT validation</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.producers" title="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.producers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">producers</span></code></a></p></td>
+<td><p>All classes that produce attributes on the doc</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.IDENTIFIER">
+<span class="sig-name descname"><span class="pre">IDENTIFIER</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'small</span> <span class="pre">wind'</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.IDENTIFIER" title="Link to this definition">#</a></dt>
+<dd><p>Identifier for extraction task</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.QUERY_TEMPLATES">
+<span class="sig-name descname"><span class="pre">QUERY_TEMPLATES</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['filetype:pdf</span> <span class="pre">{jurisdiction}</span> <span class="pre">wind</span> <span class="pre">energy</span> <span class="pre">conversion</span> <span class="pre">system</span> <span class="pre">ordinances',</span> <span class="pre">'wind</span> <span class="pre">energy</span> <span class="pre">conversion</span> <span class="pre">system</span> <span class="pre">ordinances</span> <span class="pre">{jurisdiction}',</span> <span class="pre">'{jurisdiction}</span> <span class="pre">wind</span> <span class="pre">WECS</span> <span class="pre">ordinance',</span> <span class="pre">'Where</span> <span class="pre">can</span> <span class="pre">I</span> <span class="pre">find</span> <span class="pre">the</span> <span class="pre">legal</span> <span class="pre">text</span> <span class="pre">for</span> <span class="pre">small</span> <span class="pre">wind</span> <span class="pre">energy</span> <span class="pre">turbine</span> <span class="pre">zoning</span> <span class="pre">ordinances</span> <span class="pre">in</span> <span class="pre">{jurisdiction}?',</span> <span class="pre">'What</span> <span class="pre">is</span> <span class="pre">the</span> <span class="pre">specific</span> <span class="pre">legal</span> <span class="pre">information</span> <span class="pre">regarding</span> <span class="pre">zoning</span> <span class="pre">ordinances</span> <span class="pre">for</span> <span class="pre">small</span> <span class="pre">wind</span> <span class="pre">turbines</span> <span class="pre">in</span> <span class="pre">{jurisdiction}?']</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.QUERY_TEMPLATES" title="Link to this definition">#</a></dt>
+<dd><p>List of search engine query templates for extraction</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.WEBSITE_KEYWORDS">
+<span class="sig-name descname"><span class="pre">WEBSITE_KEYWORDS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'area':</span> <span class="pre">60,</span> <span class="pre">'code':</span> <span class="pre">60,</span> <span class="pre">'department':</span> <span class="pre">1,</span> <span class="pre">'energy':</span> <span class="pre">3,</span> <span class="pre">'environment':</span> <span class="pre">3,</span> <span class="pre">'government':</span> <span class="pre">180,</span> <span class="pre">'land':</span> <span class="pre">3,</span> <span class="pre">'land</span> <span class="pre">development':</span> <span class="pre">15,</span> <span class="pre">'land%20development':</span> <span class="pre">15,</span> <span class="pre">'land+development':</span> <span class="pre">15,</span> <span class="pre">'municipal':</span> <span class="pre">1,</span> <span class="pre">'ordinance':</span> <span class="pre">5760,</span> <span class="pre">'pdf':</span> <span class="pre">92160,</span> <span class="pre">'plan':</span> <span class="pre">360,</span> <span class="pre">'planning':</span> <span class="pre">720,</span> <span class="pre">'renewable':</span> <span class="pre">3,</span> <span class="pre">'renewable</span> <span class="pre">energy':</span> <span class="pre">1440,</span> <span class="pre">'renewable%20energy':</span> <span class="pre">1440,</span> <span class="pre">'renewable+energy':</span> <span class="pre">1440,</span> <span class="pre">'wecs':</span> <span class="pre">46080,</span> <span class="pre">'wind':</span> <span class="pre">23040,</span> <span class="pre">'zoning':</span> <span class="pre">11520}</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.WEBSITE_KEYWORDS" title="Link to this definition">#</a></dt>
+<dd><p>List of keywords</p>
+<p>Keywords indicate links which should be prioritized when performing
+a website scrape for a wind ordinance document.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.HEURISTIC">
+<span class="sig-name descname"><span class="pre">HEURISTIC</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.HEURISTIC" title="Link to this definition">#</a></dt>
+<dd><p>BaseHeuristic: Class with a <code class="docutils literal notranslate"><span class="pre">check()</span></code> method</p>
+<p>alias of <a class="reference internal" href="compass.extraction.small_wind.ordinance.SmallWindHeuristic.html#compass.extraction.small_wind.ordinance.SmallWindHeuristic" title="compass.extraction.small_wind.ordinance.SmallWindHeuristic"><code class="xref py py-class docutils literal notranslate"><span class="pre">SmallWindHeuristic</span></code></a></p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.DOC_SELECTION_METHOD">
+<span class="sig-name descname"><span class="pre">DOC_SELECTION_METHOD</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'single_doc'</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.DOC_SELECTION_METHOD" title="Link to this definition">#</a></dt>
+<dd><p>Only allow one document to be output</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.14)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.JURISDICTION_DATA_FP">
+<span class="sig-name descname"><span class="pre">JURISDICTION_DATA_FP</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.JURISDICTION_DATA_FP" title="Link to this definition">#</a></dt>
+<dd><p>Path to jurisdiction CSV</p>
+<p>If provided, this CSV will extend the known jurisdictions (by
+default, US states, counties, and townships). This CSV must have the
+following columns:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>State: The state in which the jurisdiction is located
+(e.g. “Texas”)</p></li>
+<li><p>County: The county in which the jurisdiction is located
+(e.g. “Travis”). This can be left blank if the jurisdiction is
+not associated with a county.</p></li>
+<li><p>Subdivision: The name of the subdivision of the county in
+which the jurisdiction is located. Use this input for
+jurisdictions that do not map to counties/townships (e.g.
+water conservation districts, resource management plan areas,
+etc.). This can be left blank if the jurisdiction does not
+have the notion of a “subdivision”.</p></li>
+<li><p>Jurisdiction Type: The type of jurisdiction (e.g. “county”,
+“township”, “city”, “special district”, “RMP”, etc.).</p></li>
+<li><p>FIPS: The code to be used for the jurisdiction, if applicable
+(e.g. “48453” for Travis County, Texas, “22” for the
+Culberson County Groundwater Conservation District, etc.).
+This can be left blank if the jurisdiction does not have an
+applicable code.</p></li>
+<li><p>Website: The official website for the jurisdiction, if
+applicable (e.g. “<a class="reference external" href="https://www.traviscountytx.gov/">https://www.traviscountytx.gov/</a>”). This can
+be left blank if the jurisdiction does not have an official
+website or if the website is not known.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/glossary.html#term-path-like-object" title="(in Python v3.14)"><span class="xref std std-term">path-like</span></a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.POST_PROCESSING_STEPS">
+<span class="sig-name descname"><span class="pre">POST_PROCESSING_STEPS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.POST_PROCESSING_STEPS" title="Link to this definition">#</a></dt>
+<dd><p>List of post-processing steps to apply to the extracted data</p>
+<p>Each entry should correspond to a key in the
+<cite>POST_PROCESSING_REGISTRY</cite>. If <cite>None</cite>, no post-processing steps will
+be applied. By default, <cite>None</cite>.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.consumer_producer_pairs">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">consumer_producer_pairs</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.consumer_producer_pairs" title="Link to this definition">#</a></dt>
+<dd><p>Pairs of (consumer, producer) for IN/OUT validation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_ordinances_from_text">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">extract_ordinances_from_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parser_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_ordinances_from_text" title="Link to this definition">#</a></dt>
+<dd><p>Extract structured data from input text</p>
+<p>The extracted structured data will be stored in the <code class="docutils literal notranslate"><span class="pre">.attrs</span></code>
+dictionary of the input document under the
+<code class="docutils literal notranslate"><span class="pre">parser_class.OUT_LABEL</span></code> key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<a class="reference external" href="https://natlabrockies.github.io/elm/_autosummary/elm.web.document.BaseDocument.html#elm.web.document.BaseDocument" title="(in elm v0.0.50)"><code class="xref py py-class docutils literal notranslate"><span class="pre">elm.web.document.BaseDocument</span></code></a>) – Document containing text to extract structured data from.</p></li>
+<li><p><strong>parser_class</strong> (<a class="reference internal" href="compass.plugin.ordinance.BaseParser.html#compass.plugin.ordinance.BaseParser" title="compass.plugin.ordinance.BaseParser"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseParser</span></code></a>) – Class to use for structured data extraction.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="compass.llm.config.LLMConfig.html#compass.llm.config.LLMConfig" title="compass.llm.config.LLMConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMConfig</span></code></a>) – Configuration for the LLM model to use for structured data
+extraction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_relevant_text">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">extract_relevant_text</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extractor_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">model_config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_relevant_text" title="Link to this definition">#</a></dt>
+<dd><p>Condense text for extraction task</p>
+<p>This method takes a text extractor and applies it to the
+collected document chunks to get a concise version of the text
+that can be used for structured data extraction.</p>
+<p>The extracted text will be stored in the <code class="docutils literal notranslate"><span class="pre">.attrs</span></code> dictionary
+of the input document under the <code class="docutils literal notranslate"><span class="pre">extractor_class.OUT_LABEL</span></code>
+key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc</strong> (<a class="reference external" href="https://natlabrockies.github.io/elm/_autosummary/elm.web.document.BaseDocument.html#elm.web.document.BaseDocument" title="(in elm v0.0.50)"><code class="xref py py-class docutils literal notranslate"><span class="pre">elm.web.document.BaseDocument</span></code></a>) – Document containing text chunks to condense.</p></li>
+<li><p><strong>extractor_class</strong> (<a class="reference internal" href="compass.plugin.ordinance.BaseTextExtractor.html#compass.plugin.ordinance.BaseTextExtractor" title="compass.plugin.ordinance.BaseTextExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseTextExtractor</span></code></a>) – Class to use for text extraction.</p></li>
+<li><p><strong>model_config</strong> (<a class="reference internal" href="compass.llm.config.LLMConfig.html#compass.llm.config.LLMConfig" title="compass.llm.config.LLMConfig"><code class="xref py py-class docutils literal notranslate"><span class="pre">LLMConfig</span></code></a>) – Configuration for the LLM model to use for text extraction.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.filter_docs">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">filter_docs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_num_docs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.filter_docs" title="Link to this definition">#</a></dt>
+<dd><p>Filter down candidate documents before parsing</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context containing candidate documents to be filtered.</p></li>
+<li><p><strong>max_num_docs</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a>, <em>optional</em>) – Maximum number of documents to parse (regardless of the
+collection method). If <code class="docutils literal notranslate"><span class="pre">None</span></code>, all collected documents are
+parsed. By default, <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.Iterable" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code></a> of <a class="reference external" href="https://natlabrockies.github.io/elm/_autosummary/elm.web.document.BaseDocument.html#elm.web.document.BaseDocument" title="(in elm v0.0.50)"><code class="xref py py-class docutils literal notranslate"><span class="pre">elm.web.document.BaseDocument</span></code></a> – Filtered documents or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no documents remain.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_heuristic">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_heuristic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_heuristic" title="Link to this definition">#</a></dt>
+<dd><p>Get a <cite>BaseHeuristic</cite> instance with a <cite>check()</cite> method</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">check()</span></code> method should accept a string of text and return
+<code class="docutils literal notranslate"><span class="pre">True</span></code> if the text passes the heuristic check and <code class="docutils literal notranslate"><span class="pre">False</span></code>
+otherwise.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_query_templates">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_query_templates</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_query_templates" title="Link to this definition">#</a></dt>
+<dd><p>Get a list of search engine query templates for extraction</p>
+<p>Query templates can contain the placeholder <code class="docutils literal notranslate"><span class="pre">{jurisdiction}</span></code>
+which will be replaced with the full jurisdiction name during
+the search engine query.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_structured_data_row_count">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_structured_data_row_count</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_df</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_structured_data_row_count" title="Link to this definition">#</a></dt>
+<dd><p>Get the number of data rows extracted from a document</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>data_df</strong> (<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a>) – DataFrame to check for extracted structured data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> – Number of data rows extracted from the document.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_website_keywords">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">get_website_keywords</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_website_keywords" title="Link to this definition">#</a></dt>
+<dd><p>Get a dict of website search keyword scores</p>
+<p>Dictionary mapping keywords to scores that indicate links which
+should be prioritized when performing a website scrape for a
+document.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_docs_for_structured_data">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_docs_for_structured_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_docs_for_structured_data" title="Link to this definition">#</a></dt>
+<dd><p>Parse documents to extract structured data/information</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context containing candidate documents to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> – Context with extracted data/information stored in the
+<code class="docutils literal notranslate"><span class="pre">.attrs</span></code> dictionary, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no data was extracted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_for_structured_data">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_for_structured_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_for_structured_data" title="Link to this definition">#</a></dt>
+<dd><p>Extract all possible structured data from a document</p>
+<p>This method is called from the default implementation of
+<cite>parse_single_doc_for_structured_data()</cite> for each document that
+passed filtering. If you overwrite
+<code class="docutils literal notranslate"><span class="pre">parse_single_doc_for_structured_data()</span></code>, you can ignore this
+method.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<a class="reference external" href="https://natlabrockies.github.io/elm/_autosummary/elm.web.document.BaseDocument.html#elm.web.document.BaseDocument" title="(in elm v0.0.50)"><code class="xref py py-class docutils literal notranslate"><span class="pre">elm.web.document.BaseDocument</span></code></a> or <a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Source to extract structured data from. Must have an
+<cite>.attrs</cite> attribute that contains text from which data should
+be extracted.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v3.0.5)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> – DataFrame containing extracted structured data, or None if
+no structured data were extracted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_concat">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_multi_doc_concat</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_concat" title="Link to this definition">#</a></dt>
+<dd><p>Parse all documents and concatenate extracted data</p>
+<p>This mode keeps all extracted ordinance rows from every
+candidate document that produced structured data. Unlike the
+merge mode, it does not try to choose a single best row for a
+feature or resolve conflicts between sources. If the same
+feature is extracted from multiple ordinances, each version is
+preserved in the output with its own source and year so users
+can compare the results directly.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context containing candidate documents to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> – Context with extracted data/information stored in the
+<code class="docutils literal notranslate"><span class="pre">.attrs</span></code> dictionary, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no data was extracted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_multi_doc_context_for_structured_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data" title="Link to this definition">#</a></dt>
+<dd><p>Parse all documents to extract structured data/information</p>
+<p>This mode combines the relevant text from all candidate
+documents into one shared extraction context before structured
+data are parsed. It is useful when the information needed for a
+single ordinance feature may be split across multiple sources
+and should be interpreted together rather than compared as
+separate document-level outputs. When source references can be
+recovered from the extracted rows, each row is mapped back to
+its originating document; otherwise the result falls back to
+reporting the full document set as the source context.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context containing candidate documents to parse. The text
+from all documents will be concatenated to create the
+context for the extraction.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> – Context with extracted data/information stored in the
+<code class="docutils literal notranslate"><span class="pre">.attrs</span></code> dictionary, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no data was extracted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_merge">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_multi_doc_merge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_merge" title="Link to this definition">#</a></dt>
+<dd><p>Parse all documents and merge the extracted data</p>
+<p>This mode keeps at most one row per extracted feature across
+all candidate documents. When every document with extracted
+data has a known ordinance year, newer ordinances take
+precedence and older ordinances are only used to fill in
+features that are missing from the newer sources. If any
+candidate document has an unknown year, documents are instead
+prioritized by how many ordinance features they contain.</p>
+<p>Documents with extracted prohibitions are treated specially.
+If any candidate document contains a prohibition, only
+prohibition-bearing documents are considered for the final
+merged output. The returned rows keep the source and year of
+the document they came from so downstream consumers can still
+trace each retained feature back to its originating ordinance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context containing candidate documents to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> – Context with extracted data/information stored in the
+<code class="docutils literal notranslate"><span class="pre">.attrs</span></code> dictionary, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no data was extracted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_single_doc_for_structured_data">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">parse_single_doc_for_structured_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_single_doc_for_structured_data" title="Link to this definition">#</a></dt>
+<dd><p>Parse documents one at a time to extract structured data</p>
+<p>This mode evaluates candidate documents in sequence and stops
+at the first document that produces ordinance data. Once a
+usable source is found, later candidate documents are not used
+to supplement, compare, or override that result. This is the
+simplest selection strategy and is best suited to workflows
+where one document is expected to contain the authoritative
+ordinance language on its own.</p>
+<p>Documents are expected to come sorted by priority, with the most
+likely source of ordinance language appearing first in the
+<cite>extraction_context</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context containing candidate documents to parse.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> or <a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.14)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a> – Context with extracted data/information stored in the
+<code class="docutils literal notranslate"><span class="pre">.attrs</span></code> dictionary, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no data was extracted.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.post_filter_docs_hook">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">post_filter_docs_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.post_filter_docs_hook" title="Link to this definition">#</a></dt>
+<dd><p>Post-process documents after running them through the filter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context with documents that passed the filtering step.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> – Context with documents to be passed onto the parsing step.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.pre_filter_docs_hook">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">pre_filter_docs_hook</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extraction_context</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.pre_filter_docs_hook" title="Link to this definition">#</a></dt>
+<dd><p>Pre-process documents before running them through the filter</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>extraction_context</strong> (<a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a>) – Context with downloaded documents to process.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="compass.extraction.context.ExtractionContext.html#compass.extraction.context.ExtractionContext" title="compass.extraction.context.ExtractionContext"><code class="xref py py-class docutils literal notranslate"><span class="pre">ExtractionContext</span></code></a> – Context with documents to be passed onto the filtering step.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.producers">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">producers</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.producers" title="Link to this definition">#</a></dt>
+<dd><p>All classes that produce attributes on the doc</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.record_usage">
+<span class="property"><span class="k"><span class="pre">async</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">record_usage</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.record_usage" title="Link to this definition">#</a></dt>
+<dd><p>Persist usage tracking data when a tracker is available</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.save_structured_data">
+<span class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">save_structured_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doc_infos</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out_dir</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.save_structured_data" title="Link to this definition">#</a></dt>
+<dd><p>Write extracted water rights data to disk</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doc_infos</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code></a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></a>) – <p>List of dictionaries containing the following keys:</p>
+<blockquote>
+<div><ul>
+<li><p>”jurisdiction”: An initialized Jurisdiction object
+representing the jurisdiction that was extracted.</p></li>
+<li><p>”ord_db_fp”: A path to the extracted structured data
+stored on disk, or <code class="docutils literal notranslate"><span class="pre">None</span></code> if no data was extracted.</p></li>
+</ul>
+</div></blockquote>
+</p></li>
+<li><p><strong>out_dir</strong> (<a class="reference external" href="https://docs.python.org/3/glossary.html#term-path-like-object" title="(in Python v3.14)"><span class="xref std std-term">path-like</span></a>) – Path to the output directory for the data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.14)"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></a> – Number of unique jurisdictions that information was
+found/written for.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_COLLECTORS">
+<span class="sig-name descname"><span class="pre">TEXT_COLLECTORS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextCollector'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextCollector'&gt;]</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_COLLECTORS" title="Link to this definition">#</a></dt>
+<dd><p>Classes for collecting wind ordinance text chunks from docs</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_EXTRACTORS">
+<span class="sig-name descname"><span class="pre">TEXT_EXTRACTORS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'compass.extraction.small_wind.ordinance.SmallWindOrdinanceTextExtractor'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'compass.extraction.small_wind.ordinance.SmallWindPermittedUseDistrictsTextExtractor'&gt;]</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_EXTRACTORS" title="Link to this definition">#</a></dt>
+<dd><p>Class for extracting cleaned ord text from collected text</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.PARSERS">
+<span class="sig-name descname"><span class="pre">PARSERS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[&lt;class</span> <span class="pre">'compass.extraction.small_wind.parse.StructuredSmallWindOrdinanceParser'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'compass.extraction.small_wind.parse.StructuredSmallWindPermittedUseDistrictsParser'&gt;]</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.PARSERS" title="Link to this definition">#</a></dt>
+<dd><p>Class for parsing structured ordinance data from text</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.OUTPUT_COLUMNS">
+<span class="sig-name descname"><span class="pre">OUTPUT_COLUMNS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">[OutputColumn(name='county',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='state',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='subdivision',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='jurisdiction_type',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='FIPS',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='feature',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='value',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='units',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=False),</span> <span class="pre">OutputColumn(name='adder',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=False),</span> <span class="pre">OutputColumn(name='min_dist',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=False),</span> <span class="pre">OutputColumn(name='max_dist',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=False),</span> <span class="pre">OutputColumn(name='summary',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='year',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='section',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='source',</span> <span class="pre">include_in_quant_output=True,</span> <span class="pre">include_in_qual_output=True),</span> <span class="pre">OutputColumn(name='quantitative',</span> <span class="pre">include_in_quant_output=False,</span> <span class="pre">include_in_qual_output=False)]</span></span><a class="headerlink" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.OUTPUT_COLUMNS" title="Link to this definition">#</a></dt>
+<dd><p>List of output columns for the extracted data</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.14)">list</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="compass.extraction.small_wind.plugin.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">compass.extraction.small_wind.plugin</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="compass.extraction.solar.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">compass.extraction.solar</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.IDENTIFIER"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.IDENTIFIER</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.QUERY_TEMPLATES"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.QUERY_TEMPLATES</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.WEBSITE_KEYWORDS"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.WEBSITE_KEYWORDS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.HEURISTIC"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.HEURISTIC</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.DOC_SELECTION_METHOD"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.DOC_SELECTION_METHOD</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.JURISDICTION_DATA_FP"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.JURISDICTION_DATA_FP</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.POST_PROCESSING_STEPS"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.POST_PROCESSING_STEPS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.consumer_producer_pairs"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.consumer_producer_pairs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_ordinances_from_text"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.extract_ordinances_from_text()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.extract_relevant_text"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.extract_relevant_text()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.filter_docs"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.filter_docs()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_heuristic"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.get_heuristic()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_query_templates"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.get_query_templates()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_structured_data_row_count"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.get_structured_data_row_count()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.get_website_keywords"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.get_website_keywords()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_docs_for_structured_data"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.parse_docs_for_structured_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_for_structured_data"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.parse_for_structured_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_concat"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.parse_multi_doc_concat()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_multi_doc_merge"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.parse_multi_doc_merge()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.parse_single_doc_for_structured_data"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.parse_single_doc_for_structured_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.post_filter_docs_hook"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.post_filter_docs_hook()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.pre_filter_docs_hook"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.pre_filter_docs_hook()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.producers"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.producers</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.record_usage"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.record_usage()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.save_structured_data"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.save_structured_data()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_COLLECTORS"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.TEXT_COLLECTORS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.TEXT_EXTRACTORS"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.TEXT_EXTRACTORS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.PARSERS"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.PARSERS</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#compass.extraction.small_wind.plugin.COMPASSSmallWindExtractor.OUTPUT_COLUMNS"><code class="docutils literal notranslate"><span class="pre">COMPASSSmallWindExtractor.OUTPUT_COLUMNS</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

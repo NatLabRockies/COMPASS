@@ -1,0 +1,853 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Ordinance Plugin Development Tutorial &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dev/plugin_development';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Advanced Plugin Development" href="advanced_plugin_development.html" />
+    <link rel="prev" title="Contributing to COMPASS" href="README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Contributing to COMPASS</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Ordinance Plugin Development Tutorial</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced_plugin_development.html">Advanced Plugin Development</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Contributing to COMPASS</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Ordinance Plugin Development Tutorial</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="ordinance-plugin-development-tutorial">
+<span id="plugin-development-tutorial"></span><h1>Ordinance Plugin Development Tutorial<a class="headerlink" href="#ordinance-plugin-development-tutorial" title="Link to this heading">#</a></h1>
+<p>This tutorial walks you through building a battery storage extraction
+plugin. The goal is not just to show what to type, but to explain how and
+why each piece of a COMPASS plugin works. By the end, you will have a
+complete, registered plugin and a mental model of the data flow that makes
+extraction reliable.</p>
+<section id="what-you-will-build">
+<h2>What you will build<a class="headerlink" href="#what-you-will-build" title="Link to this heading">#</a></h2>
+<p>A complete <code class="docutils literal notranslate"><span class="pre">battery_storage</span></code> plugin that can be discovered by the CLI,
+can filter documents quickly, and can turn ordinance text into structured
+outputs. Along the way you will see how COMPASS uses a label chain to pass
+data from one stage to the next.</p>
+<p>You will build:</p>
+<ul class="simple">
+<li><p>A keyword heuristic for fast filtering</p></li>
+<li><p>An LLM text collector and extractor</p></li>
+<li><p>Decision-tree parsers for structured outputs</p></li>
+<li><p>A registered plugin that runs with <code class="docutils literal notranslate"><span class="pre">compass</span> <span class="pre">process</span></code></p></li>
+</ul>
+</section>
+<section id="choose-the-base-class">
+<h2>Choose the base class<a class="headerlink" href="#choose-the-base-class" title="Link to this heading">#</a></h2>
+<p>Start by choosing the base class that matches how much control you need.
+For ordinance technologies that look like solar or wind, start with
+<code class="docutils literal notranslate"><span class="pre">OrdinanceExtractionPlugin</span></code>. It wires together filtering, collection,
+extraction, and CSV output so you can focus on domain logic.</p>
+<p>Reach for <code class="docutils literal notranslate"><span class="pre">FilteredExtractionPlugin</span></code> when filtering can remain standard,
+but you need custom parsing logic. Choose <code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code> only when
+you want to control the whole workflow yourself, including filtering and
+output handling. Think of this choice as your contract with the framework:
+the more you want to customize, the more responsibilities you accept.</p>
+</section>
+<section id="project-skeleton">
+<h2>Project skeleton<a class="headerlink" href="#project-skeleton" title="Link to this heading">#</a></h2>
+<p>Create a new extraction package. This keeps the pieces close to each other
+so you can reason about the full pipeline as you build it.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>compass/extraction/battery_storage/
+    __init__.py
+    plugin.py
+    ordinance.py
+    parse.py
+    graphs.py
+</pre></div>
+</div>
+</section>
+<section id="how-the-pieces-fit">
+<h2>How the pieces fit<a class="headerlink" href="#how-the-pieces-fit" title="Link to this heading">#</a></h2>
+<p>The pipeline is a conversation between components. Each one writes its
+results to a label, and the next component reads from that label. If the
+labels are misaligned, the data disappears and the parser will never see
+the text you extracted.</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Document.text -&gt; collector.OUT_LABEL -&gt; extractor.OUT_LABEL -&gt; parser.IN_LABEL
+</pre></div>
+</div>
+<p>This label chain is the most important mental model to keep while you are
+building and debugging. You will revisit it in the troubleshooting guide.</p>
+</section>
+<section id="step-1-heuristic">
+<h2>Step 1: Heuristic<a class="headerlink" href="#step-1-heuristic" title="Link to this heading">#</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">ordinance.py</span></code>, define a keyword heuristic to quickly screen out
+non-relevant documents before LLM calls. Think of this as the bouncer at
+the door: it keeps obvious non-target content out so you spend model budget
+only where it matters.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">KeywordBasedHeuristic</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BatteryStorageHeuristic</span><span class="p">(</span><span class="n">KeywordBasedHeuristic</span><span class="p">):</span>
+
+    <span class="n">NOT_TECH_WORDS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;car battery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vehicle battery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;phone battery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;laptop battery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;battery lawsuit&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">GOOD_TECH_KEYWORDS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;bess&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;battery&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;lithium&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;capacity&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">GOOD_TECH_ACRONYMS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;BESS&quot;</span><span class="p">,</span> <span class="s2">&quot;ESS&quot;</span><span class="p">]</span>
+
+    <span class="n">GOOD_TECH_PHRASES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;battery energy storage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;battery storage system&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;energy storage system&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-2-text-collector">
+<h2>Step 2: Text collector<a class="headerlink" href="#step-2-text-collector" title="Link to this heading">#</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">ordinance.py</span></code>, define a collector that keeps only chunks that
+describe actual regulations. The collector answers a simple question:
+should this chunk move forward in the pipeline, or be discarded? You want
+to be conservative here, keeping the chunks that contain real regulatory
+requirements.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptBasedTextCollector</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BatteryStorageTextCollector</span><span class="p">(</span><span class="n">PromptBasedTextCollector</span><span class="p">):</span>
+
+    <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="s2">&quot;text&quot;</span>
+    <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="s2">&quot;battery_storage_relevant_text&quot;</span>
+
+    <span class="n">PROMPTS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Does this text discuss regulations or zoning rules for &quot;</span>
+                <span class="s2">&quot;battery energy storage systems (BESS)? Return JSON with &quot;</span>
+                <span class="s2">&quot;key &#39;</span><span class="si">{key}</span><span class="s2">&#39; set to true/false. Ignore consumer batteries.&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;discusses_battery_storage_regulations&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;battery storage regulation check&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Does this text contain specific requirements like &quot;</span>
+                <span class="s2">&quot;setbacks, capacity limits, safety standards, or &quot;</span>
+                <span class="s2">&quot;permit procedures? Return JSON with key &#39;</span><span class="si">{key}</span><span class="s2">&#39; set to &quot;</span>
+                <span class="s2">&quot;true/false&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;contains_specific_requirements&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="s2">&quot;specific requirements check&quot;</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-3-text-extractor">
+<h2>Step 3: Text extractor<a class="headerlink" href="#step-3-text-extractor" title="Link to this heading">#</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">ordinance.py</span></code>, define an extractor that condenses the retained
+chunks into a clean extraction text. This step is where you reduce a messy
+set of regulatory paragraphs into a focused summary that a parser can
+reason over. The output label becomes the parser input, so clarity here
+directly improves downstream accuracy.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptBasedTextExtractor</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BatteryStorageTextExtractor</span><span class="p">(</span><span class="n">PromptBasedTextExtractor</span><span class="p">):</span>
+
+    <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="s2">&quot;battery_storage_relevant_text&quot;</span>
+
+    <span class="n">PROMPTS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;prompt&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Extract battery storage regulations. Include setbacks, &quot;</span>
+                <span class="s2">&quot;capacity limits, height limits, safety requirements, &quot;</span>
+                <span class="s2">&quot;fire suppression, screening, noise, and permits. &quot;</span>
+                <span class="s2">&quot;</span><span class="si">{FORMATTING_PROMPT}</span><span class="s2"> </span><span class="si">{OUTPUT_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="p">),</span>
+            <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;battery_storage_ordinance_text&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;out_fn&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2">_battery_summary.txt&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-parsers-and-decision-trees">
+<h2>Step 4: Parsers and decision trees<a class="headerlink" href="#step-4-parsers-and-decision-trees" title="Link to this heading">#</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">parse.py</span></code>, define parsers that run decision trees against the
+extraction text. The trees live in <code class="docutils literal notranslate"><span class="pre">graphs.py</span></code>. This is the moment where
+your plugin turns narrative text into structured fields, so it helps to
+think in terms of a guided interview: the tree asks focused questions and
+routes to the right follow-up based on answers.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrdinanceParser</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_async_decision_tree</span><span class="p">,</span> <span class="n">run_async_tree</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.battery_storage.graphs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">setup_graph_battery_setbacks</span><span class="p">,</span>
+    <span class="n">setup_graph_capacity_limits</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BatteryStorageParser</span><span class="p">(</span><span class="n">OrdinanceParser</span><span class="p">):</span>
+
+    <span class="n">IN_LABEL</span> <span class="o">=</span> <span class="s2">&quot;battery_storage_ordinance_text&quot;</span>
+    <span class="n">OUT_LABEL</span> <span class="o">=</span> <span class="s2">&quot;battery_storage_ordinance_values&quot;</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="n">chat_caller</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_chat_llm_caller</span><span class="p">(</span>
+            <span class="s2">&quot;You extract battery storage regulations from ordinance text&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="n">setback_tree</span> <span class="o">=</span> <span class="n">setup_async_decision_tree</span><span class="p">(</span>
+            <span class="n">setup_graph_battery_setbacks</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">chat_llm_caller</span><span class="o">=</span><span class="n">chat_caller</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;setbacks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_async_tree</span><span class="p">(</span><span class="n">setback_tree</span><span class="p">)</span>
+
+        <span class="n">capacity_tree</span> <span class="o">=</span> <span class="n">setup_async_decision_tree</span><span class="p">(</span>
+            <span class="n">setup_graph_capacity_limits</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+            <span class="n">chat_llm_caller</span><span class="o">=</span><span class="n">chat_caller</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">results</span><span class="p">[</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">run_async_tree</span><span class="p">(</span><span class="n">capacity_tree</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">results</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-wire-the-plugin">
+<h2>Step 5: Wire the plugin<a class="headerlink" href="#step-5-wire-the-plugin" title="Link to this heading">#</a></h2>
+<p>In <code class="docutils literal notranslate"><span class="pre">plugin.py</span></code>, connect the components and register the plugin. The
+registration step is what makes your class discoverable by the CLI, so do
+not skip it. You are effectively telling COMPASS, “this identifier maps to
+this pipeline.”</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">OrdinanceExtractionPlugin</span><span class="p">,</span> <span class="n">register_plugin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.battery_storage.ordinance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">BatteryStorageHeuristic</span><span class="p">,</span>
+    <span class="n">BatteryStorageTextCollector</span><span class="p">,</span>
+    <span class="n">BatteryStorageTextExtractor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.battery_storage.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">BatteryStorageParser</span>
+
+<span class="n">BatteryStorageParser</span><span class="o">.</span><span class="n">IN_LABEL</span> <span class="o">=</span> <span class="n">BatteryStorageTextExtractor</span><span class="o">.</span><span class="n">OUT_LABEL</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">BatteryStorageExtractor</span><span class="p">(</span><span class="n">OrdinanceExtractionPlugin</span><span class="p">):</span>
+
+    <span class="n">IDENTIFIER</span> <span class="o">=</span> <span class="s2">&quot;battery_storage&quot;</span>
+
+    <span class="n">QUESTION_TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;battery energy storage ordinance </span><span class="si">{jurisdiction}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> battery storage regulations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> BESS zoning&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;site:</span><span class="si">{jurisdiction_website}</span><span class="s2"> battery storage ordinance&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ordinance&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;battery&quot;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+        <span class="s2">&quot;storage&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="s2">&quot;bess&quot;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+        <span class="s2">&quot;energy storage&quot;</span><span class="p">:</span> <span class="mi">850</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="n">heuristic</span> <span class="o">=</span> <span class="n">BatteryStorageHeuristic</span><span class="p">()</span>
+
+    <span class="n">TEXT_COLLECTORS</span> <span class="o">=</span> <span class="p">[</span><span class="n">BatteryStorageTextCollector</span><span class="p">]</span>
+    <span class="n">TEXT_EXTRACTORS</span> <span class="o">=</span> <span class="p">[</span><span class="n">BatteryStorageTextExtractor</span><span class="p">]</span>
+    <span class="n">PARSERS</span> <span class="o">=</span> <span class="p">[</span><span class="n">BatteryStorageParser</span><span class="p">]</span>
+
+<span class="n">register_plugin</span><span class="p">(</span><span class="n">BatteryStorageExtractor</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Query templates must use <code class="docutils literal notranslate"><span class="pre">{jurisdiction}</span></code> where the jurisdiction’s full
+name should appear. They may also use the exact placeholder
+<code class="docutils literal notranslate"><span class="pre">{jurisdiction_website}</span></code> to restrict a query to the jurisdiction’s known
+website, as shown by the <code class="docutils literal notranslate"><span class="pre">site:</span></code> query above. COMPASS submits templates
+containing this website placeholder only when the jurisdiction has a known
+website URL; otherwise, it discards those templates before searching.</p>
+</section>
+<section id="step-6-run-it">
+<h2>Step 6: Run it<a class="headerlink" href="#step-6-run-it" title="Link to this heading">#</a></h2>
+<p>At this point you have a complete pipeline: a heuristic to filter, a
+collector to keep relevant chunks, an extractor to shape them, and a parser
+to produce structured outputs. Running the CLI now exercises the full
+story you just built.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span>
+
+compass<span class="w"> </span>process<span class="w"> </span>--config<span class="w"> </span>my_config.yaml
+</pre></div>
+</div>
+</section>
+<section id="where-to-go-next">
+<h2>Where to go next<a class="headerlink" href="#where-to-go-next" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Run the pipeline against a second jurisdiction to see how your heuristic and parser choices generalize</p></li>
+<li><p>Review the troubleshooting guidance in this tutorial to debug label chain issues quickly</p></li>
+<li><p>Explore the solar and wind plugins in the repository for more real-world patterns</p></li>
+<li><p>Step into <a class="reference internal" href="advanced_plugin_development.html#advanced-plugin-development"><span class="std std-ref">Advanced Plugin Development</span></a> when you need custom filtering, RAG-style parsing, or nonstandard output schemas</p></li>
+</ul>
+<p>Each step builds on the same flow you used here—filter, collect, extract,
+parse, save. Move to the next level only when the current pattern no
+longer fits your domain.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Contributing to COMPASS</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="advanced_plugin_development.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Advanced Plugin Development</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-you-will-build">What you will build</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#choose-the-base-class">Choose the base class</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#project-skeleton">Project skeleton</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-pieces-fit">How the pieces fit</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-heuristic">Step 1: Heuristic</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-text-collector">Step 2: Text collector</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-text-extractor">Step 3: Text extractor</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-parsers-and-decision-trees">Step 4: Parsers and decision trees</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-wire-the-plugin">Step 5: Wire the plugin</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-run-it">Step 6: Run it</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-go-next">Where to go next</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

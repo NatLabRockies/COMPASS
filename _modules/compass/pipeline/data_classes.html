@@ -1,0 +1,2321 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.pipeline.data_classes &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/pipeline/data_classes';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.pipeline.data_classes</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.pipeline.data_classes</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Data classes used for the COMPASS pipeline&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.resources</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">cached_property</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.search.run</span><span class="w"> </span><span class="kn">import</span> <span class="n">SEARCH_ENGINE_OPTIONS</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.llm</span><span class="w"> </span><span class="kn">import</span> <span class="n">OpenAIConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.usage</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMRateTracker</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSRunMode</span><span class="p">,</span> <span class="n">LLMTasks</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSValueError</span>
+
+
+<span class="n">_DOMAINS</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span>
+    <span class="n">importlib</span><span class="o">.</span><span class="n">resources</span><span class="o">.</span><span class="n">files</span><span class="p">(</span><span class="s2">&quot;compass&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="s2">&quot;domains.json5&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="RuntimeSettings">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.RuntimeSettings.html#compass.pipeline.data_classes.RuntimeSettings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">RuntimeSettings</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value Object for runtime and execution settings&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">td_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tpe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ppe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">keep_async_logs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        td_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`tempfile.TemporaryDirectory`. The temporary</span>
+<span class="sd">            directory is used to store documents which have not yet been</span>
+<span class="sd">            confirmed to contain relevant information.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        tpe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ThreadPoolExecutor`, used for</span>
+<span class="sd">            I/O-bound tasks such as logging and file writes.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        ppe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ProcessPoolExecutor`, used for</span>
+<span class="sd">            CPU-bound tasks such as PDF loading and parsing.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        max_num_concurrent_jurisdictions : int, default=25</span>
+<span class="sd">            Maximum number of jurisdictions to process concurrently.</span>
+<span class="sd">            Limiting this can help manage memory usage when dealing with</span>
+<span class="sd">            a large number of documents. By default, ``25``.</span>
+<span class="sd">        log_level : str, default=&quot;INFO&quot;</span>
+<span class="sd">            Logging level for ordinance scraping and parsing (e.g.,</span>
+<span class="sd">            &quot;TRACE&quot;, &quot;DEBUG&quot;, &quot;INFO&quot;, &quot;WARNING&quot;, or &quot;ERROR&quot;).</span>
+<span class="sd">            By default, ``&quot;INFO&quot;``.</span>
+<span class="sd">        keep_async_logs : bool, default=False</span>
+<span class="sd">            Option to store the full asynchronous log record to a file.</span>
+<span class="sd">            This is only useful if you intend to monitor overall</span>
+<span class="sd">            processing progress from a file instead of from the</span>
+<span class="sd">            terminal. If ``True``, all of the unordered records are</span>
+<span class="sd">            written to a &quot;all.log&quot; file in the `log_dir` directory.</span>
+<span class="sd">            By default, ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">td_kwargs</span> <span class="o">=</span> <span class="n">td_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tpe_kwargs</span> <span class="o">=</span> <span class="n">tpe_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ppe_kwargs</span> <span class="o">=</span> <span class="n">ppe_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_num_concurrent_jurisdictions</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">max_num_concurrent_jurisdictions</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="n">log_level</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keep_async_logs</span> <span class="o">=</span> <span class="n">keep_async_logs</span></div>
+
+
+
+<div class="viewcode-block" id="OutputSettings">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.OutputSettings.html#compass.pipeline.data_classes.OutputSettings">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputSettings</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value Object for filesystem output settings&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">log_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">clean_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ordinance_file_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">jurisdiction_dbs_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">make_paths_relative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        out_dir : path-like</span>
+<span class="sd">            Path to the output directory. If it does not exist, it will</span>
+<span class="sd">            be created. This directory will contain the saved collection</span>
+<span class="sd">            manifest, downloaded ordinance documents, parsed document</span>
+<span class="sd">            text, usage metadata, and default subdirectories for logs</span>
+<span class="sd">            and intermediate outputs (unless otherwise specified).</span>
+<span class="sd">        log_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing log files. If not</span>
+<span class="sd">            provided, a ``logs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        clean_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing cleaned ordinance text</span>
+<span class="sd">            output. If not provided, a ``cleaned_text`` subdirectory</span>
+<span class="sd">            will be created inside `out_dir`. By default, ``None``.</span>
+<span class="sd">        ordinance_file_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where downloaded ordinance files (PDFs</span>
+<span class="sd">            or HTML) for each jurisdiction are stored. If not provided,</span>
+<span class="sd">            a ``ordinance_files`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        jurisdiction_dbs_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where parsed ordinance database files</span>
+<span class="sd">            are stored for each jurisdiction. If not provided, a</span>
+<span class="sd">            ``jurisdiction_dbs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        make_paths_relative : bool, default=False</span>
+<span class="sd">            Option to make all file paths in the saved collection</span>
+<span class="sd">            manifest relative to the output directory. This can be</span>
+<span class="sd">            helpful for sharing the manifest or for ensuring that it can</span>
+<span class="sd">            be loaded correctly on a different machine. If ``False``,</span>
+<span class="sd">            absolute paths are used in the manifest.</span>
+<span class="sd">            By default, ``True``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">out_dir</span> <span class="o">=</span> <span class="n">out_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_dir</span> <span class="o">=</span> <span class="n">log_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clean_dir</span> <span class="o">=</span> <span class="n">clean_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ordinance_file_dir</span> <span class="o">=</span> <span class="n">ordinance_file_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction_dbs_dir</span> <span class="o">=</span> <span class="n">jurisdiction_dbs_dir</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_paths_relative</span> <span class="o">=</span> <span class="n">make_paths_relative</span></div>
+
+
+
+<div class="viewcode-block" id="KnownSourcesInput">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.KnownSourcesInput.html#compass.pipeline.data_classes.KnownSourcesInput">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KnownSourcesInput</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value Object for known documents and URL inputs&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">known_local_docs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">known_doc_urls</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        known_local_docs : dict or path-like, optional</span>
+<span class="sd">            A dictionary where keys are the jurisdiction codes (as</span>
+<span class="sd">            strings) and values are lists of dictionaries containing</span>
+<span class="sd">            information about each local document. Each document</span>
+<span class="sd">            dictionary should contain at least the key ``&quot;source_fp&quot;``</span>
+<span class="sd">            pointing to the full local document path. Additional keys</span>
+<span class="sd">            are copied onto the loaded document as attributes. This</span>
+<span class="sd">            input can also be a path to a JSON file containing the same</span>
+<span class="sd">            mapping. By default, ``None``.</span>
+<span class="sd">        known_doc_urls : dict or path-like, optional</span>
+<span class="sd">            A dictionary where keys are the jurisdiction codes (as</span>
+<span class="sd">            strings) and values are lists of dictionaries containing</span>
+<span class="sd">            information about each known URL to check. Each document</span>
+<span class="sd">            dictionary should contain at least the key ``&quot;source&quot;``</span>
+<span class="sd">            representing the known document URL. Additional keys are</span>
+<span class="sd">            copied onto the loaded document as attributes. This input</span>
+<span class="sd">            can also be a path to a JSON file containing the same</span>
+<span class="sd">            mapping. By default, ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_local_docs</span> <span class="o">=</span> <span class="n">known_local_docs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_doc_urls</span> <span class="o">=</span> <span class="n">known_doc_urls</span></div>
+
+
+
+<div class="viewcode-block" id="WebSearchParams">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.WebSearchParams.html#compass.pipeline.data_classes.WebSearchParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WebSearchParams</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Capture configuration for jurisdiction web searches</span>
+
+<span class="sd">    The class normalizes and stores search-related settings that are</span>
+<span class="sd">    reused across multiple search operations, including browser</span>
+<span class="sd">    concurrency, engine preferences, and filtering rules.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Instances lazily translate the provided search engine definitions</span>
+<span class="sd">    into ELM-compatible keyword arguments via :attr:`se_kwargs`,</span>
+<span class="sd">    enabling straightforward reuse when issuing queries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">num_urls_to_check_per_jurisdiction</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_browsers</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_website_searches</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">website_crawl_timeout_seconds</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+        <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">url_keep_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_engines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">simple_se_result_sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        num_urls_to_check_per_jurisdiction : int, optional</span>
+<span class="sd">            Number of unique Google search result URLs to check for each</span>
+<span class="sd">            jurisdiction when attempting to locate ordinance documents.</span>
+<span class="sd">            By default, ``5``.</span>
+<span class="sd">        max_num_concurrent_browsers : int, optional</span>
+<span class="sd">            Maximum number of browser instances to launch concurrently</span>
+<span class="sd">            for retrieving information from the web. Increasing this</span>
+<span class="sd">            value too much may lead to timeouts or performance issues on</span>
+<span class="sd">            machines with limited resources. By default, ``10``.</span>
+<span class="sd">        max_num_concurrent_website_searches : int, optional</span>
+<span class="sd">            Maximum number of website searches allowed to run</span>
+<span class="sd">            simultaneously. Increasing this value can speed up searches,</span>
+<span class="sd">            but may lead to timeouts or performance issues on machines</span>
+<span class="sd">            with limited resources. By default, ``10``.</span>
+<span class="sd">        website_crawl_timeout_seconds : int, default=3600</span>
+<span class="sd">            Maximum number of seconds to allow for a website crawl to</span>
+<span class="sd">            complete before timing out. If the crawl exceeds this time,</span>
+<span class="sd">            it will be terminated and documents accepted before the</span>
+<span class="sd">            timeout will be returned. By default, ``3600``</span>
+<span class="sd">        url_ignore_substrings : list of str, optional</span>
+<span class="sd">            A list of substrings that, if found in any URL, will cause</span>
+<span class="sd">            the URL to be excluded from search results and COMPASS</span>
+<span class="sd">            website crawl candidates. This can be used to specify</span>
+<span class="sd">            particular websites or entire domains to ignore. For</span>
+<span class="sd">            example::</span>
+
+<span class="sd">                url_ignore_substrings = [</span>
+<span class="sd">                    &quot;wikipedia&quot;,</span>
+<span class="sd">                    &quot;nlr.gov&quot;,</span>
+<span class="sd">                    &quot;www.co.delaware.in.us/documents/1649699794_0382.pdf&quot;,</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            The above configuration would ignore all `wikipedia`</span>
+<span class="sd">            articles, all websites on the NLR domain, and the specific</span>
+<span class="sd">            file located at</span>
+<span class="sd">            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.</span>
+<span class="sd">            This input will include all of the blacklisted domains from</span>
+<span class="sd">            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,</span>
+<span class="sd">            so you will need to whitelist any domains in that list that</span>
+<span class="sd">            you want to allow. By default, ``None``.</span>
+<span class="sd">        url_keep_substrings : list of str, optional</span>
+<span class="sd">            A list of substrings that, if found in any URL, will cause</span>
+<span class="sd">            the URL to be kept in search results and COMPASS website</span>
+<span class="sd">            crawl candidates, regardless of the default blacklist or</span>
+<span class="sd">            the `url_ignore_substrings` input. For example::</span>
+
+<span class="sd">                url_keep_substrings = [</span>
+<span class="sd">                    &quot;my_ordinance_collection.edu&quot;,</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            The above configuration would keep all URLs from</span>
+<span class="sd">            &quot;my_ordinance_collection.edu&quot; despite the fact that ``.edu``</span>
+<span class="sd">            urls are blacklisted by default. By default, ``None``.</span>
+<span class="sd">        search_engines : list, optional</span>
+<span class="sd">            A list of dictionaries, where each dictionary contains</span>
+<span class="sd">            information about a search engine class that should be used</span>
+<span class="sd">            for the document retrieval process. Each dictionary should</span>
+<span class="sd">            contain at least the key ``&quot;se_name&quot;``, which should</span>
+<span class="sd">            correspond to one of the search engine class names from</span>
+<span class="sd">            :obj:`elm.web.search.run.SEARCH_ENGINE_OPTIONS`. The rest of</span>
+<span class="sd">            the keys in the dictionary should contain keyword-value</span>
+<span class="sd">            pairs to be used as parameters to initialize the search</span>
+<span class="sd">            engine class (things like API keys and configuration</span>
+<span class="sd">            options; see the ELM documentation for details on search</span>
+<span class="sd">            engine class parameters). The list should be ordered by</span>
+<span class="sd">            search engine preference - the first search engine</span>
+<span class="sd">            parameters will be used to submit the queries initially,</span>
+<span class="sd">            then any subsequent search engine listings  will be used as</span>
+<span class="sd">            fallback (in order that they appear). If ``None``, then all</span>
+<span class="sd">            default configurations for the search engines (along with</span>
+<span class="sd">            the fallback order) are used. By default, ``None``.</span>
+<span class="sd">        simple_se_result_sort : bool, default=True</span>
+<span class="sd">            Flag indicating whether to use a simple top-n sort from the</span>
+<span class="sd">            first search engine that gives results (``True``) or to</span>
+<span class="sd">            apply a holistic link sorting based on all results from all</span>
+<span class="sd">            search engines (``False``). By default, ``True``.</span>
+<span class="sd">        pytesseract_exe_fp : path-like, optional</span>
+<span class="sd">            Path to the `pytesseract` executable. If specified, OCR will</span>
+<span class="sd">            be used to extract text from scanned PDFs using Google&#39;s</span>
+<span class="sd">            Tesseract. By default ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_urls_to_check_per_jurisdiction</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">num_urls_to_check_per_jurisdiction</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_num_concurrent_browsers</span> <span class="o">=</span> <span class="n">max_num_concurrent_browsers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_num_concurrent_website_searches</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">max_num_concurrent_website_searches</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">website_crawl_timeout_seconds</span> <span class="o">=</span> <span class="n">website_crawl_timeout_seconds</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url_ignore_substrings</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="o">*</span><span class="n">_DOMAINS</span><span class="p">[</span><span class="s2">&quot;blacklist&quot;</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">url_ignore_substrings</span> <span class="ow">or</span> <span class="p">[]),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">url_keep_substrings</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="o">*</span><span class="n">_DOMAINS</span><span class="p">[</span><span class="s2">&quot;whitelist&quot;</span><span class="p">],</span>
+            <span class="o">*</span><span class="p">(</span><span class="n">url_keep_substrings</span> <span class="ow">or</span> <span class="p">[]),</span>
+        <span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_search_engines_input</span> <span class="o">=</span> <span class="n">search_engines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">simple_se_result_sort</span> <span class="o">=</span> <span class="n">simple_se_result_sort</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pytesseract_exe_fp</span> <span class="o">=</span> <span class="n">pytesseract_exe_fp</span>
+
+<div class="viewcode-block" id="WebSearchParams.se_kwargs">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.WebSearchParams.html#compass.pipeline.data_classes.WebSearchParams.se_kwargs">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">se_kwargs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: Extra search engine kwargs to pass to ELM&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_engines_input</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="n">search_engines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">extra_kwargs</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">se_params</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_search_engines_input</span><span class="p">:</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">se_params</span><span class="p">)</span>
+            <span class="n">se_name</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;se_name&quot;</span><span class="p">)</span>
+            <span class="n">search_engines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">se_name</span><span class="p">)</span>
+            <span class="n">extra_kwargs</span><span class="p">[</span><span class="n">SEARCH_ENGINE_OPTIONS</span><span class="p">[</span><span class="n">se_name</span><span class="p">]</span><span class="o">.</span><span class="n">kwg_key_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">params</span>
+
+        <span class="n">extra_kwargs</span><span class="p">[</span><span class="s2">&quot;search_engines&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">search_engines</span>
+        <span class="k">return</span> <span class="n">extra_kwargs</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="DocParsingParams">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.DocParsingParams.html#compass.pipeline.data_classes.DocParsingParams">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">DocParsingParams</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Value Object for document parsing settings&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_num_docs_per_jurisdiction</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        max_num_docs_per_jurisdiction : int, optional</span>
+<span class="sd">            Maximum number of documents to parse for each jurisdiction</span>
+<span class="sd">            (regardless of the collection method). If ``None``, all</span>
+<span class="sd">            collected documents are parsed. By default, ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_num_docs_per_jurisdiction</span> <span class="o">=</span> <span class="n">max_num_docs_per_jurisdiction</span></div>
+
+
+
+<div class="viewcode-block" id="BaseRequest">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.BaseRequest.html#compass.pipeline.data_classes.BaseRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BaseRequest</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parameter Object base class for pipeline requests&quot;&quot;&quot;</span>
+
+    <span class="n">MODE</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;COMPASSRunMode associated with this request type&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># ruff:ignore[too-many-arguments]</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">tech</span><span class="p">,</span>
+        <span class="n">jurisdiction_fp</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
+        <span class="n">llm_costs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_urls_to_check_per_jurisdiction</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">max_num_docs_to_parse_per_jurisdiction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_browsers</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_website_searches</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">website_crawl_timeout_seconds</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+        <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">url_keep_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">known_local_docs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">known_doc_urls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_engines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">simple_se_result_sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">td_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tpe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ppe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">clean_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ordinance_file_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">jurisdiction_dbs_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">perform_se_search</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">perform_website_search</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">make_paths_relative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">keep_async_logs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">collection_manifest_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        out_dir : path-like</span>
+<span class="sd">            Path to the output directory. If it does not exist, it will</span>
+<span class="sd">            be created. This directory will contain the saved collection</span>
+<span class="sd">            manifest, downloaded ordinance documents, parsed document</span>
+<span class="sd">            text, usage metadata, and default subdirectories for logs</span>
+<span class="sd">            and intermediate outputs (unless otherwise specified).</span>
+<span class="sd">        tech : str</span>
+<span class="sd">            Label indicating which technology type is being processed.</span>
+<span class="sd">            Must be one of the keys of</span>
+<span class="sd">            :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.</span>
+<span class="sd">        jurisdiction_fp : path-like</span>
+<span class="sd">            Path to a CSV file specifying the jurisdictions to process.</span>
+<span class="sd">            The CSV must contain at least two columns: &quot;County&quot; and</span>
+<span class="sd">            &quot;State&quot;, which specify the county and state names,</span>
+<span class="sd">            respectively. If you would like to process a subdivision</span>
+<span class="sd">            with a county, you must also include &quot;Subdivision&quot; and</span>
+<span class="sd">            &quot;Jurisdiction Type&quot; columns. The &quot;Subdivision&quot; should be the</span>
+<span class="sd">            name of the subdivision, and the &quot;Jurisdiction Type&quot; should</span>
+<span class="sd">            be a string identifying the type of subdivision (e.g.,</span>
+<span class="sd">            &quot;City&quot;, &quot;Township&quot;, etc.)</span>
+<span class="sd">        model : str or list of dict, default=&quot;gpt-4o-mini&quot;</span>
+<span class="sd">            LLM model(s) to use for scraping and parsing ordinance</span>
+<span class="sd">            documents. If a string is provided, it is assumed to be the</span>
+<span class="sd">            name of the default model (e.g., &quot;gpt-4o&quot;), and environment</span>
+<span class="sd">            variables are used for authentication.</span>
+
+<span class="sd">            If a list is provided, it should contain dictionaries of</span>
+<span class="sd">            arguments that can initialize instances of</span>
+<span class="sd">            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary</span>
+<span class="sd">            can specify the model name, client type, and initialization</span>
+<span class="sd">            arguments.</span>
+
+<span class="sd">            Each dictionary must also include a ``tasks`` key, which</span>
+<span class="sd">            maps to a string or list of strings indicating the tasks</span>
+<span class="sd">            that instance should handle. Exactly one of the instances</span>
+<span class="sd">            **must** include &quot;default&quot; as a task, which will be used</span>
+<span class="sd">            when no specific task is matched. For example::</span>
+
+<span class="sd">                &quot;model&quot;: [</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;model&quot;: &quot;gpt-4o-mini&quot;,</span>
+<span class="sd">                        &quot;llm_call_kwargs&quot;: {</span>
+<span class="sd">                            &quot;temperature&quot;: 0,</span>
+<span class="sd">                            &quot;timeout&quot;: 300,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;client_kwargs&quot;: {</span>
+<span class="sd">                            &quot;api_key&quot;: &quot;&lt;your_api_key&gt;&quot;,</span>
+<span class="sd">                            &quot;api_version&quot;: &quot;&lt;your_api_version&gt;&quot;,</span>
+<span class="sd">                            &quot;azure_endpoint&quot;: &quot;&lt;your_azure_endpoint&gt;&quot;,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;tasks&quot;: [&quot;default&quot;, &quot;date_extraction&quot;],</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;model&quot;: &quot;gpt-4o&quot;,</span>
+<span class="sd">                        &quot;client_type&quot;: &quot;openai&quot;,</span>
+<span class="sd">                        &quot;tasks&quot;: [&quot;ordinance_text_extraction&quot;],</span>
+<span class="sd">                    }</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            .. IMPORTANT::</span>
+<span class="sd">                You will need to ensure that the model name used here</span>
+<span class="sd">                matches your deployment if you are using Azure OpenAI.</span>
+<span class="sd">                For example, if you deployed the GPT-4o-mini model under</span>
+<span class="sd">                the name ``&quot;gpt-4o-mini-2025-04-11&quot;``, you would want to</span>
+<span class="sd">                set ``&quot;model&quot;: &quot;gpt-4o-mini-2025-04-11&quot;``.</span>
+
+<span class="sd">            By default, ``&quot;gpt-4o-mini&quot;``.</span>
+<span class="sd">        llm_costs : dict, optional</span>
+<span class="sd">            Dictionary mapping model names to their token costs, used to</span>
+<span class="sd">            track the estimated total cost of LLM usage during the run.</span>
+<span class="sd">            The structure should be::</span>
+
+<span class="sd">                {&quot;model_name&quot;: {&quot;prompt&quot;: float, &quot;response&quot;: float}}</span>
+
+<span class="sd">            Costs are specified in dollars per million tokens.</span>
+<span class="sd">            For example::</span>
+
+<span class="sd">                &quot;llm_costs&quot;: {&quot;my_gpt&quot;: {&quot;prompt&quot;: 1.5, &quot;response&quot;: 3}}</span>
+
+<span class="sd">            registers a model named `&quot;my_gpt&quot;` with a cost of $1.5 per</span>
+<span class="sd">            million input (prompt) tokens and $3 per million output</span>
+<span class="sd">            (response) tokens for the current processing run.</span>
+
+<span class="sd">            .. NOTE::</span>
+
+<span class="sd">                The displayed total cost does not track cached tokens,</span>
+<span class="sd">                so treat it like an estimate. Your final API costs may</span>
+<span class="sd">                vary.</span>
+
+<span class="sd">            If set to ``None``, no custom model costs are recorded, and</span>
+<span class="sd">            cost tracking may be unavailable in the progress bar.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        num_urls_to_check_per_jurisdiction : int, default=5</span>
+<span class="sd">            Number of unique Google search result URLs to check for each</span>
+<span class="sd">            jurisdiction when attempting to locate ordinance documents.</span>
+<span class="sd">            By default, ``5``.</span>
+<span class="sd">        max_num_docs_to_parse_per_jurisdiction : int, optional</span>
+<span class="sd">            Maximum number of documents to parse for each jurisdiction</span>
+<span class="sd">            (regardless of the collection method). If ``None``, all</span>
+<span class="sd">            collected documents are parsed. By default, ``None``.</span>
+<span class="sd">        max_num_concurrent_browsers : int, default=10</span>
+<span class="sd">            Maximum number of browser instances to launch concurrently</span>
+<span class="sd">            for retrieving information from the web. Increasing this</span>
+<span class="sd">            value too much may lead to timeouts or performance issues on</span>
+<span class="sd">            machines with limited resources. By default, ``10``.</span>
+<span class="sd">        max_num_concurrent_website_searches : int, default=10</span>
+<span class="sd">            Maximum number of website searches allowed to run</span>
+<span class="sd">            simultaneously. Increasing this value can speed up searches,</span>
+<span class="sd">            but may lead to timeouts or performance issues on machines</span>
+<span class="sd">            with limited resources. By default, ``10``.</span>
+<span class="sd">        max_num_concurrent_jurisdictions : int, default=25</span>
+<span class="sd">            Maximum number of jurisdictions to process concurrently.</span>
+<span class="sd">            Limiting this can help manage memory usage when dealing with</span>
+<span class="sd">            a large number of documents. By default, ``25``.</span>
+<span class="sd">        website_crawl_timeout_seconds : int, default=3600</span>
+<span class="sd">            Maximum number of seconds to allow for a website crawl to</span>
+<span class="sd">            complete before timing out. If the crawl exceeds this time,</span>
+<span class="sd">            it will be terminated and documents accepted before the</span>
+<span class="sd">            timeout will be returned. By default, ``3600``</span>
+<span class="sd">        url_ignore_substrings : list of str, optional</span>
+<span class="sd">            A list of substrings that, if found in any URL, will cause</span>
+<span class="sd">            the URL to be excluded from search results and COMPASS</span>
+<span class="sd">            website crawl candidates. This can be used to specify</span>
+<span class="sd">            particular websites or entire domains to ignore. For</span>
+<span class="sd">            example::</span>
+
+<span class="sd">                url_ignore_substrings = [</span>
+<span class="sd">                    &quot;wikipedia&quot;,</span>
+<span class="sd">                    &quot;nlr.gov&quot;,</span>
+<span class="sd">                    &quot;www.co.delaware.in.us/documents/1649699794_0382.pdf&quot;,</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            The above configuration would ignore all `wikipedia`</span>
+<span class="sd">            articles, all websites on the NLR domain, and the specific</span>
+<span class="sd">            file located at</span>
+<span class="sd">            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.</span>
+<span class="sd">            This input will include all of the blacklisted domains from</span>
+<span class="sd">            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,</span>
+<span class="sd">            so you will need to whitelist any domains in that list that</span>
+<span class="sd">            you want to allow. By default, ``None``.</span>
+<span class="sd">        url_keep_substrings : list of str, optional</span>
+<span class="sd">            A list of substrings that, if found in any URL, will cause</span>
+<span class="sd">            the URL to be kept in search results and COMPASS website</span>
+<span class="sd">            crawl candidates, regardless of the default blacklist or</span>
+<span class="sd">            the `url_ignore_substrings` input. For example::</span>
+
+<span class="sd">                url_keep_substrings = [</span>
+<span class="sd">                    &quot;my_ordinance_collection.edu&quot;,</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            The above configuration would keep all URLs from</span>
+<span class="sd">            &quot;my_ordinance_collection.edu&quot; despite the fact that ``.edu``</span>
+<span class="sd">            urls are blacklisted by default. By default, ``None``.</span>
+<span class="sd">        known_local_docs : dict or path-like, optional</span>
+<span class="sd">            A dictionary where keys are the jurisdiction codes (as</span>
+<span class="sd">            strings) and values are lists of dictionaries containing</span>
+<span class="sd">            information about each local document. Each document</span>
+<span class="sd">            dictionary should contain at least the key ``&quot;source_fp&quot;``</span>
+<span class="sd">            pointing to the full local document path. Additional keys</span>
+<span class="sd">            are copied onto the loaded document as attributes. This</span>
+<span class="sd">            input can also be a path to a JSON file containing the same</span>
+<span class="sd">            mapping. By default, ``None``.</span>
+<span class="sd">        known_doc_urls : dict or path-like, optional</span>
+<span class="sd">            A dictionary where keys are the jurisdiction codes (as</span>
+<span class="sd">            strings) and values are lists of dictionaries containing</span>
+<span class="sd">            information about each known URL to check. Each document</span>
+<span class="sd">            dictionary should contain at least the key ``&quot;source&quot;``</span>
+<span class="sd">            representing the known document URL. Additional keys are</span>
+<span class="sd">            copied onto the loaded document as attributes. This input</span>
+<span class="sd">            can also be a path to a JSON file containing the same</span>
+<span class="sd">            mapping. By default, ``None``.</span>
+<span class="sd">        file_loader_kwargs : dict, optional</span>
+<span class="sd">            Dictionary of keyword argument pairs to initialize</span>
+<span class="sd">            :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,</span>
+<span class="sd">            the ``&quot;pw_launch_kwargs&quot;`` key in these will also be used to</span>
+<span class="sd">            initialize the Playwright-backed Google search used for</span>
+<span class="sd">            search engine retrieval. By default, ``None``.</span>
+<span class="sd">        search_engines : list, optional</span>
+<span class="sd">            A list of dictionaries describing the search engine classes</span>
+<span class="sd">            and keyword arguments to use for search engine retrieval. If</span>
+<span class="sd">            ``None``, the default search engine configurations and</span>
+<span class="sd">            fallback order are used. By default, ``None``.</span>
+<span class="sd">        simple_se_result_sort : bool, default=True</span>
+<span class="sd">            Flag indicating whether to use a simple top-n sort from the</span>
+<span class="sd">            first search engine that gives results (``True``) or to</span>
+<span class="sd">            apply a holistic link sorting based on all results from all</span>
+<span class="sd">            search engines (``False``). By default, ``True``.</span>
+<span class="sd">        pytesseract_exe_fp : path-like, optional</span>
+<span class="sd">            Path to the `pytesseract` executable. If specified, OCR will</span>
+<span class="sd">            be used to extract text from scanned PDFs using Google&#39;s</span>
+<span class="sd">            Tesseract. By default, ``None``.</span>
+<span class="sd">        td_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`tempfile.TemporaryDirectory`. The temporary</span>
+<span class="sd">            directory is used to store documents which have not yet been</span>
+<span class="sd">            confirmed to contain relevant information.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        tpe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ThreadPoolExecutor`, used for</span>
+<span class="sd">            I/O-bound tasks such as logging and file writes.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        ppe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ProcessPoolExecutor`, used for</span>
+<span class="sd">            CPU-bound tasks such as PDF loading and parsing.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        log_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing log files. If not</span>
+<span class="sd">            provided, a ``logs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        clean_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing cleaned ordinance text</span>
+<span class="sd">            output. If not provided, a ``cleaned_text`` subdirectory</span>
+<span class="sd">            will be created inside `out_dir`. By default, ``None``.</span>
+<span class="sd">        ordinance_file_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where downloaded ordinance files (PDFs</span>
+<span class="sd">            or HTML) for each jurisdiction are stored. If not provided,</span>
+<span class="sd">            a ``ordinance_files`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        jurisdiction_dbs_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where parsed ordinance database files</span>
+<span class="sd">            are stored for each jurisdiction. If not provided, a</span>
+<span class="sd">            ``jurisdiction_dbs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        perform_se_search : bool, default=True</span>
+<span class="sd">            Option to perform a search engine-based search for ordinance</span>
+<span class="sd">            documents. This is the standard way to collect ordinance</span>
+<span class="sd">            documents, and it is recommended to leave this set to</span>
+<span class="sd">            ``True`` unless you are re-processing local documents. If</span>
+<span class="sd">            ``True``, the search engine approach is used to locate</span>
+<span class="sd">            ordinance documents</span>
+<span class="sd">            before falling back to a website crawl-based search (if that</span>
+<span class="sd">            has been selected). By default, ``True``.</span>
+<span class="sd">        perform_website_search : bool, default=True</span>
+<span class="sd">            Option to fallback to a jurisdiction website crawl-based</span>
+<span class="sd">            search for ordinance documents if the search engine approach</span>
+<span class="sd">            fails to recover any relevant documents.</span>
+<span class="sd">            By default, ``True``.</span>
+<span class="sd">        make_paths_relative : bool, default=False</span>
+<span class="sd">            Option to make all file paths in the saved collection</span>
+<span class="sd">            manifest relative to the output directory. This can be</span>
+<span class="sd">            helpful for sharing the manifest or for ensuring that it can</span>
+<span class="sd">            be loaded correctly on a different machine. If ``False``,</span>
+<span class="sd">            absolute paths are used in the manifest.</span>
+<span class="sd">            By default, ``False``.</span>
+<span class="sd">        log_level : str, default=&quot;INFO&quot;</span>
+<span class="sd">            Logging level for ordinance scraping and parsing (e.g.,</span>
+<span class="sd">            &quot;TRACE&quot;, &quot;DEBUG&quot;, &quot;INFO&quot;, &quot;WARNING&quot;, or &quot;ERROR&quot;).</span>
+<span class="sd">            By default, ``&quot;INFO&quot;``.</span>
+<span class="sd">        keep_async_logs : bool, default=False</span>
+<span class="sd">            Option to store the full asynchronous log record to a file.</span>
+<span class="sd">            This is only useful if you intend to monitor overall</span>
+<span class="sd">            processing progress from a file instead of from the</span>
+<span class="sd">            terminal. If ``True``, all of the unordered records are</span>
+<span class="sd">            written to a &quot;all.log&quot; file in the `log_dir` directory.</span>
+<span class="sd">            By default, ``False``.</span>
+<span class="sd">        collection_manifest_fp : path-like or list of path-like, optional</span>
+<span class="sd">            Path to the JSON collection manifest created by the document</span>
+<span class="sd">            collection step. This can be a single path or a list of</span>
+<span class="sd">            paths for multiple collection manifests, any of which may</span>
+<span class="sd">            include glob patterns. Each collection manifest must contain</span>
+<span class="sd">            the persisted document information needed to reload each</span>
+<span class="sd">            collected document for extraction. Only needed if running in</span>
+<span class="sd">            extraction mode with a separate collection step.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># ruff:ignore[doc-line-too-long]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tech</span> <span class="o">=</span> <span class="n">tech</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction_fp</span> <span class="o">=</span> <span class="n">jurisdiction_fp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_se_search</span> <span class="o">=</span> <span class="n">perform_se_search</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">perform_website_search</span> <span class="o">=</span> <span class="n">perform_website_search</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">collection_manifest_fp</span> <span class="o">=</span> <span class="n">collection_manifest_fp</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_loader_kwargs</span> <span class="o">=</span> <span class="n">file_loader_kwargs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">search_settings</span> <span class="o">=</span> <span class="n">WebSearchParams</span><span class="p">(</span>
+            <span class="n">num_urls_to_check_per_jurisdiction</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">num_urls_to_check_per_jurisdiction</span>
+            <span class="p">),</span>
+            <span class="n">max_num_concurrent_browsers</span><span class="o">=</span><span class="n">max_num_concurrent_browsers</span><span class="p">,</span>
+            <span class="n">max_num_concurrent_website_searches</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">max_num_concurrent_website_searches</span>
+            <span class="p">),</span>
+            <span class="n">website_crawl_timeout_seconds</span><span class="o">=</span><span class="n">website_crawl_timeout_seconds</span><span class="p">,</span>
+            <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="n">url_ignore_substrings</span><span class="p">,</span>
+            <span class="n">url_keep_substrings</span><span class="o">=</span><span class="n">url_keep_substrings</span><span class="p">,</span>
+            <span class="n">search_engines</span><span class="o">=</span><span class="n">search_engines</span><span class="p">,</span>
+            <span class="n">simple_se_result_sort</span><span class="o">=</span><span class="n">simple_se_result_sort</span><span class="p">,</span>
+            <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="n">pytesseract_exe_fp</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsing_settings</span> <span class="o">=</span> <span class="n">DocParsingParams</span><span class="p">(</span>
+            <span class="n">max_num_docs_per_jurisdiction</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">max_num_docs_to_parse_per_jurisdiction</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">runtime_settings</span> <span class="o">=</span> <span class="n">RuntimeSettings</span><span class="p">(</span>
+            <span class="n">td_kwargs</span><span class="o">=</span><span class="n">td_kwargs</span><span class="p">,</span>
+            <span class="n">tpe_kwargs</span><span class="o">=</span><span class="n">tpe_kwargs</span><span class="p">,</span>
+            <span class="n">ppe_kwargs</span><span class="o">=</span><span class="n">ppe_kwargs</span><span class="p">,</span>
+            <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">max_num_concurrent_jurisdictions</span>
+            <span class="p">),</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+            <span class="n">keep_async_logs</span><span class="o">=</span><span class="n">keep_async_logs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_settings</span> <span class="o">=</span> <span class="n">OutputSettings</span><span class="p">(</span>
+            <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+            <span class="n">log_dir</span><span class="o">=</span><span class="n">log_dir</span><span class="p">,</span>
+            <span class="n">clean_dir</span><span class="o">=</span><span class="n">clean_dir</span><span class="p">,</span>
+            <span class="n">ordinance_file_dir</span><span class="o">=</span><span class="n">ordinance_file_dir</span><span class="p">,</span>
+            <span class="n">jurisdiction_dbs_dir</span><span class="o">=</span><span class="n">jurisdiction_dbs_dir</span><span class="p">,</span>
+            <span class="n">make_paths_relative</span><span class="o">=</span><span class="n">make_paths_relative</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">known_sources</span> <span class="o">=</span> <span class="n">KnownSourcesInput</span><span class="p">(</span>
+            <span class="n">known_local_docs</span><span class="o">=</span><span class="n">known_local_docs</span><span class="p">,</span>
+            <span class="n">known_doc_urls</span><span class="o">=</span><span class="n">known_doc_urls</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">user_model_input</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">llm_costs</span> <span class="o">=</span> <span class="n">llm_costs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rate_tracker</span> <span class="o">=</span> <span class="n">LLMRateTracker</span><span class="p">()</span>
+
+<div class="viewcode-block" id="BaseRequest.models">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.BaseRequest.html#compass.pipeline.data_classes.BaseRequest.models">[docs]</a>
+    <span class="nd">@cached_property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">models</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict: Mapping of LLM task to OpenAIConfig for this request&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">user_model_input</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="n">build_models</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">user_model_input</span><span class="p">,</span> <span class="n">rate_tracker</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_rate_tracker</span>
+        <span class="p">)</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rate_tracker</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;LLMRateTracker: Rate tracker for LLM calls&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rate_tracker</span></div>
+
+
+
+<div class="viewcode-block" id="ProcessRequest">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.ProcessRequest.html#compass.pipeline.data_classes.ProcessRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessRequest</span><span class="p">(</span><span class="n">BaseRequest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parameter Object for full process mode&quot;&quot;&quot;</span>
+
+    <span class="n">MODE</span> <span class="o">=</span> <span class="n">COMPASSRunMode</span><span class="o">.</span><span class="n">PROCESS</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;COMPASSRunMode associated with this request type&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="CollectionRequest">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.CollectionRequest.html#compass.pipeline.data_classes.CollectionRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CollectionRequest</span><span class="p">(</span><span class="n">BaseRequest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parameter Object for collection mode&quot;&quot;&quot;</span>
+
+    <span class="n">MODE</span> <span class="o">=</span> <span class="n">COMPASSRunMode</span><span class="o">.</span><span class="n">COLLECT</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;COMPASSRunMode associated with this request type&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># ruff:ignore[too-many-arguments]</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">tech</span><span class="p">,</span>
+        <span class="n">jurisdiction_fp</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">num_urls_to_check_per_jurisdiction</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_browsers</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_website_searches</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">website_crawl_timeout_seconds</span><span class="o">=</span><span class="mi">3600</span><span class="p">,</span>
+        <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">url_keep_substrings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">known_local_docs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">known_doc_urls</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">search_engines</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">simple_se_result_sort</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">td_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tpe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ppe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">source_file_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">parsed_file_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">shard_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">perform_se_search</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">perform_website_search</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">make_paths_relative</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">llm_costs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">keep_async_logs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        out_dir : path-like</span>
+<span class="sd">            Path to the output directory. If it does not exist, it will</span>
+<span class="sd">            be created. This directory will contain the saved collection</span>
+<span class="sd">            manifest, downloaded ordinance documents, parsed document</span>
+<span class="sd">            text, usage metadata, and default subdirectories for logs</span>
+<span class="sd">            and intermediate outputs (unless otherwise specified).</span>
+<span class="sd">        tech : str</span>
+<span class="sd">            Label indicating which technology type is being processed.</span>
+<span class="sd">            Must be one of the keys of</span>
+<span class="sd">            :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.</span>
+<span class="sd">        jurisdiction_fp : path-like</span>
+<span class="sd">            Path to a CSV file specifying the jurisdictions to process.</span>
+<span class="sd">            The CSV must contain at least two columns: &quot;County&quot; and</span>
+<span class="sd">            &quot;State&quot;, which specify the county and state names,</span>
+<span class="sd">            respectively. If you would like to process a subdivision</span>
+<span class="sd">            with a county, you must also include &quot;Subdivision&quot; and</span>
+<span class="sd">            &quot;Jurisdiction Type&quot; columns. The &quot;Subdivision&quot; should be the</span>
+<span class="sd">            name of the subdivision, and the &quot;Jurisdiction Type&quot; should</span>
+<span class="sd">            be a string identifying the type of subdivision (e.g.,</span>
+<span class="sd">            &quot;City&quot;, &quot;Township&quot;, etc.)</span>
+<span class="sd">        model : str or list of dict, optional</span>
+<span class="sd">            Optional model configuration used only for collection-side</span>
+<span class="sd">            LLM tasks, such as:</span>
+
+<span class="sd">                - Searching for and validating a jurisdiction website</span>
+<span class="sd">                  before website crawl</span>
+
+<span class="sd">            If this key is left out, these steps are skipped completely.</span>
+<span class="sd">            If provided as a string, it is assumed to be the name of the</span>
+<span class="sd">            default model (e.g., &quot;gpt-5-mini&quot;), and environment</span>
+<span class="sd">            variables are used for authentication.</span>
+
+<span class="sd">            If a list is provided, it should contain dictionaries of</span>
+<span class="sd">            arguments that can initialize instances of</span>
+<span class="sd">            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary</span>
+<span class="sd">            can specify the model name, client type, and initialization</span>
+<span class="sd">            arguments.</span>
+
+<span class="sd">            Each dictionary must also include a ``tasks`` key, which</span>
+<span class="sd">            maps to a string or list of strings indicating the tasks</span>
+<span class="sd">            that instance should handle. Exactly one of the instances</span>
+<span class="sd">            **must** include &quot;default&quot; as a task, which will be used</span>
+<span class="sd">            when no specific task is matched. For example::</span>
+
+<span class="sd">                &quot;model&quot;: [</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;model&quot;: &quot;gpt-4o-mini&quot;,</span>
+<span class="sd">                        &quot;llm_call_kwargs&quot;: {</span>
+<span class="sd">                            &quot;temperature&quot;: 0,</span>
+<span class="sd">                            &quot;timeout&quot;: 300,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;client_kwargs&quot;: {</span>
+<span class="sd">                            &quot;api_key&quot;: &quot;&lt;your_api_key&gt;&quot;,</span>
+<span class="sd">                            &quot;api_version&quot;: &quot;&lt;your_api_version&gt;&quot;,</span>
+<span class="sd">                            &quot;azure_endpoint&quot;: &quot;&lt;your_azure_endpoint&gt;&quot;,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;tasks&quot;: [&quot;default&quot;, &quot;date_extraction&quot;],</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;model&quot;: &quot;gpt-4o&quot;,</span>
+<span class="sd">                        &quot;client_type&quot;: &quot;openai&quot;,</span>
+<span class="sd">                        &quot;tasks&quot;: [&quot;ordinance_text_extraction&quot;],</span>
+<span class="sd">                    }</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            .. IMPORTANT::</span>
+<span class="sd">                You will need to ensure that the model name used here</span>
+<span class="sd">                matches your deployment if you are using Azure OpenAI.</span>
+<span class="sd">                For example, if you deployed the GPT-4o-mini model under</span>
+<span class="sd">                the name ``&quot;gpt-4o-mini-2025-04-11&quot;``, you would want to</span>
+<span class="sd">                set ``&quot;model&quot;: &quot;gpt-4o-mini-2025-04-11&quot;``.</span>
+
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        num_urls_to_check_per_jurisdiction : int, default=5</span>
+<span class="sd">            Number of unique Google search result URLs to check for each</span>
+<span class="sd">            jurisdiction when attempting to locate ordinance documents.</span>
+<span class="sd">            By default, ``5``.</span>
+<span class="sd">        max_num_concurrent_browsers : int, default=10</span>
+<span class="sd">            Maximum number of browser instances to launch concurrently</span>
+<span class="sd">            for retrieving information from the web. Increasing this</span>
+<span class="sd">            value too much may lead to timeouts or performance issues on</span>
+<span class="sd">            machines with limited resources. By default, ``10``.</span>
+<span class="sd">        max_num_concurrent_website_searches : int, default=10</span>
+<span class="sd">            Maximum number of website searches allowed to run</span>
+<span class="sd">            simultaneously. Increasing this value can speed up searches,</span>
+<span class="sd">            but may lead to timeouts or performance issues on machines</span>
+<span class="sd">            with limited resources. By default, ``10``.</span>
+<span class="sd">        max_num_concurrent_jurisdictions : int, default=25</span>
+<span class="sd">            Maximum number of jurisdictions to process concurrently.</span>
+<span class="sd">            Limiting this can help manage memory usage when dealing with</span>
+<span class="sd">            a large number of documents. By default, ``25``.</span>
+<span class="sd">        website_crawl_timeout_seconds : int, default=3600</span>
+<span class="sd">            Maximum number of seconds to allow for a website crawl to</span>
+<span class="sd">            complete before timing out. If the crawl exceeds this time,</span>
+<span class="sd">            it will be terminated and documents accepted before the</span>
+<span class="sd">            timeout will be returned. By default, ``3600``</span>
+<span class="sd">        url_ignore_substrings : list of str, optional</span>
+<span class="sd">            A list of substrings that, if found in any URL, will cause</span>
+<span class="sd">            the URL to be excluded from search results and COMPASS</span>
+<span class="sd">            website crawl candidates. This can be used to specify</span>
+<span class="sd">            particular websites or entire domains to ignore. For</span>
+<span class="sd">            example::</span>
+
+<span class="sd">                url_ignore_substrings = [</span>
+<span class="sd">                    &quot;wikipedia&quot;,</span>
+<span class="sd">                    &quot;nlr.gov&quot;,</span>
+<span class="sd">                    &quot;www.co.delaware.in.us/documents/1649699794_0382.pdf&quot;,</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            The above configuration would ignore all `wikipedia`</span>
+<span class="sd">            articles, all websites on the NLR domain, and the specific</span>
+<span class="sd">            file located at</span>
+<span class="sd">            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.</span>
+<span class="sd">            This input will include all of the blacklisted domains from</span>
+<span class="sd">            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,</span>
+<span class="sd">            so you will need to whitelist any domains in that list that</span>
+<span class="sd">            you want to allow. By default, ``None``.</span>
+<span class="sd">        url_keep_substrings : list of str, optional</span>
+<span class="sd">            A list of substrings that, if found in any URL, will cause</span>
+<span class="sd">            the URL to be kept in search results and COMPASS website</span>
+<span class="sd">            crawl candidates, regardless of the default blacklist or</span>
+<span class="sd">            the `url_ignore_substrings` input. For example::</span>
+
+<span class="sd">                url_keep_substrings = [</span>
+<span class="sd">                    &quot;my_ordinance_collection.edu&quot;,</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            The above configuration would keep all URLs from</span>
+<span class="sd">            &quot;my_ordinance_collection.edu&quot; despite the fact that ``.edu``</span>
+<span class="sd">            urls are blacklisted by default. By default, ``None``.</span>
+<span class="sd">        known_local_docs : dict or path-like, optional</span>
+<span class="sd">            A dictionary where keys are the jurisdiction codes (as</span>
+<span class="sd">            strings) and values are lists of dictionaries containing</span>
+<span class="sd">            information about each local document. Each document</span>
+<span class="sd">            dictionary should contain at least the key ``&quot;source_fp&quot;``</span>
+<span class="sd">            pointing to the full local document path. Additional keys</span>
+<span class="sd">            are copied onto the loaded document as attributes. This</span>
+<span class="sd">            input can also be a path to a JSON file containing the same</span>
+<span class="sd">            mapping. By default, ``None``.</span>
+<span class="sd">        known_doc_urls : dict or path-like, optional</span>
+<span class="sd">            A dictionary where keys are the jurisdiction codes (as</span>
+<span class="sd">            strings) and values are lists of dictionaries containing</span>
+<span class="sd">            information about each known URL to check. Each document</span>
+<span class="sd">            dictionary should contain at least the key ``&quot;source&quot;``</span>
+<span class="sd">            representing the known document URL. Additional keys are</span>
+<span class="sd">            copied onto the loaded document as attributes. This input</span>
+<span class="sd">            can also be a path to a JSON file containing the same</span>
+<span class="sd">            mapping. By default, ``None``.</span>
+<span class="sd">        file_loader_kwargs : dict, optional</span>
+<span class="sd">            Dictionary of keyword argument pairs to initialize</span>
+<span class="sd">            :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,</span>
+<span class="sd">            the ``&quot;pw_launch_kwargs&quot;`` key in these will also be used to</span>
+<span class="sd">            initialize the Playwright-backed Google search used for</span>
+<span class="sd">            search engine retrieval. By default, ``None``.</span>
+<span class="sd">        search_engines : list, optional</span>
+<span class="sd">            A list of dictionaries describing the search engine classes</span>
+<span class="sd">            and keyword arguments to use for search engine retrieval. If</span>
+<span class="sd">            ``None``, the default search engine configurations and</span>
+<span class="sd">            fallback order are used. By default, ``None``.</span>
+<span class="sd">        simple_se_result_sort : bool, default=True</span>
+<span class="sd">            Flag indicating whether to use a simple top-n sort from the</span>
+<span class="sd">            first search engine that gives results (``True``) or to</span>
+<span class="sd">            apply a holistic link sorting based on all results from all</span>
+<span class="sd">            search engines (``False``). By default, ``True``.</span>
+<span class="sd">        pytesseract_exe_fp : path-like, optional</span>
+<span class="sd">            Path to the `pytesseract` executable. If specified, OCR will</span>
+<span class="sd">            be used to extract text from scanned PDFs using Google&#39;s</span>
+<span class="sd">            Tesseract. By default, ``None``.</span>
+<span class="sd">        td_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`tempfile.TemporaryDirectory`. The temporary</span>
+<span class="sd">            directory is used to store documents which have not yet been</span>
+<span class="sd">            confirmed to contain relevant information.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        tpe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ThreadPoolExecutor`, used for</span>
+<span class="sd">            I/O-bound tasks such as logging and file writes.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        ppe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ProcessPoolExecutor`, used for</span>
+<span class="sd">            CPU-bound tasks such as PDF loading and parsing.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        log_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing log files. If not</span>
+<span class="sd">            provided, a ``logs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        source_file_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where collected source ordinance files</span>
+<span class="sd">            (PDFs or HTML) are stored. If not provided, an</span>
+<span class="sd">            ``ordinance_files`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        parsed_file_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where parsed document text files are</span>
+<span class="sd">            stored. If not provided, a ``cleaned_text`` subdirectory</span>
+<span class="sd">            will be created inside `out_dir`. By default, ``None``.</span>
+<span class="sd">        shard_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing per-jurisdiction</span>
+<span class="sd">            collection manifest shards. If not provided, a</span>
+<span class="sd">            ``manifest_shards`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        perform_se_search : bool, default=True</span>
+<span class="sd">            Option to perform a search engine-based search for ordinance</span>
+<span class="sd">            documents. This is the standard way to collect ordinance</span>
+<span class="sd">            documents, and it is recommended to leave this set to</span>
+<span class="sd">            ``True`` unless you are re-processing local documents. If</span>
+<span class="sd">            ``True``, the search engine approach is used to locate</span>
+<span class="sd">            ordinance documents</span>
+<span class="sd">            before falling back to a website crawl-based search (if that</span>
+<span class="sd">            has been selected). By default, ``True``.</span>
+<span class="sd">        perform_website_search : bool, default=True</span>
+<span class="sd">            Option to fallback to a jurisdiction website crawl-based</span>
+<span class="sd">            search for ordinance documents if the search engine approach</span>
+<span class="sd">            fails to recover any relevant documents.</span>
+<span class="sd">            By default, ``True``.</span>
+<span class="sd">        make_paths_relative : bool, default=True</span>
+<span class="sd">            Option to make all file paths in the saved collection</span>
+<span class="sd">            manifest relative to the output directory. This can be</span>
+<span class="sd">            helpful for sharing the manifest or for ensuring that it can</span>
+<span class="sd">            be loaded correctly on a different machine. If ``False``,</span>
+<span class="sd">            absolute paths are used in the manifest.</span>
+<span class="sd">            By default, ``True``.</span>
+<span class="sd">        llm_costs : dict, optional</span>
+<span class="sd">            Dictionary mapping model names to their token costs, used to</span>
+<span class="sd">            track the estimated total cost of LLM usage during the run.</span>
+<span class="sd">            The structure should be::</span>
+
+<span class="sd">                {&quot;model_name&quot;: {&quot;prompt&quot;: float, &quot;response&quot;: float}}</span>
+
+<span class="sd">            Costs are specified in dollars per million tokens.</span>
+<span class="sd">            For example::</span>
+
+<span class="sd">                &quot;llm_costs&quot;: {&quot;my_gpt&quot;: {&quot;prompt&quot;: 1.5, &quot;response&quot;: 3}}</span>
+
+<span class="sd">            registers a model named `&quot;my_gpt&quot;` with a cost of $1.5 per</span>
+<span class="sd">            million input (prompt) tokens and $3 per million output</span>
+<span class="sd">            (response) tokens for the current processing run.</span>
+
+<span class="sd">            .. NOTE::</span>
+
+<span class="sd">                The displayed total cost does not track cached tokens,</span>
+<span class="sd">                so treat it like an estimate. Your final API costs may</span>
+<span class="sd">                vary.</span>
+
+<span class="sd">            If set to ``None``, no custom model costs are recorded, and</span>
+<span class="sd">            cost tracking may be unavailable in the progress bar.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        log_level : str, default=&quot;INFO&quot;</span>
+<span class="sd">            Logging level for ordinance scraping and parsing (e.g.,</span>
+<span class="sd">            &quot;TRACE&quot;, &quot;DEBUG&quot;, &quot;INFO&quot;, &quot;WARNING&quot;, or &quot;ERROR&quot;).</span>
+<span class="sd">            By default, ``&quot;INFO&quot;``.</span>
+<span class="sd">        keep_async_logs : bool, default=False</span>
+<span class="sd">            Option to store the full asynchronous log record to a file.</span>
+<span class="sd">            This is only useful if you intend to monitor overall</span>
+<span class="sd">            processing progress from a file instead of from the</span>
+<span class="sd">            terminal. If ``True``, all of the unordered records are</span>
+<span class="sd">            written to a &quot;all.log&quot; file in the `log_dir` directory.</span>
+<span class="sd">            By default, ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+            <span class="n">tech</span><span class="o">=</span><span class="n">tech</span><span class="p">,</span>
+            <span class="n">jurisdiction_fp</span><span class="o">=</span><span class="n">jurisdiction_fp</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">llm_costs</span><span class="o">=</span><span class="n">llm_costs</span><span class="p">,</span>
+            <span class="n">num_urls_to_check_per_jurisdiction</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">num_urls_to_check_per_jurisdiction</span>
+            <span class="p">),</span>
+            <span class="n">max_num_concurrent_browsers</span><span class="o">=</span><span class="n">max_num_concurrent_browsers</span><span class="p">,</span>
+            <span class="n">max_num_concurrent_website_searches</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">max_num_concurrent_website_searches</span>
+            <span class="p">),</span>
+            <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="n">max_num_concurrent_jurisdictions</span><span class="p">,</span>
+            <span class="n">website_crawl_timeout_seconds</span><span class="o">=</span><span class="n">website_crawl_timeout_seconds</span><span class="p">,</span>
+            <span class="n">url_ignore_substrings</span><span class="o">=</span><span class="n">url_ignore_substrings</span><span class="p">,</span>
+            <span class="n">url_keep_substrings</span><span class="o">=</span><span class="n">url_keep_substrings</span><span class="p">,</span>
+            <span class="n">known_local_docs</span><span class="o">=</span><span class="n">known_local_docs</span><span class="p">,</span>
+            <span class="n">known_doc_urls</span><span class="o">=</span><span class="n">known_doc_urls</span><span class="p">,</span>
+            <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="n">file_loader_kwargs</span><span class="p">,</span>
+            <span class="n">search_engines</span><span class="o">=</span><span class="n">search_engines</span><span class="p">,</span>
+            <span class="n">simple_se_result_sort</span><span class="o">=</span><span class="n">simple_se_result_sort</span><span class="p">,</span>
+            <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="n">pytesseract_exe_fp</span><span class="p">,</span>
+            <span class="n">td_kwargs</span><span class="o">=</span><span class="n">td_kwargs</span><span class="p">,</span>
+            <span class="n">tpe_kwargs</span><span class="o">=</span><span class="n">tpe_kwargs</span><span class="p">,</span>
+            <span class="n">ppe_kwargs</span><span class="o">=</span><span class="n">ppe_kwargs</span><span class="p">,</span>
+            <span class="n">log_dir</span><span class="o">=</span><span class="n">log_dir</span><span class="p">,</span>
+            <span class="n">clean_dir</span><span class="o">=</span><span class="n">parsed_file_dir</span><span class="p">,</span>
+            <span class="n">ordinance_file_dir</span><span class="o">=</span><span class="n">source_file_dir</span><span class="p">,</span>
+            <span class="n">jurisdiction_dbs_dir</span><span class="o">=</span><span class="n">shard_dir</span><span class="p">,</span>
+            <span class="n">perform_se_search</span><span class="o">=</span><span class="n">perform_se_search</span><span class="p">,</span>
+            <span class="n">perform_website_search</span><span class="o">=</span><span class="n">perform_website_search</span><span class="p">,</span>
+            <span class="n">make_paths_relative</span><span class="o">=</span><span class="n">make_paths_relative</span><span class="p">,</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+            <span class="n">keep_async_logs</span><span class="o">=</span><span class="n">keep_async_logs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="ExtractionRequest">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.ExtractionRequest.html#compass.pipeline.data_classes.ExtractionRequest">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ExtractionRequest</span><span class="p">(</span><span class="n">BaseRequest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parameter Object for extraction mode&quot;&quot;&quot;</span>
+
+    <span class="n">MODE</span> <span class="o">=</span> <span class="n">COMPASSRunMode</span><span class="o">.</span><span class="n">EXTRACT</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;COMPASSRunMode associated with this request type&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># ruff:ignore[too-many-arguments]</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">out_dir</span><span class="p">,</span>
+        <span class="n">tech</span><span class="p">,</span>
+        <span class="n">jurisdiction_fp</span><span class="p">,</span>
+        <span class="n">collection_manifest_fp</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o-mini&quot;</span><span class="p">,</span>
+        <span class="n">max_num_docs_to_parse_per_jurisdiction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="mi">25</span><span class="p">,</span>
+        <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">td_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">tpe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ppe_kwargs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">clean_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ordinance_file_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">jurisdiction_dbs_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">llm_costs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">log_level</span><span class="o">=</span><span class="s2">&quot;INFO&quot;</span><span class="p">,</span>
+        <span class="n">keep_async_logs</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        out_dir : path-like</span>
+<span class="sd">            Path to the output directory. If it does not exist, it will</span>
+<span class="sd">            be created. This directory will contain the saved collection</span>
+<span class="sd">            manifest, downloaded ordinance documents, parsed document</span>
+<span class="sd">            text, usage metadata, and default subdirectories for logs</span>
+<span class="sd">            and intermediate outputs (unless otherwise specified).</span>
+<span class="sd">        tech : str</span>
+<span class="sd">            Label indicating which technology type is being processed.</span>
+<span class="sd">            Must be one of the keys of</span>
+<span class="sd">            :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.</span>
+<span class="sd">        jurisdiction_fp : path-like</span>
+<span class="sd">            Path to a CSV file specifying the jurisdictions to process.</span>
+<span class="sd">            The CSV must contain at least two columns: &quot;County&quot; and</span>
+<span class="sd">            &quot;State&quot;, which specify the county and state names,</span>
+<span class="sd">            respectively. If you would like to process a subdivision</span>
+<span class="sd">            with a county, you must also include &quot;Subdivision&quot; and</span>
+<span class="sd">            &quot;Jurisdiction Type&quot; columns. The &quot;Subdivision&quot; should be the</span>
+<span class="sd">            name of the subdivision, and the &quot;Jurisdiction Type&quot; should</span>
+<span class="sd">            be a string identifying the type of subdivision (e.g.,</span>
+<span class="sd">            &quot;City&quot;, &quot;Township&quot;, etc.)</span>
+<span class="sd">        collection_manifest_fp : path-like or list of path-like, optional</span>
+<span class="sd">            Path to the JSON collection manifest created by the document</span>
+<span class="sd">            collection step. This can be a single path or a list of</span>
+<span class="sd">            paths for multiple collection manifests, any of which may</span>
+<span class="sd">            include glob patterns. Each collection manifest must contain</span>
+<span class="sd">            the persisted document information needed to reload each</span>
+<span class="sd">            collected document for extraction. By default, ``None``.</span>
+<span class="sd">        model : str or list of dict, default=&quot;gpt-4o-mini&quot;</span>
+<span class="sd">            LLM model(s) to use for scraping and parsing ordinance</span>
+<span class="sd">            documents. If a string is provided, it is assumed to be the</span>
+<span class="sd">            name of the default model (e.g., &quot;gpt-4o&quot;), and environment</span>
+<span class="sd">            variables are used for authentication.</span>
+
+<span class="sd">            If a list is provided, it should contain dictionaries of</span>
+<span class="sd">            arguments that can initialize instances of</span>
+<span class="sd">            :class:`~compass.llm.config.OpenAIConfig`. Each dictionary</span>
+<span class="sd">            can specify the model name, client type, and initialization</span>
+<span class="sd">            arguments.</span>
+
+<span class="sd">            Each dictionary must also include a ``tasks`` key, which</span>
+<span class="sd">            maps to a string or list of strings indicating the tasks</span>
+<span class="sd">            that instance should handle. Exactly one of the instances</span>
+<span class="sd">            **must** include &quot;default&quot; as a task, which will be used</span>
+<span class="sd">            when no specific task is matched. For example::</span>
+
+<span class="sd">                &quot;model&quot;: [</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;model&quot;: &quot;gpt-4o-mini&quot;,</span>
+<span class="sd">                        &quot;llm_call_kwargs&quot;: {</span>
+<span class="sd">                            &quot;temperature&quot;: 0,</span>
+<span class="sd">                            &quot;timeout&quot;: 300,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;client_kwargs&quot;: {</span>
+<span class="sd">                            &quot;api_key&quot;: &quot;&lt;your_api_key&gt;&quot;,</span>
+<span class="sd">                            &quot;api_version&quot;: &quot;&lt;your_api_version&gt;&quot;,</span>
+<span class="sd">                            &quot;azure_endpoint&quot;: &quot;&lt;your_azure_endpoint&gt;&quot;,</span>
+<span class="sd">                        },</span>
+<span class="sd">                        &quot;tasks&quot;: [&quot;default&quot;, &quot;date_extraction&quot;],</span>
+<span class="sd">                    },</span>
+<span class="sd">                    {</span>
+<span class="sd">                        &quot;model&quot;: &quot;gpt-4o&quot;,</span>
+<span class="sd">                        &quot;client_type&quot;: &quot;openai&quot;,</span>
+<span class="sd">                        &quot;tasks&quot;: [&quot;ordinance_text_extraction&quot;],</span>
+<span class="sd">                    }</span>
+<span class="sd">                ]</span>
+
+<span class="sd">            .. IMPORTANT::</span>
+<span class="sd">                You will need to ensure that the model name used here</span>
+<span class="sd">                matches your deployment if you are using Azure OpenAI.</span>
+<span class="sd">                For example, if you deployed the GPT-4o-mini model under</span>
+<span class="sd">                the name ``&quot;gpt-4o-mini-2025-04-11&quot;``, you would want to</span>
+<span class="sd">                set ``&quot;model&quot;: &quot;gpt-4o-mini-2025-04-11&quot;``.</span>
+
+<span class="sd">            By default, ``&quot;gpt-4o-mini&quot;``.</span>
+<span class="sd">        max_num_docs_to_parse_per_jurisdiction : int, optional</span>
+<span class="sd">            Maximum number of documents to parse for each jurisdiction</span>
+<span class="sd">            (regardless of the collection method). If ``None``, all</span>
+<span class="sd">            collected documents are parsed. By default, ``None``.</span>
+<span class="sd">        max_num_concurrent_jurisdictions : int, default=25</span>
+<span class="sd">            Maximum number of jurisdictions to process concurrently.</span>
+<span class="sd">            Limiting this can help manage memory usage when dealing with</span>
+<span class="sd">            a large number of documents. By default, ``25``.</span>
+<span class="sd">        file_loader_kwargs : dict, optional</span>
+<span class="sd">            Dictionary of keyword argument pairs to initialize</span>
+<span class="sd">            :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,</span>
+<span class="sd">            the ``&quot;pw_launch_kwargs&quot;`` key in these will also be used to</span>
+<span class="sd">            initialize the Playwright-backed Google search used for</span>
+<span class="sd">            search engine retrieval. By default, ``None``.</span>
+<span class="sd">        td_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`tempfile.TemporaryDirectory`. The temporary</span>
+<span class="sd">            directory is used to store documents which have not yet been</span>
+<span class="sd">            confirmed to contain relevant information.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        tpe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ThreadPoolExecutor`, used for</span>
+<span class="sd">            I/O-bound tasks such as logging and file writes.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        ppe_kwargs : dict, optional</span>
+<span class="sd">            Additional keyword arguments to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ProcessPoolExecutor`, used for</span>
+<span class="sd">            CPU-bound tasks such as PDF loading and parsing.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        log_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing log files. If not</span>
+<span class="sd">            provided, a ``logs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        clean_dir : path-like, optional</span>
+<span class="sd">            Path to the directory for storing cleaned ordinance text</span>
+<span class="sd">            output. If not provided, a ``cleaned_text`` subdirectory</span>
+<span class="sd">            will be created inside `out_dir`. By default, ``None``.</span>
+<span class="sd">        ordinance_file_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where downloaded ordinance files (PDFs</span>
+<span class="sd">            or HTML) for each jurisdiction are stored. If not provided,</span>
+<span class="sd">            a ``ordinance_files`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        jurisdiction_dbs_dir : path-like, optional</span>
+<span class="sd">            Path to the directory where parsed ordinance database files</span>
+<span class="sd">            are stored for each jurisdiction. If not provided, a</span>
+<span class="sd">            ``jurisdiction_dbs`` subdirectory will be created inside</span>
+<span class="sd">            `out_dir`. By default, ``None``.</span>
+<span class="sd">        llm_costs : dict, optional</span>
+<span class="sd">            Dictionary mapping model names to their token costs, used to</span>
+<span class="sd">            track the estimated total cost of LLM usage during the run.</span>
+<span class="sd">            The structure should be::</span>
+
+<span class="sd">                {&quot;model_name&quot;: {&quot;prompt&quot;: float, &quot;response&quot;: float}}</span>
+
+<span class="sd">            Costs are specified in dollars per million tokens.</span>
+<span class="sd">            For example::</span>
+
+<span class="sd">                &quot;llm_costs&quot;: {&quot;my_gpt&quot;: {&quot;prompt&quot;: 1.5, &quot;response&quot;: 3}}</span>
+
+<span class="sd">            registers a model named `&quot;my_gpt&quot;` with a cost of $1.5 per</span>
+<span class="sd">            million input (prompt) tokens and $3 per million output</span>
+<span class="sd">            (response) tokens for the current processing run.</span>
+
+<span class="sd">            .. NOTE::</span>
+
+<span class="sd">                The displayed total cost does not track cached tokens,</span>
+<span class="sd">                so treat it like an estimate. Your final API costs may</span>
+<span class="sd">                vary.</span>
+
+<span class="sd">            If set to ``None``, no custom model costs are recorded, and</span>
+<span class="sd">            cost tracking may be unavailable in the progress bar.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        log_level : str, default=&quot;INFO&quot;</span>
+<span class="sd">            Logging level for ordinance scraping and parsing (e.g.,</span>
+<span class="sd">            &quot;TRACE&quot;, &quot;DEBUG&quot;, &quot;INFO&quot;, &quot;WARNING&quot;, or &quot;ERROR&quot;).</span>
+<span class="sd">            By default, ``&quot;INFO&quot;``.</span>
+<span class="sd">        keep_async_logs : bool, default=False</span>
+<span class="sd">            Option to store the full asynchronous log record to a file.</span>
+<span class="sd">            This is only useful if you intend to monitor overall</span>
+<span class="sd">            processing progress from a file instead of from the</span>
+<span class="sd">            terminal. If ``True``, all of the unordered records are</span>
+<span class="sd">            written to a &quot;all.log&quot; file in the `log_dir` directory.</span>
+<span class="sd">            By default, ``False``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>  <span class="c1"># ruff:ignore[doc-line-too-long]</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">out_dir</span><span class="o">=</span><span class="n">out_dir</span><span class="p">,</span>
+            <span class="n">tech</span><span class="o">=</span><span class="n">tech</span><span class="p">,</span>
+            <span class="n">jurisdiction_fp</span><span class="o">=</span><span class="n">jurisdiction_fp</span><span class="p">,</span>
+            <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+            <span class="n">max_num_docs_to_parse_per_jurisdiction</span><span class="o">=</span><span class="p">(</span>
+                <span class="n">max_num_docs_to_parse_per_jurisdiction</span>
+            <span class="p">),</span>
+            <span class="n">max_num_concurrent_jurisdictions</span><span class="o">=</span><span class="n">max_num_concurrent_jurisdictions</span><span class="p">,</span>
+            <span class="n">file_loader_kwargs</span><span class="o">=</span><span class="n">file_loader_kwargs</span><span class="p">,</span>
+            <span class="n">td_kwargs</span><span class="o">=</span><span class="n">td_kwargs</span><span class="p">,</span>
+            <span class="n">tpe_kwargs</span><span class="o">=</span><span class="n">tpe_kwargs</span><span class="p">,</span>
+            <span class="n">ppe_kwargs</span><span class="o">=</span><span class="n">ppe_kwargs</span><span class="p">,</span>
+            <span class="n">log_dir</span><span class="o">=</span><span class="n">log_dir</span><span class="p">,</span>
+            <span class="n">clean_dir</span><span class="o">=</span><span class="n">clean_dir</span><span class="p">,</span>
+            <span class="n">ordinance_file_dir</span><span class="o">=</span><span class="n">ordinance_file_dir</span><span class="p">,</span>
+            <span class="n">jurisdiction_dbs_dir</span><span class="o">=</span><span class="n">jurisdiction_dbs_dir</span><span class="p">,</span>
+            <span class="n">log_level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span>
+            <span class="n">keep_async_logs</span><span class="o">=</span><span class="n">keep_async_logs</span><span class="p">,</span>
+            <span class="n">collection_manifest_fp</span><span class="o">=</span><span class="n">collection_manifest_fp</span><span class="p">,</span>
+            <span class="n">llm_costs</span><span class="o">=</span><span class="n">llm_costs</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="JurisdictionResult">
+<a class="viewcode-back" href="../../../_autosummary/compass.pipeline.data_classes.JurisdictionResult.html#compass.pipeline.data_classes.JurisdictionResult">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">JurisdictionResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Result Object for one jurisdiction run&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ord_db_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        jurisdiction : object, optional</span>
+<span class="sd">            Jurisdiction object associated with this pipeline result.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        ord_db_fp : path-like, optional</span>
+<span class="sd">            Path to the ordinance database produced for the</span>
+<span class="sd">            jurisdiction. By default, ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jurisdiction</span> <span class="o">=</span> <span class="n">jurisdiction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ord_db_fp</span> <span class="o">=</span> <span class="n">ord_db_fp</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__bool__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">ord_db_fp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_models</span><span class="p">(</span><span class="n">user_input</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">allow_empty</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">rate_tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;[NOT PUBLIC API] Build configured model registry&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">user_input</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span> <span class="k">if</span> <span class="n">allow_empty</span> <span class="k">else</span> <span class="p">{</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">:</span> <span class="n">OpenAIConfig</span><span class="p">()}</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">user_input</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">:</span> <span class="n">OpenAIConfig</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">user_input</span><span class="p">)}</span>
+
+    <span class="n">caller_instances</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">raw_kwargs</span> <span class="ow">in</span> <span class="n">user_input</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">task</span><span class="p">,</span> <span class="n">model_config</span> <span class="ow">in</span> <span class="n">_config_for_tasks</span><span class="p">(</span><span class="n">raw_kwargs</span><span class="p">,</span> <span class="n">rate_tracker</span><span class="p">):</span>
+            <span class="n">_verify_task_not_duplicate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">caller_instances</span><span class="p">)</span>
+            <span class="n">caller_instances</span><span class="p">[</span><span class="n">task</span><span class="p">]</span> <span class="o">=</span> <span class="n">model_config</span>
+
+    <span class="n">_verify_default_case_handled</span><span class="p">(</span><span class="n">caller_instances</span><span class="p">,</span> <span class="n">allow_empty</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">caller_instances</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_config_for_tasks</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="n">rate_tracker</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield (task, model_config) pairs for the given raw kwargs&quot;&quot;&quot;</span>
+    <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tasks&quot;</span><span class="p">,</span> <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tasks</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">tasks</span><span class="p">]</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">OpenAIConfig</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">model_config</span><span class="o">.</span><span class="n">llm_call_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;rate_tracker&quot;</span><span class="p">:</span> <span class="n">rate_tracker</span><span class="p">})</span>
+    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">task</span><span class="p">,</span> <span class="n">model_config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_verify_task_not_duplicate</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">caller_instances</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify that the given task has not already been defined&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">task</span> <span class="ow">in</span> <span class="n">caller_instances</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Found duplicated task: </span><span class="si">{</span><span class="n">task</span><span class="si">!r}</span><span class="s2">. Please ensure &quot;</span>
+            <span class="s2">&quot;each LLM caller definition has uniquely-assigned &quot;</span>
+            <span class="s2">&quot;tasks.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">COMPASSValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_verify_default_case_handled</span><span class="p">(</span><span class="n">caller_instances</span><span class="p">,</span> <span class="n">allow_empty</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify that the default LLM task is handled correctly&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">allow_empty</span> <span class="ow">and</span> <span class="n">LLMTasks</span><span class="o">.</span><span class="n">DEFAULT</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">caller_instances</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;No &#39;default&#39; LLM caller defined in the `model` portion &quot;</span>
+            <span class="s2">&quot;of the input config! Please ensure exactly one of the &quot;</span>
+            <span class="s2">&quot;model definitions has &#39;tasks&#39; set to &#39;default&#39; or left &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;unspecified. Found tasks: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">caller_instances</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">COMPASSValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

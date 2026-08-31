@@ -1,0 +1,6 @@
+compass.services.threaded.read\_html\_file
+==========================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autofunction:: read_html_file

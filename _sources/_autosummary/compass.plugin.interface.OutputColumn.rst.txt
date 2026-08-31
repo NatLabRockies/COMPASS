@@ -1,0 +1,31 @@
+compass.plugin.interface.OutputColumn
+=====================================
+
+.. currentmodule:: compass.plugin.interface
+
+.. autoclass:: OutputColumn
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OutputColumn.include_in_qual_output
+      ~OutputColumn.include_in_quant_output
+      ~OutputColumn.name
+   
+   

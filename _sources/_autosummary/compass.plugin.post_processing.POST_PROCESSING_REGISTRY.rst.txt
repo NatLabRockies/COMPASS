@@ -1,0 +1,6 @@
+compass.plugin.post\_processing.POST\_PROCESSING\_REGISTRY
+==========================================================
+
+.. currentmodule:: compass.plugin.post_processing
+
+.. autodata:: POST_PROCESSING_REGISTRY

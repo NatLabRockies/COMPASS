@@ -1,0 +1,6 @@
+compass.extraction.wind.graphs.setup\_conditional\_min
+======================================================
+
+.. currentmodule:: compass.extraction.wind.graphs
+
+.. autofunction:: setup_conditional_min

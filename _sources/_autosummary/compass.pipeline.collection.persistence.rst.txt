@@ -1,0 +1,36 @@
+compass.pipeline.collection.persistence
+=======================================
+
+.. automodule:: compass.pipeline.collection.persistence
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      build_collection_manifest
+      load_collected_docs
+      load_collection_manifest_jurisdictions
+      load_specific_collection_manifest_shard
+      persist_documents
+      write_collection_manifest
+      write_collection_manifest_shard
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,6 @@
+compass.scripts.search.summary
+==============================
+
+.. currentmodule:: compass.scripts.search
+
+.. autofunction:: summary

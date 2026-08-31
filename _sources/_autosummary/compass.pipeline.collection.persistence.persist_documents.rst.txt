@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.persist\_documents
+==========================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: persist_documents

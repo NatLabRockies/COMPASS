@@ -1,0 +1,6 @@
+compass.utilities.parsing.merge\_overlapping\_texts
+===================================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: merge_overlapping_texts

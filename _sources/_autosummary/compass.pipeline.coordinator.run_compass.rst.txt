@@ -1,0 +1,6 @@
+compass.pipeline.coordinator.run\_compass
+=========================================
+
+.. currentmodule:: compass.pipeline.coordinator
+
+.. autofunction:: run_compass

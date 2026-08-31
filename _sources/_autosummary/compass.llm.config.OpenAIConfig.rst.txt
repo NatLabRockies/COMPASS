@@ -1,0 +1,32 @@
+compass.llm.config.OpenAIConfig
+===============================
+
+.. currentmodule:: compass.llm.config
+
+.. autoclass:: OpenAIConfig
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OpenAIConfig.SUPPORTED_CLIENTS
+      ~OpenAIConfig.client_kwargs
+      ~OpenAIConfig.llm_service
+      ~OpenAIConfig.text_splitter
+   
+   

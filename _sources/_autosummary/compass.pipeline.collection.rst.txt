@@ -1,0 +1,33 @@
+compass.pipeline.collection
+===========================
+
+.. automodule:: compass.pipeline.collection
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   base
+   dedupe
+   persistence
+   steps
+

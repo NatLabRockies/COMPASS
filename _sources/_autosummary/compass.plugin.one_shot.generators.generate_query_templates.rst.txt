@@ -1,0 +1,6 @@
+compass.plugin.one\_shot.generators.generate\_query\_templates
+==============================================================
+
+.. currentmodule:: compass.plugin.one_shot.generators
+
+.. autofunction:: generate_query_templates

@@ -1,0 +1,31 @@
+compass.extraction.solar.graphs
+===============================
+
+.. automodule:: compass.extraction.solar.graphs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      setup_graph_sef_types
+      setup_multiplier
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,23 @@
+compass.extraction.geothermal\_electricity
+==========================================
+
+.. automodule:: compass.extraction.geothermal_electricity
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

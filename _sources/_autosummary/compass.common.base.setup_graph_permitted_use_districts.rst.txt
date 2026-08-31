@@ -1,0 +1,6 @@
+compass.common.base.setup\_graph\_permitted\_use\_districts
+===========================================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: setup_graph_permitted_use_districts

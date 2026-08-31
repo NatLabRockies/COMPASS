@@ -1,0 +1,32 @@
+compass.scripts.search
+======================
+
+.. automodule:: compass.scripts.search
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      run_search
+      summary
+      write_search_report
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

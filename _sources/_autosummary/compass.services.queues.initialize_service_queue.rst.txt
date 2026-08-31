@@ -1,0 +1,6 @@
+compass.services.queues.initialize\_service\_queue
+==================================================
+
+.. currentmodule:: compass.services.queues
+
+.. autofunction:: initialize_service_queue

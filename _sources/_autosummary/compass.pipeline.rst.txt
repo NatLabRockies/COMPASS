@@ -1,0 +1,35 @@
+compass.pipeline
+================
+
+.. automodule:: compass.pipeline
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   collection
+   coordinator
+   data_classes
+   extraction
+   jurisdiction
+   runtime
+

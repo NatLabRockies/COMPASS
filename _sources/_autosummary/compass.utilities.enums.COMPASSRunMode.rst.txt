@@ -1,0 +1,79 @@
+compass.utilities.enums.COMPASSRunMode
+======================================
+
+.. currentmodule:: compass.utilities.enums
+
+.. autoclass:: COMPASSRunMode
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSRunMode.members_as_str
+      ~COMPASSRunMode.encode
+      ~COMPASSRunMode.replace
+      ~COMPASSRunMode.split
+      ~COMPASSRunMode.rsplit
+      ~COMPASSRunMode.join
+      ~COMPASSRunMode.capitalize
+      ~COMPASSRunMode.casefold
+      ~COMPASSRunMode.title
+      ~COMPASSRunMode.center
+      ~COMPASSRunMode.count
+      ~COMPASSRunMode.expandtabs
+      ~COMPASSRunMode.find
+      ~COMPASSRunMode.partition
+      ~COMPASSRunMode.index
+      ~COMPASSRunMode.ljust
+      ~COMPASSRunMode.lower
+      ~COMPASSRunMode.lstrip
+      ~COMPASSRunMode.rfind
+      ~COMPASSRunMode.rindex
+      ~COMPASSRunMode.rjust
+      ~COMPASSRunMode.rstrip
+      ~COMPASSRunMode.rpartition
+      ~COMPASSRunMode.splitlines
+      ~COMPASSRunMode.strip
+      ~COMPASSRunMode.swapcase
+      ~COMPASSRunMode.translate
+      ~COMPASSRunMode.upper
+      ~COMPASSRunMode.startswith
+      ~COMPASSRunMode.endswith
+      ~COMPASSRunMode.removeprefix
+      ~COMPASSRunMode.removesuffix
+      ~COMPASSRunMode.isascii
+      ~COMPASSRunMode.islower
+      ~COMPASSRunMode.isupper
+      ~COMPASSRunMode.istitle
+      ~COMPASSRunMode.isspace
+      ~COMPASSRunMode.isdecimal
+      ~COMPASSRunMode.isdigit
+      ~COMPASSRunMode.isnumeric
+      ~COMPASSRunMode.isalpha
+      ~COMPASSRunMode.isalnum
+      ~COMPASSRunMode.isidentifier
+      ~COMPASSRunMode.isprintable
+      ~COMPASSRunMode.zfill
+      ~COMPASSRunMode.format
+      ~COMPASSRunMode.format_map
+      ~COMPASSRunMode.maketrans
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~COMPASSRunMode.PROCESS
+      ~COMPASSRunMode.COLLECT
+      ~COMPASSRunMode.EXTRACT
+   
+   

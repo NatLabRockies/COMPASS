@@ -1,0 +1,6 @@
+compass.utilities.ngrams.sentence\_ngram\_containment
+=====================================================
+
+.. currentmodule:: compass.utilities.ngrams
+
+.. autofunction:: sentence_ngram_containment

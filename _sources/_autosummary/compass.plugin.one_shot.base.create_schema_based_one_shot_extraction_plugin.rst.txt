@@ -1,0 +1,6 @@
+compass.plugin.one\_shot.base.create\_schema\_based\_one\_shot\_extraction\_plugin
+==================================================================================
+
+.. currentmodule:: compass.plugin.one_shot.base
+
+.. autofunction:: create_schema_based_one_shot_extraction_plugin

@@ -1,0 +1,30 @@
+compass.pb
+==========
+
+.. automodule:: compass.pb
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      COMPASS_PB
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

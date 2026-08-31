@@ -1,0 +1,34 @@
+compass.plugin.ordinance.KeywordBasedHeuristic
+==============================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: KeywordBasedHeuristic
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~KeywordBasedHeuristic.check
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~KeywordBasedHeuristic.GOOD_TECH_ACRONYMS
+      ~KeywordBasedHeuristic.GOOD_TECH_KEYWORDS
+      ~KeywordBasedHeuristic.GOOD_TECH_PHRASES
+      ~KeywordBasedHeuristic.MIN_DEFAULT_MATCHES
+      ~KeywordBasedHeuristic.NOT_TECH_WORDS
+   
+   

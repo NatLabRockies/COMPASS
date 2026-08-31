@@ -1,0 +1,1489 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.pipeline.collection.persistence &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/pipeline/collection/persistence';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../../../_static/searchtools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script src="../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.pipeline.collection.persistence</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.pipeline.collection.persistence</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Persistence for collected documents&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">glob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">itertools</span><span class="w"> </span><span class="kn">import</span> <span class="n">chain</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">statistics</span><span class="w"> </span><span class="kn">import</span> <span class="n">median</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="kn">import</span> <span class="n">warn</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">UTC</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">elm_version</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span> <span class="k">as</span> <span class="n">compass_version</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.threaded</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FileMover</span><span class="p">,</span>
+    <span class="n">ParsedFileWriter</span><span class="p">,</span>
+    <span class="n">TempFileCacheCopier</span><span class="p">,</span>
+    <span class="n">GenericFuncRunner</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.cpu</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_docling_local_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_config</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_all_paths</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.parsing</span><span class="w"> </span><span class="kn">import</span> <span class="n">convert_paths_to_strings</span><span class="p">,</span> <span class="n">is_pdf_doc</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.warn</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSWarning</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSFileNotFoundError</span><span class="p">,</span> <span class="n">COMPASSValueError</span>
+
+
+<span class="n">COLLECTION_MANIFEST_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;collection_manifest.json&quot;</span>
+
+
+<div class="viewcode-block" id="build_collection_manifest">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.build_collection_manifest.html#compass.pipeline.collection.persistence.build_collection_manifest">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">build_collection_manifest</span><span class="p">(</span>
+    <span class="n">tech</span><span class="p">,</span> <span class="n">jurisdictions</span><span class="p">,</span> <span class="n">time_start_utc</span><span class="p">,</span> <span class="n">num_jurisdictions_searched</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the serialized collection manifest payload</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tech : str</span>
+<span class="sd">        Technology specified in the pipeline request, included in the</span>
+<span class="sd">        manifest for compatibility validation when loading.</span>
+<span class="sd">    jurisdictions : list</span>
+<span class="sd">        List of serialized collection metadata for each jurisdiction,</span>
+<span class="sd">        including jurisdiction identifiers and the persisted document</span>
+<span class="sd">        records.</span>
+<span class="sd">    time_start_utc : datetime.datetime</span>
+<span class="sd">        UTC datetime when the collection process started, used to</span>
+<span class="sd">        calculate elapsed time for the manifest metadata.</span>
+<span class="sd">    num_jurisdictions_searched : int</span>
+<span class="sd">        Number of jurisdictions that were searched during the collection</span>
+<span class="sd">        process, included in the manifest for informational purposes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Collection manifest as a dictionary, ready to be serialized and</span>
+<span class="sd">        written to disk.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">time_end_utc</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">)</span>
+    <span class="n">time_elapsed</span> <span class="o">=</span> <span class="n">time_end_utc</span> <span class="o">-</span> <span class="n">time_start_utc</span>
+
+    <span class="n">out_jurisdictions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">document_counts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">step_counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">jurisdictions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">info</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">docs</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">out_jurisdictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+        <span class="n">document_counts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">docs</span><span class="p">))</span>
+        <span class="n">complete_step_counts</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed_step_document_counts&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">for</span> <span class="n">step</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">complete_step_counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">step_counts</span><span class="p">[</span><span class="n">step</span><span class="p">]</span> <span class="o">=</span> <span class="n">step_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">count</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;tech&quot;</span><span class="p">:</span> <span class="n">tech</span><span class="p">,</span>
+        <span class="s2">&quot;versions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;compass&quot;</span><span class="p">:</span> <span class="n">compass_version</span><span class="p">,</span> <span class="s2">&quot;elm&quot;</span><span class="p">:</span> <span class="n">elm_version</span><span class="p">},</span>
+        <span class="s2">&quot;time_start_utc&quot;</span><span class="p">:</span> <span class="n">time_start_utc</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;time_end_utc&quot;</span><span class="p">:</span> <span class="n">time_end_utc</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;total_time&quot;</span><span class="p">:</span> <span class="n">time_elapsed</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">(),</span>
+        <span class="s2">&quot;total_time_string&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">time_elapsed</span><span class="p">),</span>
+        <span class="s2">&quot;num_jurisdictions_searched&quot;</span><span class="p">:</span> <span class="n">num_jurisdictions_searched</span><span class="p">,</span>
+        <span class="s2">&quot;num_jurisdictions_found&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="nb">bool</span><span class="p">(</span><span class="n">count</span><span class="p">)</span> <span class="k">for</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">document_counts</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;completed_step_document_totals&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">step_counts</span><span class="p">),</span>
+        <span class="s2">&quot;num_doc_stats&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;min&quot;</span><span class="p">:</span> <span class="nb">min</span><span class="p">(</span><span class="n">document_counts</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;max&quot;</span><span class="p">:</span> <span class="nb">max</span><span class="p">(</span><span class="n">document_counts</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span>
+            <span class="s2">&quot;median&quot;</span><span class="p">:</span> <span class="n">median</span><span class="p">(</span><span class="n">document_counts</span><span class="p">)</span> <span class="k">if</span> <span class="n">document_counts</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span><span class="n">document_counts</span><span class="p">),</span>
+        <span class="p">},</span>
+        <span class="s2">&quot;jurisdictions&quot;</span><span class="p">:</span> <span class="n">out_jurisdictions</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="write_collection_manifest">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.write_collection_manifest.html#compass.pipeline.collection.persistence.write_collection_manifest">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write_collection_manifest</span><span class="p">(</span><span class="n">manifest_dir</span><span class="p">,</span> <span class="n">collection_manifest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a collection manifest to disk</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    manifest_dir : path-like</span>
+<span class="sd">        Path to the directory where the manifest should be written.</span>
+<span class="sd">    collection_manifest : dict</span>
+<span class="sd">        Dictionary containing collection manifest information to be</span>
+<span class="sd">        serialized and written to disk.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        Path to the written manifest file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">GenericFuncRunner</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">_write_collection_manifest</span><span class="p">,</span> <span class="n">manifest_dir</span><span class="p">,</span> <span class="n">collection_manifest</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="write_collection_manifest_shard">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.write_collection_manifest_shard.html#compass.pipeline.collection.persistence.write_collection_manifest_shard">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">write_collection_manifest_shard</span><span class="p">(</span><span class="n">shard_dir</span><span class="p">,</span> <span class="n">collection_info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write one jurisdiction collection manifest shard to disk</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shard_dir : path-like</span>
+<span class="sd">        Directory where the jurisdiction shard JSON should be written.</span>
+<span class="sd">    collection_info : dict</span>
+<span class="sd">        Serialized collection metadata for one jurisdiction.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    pathlib.Path</span>
+<span class="sd">        Path to the written shard file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">GenericFuncRunner</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">_write_collection_manifest_shard</span><span class="p">,</span> <span class="n">shard_dir</span><span class="p">,</span> <span class="n">collection_info</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_collection_manifest_jurisdictions">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.load_collection_manifest_jurisdictions.html#compass.pipeline.collection.persistence.load_collection_manifest_jurisdictions">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">load_collection_manifest_jurisdictions</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load jurisdictions from one or more collection manifest(s)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    manifest_fp : path-like or list of path-like</span>
+<span class="sd">        Path to the collection manifest file to be loaded. Can be a</span>
+<span class="sd">        single path or a list of paths, any of which may include glob</span>
+<span class="sd">        patterns.</span>
+<span class="sd">    expected_tech : str</span>
+<span class="sd">        Technology specified in the pipeline request, used to validate</span>
+<span class="sd">        compatibility with the manifest.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Mapping of FIPS codes to jurisdiction infos from the collection</span>
+<span class="sd">        manifest(s).</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    COMPASSValueError</span>
+<span class="sd">        If a duplicate jurisdiction is found in the manifest(s).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">PathLike</span><span class="p">)):</span>
+        <span class="n">manifest_fp</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">)]</span>
+
+    <span class="n">manifests</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_load_jur_manifests</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">)</span>
+
+    <span class="n">jurisdictions_by_fips</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">jurisdiction</span> <span class="ow">in</span> <span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span>
+        <span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jurisdictions&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">for</span> <span class="n">manifest</span> <span class="ow">in</span> <span class="n">manifests</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">jurisdiction</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">fips</span> <span class="o">=</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FIPS&quot;</span><span class="p">)</span>
+        <span class="n">_validate_not_duplicate_jurisdiction</span><span class="p">(</span><span class="n">fips</span><span class="p">,</span> <span class="n">jurisdictions_by_fips</span><span class="p">)</span>
+        <span class="n">jurisdictions_by_fips</span><span class="p">[</span><span class="n">fips</span><span class="p">]</span> <span class="o">=</span> <span class="n">jurisdiction</span>
+
+    <span class="k">return</span> <span class="n">jurisdictions_by_fips</span></div>
+
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_load_jur_manifests</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load one or more collection manifest(s) for jurisdictions&quot;&quot;&quot;</span>
+    <span class="n">task_fps</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">maybe_glob</span> <span class="ow">in</span> <span class="n">manifest_fp</span><span class="p">:</span>
+        <span class="c1"># ruff: ignore[glob]</span>
+        <span class="n">new_fps</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Path</span><span class="p">(</span><span class="n">match</span><span class="p">)</span> <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">maybe_glob</span><span class="p">),</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="n">task_fps</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">new_fps</span> <span class="ow">or</span> <span class="p">[</span><span class="n">maybe_glob</span><span class="p">])</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">GenericFuncRunner</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">_load_collection_manifest</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">task_fps</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_not_duplicate_jurisdiction</span><span class="p">(</span><span class="n">fips</span><span class="p">,</span> <span class="n">jurisdictions_by_fips</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate that a jurisdiction is not duplicated in the manifest&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">fips</span> <span class="ow">in</span> <span class="n">jurisdictions_by_fips</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Duplicate collection manifest entry for FIPS &#39;</span><span class="si">{</span><span class="n">fips</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="k">raise</span> <span class="n">COMPASSValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="load_specific_collection_manifest_shard">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.load_specific_collection_manifest_shard.html#compass.pipeline.collection.persistence.load_specific_collection_manifest_shard">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">load_specific_collection_manifest_shard</span><span class="p">(</span><span class="n">shard_dir</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load one jurisdiction collection manifest shard when present</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    shard_dir : path-like</span>
+<span class="sd">        Directory containing per-jurisdiction collection manifest</span>
+<span class="sd">        shard files.</span>
+<span class="sd">    jurisdiction : compass.utilities.jurisdictions.Jurisdiction</span>
+<span class="sd">        Jurisdiction whose shard should be loaded.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        Loaded collection metadata for the jurisdiction, or ``None``</span>
+<span class="sd">        when no shard exists yet.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">GenericFuncRunner</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">_load_specific_collection_manifest_shard</span><span class="p">,</span> <span class="n">shard_dir</span><span class="p">,</span> <span class="n">jurisdiction</span>
+    <span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_collection_manifest</span><span class="p">(</span><span class="n">manifest_dir</span><span class="p">,</span> <span class="n">collection_manifest</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a collection manifest to disk&quot;&quot;&quot;</span>
+    <span class="n">manifest_fp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">manifest_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">COLLECTION_MANIFEST_FILENAME</span>
+    <span class="n">manifest_fp</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">convert_paths_to_strings</span><span class="p">(</span><span class="n">collection_manifest</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">manifest_fp</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_collection_manifest_shard</span><span class="p">(</span><span class="n">shard_dir</span><span class="p">,</span> <span class="n">collection_info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write one jurisdiction collection manifest shard to disk&quot;&quot;&quot;</span>
+    <span class="n">shard_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">shard_dir</span><span class="p">)</span>
+    <span class="n">shard_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">shard_fp</span> <span class="o">=</span> <span class="n">shard_dir</span> <span class="o">/</span> <span class="n">_collection_manifest_shard_filename</span><span class="p">(</span><span class="n">collection_info</span><span class="p">)</span>
+    <span class="n">shard_fp</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">convert_paths_to_strings</span><span class="p">(</span><span class="n">collection_info</span><span class="p">),</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">),</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">shard_fp</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_collection_manifest</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load a collection manifest from disk&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span>
+            <span class="n">manifest_fp</span><span class="p">,</span> <span class="n">resolve_paths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Collection manifest&quot;</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">COMPASSFileNotFoundError</span><span class="p">:</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">_load_collection_manifest_from_shards</span><span class="p">(</span>
+            <span class="n">manifest_fp</span><span class="p">,</span> <span class="n">expected_tech</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">manifest</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Collection manifest file &#39;</span><span class="si">{</span><span class="n">manifest_fp</span><span class="si">}</span><span class="s2">&#39; is missing; rebuilding &quot;</span>
+            <span class="s2">&quot;collection manifest from jurisdiction shard files&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">COMPASSWarning</span><span class="p">)</span>
+
+    <span class="n">_validate_collection_manifest</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">manifest</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_specific_collection_manifest_shard</span><span class="p">(</span><span class="n">shard_dir</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load one jurisdiction collection manifest shard if it exists&quot;&quot;&quot;</span>
+    <span class="n">shard_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">shard_dir</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">shard_fp</span> <span class="o">=</span> <span class="n">shard_dir</span> <span class="o">/</span> <span class="n">_collection_manifest_shard_filename</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;FIPS&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">code</span><span class="p">,</span>
+            <span class="s2">&quot;full_name&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shard_fp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">load_config</span><span class="p">(</span>
+        <span class="n">shard_fp</span><span class="p">,</span>
+        <span class="c1"># paths are NOT relative to the shard directory, so should not</span>
+        <span class="c1"># be resolved here</span>
+        <span class="n">resolve_paths</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Collection manifest shard&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="persist_documents">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.persist_documents.html#compass.pipeline.collection.persistence.persist_documents">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">persist_documents</span><span class="p">(</span>
+    <span class="n">jurisdiction</span><span class="p">,</span>
+    <span class="n">collected_docs</span><span class="p">,</span>
+    <span class="n">completed_steps</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">relative_to</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist deduplicated documents for one jurisdiction</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    jurisdiction : compass.utilities.jurisdictions.Jurisdiction</span>
+<span class="sd">        Jurisdiction whose deduplicated documents will be persisted and</span>
+<span class="sd">        serialized into collection metadata.</span>
+<span class="sd">    collected_docs : compass.pipeline.collection.dedupe.DocumentDeDuplicator</span>
+<span class="sd">        Deduplicated document collection containing document info</span>
+<span class="sd">        entries for each persisted document.</span>
+<span class="sd">    completed_steps : iterable of str</span>
+<span class="sd">        Collection step names that were completed for this jurisdiction,</span>
+<span class="sd">        used to record the ``&quot;completed_step_document_counts&quot;`` in the</span>
+<span class="sd">        collection metadata.</span>
+<span class="sd">    relative_to : path-like, optional</span>
+<span class="sd">        Base path used to store ``source_fp`` and ``parsed_fp`` as</span>
+<span class="sd">        relative paths when possible. By default, ``None``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Extra keyword-argument pairs to add to the collection metadata.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Serialized collection metadata for the jurisdiction, including</span>
+<span class="sd">        jurisdiction identifiers and the persisted document records.</span>
+<span class="sd">    &quot;&quot;&quot;</span>  <span class="c1"># ruff:ignore[doc-line-too-long]</span>
+    <span class="n">documents</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_store_docs_as_needed</span><span class="p">(</span>
+        <span class="n">collected_docs</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">,</span> <span class="n">relative_to</span>
+    <span class="p">)</span>
+    <span class="n">completed_step_document_counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span>
+        <span class="n">step</span> <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">documents</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;from_steps&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">completed_steps</span><span class="p">:</span>
+        <span class="n">completed_step_document_counts</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;full_name&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="s2">&quot;county&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">county</span><span class="p">,</span>
+        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">state</span><span class="p">,</span>
+        <span class="s2">&quot;subdivision&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">subdivision_name</span><span class="p">,</span>
+        <span class="s2">&quot;jurisdiction_type&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">type</span><span class="p">,</span>
+        <span class="s2">&quot;FIPS&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="o">.</span><span class="n">code</span><span class="p">,</span>
+        <span class="s2">&quot;num_docs&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">documents</span><span class="p">),</span>
+        <span class="s2">&quot;completed_step_document_counts&quot;</span><span class="p">:</span> <span class="nb">dict</span><span class="p">(</span><span class="n">completed_step_document_counts</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="s2">&quot;documents&quot;</span><span class="p">:</span> <span class="n">documents</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="load_collected_docs">
+<a class="viewcode-back" href="../../../../_autosummary/compass.pipeline.collection.persistence.load_collected_docs.html#compass.pipeline.collection.persistence.load_collected_docs">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">load_collected_docs</span><span class="p">(</span><span class="n">collection_info</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">task_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load all docs for one jurisdiction from collection info</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    collection_info : dict</span>
+<span class="sd">        Persisted collection metadata for one jurisdiction, including</span>
+<span class="sd">        a ``documents`` list of serialized document records.</span>
+<span class="sd">    task_name : str</span>
+<span class="sd">        Task name applied to each asynchronous document-loading task.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Loaded document objects in the same order as the persisted</span>
+<span class="sd">        ``documents`` entries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span><span class="n">_load_single_doc</span><span class="p">(</span><span class="n">doc_info</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">task_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">doc_info</span> <span class="ow">in</span> <span class="n">collection_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;documents&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="p">]</span>
+
+    <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_collection_manifest</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate manifest version and tech compatibility&quot;&quot;&quot;</span>
+    <span class="n">manifest_tech</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tech&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">manifest_tech</span> <span class="ow">and</span> <span class="n">manifest_tech</span> <span class="o">!=</span> <span class="n">tech</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Collection manifest tech (</span><span class="si">{</span><span class="n">manifest_tech</span><span class="si">}</span><span class="s2">) does not &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;match specified tech (</span><span class="si">{</span><span class="n">tech</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">COMPASSValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_load_single_doc</span><span class="p">(</span><span class="n">doc_info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load one document from persisted collection artifacts&quot;&quot;&quot;</span>
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parsed_fp&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Parsed file path (&#39;parsed_fp&#39;) is required to load a &quot;</span>
+            <span class="s2">&quot;collected document, but it is missing from the following &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;doc info:</span><span class="se">\n</span><span class="si">{</span><span class="n">doc_info</span><span class="si">}</span><span class="se">\n</span><span class="s2">Skipping...&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">COMPASSWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">doc</span><span class="p">,</span> <span class="o">*</span><span class="n">__</span> <span class="o">=</span> <span class="k">await</span> <span class="n">read_docling_local_file</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">doc_info</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">remove_comments</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;cache_fn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="k">await</span> <span class="n">TempFileCacheCopier</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">doc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">doc</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_store_docs_as_needed</span><span class="p">(</span><span class="n">collected_docs</span><span class="p">,</span> <span class="n">jurisdiction</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Store collected documents and their parsed text when needed&quot;&quot;&quot;</span>
+    <span class="n">document_metadata</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">left_to_store</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">collected_docs</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">info</span><span class="o">.</span><span class="n">doc</span>
+        <span class="k">if</span> <span class="s2">&quot;parsed_fp&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span> <span class="ow">and</span> <span class="s2">&quot;source_fp&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">:</span>
+            <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;from_steps&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">info</span><span class="o">.</span><span class="n">from_steps</span><span class="p">)</span>
+            <span class="n">document_metadata</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">left_to_store</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">info</span><span class="p">)</span>
+
+    <span class="n">tasks</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+        <span class="n">left_to_store</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">document_metadata</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="p">):</span>
+        <span class="n">task</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">create_task</span><span class="p">(</span>
+            <span class="n">_persist_doc</span><span class="p">(</span>
+                <span class="n">info</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                <span class="n">out_stem</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">index</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">from_steps</span><span class="o">=</span><span class="n">info</span><span class="o">.</span><span class="n">from_steps</span><span class="p">,</span>
+                <span class="n">relative_to</span><span class="o">=</span><span class="n">relative_to</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">jurisdiction</span><span class="o">.</span><span class="n">full_name</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">tasks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+
+    <span class="n">document_metadata</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">doc_info</span> <span class="k">for</span> <span class="n">doc_info</span> <span class="ow">in</span> <span class="n">document_metadata</span> <span class="k">if</span> <span class="n">doc_info</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_persist_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">,</span> <span class="n">from_steps</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist one collected document and its parsed text&quot;&quot;&quot;</span>
+    <span class="k">await</span> <span class="n">_move_file_to_collection_dir</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">)</span>
+    <span class="k">await</span> <span class="n">_persist_parsed_text</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_serialize_collection_doc_info</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">from_steps</span><span class="p">)</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_move_file_to_collection_dir</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Move a source file to the collection output directory&quot;&quot;&quot;</span>
+    <span class="n">out_fp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">FileMover</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">,</span> <span class="s2">&quot;downloaded&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">relative_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">out_fp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_fp</span> <span class="o">=</span> <span class="n">_make_relative</span><span class="p">(</span><span class="n">out_fp</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;source_fp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_fp</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_persist_parsed_text</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write parsed text for a collected document&quot;&quot;&quot;</span>
+    <span class="n">out_fp</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ParsedFileWriter</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">out_stem</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">relative_to</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">out_fp</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out_fp</span> <span class="o">=</span> <span class="n">_make_relative</span><span class="p">(</span><span class="n">out_fp</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;parsed_fp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out_fp</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_relative</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="n">relative_to</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Make a file path relative to another path when possible&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fp</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">relative_to</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Could not make path </span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2"> relative to </span><span class="si">{</span><span class="n">relative_to</span><span class="si">}</span><span class="s2">; using &quot;</span>
+            <span class="s2">&quot;absolute path instead&quot;</span>
+        <span class="p">)</span>
+        <span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">,</span> <span class="n">COMPASSWarning</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">fp</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_collection_doc_info</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">from_steps</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Serialize a collected document for manifest storage&quot;&quot;&quot;</span>
+    <span class="n">serialized</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">serialized</span> <span class="ow">or</span> <span class="n">serialized</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parsed_fp&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">serialized</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cache_fn&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">serialized</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cleaned_fps&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">serialized</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;check_correct_jurisdiction&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">serialized</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;is_pdf&quot;</span><span class="p">:</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;is_pdf&quot;</span><span class="p">,</span> <span class="n">is_pdf_doc</span><span class="p">(</span><span class="n">doc</span><span class="p">)),</span>
+            <span class="s2">&quot;num_pages&quot;</span><span class="p">:</span> <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_pages&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">pages</span><span class="p">)),</span>
+            <span class="s2">&quot;from_steps&quot;</span><span class="p">:</span> <span class="n">from_steps</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">serialized</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collection_manifest_shard_filename</span><span class="p">(</span><span class="n">collection_info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a deterministic shard filename for one jurisdiction&quot;&quot;&quot;</span>
+    <span class="n">identifier</span> <span class="o">=</span> <span class="n">_clean_shard_name_part</span><span class="p">(</span><span class="n">collection_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FIPS&quot;</span><span class="p">))</span>
+    <span class="n">full_name</span> <span class="o">=</span> <span class="n">_clean_shard_name_part</span><span class="p">(</span><span class="n">collection_info</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;full_name&quot;</span><span class="p">))</span>
+    <span class="n">name_parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">part</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="p">(</span><span class="n">identifier</span><span class="p">,</span> <span class="n">full_name</span><span class="p">)</span> <span class="k">if</span> <span class="n">part</span><span class="p">]</span>
+    <span class="n">base_name</span> <span class="o">=</span> <span class="s2">&quot;_&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">name_parts</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;jurisdiction&quot;</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_collection_manifest.json&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_shard_name_part</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize one shard filename component&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">old</span><span class="p">,</span> <span class="n">new</span> <span class="ow">in</span> <span class="p">((</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;</span><span class="se">\\</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">old</span><span class="p">,</span> <span class="n">new</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_collection_manifest_from_shards</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">,</span> <span class="n">expected_tech</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rebuild a collection manifest from jurisdiction shard files&quot;&quot;&quot;</span>
+    <span class="n">manifest_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">manifest_fp</span><span class="p">)</span><span class="o">.</span><span class="n">expanduser</span><span class="p">()</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">shard_fps</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">manifest_dir</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*_collection_manifest.json&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">shard_fps</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">jurisdictions</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">shard_fp</span> <span class="ow">in</span> <span class="n">shard_fps</span><span class="p">:</span>
+        <span class="n">collection_info</span> <span class="o">=</span> <span class="n">load_config</span><span class="p">(</span>
+            <span class="n">shard_fp</span><span class="p">,</span>
+            <span class="c1"># paths are NOT relative to the shard directory, so should</span>
+            <span class="c1"># not be resolved here; they are resolved using the</span>
+            <span class="c1"># `resolve_all_paths` function call below</span>
+            <span class="n">resolve_paths</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">file_name</span><span class="o">=</span><span class="s2">&quot;Collection manifest shard&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">jurisdictions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">resolve_all_paths</span><span class="p">(</span><span class="n">collection_info</span><span class="p">,</span> <span class="n">manifest_dir</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">build_collection_manifest</span><span class="p">(</span>
+        <span class="n">expected_tech</span><span class="p">,</span> <span class="n">jurisdictions</span><span class="p">,</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">jurisdictions</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

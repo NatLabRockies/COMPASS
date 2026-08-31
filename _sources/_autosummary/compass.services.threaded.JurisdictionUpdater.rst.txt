@@ -1,0 +1,36 @@
+compass.services.threaded.JurisdictionUpdater
+=============================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: JurisdictionUpdater
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~JurisdictionUpdater.acquire_resources
+      ~JurisdictionUpdater.call
+      ~JurisdictionUpdater.process
+      ~JurisdictionUpdater.process_using_futures
+      ~JurisdictionUpdater.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~JurisdictionUpdater.MAX_CONCURRENT_JOBS
+      ~JurisdictionUpdater.can_process
+      ~JurisdictionUpdater.name
+   
+   

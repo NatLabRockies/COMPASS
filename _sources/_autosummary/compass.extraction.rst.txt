@@ -1,0 +1,43 @@
+compass.extraction
+==================
+
+.. automodule:: compass.extraction
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   apply
+   context
+   date
+   features
+   geothermal_electricity
+   ghp
+   natural_gas_pipelines
+   oil_gas_wells
+   rmp
+   small_wind
+   solar
+   transmission
+   water
+   wind
+

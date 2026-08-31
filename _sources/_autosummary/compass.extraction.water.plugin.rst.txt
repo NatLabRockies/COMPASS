@@ -1,0 +1,32 @@
+compass.extraction.water.plugin
+===============================
+
+.. automodule:: compass.extraction.water.plugin
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      TexasWaterRightsExtractor
+      WaterRightsHeuristic
+   
+   
+
+   
+   
+   
+
+
+

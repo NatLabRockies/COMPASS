@@ -1,0 +1,33 @@
+compass.plugin.one\_shot.components
+===================================
+
+.. automodule:: compass.plugin.one_shot.components
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      SchemaBasedTextCollector
+      SchemaBasedTextExtractor
+      SchemaOrdinanceParser
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,29 @@
+compass.pipeline.data\_classes.WebSearchParams
+==============================================
+
+.. currentmodule:: compass.pipeline.data_classes
+
+.. autoclass:: WebSearchParams
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WebSearchParams.se_kwargs
+   
+   

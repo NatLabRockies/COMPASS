@@ -1,0 +1,31 @@
+compass.pipeline.extraction
+===========================
+
+.. automodule:: compass.pipeline.extraction
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      DocumentExtraction
+   
+   
+
+   
+   
+   
+
+
+

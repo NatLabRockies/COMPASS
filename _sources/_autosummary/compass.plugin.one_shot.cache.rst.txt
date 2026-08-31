@@ -1,0 +1,23 @@
+compass.plugin.one\_shot.cache
+==============================
+
+.. automodule:: compass.plugin.one_shot.cache
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

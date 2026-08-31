@@ -1,0 +1,1597 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Advanced Plugin Development &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'dev/advanced_plugin_development';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Glossary" href="../glossary.html" />
+    <link rel="prev" title="Ordinance Plugin Development Tutorial" href="plugin_development.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../_static/searchtools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <script src="../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" current active">
+  <a class="nav-link dropdown-item nav-internal" href="index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="README.html">Contributing to COMPASS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_development.html">Ordinance Plugin Development Tutorial</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Advanced Plugin Development</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">Contributing to COMPASS</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Advanced Plugin Development</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="advanced-plugin-development">
+<span id="id1"></span><h1>Advanced Plugin Development<a class="headerlink" href="#advanced-plugin-development" title="Link to this heading">#</a></h1>
+<p>The basic tutorial showed you the standard path: keyword filtering finds your
+documents, collectors narrow them down, extractors shape the text, parsers
+produce values.</p>
+<p>But what happens when keyword filtering fails? When a single regulation
+references three different PDFs? When you need to ask “show me all power
+capacity requirements” across 200 pages of technical appendices? When
+your output schema needs jurisdiction-level aggregation that standard
+CSV writes cannot handle?</p>
+<p>This guide covers how to handle those cases while keeping the same
+overall flow.</p>
+<section id="when-to-go-custom">
+<h2>When to go custom<a class="headerlink" href="#when-to-go-custom" title="Link to this heading">#</a></h2>
+<p>Standard patterns work until they no longer meet the requirements of your
+domain. The signals below indicate when you need more control:</p>
+<dl class="simple">
+<dt><strong>Multi-document complexity</strong></dt><dd><p>Regulations split across zoning codes, technical standards, and special
+use permits. Keyword filtering cannot see the connections. You need
+semantic search across the full corpus.</p>
+</dd>
+<dt><strong>Domain-specific preprocessing</strong></dt><dd><p>Your PDFs embed critical metadata in filenames or document properties.
+Standard collectors ignore this. You need to extract and normalize
+before filtering runs.</p>
+</dd>
+<dt><strong>Parallel extraction requirements</strong></dt><dd><p>You are extracting 15+ features and each LLM call takes 3 seconds.
+Sequential parsing means 45+ seconds per document. You need async
+orchestration.</p>
+</dd>
+<dt><strong>Custom output schemas</strong></dt><dd><p>Your schema has nested relationships, jurisdiction-level rollups, or
+domain-specific validation. The standard DataFrame→CSV pattern cannot
+express your data model.</p>
+</dd>
+</dl>
+<p>This guide will take you from the standard <code class="docutils literal notranslate"><span class="pre">OrdinanceExtractionPlugin</span></code>
+through progressively more custom implementations until you control the
+entire extraction pipeline.</p>
+</section>
+<section id="the-scenario-data-center-ordinances">
+<h2>The scenario: data center ordinances<a class="headerlink" href="#the-scenario-data-center-ordinances" title="Link to this heading">#</a></h2>
+<p>We will build a plugin for data center facility regulations. These
+ordinances are perfect for demonstrating advanced patterns because they
+exhibit all the complexity signals:</p>
+<ul class="simple">
+<li><p>Regulations span zoning codes (setbacks), electrical codes (power
+capacity), building codes (cooling systems), and environmental codes
+(noise limits)</p></li>
+<li><p>Power capacity values often appear in PDF metadata or appendix titles</p></li>
+<li><p>Feature extraction benefits from parallel queries: power requirements,
+cooling methods, generator rules, screening requirements, noise limits,
+height restrictions, etc.</p></li>
+<li><p>Output needs facility type classification and cross-jurisdiction
+comparison of infrastructure requirements</p></li>
+</ul>
+<p>By the end you will have a complete custom plugin and a mental model for
+when each customization level makes sense.</p>
+</section>
+<section id="level-1-extending-with-hooks">
+<h2>Level 1: Extending with hooks<a class="headerlink" href="#level-1-extending-with-hooks" title="Link to this heading">#</a></h2>
+<p>Before you redesign the pipeline, try the extension points first.
+<code class="docutils literal notranslate"><span class="pre">FilteredExtractionPlugin</span></code> gives you hooks—moments where you can insert
+custom logic while keeping the machinery running. Hooks serve as targeted
+annotations within standard filtering.</p>
+<p>The two hooks available:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">pre_filter_docs_hook(extraction_context)</span></code></dt><dd><p>Runs before filtering begins. Use this to preprocess documents, extract
+metadata, normalize jurisdiction names, or enrich the document objects
+with custom attributes.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">post_filter_docs_hook(extraction_context)</span></code></dt><dd><p>Runs after filtering completes but before parsing. Use this to validate
+filtering results, add cross-document references, or prepare extraction
+state.</p>
+</dd>
+</dl>
+<section id="example-extracting-power-capacity-from-pdf-metadata">
+<h3>Example: extracting power capacity from PDF metadata<a class="headerlink" href="#example-extracting-power-capacity-from-pdf-metadata" title="Link to this heading">#</a></h3>
+<p>Data center ordinances often include power capacity thresholds in
+document titles: <code class="docutils literal notranslate"><span class="pre">&quot;Zoning</span> <span class="pre">Amendment</span> <span class="pre">for</span> <span class="pre">Facilities</span> <span class="pre">Over</span> <span class="pre">50MW.pdf&quot;</span></code>.
+This metadata should influence filtering, but standard collectors never
+see it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">FilteredExtractionPlugin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.data_center.ordinance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DataCenterHeuristic</span><span class="p">,</span>
+    <span class="n">DataCenterTextCollector</span><span class="p">,</span>
+    <span class="n">DataCenterTextExtractor</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DataCenterExtractorWithHooks</span><span class="p">(</span><span class="n">FilteredExtractionPlugin</span><span class="p">):</span>
+
+    <span class="n">IDENTIFIER</span> <span class="o">=</span> <span class="s2">&quot;data_center_hooks&quot;</span>
+
+    <span class="n">heuristic</span> <span class="o">=</span> <span class="n">DataCenterHeuristic</span><span class="p">()</span>
+    <span class="n">TEXT_COLLECTORS</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataCenterTextCollector</span><span class="p">]</span>
+    <span class="n">TEXT_EXTRACTORS</span> <span class="o">=</span> <span class="p">[</span><span class="n">DataCenterTextExtractor</span><span class="p">]</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">pre_filter_docs_hook</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">extraction_context</span><span class="o">.</span><span class="n">docs</span><span class="p">:</span>
+            <span class="n">capacity_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+                <span class="sa">r</span><span class="s2">&quot;(\d+)\s*(MW|megawatts?)&quot;</span><span class="p">,</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">capacity_match</span><span class="p">:</span>
+                <span class="n">capacity_mw</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">capacity_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;extracted_capacity_mw&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">capacity_mw</span>
+
+            <span class="k">if</span> <span class="s2">&quot;data center&quot;</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;source&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+                <span class="n">doc</span><span class="o">.</span><span class="n">metadata</span><span class="p">[</span><span class="s2">&quot;explicitly_about_data_centers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">parse_docs_for_structured_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<p>The hook runs before any LLM calls. It scans PDF filenames, extracts
+numeric capacity values, and marks documents that explicitly mention data
+centers. Later stages can read these attributes from <code class="docutils literal notranslate"><span class="pre">doc.metadata</span></code> and
+make informed decisions.</p>
+</section>
+<section id="when-hooks-suffice">
+<h3>When hooks suffice<a class="headerlink" href="#when-hooks-suffice" title="Link to this heading">#</a></h3>
+<p>Hooks work well when you need to:</p>
+<ul class="simple">
+<li><p>Normalize jurisdiction name variations before filtering</p></li>
+<li><p>Extract document dates or revision numbers from metadata</p></li>
+<li><p>Flag high-priority documents based on filename patterns</p></li>
+<li><p>Enrich documents with external data (GIS lookups, jurisdiction type)</p></li>
+<li><p>Log or validate document counts at pipeline stages</p></li>
+</ul>
+<p>Hooks preserve the standard filtering pipeline while giving you control
+at key moments. They do not change how filtering itself operates. When
+you need to alter the filtering mechanics, move to a deeper level of
+customization.</p>
+</section>
+</section>
+<section id="level-2-custom-filtering-with-baseextractionplugin">
+<h2>Level 2: Custom filtering with BaseExtractionPlugin<a class="headerlink" href="#level-2-custom-filtering-with-baseextractionplugin" title="Link to this heading">#</a></h2>
+<p>Standard filtering is a progressive narrowing: keywords reduce the
+universe, collectors prune chunks, extractors shape what remains. This
+works when you can define your target domain with explicit patterns.</p>
+<p>But semantic relationships do not obey keyword rules. When you need to
+answer questions like “what are the generator requirements?” or “how is
+cooling system noise regulated?”, you need retrieval.</p>
+<p>In these cases, use <code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code> to gain full control of the
+filtering pipeline. It requires you to implement the entire pipeline
+yourself. There are no collectors, extractors, or automatic label chain
+wiring. You start with raw documents and produce structured data while
+controlling each step.</p>
+<section id="the-contract">
+<h3>The contract<a class="headerlink" href="#the-contract" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code> requires you to implement:</p>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">get_query_templates()</span></code></dt><dd><p>Return a list of search query templates for document discovery. Use
+<code class="docutils literal notranslate"><span class="pre">{jurisdiction}</span></code> for the jurisdiction’s full name. A template may use
+<code class="docutils literal notranslate"><span class="pre">{jurisdiction_website}</span></code> for the known jurisdiction website URL;
+COMPASS discards that template when no website is known.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">get_website_keywords()</span></code></dt><dd><p>Return dict of keywords→priority for web crawling.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">get_heuristic()</span></code></dt><dd><p>Return a heuristic instance for initial document screening.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">filter_docs(extraction_context,</span> <span class="pre">max_num_docs=None)</span></code></dt><dd><p>The heart of customization. Take <code class="docutils literal notranslate"><span class="pre">extraction_context.docs</span></code> and reduce
+them to relevant content. Store anything you want in
+<code class="docutils literal notranslate"><span class="pre">extraction_context.attrs</span></code> for later stages.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">parse_docs_for_structured_data(doc_infos,</span> <span class="pre">out_dir)</span></code></dt><dd><p>Extract structured values and return results suitable for saving.</p>
+</dd>
+<dt><code class="docutils literal notranslate"><span class="pre">save_structured_data(doc_infos,</span> <span class="pre">out_dir)</span></code></dt><dd><p>Write results to disk in whatever format makes sense for your domain.</p>
+</dd>
+</dl>
+<p>This is a contract between you and the framework. Implement these six
+methods and COMPASS will run your plugin. What you do inside them is
+entirely up to you.</p>
+</section>
+<section id="building-a-document-corpus-with-embeddings">
+<h3>Building a document corpus with embeddings<a class="headerlink" href="#building-a-document-corpus-with-embeddings" title="Link to this heading">#</a></h3>
+<p>The key insight for complex extraction is to stop progressive filtering
+and start building corpora. Instead of narrowing 100 documents to 5,
+embed all 100 and let semantic search find relevant chunks at extraction
+time.</p>
+<p>This pattern comes from the water rights plugin. The following adapts it
+for data centers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureOpenAI</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExtractionPlugin</span><span class="p">,</span> <span class="n">register_plugin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.heuristic</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoOpHeuristic</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DataCenterExtractorCustom</span><span class="p">(</span><span class="n">BaseExtractionPlugin</span><span class="p">):</span>
+
+    <span class="n">IDENTIFIER</span> <span class="o">=</span> <span class="s2">&quot;data_center_custom&quot;</span>
+
+    <span class="n">QUESTION_TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;data center ordinance </span><span class="si">{jurisdiction}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> data center zoning regulations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> server farm power requirements&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> cooling system noise limits&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ordinance&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;data center&quot;</span><span class="p">:</span> <span class="mi">950</span><span class="p">,</span>
+        <span class="s2">&quot;server&quot;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+        <span class="s2">&quot;colocation&quot;</span><span class="p">:</span> <span class="mi">900</span><span class="p">,</span>
+        <span class="s2">&quot;facility&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="s2">&quot;power&quot;</span><span class="p">:</span> <span class="mi">850</span><span class="p">,</span>
+        <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="mi">850</span><span class="p">,</span>
+        <span class="s2">&quot;generator&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_query_templates</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">QUESTION_TEMPLATES</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_website_keywords</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_heuristic</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">NoOpHeuristic</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">filter_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">,</span> <span class="n">max_num_docs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="n">extraction_context</span><span class="o">.</span><span class="n">docs</span>
+
+        <span class="n">page_texts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">page</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span>
+            <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">pages</span>
+            <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">page_texts</span><span class="p">:</span>
+            <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;corpus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;embedding&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="n">AzureOpenAI</span><span class="p">(</span>
+            <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_API_KEY&quot;</span><span class="p">],</span>
+            <span class="n">api_version</span><span class="o">=</span><span class="s2">&quot;2024-10-21&quot;</span><span class="p">,</span>
+            <span class="n">azure_endpoint</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_ENDPOINT&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">rate_limit</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">embed_with_limit</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">rate_limit</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">,</span>
+                    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-large-standard&quot;</span><span class="p">,</span>
+                    <span class="nb">input</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">embedding_tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">embed_with_limit</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">page_texts</span>
+        <span class="p">]</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">embedding_tasks</span><span class="p">)</span>
+
+        <span class="n">corpus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">page_texts</span><span class="p">,</span>
+            <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">embeddings</span>
+            <span class="p">],</span>
+        <span class="p">})</span>
+
+        <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;corpus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corpus</span>
+</pre></div>
+</div>
+<p>The filter method now runs an embedding pipeline that converts every page
+into a vector. The resulting corpus lives in
+<code class="docutils literal notranslate"><span class="pre">extraction_context.attrs[&quot;corpus&quot;]</span></code>, and downstream stages query it
+semantically.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">NoOpHeuristic</span></code> keeps the pipeline permissive when you embed every
+page. Keyword filtering offers no benefit in this mode, so the heuristic
+allows all documents to reach the embedding stage.</p>
+<p>Rate limiting remains essential because Azure OpenAI embedding endpoints
+enforce request limits. The semaphore prevents overwhelming the service.
+Adjust the concurrency limit to match your quota and the size of the
+corpus.</p>
+</section>
+<section id="when-custom-filtering-makes-sense">
+<h3>When custom filtering makes sense<a class="headerlink" href="#when-custom-filtering-makes-sense" title="Link to this heading">#</a></h3>
+<p>Build your own filter pipeline when:</p>
+<ul class="simple">
+<li><p>Semantic search would outperform keyword patterns</p></li>
+<li><p>You need to build cross-document indexes or reference graphs</p></li>
+<li><p>Document structure requires custom parsing before chunking</p></li>
+<li><p>You want to cache embeddings across runs</p></li>
+<li><p>Standard collectors are too slow or too restrictive</p></li>
+</ul>
+<p>Filtering alone does not complete the extraction task. You still need
+parsers that can query the corpus effectively; that is the next level of
+customization.</p>
+</section>
+</section>
+<section id="level-3-rag-based-extraction">
+<h2>Level 3: RAG-based extraction<a class="headerlink" href="#level-3-rag-based-extraction" title="Link to this heading">#</a></h2>
+<p>You have a corpus of embedded chunks. Now you need parsers that can ask
+questions of it. This is retrieval-augmented generation: query the vector
+database, get relevant chunks, pass them to a decision tree.</p>
+<p>This shift is significant. Standard parsers receive extraction text—a
+single string containing “relevant” content—whereas RAG parsers receive a
+query interface that returns relevant chunks on demand.</p>
+<p>This means your parser can ask multiple questions, refine queries based on
+initial results, and explore the corpus dynamically. It moves from
+reading a summary to interrogating the documents directly.</p>
+<section id="setting-up-a-simple-vector-index">
+<h3>Setting up a simple vector index<a class="headerlink" href="#setting-up-a-simple-vector-index" title="Link to this heading">#</a></h3>
+<p>You can build a lightweight in-memory index with standard tools: OpenAI
+embeddings for vectors and NumPy for similarity search. No additional
+frameworks are required.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureOpenAI</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_index</span><span class="p">(</span><span class="n">corpus</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">AzureOpenAI</span><span class="p">(</span>
+        <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_API_KEY&quot;</span><span class="p">],</span>
+        <span class="n">api_version</span><span class="o">=</span><span class="s2">&quot;2024-10-21&quot;</span><span class="p">,</span>
+        <span class="n">azure_endpoint</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_ENDPOINT&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">texts</span> <span class="o">=</span> <span class="n">corpus</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+    <span class="n">vectors</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">texts</span><span class="p">:</span>
+        <span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-large-standard&quot;</span><span class="p">,</span>
+            <span class="nb">input</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+        <span class="n">vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-9</span>
+        <span class="n">vectors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;texts&quot;</span><span class="p">:</span> <span class="n">texts</span><span class="p">,</span>
+        <span class="s2">&quot;vectors&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">vectors</span><span class="p">),</span>
+    <span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_query_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">AzureOpenAI</span><span class="p">(</span>
+        <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_API_KEY&quot;</span><span class="p">],</span>
+        <span class="n">api_version</span><span class="o">=</span><span class="s2">&quot;2024-10-21&quot;</span><span class="p">,</span>
+        <span class="n">azure_endpoint</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_ENDPOINT&quot;</span><span class="p">],</span>
+    <span class="p">)</span>
+
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-large-standard&quot;</span><span class="p">,</span>
+        <span class="nb">input</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">q_vec</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+    <span class="n">q_vec</span> <span class="o">/=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">q_vec</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-9</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">index</span><span class="p">[</span><span class="s2">&quot;vectors&quot;</span><span class="p">]</span> <span class="o">@</span> <span class="n">q_vec</span>
+    <span class="n">top_idx</span> <span class="o">=</span> <span class="n">scores</span><span class="o">.</span><span class="n">argsort</span><span class="p">()[::</span><span class="o">-</span><span class="mi">1</span><span class="p">][:</span><span class="n">top_k</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">index</span><span class="p">[</span><span class="s2">&quot;texts&quot;</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">top_idx</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Each call to <code class="docutils literal notranslate"><span class="pre">_query_index</span></code> performs a semantic search and returns the
+top matching chunks.</p>
+</section>
+<section id="generic-rag-extraction-helper">
+<h3>Generic RAG extraction helper<a class="headerlink" href="#generic-rag-extraction-helper" title="Link to this heading">#</a></h3>
+<p>Standard parsers run decision trees against static text. RAG parsers run
+decision trees against query results. The pattern is to wrap tree
+execution in a helper that fetches context first:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_async_decision_tree</span><span class="p">,</span> <span class="n">run_async_tree</span>
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_extract_with_rag</span><span class="p">(</span>
+    <span class="n">index</span><span class="p">,</span>
+    <span class="n">query</span><span class="p">,</span>
+    <span class="n">tree_setup_fn</span><span class="p">,</span>
+    <span class="n">chat_llm_caller</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="n">_query_index</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">query</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">context_text</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">setup_async_decision_tree</span><span class="p">(</span>
+        <span class="n">tree_setup_fn</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="n">context_text</span><span class="p">,</span>
+        <span class="n">chat_llm_caller</span><span class="o">=</span><span class="n">chat_llm_caller</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="k">await</span> <span class="n">run_async_tree</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This helper encapsulates the RAG pattern: query → retrieve → extract. Call
+it once per feature; it handles the mechanics of search and tree execution.</p>
+</section>
+<section id="parallel-async-parser">
+<h3>Parallel async parser<a class="headerlink" href="#parallel-async-parser" title="Link to this heading">#</a></h3>
+<p>With the helper in place, your parser becomes a coordinator. For each
+feature you want to extract, spawn a RAG query. Run them all in parallel
+with <code class="docutils literal notranslate"><span class="pre">asyncio.gather()</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">compass.extraction.data_center.graphs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">setup_power_requirements_graph</span><span class="p">,</span>
+    <span class="n">setup_cooling_system_graph</span><span class="p">,</span>
+    <span class="n">setup_noise_limits_graph</span><span class="p">,</span>
+    <span class="n">setup_generator_rules_graph</span><span class="p">,</span>
+    <span class="n">setup_setback_requirements_graph</span><span class="p">,</span>
+    <span class="n">setup_screening_requirements_graph</span><span class="p">,</span>
+    <span class="n">setup_height_limits_graph</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DataCenterParser</span><span class="p">:</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">parse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">):</span>
+        <span class="n">corpus</span> <span class="o">=</span> <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;corpus&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">corpus</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">corpus</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">index</span> <span class="o">=</span> <span class="n">_build_index</span><span class="p">(</span><span class="n">corpus</span><span class="p">)</span>
+
+        <span class="n">system_msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;You extract data center facility regulations from &quot;</span>
+            <span class="s2">&quot;ordinance text. Focus on power, cooling, noise, and &quot;</span>
+            <span class="s2">&quot;setback requirements.&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">chat_llm_caller</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_chat_llm_caller</span><span class="p">(</span><span class="n">system_msg</span><span class="p">)</span>
+
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What are the power capacity requirements?&quot;</span><span class="p">,</span>
+                <span class="n">setup_power_requirements_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What cooling system regulations apply?&quot;</span><span class="p">,</span>
+                <span class="n">setup_cooling_system_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What are the noise limits for data centers?&quot;</span><span class="p">,</span>
+                <span class="n">setup_noise_limits_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What generator rules apply to data centers?&quot;</span><span class="p">,</span>
+                <span class="n">setup_generator_rules_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What setback distances are required?&quot;</span><span class="p">,</span>
+                <span class="n">setup_setback_requirements_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What screening or landscaping is required?&quot;</span><span class="p">,</span>
+                <span class="n">setup_screening_requirements_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="n">_extract_with_rag</span><span class="p">(</span>
+                <span class="n">index</span><span class="p">,</span>
+                <span class="s2">&quot;What height restrictions apply?&quot;</span><span class="p">,</span>
+                <span class="n">setup_height_limits_graph</span><span class="p">,</span>
+                <span class="n">chat_llm_caller</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">tasks</span><span class="p">)</span>
+
+        <span class="n">feature_names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;power_capacity&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;cooling_system&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;noise_limit&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;generator_rules&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;setback&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;screening&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;height_limit&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+        <span class="n">extracted</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">result</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">}</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">extracted</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">extracted</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>This parser issues seven feature-specific queries in a single
+asynchronous batch. If each query takes 3 seconds, sequential execution
+would take roughly 21 seconds. Running them in parallel completes in
+about 3 seconds, and the speedup scales with the number of features.</p>
+<p>The tradeoff is complexity. You need to manage async tasks, handle partial
+failures gracefully, and ensure the RAG is thread-safe. For domains
+with many features, the performance gain often justifies the effort.</p>
+</section>
+<section id="implementing-rag-in-parse-docs-for-structured-data">
+<h3>Implementing RAG in parse_docs_for_structured_data<a class="headerlink" href="#implementing-rag-in-parse-docs-for-structured-data" title="Link to this heading">#</a></h3>
+<p>Wire the parser into your plugin’s extraction method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">DataCenterExtractorCustom</span><span class="p">(</span><span class="n">BaseExtractionPlugin</span><span class="p">):</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">parse_docs_for_structured_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span>
+    <span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">DataCenterParser</span><span class="p">()</span>
+
+        <span class="n">extraction_context</span> <span class="o">=</span> <span class="n">doc_infos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">extraction_context</span>
+        <span class="n">result_df</span> <span class="o">=</span> <span class="k">await</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">extraction_context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">result_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">jurisdiction</span> <span class="o">=</span> <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jurisdiction&quot;</span><span class="p">)</span>
+        <span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;jurisdiction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jurisdiction</span>
+
+        <span class="k">return</span> <span class="n">result_df</span>
+</pre></div>
+</div>
+<p>Because <code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code> requires you to implement everything, you
+control when and how the parser runs. Standard plugins call parsers
+automatically; custom plugins call them explicitly.</p>
+</section>
+<section id="when-rag-makes-sense">
+<h3>When RAG makes sense<a class="headerlink" href="#when-rag-makes-sense" title="Link to this heading">#</a></h3>
+<p>Use RAG-based extraction when:</p>
+<ul class="simple">
+<li><p>Feature extraction requires answering specific questions</p></li>
+<li><p>Relevant context is scattered across many pages</p></li>
+<li><p>You need to query the same corpus multiple times with different prompts</p></li>
+<li><p>Standard extraction text is too broad or too narrow</p></li>
+<li><p>Performance demands parallel query execution</p></li>
+</ul>
+<p>RAG trades setup complexity for query flexibility. You pay the embedding
+cost once, then search is fast and targeted.</p>
+</section>
+</section>
+<section id="level-4-custom-output-and-aggregation">
+<h2>Level 4: Custom output and aggregation<a class="headerlink" href="#level-4-custom-output-and-aggregation" title="Link to this heading">#</a></h2>
+<p>Standard COMPASS plugins output CSV with columns like <code class="docutils literal notranslate"><span class="pre">feature</span></code>,
+<code class="docutils literal notranslate"><span class="pre">value</span></code>, <code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">section</span></code>. This schema works for most ordinance
+extractions, but not for all domains.</p>
+<p>Data center regulations need a different schema. Facility types matter
+(colocation vs enterprise vs edge). Power capacity is a primary key, not
+just another feature. Cross-jurisdiction comparison requires aggregation
+logic that standard saves cannot express.</p>
+<p>When you implement <code class="docutils literal notranslate"><span class="pre">save_structured_data()</span></code> yourself, you control the
+output format completely.</p>
+<section id="custom-schema-design">
+<h3>Custom schema design<a class="headerlink" href="#custom-schema-design" title="Link to this heading">#</a></h3>
+<p>Start by defining what your output should represent. For data centers:</p>
+<ul class="simple">
+<li><p><strong>Facility type</strong>: Colocation, enterprise, hyperscale, edge</p></li>
+<li><p><strong>Power capacity</strong>: Minimum threshold in MW</p></li>
+<li><p><strong>Cooling method</strong>: Air, liquid, hybrid, unspecified</p></li>
+<li><p><strong>Grid requirements</strong>: Substation, redundant feeds, backup generation</p></li>
+<li><p><strong>Setback distances</strong>: Property line, residential, right-of-way</p></li>
+<li><p><strong>Noise limits</strong>: Day, night, measurement method</p></li>
+<li><p><strong>Height limit</strong>: Maximum structure height</p></li>
+<li><p><strong>Screening requirements</strong>: Fencing, landscaping, visual barriers</p></li>
+</ul>
+<p>Each row is a jurisdiction, each column is a feature. This is a different
+data model than the standard <code class="docutils literal notranslate"><span class="pre">feature,</span> <span class="pre">value</span></code> schema.</p>
+</section>
+<section id="implementing-save-structured-data">
+<h3>Implementing save_structured_data<a class="headerlink" href="#implementing-save-structured-data" title="Link to this heading">#</a></h3>
+<p>Override the method to build your schema and write your format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DataCenterExtractorCustom</span><span class="p">(</span><span class="n">BaseExtractionPlugin</span><span class="p">):</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_structured_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">doc_info</span> <span class="ow">in</span> <span class="n">doc_infos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span>
+
+            <span class="n">jurisdiction</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jurisdiction&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;jurisdiction&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="p">,</span>
+                <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;state&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;facility_type&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facility_type&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;power_capacity_mw&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;power_capacity&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;cooling_method&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;cooling_system&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;grid_requirements&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;grid_connection&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;setback_property_line_ft&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;setback&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;noise_limit_day_db&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;noise_limit&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;height_limit_ft&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;height_limit&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;screening_required&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;screening&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">output_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;data_center_ordinances.csv&quot;</span>
+        <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This method aggregates across jurisdictions, normalizes column names,
+handles missing values, and writes a custom filename. You control the
+entire output pipeline.</p>
+</section>
+<section id="alternative-output-formats">
+<h3>Alternative output formats<a class="headerlink" href="#alternative-output-formats" title="Link to this heading">#</a></h3>
+<p>CSV is not the only option. You can write JSON for nested structures,
+Parquet for large datasets, or even push directly to a database:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="nd">@classmethod</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_structured_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">doc_info</span> <span class="ow">in</span> <span class="n">doc_infos</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="n">jurisdiction</span> <span class="o">=</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="s2">&quot;jurisdiction&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">results</span><span class="p">[</span><span class="n">jurisdiction</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;facility_requirements&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;power&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;power_capacity&quot;</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;cooling_system&quot;</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;spatial_requirements&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;setbacks&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;setback&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;screening&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;screening&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;height_limit&quot;</span><span class="p">),</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;operational_limits&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;noise&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;noise_limit&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;generator&quot;</span><span class="p">:</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;generator_rules&quot;</span>
+                <span class="p">),</span>
+            <span class="p">},</span>
+        <span class="p">}</span>
+
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;data_center_ordinances.json&quot;</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>JSON lets you express hierarchical relationships that CSV flattens.
+Choose the format that matches your downstream use case.</p>
+</section>
+<section id="when-custom-output-makes-sense">
+<h3>When custom output makes sense<a class="headerlink" href="#when-custom-output-makes-sense" title="Link to this heading">#</a></h3>
+<p>Implement your own save logic when:</p>
+<ul class="simple">
+<li><p>Your schema has nested or relational structure</p></li>
+<li><p>You need cross-jurisdiction aggregation or rollups</p></li>
+<li><p>Output format is not CSV (JSON, Parquet, database)</p></li>
+<li><p>Downstream tools expect specific column names or data types</p></li>
+<li><p>You want to validate or enrich results before saving</p></li>
+</ul>
+<p>Custom output is the final layer of control. It ensures your extraction
+pipeline produces the data structure your domain requires.</p>
+</section>
+</section>
+<section id="complete-plugin-architecture">
+<h2>Complete plugin architecture<a class="headerlink" href="#complete-plugin-architecture" title="Link to this heading">#</a></h2>
+<p>With the individual components defined, you can now assemble them into a
+complete plugin.</p>
+<p>The full implementation requires coordinating heuristics, filtering,
+parsing, and output. Here is the complete plugin class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+ <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+ <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+ <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+ <span class="kn">from</span><span class="w"> </span><span class="nn">openai</span><span class="w"> </span><span class="kn">import</span> <span class="n">AzureOpenAI</span>
+ <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+ <span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseExtractionPlugin</span><span class="p">,</span> <span class="n">register_plugin</span>
+ <span class="kn">from</span><span class="w"> </span><span class="nn">compass.plugin.heuristic</span><span class="w"> </span><span class="kn">import</span> <span class="n">NoOpHeuristic</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DataCenterExtractorCustom</span><span class="p">(</span><span class="n">BaseExtractionPlugin</span><span class="p">):</span>
+
+    <span class="n">IDENTIFIER</span> <span class="o">=</span> <span class="s2">&quot;data_center_custom&quot;</span>
+
+    <span class="n">QUESTION_TEMPLATES</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;data center ordinance </span><span class="si">{jurisdiction}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> data center facility regulations&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;</span><span class="si">{jurisdiction}</span><span class="s2"> server farm zoning requirements&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">WEBSITE_KEYWORDS</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;ordinance&quot;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="s2">&quot;data center&quot;</span><span class="p">:</span> <span class="mi">950</span><span class="p">,</span>
+        <span class="s2">&quot;facility&quot;</span><span class="p">:</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="s2">&quot;power&quot;</span><span class="p">:</span> <span class="mi">850</span><span class="p">,</span>
+        <span class="s2">&quot;cooling&quot;</span><span class="p">:</span> <span class="mi">850</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_query_templates</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">QUESTION_TEMPLATES</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_website_keywords</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="o">.</span><span class="n">WEBSITE_KEYWORDS</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_heuristic</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">NoOpHeuristic</span><span class="p">()</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">filter_docs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extraction_context</span><span class="p">,</span> <span class="n">max_num_docs</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">docs</span> <span class="o">=</span> <span class="n">extraction_context</span><span class="o">.</span><span class="n">docs</span>
+
+        <span class="n">page_texts</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">page</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">for</span> <span class="n">doc</span> <span class="ow">in</span> <span class="n">docs</span>
+            <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">pages</span>
+            <span class="k">if</span> <span class="n">page</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">page_texts</span><span class="p">:</span>
+            <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;corpus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+                <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;embedding&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="n">AzureOpenAI</span><span class="p">(</span>
+            <span class="n">api_key</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_API_KEY&quot;</span><span class="p">],</span>
+            <span class="n">api_version</span><span class="o">=</span><span class="s2">&quot;2024-10-21&quot;</span><span class="p">,</span>
+            <span class="n">azure_endpoint</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;AZURE_OPENAI_ENDPOINT&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">rate_limit</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">Semaphore</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">embed_with_limit</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="k">async</span> <span class="k">with</span> <span class="n">rate_limit</span><span class="p">:</span>
+                <span class="k">return</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">to_thread</span><span class="p">(</span>
+                    <span class="n">client</span><span class="o">.</span><span class="n">embeddings</span><span class="o">.</span><span class="n">create</span><span class="p">,</span>
+                    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;text-embedding-3-large-standard&quot;</span><span class="p">,</span>
+                    <span class="nb">input</span><span class="o">=</span><span class="n">text</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="n">embedding_tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">embed_with_limit</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="k">for</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">page_texts</span>
+        <span class="p">]</span>
+        <span class="n">embeddings</span> <span class="o">=</span> <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">gather</span><span class="p">(</span><span class="o">*</span><span class="n">embedding_tasks</span><span class="p">)</span>
+
+        <span class="n">corpus</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s2">&quot;text&quot;</span><span class="p">:</span> <span class="n">page_texts</span><span class="p">,</span>
+            <span class="s2">&quot;embedding&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">resp</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">embedding</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">resp</span> <span class="ow">in</span> <span class="n">embeddings</span>
+            <span class="p">],</span>
+        <span class="p">})</span>
+
+        <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;corpus&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corpus</span>
+
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">parse_docs_for_structured_data</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span>
+    <span class="p">):</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">DataCenterParser</span><span class="p">()</span>
+
+        <span class="n">extraction_context</span> <span class="o">=</span> <span class="n">doc_infos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">extraction_context</span>
+        <span class="n">result_df</span> <span class="o">=</span> <span class="k">await</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">extraction_context</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result_df</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">result_df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">jurisdiction</span> <span class="o">=</span> <span class="n">extraction_context</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jurisdiction&quot;</span><span class="p">)</span>
+        <span class="n">result_df</span><span class="p">[</span><span class="s2">&quot;jurisdiction&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">jurisdiction</span>
+
+        <span class="k">return</span> <span class="n">result_df</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_structured_data</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">doc_infos</span><span class="p">,</span> <span class="n">out_dir</span><span class="p">):</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">doc_info</span> <span class="ow">in</span> <span class="n">doc_infos</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">df</span> <span class="o">=</span> <span class="n">doc_info</span><span class="o">.</span><span class="n">structured_data</span>
+            <span class="n">jurisdiction</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;jurisdiction&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+
+            <span class="n">row</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;jurisdiction&quot;</span><span class="p">:</span> <span class="n">jurisdiction</span><span class="p">,</span>
+                <span class="s2">&quot;facility_type&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;facility_type&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;power_capacity_mw&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;power_capacity&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;cooling_method&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;cooling_system&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+                <span class="p">)[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;setback_ft&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;setback&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;noise_limit_db&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;noise_limit&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="s2">&quot;height_limit_ft&quot;</span><span class="p">:</span> <span class="n">df</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;height_limit&quot;</span><span class="p">,</span> <span class="p">[</span><span class="kc">None</span><span class="p">])[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="p">}</span>
+
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">output_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">out_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;data_center_ordinances.csv&quot;</span>
+        <span class="n">output_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">register_plugin</span><span class="p">(</span><span class="n">DataCenterExtractorCustom</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Registration with <code class="docutils literal notranslate"><span class="pre">register_plugin()</span></code> makes your class discoverable by
+the CLI. Without it, COMPASS cannot find your plugin even if the code is
+correct.</p>
+<section id="running-your-custom-plugin">
+<h3>Running your custom plugin<a class="headerlink" href="#running-your-custom-plugin" title="Link to this heading">#</a></h3>
+<p>The CLI interface is the same as standard plugins. COMPASS does not care
+about your internal implementation choices:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;your-key&quot;</span>
+
+compass<span class="w"> </span>process<span class="w"> </span>--config<span class="w"> </span>my_config.yaml
+</pre></div>
+</div>
+<p>Users select your plugin through the identifier you specify
+(<code class="docutils literal notranslate"><span class="pre">data_center_custom</span></code> in this example). The remaining implementation
+details stay internal to the plugin.</p>
+</section>
+</section>
+<section id="when-to-choose-each-level">
+<h2>When to choose each level<a class="headerlink" href="#when-to-choose-each-level" title="Link to this heading">#</a></h2>
+<p>You have seen four levels of customization. Here is when each makes sense.</p>
+<dl>
+<dt>OrdinanceExtractionPlugin</dt><dd><p>Use when your domain fits the standard pattern: keyword filtering works,
+regulations are in a single document or closely related documents,
+extraction is sequential, and standard CSV schema works.</p>
+<p><strong>Signals:</strong> Simple keyword lists define your target content, each
+feature extracts from a self-contained text section, you need 1-5
+features, output is flat tabular data.</p>
+<p><strong>Examples:</strong> Battery storage, solar setbacks, wind turbine heights.</p>
+</dd>
+<dt>FilteredExtractionPlugin with hooks</dt><dd><p>Use when standard filtering works but you need to preprocess documents
+or validate filtering results. Hooks give you control at specific points
+without rebuilding the filtering pipeline.</p>
+<p><strong>Signals:</strong> Document metadata needs extraction, jurisdiction names need
+normalization, you want to log or validate at pipeline stages, most
+filtering logic is standard but small customizations are needed.</p>
+<p><strong>Examples:</strong> Extracting capacity thresholds from filenames, normalizing
+county names, flagging high-priority documents.</p>
+</dd>
+<dt>BaseExtractionPlugin with custom filtering</dt><dd><p>Use when semantic search outperforms keyword filtering or when you need
+cross-document context. You control the entire filtering pipeline and
+can build sophisticated document corpora.</p>
+<p><strong>Signals:</strong> Regulations span multiple documents with cross-references,
+keyword patterns are unreliable, you need to query the corpus multiple
+times, filtering is a bottleneck in your pipeline.</p>
+<p><strong>Examples:</strong> Multi-code ordinances, technical standards with appendices,
+regulations with external references.</p>
+</dd>
+<dt>BaseExtractionPlugin with RAG extraction</dt><dd><p>Use when feature extraction benefits from semantic queries and parallel
+processing. You trade setup complexity for query flexibility and
+performance.</p>
+<p><strong>Signals:</strong> You are extracting 10+ features, each feature needs
+targeted context queries, relevant text is scattered across many pages,
+sequential parsing is too slow, standard extraction text is too broad.</p>
+<p><strong>Examples:</strong> Data centers, complex industrial facilities, multi-phase
+development projects, comprehensive use permits.</p>
+</dd>
+</dl>
+<p>The decision is not about preference—it is about matching the pattern to
+the domain. Start with the simplest pattern that works, then move to more
+complex patterns only when simpler ones are insufficient.</p>
+</section>
+<section id="debugging-advanced-plugins">
+<h2>Debugging advanced plugins<a class="headerlink" href="#debugging-advanced-plugins" title="Link to this heading">#</a></h2>
+<p>Custom plugins introduce new failure modes. Here is how to debug them
+systematically.</p>
+<section id="async-task-deadlocks">
+<h3>Async task deadlocks<a class="headerlink" href="#async-task-deadlocks" title="Link to this heading">#</a></h3>
+<p><strong>Symptom:</strong> Parser hangs indefinitely during <code class="docutils literal notranslate"><span class="pre">asyncio.gather()</span></code>.</p>
+<p><strong>Check:</strong></p>
+<ol class="arabic simple">
+<li><p>Are rate limits blocking progress? Log task start/completion times.</p></li>
+<li><p>Is one task raising unhandled exceptions? Wrap tasks in try-except or
+use <code class="docutils literal notranslate"><span class="pre">return_exceptions=True</span></code> in gather.</p></li>
+<li><p>Are you hitting API timeouts? Increase LLM timeout settings.</p></li>
+<li><p>Is semaphore count too low? A single blocked task can deadlock if
+concurrency is 1.</p></li>
+</ol>
+</section>
+<section id="label-chain-misalignment">
+<h3>Label chain misalignment<a class="headerlink" href="#label-chain-misalignment" title="Link to this heading">#</a></h3>
+<p><strong>Symptom:</strong> Parser receives wrong or missing text.</p>
+<p><strong>Check:</strong></p>
+<ol class="arabic simple">
+<li><p>Are you using labels with <code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code>? Labels are for
+<code class="docutils literal notranslate"><span class="pre">OrdinanceExtractionPlugin</span></code> only. Custom plugins pass data directly.</p></li>
+<li><p>Did you store corpus in correct location? Use
+<code class="docutils literal notranslate"><span class="pre">extraction_context.attrs[&quot;corpus&quot;]</span></code>.</p></li>
+<li><p>Is parser reading from correct location? Match storage and retrieval
+keys exactly.</p></li>
+</ol>
+</section>
+<section id="missing-structured-data">
+<h3>Missing structured data<a class="headerlink" href="#missing-structured-data" title="Link to this heading">#</a></h3>
+<p><strong>Symptom:</strong> <code class="docutils literal notranslate"><span class="pre">save_structured_data()</span></code> receives empty <code class="docutils literal notranslate"><span class="pre">doc_infos</span></code>.</p>
+<p><strong>Check:</strong></p>
+<ol class="arabic simple">
+<li><p>Is parser returning data? Log return value in
+<code class="docutils literal notranslate"><span class="pre">parse_docs_for_structured_data()</span></code>.</p></li>
+<li><p>Does parser return DataFrame? Standard pattern expects pandas
+DataFrame, not dict.</p></li>
+<li><p>Are you assigning to <code class="docutils literal notranslate"><span class="pre">doc_info.structured_data</span></code>? Custom plugins must
+set this attribute explicitly in some cases.</p></li>
+<li><p>Is save logic checking for None correctly? Add defensive None checks.</p></li>
+</ol>
+</section>
+</section>
+<section id="comparison-with-water-rights">
+<h2>Comparison with water rights<a class="headerlink" href="#comparison-with-water-rights" title="Link to this heading">#</a></h2>
+<p>The water rights plugin was the inspiration for this guide. Here is how
+your data center plugin compares:</p>
+<section id="similarities">
+<h3>Similarities<a class="headerlink" href="#similarities" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Both inherit from <code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code> for full control</p></li>
+<li><p>Both build embedded corpora in <code class="docutils literal notranslate"><span class="pre">filter_docs()</span></code></p></li>
+<li><p>Both use RAG with a lightweight vector search helper for extraction</p></li>
+<li><p>Both implement parallel async parsing with <code class="docutils literal notranslate"><span class="pre">asyncio.gather()</span></code></p></li>
+<li><p>Both override <code class="docutils literal notranslate"><span class="pre">save_structured_data()</span></code> for custom output</p></li>
+</ul>
+</section>
+<section id="differences">
+<h3>Differences<a class="headerlink" href="#differences" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Water rights uses Texas groundwater conservation districts as
+jurisdictions; data centers use standard county/city jurisdictions</p></li>
+<li><p>Water rights queries corpus generically for all features; data centers
+use feature-specific queries for targeted context</p></li>
+<li><p>Water rights has 16+ features; data centers focus on 7 core features</p></li>
+<li><p>Water rights outputs a single aggregated CSV; data centers could output
+per-jurisdiction files or JSON</p></li>
+</ul>
+<p>The architectural patterns remain the same even though the domains differ.
+<code class="docutils literal notranslate"><span class="pre">BaseExtractionPlugin</span></code> lets you apply the same approach to a wide range
+of regulatory extraction problems.</p>
+</section>
+</section>
+<section id="where-to-go-next">
+<h2>Where to go next<a class="headerlink" href="#where-to-go-next" title="Link to this heading">#</a></h2>
+<p>You now understand the full spectrum of COMPASS plugin customization. You
+have built hooks, custom filters, RAG extractors, and custom outputs. You
+can match patterns to domain requirements and debug failures systematically.</p>
+<p>Next steps:</p>
+<ul class="simple">
+<li><p>Build your own custom plugin for a domain that needs RAG or custom output</p></li>
+<li><p>Examine the water rights implementation at <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/compass/extraction/water/plugin.py">compass/extraction/water/plugin.py</a> for production patterns</p></li>
+<li><p>Explore one-shot schema-based plugins at <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/compass/plugin/one_shot/base.py">compass/plugin/one_shot/base.py</a> for rapid prototyping</p></li>
+<li><p>Review LLM usage tracking at <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/compass/services/usage.py">compass/services/usage.py</a> to understand cost monitoring</p></li>
+</ul>
+<p>The framework provides controlled extension points at every level. Use the
+simplest pattern that works, and move to advanced patterns only when simpler
+ones no longer suffice. This approach yields maintainable, performant
+extraction pipelines.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plugin_development.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Ordinance Plugin Development Tutorial</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../glossary.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Glossary</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-go-custom">When to go custom</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-scenario-data-center-ordinances">The scenario: data center ordinances</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-1-extending-with-hooks">Level 1: Extending with hooks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#example-extracting-power-capacity-from-pdf-metadata">Example: extracting power capacity from PDF metadata</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-hooks-suffice">When hooks suffice</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-2-custom-filtering-with-baseextractionplugin">Level 2: Custom filtering with BaseExtractionPlugin</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-contract">The contract</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#building-a-document-corpus-with-embeddings">Building a document corpus with embeddings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-custom-filtering-makes-sense">When custom filtering makes sense</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-3-rag-based-extraction">Level 3: RAG-based extraction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setting-up-a-simple-vector-index">Setting up a simple vector index</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generic-rag-extraction-helper">Generic RAG extraction helper</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#parallel-async-parser">Parallel async parser</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-rag-in-parse-docs-for-structured-data">Implementing RAG in parse_docs_for_structured_data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-rag-makes-sense">When RAG makes sense</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#level-4-custom-output-and-aggregation">Level 4: Custom output and aggregation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-schema-design">Custom schema design</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#implementing-save-structured-data">Implementing save_structured_data</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#alternative-output-formats">Alternative output formats</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#when-custom-output-makes-sense">When custom output makes sense</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#complete-plugin-architecture">Complete plugin architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#running-your-custom-plugin">Running your custom plugin</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#when-to-choose-each-level">When to choose each level</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#debugging-advanced-plugins">Debugging advanced plugins</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#async-task-deadlocks">Async task deadlocks</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#label-chain-misalignment">Label chain misalignment</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#missing-structured-data">Missing structured data</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-water-rights">Comparison with water rights</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#similarities">Similarities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#differences">Differences</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#where-to-go-next">Where to go next</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

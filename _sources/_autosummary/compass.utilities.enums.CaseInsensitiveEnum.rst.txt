@@ -1,0 +1,71 @@
+compass.utilities.enums.CaseInsensitiveEnum
+===========================================
+
+.. currentmodule:: compass.utilities.enums
+
+.. autoclass:: CaseInsensitiveEnum
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~CaseInsensitiveEnum.encode
+      ~CaseInsensitiveEnum.replace
+      ~CaseInsensitiveEnum.split
+      ~CaseInsensitiveEnum.rsplit
+      ~CaseInsensitiveEnum.join
+      ~CaseInsensitiveEnum.capitalize
+      ~CaseInsensitiveEnum.casefold
+      ~CaseInsensitiveEnum.title
+      ~CaseInsensitiveEnum.center
+      ~CaseInsensitiveEnum.count
+      ~CaseInsensitiveEnum.expandtabs
+      ~CaseInsensitiveEnum.find
+      ~CaseInsensitiveEnum.partition
+      ~CaseInsensitiveEnum.index
+      ~CaseInsensitiveEnum.ljust
+      ~CaseInsensitiveEnum.lower
+      ~CaseInsensitiveEnum.lstrip
+      ~CaseInsensitiveEnum.rfind
+      ~CaseInsensitiveEnum.rindex
+      ~CaseInsensitiveEnum.rjust
+      ~CaseInsensitiveEnum.rstrip
+      ~CaseInsensitiveEnum.rpartition
+      ~CaseInsensitiveEnum.splitlines
+      ~CaseInsensitiveEnum.strip
+      ~CaseInsensitiveEnum.swapcase
+      ~CaseInsensitiveEnum.translate
+      ~CaseInsensitiveEnum.upper
+      ~CaseInsensitiveEnum.startswith
+      ~CaseInsensitiveEnum.endswith
+      ~CaseInsensitiveEnum.removeprefix
+      ~CaseInsensitiveEnum.removesuffix
+      ~CaseInsensitiveEnum.isascii
+      ~CaseInsensitiveEnum.islower
+      ~CaseInsensitiveEnum.isupper
+      ~CaseInsensitiveEnum.istitle
+      ~CaseInsensitiveEnum.isspace
+      ~CaseInsensitiveEnum.isdecimal
+      ~CaseInsensitiveEnum.isdigit
+      ~CaseInsensitiveEnum.isnumeric
+      ~CaseInsensitiveEnum.isalpha
+      ~CaseInsensitiveEnum.isalnum
+      ~CaseInsensitiveEnum.isidentifier
+      ~CaseInsensitiveEnum.isprintable
+      ~CaseInsensitiveEnum.zfill
+      ~CaseInsensitiveEnum.format
+      ~CaseInsensitiveEnum.format_map
+      ~CaseInsensitiveEnum.maketrans
+      ~CaseInsensitiveEnum.members_as_str
+   
+   
+
+   
+   
+   

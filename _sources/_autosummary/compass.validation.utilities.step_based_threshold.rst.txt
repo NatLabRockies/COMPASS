@@ -1,0 +1,6 @@
+compass.validation.utilities.step\_based\_threshold
+===================================================
+
+.. currentmodule:: compass.validation.utilities
+
+.. autofunction:: step_based_threshold

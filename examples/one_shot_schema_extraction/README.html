@@ -1,0 +1,960 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>One-Shot Extraction &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'examples/one_shot_schema_extraction/README';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Parsing Existing Docs via the CLI" href="../parse_existing_docs/CLI/README.html" />
+    <link rel="prev" title="INFRA-COMPASS Execution Basics" href="../execution_basics/README.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../_static/searchtools.js"></script>
+    <script src="../../_static/language_data.js"></script>
+    <script src="../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="../index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item pst-sidebar-collapse"><button id="pst-collapse-sidebar-button" aria-expanded="true" aria-controls="pst-primary-sidebar"><svg class="pst-icon svg-inline--fa" role="img" aria-hidden="true" focusable="false" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
+    <path fill="currentColor" d="M3 15.5C2.36232 15.5 1.74874 15.2564 1.28478 14.8189C0.820828 14.3815 0.541576 13.7832 0.504167 13.1467L0.5 13L0.5 3C0.499965 2.36232 0.743605 1.74874 1.18107 1.28478C1.61854 0.820828 2.21676 0.541576 2.85333 0.504167L3 0.5L13 0.5C13.6377 0.499965 14.2513 0.743605 14.7152 1.18107C15.1792 1.61854 15.4584 2.21676 15.4958 2.85333L15.5 3L15.5 13C15.5 13.6377 15.2564 14.2513 14.8189 14.7152C14.3815 15.1792 13.7832 15.4584 13.1467 15.4958L13 15.5L3 15.5ZM3 13.8333L10.5 13.8333L10.5 2.16667L3 2.16667C2.79589 2.16669 2.59889 2.24163 2.44636 2.37726C2.29383 2.5129 2.19638 2.69979 2.1725 2.9025L2.16667 3L2.16667 13C2.16669 13.2041 2.24163 13.4011 2.37726 13.5536C2.5129 13.7062 2.69979 13.8036 2.9025 13.8275L3 13.8333ZM6.65583 10.325L6.5775 10.2558L4.91083 8.58917C4.76735 8.44567 4.68116 8.25476 4.66843 8.05223C4.65569 7.84971 4.71729 7.6495 4.84167 7.48917L4.91083 7.41083L6.5775 5.74417C6.72747 5.59471 6.9287 5.50794 7.14032 5.50148C7.35194 5.49502 7.55809 5.56935 7.7169 5.70937C7.8757 5.8494 7.97525 6.04463 7.99533 6.25539C8.01541 6.46616 7.95451 6.67667 7.825 6.84417L7.75583 6.9225L6.67917 8L7.75583 9.0775C7.89931 9.22099 7.98551 9.41191 7.99824 9.61443C8.01097 9.81695 7.94938 10.0172 7.825 10.1775L7.75583 10.2558C7.61234 10.3993 7.42142 10.4855 7.2189 10.4982C7.01638 10.511 6.81617 10.4494 6.65583 10.325Z"/>
+  </svg>
+  <span class="pst-collapse-sidebar-label">Collapse Sidebar</span>
+  <span class="pst-expand-sidebar-label">Expand Sidebar</span>
+</button></div>
+        <div class="sidebar-primary-item">
+
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../execution_basics/README.html">INFRA-COMPASS Execution Basics</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">One-Shot Extraction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parse_existing_docs/CLI/README.html">Parsing Existing Docs via the CLI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../parse_existing_docs/code/README.html">Parsing Existing PDF Documents</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../index.html" class="nav-link">Examples</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">One-Shot Extraction</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="one-shot-extraction">
+<h1>One-Shot Extraction<a class="headerlink" href="#one-shot-extraction" title="Link to this heading">#</a></h1>
+<p>This example shows how to author a one-shot extraction schema and run it
+through COMPASS. The one-shot plugin uses your schema to extract structured
+data in a single LLM call.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<p>Be sure to go over the
+<a class="reference external" href="https://natlabrockies.github.io/COMPASS/examples/execution_basics/README.html">COMPASS Execution Basics</a>
+to understand how to set up a run environment and model run configuration.
+Once your one-shot schema is established, you will be executing the data
+extraction pipeline in the same manner as described in that example.</p>
+</section>
+<section id="create-your-schema">
+<h2>Create Your Schema<a class="headerlink" href="#create-your-schema" title="Link to this heading">#</a></h2>
+<p>To start off, you will need to create a one-shot JSON schema that describes the
+extraction output shape and embeds the extraction logic in schema field
+descriptions. The easiest way to do this is by copying
+<a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json">wind_schema.json</a>
+and adjusting it for your domain.</p>
+<p>At a minimum, the schema must return an object with an <code class="docutils literal notranslate"><span class="pre">outputs</span></code> array, where
+each item is an extraction record with the required fields shown below:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;outputs&quot;</span><span class="p">],</span>
+<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;outputs&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;array&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;items&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;object&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;required&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">                    </span><span class="s2">&quot;feature&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;value&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;units&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;section&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;summary&quot;</span>
+<span class="w">                </span><span class="p">],</span>
+<span class="w">                </span><span class="nt">&quot;additionalProperties&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                    </span><span class="err">...</span><span class="w"> </span><span class="c1">// define each of the required fields from above</span>
+<span class="w">                </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The main field here is <code class="docutils literal notranslate"><span class="pre">feature</span></code>, which is the ID of the extracted feature
+(e.g., a setback distance or a maximum allowed height). The other fields
+(<code class="docutils literal notranslate"><span class="pre">value</span></code>, <code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">section</span></code>, and <code class="docutils literal notranslate"><span class="pre">summary</span></code>) are important for keeping
+the output consistent across various extractions and allowing a central database
+to keep track of the scraped data.</p>
+<p>You will need to customize the schema for your particular use case by defining
+the allowed feature IDs (typically in an enum), as well as the rest of the required
+fields, and by encoding the extraction logic in the field descriptions. The schema
+is the core of the one-shot plugin, and the quality of the schema will directly
+impact the quality of the extracted data, so it’s worth spending some time to get
+it right!</p>
+<p>Once the schema for the <code class="docutils literal notranslate"><span class="pre">outputs</span></code> array is finalized, you can add additional
+keys starting with a <code class="docutils literal notranslate"><span class="pre">$</span></code> to encode instructions, examples, and edge case
+handling logic that the model can refer to when parsing the text. These extra
+keys are not required, and they are ignored for the purposes of creating the
+structure of the outputs themselves, but they often provide crucial context
+that improves accuracy.</p>
+<p>For example, the
+<a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json">wind extraction schema</a>
+contains a <code class="docutils literal notranslate"><span class="pre">$definitions</span></code> key with detailed instructions on how to interpret
+setback multipliers and how to choose the most restrictive value when multiple
+setback distances are given in the text. This is reminiscent of the “decision logic”
+that you would normally encode in a decision tree for a traditional plugin,
+but here the logic is embedded in the schema itself and interpreted by the model
+at extraction time. This approach allows you to encode complex edge case handling
+logic without having to write any code, and it also allows you to easily update
+the logic by simply editing the schema.</p>
+<p>The schema also includes a <code class="docutils literal notranslate"><span class="pre">$examples</span></code> key with example extractions that the model
+can refer to when deciding how to parse the text. You can be as detailed as you want
+in these instructions, and you can experiment with different outputs to tune the
+model’s understanding of the task and the desired output format.</p>
+<p>The same schema includes a <code class="docutils literal notranslate"><span class="pre">$instructions</span></code> key with general instructions
+for the model to follow when parsing the text. This is a good place to reinforce the
+importance of following the schema and to provide any additional context that might be
+helpful for the model to know when performing the extraction.</p>
+<p>Finally, the schema contains an (optional) <code class="docutils literal notranslate"><span class="pre">$qualitative_features</span></code> key, which
+contains a subset of the features defined in the schema. This list tells COMPASS
+to categorize these features as “qualitative”, which means that they are expected to
+only contain textual summaries in the <code class="docutils literal notranslate"><span class="pre">summary</span></code> field of the output, and that the
+<code class="docutils literal notranslate"><span class="pre">value</span></code> and <code class="docutils literal notranslate"><span class="pre">units</span></code> fields for these features can be ignored and should (will) be
+dropped from the final output. This input is not shown to the LLM, so the LLM response
+will not be influenced by this key.</p>
+<p>You can add or remove as many of these extra keys as you want, and you can experiment with
+different ways of encoding the instructions and examples to see what works best for your
+particular use case. The main thing to keep in mind is that the core structure of the
+output must be defined by the <code class="docutils literal notranslate"><span class="pre">outputs</span></code> array in the schema, and any additional context
+or instructions should be provided through these extra keys.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can compare the <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/blob/main/examples/one_shot_schema_extraction/wind_schema.json">one-shot wind schema</a>
+to the existing decision trees in the <a class="reference external" href="https://github.com/NatLabRockies/COMPASS/tree/main/compass/extraction/wind">wind energy plugin</a>
+to get a feel for the translation of decision tree logic to schema descriptions.</p>
+</div>
+</section>
+<section id="build-a-plugin-config">
+<h2>Build a Plugin Config<a class="headerlink" href="#build-a-plugin-config" title="Link to this heading">#</a></h2>
+<p>Once you have defined your schema, the hard work is done! The next step is to
+build a one-shot plugin config that tells COMPASS how to use the schema and
+how to retrieve and filter documents. As with all configs in COMPASS, you may
+define your plugin configuration via JSON, JSON5, YAML, or TOML.</p>
+<p>At a minimum, you must supply a <code class="docutils literal notranslate"><span class="pre">schema</span></code> key (either a dictionary containing the
+full schema or a path to a schema file):</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;./wind_schema.json&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you want a little bit more control over the extraction pipeline, you may
+specify several additional keys that let you customize query templates, website
+filters, and text extraction prompts:</p>
+<div class="highlight-json5 notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Always required for one-shot schema extraction plugins</span>
+<span class="w">    </span><span class="nv">&quot;schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;./wind_schema.json&quot;</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// The default value for ``cache_llm_generated_content`` is</span>
+<span class="w">    </span><span class="c1">// ``true``, but we include it here anyway for completeness</span>
+<span class="w">    </span><span class="c1">// and to demonstrate that it can be set to ``false`` if desired.</span>
+<span class="w">    </span><span class="nv">&quot;cache_llm_generated_content&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// By setting this option to ``true``, we indicate that we would</span>
+<span class="w">    </span><span class="c1">// like a keyword-based heuristic to be applied, but would like</span>
+<span class="w">    </span><span class="c1">// to use the LLM to generate heuristic keywords based on the</span>
+<span class="w">    </span><span class="c1">// extraction schema (instead of providing custom heuristic</span>
+<span class="w">    </span><span class="c1">// keywords).</span>
+<span class="w">    </span><span class="nv">&quot;heuristic_keywords&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+
+<span class="w">    </span><span class="c1">// By setting this option to ``true``, we indicate that we would</span>
+<span class="w">    </span><span class="c1">// like a text collection (filter) step, but would like to simply</span>
+<span class="w">    </span><span class="c1">// use the schema to guide the filtering (instead of providing</span>
+<span class="w">    </span><span class="c1">// custom prompts).</span>
+<span class="w">    </span><span class="nv">&quot;collection_prompts&quot;</span><span class="p">:</span><span class="w"> </span><span class="k">true</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The key options are listed below:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data_type_short_desc</span></code>: Short label used in prompts (e.g., <code class="docutils literal notranslate"><span class="pre">wind</span> <span class="pre">energy</span> <span class="pre">ordinance</span></code>).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">query_templates</span></code>: Search queries with a <code class="docutils literal notranslate"><span class="pre">{jurisdiction}</span></code> placeholder.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">website_keywords</span></code>: Keyword weights for document search prioritization.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">heuristic_keywords</span></code>: mapping of good and bad keywords for heuristic text checks.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">collection_prompts</span></code>: Prompt list for chunk filtering, or <code class="docutils literal notranslate"><span class="pre">true</span></code> to auto-generate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">text_extraction_prompts</span></code>: Prompt list for text consolidation, or <code class="docutils literal notranslate"><span class="pre">true</span></code> to auto-generate.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cache_llm_generated_content</span></code>: Cache LLM-generated query templates and keywords. By default, <code class="docutils literal notranslate"><span class="pre">true</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extraction_system_prompt</span></code>: Optional system prompt override for extraction.</p></li>
+</ul>
+<p>See <a class="reference external" href="https://natlabrockies.github.io/COMPASS/_autosummary/compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin.html#compass.plugin.one_shot.base.create_schema_based_one_shot_extraction_plugin">this documentation</a>
+for further details.</p>
+<p>If you want full control over all of the options above, you can specify them directly in the config.
+You can also specify custom prompts for the collection and text extraction steps,
+which gives you even more control over the pipeline and allows you to further tune the model.
+Here is an example of a fully-specified config (in YAML for easier readability):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">schema</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">./wind_schema.json</span>
+
+<span class="nt">data_type_short_desc</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wind energy ordinance</span>
+
+<span class="nt">query_templates</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;filetype:pdf</span><span class="nv"> </span><span class="s">{jurisdiction}</span><span class="nv"> </span><span class="s">wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">conversion</span><span class="nv"> </span><span class="s">system</span><span class="nv"> </span><span class="s">ordinances&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">conversion</span><span class="nv"> </span><span class="s">system</span><span class="nv"> </span><span class="s">ordinances</span><span class="nv"> </span><span class="s">{jurisdiction}&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;{jurisdiction}</span><span class="nv"> </span><span class="s">wind</span><span class="nv"> </span><span class="s">WECS</span><span class="nv"> </span><span class="s">ordinance&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;Where</span><span class="nv"> </span><span class="s">can</span><span class="nv"> </span><span class="s">I</span><span class="nv"> </span><span class="s">find</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">legal</span><span class="nv"> </span><span class="s">text</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">commercial</span><span class="nv"> </span><span class="s">wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">conversion</span><span class="nv"> </span><span class="s">system</span><span class="nv"> </span><span class="s">zoning</span><span class="nv"> </span><span class="s">ordinances</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">{jurisdiction}?&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;What</span><span class="nv"> </span><span class="s">is</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">specific</span><span class="nv"> </span><span class="s">legal</span><span class="nv"> </span><span class="s">information</span><span class="nv"> </span><span class="s">regarding</span><span class="nv"> </span><span class="s">zoning</span><span class="nv"> </span><span class="s">ordinances</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">commercial</span><span class="nv"> </span><span class="s">wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">conversion</span><span class="nv"> </span><span class="s">systems</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">{jurisdiction}?&quot;</span>
+
+<span class="nt">website_keywords</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">pdf</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">92160</span>
+<span class="w">  </span><span class="nt">wecs</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">46080</span>
+<span class="w">  </span><span class="nt">wind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">23040</span>
+<span class="w">  </span><span class="nt">zoning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">11520</span>
+<span class="w">  </span><span class="nt">ordinance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5760</span>
+<span class="w">  </span><span class="nt">renewable energy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1440</span>
+<span class="w">  </span><span class="nt">planning</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">720</span>
+<span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">360</span>
+<span class="w">  </span><span class="nt">government</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span>
+<span class="w">  </span><span class="nt">code</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">  </span><span class="nt">area</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60</span>
+<span class="w">  </span><span class="nt">land development</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+<span class="w">  </span><span class="nt">land</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">energy</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">renewable</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span>
+<span class="w">  </span><span class="nt">municipal</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+<span class="w">  </span><span class="nt">department</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
+
+<span class="nt">heuristic_keywords</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">good_tech_keywords</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;setback&quot;</span>
+<span class="w">  </span><span class="nt">good_tech_acronyms</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wes&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;lwet&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;uwet&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wef&quot;</span>
+<span class="w">  </span><span class="nt">good_tech_phrases</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">conversion&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">turbine&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">tower&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">farm&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">system&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">farm&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;utility</span><span class="nv"> </span><span class="s">wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">system&quot;</span>
+<span class="w">  </span><span class="nt">not_tech_words</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;micro</span><span class="nv"> </span><span class="s">wecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;small</span><span class="nv"> </span><span class="s">wecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;mini</span><span class="nv"> </span><span class="s">wecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;private</span><span class="nv"> </span><span class="s">wecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;personal</span><span class="nv"> </span><span class="s">wecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;pwecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;rewind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;small</span><span class="nv"> </span><span class="s">wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;micro</span><span class="nv"> </span><span class="s">wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;mini</span><span class="nv"> </span><span class="s">wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;private</span><span class="nv"> </span><span class="s">wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;personal</span><span class="nv"> </span><span class="s">wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;swecs&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;windbreak&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;windiest&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;winds&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;windshield&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;window&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;windy&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">attribute&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">blow&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">break&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">current&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">damage&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">data&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">direction&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">draft&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">erosion&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">energy</span><span class="nv"> </span><span class="s">resource</span><span class="nv"> </span><span class="s">atlas&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">load&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">movement&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">orient&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">resource&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;wind</span><span class="nv"> </span><span class="s">runway&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;prevailing</span><span class="nv"> </span><span class="s">wind&quot;</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;downwind&quot;</span>
+
+<span class="nt">collection_prompts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">contains_ord_info</span>
+<span class="w">    </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">contains ordinance info</span>
+<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">      </span><span class="no">You extract structured data from text. Return your answer in JSON</span>
+<span class="w">      </span><span class="no">format (not markdown). Your JSON file must include exactly two keys.</span>
+<span class="w">      </span><span class="no">The first key is &#39;wind_reqs&#39;, which is a string that summarizes all</span>
+<span class="w">      </span><span class="no">zoning, siting, setback, system design, and operational</span>
+<span class="w">      </span><span class="no">requirements/restrictions that are explicitly enacted in the text</span>
+<span class="w">      </span><span class="no">for a wind energy system (or wind turbine/tower) for a given</span>
+<span class="w">      </span><span class="no">jurisdiction. Note that wind energy bans are an important restriction</span>
+<span class="w">      </span><span class="no">to track. Include any **closely related provisions** if they clearly</span>
+<span class="w">      </span><span class="no">pertain to the **development, operation, modification, or removal** of</span>
+<span class="w">      </span><span class="no">wind energy systems (or wind turbines/towers). All restrictions should</span>
+<span class="w">      </span><span class="no">be enforceable - ignore any text that only provides a legal definition</span>
+<span class="w">      </span><span class="no">of the regulation. If the text does not specify any concrete zoning,</span>
+<span class="w">      </span><span class="no">siting, setback, system design, or operational requirements/restrictions</span>
+<span class="w">      </span><span class="no">for a wind energy system, set this key to `null`. The last key is &#39;{key}&#39;,</span>
+<span class="w">      </span><span class="no">which is a boolean that is set to True if the text excerpt explicitly</span>
+<span class="w">      </span><span class="no">details zoning, siting, setback, system design, or operational</span>
+<span class="w">      </span><span class="no">requirements/restrictions for a wind energy system (or wind turbine/tower)</span>
+<span class="w">      </span><span class="no">and False otherwise.</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x</span>
+<span class="w">    </span><span class="nt">label</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">for utility-scale WECS</span>
+<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">      </span><span class="no">You are a legal scholar that reads ordinance text and determines whether</span>
+<span class="w">      </span><span class="no">any of it applies to zoning, siting, setback, system design, or operational</span>
+<span class="w">      </span><span class="no">requirements/restrictions for **large wind energy systems**.</span>
+<span class="w">      </span><span class="no">Large wind energy systems (WES) may also be referred to as wind turbines,</span>
+<span class="w">      </span><span class="no">wind energy conversion systems (WECS), wind energy facilities (WEF),</span>
+<span class="w">      </span><span class="no">wind energy turbines (WET), large wind energy turbines (LWET),</span>
+<span class="w">      </span><span class="no">utility-scale wind energy turbines (UWET),</span>
+<span class="w">      </span><span class="no">commercial wind energy conversion systems (CWECS),</span>
+<span class="w">      </span><span class="no">alternate energy systems (AES), commercial energy production systems (CEPCS),</span>
+<span class="w">      </span><span class="no">or similar. Your client is a commercial wind developer that does not care</span>
+<span class="w">      </span><span class="no">about ordinances related to private, residential, micro, small,</span>
+<span class="w">      </span><span class="no">or medium sized wind energy systems. Ignore any text related to such systems.</span>
+<span class="w">      </span><span class="no">Return your answer as a dictionary in JSON format (not markdown).</span>
+<span class="w">      </span><span class="no">Your JSON file must include exactly two keys. The first key is &#39;summary&#39;</span>
+<span class="w">      </span><span class="no">which contains a string that lists all of the types of wind energy systems</span>
+<span class="w">      </span><span class="no">the text applies to (if any). The second key is &#39;{key}&#39;, which is a boolean</span>
+<span class="w">      </span><span class="no">that is set to True if any part of the text excerpt details zoning, siting,</span>
+<span class="w">      </span><span class="no">setback, system design, or operational requirements/restrictions for the</span>
+<span class="w">      </span><span class="no">**large wind energy conversion systems** (or similar) that the client is</span>
+<span class="w">      </span><span class="no">interested in and False otherwise.</span>
+
+<span class="nt">text_extraction_prompts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">wind_energy_systems_text</span>
+<span class="w">    </span><span class="nt">out_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{jurisdiction}</span><span class="nv"> </span><span class="s">Wind</span><span class="nv"> </span><span class="s">Ordinance.txt&quot;</span>
+<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">      </span><span class="no"># CONTEXT #</span>
+<span class="w">      </span><span class="no">We want to reduce the provided excerpt to only contain information about</span>
+<span class="w">      </span><span class="no">**wind energy systems**. The extracted text will be used for structured</span>
+<span class="w">      </span><span class="no">data extraction, so it must be both **comprehensive** (retaining all relevant</span>
+<span class="w">      </span><span class="no">details) and **focused** (excluding unrelated content), with **zero rewriting</span>
+<span class="w">      </span><span class="no">or paraphrasing**. Ensure that all retained information is **directly applicable</span>
+<span class="w">      </span><span class="no">to wind energy systems** while preserving full context and accuracy.</span>
+
+<span class="w">      </span><span class="no"># OBJECTIVE #</span>
+<span class="w">      </span><span class="no">Extract all text **pertaining to wind energy systems** from the provided excerpt.</span>
+
+<span class="w">      </span><span class="no"># RESPONSE #</span>
+<span class="w">      </span><span class="no">Follow these guidelines carefully:</span>
+
+<span class="w">      </span><span class="no">1. ## Scope of Extraction ##:</span>
+<span class="w">      </span><span class="no">- Include all text that pertains to **wind energy systems**.</span>
+<span class="w">      </span><span class="no">- Explicitly include any text related to **bans or prohibitions** on wind energy systems.</span>
+<span class="w">      </span><span class="no">- Explicitly include any text related to the adoption or enactment date of the ordinance (if any).</span>
+
+<span class="w">      </span><span class="no">2. ## Exclusions ##:</span>
+<span class="w">      </span><span class="no">- Do **not** include text that does not pertain to wind energy systems.</span>
+
+<span class="w">      </span><span class="no">3. ## Formatting &amp; Structure ##:</span>
+<span class="w">      </span><span class="no">- **Preserve _all_ section titles, headers, and numberings** for reference.</span>
+<span class="w">      </span><span class="no">- **Maintain the original wording, formatting, and structure** to ensure accuracy.</span>
+
+<span class="w">      </span><span class="no">4. ## Output Handling ##:</span>
+<span class="w">      </span><span class="no">- This is a strict extraction task — act like a text filter, **not** a summarizer or writer.</span>
+<span class="w">      </span><span class="no">- Do not add, explain, reword, or summarize anything.</span>
+<span class="w">      </span><span class="no">- The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**</span>
+<span class="w">      </span><span class="no">- The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.</span>
+<span class="w">      </span><span class="no">- If **no relevant text** is found, return the response: &#39;No relevant text.&#39;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cleaned_text_for_extraction</span>
+<span class="w">    </span><span class="nt">out_fn</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;{jurisdiction}</span><span class="nv"> </span><span class="s">Utility</span><span class="nv"> </span><span class="s">Scale</span><span class="nv"> </span><span class="s">Wind</span><span class="nv"> </span><span class="s">Ordinance.txt&quot;</span>
+<span class="w">    </span><span class="nt">prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">      </span><span class="no"># CONTEXT #</span>
+<span class="w">      </span><span class="no">We want to reduce the provided excerpt to only contain information about</span>
+<span class="w">      </span><span class="no">**large wind energy systems**. The extracted text will be used for</span>
+<span class="w">      </span><span class="no">structured data extraction, so it must be both **comprehensive**</span>
+<span class="w">      </span><span class="no">(retaining all relevant details) and **focused** (excluding unrelated</span>
+<span class="w">      </span><span class="no">content), with **zero rewriting or paraphrasing**. Ensure that all</span>
+<span class="w">      </span><span class="no">retained information is **directly applicable** to large wind energy</span>
+<span class="w">      </span><span class="no">systems while preserving full context and accuracy.</span>
+
+<span class="w">      </span><span class="no"># OBJECTIVE #</span>
+<span class="w">      </span><span class="no">Extract all text **pertaining to large wind energy systems** from the provided excerpt.</span>
+
+<span class="w">      </span><span class="no"># RESPONSE #</span>
+<span class="w">      </span><span class="no">Follow these guidelines carefully:</span>
+
+<span class="w">      </span><span class="no">1. ## Scope of Extraction ##:</span>
+<span class="w">      </span><span class="no">- Include all text that pertains to **large wind energy systems**, even if they are referred to by different names such as: Wind turbines, wind energy conversion systems (wecs), wind energy facilities (wef), wind energy turbines (wet), large wind energy turbines (lwet), utility-scale wind energy turbines (uwet), commercial wind energy conversion systems (cwecs), alternate energy systems (aes), commercial energy production systems (cepcs), or similar</span>
+<span class="w">      </span><span class="no">- Explicitly include any text related to **bans or prohibitions** on large wind energy systems.</span>
+<span class="w">      </span><span class="no">- Explicitly include any text related to the adoption or enactment date of the ordinance (if any).</span>
+<span class="w">      </span><span class="no">- **Retain all relevant technical, design, operational, safety, environmental, and infrastructure-related provisions** that apply to the topic, such as (but not limited to):</span>
+<span class="w">          </span><span class="no">- Compliance with legal or regulatory standards.</span>
+<span class="w">          </span><span class="no">- Site, structural, or design specifications.</span>
+<span class="w">          </span><span class="no">- Environmental impact considerations.</span>
+<span class="w">          </span><span class="no">- Safety and risk mitigation measures.</span>
+<span class="w">          </span><span class="no">- Infrastructure, implementation, operation, and maintenance details.</span>
+<span class="w">          </span><span class="no">- All other **closely related provisions**.</span>
+
+<span class="w">      </span><span class="no">2. ## Exclusions ##:</span>
+<span class="w">      </span><span class="no">- Do **not** include text that explicitly applies **only** to private, residential, micro, small, or medium sized wind energy systems.</span>
+<span class="w">      </span><span class="no">- Do **not** include text that does not pertain at all to wind energy systems.</span>
+
+<span class="w">      </span><span class="no">3. ## Formatting &amp; Structure ##:</span>
+<span class="w">      </span><span class="no">- **Preserve _all_ section titles, headers, and numberings** for reference.</span>
+<span class="w">      </span><span class="no">- **Maintain the original wording, formatting, and structure** to ensure accuracy.</span>
+
+<span class="w">      </span><span class="no">4. ## Output Handling ##:</span>
+<span class="w">      </span><span class="no">- This is a strict extraction task — act like a text filter, **not** a summarizer or writer.</span>
+<span class="w">      </span><span class="no">- Do not add, explain, reword, or summarize anything.</span>
+<span class="w">      </span><span class="no">- The output must be a **copy-paste** of the original excerpt. **Absolutely no paraphrasing or rewriting.**</span>
+<span class="w">      </span><span class="no">- The output must consist **only** of contiguous or discontiguous verbatim blocks copied from the input.</span>
+<span class="w">      </span><span class="no">- If **no relevant text** is found, return the response: &#39;No relevant text.&#39;</span>
+
+<span class="nt">extraction_system_prompt</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|-</span>
+<span class="w">  </span><span class="no">You are a legal scholar extracting structured data from wind energy ordinances.</span>
+<span class="w">  </span><span class="no">Follow all instructions in the schema descriptions carefully.</span>
+<span class="w">  </span><span class="no">Only extract requirements for large, commercial, utility-scale wind energy systems.</span>
+</pre></div>
+</div>
+</section>
+<section id="execution">
+<h2>Execution<a class="headerlink" href="#execution" title="Link to this heading">#</a></h2>
+<p>Once both the schema and plugin configuration are set up, you can run your newly created
+one-shot plugin alongside the standard COMPASS pipeline using the <code class="docutils literal notranslate"><span class="pre">--plugin</span></code> flag.
+The main run config still controls core pipeline settings and must include a <code class="docutils literal notranslate"><span class="pre">tech</span></code>
+value that matches your target technology.</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>compass<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>config.json5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span>examples/one_shot_schema_extraction/plugin_config.yaml
+</pre></div>
+</div>
+<p>If you are using <code class="docutils literal notranslate"><span class="pre">pixi</span></code>:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pixi<span class="w"> </span>run<span class="w"> </span>compass<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>config.json5<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>-p<span class="w"> </span>examples/one_shot_schema_extraction/plugin_config.yaml
+</pre></div>
+</div>
+<p>Add <code class="docutils literal notranslate"><span class="pre">-v</span></code> (or <code class="docutils literal notranslate"><span class="pre">-vv</span></code>) if you want log output in the terminal.
+See the <a class="reference external" href="https://natlabrockies.github.io/COMPASS/examples/execution_basics/README.html#running-a-compass-process">Execution Basics example</a>
+for more details on running COMPASS pipelines.</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../execution_basics/README.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">INFRA-COMPASS Execution Basics</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../parse_existing_docs/CLI/README.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Parsing Existing Docs via the CLI</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#create-your-schema">Create Your Schema</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#build-a-plugin-config">Build a Plugin Config</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#execution">Execution</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

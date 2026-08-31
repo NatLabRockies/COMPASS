@@ -1,0 +1,6 @@
+compass.web.search.search\_single\_jurisdiction
+===============================================
+
+.. currentmodule:: compass.web.search
+
+.. autofunction:: search_single_jurisdiction

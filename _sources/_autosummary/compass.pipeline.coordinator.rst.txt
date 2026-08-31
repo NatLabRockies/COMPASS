@@ -1,0 +1,41 @@
+compass.pipeline.coordinator
+============================
+
+.. automodule:: compass.pipeline.coordinator
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      run_compass
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BaseRunMode
+      COMPASSCollection
+      COMPASSExtraction
+      COMPASSFullProcessing
+   
+   
+
+   
+   
+   
+
+
+

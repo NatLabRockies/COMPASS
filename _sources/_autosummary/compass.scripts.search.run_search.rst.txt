@@ -1,0 +1,6 @@
+compass.scripts.search.run\_search
+==================================
+
+.. currentmodule:: compass.scripts.search
+
+.. autofunction:: run_search

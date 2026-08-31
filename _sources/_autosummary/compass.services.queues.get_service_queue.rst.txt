@@ -1,0 +1,6 @@
+compass.services.queues.get\_service\_queue
+===========================================
+
+.. currentmodule:: compass.services.queues
+
+.. autofunction:: get_service_queue

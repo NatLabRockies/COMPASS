@@ -1,0 +1,2141 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.extraction.water.graphs &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/extraction/water/graphs';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../../../_static/searchtools.js"></script>
+    <script src="../../../../_static/language_data.js"></script>
+    <script src="../../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.extraction.water.graphs</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.extraction.water.graphs</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Water rights decision tree graph setup functions&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.common</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">setup_graph_no_nodes</span><span class="p">,</span>
+    <span class="n">llm_response_starts_with_yes</span><span class="p">,</span>
+    <span class="n">llm_response_starts_with_no</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="setup_graph_permits">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_permits.html#compass.extraction.water.graphs.setup_graph_permits">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_permits</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get permit requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Permit Requirements&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a requirement for water well &quot;</span>
+            <span class="s2">&quot;permits? Requirements should specify whether or not an &quot;</span>
+            <span class="s2">&quot;application is required in order to drill a groundwater well.&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is an application or permit required to drill a &quot;</span>
+            <span class="s2">&quot;groundwater well in the </span><span class="si">{DISTRICT_NAME}</span><span class="s2">?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What are the requirements the text mentions? &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="s2">&quot;get_exempt&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_exempt&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Are any wells exempt from the permitting process? &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_exempt&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly four keys. The keys are &#39;permit_required&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;requirements&#39;, &#39;exemptions&#39;, and &#39;explanation&#39;. The value &quot;</span>
+            <span class="s2">&quot;of the &#39;permit_required&#39; key should be either &#39;True&#39; or &#39;False&#39; &quot;</span>
+            <span class="s2">&quot;based on whether or not the conservation district requires water &quot;</span>
+            <span class="s2">&quot;well permits. The value &#39;requirements&#39; should list the well &quot;</span>
+            <span class="s2">&quot;permitting requirements if applicable. The value of the &quot;</span>
+            <span class="s2">&quot;&#39;exemptions&#39; key should specify whether or not there are well &quot;</span>
+            <span class="s2">&quot;types that are not subject to the permitting process. The value &quot;</span>
+            <span class="s2">&quot;of the &#39;explanation&#39; key should be a string containing a short &quot;</span>
+            <span class="s2">&quot;explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_extraction">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_extraction.html#compass.extraction.water.graphs.setup_graph_extraction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_extraction</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get water extraction requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Water Extraction Requirements&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a permit requirement to &quot;</span>
+            <span class="s2">&quot;extract or produce water from a well? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is an application or permit required to extract or &quot;</span>
+            <span class="s2">&quot;produce groundwater in the </span><span class="si">{DISTRICT_NAME}</span><span class="s2">?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What are the requirements the text mentions? &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;permit_required&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;permit_required&#39; key &quot;</span>
+            <span class="s2">&quot;should be either &#39;True&#39; or &#39;False&#39; based on whether or not &quot;</span>
+            <span class="s2">&quot;the conservation district requires extraction permits. &quot;</span>
+            <span class="s2">&quot;The value of the &#39;explanation&#39; key should be a string &quot;</span>
+            <span class="s2">&quot;containing a short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_geothermal">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_geothermal.html#compass.extraction.water.graphs.setup_graph_geothermal">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_geothermal</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get geothermal specific policies.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Geothermal Policies&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention provisions that apply to &quot;</span>
+            <span class="s2">&quot;geothermal systems specifically? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> implement policies that are specific &quot;</span>
+            <span class="s2">&quot;to geothermal systems?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Summarize the requirements for geothermal systems mentioned in &quot;</span>
+            <span class="s2">&quot;the text. &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly three keys. The keys are &quot;</span>
+            <span class="s2">&quot;&#39;geothermal_requirements&#39;, &#39;summary&#39;, and &#39;explanation&#39;. The &quot;</span>
+            <span class="s2">&quot;value of the &#39;geothermal_requirements&#39; key should be either &quot;</span>
+            <span class="s2">&quot;&#39;True&#39; or &#39;False&#39; based on whether or not the conservation &quot;</span>
+            <span class="s2">&quot;district has specific requirements for geothermal systems. &quot;</span>
+            <span class="s2">&quot;The value of the &#39;summary&#39; key should summarize the requirements &quot;</span>
+            <span class="s2">&quot;mentioned above, if applicable. The value of the &#39;explanation&#39; &quot;</span>
+            <span class="s2">&quot;key should be a string containing a short explanation for &quot;</span>
+            <span class="s2">&quot;your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_oil_and_gas">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_oil_and_gas.html#compass.extraction.water.graphs.setup_graph_oil_and_gas">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_oil_and_gas</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get oil and gas specific policies.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Oil and Gas Policies&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention provisions that apply to &quot;</span>
+            <span class="s2">&quot;oil and gas operations specifically? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> implement policies that are specific &quot;</span>
+            <span class="s2">&quot;to oil and gas operations?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Summarize the requirements for oil and gas operations mentioned &quot;</span>
+            <span class="s2">&quot;in the text. &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_reqs&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly three keys. The keys are &quot;</span>
+            <span class="s2">&quot;&#39;oil_and_gas_requirements&#39;, &#39;summary&#39;, and &#39;explanation&#39;. &quot;</span>
+            <span class="s2">&quot;The value of the &#39;oil_and_gas_requirements&#39; key should be &quot;</span>
+            <span class="s2">&quot;either &#39;True&#39; or &#39;False&#39; based on whether or not the &quot;</span>
+            <span class="s2">&quot;conservation district has specific requirements for oil and &quot;</span>
+            <span class="s2">&quot;gas operations. The value &#39;summary&#39; should summarize the &quot;</span>
+            <span class="s2">&quot;requirements mentioned above. The value of the &#39;explanation&#39; &quot;</span>
+            <span class="s2">&quot;key should be a string containing a short explanation for &quot;</span>
+            <span class="s2">&quot;your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_limits">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_limits.html#compass.extraction.water.graphs.setup_graph_limits">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_limits</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get extraction limits.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Extraction Limits&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention </span><span class="si">{interval}</span><span class="s2"> water production, &quot;</span>
+            <span class="s2">&quot;extraction, or withdrawal limits for groundwater wells? Limits &quot;</span>
+            <span class="s2">&quot;may be defined as an acre-foot or a gallon limit. Ensure these &quot;</span>
+            <span class="s2">&quot;limits are specific to </span><span class="si">{interval}</span><span class="s2"> production and disregard &quot;</span>
+            <span class="s2">&quot;limits related to other time periods. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> have </span><span class="si">{interval}</span><span class="s2"> water well production, &quot;</span>
+            <span class="s2">&quot;extraction, or withdrawal limits? &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_permit&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_permit&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Are the limits mentioned in text specific to a permit type (such &quot;</span>
+            <span class="s2">&quot;as limited production), well, or aquifer?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_permit&quot;</span><span class="p">,</span> <span class="s2">&quot;get_type&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_type&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the text mention an explicit, numerical limit such as a &quot;</span>
+            <span class="s2">&quot;gallons or acre-foot figure? </span><span class="si">{YES_NO_PROMPT}</span><span class="s2"> &quot;</span>
+            <span class="s2">&quot;Some limits maybe permit specific in which case your answer &quot;</span>
+            <span class="s2">&quot;should be &#39;No&#39;.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_type&quot;</span><span class="p">,</span> <span class="s2">&quot;get_limit&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;get_type&quot;</span><span class="p">,</span> <span class="s2">&quot;permit_final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_limit&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the </span><span class="si">{interval}</span><span class="s2"> extraction limit mentioned in the text? &quot;</span>
+            <span class="s2">&quot;Include the units associated with the limit (example: gallons &quot;</span>
+            <span class="s2">&quot;or acre-feet).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;permit_final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Summarize the production limit described in the text and &quot;</span>
+            <span class="s2">&quot;respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;limit_type&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. Based on the conversation so far, the &quot;</span>
+            <span class="s2">&quot;value of the &#39;limit_type&#39; key should be &#39;permit specific&#39;. &quot;</span>
+            <span class="s2">&quot;The value of the &#39;explanation&#39; key should be a string containing &quot;</span>
+            <span class="s2">&quot;a short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_limit&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly five keys. The keys are &#39;limit_type&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;extraction_limit&#39;, &#39;units&#39;, &#39;application&#39;, and &#39;explanation&#39;. &quot;</span>
+            <span class="s2">&quot;The value of the &#39;limit_type&#39; key should be either &#39;explicit&#39; &quot;</span>
+            <span class="s2">&quot;or &#39;permit specific&#39;. The value of the &#39;extraction_limit&#39; key &quot;</span>
+            <span class="s2">&quot;should be the numerical value(s) associated with the extraction &quot;</span>
+            <span class="s2">&quot;limit, if there are multiple values based on permit, well, or &quot;</span>
+            <span class="s2">&quot;aquifer, include all the values. The &#39;units&#39; key should &quot;</span>
+            <span class="s2">&quot;describe the units associated with the extraction limit. The &quot;</span>
+            <span class="s2">&quot;&#39;application&#39; key should describe whether the limit is specific &quot;</span>
+            <span class="s2">&quot;to a permit type, well, or aquifer. The value of the &quot;</span>
+            <span class="s2">&quot;&#39;explanation&#39; key should be a string containing a short &quot;</span>
+            <span class="s2">&quot;explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_well_spacing">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_well_spacing.html#compass.extraction.water.graphs.setup_graph_well_spacing">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_well_spacing</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get well spacing requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Well Spacing&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention how far a new well must be from &quot;</span>
+            <span class="s2">&quot;another well? Well spacing refers to how far apart two wells &quot;</span>
+            <span class="s2">&quot;must be and could prohibit an individual from drilling a well &quot;</span>
+            <span class="s2">&quot;within a certain distance of another well. Focus only on &quot;</span>
+            <span class="s2">&quot;spacing requirements between wells and ignore spacing that is &quot;</span>
+            <span class="s2">&quot;specific to other features such as property lines &quot;</span>
+            <span class="s2">&quot;or septic systems. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> have restrictions related to well spacing &quot;</span>
+            <span class="s2">&quot;or a required distance between wells? &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_spacing&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_spacing&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the spacing limit mentioned in the text? Include the &quot;</span>
+            <span class="s2">&quot;units associated with the limit (example: feet or yards). &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_spacing&quot;</span><span class="p">,</span> <span class="s2">&quot;get_wells&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_wells&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Do the spacing requirements mentioned apply specifically to &quot;</span>
+            <span class="s2">&quot;the required distance between two water wells? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;get_wells&quot;</span><span class="p">,</span> <span class="s2">&quot;get_qualifier&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_qualifier&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is the spacing limit dependent upon well characteristics &quot;</span>
+            <span class="s2">&quot;such as depth or production capacity? If so, include that &quot;</span>
+            <span class="s2">&quot;metric in the response (example: gallons per minute). &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_qualifier&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly four keys. The keys are &#39;spacing&#39;, &#39;units&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;qualifier&#39;, and &#39;explanation&#39;. The value of the &#39;spacing&#39; key &quot;</span>
+            <span class="s2">&quot;should be the numerical value specifying the required distance &quot;</span>
+            <span class="s2">&quot;between wells, focus on spacing between wells only and ignore &quot;</span>
+            <span class="s2">&quot;spacing requirements for other types of infrastructure. &quot;</span>
+            <span class="s2">&quot;The &#39;units&#39; key should describe the units associated with the &quot;</span>
+            <span class="s2">&quot;spacing. The value of the &#39;qualifier&#39; key should be the well &quot;</span>
+            <span class="s2">&quot;characteristic metric that determines the spacing, if &quot;</span>
+            <span class="s2">&quot;applicable. The value of the &#39;explanation&#39; key should be a &quot;</span>
+            <span class="s2">&quot;string containing a short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_time">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_time.html#compass.extraction.water.graphs.setup_graph_time">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_time</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get drilling window restrictions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Drilling Window&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a drilling window? &quot;</span>
+            <span class="s2">&quot;Such a value specifies how long after permit approval &quot;</span>
+            <span class="s2">&quot;that drilling must commence. For example, &#39;Drilling of a &quot;</span>
+            <span class="s2">&quot;permitted well must commence within 120 days of issuance of &quot;</span>
+            <span class="s2">&quot;the permit application.&#39; represents a 120 day window. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;In </span><span class="si">{DISTRICT_NAME}</span><span class="s2">, how long after permit approval &quot;</span>
+            <span class="s2">&quot;must drilling must commence on a water well?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_time&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_time&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the drilling window mentioned in the text? &quot;</span>
+            <span class="s2">&quot;Include the units associated with the limit (example: days &quot;</span>
+            <span class="s2">&quot;or months).&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_time&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly three keys. The keys are &#39;time_period&#39;, &#39;units&#39;, &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;time_period&#39; key should &quot;</span>
+            <span class="s2">&quot;be the numerical value associated with the drilling window the &quot;</span>
+            <span class="s2">&quot;&#39;units&#39; key should describe the units associated with &quot;</span>
+            <span class="s2">&quot;the drilling window. The value of the &#39;explanation&#39; key should &quot;</span>
+            <span class="s2">&quot;be a string containing a short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_metering_device">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_metering_device.html#compass.extraction.water.graphs.setup_graph_metering_device">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_metering_device</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get metering device requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Metering Device&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a requirement for a metering &quot;</span>
+            <span class="s2">&quot;device? Metering devices are typically utilized to monitor water &quot;</span>
+            <span class="s2">&quot;usage and might be required by the conservation district. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is a metering device that monitors water usage required &quot;</span>
+            <span class="s2">&quot;in </span><span class="si">{DISTRICT_NAME}</span><span class="s2">?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_device&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_device&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What device is mentioned in the text? &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_device&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;device&#39; and &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;device&#39; key should be &quot;</span>
+            <span class="s2">&quot;a boolean value with the the value &#39;True&#39; if a device is &quot;</span>
+            <span class="s2">&quot;required and &#39;False&#39; if a device is not required. The value &quot;</span>
+            <span class="s2">&quot;of the &#39;explanation&#39; key should be a string containing a &quot;</span>
+            <span class="s2">&quot;short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_drought">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_drought.html#compass.extraction.water.graphs.setup_graph_drought">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_drought</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get district drought management plan.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Drought Management Plan&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a drought management or &quot;</span>
+            <span class="s2">&quot;contingency plan? Drought management plans are plans set forth &quot;</span>
+            <span class="s2">&quot;by conservation district that specify actions or policies that &quot;</span>
+            <span class="s2">&quot;could be implemented in the event of a drought such as imposing &quot;</span>
+            <span class="s2">&quot;additional restrictions on well users. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> have a drought management or &quot;</span>
+            <span class="s2">&quot;contingency plan?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_plan&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_plan&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Summarize the drought management plan mentioned in the text? &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_plan&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;drought_plan&#39; and &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;drought_plan&#39; key should &quot;</span>
+            <span class="s2">&quot;be a boolean value with the the value &#39;True&#39; if a drought &quot;</span>
+            <span class="s2">&quot;management plan is in place and &#39;False&#39; if not. The value &quot;</span>
+            <span class="s2">&quot;of the &#39;explanation&#39; key should be a string containing a &quot;</span>
+            <span class="s2">&quot;short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_contingency">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_contingency.html#compass.extraction.water.graphs.setup_graph_contingency">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_contingency</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get permit holder drought management plan</span>
+<span class="sd">    requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Contingency Plan Requirements&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a requirement for well owners &quot;</span>
+            <span class="s2">&quot;to develop a drought management or contingency plan? &quot;</span>
+            <span class="s2">&quot;Drought contingency plans might specify actions that well owners &quot;</span>
+            <span class="s2">&quot;and users should take in the event of a drought. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> require well owners, users, or applicants &quot;</span>
+            <span class="s2">&quot;to develop a drought management or contingency plan?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_plan&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_plan&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Summarize the drought management plan requirements mentioned in &quot;</span>
+            <span class="s2">&quot;the text?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_plan&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;drought_plan&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;drought_plan&#39; key should &quot;</span>
+            <span class="s2">&quot;be a boolean value with the the value &#39;True&#39; if a well owner &quot;</span>
+            <span class="s2">&quot;is required to develop a drought management plan. The value &quot;</span>
+            <span class="s2">&quot;of the &#39;explanation&#39; key should be a string containing a short &quot;</span>
+            <span class="s2">&quot;explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_plugging_reqs">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_plugging_reqs.html#compass.extraction.water.graphs.setup_graph_plugging_reqs">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_plugging_reqs</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get water well plugging requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Plugging Requirements&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention plugging requirements specific &quot;</span>
+            <span class="s2">&quot;to water wells? Plugging requirements generally detail the  &quot;</span>
+            <span class="s2">&quot;steps an individual needs to take when they no longer intend to &quot;</span>
+            <span class="s2">&quot;use the well. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> implement plugging requirements specific &quot;</span>
+            <span class="s2">&quot;to water wells?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_plugging&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_plugging&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What are the plugging requirements mentioned in the text? &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_plugging&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;plugging_requirements&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;plugging_requirements&#39; key &quot;</span>
+            <span class="s2">&quot;should be a boolean value with the the value &#39;True&#39; if the &quot;</span>
+            <span class="s2">&quot;conservation district implements plugging requirements. &quot;</span>
+            <span class="s2">&quot;The value of the &#39;explanation&#39; key should be a string &quot;</span>
+            <span class="s2">&quot;containing a short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_external_transfer">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_external_transfer.html#compass.extraction.water.graphs.setup_graph_external_transfer">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_external_transfer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get external transfer restrictions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;External Transfer Restrictions&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention restrictions or costs related to &quot;</span>
+            <span class="s2">&quot;the external transport or export of water? External transport &quot;</span>
+            <span class="s2">&quot;refers to cases in which well owners sell or transport water to &quot;</span>
+            <span class="s2">&quot;a location outside of the district boundaries. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> implement restrictions or costs related to &quot;</span>
+            <span class="s2">&quot;the external transport or export of water? External transport &quot;</span>
+            <span class="s2">&quot;refers to cases in which well owners sell or transport water to &quot;</span>
+            <span class="s2">&quot;a location outside of the district boundaries. &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_restrictions&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_restrictions&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What are the restrictions the text mentions?&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_restrictions&quot;</span><span class="p">,</span> <span class="s2">&quot;get_permit&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_permit&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is there a permit application fee for the external transfer &quot;</span>
+            <span class="s2">&quot;of water? &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_permit&quot;</span><span class="p">,</span> <span class="s2">&quot;get_cost&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_cost&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Is there a cost a associated with the external transfer of &quot;</span>
+            <span class="s2">&quot;water? Focus on costs that are specific to the transfer itself &quot;</span>
+            <span class="s2">&quot;(dollars per gallon or acre-foot figures) rather than permit or &quot;</span>
+            <span class="s2">&quot;application costs. </span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;get_cost&quot;</span><span class="p">,</span> <span class="s2">&quot;get_cost_amount&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_cost_amount&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the dollar amount associated with the external transfer &quot;</span>
+            <span class="s2">&quot;of water? Include the units associated with the cost (example: &quot;</span>
+            <span class="s2">&quot;dollars per gallon). If the text does not mention a specific &quot;</span>
+            <span class="s2">&quot;cost, then respond &#39;Permit Specific&#39; or with the rate structure &quot;</span>
+            <span class="s2">&quot;mentioned in the text.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_cost&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_no</span><span class="p">)</span>
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_cost_amount&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include at least four keys. The keys are &quot;</span>
+            <span class="s2">&quot;&#39;transfer_restrictions&#39;, &#39;requirements&#39;, &#39;cost&#39;, and &quot;</span>
+            <span class="s2">&quot;&#39;explanation&#39;. The value of the &#39;transfer_restrictions&#39; key &quot;</span>
+            <span class="s2">&quot;should be either &#39;True&#39; or &#39;False&#39; based on whether or not the &quot;</span>
+            <span class="s2">&quot;conservation district restricts water transfer. The value &quot;</span>
+            <span class="s2">&quot;&#39;restrictions&#39; should list the water transfer restrictions if &quot;</span>
+            <span class="s2">&quot;applicable. The value of the &#39;cost&#39; key should either be &#39;True&#39; &quot;</span>
+            <span class="s2">&quot;or &#39;False&#39; based on whether or not there are costs associated &quot;</span>
+            <span class="s2">&quot;with the external transfer of water. If there is a specific cost &quot;</span>
+            <span class="s2">&quot;mentioned the &#39;cost_amount&#39; key should reflect the dollar amount &quot;</span>
+            <span class="s2">&quot;associated with the transfer of water. The value of the &quot;</span>
+            <span class="s2">&quot;&#39;explanation&#39; key should be a string containing a short &quot;</span>
+            <span class="s2">&quot;explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_production_reporting">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_production_reporting.html#compass.extraction.water.graphs.setup_graph_production_reporting">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_production_reporting</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get production reporting requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Water Well Production Reporting&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention a requirement for production &quot;</span>
+            <span class="s2">&quot;reporting? Production reporting typically refers to the amount &quot;</span>
+            <span class="s2">&quot;of water extracted from a well and may be subject to specific &quot;</span>
+            <span class="s2">&quot;regulations. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> require production reporting for water &quot;</span>
+            <span class="s2">&quot;wells?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_reporting&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_reporting&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What are the requirements mentioned in the text?&quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_reporting&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;production_reporting&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;production_reporting&#39; key &quot;</span>
+            <span class="s2">&quot;should be a boolean value with the the value &#39;True&#39; if &quot;</span>
+            <span class="s2">&quot;production reporting is required. The value of the &quot;</span>
+            <span class="s2">&quot;&#39;explanation&#39; should be a string containing a short explanation &quot;</span>
+            <span class="s2">&quot;for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_production_cost">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_production_cost.html#compass.extraction.water.graphs.setup_graph_production_cost">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_production_cost</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup graph to get production cost.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Water Well Production Cost&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention costs related to the production &quot;</span>
+            <span class="s2">&quot;or extraction of water from wells? Such a cost would specify a &quot;</span>
+            <span class="s2">&quot;cost per unit volume of water extracted. Focus on costs that are &quot;</span>
+            <span class="s2">&quot;specific to the production or extraction itself (dollars per &quot;</span>
+            <span class="s2">&quot;gallon or acre-foot figures) rather than one-time permit costs.&quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> charge well operators or owners to &quot;</span>
+            <span class="s2">&quot;produce or extract water from a groundwater well? &quot;</span>
+            <span class="s2">&quot;This is likely a dollar amount per gallon or acre-foot fee.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_type&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_type&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the production cost apply broadly to all well users or &quot;</span>
+            <span class="s2">&quot;does it vary by permit type, user, or other factors?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_type&quot;</span><span class="p">,</span> <span class="s2">&quot;get_cost_amount&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_cost_amount&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What is the dollar amount associated with the external transfer &quot;</span>
+            <span class="s2">&quot;of water? Include the units associated with the cost (example: &quot;</span>
+            <span class="s2">&quot;dollars per gallon). If the text does not mention a specific &quot;</span>
+            <span class="s2">&quot;cost, then respond &#39;Permit Specific&#39; or with the rate structure &quot;</span>
+            <span class="s2">&quot;mentioned in the text.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_cost_amount&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly four keys. The keys are &#39;cost&#39;, &quot;</span>
+            <span class="s2">&quot;&#39;production_cost&#39;, &#39;cost_units&#39;, and &#39;explanation&#39;. The value &quot;</span>
+            <span class="s2">&quot;of the &#39;cost&#39; key should be &#39;True&#39; if there are costs &quot;</span>
+            <span class="s2">&quot;associated with the production of water. The value of the &quot;</span>
+            <span class="s2">&quot;&#39;production_cost&#39; key should reflect the dollar amount &quot;</span>
+            <span class="s2">&quot;associated with the production of water or &#39;Permit Specific&#39; &quot;</span>
+            <span class="s2">&quot;if the cost varies. The value of the &#39;cost_units&#39; key should &quot;</span>
+            <span class="s2">&quot;be a string containing the units associated with the cost &quot;</span>
+            <span class="s2">&quot;(example: dollars per gallon). The value of the &#39;explanation&#39; &quot;</span>
+            <span class="s2">&quot;key should be a string containing a short explanation for your &quot;</span>
+            <span class="s2">&quot;choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_setback_features">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_setback_features.html#compass.extraction.water.graphs.setup_graph_setback_features">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_setback_features</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup Graph to get setback restrictions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Setback Features&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention restrictions related to how &quot;</span>
+            <span class="s2">&quot;close a groundwater well can be located relative to property &quot;</span>
+            <span class="s2">&quot;lines, buildings, septic systems, or &#39;other sources of &quot;</span>
+            <span class="s2">&quot;contamination&#39;? &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> restrict how close a groundwater well can &quot;</span>
+            <span class="s2">&quot;be located relative to property lines, buildings, septic &quot;</span>
+            <span class="s2">&quot;systems, or located relative to property lines, buildings, &quot;</span>
+            <span class="s2">&quot;septic systems, or other sources of contamination&#39;?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_restrictions&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_restrictions&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;What are the restrictions mentioned in the text? &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_restrictions&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;setback_restrictions&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;setback_restrictions&#39; key &quot;</span>
+            <span class="s2">&quot;should be a boolean value with the value &#39;True&#39; if setback &quot;</span>
+            <span class="s2">&quot;restrictions are imposed. The value of the &#39;explanation&#39; &quot;</span>
+            <span class="s2">&quot;key should be a string containing a short explanation for your &quot;</span>
+            <span class="s2">&quot;choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+
+
+<div class="viewcode-block" id="setup_graph_redrilling">
+<a class="viewcode-back" href="../../../../_autosummary/compass.extraction.water.graphs.setup_graph_redrilling.html#compass.extraction.water.graphs.setup_graph_redrilling">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">setup_graph_redrilling</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Setup Graph to get redrilling restrictions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value pairs to add to graph.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    nx.DiGraph</span>
+<span class="sd">        Graph instance that can be used to initialize an</span>
+<span class="sd">        `elm.tree.DecisionTree`.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">G</span> <span class="o">=</span> <span class="n">setup_graph_no_nodes</span><span class="p">(</span>  <span class="c1"># ruff:ignore[non-lowercase-variable-in-function]</span>
+        <span class="n">d_tree_name</span><span class="o">=</span><span class="s2">&quot;Redrilling Restrictions&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does the following text mention restrictions related to &quot;</span>
+            <span class="s2">&quot;redrilling water wells? Redrilling refers to the process &quot;</span>
+            <span class="s2">&quot;of deepening or widening an existing well to improve access &quot;</span>
+            <span class="s2">&quot;to groundwater. &quot;</span>
+            <span class="s2">&quot;</span><span class="si">{YES_NO_PROMPT}</span><span class="s2">&quot;</span>
+            <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&quot;&quot;&quot;</span><span class="se">\n</span><span class="si">{text}</span><span class="se">\n</span><span class="s1">&quot;&quot;&quot;&#39;</span>
+        <span class="p">),</span>
+        <span class="n">db_query</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Does </span><span class="si">{DISTRICT_NAME}</span><span class="s2"> implement restrictions related to &quot;</span>
+            <span class="s2">&quot;redrilling or deepening water wells?&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span>
+        <span class="s2">&quot;init&quot;</span><span class="p">,</span> <span class="s2">&quot;get_redrilling&quot;</span><span class="p">,</span> <span class="n">condition</span><span class="o">=</span><span class="n">llm_response_starts_with_yes</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;get_redrilling&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;What are the redrilling restrictions mentioned in the text? &quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s2">&quot;get_redrilling&quot;</span><span class="p">,</span> <span class="s2">&quot;final&quot;</span><span class="p">)</span>
+
+    <span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span>
+        <span class="s2">&quot;final&quot;</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="p">(</span>
+            <span class="s2">&quot;Respond based on our entire conversation so far. Return your &quot;</span>
+            <span class="s2">&quot;answer in JSON format (not markdown). Your JSON file must &quot;</span>
+            <span class="s2">&quot;include exactly two keys. The keys are &#39;redrilling_restrictions&#39; &quot;</span>
+            <span class="s2">&quot;and &#39;explanation&#39;. The value of the &#39;redrilling_restrictions&#39; &quot;</span>
+            <span class="s2">&quot;key should be a boolean value with the value &#39;True&#39; if the &quot;</span>
+            <span class="s2">&quot;conservation district implements redrilling restrictions. The &quot;</span>
+            <span class="s2">&quot;value of the &#39;explanation&#39; key should be a string containing a &quot;</span>
+            <span class="s2">&quot;short explanation for your choice.&quot;</span>
+        <span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">G</span></div>
+
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

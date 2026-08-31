@@ -1,0 +1,1659 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>compass.services.cpu &#8212; COMPASS v0.28.0</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=55c26ed414f5f8a31ebb" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="../../../_static/scripts/fontawesome.js?digest=55c26ed414f5f8a31ebb"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb" />
+
+    <script src="../../../_static/documentation_options.js?v=8d643f27"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=f281be69"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}`;
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        all_mermaids.forEach((el) => {
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+        await mermaid.run();
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+const load = async () => {
+    initStyles();
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...JSON.parse(
+                    `{"startOnLoad": false}`
+                ),
+                ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...JSON.parse(
+        `{"startOnLoad": false}`
+    ),
+    ...{ darkMode: darkTheme, theme: darkTheme ? 'dark' : 'default' },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/compass/services/cpu';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="0.28.0" />
+  
+    
+    <script src="../../../_static/searchtools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script src="../../../searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo_horiz.png" class="logo__image only-light" alt=""/>
+    <img src="../../../_static/logo_horiz.png" class="logo__image only-dark pst-js-only" alt=""/>
+  
+  
+    <p class="title logo__title">v0.28.0</p>
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar hide-on-wide">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../index.html">
+    Home page
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/about.html">
+    About
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../misc/installation.html">
+    Installation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../examples/index.html">
+    Examples
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../cli.html">
+    CLI reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../_autosummary/compass.html">
+    API reference
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../val/validation.html">
+    Validation
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../dev/index.html">
+    Development
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../../../glossary.html">
+    Glossary
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../../../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="../../index.html" class="nav-link">Module code</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">compass.services.cpu</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <h1>Source code for compass.services.cpu</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;COMPASS Ordinance CPU-bound services&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pprint</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">platform</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">contextlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="kn">import</span> <span class="n">iglob</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">io</span><span class="w"> </span><span class="kn">import</span> <span class="n">BytesIO</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProcessPoolExecutor</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.web.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">PDFDocument</span><span class="p">,</span> <span class="n">MDDocument</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">elm.utilities.parse</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_pdf</span><span class="p">,</span> <span class="n">read_pdf_ocr</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docling.datamodel.backend_options</span><span class="w"> </span><span class="kn">import</span> <span class="n">HTMLBackendOptions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docling.datamodel.base_models</span><span class="w"> </span><span class="kn">import</span> <span class="n">DocumentStream</span><span class="p">,</span> <span class="n">InputFormat</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docling.document_converter</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DocumentConverter</span><span class="p">,</span>
+    <span class="n">HTMLFormatOption</span><span class="p">,</span>
+    <span class="n">PdfFormatOption</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docling.datamodel.pipeline_options</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">PdfPipelineOptions</span><span class="p">,</span>
+    <span class="n">TableStructureOptions</span><span class="p">,</span>
+    <span class="n">TesseractCliOcrOptions</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">docling.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConversionError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">COMPASSValueError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.services.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">Service</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">compass.utilities.logs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">configure_subprocess_logging</span><span class="p">,</span>
+    <span class="n">configure_docling_subprocess_logging</span><span class="p">,</span>
+    <span class="n">LQ</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">TIMEOUT_PARAMS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;shutdown_timeout&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;force_shutdown_timeout&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="ProcessPoolService">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProcessPoolService</span><span class="p">(</span><span class="n">Service</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Service that contains a ProcessPoolExecutor instance&quot;&quot;&quot;</span>
+
+    <span class="n">_DEFAULT_MAX_TASKS_PER_CHILD</span> <span class="o">=</span> <span class="mi">100</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Keyword-value argument pairs to pass to</span>
+<span class="sd">            :class:`concurrent.futures.ProcessPoolExecutor`.</span>
+<span class="sd">            By default, ``None``.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ppe_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="ProcessPoolService.acquire_resources">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.acquire_resources">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">acquire_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Open thread pool and temp directory&quot;&quot;&quot;</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;OMP_NUM_THREADS&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+        <span class="n">ppe_kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ppe_kwargs</span><span class="p">)</span>
+        <span class="c1"># ppe_kwargs = self._set_tasks_per_child(ppe_kwargs)</span>
+        <span class="n">ppe_kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_ppe_initializer</span><span class="p">(</span><span class="n">ppe_kwargs</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="s2">&quot;  - Setting up ProcessPoolExecutor with kwargs:</span><span class="se">\n</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">pprint</span><span class="o">.</span><span class="n">PrettyPrinter</span><span class="p">()</span><span class="o">.</span><span class="n">pformat</span><span class="p">(</span><span class="n">ppe_kwargs</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="o">**</span><span class="n">ppe_kwargs</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_tasks_per_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ppe_kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set default ``max_tasks_per_child``&quot;&quot;&quot;</span>
+        <span class="n">ppe_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="s2">&quot;max_tasks_per_child&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_DEFAULT_MAX_TASKS_PER_CHILD</span>
+        <span class="p">)</span>
+        <span class="n">ppe_kwargs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+            <span class="s2">&quot;mp_context&quot;</span><span class="p">,</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span><span class="s2">&quot;spawn&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">ppe_kwargs</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_set_ppe_initializer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ppe_kwargs</span><span class="p">):</span>  <span class="c1"># ruff:ignore[no-self-use]</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set initializer to configure subprocess logging&quot;&quot;&quot;</span>
+        <span class="n">user_initializer</span> <span class="o">=</span> <span class="n">ppe_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;initializer&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">initargs</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">ppe_kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;initargs&quot;</span><span class="p">,</span> <span class="p">()))</span>
+        <span class="n">ppe_kwargs</span><span class="p">[</span><span class="s2">&quot;initializer&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">configure_subprocess_logging</span>
+        <span class="n">ppe_kwargs</span><span class="p">[</span><span class="s2">&quot;initargs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">LQ</span><span class="o">.</span><span class="n">QUEUE</span><span class="p">,</span> <span class="n">user_initializer</span><span class="p">,</span> <span class="n">initargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ppe_kwargs</span>
+
+<div class="viewcode-block" id="ProcessPoolService.release_resources">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.ProcessPoolService.html#compass.services.cpu.ProcessPoolService.release_resources">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">release_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Shutdown thread pool and cleanup temp directory&quot;&quot;&quot;</span>
+        <span class="n">pool</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pool</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">pool</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">manager_thread</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="s2">&quot;_executor_manager_thread&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">processes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">pool</span><span class="p">,</span> <span class="s2">&quot;_processes&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+        <span class="n">pool</span><span class="o">.</span><span class="n">shutdown</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cancel_futures</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_needs_forced_shutdown</span><span class="p">(</span>
+            <span class="n">manager_thread</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span> <span class="n">TIMEOUT_PARAMS</span><span class="p">[</span><span class="s2">&quot;shutdown_timeout&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Process pool did not shut down within </span><span class="si">%.1f</span><span class="s2"> seconds; &quot;</span>
+            <span class="s2">&quot;terminating lingering workers&quot;</span><span class="p">,</span>
+            <span class="n">TIMEOUT_PARAMS</span><span class="p">[</span><span class="s2">&quot;shutdown_timeout&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">_force_shutdown_processes</span><span class="p">(</span>
+            <span class="n">processes</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT_PARAMS</span><span class="p">[</span><span class="s2">&quot;force_shutdown_timeout&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">_join_manager_thread</span><span class="p">(</span>
+            <span class="n">manager_thread</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT_PARAMS</span><span class="p">[</span><span class="s2">&quot;force_shutdown_timeout&quot;</span><span class="p">]</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="FileLoader">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.FileLoader.html#compass.services.cpu.FileLoader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">FileLoader</span><span class="p">(</span><span class="n">ProcessPoolService</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class to load files in a ProcessPoolExecutor&quot;&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">can_process</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;bool: Always ``True`` (limiting is handled by asyncio)&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="FileLoader.process">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.FileLoader.html#compass.services.cpu.FileLoader.process">[docs]</a>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Execute a file parsing function in the process pool</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        fn : callable</span>
+<span class="sd">            Callable executed inside the process pool. Receives</span>
+<span class="sd">            ``pdf_bytes`` as the first argument.</span>
+<span class="sd">        source : bytes</span>
+<span class="sd">            Raw document payload or path to file on disk. Argument</span>
+<span class="sd">            forwarded to ``read_fn``.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to ``fn``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            Result returned by ``fn`` after execution.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">loop</span> <span class="o">=</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">get_running_loop</span><span class="p">()</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">loop</span><span class="o">.</span><span class="n">run_in_executor</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">pool</span><span class="p">,</span> <span class="n">partial</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="p">)</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="OCRPDFLoader">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.OCRPDFLoader.html#compass.services.cpu.OCRPDFLoader">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OCRPDFLoader</span><span class="p">(</span><span class="n">FileLoader</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Loader service for OCR&quot;&quot;&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="read_pdf_doc">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.read_pdf_doc.html#compass.services.cpu.read_pdf_doc">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_doc</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read PDF file from bytes in a Process Pool</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pdf_bytes : bytes</span>
+<span class="sd">        Bytes containing PDF file.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value arguments to pass to</span>
+<span class="sd">        :class:`elm.web.document.PDFDocument` initializer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    elm.web.document.PDFDocument</span>
+<span class="sd">        PDFDocument instances with pages loaded as text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">FileLoader</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">_read_pdf</span><span class="p">,</span> <span class="n">pdf_bytes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_pdf_file">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.read_pdf_file.html#compass.services.cpu.read_pdf_file">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_file</span><span class="p">(</span><span class="n">pdf_fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read local PDF file in a Process Pool</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pdf_fp : path-like</span>
+<span class="sd">        Path to PDF file (non-OCR).</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value arguments to pass to</span>
+<span class="sd">        :class:`elm.web.document.PDFDocument` initializer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    elm.web.document.PDFDocument</span>
+<span class="sd">        PDFDocument instances with pages loaded as text.</span>
+<span class="sd">    bytes</span>
+<span class="sd">        Raw bytes of the PDF file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">FileLoader</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">_read_pdf_file</span><span class="p">,</span> <span class="n">pdf_fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_pdf_doc_ocr">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.read_pdf_doc_ocr.html#compass.services.cpu.read_pdf_doc_ocr">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_doc_ocr</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read PDF file using OCR (pytesseract)</span>
+
+<span class="sd">    Note that Pytesseract must be set up properly for this method to</span>
+<span class="sd">    work. In particular, the `pytesseract.pytesseract.tesseract_cmd`</span>
+<span class="sd">    attribute must be set to point to the pytesseract exe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pdf_bytes : bytes</span>
+<span class="sd">        Bytes containing PDF file.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value arguments to pass to</span>
+<span class="sd">        :class:`elm.web.document.PDFDocument` initializer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    elm.web.document.PDFDocument</span>
+<span class="sd">        PDFDocument instances with pages loaded as text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytesseract</span>  <span class="c1"># ruff:ignore[import-outside-top-level]</span>
+
+    <span class="k">return</span> <span class="k">await</span> <span class="n">OCRPDFLoader</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">_read_pdf_ocr</span><span class="p">,</span>
+        <span class="n">pdf_bytes</span><span class="p">,</span>
+        <span class="n">tesseract_cmd</span><span class="o">=</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">tesseract_cmd</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_pdf_file_ocr">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.read_pdf_file_ocr.html#compass.services.cpu.read_pdf_file_ocr">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_pdf_file_ocr</span><span class="p">(</span><span class="n">pdf_fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read local PDF file using OCR (pytesseract)</span>
+
+<span class="sd">    Note that Pytesseract must be set up properly for this method to</span>
+<span class="sd">    work. In particular, the `pytesseract.pytesseract.tesseract_cmd`</span>
+<span class="sd">    attribute must be set to point to the pytesseract exe.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    pdf_fp : path-like</span>
+<span class="sd">        Path to PDF file (OCR).</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Keyword-value arguments to pass to</span>
+<span class="sd">        :class:`elm.web.document.PDFDocument` initializer.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    elm.web.document.PDFDocument</span>
+<span class="sd">        PDFDocument instances with pages loaded as text.</span>
+<span class="sd">    bytes</span>
+<span class="sd">        Raw bytes of the PDF file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytesseract</span>  <span class="c1"># ruff:ignore[import-outside-top-level]</span>
+
+    <span class="k">return</span> <span class="k">await</span> <span class="n">OCRPDFLoader</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">_read_pdf_file_ocr</span><span class="p">,</span>
+        <span class="n">pdf_fp</span><span class="p">,</span>
+        <span class="n">tesseract_cmd</span><span class="o">=</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">tesseract_cmd</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_docling_web_file">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.read_docling_web_file.html#compass.services.cpu.read_docling_web_file">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_docling_web_file</span><span class="p">(</span>
+    <span class="n">doc_bytes</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">source_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">pdf_pipeline_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a web file using Docling in a Process Pool</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    doc_bytes : bytes</span>
+<span class="sd">        Raw document payload forwarded to the Docling parser.</span>
+<span class="sd">    url : str</span>
+<span class="sd">        Filename or URL of the file to read.</span>
+<span class="sd">    source_uri : str, optional</span>
+<span class="sd">        Original remote URL for the file. If specified, this is used</span>
+<span class="sd">        as the HTML base URI while ``url`` is still used as the stream</span>
+<span class="sd">        name for Docling format inference. By default, ``None``.</span>
+<span class="sd">    pdf_pipeline_options : dict, optional</span>
+<span class="sd">        Dictionary of keyword-value arguments to pass to</span>
+<span class="sd">        :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`</span>
+<span class="sd">        initializer. Table structure defaults to enabled when omitted.</span>
+<span class="sd">        OCR defaults to enabled only when ``pytesseract_exe_fp`` is</span>
+<span class="sd">        specified. By default, ``None``.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to Docling&#39;s</span>
+<span class="sd">        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    elm.web.document.MDDocument</span>
+<span class="sd">        Parsed document.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">FileLoader</span><span class="o">.</span><span class="n">call</span><span class="p">(</span>
+        <span class="n">_read_docling_catch_error</span><span class="p">,</span>
+        <span class="n">doc_bytes</span><span class="p">,</span>
+        <span class="n">file_source</span><span class="o">=</span><span class="n">url</span><span class="p">,</span>
+        <span class="n">source_uri</span><span class="o">=</span><span class="n">source_uri</span><span class="p">,</span>
+        <span class="n">pdf_pipeline_options</span><span class="o">=</span><span class="n">pdf_pipeline_options</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="read_docling_local_file">
+<a class="viewcode-back" href="../../../_autosummary/compass.services.cpu.read_docling_local_file.html#compass.services.cpu.read_docling_local_file">[docs]</a>
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">read_docling_local_file</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a web file using Docling in a Process Pool</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    fp : path-like</span>
+<span class="sd">        Path to local file to read.</span>
+<span class="sd">    **kwargs</span>
+<span class="sd">        Additional keyword arguments passed to Docling&#39;s</span>
+<span class="sd">        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    elm.web.document.MDDocument</span>
+<span class="sd">        Parsed document.</span>
+<span class="sd">    bytes</span>
+<span class="sd">        Raw bytes of the PDF file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="k">await</span> <span class="n">FileLoader</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">_read_file_docling</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_pdf</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility func so that pdftotext.PDF doesn&#39;t have to be pickled&quot;&quot;&quot;</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="n">read_pdf</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PDFDocument</span><span class="p">(</span><span class="n">pages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_pdf_ocr</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="n">tesseract_cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility function that mimics `_read_pdf`&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tesseract_cmd</span><span class="p">:</span>
+        <span class="n">_configure_pytesseract</span><span class="p">(</span><span class="n">tesseract_cmd</span><span class="p">)</span>
+
+    <span class="n">pages</span> <span class="o">=</span> <span class="n">read_pdf_ocr</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">PDFDocument</span><span class="p">(</span><span class="n">_try_decode_ocr_pages</span><span class="p">(</span><span class="n">pages</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;from_ocr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">doc</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_pdf_file</span><span class="p">(</span><span class="n">pdf_fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility func so that pdftotext.PDF doesn&#39;t have to be pickled&quot;&quot;&quot;</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;image_to_string_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;convert_from_bytes_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">pdf_bytes</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdf_fp</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="n">read_pdf</span><span class="p">(</span><span class="n">pdf_bytes</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">PDFDocument</span><span class="p">(</span><span class="n">pages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">),</span> <span class="n">pdf_bytes</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_pdf_file_ocr</span><span class="p">(</span><span class="n">pdf_fp</span><span class="p">,</span> <span class="n">tesseract_cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility function that mimics `_read_pdf_file`&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">tesseract_cmd</span><span class="p">:</span>
+        <span class="n">_configure_pytesseract</span><span class="p">(</span><span class="n">tesseract_cmd</span><span class="p">)</span>
+
+    <span class="n">image_to_string_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;image_to_string_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">convert_from_bytes_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;convert_from_bytes_kwargs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">pdf_bytes</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">pdf_fp</span><span class="p">)</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+    <span class="n">pages</span> <span class="o">=</span> <span class="n">read_pdf_ocr</span><span class="p">(</span>
+        <span class="n">pdf_bytes</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">image_to_string_kwargs</span><span class="o">=</span><span class="n">image_to_string_kwargs</span><span class="p">,</span>
+        <span class="n">convert_from_bytes_kwargs</span><span class="o">=</span><span class="n">convert_from_bytes_kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">PDFDocument</span><span class="p">(</span><span class="n">_try_decode_ocr_pages</span><span class="p">(</span><span class="n">pages</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">doc</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;from_ocr&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">doc</span><span class="p">,</span> <span class="n">pdf_bytes</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_docling_catch_error</span><span class="p">(</span>
+    <span class="n">doc_bytes</span><span class="p">,</span>
+    <span class="n">file_source</span><span class="p">,</span>
+    <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">source_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf_pipeline_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Utility to return empty docs on error&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_read_docling</span><span class="p">(</span>
+            <span class="n">doc_bytes</span><span class="o">=</span><span class="n">doc_bytes</span><span class="p">,</span>
+            <span class="n">file_source</span><span class="o">=</span><span class="n">file_source</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+            <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="n">pytesseract_exe_fp</span><span class="p">,</span>
+            <span class="n">source_uri</span><span class="o">=</span><span class="n">source_uri</span><span class="p">,</span>
+            <span class="n">pdf_pipeline_options</span><span class="o">=</span><span class="n">pdf_pipeline_options</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>  <span class="c1"># ruff:ignore[blind-except]</span>
+        <span class="k">return</span> <span class="n">MDDocument</span><span class="p">(</span><span class="n">pages</span><span class="o">=</span><span class="p">[],</span> <span class="n">attrs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;doc_type&quot;</span><span class="p">:</span> <span class="s2">&quot;unknown&quot;</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_docling</span><span class="p">(</span>
+    <span class="n">doc_bytes</span><span class="p">,</span>
+    <span class="n">file_source</span><span class="p">,</span>
+    <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">source_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf_pipeline_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read documents using Docling with an optional hard deadline&quot;&quot;&quot;</span>
+
+    <span class="n">pdf_pipeline_options</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">pdf_pipeline_options</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">docling_timeout</span> <span class="o">=</span> <span class="n">pdf_pipeline_options</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;document_timeout&quot;</span><span class="p">,</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">/</span> <span class="mf">1.1</span>
+    <span class="p">)</span>
+    <span class="n">_validate_docling_timeout</span><span class="p">(</span><span class="n">docling_timeout</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_run_docling_in_subprocess</span><span class="p">(</span>
+        <span class="n">_read_docling_without_timeout</span><span class="p">,</span>
+        <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">doc_bytes</span><span class="p">,</span> <span class="n">file_source</span><span class="p">),</span>
+        <span class="n">kwargs</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;headers&quot;</span><span class="p">:</span> <span class="n">headers</span><span class="p">,</span>
+            <span class="s2">&quot;pytesseract_exe_fp&quot;</span><span class="p">:</span> <span class="n">pytesseract_exe_fp</span><span class="p">,</span>
+            <span class="s2">&quot;source_uri&quot;</span><span class="p">:</span> <span class="n">source_uri</span><span class="p">,</span>
+            <span class="s2">&quot;pdf_pipeline_options&quot;</span><span class="p">:</span> <span class="n">pdf_pipeline_options</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="n">docling_timeout</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_docling_without_timeout</span><span class="p">(</span>
+    <span class="n">doc_bytes</span><span class="p">,</span>
+    <span class="n">file_source</span><span class="p">,</span>
+    <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pytesseract_exe_fp</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">source_uri</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">pdf_pipeline_options</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read documents using Docling without an in-process deadline&quot;&quot;&quot;</span>
+
+    <span class="n">file_source</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_source</span><span class="p">)</span>
+    <span class="n">source_uri</span> <span class="o">=</span> <span class="n">file_source</span> <span class="k">if</span> <span class="n">source_uri</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">source_uri</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">headers</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">headers</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">headers</span><span class="p">)</span>
+
+    <span class="n">pipeline_options</span> <span class="o">=</span> <span class="n">PdfPipelineOptions</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="n">pdf_pipeline_options</span> <span class="ow">or</span> <span class="p">{}))</span>
+    <span class="n">pipeline_options</span><span class="o">.</span><span class="n">do_table_structure</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">pipeline_options</span><span class="o">.</span><span class="n">table_structure_options</span> <span class="o">=</span> <span class="n">TableStructureOptions</span><span class="p">(</span>
+        <span class="n">do_cell_matching</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">pytesseract_exe_fp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pipeline_options</span><span class="o">.</span><span class="n">do_ocr</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">pipeline_options</span><span class="o">.</span><span class="n">do_ocr</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">pipeline_options</span><span class="o">.</span><span class="n">ocr_options</span> <span class="o">=</span> <span class="n">TesseractCliOcrOptions</span><span class="p">(</span>
+            <span class="n">tesseract_cmd</span><span class="o">=</span><span class="n">pytesseract_exe_fp</span>
+        <span class="p">)</span>
+
+    <span class="n">html_backend_options</span> <span class="o">=</span> <span class="n">HTMLBackendOptions</span><span class="p">(</span><span class="n">source_uri</span><span class="o">=</span><span class="n">source_uri</span><span class="p">)</span>
+
+    <span class="n">doc_converter</span> <span class="o">=</span> <span class="n">DocumentConverter</span><span class="p">(</span>
+        <span class="n">format_options</span><span class="o">=</span><span class="p">{</span>
+            <span class="n">InputFormat</span><span class="o">.</span><span class="n">PDF</span><span class="p">:</span> <span class="n">PdfFormatOption</span><span class="p">(</span>
+                <span class="n">pipeline_options</span><span class="o">=</span><span class="n">pipeline_options</span>
+            <span class="p">),</span>
+            <span class="n">InputFormat</span><span class="o">.</span><span class="n">HTML</span><span class="p">:</span> <span class="n">HTMLFormatOption</span><span class="p">(</span>
+                <span class="n">backend_options</span><span class="o">=</span><span class="n">html_backend_options</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">DocumentStream</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">file_source</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="n">BytesIO</span><span class="p">(</span><span class="n">doc_bytes</span><span class="p">))</span>
+    <span class="n">conv_result</span> <span class="o">=</span> <span class="n">doc_converter</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="n">stream</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="n">conversion_time_seconds</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+
+    <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+        <span class="n">mean_confidence</span> <span class="o">=</span> <span class="n">_none_if_missing</span><span class="p">(</span><span class="n">conv_result</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">mean_score</span><span class="p">)</span>
+        <span class="n">low_score_confidence</span> <span class="o">=</span> <span class="n">_none_if_missing</span><span class="p">(</span>
+            <span class="n">conv_result</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">low_score</span>
+        <span class="p">)</span>
+
+    <span class="n">attrs</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;doc_filename&quot;</span><span class="p">:</span> <span class="n">conv_result</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">file</span><span class="o">.</span><span class="n">stem</span><span class="p">,</span>
+        <span class="s2">&quot;doc_type&quot;</span><span class="p">:</span> <span class="n">conv_result</span><span class="o">.</span><span class="n">input</span><span class="o">.</span><span class="n">format</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="s2">&quot;conversion_time_seconds&quot;</span><span class="p">:</span> <span class="n">conversion_time_seconds</span><span class="p">,</span>
+        <span class="s2">&quot;conversion_status&quot;</span><span class="p">:</span> <span class="n">conv_result</span><span class="o">.</span><span class="n">status</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+        <span class="s2">&quot;num_pages&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">conv_result</span><span class="o">.</span><span class="n">pages</span><span class="p">),</span>
+        <span class="s2">&quot;from_ocr&quot;</span><span class="p">:</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">ocr_score</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conv_result</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">pages</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">),</span>
+        <span class="s2">&quot;mean_confidence&quot;</span><span class="p">:</span> <span class="n">mean_confidence</span><span class="p">,</span>
+        <span class="s2">&quot;low_score_confidence&quot;</span><span class="p">:</span> <span class="n">low_score_confidence</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">doc_text</span> <span class="o">=</span> <span class="n">conv_result</span><span class="o">.</span><span class="n">document</span><span class="o">.</span><span class="n">export_to_markdown</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">MDDocument</span><span class="p">([</span><span class="n">doc_text</span><span class="p">],</span> <span class="n">attrs</span><span class="o">=</span><span class="n">attrs</span><span class="p">,</span> <span class="n">remove_comments</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_docling_in_subprocess</span><span class="p">(</span><span class="n">fn</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run one Docling conversion in a disposable child process&quot;&quot;&quot;</span>
+    <span class="n">mp_context</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_context</span><span class="p">(</span>
+        <span class="s2">&quot;fork&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;fork&quot;</span> <span class="ow">in</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">get_all_start_methods</span><span class="p">()</span>
+        <span class="k">else</span> <span class="s2">&quot;spawn&quot;</span>
+    <span class="p">)</span>
+    <span class="n">receiver</span><span class="p">,</span> <span class="n">sender</span> <span class="o">=</span> <span class="n">mp_context</span><span class="o">.</span><span class="n">Pipe</span><span class="p">(</span><span class="n">duplex</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">process</span> <span class="o">=</span> <span class="n">mp_context</span><span class="o">.</span><span class="n">Process</span><span class="p">(</span>
+        <span class="n">target</span><span class="o">=</span><span class="n">_run_docling_subprocess</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+    <span class="n">sender</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">status</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">_receive_docling_result</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">receiver</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="n">_shutdown_docling_process</span><span class="p">(</span><span class="n">process</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;success&quot;</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Docling conversion ran successfully in subprocess&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">payload</span>
+
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Docling conversion subprocess failed: </span><span class="si">{</span><span class="n">payload</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+    <span class="k">raise</span> <span class="n">ConversionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_docling_subprocess</span><span class="p">(</span><span class="n">sender</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Execute a Docling conversion and send its result to the worker&quot;&quot;&quot;</span>
+    <span class="n">configure_docling_subprocess_logging</span><span class="p">(</span><span class="n">sender</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">((</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>  <span class="c1"># ruff:ignore[blind-except]</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">BrokenPipeError</span><span class="p">,</span> <span class="ne">EOFError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="n">sender</span><span class="o">.</span><span class="n">send</span><span class="p">((</span><span class="s2">&quot;error&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">error</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">sender</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+
+<span class="c1"># complexipy: ignore</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_receive_docling_result</span><span class="p">(</span><span class="n">receiver</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Receive a child conversion result before its deadline expires&quot;&quot;&quot;</span>
+    <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">timeout</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">remaining</span> <span class="o">=</span> <span class="n">deadline</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">remaining</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Docling conversion exceeded </span><span class="si">{</span><span class="n">timeout</span><span class="si">}</span><span class="s2"> seconds&quot;</span>
+            <span class="k">raise</span> <span class="ne">TimeoutError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">receiver</span><span class="o">.</span><span class="n">poll</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">remaining</span><span class="p">,</span> <span class="mi">10</span><span class="p">)):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">status</span><span class="p">,</span> <span class="n">payload</span> <span class="o">=</span> <span class="n">receiver</span><span class="o">.</span><span class="n">recv</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">EOFError</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Docling conversion subprocess exited without a result&quot;</span>
+                <span class="k">raise</span> <span class="n">ConversionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">error</span>
+
+            <span class="k">if</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">handle</span><span class="p">(</span><span class="n">payload</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="k">return</span> <span class="n">status</span><span class="p">,</span> <span class="n">payload</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">receiver</span><span class="o">.</span><span class="n">poll</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Docling conversion subprocess exited without a result&quot;</span>
+            <span class="k">raise</span> <span class="n">ConversionError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_shutdown_docling_process</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Join or force-stop a completed or timed-out Docling process&quot;&quot;&quot;</span>
+    <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT_PARAMS</span><span class="p">[</span><span class="s2">&quot;shutdown_timeout&quot;</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
+        <span class="n">_force_shutdown_processes</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">process</span><span class="p">],</span> <span class="n">timeout</span><span class="o">=</span><span class="n">TIMEOUT_PARAMS</span><span class="p">[</span><span class="s2">&quot;force_shutdown_timeout&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_docling_timeout</span><span class="p">(</span><span class="n">timeout</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate the configured Docling deadline&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="nb">bool</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+        <span class="ow">or</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">timeout</span><span class="p">)</span>
+        <span class="ow">or</span> <span class="n">timeout</span> <span class="o">&lt;=</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;`docling_timeout` must be a positive number of seconds&quot;</span>
+        <span class="k">raise</span> <span class="n">COMPASSValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_file_docling</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read a local file using Docling&quot;&quot;&quot;</span>
+
+    <span class="n">fp</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+    <span class="n">doc_bytes</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="n">_read_docling_catch_error</span><span class="p">(</span>
+        <span class="n">doc_bytes</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;.md&quot;</span><span class="p">),</span> <span class="n">headers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">doc</span><span class="p">,</span> <span class="n">doc_bytes</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_configure_pytesseract</span><span class="p">(</span><span class="n">tesseract_cmd</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set the tesseract_cmd&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pytesseract</span>  <span class="c1"># ruff:ignore[import-outside-top-level]</span>
+
+    <span class="n">pytesseract</span><span class="o">.</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">tesseract_cmd</span> <span class="o">=</span> <span class="n">tesseract_cmd</span>
+    <span class="k">if</span> <span class="n">platform</span><span class="o">.</span><span class="n">system</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;Windows&quot;</span><span class="p">:</span>
+        <span class="n">pytesseract</span><span class="o">.</span><span class="n">pytesseract</span><span class="o">.</span><span class="n">cleanup</span> <span class="o">=</span> <span class="n">_pytesseract_cleanup_win</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_pytesseract_cleanup_win</span><span class="p">(</span><span class="n">temp_name</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Suppress all OSErrors when cleaning up temp files on Windows</span>
+
+<span class="sd">    On Windows, Tesseract may still hold the temp PPM file open when</span>
+<span class="sd">    pytesseract&#39;s cleanup runs, causing WinError 32. This function</span>
+<span class="sd">    patches cleanup to suppress all OSErrors so the OCR result is not</span>
+<span class="sd">    lost.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># ruff:ignore[glob]</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">iglob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">temp_name</span><span class="si">}</span><span class="s2">*&quot;</span> <span class="k">if</span> <span class="n">temp_name</span> <span class="k">else</span> <span class="n">temp_name</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">OSError</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>  <span class="c1"># ruff:ignore[os-remove]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_none_if_missing</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return ``None`` when a scalar confidence value is missing&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="k">else</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_try_decode_ocr_pages</span><span class="p">(</span><span class="n">pages</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Try to decode pages into strings&quot;&quot;&quot;</span>
+    <span class="n">decoded_pages</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">page</span> <span class="ow">in</span> <span class="n">pages</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+            <span class="c1"># ruff:ignore[redefined-loop-name]</span>
+            <span class="n">page</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">literal_eval</span><span class="p">(</span><span class="n">page</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">decoded_pages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">decoded_pages</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_needs_forced_shutdown</span><span class="p">(</span><span class="n">manager_thread</span><span class="p">,</span> <span class="n">processes</span><span class="p">,</span> <span class="n">shutdown_timeout</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Determine whether graceful shutdown exceeded the timeout&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">manager_thread</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_join_manager_thread</span><span class="p">(</span><span class="n">manager_thread</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">shutdown_timeout</span><span class="p">)</span>
+
+    <span class="n">deadline</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">+</span> <span class="n">shutdown_timeout</span>
+    <span class="k">while</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">&lt;</span> <span class="n">deadline</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">_is_process_alive</span><span class="p">(</span><span class="n">process</span><span class="p">)</span> <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">_is_process_alive</span><span class="p">(</span><span class="n">process</span><span class="p">)</span> <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_join_manager_thread</span><span class="p">(</span><span class="n">manager_thread</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bool: Join a manager thread and report whether it lives&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">manager_thread</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">manager_thread</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">manager_thread</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_force_shutdown_processes</span><span class="p">(</span><span class="n">processes</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Force lingering worker processes to exit&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">process</span> <span class="ow">in</span> <span class="n">processes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">process</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">_is_process_alive</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_process_alive</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="k">with</span> <span class="n">contextlib</span><span class="o">.</span><span class="n">suppress</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">kill</span><span class="p">()</span>
+            <span class="n">process</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_process_alive</span><span class="p">(</span><span class="n">process</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;bool: Check whether a worker process is still alive&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">process</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">process</span><span class="o">.</span><span class="n">is_alive</span><span class="p">()</span>
+</pre></div>
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../../../_static/scripts/bootstrap.js?digest=55c26ed414f5f8a31ebb"></script>
+<script defer src="../../../_static/scripts/pydata-sphinx-theme.js?digest=55c26ed414f5f8a31ebb"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, Alliance for Sustainable Energy, LLC.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 9.1.0.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.17.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

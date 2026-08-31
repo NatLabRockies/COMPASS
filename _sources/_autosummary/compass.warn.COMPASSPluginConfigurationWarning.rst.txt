@@ -1,0 +1,6 @@
+compass.warn.COMPASSPluginConfigurationWarning
+==============================================
+
+.. currentmodule:: compass.warn
+
+.. autoexception:: COMPASSPluginConfigurationWarning

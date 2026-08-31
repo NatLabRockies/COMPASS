@@ -1,0 +1,6 @@
+compass.warn.COMPASSWarning
+===========================
+
+.. currentmodule:: compass.warn
+
+.. autoexception:: COMPASSWarning

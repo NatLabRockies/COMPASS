@@ -1,0 +1,30 @@
+compass.pipeline.collection.steps.KnownLocalDocumentsStep
+=========================================================
+
+.. currentmodule:: compass.pipeline.collection.steps
+
+.. autoclass:: KnownLocalDocumentsStep
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~KnownLocalDocumentsStep.collect
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~KnownLocalDocumentsStep.STEP_NAME
+   
+   

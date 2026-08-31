@@ -1,0 +1,39 @@
+compass.web.website\_crawl
+==========================
+
+.. automodule:: compass.web.website_crawl
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      DOC_THRESHOLD
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      COMPASSCrawler
+      COMPASSLinkScorer
+   
+   
+
+   
+   
+   
+
+
+

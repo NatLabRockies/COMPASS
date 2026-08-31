@@ -1,0 +1,34 @@
+compass.extraction.small\_wind.parse
+====================================
+
+.. automodule:: compass.extraction.small_wind.parse
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      SmallWindSetbackFeatures
+      StructuredSmallWindOrdinanceParser
+      StructuredSmallWindParser
+      StructuredSmallWindPermittedUseDistrictsParser
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,81 @@
+compass.utilities.enums.COMPASSDocumentCollectionStep
+=====================================================
+
+.. currentmodule:: compass.utilities.enums
+
+.. autoclass:: COMPASSDocumentCollectionStep
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSDocumentCollectionStep.members_as_str
+      ~COMPASSDocumentCollectionStep.encode
+      ~COMPASSDocumentCollectionStep.replace
+      ~COMPASSDocumentCollectionStep.split
+      ~COMPASSDocumentCollectionStep.rsplit
+      ~COMPASSDocumentCollectionStep.join
+      ~COMPASSDocumentCollectionStep.capitalize
+      ~COMPASSDocumentCollectionStep.casefold
+      ~COMPASSDocumentCollectionStep.title
+      ~COMPASSDocumentCollectionStep.center
+      ~COMPASSDocumentCollectionStep.count
+      ~COMPASSDocumentCollectionStep.expandtabs
+      ~COMPASSDocumentCollectionStep.find
+      ~COMPASSDocumentCollectionStep.partition
+      ~COMPASSDocumentCollectionStep.index
+      ~COMPASSDocumentCollectionStep.ljust
+      ~COMPASSDocumentCollectionStep.lower
+      ~COMPASSDocumentCollectionStep.lstrip
+      ~COMPASSDocumentCollectionStep.rfind
+      ~COMPASSDocumentCollectionStep.rindex
+      ~COMPASSDocumentCollectionStep.rjust
+      ~COMPASSDocumentCollectionStep.rstrip
+      ~COMPASSDocumentCollectionStep.rpartition
+      ~COMPASSDocumentCollectionStep.splitlines
+      ~COMPASSDocumentCollectionStep.strip
+      ~COMPASSDocumentCollectionStep.swapcase
+      ~COMPASSDocumentCollectionStep.translate
+      ~COMPASSDocumentCollectionStep.upper
+      ~COMPASSDocumentCollectionStep.startswith
+      ~COMPASSDocumentCollectionStep.endswith
+      ~COMPASSDocumentCollectionStep.removeprefix
+      ~COMPASSDocumentCollectionStep.removesuffix
+      ~COMPASSDocumentCollectionStep.isascii
+      ~COMPASSDocumentCollectionStep.islower
+      ~COMPASSDocumentCollectionStep.isupper
+      ~COMPASSDocumentCollectionStep.istitle
+      ~COMPASSDocumentCollectionStep.isspace
+      ~COMPASSDocumentCollectionStep.isdecimal
+      ~COMPASSDocumentCollectionStep.isdigit
+      ~COMPASSDocumentCollectionStep.isnumeric
+      ~COMPASSDocumentCollectionStep.isalpha
+      ~COMPASSDocumentCollectionStep.isalnum
+      ~COMPASSDocumentCollectionStep.isidentifier
+      ~COMPASSDocumentCollectionStep.isprintable
+      ~COMPASSDocumentCollectionStep.zfill
+      ~COMPASSDocumentCollectionStep.format
+      ~COMPASSDocumentCollectionStep.format_map
+      ~COMPASSDocumentCollectionStep.maketrans
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~COMPASSDocumentCollectionStep.KNOWN_LOCAL_DOCS
+      ~COMPASSDocumentCollectionStep.KNOWN_DOC_URLS
+      ~COMPASSDocumentCollectionStep.SEARCH_ENGINE
+      ~COMPASSDocumentCollectionStep.WEBSITE_SEARCH_ELM
+      ~COMPASSDocumentCollectionStep.WEBSITE_SEARCH_COMPASS
+   
+   
