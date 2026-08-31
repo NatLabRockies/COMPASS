@@ -1,0 +1,285 @@
+{
+  "title": "Data Center Ordinance Extraction Schema",
+  "description": "One-shot extraction schema for local data center siting ordinances. Feature IDs mirror the controlled vocabulary used in the COMPASS data center ordinance research workbook, so extracted rows can be compared directly against the hand-coded reference set. The output is a sparse long-form table where each object is one row.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": [
+    "outputs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per (feature, data center class) pair: where an ordinance sets a different standard for each size class of data center, emit one row per class rather than collapsing them.",
+      "items": {
+        "type": "object",
+        "required": [
+          "feature",
+          "data_center_type",
+          "value",
+          "units",
+          "section",
+          "summary"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs. Do not invent aliases, prefixes, or synonym variants.",
+            "enum": [
+              "setback - residential",
+              "setback - property line",
+              "setback - roads",
+              "setback - transit",
+              "setback - parks/natural areas",
+              "setback - data centers",
+              "setback for mechanical equipment",
+              "minimum lot size",
+              "maximum lot coverage",
+              "minimum vegetative cover",
+              "maximum height",
+              "maximum building size",
+              "data center floor-area share cap",
+              "parking",
+              "primary use districts",
+              "special use districts",
+              "accessory use districts",
+              "prohibited use districts",
+              "prohibitions/moratorium",
+              "noise",
+              "noise (low-frequency/tonal)",
+              "noise mitigation/acoustic barriers",
+              "vibration",
+              "light illumination limits",
+              "heat/thermal impact",
+              "buffer/landscaping",
+              "equipment screening/enclosure",
+              "fencing/security screening",
+              "backup generator operating restrictions",
+              "on-site power technology",
+              "decommissioning",
+              "cooling technology",
+              "water consumption limit",
+              "water reuse/reclaimed"
+            ]
+          },
+          "data_center_type": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The class of facility the provision governs, recorded in the jurisdiction's own vocabulary rather than a normalized taxonomy (for example 'Hyperscale', 'Data Center, Medium', 'Large-Scale Data Center', 'Data Processing Center', 'Small urban data center', 'Accessory use'). Where the ordinance sets a single standard for data centers generally rather than tiering by facility class, record the generic term it uses for the use, such as 'Data Center'. Use null only where the provision attaches no term to the use at all."
+          },
+          "value": {
+            "description": "The extracted requirement. Numerical value for quantitative features, array of district names/codes for district features, boolean true where a requirement exists but is not numeric, or null where the provision is qualitative and the substance lives in the summary. When a single provision sets several related numbers (for example day and night noise limits, or front/side/rear setbacks), record them in one row as a single compound string in a fixed order and describe that same order, component by component, in the units field.",
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "units": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "The unit of the value together with the measurement basis, exactly as the ordinance states it. Never convert units. Where the value is compound, the units string must name each component in the same order as the value (for example value '55 / 45' with units 'dBA day / night at receiving residential property'). Null for district, permit, and other features that carry no unit."
+          },
+          "section": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Pin cite to the governing provision, as specific as the source allows (chapter, article, section, and subsection). Null only when the source text carries no section identifier."
+          },
+          "summary": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Statement of the requirement, preferring verbatim ordinance text with direct excerpts in double quotation marks. Record any condition that qualifies the requirement, such as an exception for a power outage, a standard that steps up next to a residential district, or a sunset date."
+          }
+        }
+      }
+    }
+  },
+  "$definitions": {
+    "setbacks": {
+      "setback - residential": {
+        "description": "Minimum separation between a data center and a residential or otherwise protected receptor, measured to a residential lot line, a residential zoning district boundary, or a property in residential use. Includes rules that name civic receptors such as schools, parks, churches, day care, or hospitals alongside residential property, and height-scaled setback increases triggered by adjacency to residential property. VALUE: numerical minimum distance, or a compound string where the ordinance states a trigger height plus an added distance per unit of height above it. UNITS: source distance units exactly as written, naming the receptors when the ordinance lists them. IGNORE: generic lot-line standards whose subject is the district boundary rather than a residential receptor, which belong under 'setback - property line'."
+      },
+      "setback - property line": {
+        "description": "Minimum setback measured to a lot line, yard boundary, or zoning district boundary where the adjoining use is not residential or otherwise protected. Includes district front, side, and rear yard standards, and standards that step up where a lot abuts a residential district, since there the base requirement is generic and the residential case is a modifier rather than the subject. VALUE: numerical minimum distance, or a compound string covering front/side/rear or per-district standards. UNITS: source distance units exactly as written, naming each component in the order it appears in the value. IGNORE: rules whose stated purpose is separation from a residential or protected receptor, which belong under 'setback - residential'."
+      },
+      "setback - roads": {
+        "description": "Minimum setback measured to a roadway, street frontage, or right-of-way, including standards that scale by roadway classification. VALUE: numerical minimum distance, or a compound string when the distance varies by street class. UNITS: source distance units exactly as written, naming the street classes in the order used in the value. IGNORE: access, driveway spacing, and traffic study requirements that impose no separation distance."
+      },
+      "setback - transit": {
+        "description": "Minimum separation between a data center and a high-capacity transit station, stop, or facility, including fixed guideway, bus rapid transit, commuter rail, and metro stations, measured to the transit facility. These provisions typically exist to reserve transit-served land for higher-employment uses rather than to protect the transit facility from impacts. VALUE: numerical minimum distance. UNITS: source distance units exactly as written. IGNORE: transit-oriented development policy language that states no separation distance."
+      },
+      "setback - parks/natural areas": {
+        "description": "Minimum separation from public parkland, trails, riparian corridors, natural areas, or designated open space. VALUE: numerical minimum distance. UNITS: source distance units exactly as written, noting where the ordinance frames the distance as a maximum applied at the reviewer's discretion. IGNORE: environmental review, habitat study, and tree preservation requirements that state no separation distance."
+      },
+      "setback - data centers": {
+        "description": "Minimum separation between a data center or data center campus and another data center. VALUE: numerical minimum distance. UNITS: source distance units exactly as written. IGNORE: aggregation rules that define when adjacent buildings count as one campus without imposing a separation distance."
+      },
+      "setback for mechanical equipment": {
+        "description": "Minimum setback applying to ancillary mechanical or electrical equipment such as generators, transformers, substations, chillers, cooling and ventilation equipment, or battery storage, rather than to the data center building. Code this feature only where the ordinance holds equipment to a different standard than the building; where one distance covers both, record the row under the applicable reference-object setback feature instead. VALUE: numerical minimum distance. UNITS: source distance units exactly as written, naming the receptor the distance is measured to. IGNORE: screening and enclosure requirements for the same equipment, which belong under 'equipment screening/enclosure'."
+      }
+    },
+    "site_dimensions": {
+      "minimum lot size": {
+        "description": "Minimum lot or site area a data center must occupy, and any minimum lot width stated with it, which may differ by zoning district. A floor on how much land the use requires. VALUE: numerical minimum area, or a compound string where the ordinance pairs area with width or varies by district. UNITS: source area units exactly as written, naming each component in the order used in the value. IGNORE: ceilings on how much of that land may be built or paved, which belong under 'maximum lot coverage'."
+      },
+      "maximum lot coverage": {
+        "description": "Ceiling on how much of a data center site may be built or paved, expressed as maximum building coverage, maximum lot coverage, maximum impervious coverage, or floor area ratio. VALUE: numerical maximum, or a compound string where coverage and FAR are both stated or vary by district. UNITS: 'percent', 'FAR', or the source's own phrasing, naming each component in the order used in the value. IGNORE: minimum land area requirements ('minimum lot size') and planting obligations ('minimum vegetative cover')."
+      },
+      "minimum vegetative cover": {
+        "description": "Minimum share of a data center site that must be planted or retained in vegetation. A planting obligation rather than a limit on construction: it is not the complement of maximum coverage, since the remainder of a site may be pavement or hardstanding. VALUE: numerical minimum share. UNITS: 'percent' with the basis the ordinance measures against, such as the lot. IGNORE: perimeter screening keyed to adjacent uses, which belongs under 'buffer/landscaping'."
+      },
+      "maximum height": {
+        "description": "Maximum permitted height of a data center structure, expressed in feet, in stories, or in both, and often differing by zoning district. VALUE: numerical maximum, or a compound string where the ordinance states both feet and stories or varies by district. UNITS: source units exactly as written, naming each component in the order used in the value. IGNORE: height-triggered setback increases, which belong on the applicable setback feature."
+      },
+      "maximum building size": {
+        "description": "Maximum permitted data center building size, expressed as gross floor area or as square feet per floor. VALUE: numerical maximum. UNITS: source area units exactly as written, stating whether the cap is on gross floor area or per floor. IGNORE: floor area thresholds that merely trigger a permit pathway rather than capping building size, and share-of-project caps, which belong under 'data center floor-area share cap'."
+      },
+      "data center floor-area share cap": {
+        "description": "Maximum data center share of total project floor area, including any occupancy-sequencing condition imposed on the project's other uses. VALUE: numerical maximum share. UNITS: 'percent'. IGNORE: absolute floor area caps, which belong under 'maximum building size'."
+      },
+      "parking": {
+        "description": "Off-street parking requirement for a data center use, expressed as a numerical ratio, minimum, maximum, or distance standard. The base differs by jurisdiction (total building area, office floor area only, or employee count), so ratios are not comparable across jurisdictions and the units field must record the base in each case. VALUE: the numerical ratio or count, as a compound string where the ordinance sets more than one ratio or a threshold above which a different ratio applies. UNITS: the base of the ratio exactly as the ordinance frames it, naming each component in the order used in the value. IGNORE: loading, stacking, and bicycle parking standards."
+      }
+    },
+    "districts_and_permitting": {
+      "primary use districts": {
+        "description": "Zoning districts in which data centers are permitted as a primary use, that is without special conditions or discretionary approval. Following the COMPASS wind and solar convention, overlay districts are treated as primary use districts. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names where the ordinance uses one. UNITS: null, except where a by-right pathway is conditioned on a stated threshold, in which case name that condition. IGNORE: districts where the use requires discretionary approval, which belong under 'special use districts'."
+      },
+      "special use districts": {
+        "description": "Zoning districts in which data centers are permitted only with discretionary approval, whether by special use permit, special exception, conditional use, provisional use permit, special land use permit, development agreement, or an equivalent. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names. UNITS: null, or a short description of the approval pathway where the ordinance names the reviewing bodies. IGNORE: generic permit administration and fee schedules not tied to data centers."
+      },
+      "accessory use districts": {
+        "description": "Zoning districts in which a data center is permitted as an accessory or secondary use to a principal use rather than as a principal use in its own right. VALUE: array of district names or codes, carrying the jurisdiction's own permit abbreviation alongside the district names, or the ordinance's own phrasing where it permits the accessory use across all zones. UNITS: null. IGNORE: districts where the use is permitted as a principal use."
+      },
+      "prohibited use districts": {
+        "description": "Zoning districts in which data centers are prohibited outright. VALUE: array of district names or codes, or the ordinance's own phrasing where a district list is stated as having no pathway. UNITS: null. IGNORE: jurisdiction-wide bans, moratoria, and use removals, which belong under 'prohibitions/moratorium'."
+      },
+      "prohibitions/moratorium": {
+        "description": "Temporary moratorium, permanent prohibition, or removal of data centers as an allowed use, applying to the jurisdiction as a whole rather than to a list of districts. VALUE: null; the substance belongs in the summary. UNITS: null. SUMMARY: state the instrument, what it bars, and the effective and expiration dates where given, along with any carve-out such as a limited accessory allowance. IGNORE: district-level prohibitions, which belong under 'prohibited use districts'."
+      }
+    },
+    "noise_and_nuisance": {
+      "noise": {
+        "description": "Maximum operational noise limits, usually expressed in dBA and often separated by time period, by receiving use, or by the zoning district of the receiving property. VALUE: numerical maximum, as a compound string in a fixed order where the ordinance sets several limits. UNITS: source noise units exactly as written, naming each limit's time period and receiving use or district in the same order as the value. SUMMARY: record the measurement location and any exception, such as one for a power outage or a stated allowance for a short duration. IGNORE: complaint-response protocol, monitoring workflow, and report submission timelines that state no numeric limit."
+      },
+      "noise (low-frequency/tonal)": {
+        "description": "Numerical C-weighted, low-frequency, or tonal sound limits, which are distinct from conventional A-weighted dBA limits. VALUE: numerical maximum, as a compound string where day and night limits are both stated. UNITS: source noise units exactly as written, naming each period in the order used in the value. IGNORE: A-weighted limits, which belong under 'noise'."
+      },
+      "noise mitigation/acoustic barriers": {
+        "description": "Numerical noise attenuation standard for an enclosure or barrier serving mechanical equipment or generators, expressed as a maximum sound level together with the distance at which it is measured. VALUE: compound string pairing the sound level with the measurement distance. UNITS: source noise and distance units exactly as written, naming each component in the order used in the value. IGNORE: ambient and property line noise limits, which belong under the noise features, and non-numeric enclosure requirements, which belong under 'equipment screening/enclosure'."
+      },
+      "vibration": {
+        "description": "Numerical vibration limit, duration threshold, or setback applying to vibration-producing equipment, measured at a property boundary or other receptor. VALUE: numerical limit, or a compound string where the ordinance pairs a limit with an excluded duration. UNITS: source units exactly as written, such as 'g peak' or a distance unit, naming each component in the order used in the value. IGNORE: construction-period vibration provisions that do not govern operation."
+      },
+      "light illumination limits": {
+        "description": "Maximum illumination received at a property line, lot line, zoning district boundary, or other receptor, expressed in foot-candles, lux, or an equivalent unit. Measures light crossing onto a neighboring parcel rather than glare as visual intrusion. VALUE: numerical maximum, as a compound string where the limit differs by receiving district. UNITS: the illumination unit together with the receptor it is measured at, naming each component in the order used in the value. IGNORE: dark-sky standards such as uplight caps and correlated color temperature limits, which govern skyglow rather than illumination at a receptor."
+      },
+      "heat/thermal impact": {
+        "description": "Numerical ambient temperature or thermal impact limit measured at a zoning boundary, property line, or other receptor. VALUE: numerical maximum, stated as an increase where the ordinance frames it that way. UNITS: source temperature units exactly as written together with the receptor, such as '°F maximum increase at zone boundary line'. IGNORE: waste heat recovery and heat reuse encouragement that imposes no limit."
+      }
+    },
+    "site_design": {
+      "buffer/landscaping": {
+        "description": "Numerical buffer widths, berm or fence dimensions, planting quantities, spacing, composition, coverage, or installation requirements at the site perimeter. VALUE: numerical requirement, as a compound string in a fixed order where the ordinance sets several, such as buffer width, planting interval, plants per tree, and live coverage share. UNITS: source units exactly as written, naming each component in the same order as the value. IGNORE: requirements to screen mechanical equipment, which belong under 'equipment screening/enclosure', and site-wide planting shares, which belong under 'minimum vegetative cover'."
+      },
+      "equipment screening/enclosure": {
+        "description": "Requirement to enclose or visually screen mechanical and electrical equipment serving a data center, including rooftop and ground-mounted units, generators, substations, loading and service areas, and refuse areas. Covers both a non-numeric obligation to screen and numeric standards for wall or screen height, opacity, articulation, and clearance above the equipment. VALUE: numerical standard where stated, as a compound string where the ordinance sets several, otherwise boolean true where screening is required without a numeric standard. UNITS: source units exactly as written, naming each component in the same order as the value, or null where the requirement is non-numeric. IGNORE: perimeter planting ('buffer/landscaping') and perimeter fencing ('fencing/security screening')."
+      },
+      "fencing/security screening": {
+        "description": "Perimeter fencing or security screening requirement, including permitted and prohibited fence types and any height, opacity, or setback standard. VALUE: numerical fence height where stated, expressed as a range where the ordinance sets a minimum and a maximum, otherwise boolean true where fencing is required without a numeric standard. UNITS: source distance units exactly as written, stating whether the number is a minimum or a maximum. IGNORE: screening of mechanical equipment, which belongs under 'equipment screening/enclosure', and security operations that impose no fencing requirement."
+      }
+    },
+    "power_and_operations": {
+      "backup generator operating restrictions": {
+        "description": "Limits on when, and for how long, an emergency or backup generator may be operated: permitted testing and maintenance windows, maximum hours per day or month, maximum consecutive run time, and carve-outs for power outages or utility demand-response events. VALUE: the permitted window or hour limit, as a compound string where the ordinance sets both a window and the days it applies to, or where testing windows differ by season. UNITS: a description of what each component of the value denotes, naming the carve-outs, for example 'operating window hours / weekdays excluding holidays (excludes power outages)'. IGNORE: emissions standards, public notice and disclosure obligations, utility interconnection requirements, compliance logging, acoustic enclosure standards, and backup energy technology mandates, the last of which belongs under 'on-site power technology'."
+      },
+      "on-site power technology": {
+        "description": "Required or prohibited on-site electricity generation and backup energy technology, including which generation types may serve as a primary, parallel, or routine source, which fuel types are permitted for backup service, any mandated battery or energy storage backup, and dispatch priority between sources. VALUE: null; the substance belongs in the summary. UNITS: null. IGNORE: limits on when generators may run, which belong under 'backup generator operating restrictions', and battery energy storage fire safety provisions."
+      },
+      "decommissioning": {
+        "description": "End-of-life or decommissioning obligation for a data center, including equipment removal, disposal or recycling of servers and electronic waste, notification on cessation or abandonment, financial security, site restoration, and any timing requirement for beginning or completing decommissioning. VALUE: null; the substance belongs in the summary. UNITS: null. SUMMARY: record the triggering event and any stated deadline or security amount."
+      }
+    },
+    "water_and_cooling": {
+      "cooling technology": {
+        "description": "Required or prohibited cooling technology, such as closed-loop, air-cooled, recycled-water, or no potable-water cooling. VALUE: null where the requirement is a technology mandate or prohibition, or a numerical value where the ordinance states a water use intensity for cooling. UNITS: null, or the source intensity units exactly as written, such as 'gal/kWh'. SUMMARY: record which technologies are required or prohibited and any circumstance under which potable water remains allowed, such as initial system charging or an emergency. IGNORE: volume ceilings ('water consumption limit') and reclaimed-source requirements ('water reuse/reclaimed')."
+      },
+      "water consumption limit": {
+        "description": "Enforceable numerical ceiling on the volume of water a data center may use, expressed as a cap on annual or periodic consumption. VALUE: numerical ceiling. UNITS: source volume units exactly as written, or 'percent' with the basis where the cap is expressed relative to a baseline allocation. IGNORE: water conservation and management plans, which require a document rather than observance of a limit, and efficiency intensity standards, which set an intensity rather than a volume ceiling."
+      },
+      "water reuse/reclaimed": {
+        "description": "Requirement or incentive to substitute reclaimed, recycled, or non-potable water for potable supply, including any minimum share of total water use that must be met from reclaimed sources. Governs the source of water rather than the volume. VALUE: numerical minimum share where stated, otherwise boolean true where reuse is required without a numeric share. UNITS: 'percent' with the basis, noting any administrative discretion to set a different share. IGNORE: volume ceilings, which belong under 'water consumption limit'."
+      }
+    }
+  },
+  "$instructions": {
+    "general": [
+      "Extract only enacted local requirements that explicitly govern data centers, or that govern a use the ordinance defines as a data center, such as a data processing center or a computer server facility.",
+      "Prefer verbatim ordinance text in the summary and enclose direct excerpts in double quotation marks.",
+      "Never convert units or normalize a jurisdiction's own vocabulary. Record both exactly as written.",
+      "Do not infer a requirement from related context, and do not emit a row for a feature the source does not address."
+    ],
+    "size_tiering": [
+      "Data center ordinances frequently set different standards for different size classes of facility. When they do, emit one row per class and record the jurisdiction's own class name in data_center_type.",
+      "Where one standard applies to data centers generally, emit a single row and record the generic term the ordinance uses for the use. Use null only where the provision attaches no term to the use at all.",
+      "Do not merge tiered standards into a single row, and do not map a local class name onto another jurisdiction's taxonomy."
+    ],
+    "setbacks": [
+      "Setbacks are minimum separation distances. Prefer numeric values with units.",
+      "Decide between 'setback - residential' and 'setback - property line' by what the rule is for: a rule whose subject is separation from a residential or protected receptor is residential, while a generic district yard standard that merely steps up next to a residential district is a property line setback.",
+      "Where a setback applies to ancillary mechanical or electrical equipment under a different standard than the building, record it under 'setback for mechanical equipment'; where one distance covers both, keep it on the reference-object feature."
+    ],
+    "compound_values": [
+      "A provision that sets several related numbers stays in one row. Order the components consistently in the value and describe them in the same order in the units field.",
+      "Where a standard varies by zoning district, name the district alongside each component rather than emitting a row per district."
+    ],
+    "district_specific": [
+      "For primary use districts, extract an array of district names or codes and treat overlay districts as primary use.",
+      "For special use districts, include districts where the use requires a special use permit, special exception, conditional use, or an equivalent discretionary approval.",
+      "For accessory use districts, include districts where a data center is allowed only as accessory or secondary to a principal use.",
+      "For prohibited use districts, include only districts where the use is barred outright and the prohibition is currently in effect.",
+      "Carry the jurisdiction's own permit abbreviation alongside the district names, and use district names and codes exactly as they appear in the ordinance."
+    ],
+    "null_handling": "Use sparse output. Emit rows only for features explicitly addressed by the source. Do not emit placeholder rows for missing features. Use a null value where a present feature is qualitative and the substance belongs in the summary."
+  },
+  "$qa_checklist": [
+    "All output rows use only the 34 allowed feature IDs.",
+    "Every row records the jurisdiction's own term for the use in data_center_type, and tiered standards are split into one row per size class.",
+    "Numeric setbacks, lot standards, and building size rows carry numeric values and non-null units.",
+    "Compound values list their components in the same order as the units string.",
+    "Noise rows carry explicit numeric limits with their time period and receiving use, and no row is emitted from complaint-protocol language alone.",
+    "District rows are arrays of district names or codes, and jurisdiction-wide bans are recorded under 'prohibitions/moratorium' rather than 'prohibited use districts'.",
+    "Screening, buffer, and fencing rows are assigned by what the provision governs: equipment, site perimeter planting, or perimeter fencing.",
+    "Water rows are assigned by what the provision governs: technology, volume ceiling, or source substitution.",
+    "No row is emitted from a proposed, denied, or superseded provision."
+  ],
+  "$qualitative_features": [
+    "prohibitions/moratorium",
+    "on-site power technology",
+    "decommissioning"
+  ]
+}

@@ -1,0 +1,138 @@
+schema: ./data_centers_schema.json
+
+data_type_short_desc: data center ordinance
+
+cache_llm_generated_content: true
+
+query_templates:
+  - "{jurisdiction} data center ordinance"
+  - "{jurisdiction} data center zoning ordinance setback"
+  - "{jurisdiction} data center noise generator cooling standards ordinance"
+  - "site:ecode360.com {jurisdiction} data center"
+  - "site:municode.com {jurisdiction} code of ordinances"
+
+website_keywords:
+  pdf: 92160
+  "data center": 46080
+  datacenter: 46080
+  ordinance: 23040
+  zoning: 11520
+  setback: 5760
+  noise: 5760
+  "conditional use": 2880
+  "special use": 2880
+  hyperscale: 1440
+  colocation: 1440
+  generator: 1440
+  "code of ordinances": 1440
+  "municipal code": 1440
+  ecode360: 1440
+  municode: 1440
+  "zoning ordinance": 1440
+  "unified development ordinance": 720
+  "ordinance adopted": 720
+  "land use code": 720
+  "text amendment": 720
+  "land development": 720
+  cooling: 360
+  screening: 360
+  county: 360
+  municipal: 360
+  chapter: 180
+  section: 180
+  planning: 180
+
+heuristic_keywords:
+  GOOD_TECH_KEYWORDS:
+    - datacenter
+    - hyperscale
+    - colocation
+  GOOD_TECH_PHRASES:
+    - data center
+    - data processing center
+    - data processing facility
+    - data center campus
+    - computer server
+    - server farm
+    - colocation facility
+    - backup generator
+    - emergency generator
+    - zoning ordinance
+    - code of ordinances
+    - municipal code
+    - unified development ordinance
+    - conditional use permit
+  GOOD_TECH_ACRONYMS:
+    - PUE
+    - WUE
+    - BESS
+    - UPS
+  NOT_TECH_WORDS:
+    - community center
+    - recreation center
+    - civic center
+    - convention center
+    - shopping center
+    - medical center
+    - senior center
+    - visitor center
+    - town center
+    - detention center
+    - child care center
+    - call center
+    - distribution center
+    - service center
+    - data collection
+    - database
+
+collection_prompts: true
+text_extraction_prompts: true
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from local data
+  center siting ordinances.
+
+  Extract ONLY the following features:
+  - setbacks from residential and protected receptors, property lines,
+    roads, transit facilities, parks and natural areas, other data
+    centers, and setbacks that apply to mechanical equipment under a
+    standard separate from the building
+  - minimum lot size, maximum lot coverage, minimum vegetative cover,
+    maximum height, maximum building size, data center share of project
+    floor area, and parking
+  - primary, special, accessory, and prohibited use districts, and
+    jurisdiction-wide prohibitions or moratoria
+  - noise limits, low-frequency and tonal noise limits, noise
+    attenuation standards for enclosures and barriers, vibration, light
+    illumination at a receptor, and thermal impact
+  - buffer and landscaping standards, equipment screening and
+    enclosure, and perimeter fencing
+  - backup generator operating restrictions, on-site power technology,
+    and decommissioning
+  - cooling technology, water consumption limits, and reclaimed water
+    requirements
+
+  Extract only enacted local requirements that explicitly govern data
+  centers, or that govern a use the ordinance defines as a data center,
+  such as a data processing center or a computer server facility. The
+  source may be a general zoning code, unified development ordinance,
+  municipal code, or a standalone adopted ordinance rather than a
+  technology-specific title.
+
+  Data center ordinances frequently regulate by facility size class.
+  Where a jurisdiction sets a different standard for each class, emit
+  one row per class and record the jurisdiction's own class name in
+  data_center_type rather than collapsing the tiers into one row or
+  mapping the name onto another jurisdiction's taxonomy.
+
+  Do not extract text focused only on office, warehouse, distribution,
+  telecommunications, or utility uses unless the same clause directly
+  applies to data centers. Do not extract from proposed, denied, or
+  superseded provisions.
+
+  For noise, ignore complaint-response and monitoring protocol details
+  unless the clause states an explicit numeric limit.
+
+  Follow schema feature definitions literally. Keep units and the
+  jurisdiction's own vocabulary exactly as written. Do not convert
+  units. Do not invent values.
