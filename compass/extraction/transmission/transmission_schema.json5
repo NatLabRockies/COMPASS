@@ -165,7 +165,7 @@
           "description":"Minimum required separation from airport runways and heliports."
         },
         "OHWM distance": {
-          "description":"Minimum required separation from Ordinary High Water Mark (OHWM)."
+          "description":"Minimum required separation distance, expressed in a length unit, explicitly measured from the Ordinary High Water Mark (OHWM) or mean high-water line. Do not match floodplains, floodways, wetlands, shorelines, riverbanks, or other water-related features that are not the OHWM."
         },
         "railroads distance": {
           "description": "Minimum required separation from railroads, railroad rights-of-way, rail corridors, or active rail lines. Extract only when rail infrastructure is explicitly named."
