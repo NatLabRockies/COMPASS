@@ -1,0 +1,58 @@
+{
+  "jurisdiction": {
+    "state": "Washington",
+    "county": "Whatcom",
+    "subdivision": null,
+    "jurisdiction_type": "county",
+    "fips": "53073",
+    "website": "https://www.whatcomcounty.us"
+  },
+  "known_urls": [
+    {
+      "source": "https://documents.test/known.html",
+      "content": "Known URL ordinance with identifier known-url."
+    }
+  ],
+  "search_engine": [
+    {
+      "source": "https://search.test/ordinance.html",
+      "content": "Search result ordinance with identifier search."
+    }
+  ],
+  "elm_website_crawl": [
+    {
+      "source": "https://example.test/elm-ordinance.html",
+      "content": "ELM crawl ordinance with identifier elm-crawl."
+    }
+  ],
+  "compass_website_crawl": [
+    {
+      "source": "https://example.test/compass-ordinance.html",
+      "content": "COMPASS crawl ordinance with identifier compass-crawl."
+    }
+  ],
+  "llm_responses": [
+    {
+      "prompt_contains": "Known URL ordinance",
+      "response": "{\"ordinance_id\": \"known-url\"}"
+    },
+    {
+      "prompt_contains": "Search result ordinance",
+      "response": "{\"ordinance_id\": \"search\"}"
+    },
+    {
+      "prompt_contains": "ELM crawl ordinance",
+      "response": "{\"ordinance_id\": \"elm-crawl\"}"
+    },
+    {
+      "prompt_contains": "COMPASS crawl ordinance",
+      "response": "{\"ordinance_id\": \"compass-crawl\"}"
+    }
+  ],
+  "expected_ordinance_ids": [
+    "known-url",
+    "search",
+    "elm-crawl",
+    "compass-crawl"
+  ]
+}
