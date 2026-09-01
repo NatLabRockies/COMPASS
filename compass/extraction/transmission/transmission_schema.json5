@@ -252,6 +252,15 @@
       "aggregated": false
     },
     {
+      "feature": "voltage threshold",
+      "value": 345,
+      "units": "kV",
+      "section": "Section 1248.01 – Applicability",
+      "summary": "The requirements of these regulations shall apply to overhead electrical transmission lines with a voltage greater than 345 kV.",
+      "explanation": "The voltage floor is set by an applicability clause that scopes which transmission lines the ordinance governs, not by a term definition; it still establishes the coverage floor, so a single voltage threshold row is emitted.",
+      "aggregated": false
+    },
+    {
       "feature": "district use restriction",
       "value": null,
       "units": "text",
