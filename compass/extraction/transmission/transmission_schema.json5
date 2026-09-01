@@ -162,7 +162,7 @@
           "description": "Minimum required separation from public road rights-of-way, including freeways. Property-line setbacks do NOT count for this feature unless the ordinance text explicitly states that the property line is the road right-of-way or otherwise makes them the same boundary for that requirement. IGNORE: Do not respond based on setbacks from other kinds of right-of-way such as utility easements, etc."
         },
         "airport distance": {
-          "description":"Minimum required separation from airport runways and heliports."
+          "description":"Minimum required separation distance the transmission line must maintain from airport runways or heliports. Extract only when the ordinance imposes an enforceable minimum setback; do not match a distance used merely to identify, map, disclose, or notify about nearby airports (for example a requirement to identify any public airport within one mile of the line), which is not a setback."
         },
         "OHWM distance": {
           "description":"Minimum required separation distance, expressed in a length unit, explicitly measured from the Ordinary High Water Mark (OHWM) or mean high-water line. Do not match floodplains, floodways, wetlands, shorelines, riverbanks, or other water-related features that are not the OHWM."
