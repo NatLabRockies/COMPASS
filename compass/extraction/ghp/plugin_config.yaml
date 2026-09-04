@@ -95,16 +95,16 @@ heuristic_keywords:
     - "injection well"
     - "wellbeing"
     - "well-being"
+    - "wellness"
     - "as well as"
+    - "theater"
 
 collection_prompts: True
 
 extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from geothermal ground source heat pump ordinances.
-  Be focused and literal: extract only enacted, explicit, in-scope requirements.
-  Be thorough and complete: review all relevant sections, including tables and
-  lists, so no explicitly stated feature is missed.
-  Before finalizing, perform a feature-coverage check against the schema enum and
-  ensure each explicitly supported feature is captured exactly once.
-  Pay extra attention to any descriptions, instructions, examples, and definitions in the schema,
-  and be sure to follow all schema instructions carefully.
+  You are a legal scholar extracting structured data specifically about **geothermal ground source heat pumps, geothermal heat exchanges, or similar** from ordinance documents.
+  Be focused and literal: extract only enacted, explicit, in-scope requirements: {scope}.
+  Be thorough and complete: review all relevant sections, including tables and lists, so no explicitly stated feature is missed.
+  Before finalizing, perform a feature-coverage check against the schema enum and ensure each explicitly supported geothermal ground source heat pump, geothermal heat exchange, or similar feature is captured exactly once.
+  If there is no data to extract for geothermal ground source heat pumps, geothermal heat exchanges, or similar, or geothermal definitions, return an empty JSON object. Do not fabricate or infer any data. If a feature is not explicitly stated in the ordinance, leave it out of the output.
+  Pay extra attention to any descriptions, instructions, examples, and definitions in the schema, and be sure to follow all schema instructions carefully.

@@ -20,6 +20,7 @@ LLM_COST_REGISTRY = {
     "gpt-5.6-sol": {"prompt": 5, "response": 30},
     "gpt-5.6-terra": {"prompt": 2, "response": 12},
     "gpt-5.6-luna": {"prompt": 0.2, "response": 1.2},
+    "gpt-5.6-luna-aws": {"prompt": 0.22, "response": 1.32},
     "compassop-gpt-4o": {"prompt": 2.5, "response": 10},
     "compassop-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
     "compassop-gpt-4.1": {"prompt": 2, "response": 8},
