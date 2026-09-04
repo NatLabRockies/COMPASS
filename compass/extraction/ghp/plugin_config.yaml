@@ -95,7 +95,9 @@ heuristic_keywords:
     - "injection well"
     - "wellbeing"
     - "well-being"
+    - "wellness"
     - "as well as"
+    - "theater"
 
 collection_prompts: True
 
