@@ -25,6 +25,7 @@ def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
             score_cats["exists_report"] | score_cats["dne_report"]
         ),
         average="binary",
+        zero_division=0,
     )
 
     precision_data = data.copy()
@@ -41,6 +42,7 @@ def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
             | score_cats["exists_bad_report"]
         ),
         average="binary",
+        zero_division=0,
     )
 
     acc = (
@@ -49,7 +51,7 @@ def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
         )
     ).sum() / data.shape[0]
 
-    f1 = 2 * p * r / (p + r)
+    f1 = 2 * p * r / (p + r) if p + r > 0 else float("NaN")
 
     return cm, acc, p, r, f1
 
