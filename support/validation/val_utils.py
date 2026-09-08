@@ -43,7 +43,9 @@ def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
         )
     ).sum() / data.shape[0]
 
-    return cm, acc, p, r
+    f1 = 2 * p * r / (p + r)
+
+    return cm, acc, p, r, f1
 
 
 def plot_compass_confusion_matrix_from_data(
@@ -56,7 +58,7 @@ def plot_compass_confusion_matrix_from_data(
     x_label="COMPASS Retrieved Ordinance",
     y_label="Ordinance Exists",
 ):
-    cm, a, p, r = compute_stats(
+    cm, a, p, r, f1 = compute_stats(
         data, score_cats, truth_labels_col, score_col=score_col
     )
 
@@ -86,6 +88,7 @@ def plot_compass_confusion_matrix_from_data(
         a,
         p,
         r,
+        f1,
         title,
         num_ords=len(data),
         out_fp=out_fp,
@@ -99,6 +102,7 @@ def plot_compass_confusion_matrix(
     accuracy,
     precision,
     recall,
+    f1_score,
     title,
     num_ords=None,
     out_fp=None,
@@ -160,7 +164,7 @@ def plot_compass_confusion_matrix(
 
     ax.text(
         -0.2,
-        1,
+        0.92,
         title,
         va="center",
         ha="left",
@@ -190,15 +194,20 @@ def plot_compass_confusion_matrix(
     )
 
     ax.text(
-        1,
+        0.6,
         0.15,
         (
-            f"Accuracy: {accuracy:.2%}\n"
-            f"Precision: {precision:.2%}\n     "
-            f"Recall: {recall:.2%}"
+            # f"Accuracy: {accuracy:.2%}       F1: {f1_score:.2%}\n"
+            # f"Precision: {precision:.2%} Recall: {recall:.2%}"
+            # f"Precision: {precision:.2%}\n     "
+            # f"Recall: {recall:.2%}"
+            f"Accuracy: $\\mathbf{{{accuracy * 100:.2f}\\%}}$       "
+            f"F1: $\\mathbf{{{f1_score * 100:.2f}\\%}}$\n"
+            f"Precision: $\\mathbf{{{precision * 100:.2f}\\%}}$ "
+            f"Recall: $\\mathbf{{{recall * 100:.2f}\\%}}$"
         ),
         va="center",
-        ha="center",
+        ha="left",
         fontsize=12,
         transform=ax.transAxes,
     )
