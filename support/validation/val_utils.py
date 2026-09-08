@@ -277,7 +277,7 @@ def _score_color(score):
     score = min(max(score, stops[0][0]), stops[-1][0])
 
     for (lower_score, lower_color), (upper_score, upper_color) in zip(
-        stops, stops[1:], strict=True
+        stops, stops[1:], strict=False
     ):
         if score <= upper_score:
             fraction = (score - lower_score) / (upper_score - lower_score)
