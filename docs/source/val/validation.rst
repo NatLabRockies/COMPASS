@@ -61,8 +61,8 @@ Results
 .. image:: transmission_validation_aug_2026.png
 
 
-Transmission Line Validation (June 2026)
-------------------------------------------
+Geothermal Heat Pump Validation (June 2026)
+-------------------------------------------
 
 This validation was for the ordinance value extraction portion only (assume documents are correct and belong
 to the correct jurisdiction).
@@ -120,6 +120,62 @@ Results
 ^^^^^^^
 
 .. image:: geothermal_heat_pump_validation_june_2026.png
+
+
+Geothermal Electricity Validation (June 2026)
+---------------------------------------------
+
+This validation was for the ordinance value extraction portion only (assume documents are correct and belong
+to the correct jurisdiction).
+
+This validation focused on the model ability to extract structured ordinance data from unstructured wind ordinance text documents.
+
+
+Info
+^^^^
+
+- **COMPASS Version**: `v0.18.0 <https://github.com/NatLabRockies/COMPASS/releases/tag/v0.28.0>`_
+- **Number of Documents**: 38 (Assuming 10,000 jurisdictions with 10% population proportion, there is a 95% chance that the metrics are within ±9.52% of the reported value)
+- **Features**:
+
+  - residential zones
+  - property lines
+  - roads
+  - railroads
+  - existing transmission lines
+  - water bodies
+  - combustible tanks
+  - domestic wells
+  - active faults
+  - schools
+  - hospitals
+  - drilling start time
+  - drilling end time
+  - noise
+  - maximum height
+  - minimum lot size
+  - fencing
+  - color requirements
+  - lighting requirements
+  - visual impact assessment
+  - seismic monitoring plan
+  - required permits
+  - primary use districts
+  - special use districts
+  - prohibited use districts
+  - bond requirement
+  - decommissioning
+  - prohibitions
+  - ordinance effective year
+
+
+- **Procedure Validated**: Ordinance extraction from documents
+- **LLM(s) used**: OpenAI GPT-4.1, OpenAI GPT-5
+
+Results
+^^^^^^^
+
+.. image:: geothermal_electricity_validation_june_2026.png
 
 
 
