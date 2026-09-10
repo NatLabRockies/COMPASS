@@ -289,6 +289,6 @@ Info
 Results
 ^^^^^^^
 
-.. image:: wind_jan_2024.png
+.. image:: wind_validation_jan_2024.png
 
 .. Margin of error calculator: https://www.calculator.net/sample-size-calculator.html
