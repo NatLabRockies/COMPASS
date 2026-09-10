@@ -51,7 +51,7 @@ def compute_stats(data, score_cats, truth_labels_col, score_col="Score"):
         )
     ).sum() / data.shape[0]
 
-    f1 = 2 * p * r / (p + r) if p + r > 0 else float("NaN")
+    f1 = 2 * p * r / (p + r) if p + r > 0 else 0
 
     return cm, acc, p, r, f1
 
