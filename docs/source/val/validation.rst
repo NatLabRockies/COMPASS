@@ -6,6 +6,62 @@ Here we give a brief overview of the results of known COMPASS validation efforts
 COMPASS validation is an ongoing effort, and we will update this page as new results become available.
 
 
+Transmission Line Validation (August 2026)
+------------------------------------------
+
+This validation was for the ordinance value extraction portion only (assume documents are correct and belong
+to the correct jurisdiction).
+
+This validation focused on the model ability to extract structured ordinance data from unstructured wind ordinance text documents.
+
+
+Info
+^^^^
+
+- **COMPASS Version**: `v0.28.0 <https://github.com/NatLabRockies/COMPASS/releases/tag/v0.28.0>`_
+- **Number of Documents**: 17 (Assuming 40,000 jurisdictions with 10% population proportion, there is a 95% chance that the metrics are within ±14.26% of the reported value)
+- **Features**:
+
+  - structures
+  - residential buildings
+  - property line
+  - roads
+  - airport
+  - ordinary high water mark
+  - railroads
+  - voltage threshold
+  - electric field threshold
+  - noise
+  - maximum structure height
+  - maximum tower height
+  - maximum towe height
+  - fencing
+  - bond
+  - decomissioning
+  - permit
+  - FAA
+  - district use restriction
+  - excluded lands
+  - color
+  - traffic disruption
+  - fire prevention
+  - lighting
+  - signage
+  - franchise
+  - vegetation / landscaping requirements
+  - ordinance effective year
+
+
+- **Procedure Validated**: Ordinance extraction from documents
+- **LLM(s) used**: OpenAI GPT-4.1-mini, OpenAI GPT-5-mini, OpenAI GPT-5.4
+
+Results
+^^^^^^^
+
+.. image:: transmission_validation_aug_2026.png
+
+
+
 Geothermal Heat Pump Document Collection Validation (June 2026)
 ---------------------------------------------------------------
 This validation was for the document collection portion only.
