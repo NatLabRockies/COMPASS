@@ -99,7 +99,7 @@ Info
 ^^^^
 
 - **COMPASS Version**: `v0.7.0 <https://github.com/NatLabRockies/COMPASS/releases/tag/v0.7.0>`_
-- **Number of Documents**: 78 (Assuming 10,000 jurisdictions, there is a 95% chance that the metrics are within ±11.05% of the reported value)
+- **Number of Documents**: 71 (Assuming 10,000 jurisdictions, there is a 95% chance that the metrics are within ±11.59% of the reported value)
 - **Features**:
 
   - structures (participating)
@@ -133,7 +133,7 @@ Info
 Results
 ^^^^^^^
 
-.. image:: solar_val_aug_2025.png
+.. image:: solar_validation_aug_2025.png
 
 
 Mini Wind Validation (June 2025)
