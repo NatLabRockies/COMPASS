@@ -139,7 +139,7 @@ Info
 Results
 ^^^^^^^
 
-.. image:: wind_web_scraping_september_2025.png
+.. image:: wind_web_scraping_sep_2025.png
 
 
 Solar Validation (August 2025)
