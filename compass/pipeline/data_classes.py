@@ -4,9 +4,8 @@ from copy import deepcopy
 import importlib.resources
 from functools import cached_property
 
-from elm.web.search.run import SEARCH_ENGINE_OPTIONS
-
 from compass.llm import OpenAIConfig
+from compass.web import SEARCH_ENGINE_OPTIONS
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
@@ -250,7 +249,7 @@ class WebSearchParams:
             for the document retrieval process. Each dictionary should
             contain at least the key ``"se_name"``, which should
             correspond to one of the search engine class names from
-            :obj:`elm.web.search.run.SEARCH_ENGINE_OPTIONS`. The rest of
+            :obj:`compass.web.SEARCH_ENGINE_OPTIONS`. The rest of
             the keys in the dictionary should contain keyword-value
             pairs to be used as parameters to initialize the search
             engine class (things like API keys and configuration

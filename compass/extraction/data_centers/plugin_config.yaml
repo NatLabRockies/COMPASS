@@ -10,6 +10,9 @@ query_templates:
   - "{jurisdiction} data center noise generator cooling standards ordinance"
   - "site:ecode360.com {jurisdiction} data center"
   - "site:municode.com {jurisdiction} code of ordinances"
+  # Recently adopted ordinances are often published only as a PDF on the
+  # jurisdiction's own site, before they are codified in a code library.
+  - "filetype:pdf {jurisdiction} data center ordinance"
 
 website_keywords:
   pdf: 92160

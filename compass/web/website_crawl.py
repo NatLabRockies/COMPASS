@@ -10,7 +10,7 @@ import logging
 import operator
 from collections import Counter
 from contextlib import AsyncExitStack
-from urllib.parse import urljoin, urlsplit
+from urllib.parse import urljoin, urlsplit, parse_qs
 
 from crawl4ai.models import Link as c4AILink
 from bs4 import BeautifulSoup
@@ -564,6 +564,54 @@ def _debug_info_on_links(links):
         logger.debug("    ...")
 
 
+_DOC_VIEWER_QUERY_KEYS = ("document", "file", "url", "src", "pdf", "href")
+"""Query-string keys that commonly hold a viewer's real document URL"""
+
+_DOC_SUFFIXES = (".pdf", ".doc", ".docx", ".rtf")
+"""Document extensions worth unwrapping a viewer link for"""
+
+
+def _unwrap_document_viewer_url(href):
+    """Resolve a document-viewer link to the document it wraps
+
+    Some sites link to documents through a viewer page that carries the
+    real file URL in its query string, e.g.::
+
+        /archival-document?document=https://.../ordinance.pdf&title=...
+
+    Fetching the viewer returns the page's navigation chrome rather than
+    the document (about 1 KB of menus instead of the ordinance), so the
+    embedded URL is used when one is present.
+
+    Parameters
+    ----------
+    href : str
+        URL that may wrap another document URL.
+
+    Returns
+    -------
+    str
+        The embedded document URL, or `href` unchanged if there is none.
+    """
+    query = urlsplit(href).query
+    if not query:
+        return href
+
+    params = parse_qs(query)
+    keys = [key for key in _DOC_VIEWER_QUERY_KEYS if key in params]
+    keys += [key for key in params if key not in _DOC_VIEWER_QUERY_KEYS]
+    for key in keys:
+        for value in params[key]:
+            if urlsplit(value).scheme not in {"http", "https"}:
+                continue
+            path = urlsplit(value).path.casefold()
+            if path.endswith(_DOC_SUFFIXES):
+                logger.debug("Unwrapped viewer link %s -> %s", href, value)
+                return value
+
+    return href
+
+
 def _extract_links_from_html(text, base_url):
     """Parse HTML and extract all links"""
     soup = BeautifulSoup(text, "html.parser")
@@ -586,6 +634,8 @@ def _extract_links_from_html(text, base_url):
         href = sanitize_url(urljoin(base_url, path))
         if urlsplit(href).scheme not in {"http", "https"}:
             continue
+
+        href = sanitize_url(_unwrap_document_viewer_url(href))
 
         out_links.add(
             _Link(

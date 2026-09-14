@@ -1,5 +1,6 @@
 """Ordinance file downloading logic"""
 
+import re
 import pprint
 import logging
 from contextlib import AsyncExitStack
@@ -35,6 +36,25 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 _NEG_INF = -1 * float("infinity")
 _COLLECTION_SCORE_KEY = "collection_step_rank"
+
+_LINK_EXPANSION_SKIP_DOMAINS = (
+    "municode.com",
+    "ecode360.com",
+    "amlegal.com",
+    "codepublishing.com",
+    "generalcode.com",
+    "encodeplus.com",
+    "sterlingcodifiers.com",
+    "citizenportal.ai",
+)
+"""Domains that are never useful as link-expansion seeds
+
+Third-party code libraries expose a site-wide catalog in their page
+navigation, so expanding links from one of their pages walks into
+unrelated jurisdictions (e.g. a Birmingham, AL seed reaching Midfield
+and Tarrant) at roughly a page every 40s, since each is JS-rendered.
+The document of interest is linked from the jurisdiction's own site.
+"""
 
 
 async def download_known_urls(
@@ -502,6 +522,178 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
 
     async with cpb:
         return await crawler.run(website, on_new_page_visit_hook=ch)
+
+
+def _seed_relevance(url, keyword_points):
+    """Score how likely a page is to link to the ordinance
+
+    Separators are normalized to spaces first: a slug such as
+    ``Data-Centers-Unified-Development-Code-Amendment`` contains no
+    literal ``"data center"``, so scoring it verbatim badly understates
+    it (180 points here, versus 92,520 once normalized).
+    """
+    text = re.sub(r"[-_/+.]", " ", str(url).casefold())
+    return sum(
+        points for keyword, points in keyword_points.items()
+        if keyword in text
+    )
+
+
+def _seeds_worth_expanding(seed_urls, keyword_points, max_seeds):
+    """Select the search results worth following links from
+
+    Third-party code libraries link to their whole catalog, so they are
+    dropped. Expanding every remaining result is prohibitively slow, so
+    the most promising are expanded first - taking them in search-result
+    order instead can miss the one landing page that matters.
+    """
+    seeds = []
+    for url in seed_urls or []:
+        if not url:
+            continue
+        low = str(url).casefold()
+        if any(domain in low for domain in _LINK_EXPANSION_SKIP_DOMAINS):
+            logger.debug("Not expanding links from aggregator page: %s", url)
+            continue
+        seeds.append(str(url))
+
+    seeds.sort(key=lambda url: -_seed_relevance(url, keyword_points))
+    if len(seeds) > max_seeds:
+        logger.debug(
+            "Expanding the %d most relevant of %d candidate seed(s)",
+            max_seeds,
+            len(seeds),
+        )
+    return seeds[:max_seeds]
+
+
+async def download_jurisdiction_ordinances_from_search_result_links(
+    seed_urls,
+    heuristic,
+    keyword_points,
+    file_loader_kwargs=None,
+    already_visited=None,
+    num_link_scores_to_check_per_page=4,
+    max_urls_per_seed=4,
+    max_seeds=8,
+    pb_jurisdiction_name=None,
+):
+    """Follow high-scoring document links found on search-result pages
+
+    Search engines typically surface a jurisdiction's *landing* page for
+    a topic (e.g. a "Data Centers" program page) rather than the adopted
+    ordinance itself, which is usually a PDF linked from that page. The
+    plain search-engine step only reads the landing page's own text, so
+    those documents are never retrieved. This function closes that gap
+    by running a shallow COMPASS crawl seeded at each search result
+    instead of at the jurisdiction homepage, which keeps the crawl
+    within a hop or two of an already-relevant page.
+
+    Parameters
+    ----------
+    seed_urls : iterable of str
+        URLs of pages already identified by the search-engine step.
+        Each is used as the starting point for its own shallow crawl.
+    heuristic : Heuristic
+        Heuristic used to validate that a retrieved document resembles
+        the technology of interest.
+    keyword_points : dict
+        Dictionary mapping keywords to point values, used to rank the
+        links found on each seed page.
+    file_loader_kwargs : dict, optional
+        Additional keyword-value argument pairs to pass to the file
+        loader used for the crawl. By default, ``None``.
+    already_visited : set, optional
+        URLs that have already been checked and should be skipped. This
+        set is shared (and extended) across every seed so that pages
+        common to multiple seeds are only fetched once.
+        By default, ``None``.
+    num_link_scores_to_check_per_page : int, default=4
+        Number of top unique-scoring links per page to follow.
+    max_urls_per_seed : int, default=8
+        Maximum number of pages to crawl per seed URL. Kept small
+        because the seed is already a relevant page - the document of
+        interest is normally a direct link from it.
+    pb_jurisdiction_name : str, optional
+        Jurisdiction name used for progress-bar updates.
+        By default, ``None``.
+
+    Returns
+    -------
+    list
+        List of documents found by expanding the seed URLs. May be
+        empty if no linked document passes the heuristic.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileCache` service
+    to be running.
+    """
+    seed_urls = _seeds_worth_expanding(
+        seed_urls, keyword_points, max_seeds
+    )
+    if not seed_urls:
+        return []
+
+    async def _doc_heuristic(doc):  # ruff:ignore[unused-async]
+        """Heuristic check for technology-relevant documents"""
+        return heuristic.check(doc.text.lower())
+
+    file_loader_kwargs = dict(file_loader_kwargs or {})
+    file_loader_kwargs.update({"file_cache_coroutine": TempFileCache.call})
+
+    # `do_not_download` are pages the crawler should not re-download as
+    # documents (the seeds themselves were already fetched by the search
+    # step); it is deliberately kept separate from `expanded`, which
+    # tracks which seeds this loop has already crawled. Conflating the
+    # two causes every seed to be skipped.
+    do_not_download = set(already_visited or set()) | set(seed_urls)
+    expanded = set()
+    docs = []
+    for url in seed_urls:
+        if url in expanded:
+            continue
+        expanded.add(url)
+        crawler = COMPASSCrawler(
+            validator=_doc_heuristic,
+            url_scorer=COMPASSLinkScorer(keyword_points).score,
+            file_loader_kwargs=file_loader_kwargs,
+            num_link_scores_to_check_per_page=(
+                num_link_scores_to_check_per_page
+            ),
+            already_visited=do_not_download,
+            max_pages=max_urls_per_seed,
+        )
+        try:
+            found = await crawler.run(url)
+        except KeyboardInterrupt:
+            raise
+        except Exception:
+            logger.exception(
+                "Error expanding links from search result %s for %s",
+                url,
+                pb_jurisdiction_name or "jurisdiction",
+            )
+            continue
+
+        do_not_download.update(
+            doc.attrs.get("source")
+            for doc in found
+            if doc.attrs.get("source")
+        )
+        if found:
+            logger.debug(
+                "Link expansion from %s produced %d doc(s)", url, len(found)
+            )
+            docs.extend(found)
+
+    logger.debug(
+        "Link expansion over %d search result(s) produced %d doc(s) for %s",
+        len(seed_urls),
+        len(docs),
+        pb_jurisdiction_name or "jurisdiction",
+    )
+    return docs
 
 
 async def download_jurisdiction_ordinance_using_search_engine(
