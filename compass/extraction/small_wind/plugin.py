@@ -4,6 +4,7 @@ from compass.plugin import (
     OrdinanceExtractionPlugin,
     OutputColumn,
     register_plugin,
+    normalize_website_keywords,
 )
 from compass.extraction.small_wind.ordinance import (
     SmallWindHeuristic,
@@ -38,30 +39,22 @@ SMALL_WIND_QUERY_TEMPLATES = [
     ),
 ]
 
-BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = {
-    "pdf": 92160,
-    "wecs": 46080,
-    "wind": 23040,
-    "zoning": 11520,
-    "ordinance": 5760,
-    r"renewable%20energy": 1440,
-    r"renewable+energy": 1440,
-    "renewable energy": 1440,
-    "planning": 720,
-    "plan": 360,
-    "government": 180,
-    "code": 60,
-    "area": 60,
-    r"land%20development": 15,
-    r"land+development": 15,
-    "land development": 15,
-    "land": 3,
-    "environment": 3,
-    "energy": 3,
-    "renewable": 3,
-    "municipal": 1,
-    "department": 1,
-}
+BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = [
+    "pdf",
+    "wecs",
+    "wind",
+    ["zoning", "ordinance", "regulation"],
+    ["dsireusa", "windaction"],
+    ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"],
+    "renewable energy",
+    ["plan", "planning", "permit"],
+    "government",
+    ["setback", "noise"],
+    ["code", "area"],
+    ["land development", "land use"],
+    ["land", "environment", "energy", "renewable"],
+    ["municipal", "department", "development", "board"],
+]
 
 
 class COMPASSSmallWindExtractor(OrdinanceExtractionPlugin):
@@ -73,7 +66,9 @@ class COMPASSSmallWindExtractor(OrdinanceExtractionPlugin):
     QUERY_TEMPLATES = SMALL_WIND_QUERY_TEMPLATES
     """list: List of search engine query templates for extraction"""
 
-    WEBSITE_KEYWORDS = BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS
+    WEBSITE_KEYWORDS = normalize_website_keywords(
+        BEST_SMALL_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS
+    )
     """list: List of keywords
 
     Keywords indicate links which should be prioritized when performing

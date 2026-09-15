@@ -12,24 +12,18 @@ query_templates:
   - "requirements to drill a water well in {jurisdiction}"
 
 website_keywords:
-  pdf: 92160
-  water: 46080
-  rights: 23040
-  zoning: 11520
-  ordinance: 5760
-  renewable energy: 1440
-  planning: 720
-  plan: 360
-  government: 180
-  code: 60
-  area: 60
-  land development: 15
-  land: 3
-  environment: 3
-  energy: 3
-  renewable: 3
-  municipal: 1
-  department: 1
+  - "pdf"
+  - "water"
+  - "rights"
+  - "zoning"
+  - "ordinance"
+  - "renewable energy"
+  - ["plan", "planning", "permit"]
+  - "government"
+  - ["code", "area"]
+  - "land development"
+  - ["land", "environment", "energy", 'renewable']
+  - ["municipal", "department", "development"]
 
 collection_prompts: True  # Can disable this to pass entire document to context
 

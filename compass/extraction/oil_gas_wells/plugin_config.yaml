@@ -12,40 +12,19 @@ query_templates:
   - "{jurisdiction} oil gas exploration code of ordinances"
 
 website_keywords:
-  pdf: 2643840
-  "oil and gas": 132192
-  "oil & gas": 132192
-  "gas and oil": 132192
-  oil-and-gas: 132192
-  oil_gas: 132192
-  "oil well": 132192
-  "gas well": 132192
-  oil-well: 132192
-  gas-well: 132192
-  wellhead: 7776
-  "well pad": 7776
-  well-pad: 7776
-  "drilling permit": 7776
-  "drilling ordinance": 7776
-  "hydraulic fracturing": 7776
-  fracking: 7776
-  drilling: 7776
-  planning: 3888
-  government: 972
-  plan: 1944
-  code: 324
-  area: 324
-  "code of ordinances": 27
-  code_of_ordinances: 27
-  "land use code": 27
-  land_use_code: 27
-  "land development": 27
-  ordinance: 9
-  zoning: 9
-  land: 3
-  environment: 3
-  municipal: 1
-  department: 1
+  - "pdf"
+  - ["oil and gas", "oil & gas", "gas and oil", "oil-and-gas", "oil_gas", "oil well", "gas well", "oil-well", "gas-well"]
+  - ["wellhead", "well pad", "well-pad", "drilling permit", "drilling ordinance", "hydraulic fracturing", "fracking", "drilling"]
+  - ["zoning", "ordinance", "regulation"]
+  - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
+  - ["power", "electricity"]
+  - ["plan", "planning", "permit"]
+  - "government"
+  - ["setback", "noise"]
+  - ["code", "area"]
+  - ["land development", "land use"]
+  - ["land", "environment"]
+  - ["municipal", "department", "development"]
 
 heuristic_keywords:
   good_tech_keywords:

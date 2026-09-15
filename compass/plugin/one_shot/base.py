@@ -9,6 +9,7 @@ from warnings import warn
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.plugin import (
     register_plugin,
+    normalize_website_keywords,
     OutputColumn,
     NoOpHeuristic,
     NoOpTextCollector,
@@ -85,10 +86,15 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
               that is being processed. If not provided, the LLM will be
               used to generate search engine queries based on the
               schema input.
-            - `website_keywords`: A dictionary mapping keywords to
-              scores for filtering websites during document retrieval.
-              If not provided, the LLM will be used to generate
-              website keywords based on the schema input.
+            - `website_keywords`: Ordered keyword tiers for website
+              document search prioritization. Each tier can be a string
+              or a list of strings; list the highest-priority tier
+              first. COMPASS computes scores so one match in a tier
+              outweighs all matches in lower tiers and adds URL-encoded
+              variants for multi-word keywords. You can also provide
+              your own keyword-to-score mappings instead. If not
+              provided, the LLM will be used to generate keywords based
+              on the schema input.
             - `heuristic_keywords`: A dictionary containing the keyword
               lists used by the heuristic document filter. The
               dictionary must include ``not_tech_words``,
@@ -363,7 +369,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 return self.WEBSITE_KEYWORDS
 
             if wk := config.get("website_keywords"):
-                wk = _augment_website_keywords(wk)
+                wk = normalize_website_keywords(wk)
                 self.__class__.WEBSITE_KEYWORDS = wk
                 return wk
 
@@ -373,7 +379,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                 key=_CacheKey.WEBSITE_KEYWORDS,
             )
             if wk:
-                wk = _augment_website_keywords(wk)
+                wk = normalize_website_keywords(wk)
                 self.__class__.WEBSITE_KEYWORDS = wk
                 return wk
 
@@ -407,7 +413,7 @@ def create_schema_based_one_shot_extraction_plugin(config, tech):
                         value=wk,
                     )
 
-                wk = _augment_website_keywords(wk)
+                wk = normalize_website_keywords(wk)
                 self.__class__.WEBSITE_KEYWORDS = wk
 
             return wk
@@ -607,27 +613,6 @@ def _out_cols_from_config(config):
         ),
     )
     return cols
-
-
-def _augment_website_keywords(keywords):
-    """Add URL-encoded variants for multi-word keywords"""
-    augmented = dict(keywords)
-    for keyword, score in list(augmented.items()):
-        if not isinstance(keyword, str):
-            continue
-
-        if " " not in keyword:
-            continue
-
-        encoded = keyword.replace(" ", "%20")
-        if encoded not in augmented:
-            augmented[encoded] = score
-
-        plus_encoded = keyword.replace(" ", "+")
-        if plus_encoded not in augmented:
-            augmented[plus_encoded] = score
-
-    return augmented
 
 
 def _normalize_heuristic_keywords(raw):
