@@ -17,6 +17,7 @@
           "units",
           "section",
           "summary",
+          "ordinance_text",
           "explanation"
         ],
         "additionalProperties": false,
@@ -84,7 +85,11 @@
           },
           "summary": {
             "type": "string",
-            "description": "A short summary with direct ordinance excerpts or quotes whenever possible. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should contain direct ordinance language. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
+            "description": "A short summary capturing the gist of the requirement along with all of its specifics and details. Do not copy the ordinance wording here; the verbatim excerpt belongs in ordinance_text. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should state the requirement in full. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
+          },
+          "ordinance_text": {
+            "type": "string",
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must be the one that corresponds to the extracted value and summary, reproduced in full without elision. After that first sentence, gather any other passages in the document that bear on this same requirement, whether they appear before or after it, and join them with an ellipsis ('...') in the order they appear in the document. Use the ellipsis to skip over text that is not relevant so the excerpt stays focused while still carrying every passage that supports the extracted value, units, or qualitative requirement. Every character outside of the ellipses must appear exactly as written in the source: no paraphrasing, summarizing, normalization, added context, or commentary. Must be a non-null, non-empty string."
           },
           "explanation": {
             "type": "string",
@@ -241,7 +246,8 @@
           "value": 500,
           "units": "feet",
           "section": "Section 8.4 - Setbacks",
-          "summary": "'Geothermal production wells and associated facilities shall be set back at least 500 feet from all property lines.'",
+          "summary": "Wells and related facilities must sit at least 500 feet from any property line. The setback is measured to the outer edge of the wellhead cellar rather than the well bore itself.",
+          "ordinance_text": "Geothermal production wells and associated facilities shall be set back at least 500 feet from all property lines. ... For purposes of this section, the setback shall be measured from the outer edge of the wellhead cellar.",
           "explanation": "The excerpt states an explicit numeric minimum separation from property lines, so it maps directly to 'property lines distance' with value 500 feet."
         },
         {
@@ -252,7 +258,8 @@
           ],
           "units": null,
           "section": "Table 4 - Allowed Uses",
-          "summary": "'Geothermal power plants may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.'",
+          "summary": "Geothermal power plants are not permitted outright anywhere. They are allowed in the Industrial and Agricultural districts only after conditional-use approval by the county.",
+          "ordinance_text": "Geothermal power plants may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.",
           "explanation": "The ordinance explicitly lists two districts where geothermal power plants are allowed only through conditional-use approval, so this belongs under 'special use districts' with the district names preserved as an array."
         },
         {
@@ -263,7 +270,8 @@
           ],
           "units": null,
           "section": "Section 5.2 - Approval Process",
-          "summary": "'A conditional use permit and county drilling permit shall be obtained prior to the construction or operation of any geothermal power plant or exploratory well.'",
+          "summary": "Two separate approvals are needed before work begins: a conditional use permit and a county drilling permit. Both must be in hand prior to construction or operation, including for exploratory wells.",
+          "ordinance_text": "A conditional use permit and county drilling permit shall be obtained prior to the construction or operation of any geothermal power plant or exploratory well.",
           "explanation": "The clause explicitly requires two project approvals before geothermal development can start, so it belongs under 'required permits' with both permit names preserved as an array."
         },
         {
@@ -271,7 +279,8 @@
           "value": "07:00",
           "units": "HH:MM (24-hour)",
           "section": "Section 6.7 - Drilling Operations",
-          "summary": "'Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "summary": "Routine drilling may not begin before 7:00 a.m. The window runs Monday through Saturday, with no work on Sundays or legal holidays unless an emergency applies.",
+          "ordinance_text": "Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.",
           "explanation": "The ordinance gives an explicit drilling window beginning at 7:00 a.m., normalized to 24-hour time as 07:00."
         },
         {
@@ -279,7 +288,8 @@
           "value": "19:00",
           "units": "HH:MM (24-hour)",
           "section": "Section 6.7 - Drilling Operations",
-          "summary": "'Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "summary": "Routine drilling must stop by 7:00 p.m. The same Monday through Saturday window applies, and emergency work is the only exception to the Sunday and holiday prohibition.",
+          "ordinance_text": "Routine geothermal drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.",
           "explanation": "The ordinance gives an explicit drilling window ending at 7:00 p.m., normalized to 24-hour time as 19:00."
         },
         {
@@ -287,7 +297,8 @@
           "value": null,
           "units": null,
           "section": "Section 9.3 - Financial Assurance",
-          "summary": "'Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil, gas, and geothermal agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.'",
+          "summary": "Financial assurance is required before a permit issues, but the ordinance sets no dollar figure. The amount is determined by the state agency engineer and must cover plugging, abandonment, reclamation, and decommissioning, so no numeric value can be extracted.",
+          "ordinance_text": "Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil, gas, and geothermal agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.",
           "explanation": "The clause imposes an enforceable financial assurance requirement but leaves the amount to an agency-determined formula, so it fits 'bond requirement' with value and units set to null."
         }
       ]
@@ -301,6 +312,7 @@
       "For any numeric feature, the summary must support the same requirement that produced value and units for that row. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
       "Standardize units in the units field using this schema's canonical vocabulary, while preserving ordinance-specific wording in summary.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
+      "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. Unlike summary, ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",

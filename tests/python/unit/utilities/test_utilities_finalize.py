@@ -72,7 +72,7 @@ def test_save_run_meta_writes_meta_file(tmp_path, monkeypatch):
 
     (tmp_path / "usage.json").write_text("{}", encoding="utf-8")
     (tmp_path / "jurisdictions.json").write_text("{}", encoding="utf-8")
-    (tmp_path / "quantitative_ordinances.csv").write_text(
+    (tmp_path / "ordinances.csv").write_text(
         "header\n",
         encoding="utf-8",
     )
@@ -126,7 +126,7 @@ def test_save_run_meta_writes_meta_file(tmp_path, monkeypatch):
     assert manifest["ORDINANCE_FILES_DIR"] == "ordinances"
     assert manifest["USAGE_FILE"] == "usage.json"
     assert manifest["JURISDICTION_FILE"] == "jurisdictions.json"
-    assert manifest["QUAL_DATA_FILE"] == "quantitative_ordinances.csv"
+    assert manifest["DATA_FILE"] == "ordinances.csv"
     assert manifest["META_FILE"] == "meta.json"
 
     model_info = meta["models"][0]
@@ -425,7 +425,9 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
     """Compile document info into formatted DataFrame"""
 
     empty_csv = tmp_path / "empty.csv"
-    pd.DataFrame(columns=["feature", "summary"]).to_csv(empty_csv, index=False)
+    pd.DataFrame(columns=["feature", "ordinance_text"]).to_csv(
+        empty_csv, index=False
+    )
 
     valid_csv = tmp_path / "valid.csv"
     pd.DataFrame(
@@ -433,11 +435,13 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
             {
                 "feature": "Height Limit",
                 "summary": "Maximum 100 ft",
+                "ordinance_text": "No turbine shall exceed 100 ft.",
                 "value": 100,
                 "units": "ft",
                 "adder": 300,
                 "source": "http://example.com/valid",
                 "year": 2022,
+                "quantitative": True,
             }
         ]
     ).to_csv(valid_csv, index=False)
@@ -480,10 +484,10 @@ def test_doc_infos_to_db_compiles_and_formats(tmp_path):
 
 
 def test_save_db_writes_csvs(tmp_path):
-    """Split qualitative and quantitative outputs"""
+    """Write qualitative and quantitative rows to one combined file"""
 
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
-    row_true = dict.fromkeys(out_cols)
+    row_true = dict.fromkeys([*out_cols, "quantitative"])
     row_true.update(
         {
             "county": "County A",
@@ -494,7 +498,8 @@ def test_save_db_writes_csvs(tmp_path):
             "feature": "Height",
             "value": 100,
             "units": "ft",
-            "summary": "Maximum height",
+            "ordinance_text": "Turbines shall not exceed 100 ft.",
+            "explanation": "States an explicit numeric height cap.",
             "year": 2020,
             "source": "http://source",
             "quantitative": True,
@@ -505,7 +510,8 @@ def test_save_db_writes_csvs(tmp_path):
     row_false.update(
         {
             "feature": "Setback",
-            "summary": "Setback distance",
+            "ordinance_text": "Turbines shall be set back from lot lines.",
+            "explanation": "States a setback requirement without a number.",
             "quantitative": False,
         }
     )
@@ -513,30 +519,140 @@ def test_save_db_writes_csvs(tmp_path):
     df = pd.DataFrame([row_true, row_false])
     finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
 
-    quant_path = tmp_path / "quantitative_ordinances.csv"
-    qual_path = tmp_path / "qualitative_ordinances.csv"
-    assert quant_path.exists()
-    assert qual_path.exists()
+    out_path = tmp_path / "ordinances.csv"
+    assert out_path.exists()
+    assert not (tmp_path / "quantitative_ordinances.csv").exists()
+    assert not (tmp_path / "qualitative_ordinances.csv").exists()
 
-    quant = pd.read_csv(quant_path)
-    qual = pd.read_csv(qual_path)
-    expected_cols = [
-        col.name
-        for col in COMPASSWindExtractor.OUTPUT_COLUMNS
-        if col.include_in_quant_output
-    ]
-    assert list(quant.columns) == expected_cols
-    assert len(quant) == 1
+    out = pd.read_csv(out_path)
+    assert list(out.columns) == out_cols
+    assert len(out) == 2
 
-    expected_cols = [
-        col.name
-        for col in COMPASSWindExtractor.OUTPUT_COLUMNS
-        if col.include_in_qual_output
-    ]
-    assert list(qual.columns) == expected_cols
-    assert len(qual) == 1
-    assert quant.iloc[0]["feature"] == "Height"
-    assert qual.iloc[0]["feature"] == "Setback"
+    # both kinds of row land in the same file, told apart by the units
+    # sentinel; the internal quantitative flag is not published
+    assert "quantitative" not in out.columns
+    quant_rows = out[out["units"] != finalize.QUALITATIVE_UNITS]
+    qual_rows = out[out["units"] == finalize.QUALITATIVE_UNITS]
+    assert list(quant_rows["feature"]) == ["Height"]
+    assert list(qual_rows["feature"]) == ["Setback"]
+
+    # value/units are retained for qualitative rows
+    assert "summary" in out.columns
+    assert "ordinance_text" in out.columns
+    assert "explanation" in out.columns
+    assert quant_rows.iloc[0]["units"] == "ft"
+
+
+def test_save_db_labels_qualitative_units(tmp_path):
+    """Mark qualitative rows with the units sentinel"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, quantitative, units):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": quantitative,
+                "units": units,
+                "ordinance_text": "text",
+            }
+        )
+        return row
+
+    df = pd.DataFrame(
+        [
+            _row("Height", True, "ft"),
+            _row("Decommissioning", False, None),
+            # the LLM sometimes invents units for a qualitative feature
+            _row("Signage", False, "bogus"),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv")
+    by_feature = out.set_index("feature")["units"]
+
+    assert by_feature["Height"] == "ft"
+    assert by_feature["Decommissioning"] == finalize.QUALITATIVE_UNITS
+    assert by_feature["Signage"] == finalize.QUALITATIVE_UNITS
+
+    # selecting one kind of feature is a plain column comparison, and the
+    # internal quantitative flag stays out of the published file
+    assert "quantitative" not in out.columns
+    qual = out[out["units"] == finalize.QUALITATIVE_UNITS]
+    assert set(qual["feature"]) == {"Decommissioning", "Signage"}
+
+
+def test_save_db_mirrors_summary_into_value_for_qualitative(tmp_path):
+    """Copy summary into value on qualitative rows"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, quantitative, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": quantitative,
+                "value": value,
+                "summary": summary,
+                "units": "ft" if quantitative else None,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    # the schemas ask for a null value on qualitative rows, so the
+    # requirement arrives in summary only
+    df = pd.DataFrame(
+        [
+            _row("Height", True, 100, "Max 100 ft, 80 ft in AG district."),
+            _row("Decommissioning", False, None, "Remove within 12 months."),
+            _row("Signage", False, None, "Warning signs only."),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    # quantitative rows keep their number and their prose restatement
+    assert out.loc["Height", "value"] == "100.0"
+    assert out.loc["Height", "summary"] == (
+        "Max 100 ft, 80 ft in AG district."
+    )
+
+    # qualitative rows get the summary text filled into value
+    assert out.loc["Decommissioning", "value"] == "Remove within 12 months."
+    assert out.loc["Signage", "value"] == "Warning signs only."
+
+    # neither column is left blank
+    assert out["value"].notna().all()
+    assert out["summary"].notna().all()
+
+
+def test_save_db_trims_long_ordinance_text(tmp_path):
+    """Trim over-long excerpts on the way out to disk"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+    row = dict.fromkeys([*out_cols, "quantitative"])
+    row.update(
+        {
+            "feature": "Height",
+            "ordinance_text": "word " * 4000,
+            "quantitative": True,
+        }
+    )
+
+    finalize.save_db(
+        pd.DataFrame([row]), tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS
+    )
+
+    written = pd.read_csv(tmp_path / "ordinances.csv")
+    text = written.iloc[0]["ordinance_text"]
+
+    assert len(text) < 4000 * len("word ")
+    assert text.endswith(" ...")
 
 
 def test_save_db_with_empty_df(tmp_path):
@@ -545,8 +661,7 @@ def test_save_db_with_empty_df(tmp_path):
     out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
     empty_df = pd.DataFrame(columns=out_cols)
     finalize.save_db(empty_df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
-    assert not (tmp_path / "qualitative_ordinances.csv").exists()
-    assert not (tmp_path / "quantitative_ordinances.csv").exists()
+    assert not (tmp_path / "ordinances.csv").exists()
 
 
 def test_db_results_populates_jurisdiction_fields():
@@ -595,13 +710,16 @@ def test_formatted_db_adds_missing_columns():
         [
             {
                 "feature": "Height",
-                "summary": "Max height",
+                "ordinance_text": "Max height is 100 ft.",
+                "quantitative": True,
             }
         ]
     )
     expected_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
     formatted = finalize._formatted_db(df, expected_cols)
-    assert list(formatted.columns) == expected_cols
+    # "quantitative" rides along for downstream labeling even though it is
+    # not one of the published output columns
+    assert list(formatted.columns) == [*expected_cols, "quantitative"]
     assert len(formatted) == 1
     assert bool(formatted.iloc[0]["quantitative"]) is True
 

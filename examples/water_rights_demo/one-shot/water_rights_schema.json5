@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "section", "summary", "source"],
+        "required": ["feature", "value", "units", "section", "summary", "ordinance_text", "explanation", "source"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -67,8 +67,16 @@
           },
           "summary": {
             "type": ["string", "null"],
-            "description": "Short requirement summary using direct excerpts/quotes whenever possible. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
+            "description": "Short requirement summary capturing the gist along with all specifics and details. Do not copy the ordinance wording here; the verbatim excerpt belongs in ordinance_text. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
             "default": null
+          },
+          "ordinance_text": {
+            "type": "string",
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must be the one that corresponds to the extracted value and summary, reproduced in full without elision. After that first sentence, gather any other passages in the document that bear on this same requirement, whether they appear before or after it, and join them with an ellipsis ('...') in the order they appear in the document. Use the ellipsis to skip over text that is not relevant so the excerpt stays focused while still carrying every passage that supports the extracted value, units, or qualitative requirement. Every character outside of the ellipses must appear exactly as written in the source: no paraphrasing, summarizing, normalization, added context, or commentary. Must be a non-null, non-empty string."
+          },
+          "explanation": {
+            "type": "string",
+            "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in ordinance_text and how it supports the extracted value and units (or, for qualitative features, the inclusion criteria). Must be a non-null, non-empty string and must not use absence placeholders."
           },
           "source": {
             "type": ["number", "null"],
@@ -175,35 +183,44 @@
       "value": true,
       "units": null,
       "section": "Rule 3.2 - Permit Required",
-      "summary": "'No person may drill a non-exempt well without first obtaining a permit from the District.' Exempt domestic wells are listed separately under Rule 3.5."
+      "summary": "A permit is required before drilling any non-exempt well. Domestic wells meeting the Rule 3.5 exemption are excluded.",
+      "ordinance_text": "No person may drill a non-exempt well without first obtaining a permit from the District.",
+      "explanation": "The clause states an unconditional permit obligation tied to drilling, which matches 'permit required'. The Rule 3.5 exemption is noted in summary because it narrows who the obligation applies to."
     },
     {
       "feature": "annual extraction limits",
       "value": 2,
       "units": "acre-feet/year",
       "section": "Rule 8.1 - Production Limits",
-      "summary": "The district sets an explicit annual production cap of '2 acre-feet per acre per year' for this permit class; text also notes permit-specific adjustments by aquifer conditions."
+      "summary": "Annual production is capped at 2 acre-feet per acre. The cap is a default that the District may lower for individual permits when aquifer conditions warrant, so the stated figure is a ceiling rather than a guaranteed allocation.",
+      "ordinance_text": "Each non-exempt permit is limited to an annual production of 2 acre-feet per acre per year. ... The District may impose a lower annual limit on any individual permit where aquifer conditions warrant.",
+      "explanation": "The first sentence carries the numeric cap used for value and units. The second sentence is joined with an ellipsis because it qualifies that cap, and the intervening text about application procedures is not relevant to this feature."
     },
     {
       "feature": "well spacing",
       "value": 500,
       "units": "feet",
       "section": "Rule 8.4 - Well Spacing",
-      "summary": "'A new non-exempt well must be at least 500 feet from any existing non-exempt well.' Reduced spacing may be allowed for low-capacity wells below stated gpm threshold."
+      "summary": "New non-exempt wells must sit at least 500 feet from any existing non-exempt well, though the District may approve a shorter separation for low-capacity wells producing under 25 gallons per minute.",
+      "ordinance_text": "A new non-exempt well must be at least 500 feet from any existing non-exempt well. ... The Board may approve a reduced spacing of not less than 250 feet for wells producing less than 25 gallons per minute.",
+      "explanation": "500 feet is the controlling general rule, so it is the extracted value. The 250-foot low-capacity exception is kept in ordinance_text and described in summary rather than replacing the value, since it applies only to a narrow class of wells."
     },
     {
       "feature": "production cost",
       "value": "permit specific",
       "units": "dollars/acre-foot",
       "section": "Fee Schedule - Production Fees",
-      "summary": "Production fees are assessed by permit class and use category rather than one universal rate; schedule provides tiered dollar-per-acre-foot charges."
+      "summary": "There is no single production fee rate. Charges are tiered by permit class and use category, so the applicable rate depends on how the well is classified.",
+      "ordinance_text": "Production fees shall be assessed in accordance with the tiered dollar-per-acre-foot rates set out in the Fee Schedule for each permit class and use category.",
+      "explanation": "The ordinance sets a fee mechanism rather than one numeric rate, so value records that the charge is permit specific instead of inventing a single figure. This example shows summary explaining the structure in prose while ordinance_text stays verbatim."
     }
   ],
   "$instructions": {
     "general": [
       "Extract only enacted district requirements, not proposed language or general background text.",
-      "Use direct excerpts/quotes in summary whenever possible.",
-      "If a feature has no requirement, set value, units, section, and summary to null or omit the feature row.",
+      "Use direct excerpts/quotes in ordinance_text; summary should restate the requirement in prose rather than quote it.",
+      "Whenever a feature row is emitted, ordinance_text must be the complete relevant excerpt from the source document for the requirement being extracted, copy-pasted verbatim. Its first sentence must be the one corresponding to the extracted value and summary, reproduced in full; after that, gather any other passages bearing on the same requirement, whether they appear earlier or later in the document, and join them with an ellipsis ('...') in document order. Unlike summary, every character outside the ellipses must appear exactly as written in the source, with no paraphrasing, normalization, added context, or commentary.",
+      "If a feature has no enacted requirement in the source text, omit the feature row entirely. Never emit a row with a null or empty ordinance_text to signal absence.",
       "When multiple values exist for one feature, choose the value applicable to the primary general rule and describe alternatives/conditions in summary.",
       "Preserve distinctions between drilling permits, extraction permits, transfer permits, and reporting obligations.",
       "Do not convert one-time application fees into production or transfer rate values."
