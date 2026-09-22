@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "section", "summary"],
+        "required": ["feature", "value", "units", "district", "section", "summary"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -64,6 +64,10 @@
             "type": ["string", "null"],
             "description": "Units for the extracted value. Distances: 'feet' or 'miles'. Noise: 'dBA' or 'dBC'. Capacity: 'MW'. Lot size: 'acres' or 'square feet'. Coverage: 'percent'. Null for qualitative features or ratios."
           },
+          "district": {
+            "type": ["string", "null"],
+            "description": "The zoning district this value applies to, using the exact district name or code from the ordinance (e.g. 'H-I Heavy Industrial', 'L-I Light Industrial', 'EU-2'). When a requirement applies across all districts or the ordinance is technology-specific rather than district-based, use null. When an ordinance states different values for the same feature in different districts, emit a separate object for each district rather than selecting one."
+          },
           "section": {
             "type": ["string", "null"],
             "description": "The section title or number from the ordinance where this requirement is found (e.g., 'SECTION 1308 – Performance / Construction Standards'). Include numerical labels if provided. Null if no section identifier is available."
@@ -83,22 +87,22 @@
     "setback_features": {
       "description": "Setback features with their aliases and extraction guidance",
       "properties": {
-        "residential dwellings": {"description": "Setback requirements from occupied dwellings, residences, or places of public assembly. May also be labeled as setbacks from habitable structures or occupied buildings. VALUE & UNITS: numerical distance in feet or miles. If multiple values are given for different zoning districts, extract the most restrictive (largest) value and list the other values and their district conditions in the summary."},
+        "residential dwellings": {"description": "Setback requirements from occupied dwellings, residences, or places of public assembly. May also be labeled as setbacks from habitable structures or occupied buildings. VALUE & UNITS: numerical distance in feet or miles. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."},
 
         "property line": {
-          "description": "Setback requirements from property lines, lot lines, or parcel boundaries. Side and rear yard setbacks fall here. VALUE & UNITS: numerical distance in feet. If multiple values are given for different zoning districts, extract the most restrictive (largest) value and list the others and their conditions in the summary."
+          "description": "Setback requirements from property lines, lot lines, or parcel boundaries. Side and rear yard setbacks fall here. VALUE & UNITS: numerical distance in feet. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."
         },
         "residential district": {
           "description": "Setback requirements measured from the boundary of a residentially zoned district, as distinct from an individual dwelling. VALUE & UNITS: numerical distance in feet or miles."
         },
         "front yard": {
-          "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet. If multiple values are given for different zoning districts, extract the most restrictive (largest) value and list the others and their conditions in the summary."
+          "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."
         },
         "roads": {
           "description": "Setback requirements from roads. Roads may also be labeled as rights-of-way. Before extracting, verify this is truly a road setback and not better classified as a property line setback. VALUE & UNITS: Same rules as 'residential dwellings'. IGNORE: Do not respond based on setbacks from dwellings, property lines, residential districts, front yards, railroads or water. Only focus on utility-scale generating facilities."
         },
         "street": {
-          "description": "Setback requirements from streets, as distinct from roads or rights-of-way. VALUE & UNITS: numerical distance in feet."
+          "description": "Setback requirements from streets, as distinct from roads or rights-of-way. VALUE & UNITS: numerical distance in feet. Where an ordinance expresses a setback as a distance from a street right-of-way or street easement center line, record it here as well as under front yard, using the district field to attribute it."
         },
         "water": {
           "description": "Setback requirements from lakes, reservoirs, streams, rivers, or wetlands. VALUE & UNITS: Same rules as 'residential dwellings'. IGNORE: Do not respond based on setbacks from dwellings, property lines, residential districts, front yards, streets, roads or railroads. Only focus on utility-scale generating facilities."
@@ -116,7 +120,7 @@
         },
         
         "maximum building height": {
-          "description": "Maximum permitted height of buildings or structures. VALUE: number. UNITS: 'feet'. If different limits apply by district, extract the most restrictive (smallest) and list the others in the summary."
+          "description": "Maximum permitted height of buildings or structures. VALUE: number. UNITS: 'feet'. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."
         }, 
         "minimum lot size" : {
           "description": "Minimum parcel size required. VALUE: number. UNITS: 'acres' or 'square feet' as stated in the ordinance."
@@ -180,7 +184,7 @@
       "description": "Zoning districts where natural gas generating facilities are permitted under various conditions",
       "properties": {
         "primary use districts": {
-          "description": "Extract all zoning districts where natural gas generating facilities are permitted as primary use or similar (e.g., permitted by right, without special conditions or approval beyond standard permitting). VALUE: An array of district names/codes as strings (e.g., ['EU-2 Exclusive Use Two', 'M1 Heavy Industrial', 'GC General Commercial']). If no districts allow primary use, use null. SUMMARY: Provide a brief summary with direct text excerpts describing which districts allow the facility as primary use and under what general conditions. SECTION: Include the section title/number where this information is found. CLARIFICATION: Natural gas generating facilities may also be referred to as: gas-fired electric generating facilities, electric generating plants, power plants, energy generation facilities, public utility facilities, or similar terminology. Only focus on facilities as defined in system_size_context."
+          "description": "Extract all zoning districts where natural gas generating facilities are permitted as primary use or similar (e.g., permitted by right, without special conditions or approval beyond standard permitting). VALUE: An array of district names/codes as strings (e.g., ['EU-2 Exclusive Use Two', 'M1 Heavy Industrial', 'GC General Commercial']). If no districts allow primary use, use null. SUMMARY: Provide a brief summary with direct text excerpts describing which districts allow the facility as primary use and under what general conditions. SECTION: Include the section title/number where this information is found. CLARIFICATION: Natural gas generating facilities may also be referred to as: gas-fired electric generating facilities, electric generating plants, power plants, energy generation facilities, public utility facilities, or similar terminology. Only focus on facilities as defined in system_size_context. CRITICAL: A district belongs here ONLY if the facility is permitted by right. If the ordinance lists the facility as a conditional use, special use, or requires a permit or board approval in that district, it belongs in 'special use districts' and must NOT appear here. A district must never appear in both."
         },
         "special use districts": {
           "description": "Extract all zoning districts where natural gas generating facilities are permitted as special use, conditional use, or similar (e.g., requires approval by zoning appeals board, planning commission, special use permit, conditional use permit, or meeting certain conditions). VALUE: An array of district names/codes as strings. If no districts require special use approval, use null. SUMMARY: Provide summary with direct text excerpts. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on facilities as defined in system_size_context."
@@ -260,7 +264,7 @@
       "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
       "For features where no requirement exists, omit the feature from the array entirely.",
       "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
-      "When multiple values are mentioned for the same feature, select the most restrictive value (largest minimum, smallest maximum) and note the other values and their district conditions in the summary.",
+      "When an ordinance states different values for the same feature in different zoning districts, emit one object per district with the district named in the 'district' field. Do not collapse them into a single value. When multiple values apply within the same district for reasons other than district (such as different measurement bases), select the most restrictive and note the alternatives in the summary.",
       "Ensure units are expressed using standard, conventional names ('feet', 'miles', 'acres', 'square feet', 'percent', 'dBA', 'dBC', 'MW')."
     ],
     "setback_specific": [
