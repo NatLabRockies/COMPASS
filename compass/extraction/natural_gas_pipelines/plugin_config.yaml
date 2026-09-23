@@ -6,8 +6,13 @@ cache_llm_generated_content: true
 
 query_templates:
   - "{jurisdiction} natural gas compressor station ordinance"
-  - "{jurisdiction} oil and gas facilities zoning ordinance"
+  - "{jurisdiction} natural gas pipeline facilities zoning ordinance"
   - "{jurisdiction} compressor station setback noise ordinance code"
+  # Many jurisdictions regulate natural gas compressor stations inside broader
+  # "oil and gas" or gas-well chapters. Cast a wider net at discovery; the
+  # schema scope gate and applies_to field filter out well-only content later.
+  - "{jurisdiction} oil and gas facilities zoning ordinance"
+  - "{jurisdiction} gas well ordinance compressor pipeline"
   - "site:ecode360.com {jurisdiction}"
   - "site:municode.com {jurisdiction} code of ordinances"
 
@@ -16,6 +21,11 @@ website_keywords:
   compressor: 46080
   pipeline: 46080
   "natural gas": 46080
+  "natural gas pipeline": 46080
+  "compressor station": 46080
+  "gas gathering": 5760
+  "metering station": 2880
+  "regulator station": 2880
   ordinance: 23040
   zoning: 11520
   setback: 5760
@@ -30,6 +40,8 @@ website_keywords:
   ecode360: 1440
   municode: 1440
   "zoning ordinance": 1440
+  "oil and gas": 720
+  "gas well": 720
   "ordinance adopted": 720
   "land use code": 720
   "title xii": 720
@@ -40,32 +52,39 @@ website_keywords:
   section: 180
 
 heuristic_keywords:
-  GOOD_TECH_KEYWORDS:
+  good_tech_keywords:
     - compressor
     - pipeline
     - transmission
     - gathering
-  GOOD_TECH_PHRASES:
+    - ecode360
+    - municode
+  good_tech_phrases:
     - natural gas compressor station
     - natural gas pipeline
     - compressor station
     - gas transmission pipeline
     - gas gathering line
+    - metering and regulator station
     - zoning ordinance
     - code of ordinances
     - municipal code
-    - ecode360
     - pipeline right-of-way
     - compressor station noise
     - compressor station setback
-  GOOD_TECH_ACRONYMS:
+  good_tech_acronyms:
     - ROW
     - MAOP
     - PHMSA
-  NOT_TECH_WORDS:
+  not_tech_words:
     - well pad
     - oil well
     - gas well
+    - conventional well
+    - unconventional well
+    - oil and gas well
+    - drilling operations
+    - well permit
     - hydraulic fracturing
     - fracking
     - drilling permit
@@ -84,29 +103,63 @@ extraction_system_prompt: |-
   You are a legal scholar extracting structured data from natural gas
   pipeline and compressor station ordinances.
 
-  Extract ONLY the following features:
-  - setbacks from structures, front yard, property lines, rear yard,
-    side yard, residential buildings, water bodies, and distance between
-    compressor stations
-  - daytime and nighttime noise limits
-  - zoning districts
-  - conditional/special use permit requirement
-  - fencing
-  - minimum lot size
-  - enclosure
+  Extract only enacted local (or state) requirements that explicitly govern
+  natural gas compressor stations; natural gas pipelines (transmission,
+  distribution, gathering); or metering/regulator stations. The source may be
+  a general zoning code, municipal code, or code of ordinances rather than a
+  technology-specific title. A yard-setback, lot-size, or zoning-district rule
+  is in scope when it binds a natural gas facility, whether stated directly or
+  via a use-table row naming gas, utility, or energy uses.
 
-  Extract only enacted local requirements that explicitly govern
-  natural gas compressor stations or natural gas pipeline facilities.
-  The source ordinance may be a general zoning code, municipal code, or
-  code of ordinances rather than a technology-specific title.
+  Never extract requirements that apply only to oil wells, gas wells,
+  conventional or unconventional wells, well pads, wellheads, drilling, or
+  hydraulic fracturing. These are out of scope even in the same document.
+  Also ignore geothermal wells, wind, solar, water/sewer utilities, electric
+  substations, utility tariffs/billing, and residential gas appliances unless
+  the same clause directly governs a compressor station or pipeline. Extract
+  only requirements that make or break a developer's decision to site the
+  facility; ignore optional, operational, administrative, monitoring,
+  insurance, and hearing-process details.
 
-  Do not extract text focused only on wells, drilling, fracking,
-  utility tariffs/billing, or unrelated industrial uses unless the same
-  clause directly applies to compressor stations or pipelines.
+  Emit ONE decomposed row per distinct requirement. Decompose each on four
+  axes:
+  - WHAT: feature (from the schema enum) plus specific_subject, applies_to,
+    and requirement_description. Put the governed facility type in applies_to;
+    put any situational trigger in condition; never mix the two.
+  - HOW MUCH: value with value_category, value_interpretation, units, and
+    range_low/range_high. A quantitative row has a numeric value and a
+    non-null value_interpretation. A qualitative row has value, units, and
+    ranges all null, with the substance in requirement_description.
+  - HOW BINDING: obligation. Encode negative wording ("shall not exceed",
+    "shall not be within") as obligation=required with a directional
+    value_interpretation; reserve prohibited for qualitative bans.
+  - WHEN/WHERE: condition, a short trigger phrase only.
 
-  For noise, ignore complaint-response monitoring protocol details unless
-  a clause states an explicit numeric day or night dB limit or a targeted
-  ambient-relative standard that can inform post-processing.
+  Split a clause into multiple rows when it states multiple setback targets,
+  separate daytime and nighttime noise limits, or tiered values. For rear-yard
+  and side-yard setbacks use the "property lines distance" feature with
+  specific_subject set accordingly.
 
-  Follow schema feature definitions literally. Keep units exactly as written.
-  Do not invent values.
+  When multiple values apply to the same feature and specific_subject across
+  zones and all apply, keep the single MOST RESTRICTIVE value (largest
+  setback, lowest noise dB limit, largest minimum lot size) and record the
+  full zone-by-zone breakdown in notes. Use value_interpretation range for an
+  explicit span and tiered (one row per tier) for explicit bands.
+
+  For noise, emit a row only when the clause states an explicit numeric day or
+  night dB limit, or an explicit ambient adder ("ambient + X dB", captured as
+  value=X with value_interpretation=above_ambient). Ambient-relative limits
+  with no numeric adder are qualitative. Never emit a noise row for
+  complaint-response protocols, monitoring or testing durations, submission
+  deadlines, or mitigation-equipment standards without a numeric magnitude.
+
+  For fencing, capture a numeric fence height (limit) or a required/opaque
+  fencing mandate (equipment_standard); ignore gate hardware, materials, and
+  landscaping. For enclosure, capture only a required or prohibited
+  building-enclosure mandate; ignore exhaust mufflers, sound-barrier specs,
+  and architectural finishes.
+
+  Follow all schema feature definitions, core principles, and instructions
+  literally. Keep units standardized as the schema directs, quote verbatim
+  ordinance text in source_verbatim, and do not invent values. Every row must
+  include a non-empty summary and explanation.
