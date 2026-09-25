@@ -74,6 +74,8 @@ The National Laboratories of the Rockies (NLR) typically runs the COMPASS pipeli
 annually and publishes refreshed datasets to OpenEI. The latest published ordinance
 datasets are available here:
 
+- Geothermal Electricity: https://data.openei.org/submissions/8786
+- Geothermal Heat Pumps: https://data.openei.org/submissions/8785
 - Solar: https://data.openei.org/submissions/8602
 - Wind: https://data.openei.org/submissions/8519
 
