@@ -90,21 +90,20 @@
             ]
           },
           "value": {
-            "description": "The extracted ordinance value. For numerical distance thresholds and limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
+            "description": "The extracted ordinance value. Set value according to the feature's type per $core_principles.value_type_contract: an explicit number for quantitative features; null, a string, or an array of strings for qualitative features. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs rather than emitting a null or placeholder row.",
             "anyOf": [
               {"type": "number"},
               {"type": "string"},
               {
                 "type": "array",
-                "items": {"type": "string"},
-                "additionalProperties": false
+                "items": {"type": "string"}
               },
               {"type": "null"}
             ]
           },
           "units": {
-            "type": ["string", "null"],
-            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters' when possible. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use 'text' for permit lists and qualitative requirements without measurable units."
+            "type": "string",
+            "description": "Units for the extracted value. Set units according to the feature's type per $core_principles.value_type_contract: the canonical non-null unit for quantitative features, and 'text' for qualitative features. Use canonical units for interoperability: for distance and height features use 'feet' or 'meters' when possible; for noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA', keeping plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field."
 
           },
           "section": {
@@ -145,7 +144,10 @@
       "description": "Extract a feature only when the ordinance text explicitly states a requirement, definition, or prohibition for that same feature. Never infer, assume, extrapolate, or guess from related context, implications, headings, or nearby provisions. If the ordinance points to an outside document or standard without restating the controlling requirement in the ordinance text itself, do not import missing values from that outside source."
     },
     "data_omission": {
-      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. For qualitative features, use value=null and units='text' only when an enacted, explicit requirement or definition for that same feature is present. For numeric features, extract only when an explicit numeric threshold is stated in the ordinance text; otherwise omit the feature instead of returning null, empty, or qualitative-only values. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+      "description": "Emit only positively matched features. If a feature is not explicitly present, omit it entirely rather than returning placeholder text. Never emit absence placeholders such as 'not found', 'no explicit requirement', 'none', or similar text in any field."
+    },
+    "value_type_contract": {
+      "description": "Every feature is either qualitative or quantitative, and that class fixes the shape of value and units. The qualitative features are exactly those listed in $qualitative_features; every other feature is quantitative. For a qualitative feature, value may be null, a string, or an array of strings, and units='text'. For a quantitative feature, value must be an explicit number stated in the ordinance text and units must be the appropriate non-null canonical unit; if no explicit numeric value is stated for that feature, omit it entirely rather than returning null, an empty value, units='text', or a qualitative-only row."
     },
     "numeric_prioritization": {
       "description": "When multiple numeric values apply to the same feature, keep one row for that feature and select the controlling most restrictive value. Restrictiveness rules: setbacks -> choose the largest minimum separation distance; maximum tower height and maximum structure height -> choose the lowest limit within each feature independently, never combine tower limits with accessory-structure limits; noise -> choose the lowest allowed noise limit. Keep condition-specific alternatives in summary only when the ordinance text explicitly shows they all apply to the same feature for electric transmission systems. When a row's value is chosen this way from competing values, set aggregated=true on that row; otherwise set aggregated=false."
@@ -248,7 +250,7 @@
       "description": "Administrative or legal grants recorded in the ordinance code that do not impose a physical or numeric requirement on transmission infrastructure. Extract only when the ordinance text explicitly names the grant and its holder(s).",
       "properties": {
         "franchise": {
-          "description": "Electric utility franchise granted by this jurisdiction to a named company or companies. Extract when the ordinance explicitly grants (or renews, extends, or amends) an electric franchise, right, or privilege to operate electric infrastructure, or when a codified list of franchises names one or more electric utilities as grantees under an electric-franchise heading, even if the full granting-clause text is omitted; treat such an electric-franchise listing as substantive content to collect and extract, not a citation-only index. In summary, name every electric grantee using its verbatim legal name and quote the granting clause or list entry. Do not extract water, gas, cable, telecom, or other non-electric franchises, even when listed alongside the electric ones. Do not infer a franchise from operational references to a utility elsewhere in the code. Emit at most one row per jurisdiction, listing all electric grantees in the same summary."
+          "description": "Electric utility franchise granted by this jurisdiction to a named company or companies. Extract when the ordinance explicitly grants (or renews, extends, or amends) an electric franchise, right, or privilege to operate electric infrastructure, or when a codified list of franchises names one or more electric utilities as grantees under an electric-franchise heading, even if the full granting-clause text is omitted; treat such an electric-franchise listing as substantive content to collect and extract, not a citation-only index. In summary, name every electric grantee using its verbatim legal name and quote the granting clause or list entry. Set value to an array of the named electric grantees, with units='text'. Do not extract water, gas, cable, telecom, or other non-electric franchises, even when listed alongside the electric ones. Do not infer a franchise from operational references to a utility elsewhere in the code. Emit at most one row per jurisdiction, listing all electric grantees in the same summary."
         }
       }
     },
@@ -402,6 +404,7 @@
     "Every row must have non-null, non-empty strings for summary and explanation.",
     "Verify grounding before emitting each row: every quoted phrase in summary must be locatable verbatim in the cited section's source text, and any occurrence of 'transmission' or a feature keyword in the summary must actually appear in that source; if it does not, remove the fabricated text or drop the row.",
     "Confirm the electric-transmission tie for every row, regardless of feature: the cited source must clearly relate to electric power transmission that can include high-voltage lines — any wording or synonym counts, not the word 'transmission' verbatim (for example 'electric transmission lines', 'electric lines', 'electric utility lines', 'electric facilities', 'high-voltage lines') — and must not be exclusively limited to low-voltage, distribution, service, secondary, or sub-transmission infrastructure. Generic wording ('all development', 'any construction or alteration', 'subdivision', bare 'utility'/'public utilities') neither qualifies nor disqualifies a row on its own: alone it cannot establish the tie, nor cancel one established by clearly electric-transmission wording in the same provision. Drop the row if no such tie is present.",
+    "Enforce $core_principles.value_type_contract on every row before emitting: re-check each row against the contract for its feature's type; in particular, drop any quantitative-feature row that lacks an explicit numeric value and canonical unit rather than emitting a qualitative-shaped placeholder.",
   ],
   "$qualitative_features": [
     "bond",

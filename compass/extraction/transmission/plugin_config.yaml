@@ -169,5 +169,5 @@ extraction_system_prompt: |-
   check against the schema and ensure each explicitly supported
   feature is captured exactly once.
   Pay extra attention to any descriptions, instructions, examples,
-  and definitions in the schema, and follow all schema
-  instructions carefully.
+  definitions, and the QA checklist in the schema, and follow all
+  schema instructions carefully.
