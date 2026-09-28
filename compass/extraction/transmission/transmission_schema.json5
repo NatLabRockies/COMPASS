@@ -90,21 +90,20 @@
             ]
           },
           "value": {
-            "description": "The extracted ordinance value. For numerical distance thresholds and limits, use a number. For categorical outcomes, use a string. For fields that list multiple named items, use an array of strings. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
+            "description": "The extracted ordinance value. Set value according to the feature's type per $core_principles.value_type_contract: an explicit number for quantitative features; null, a string, or an array of strings for qualitative features. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs rather than emitting a null or placeholder row.",
             "anyOf": [
               {"type": "number"},
               {"type": "string"},
               {
                 "type": "array",
-                "items": {"type": "string"},
-                "additionalProperties": false
+                "items": {"type": "string"}
               },
               {"type": "null"}
             ]
           },
           "units": {
-            "type": ["string", "null"],
-            "description": "Units for the extracted value. Use canonical units for interoperability. For distance and height features, use 'feet' or 'meters' when possible. For noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA'; keep plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field. Use 'text' for permit lists and qualitative requirements without measurable units."
+            "type": "string",
+            "description": "Units for the extracted value. Set units according to the feature's type per $core_principles.value_type_contract: the canonical non-null unit for quantitative features, and 'text' for qualitative features. Use canonical units for interoperability: for distance and height features use 'feet' or 'meters' when possible; for noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA', keeping plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field."
 
           },
           "section": {
