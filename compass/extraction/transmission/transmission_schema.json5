@@ -319,6 +319,12 @@
       "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
     ],
   },
+  "$qa_checklist": [
+    "Every row must have non-null, non-empty strings for summary and explanation.",
+    "Verify grounding before emitting each row: every quoted phrase in summary must be locatable verbatim in the cited section's source text, and any occurrence of 'transmission' or a feature keyword in the summary must actually appear in that source; if it does not, remove the fabricated text or drop the row.",
+    "Confirm the electric-transmission tie for every row, regardless of feature: the cited source must clearly relate to electric power transmission that can include high-voltage lines — any wording or synonym counts, not the word 'transmission' verbatim (for example 'electric transmission lines', 'electric lines', 'electric utility lines', 'electric facilities', 'high-voltage lines') — and must not be exclusively limited to low-voltage, distribution, service, secondary, or sub-transmission infrastructure. Generic wording ('all development', 'any construction or alteration', 'subdivision', bare 'utility'/'public utilities') neither qualifies nor disqualifies a row on its own: alone it cannot establish the tie, nor cancel one established by clearly electric-transmission wording in the same provision. Drop the row if no such tie is present.",
+    "Enforce $core_principles.value_type_contract on every row before emitting: re-check each row against the contract for its feature's type; in particular, drop any quantitative-feature row that lacks an explicit numeric value and canonical unit rather than emitting a qualitative-shaped placeholder.",
+  ],
   "$qualitative_features": [
     "bond",
     "color",
