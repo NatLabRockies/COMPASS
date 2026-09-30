@@ -582,14 +582,7 @@ def _out_cols_from_config(config):
         msg = f"Error parsing output columns from schema: {e}"
         raise COMPASSPluginConfigurationError(msg) from e
 
-    cols.extend(
-        OutputColumn(
-            name,
-            include_in_qual_output=name not in {"value", "units"},
-        )
-        for name in schema_props
-        if name != "explanation"
-    )
+    cols.extend(OutputColumn(name) for name in schema_props)
 
     source_col_ind = next(
         (ind for ind, col in enumerate(cols) if col.name == "source"), None
@@ -599,13 +592,6 @@ def _out_cols_from_config(config):
     else:
         cols.insert(source_col_ind, OutputColumn("year"))
 
-    cols.append(
-        OutputColumn(
-            "quantitative",
-            include_in_quant_output=False,
-            include_in_qual_output=False,
-        ),
-    )
     return cols
 
 

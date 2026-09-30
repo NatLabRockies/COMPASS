@@ -18,10 +18,32 @@ _SECTION_PROMPT = (
     "and `null` otherwise."
 )
 _SUMMARY_PROMPT = (
-    "The value of the 'summary' key should be a short summary of the relevant "
-    "ordinance, **using direct text excerpts as much as possible.** "
+    "The value of the 'summary' key should be a short summary of the "
+    "relevant ordinance, capturing the gist of the requirement along with "
+    "all of its specifics and details. Do not copy the ordinance wording "
+    "here; the verbatim excerpt belongs in 'ordinance_text'. "
     "If you had to make a selection when reporting the ordinance, be sure to "
     "list out all the other options and their conditions in the summary."
+)
+_ORDINANCE_TEXT_PROMPT = (
+    "The value of the 'ordinance_text' key should be the complete relevant "
+    "text excerpt containing the ordinance information, copied verbatim from "
+    "the document. The first sentence must be the one that corresponds to "
+    "the extracted value and summary, reproduced in full without elision. "
+    "After that first sentence, gather any other passages in the document "
+    "that bear on this same requirement, whether they appear before or "
+    "after it, and join them with an ellipsis ('...') in the order they "
+    "appear in the document. Use the ellipsis to skip over text that is not "
+    "relevant. Do not paraphrase, summarize, normalize, or add commentary "
+    "of your own; every character outside of the ellipses must appear "
+    "exactly as written in the document."
+)
+_EXPLANATION_PROMPT = (
+    "The value of the 'explanation' key should be a brief rationale "
+    "explaining why the cited ordinance text matches this feature, "
+    "referencing the specific evidence in 'ordinance_text' and how it "
+    "supports the extracted value and units (or, for qualitative features, "
+    "the inclusion criteria)."
 )
 _YES_NO_PROMPT = (
     "Please start your response with either 'Yes' or 'No' and briefly "
@@ -69,6 +91,8 @@ def setup_graph_no_nodes(d_tree_name="Unknown Decision Tree", **kwargs):
     return nx.DiGraph(
         SECTION_PROMPT=_SECTION_PROMPT,
         SUMMARY_PROMPT=_SUMMARY_PROMPT,
+        ORDINANCE_TEXT_PROMPT=_ORDINANCE_TEXT_PROMPT,
+        EXPLANATION_PROMPT=_EXPLANATION_PROMPT,
         YES_NO_PROMPT=_YES_NO_PROMPT,
         UNITS_IN_SUMMARY_PROMPT=_UNITS_IN_SUMMARY_PROMPT,
         _d_tree_name=d_tree_name,
@@ -490,7 +514,8 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Please respond based on our entire conversation so far. "
                 "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
-                "exactly four keys. The keys are 'value', 'units', 'summary', "
+                "exactly six keys. The keys are 'value', 'units', 'summary', "
+                "'ordinance_text', 'explanation', "
                 "and 'section'. The value of the 'value' key "
                 "should be a numerical value corresponding to the "
                 "{restriction} for {tech}, or `null` if the text "
@@ -502,7 +527,9 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "restriction. "
                 "As before, focus only on {restriction} specifically for "
                 "{system_size_reminder}"
-                "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} {SECTION_PROMPT}"
+                "{SUMMARY_PROMPT} {UNITS_IN_SUMMARY_PROMPT} "
+                "{ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} "
+                "{SECTION_PROMPT}"
             ),
         )
 
@@ -517,8 +544,10 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
                 "Please respond based on our entire conversation so far. "
                 "Return your answer as a dictionary in "
                 "JSON format (not markdown). Your JSON file must include "
-                "exactly two keys. The keys are 'summary' and 'section'. "
-                "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+                "exactly four keys. The keys are 'summary', "
+                "'ordinance_text', 'explanation', and 'section'. "
+                "{SUMMARY_PROMPT} {ORDINANCE_TEXT_PROMPT} "
+                "{EXPLANATION_PROMPT} {SECTION_PROMPT}"
             ),
         )
 
@@ -559,12 +588,14 @@ def setup_graph_extra_restriction(is_numerical=True, **kwargs):
         prompt=(
             "Please respond based on our entire conversation so far. "
             "Return your answer as a dictionary in JSON format (not "
-            "markdown). Your JSON file must include exactly three keys. "
-            "The keys are 'value', 'summary', and 'section'. The value of "
+            "markdown). Your JSON file must include exactly five keys. "
+            "The keys are 'value', 'summary', 'ordinance_text', "
+            "'explanation', and 'section'. The value of "
             "the 'value' key should be the string 'ENR' if the text "
             "clearly states that the jurisdiction does not regulate "
             "{restriction} for {tech} or `null` otherwise. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+            "{SUMMARY_PROMPT} {ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} "
+            "{SECTION_PROMPT}"
         ),
     )
 
@@ -864,10 +895,12 @@ def _add_prohibitions_extraction_nodes(G):  # ruff:ignore[invalid-argument-name]
             "Please respond based on our entire conversation so far. "
             "Return your answer as a dictionary in "
             "JSON format (not markdown). Your JSON file must include "
-            "exactly two keys. The keys are 'summary' and 'section'. "
+            "exactly four keys. The keys are 'summary', 'ordinance_text', "
+            "'explanation', and 'section'. "
             "{SUMMARY_PROMPT} If the prohibition is a moratorium, be "
             "sure to include that distinction in your summary and "
-            "provide any relevant expiration dates. {SECTION_PROMPT}"
+            "provide any relevant expiration dates. "
+            "{ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} {SECTION_PROMPT}"
         ),
     )
     return G
@@ -953,13 +986,15 @@ def setup_graph_permitted_use_districts(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer as a dictionary in "
             "JSON format (not markdown). Your JSON file must include "
-            "exactly three keys. The keys are 'value', 'summary', "
+            "exactly five keys. The keys are 'value', 'summary', "
+            "'ordinance_text', 'explanation', "
             "and 'section'. The value of the 'value' key "
             "should be a list of all district names (and abbreviations if "
             "given) where {tech} (or similar) "
             "are {use_type}, or `null` if the text does not "
             "mention this use type for {tech} (or similar). Use our "
             "conversation to fill out this value. {SUMMARY_PROMPT} "
+            "{ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} "
             "{SECTION_PROMPT}"
         ),
     )
