@@ -70,7 +70,7 @@ jobs:
 
     - uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
       with:
-        pixi-version: v0.69.0
+        pixi-version: v0.81.0
         locked: true
         cache: true
         cache-write: false
@@ -99,7 +99,7 @@ jobs:
 
     - uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
       with:
-        pixi-version: v0.69.0
+        pixi-version: v0.81.0
         locked: true
         cache: true
         cache-write: ${{ github.ref == 'refs/heads/main' }}
@@ -128,7 +128,7 @@ jobs:
 
     - uses: prefix-dev/setup-pixi@d3f436a425481402e6a95a1d1fc10331c708cd9e # v0.10.2
       with:
-        pixi-version: v0.69.0
+        pixi-version: v0.81.0
         locked: true
         cache: true
         cache-write: false
