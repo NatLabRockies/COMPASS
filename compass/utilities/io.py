@@ -7,6 +7,7 @@ https://github.com/NatLabRockies/gaps
 import logging
 import contextlib
 import collections
+from copy import deepcopy
 from pathlib import Path
 from abc import ABC, abstractmethod
 
@@ -21,6 +22,8 @@ from compass.exceptions import COMPASSValueError, COMPASSFileNotFoundError
 
 logger = logging.getLogger(__name__)
 _CONFIG_HANDLER_REGISTRY = {}
+_INHERIT_FROM_KEY = "inherit_from"
+_DELETE_SENTINEL = "DELETE"
 
 
 class _JSON5Formatter:
@@ -200,21 +203,27 @@ ConfigType = _ConfigType(
 
 
 def load_config(
-    config_filepath, resolve_paths=True, file_name="Configuration"
+    config_filepath,
+    resolve_paths=True,
+    file_name="Configuration",
+    excluded_keys=None,
 ):
-    """Load a config file
+    """Load a config file, recursively applying inherited configuration
 
     Parameters
     ----------
     config_filepath : path-like
         Path to config file.
-    resolve_paths : bool, optional
+    resolve_paths : bool, default=True
         Option to (recursively) resolve file-paths in the dictionary
         w.r.t the config file directory.
         By default, ``True``.
-    file_name : str, optional
+    file_name : str, default="Configuration"
         Name of the config file for error messages.
         By default, "Configuration".
+    excluded_keys : collection of str, optional
+        Dictionary keys whose values should not be resolved as paths.
+        By default, ``None``.
 
     Returns
     -------
@@ -224,9 +233,71 @@ def load_config(
     Raises
     ------
     COMPASSValueError
-        If input `config_filepath` has no file ending.
+        If the file extension is missing or unsupported, or inheritance
+        is invalid or circular.
+    COMPASSFileNotFoundError
+        If a config file does not exist.
+
+    Notes
+    -----
+    A config may use ``inherit_from`` to name another config file.
+    Parent configs are loaded recursively and dictionaries are
+    deep-merged, with child values taking precedence. Lists are
+    replaced, not combined. An exact child value of ``"DELETE"`` removes
+    that key from the merged result. Parent references are relative to
+    the file where they are defined. When path resolution is enabled,
+    other relative paths are also resolved from their defining file.
     """
+    return _load_config(
+        config_filepath,
+        resolve_paths=resolve_paths,
+        file_name=file_name,
+        excluded_keys=excluded_keys,
+        inheritance_chain=(),
+    )
+
+
+def _load_config(
+    config_filepath, resolve_paths, file_name, excluded_keys, inheritance_chain
+):
+    """Recursively load and merge a config inheritance chain"""
     config_filepath = Path(config_filepath).expanduser().resolve()
+    _ensure_no_circular_inheritance(config_filepath, inheritance_chain)
+
+    config = _read_config_file(config_filepath, file_name)
+    if resolve_paths:
+        config = resolve_all_paths(
+            config, config_filepath.parent, excluded_keys=excluded_keys
+        )
+
+    has_inheritance = (
+        isinstance(config, collections.abc.Mapping)
+        and _INHERIT_FROM_KEY in config
+    )
+    if not has_inheritance:
+        return config
+
+    inherit_from = config.pop(_INHERIT_FROM_KEY)
+    _validate_inheritance_input(inherit_from, file_name, config_filepath)
+
+    parent_filepath = Path(inherit_from.replace("\\", "/")).expanduser()
+    if not parent_filepath.is_absolute():
+        parent_filepath = config_filepath.parent / parent_filepath
+
+    parent_config = _load_config(
+        parent_filepath,
+        resolve_paths=resolve_paths,
+        file_name=file_name,
+        excluded_keys=excluded_keys,
+        inheritance_chain=(*inheritance_chain, config_filepath),
+    )
+    _validate_inherited_config(parent_config, file_name, parent_filepath)
+
+    return _merge_configs(parent_config, config)
+
+
+def _read_config_file(config_filepath, file_name):
+    """Validate a config file path and load its contents"""
     if "." not in config_filepath.name:
         msg = (
             f"{file_name} file must have a file-ending. Got: "
@@ -248,13 +319,55 @@ def load_config(
         )
         raise COMPASSValueError(msg) from err
 
-    config = config_type.load(config_filepath)
-    if resolve_paths:
-        return resolve_all_paths(config, config_filepath.parent)
-
-    return config
+    return config_type.load(config_filepath)
 
 
+def _ensure_no_circular_inheritance(config_filepath, inheritance_chain):
+    """Ensure there is no circular inheritance in the config files"""
+    if config_filepath in inheritance_chain:
+        cycle = (*inheritance_chain, config_filepath)
+        chain = " -> ".join(path.as_posix() for path in cycle)
+        msg = f"Circular config inheritance detected: {chain}"
+        raise COMPASSValueError(msg)
+
+
+def _validate_inheritance_input(inherit_from, file_name, config_filepath):
+    """Ensure the inheritance input is valid"""
+    if not isinstance(inherit_from, str) or not inherit_from.strip():
+        msg = (
+            f"{file_name} inheritance key {_INHERIT_FROM_KEY!r} in "
+            f"{config_filepath.as_posix()!r} must be a non-empty string"
+        )
+        raise COMPASSValueError(msg)
+
+
+def _validate_inherited_config(parent_config, file_name, parent_filepath):
+    """Ensure the inherited config is a mapping"""
+    if not isinstance(parent_config, collections.abc.Mapping):
+        msg = (
+            f"{file_name} inherited config must be a mapping: "
+            f"{parent_filepath}"
+        )
+        raise COMPASSValueError(msg)
+
+
+def _merge_configs(parent, child):
+    """Deep merge a child config over a parent config"""
+    merged = deepcopy(parent)
+    for key, value in child.items():
+        if value == _DELETE_SENTINEL:
+            merged.pop(key, None)
+        elif isinstance(value, collections.abc.Mapping):
+            parent_value = merged.get(key, {})
+            if not isinstance(parent_value, collections.abc.Mapping):
+                parent_value = {}
+            merged[key] = _merge_configs(parent_value, value)
+        else:
+            merged[key] = deepcopy(value)
+    return merged
+
+
+# complexipy: ignore
 def resolve_all_paths(container, base_dir, excluded_keys=None):
     """Perform a deep string replacement and path resolve in `container`
 
