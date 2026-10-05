@@ -34218,6 +34218,7 @@ packages:
   name: infra-compass
   requires_dist:
   - beautifulsoup4>=4.12.3,<5
+  - browserforge>=1.2.1,<2
   - click>=8.1.7,<9
   - crawl4ai>=0.8.6,<0.9
   - docling>=2.90.0,<3
