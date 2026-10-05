@@ -25,6 +25,9 @@ on:
 jobs:
   run:
     name: Codecov
+    environment:
+      name: codecov
+      url: https://app.codecov.io/gh/NatLabRockies/COMPASS
     runs-on: ubuntu-latest
     permissions:
       contents: read
