@@ -265,20 +265,21 @@ def _load_config(
     _ensure_no_circular_inheritance(config_filepath, inheritance_chain)
 
     config = _read_config_file(config_filepath, file_name)
+    has_inheritance = (
+        isinstance(config, collections.abc.Mapping)
+        and _INHERIT_FROM_KEY in config
+    )
+    if has_inheritance:
+        inherit_from = config.pop(_INHERIT_FROM_KEY)
+        _validate_inheritance_input(inherit_from, file_name, config_filepath)
+
     if resolve_paths:
         config = resolve_all_paths(
             config, config_filepath.parent, excluded_keys=excluded_keys
         )
 
-    has_inheritance = (
-        isinstance(config, collections.abc.Mapping)
-        and _INHERIT_FROM_KEY in config
-    )
     if not has_inheritance:
         return config
-
-    inherit_from = config.pop(_INHERIT_FROM_KEY)
-    _validate_inheritance_input(inherit_from, file_name, config_filepath)
 
     parent_filepath = Path(inherit_from.replace("\\", "/")).expanduser()
     if not parent_filepath.is_absolute():
