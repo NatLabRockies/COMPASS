@@ -221,7 +221,7 @@ def load_config(
     file_name : str, default="Configuration"
         Name of the config file for error messages.
         By default, "Configuration".
-    excluded_keys : collection of str, optional
+    excluded_keys : iterable of str, optional
         Dictionary keys whose values should not be resolved as paths.
         By default, ``None``.
 
@@ -380,7 +380,7 @@ def resolve_all_paths(container, base_dir, excluded_keys=None):
     base_dir : path-like
         Base path to directory from which to resolve path string
         (typically current directory)
-    excluded_keys : collection of str, optional
+    excluded_keys : iterable of str, optional
         Dictionary keys whose values should not be resolved as paths.
         By default, ``None``.
 
