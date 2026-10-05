@@ -400,6 +400,38 @@ def test_load_config_inheritance(tmp_path, config_type, resolve_paths):
     }
 
 
+@pytest.mark.parametrize("resolve_paths", [True, False])
+@pytest.mark.parametrize(
+    "inherit_from", ["parents/../parent.yaml", r"parents\..\parent.yaml"]
+)
+def test_load_config_inheritance_internal_parent_reference(
+    tmp_path, monkeypatch, resolve_paths, inherit_from
+):
+    """Test parent references resolve from the declaring config directory"""
+    config_dir = tmp_path / "configs"
+    working_dir = tmp_path / "working"
+    for directory in (config_dir, working_dir):
+        (directory / "parents").mkdir(parents=True)
+
+    ConfigType.YAML.write(config_dir / "parent.yaml", {"source": "config"})
+    ConfigType.YAML.write(working_dir / "parent.yaml", {"source": "cwd"})
+    child = config_dir / "child.yaml"
+    ConfigType.YAML.write(
+        child,
+        {"inherit_from": inherit_from, "child_path": "./child.csv"},
+    )
+    monkeypatch.chdir(working_dir)
+
+    assert load_config(child, resolve_paths=resolve_paths) == {
+        "source": "config",
+        "child_path": (
+            (config_dir / "child.csv").as_posix()
+            if resolve_paths
+            else "./child.csv"
+        ),
+    }
+
+
 @pytest.mark.parametrize("inherit_from", [None, "", "  ", 1, [], {}])
 def test_load_config_invalid_inheritance(tmp_path, inherit_from):
     """Test invalid inheritance references raise COMPASS errors"""
