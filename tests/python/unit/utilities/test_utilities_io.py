@@ -8,7 +8,7 @@ import pytest
 
 from compass.utilities.io import load_config, ConfigType, resolve_all_paths
 from compass.services.cpu import FileLoader
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSValueError, COMPASSFileNotFoundError
 
 
 PYT_CMD = os.getenv("TESSERACT_CMD")
@@ -344,6 +344,148 @@ def test_load_config_invalid_extension(tmp_path):
         ),
     ):
         load_config(config_file)
+
+
+@pytest.mark.parametrize("config_type", list(ConfigType))
+@pytest.mark.parametrize("resolve_paths", [True, False])
+def test_load_config_inheritance(tmp_path, config_type, resolve_paths):
+    """Test inheritance, deep merging, deletion, and per-file paths"""
+    parent_dir = tmp_path / "parents"
+    parent_dir.mkdir()
+    grandparent = parent_dir / "grandparent.json"
+    parent = parent_dir / "parent.yaml"
+    child = tmp_path / f"child.{config_type}"
+    ConfigType.JSON.write(
+        grandparent,
+        {
+            "settings": {"keep": 1, "replace": 2, "remove": 3},
+            "items": [1, 2],
+            "parent_path": "./parent.csv",
+            "literal": "./unchanged",
+            "nested": [{"literal": "../unchanged"}],
+            "scalar": 1,
+        },
+    )
+    ConfigType.YAML.write(parent, {"inherit_from": "grandparent.json"})
+    config_type.write(
+        child,
+        {
+            "inherit_from": "parents/parent.yaml",
+            "settings": {"replace": 4, "remove": "DELETE", "add": 5},
+            "items": [3],
+            "child_path": "./child.csv",
+            "missing": "DELETE",
+            "scalar": {"new": 6, "missing": "DELETE"},
+        },
+    )
+
+    assert load_config(
+        child, resolve_paths=resolve_paths, excluded_keys={"literal"}
+    ) == {
+        "settings": {"keep": 1, "replace": 4, "add": 5},
+        "items": [3],
+        "parent_path": (
+            (parent_dir / "parent.csv").as_posix()
+            if resolve_paths
+            else "./parent.csv"
+        ),
+        "child_path": (
+            (tmp_path / "child.csv").as_posix()
+            if resolve_paths
+            else "./child.csv"
+        ),
+        "literal": "./unchanged",
+        "nested": [{"literal": "../unchanged"}],
+        "scalar": {"new": 6},
+    }
+
+
+@pytest.mark.parametrize("inherit_from", [None, "", "  ", 1, [], {}])
+def test_load_config_invalid_inheritance(tmp_path, inherit_from):
+    """Test invalid inheritance references raise COMPASS errors"""
+    config_file = tmp_path / "child.json"
+    ConfigType.JSON.write(config_file, {"inherit_from": inherit_from})
+    with pytest.raises(COMPASSValueError, match="non-empty string"):
+        load_config(config_file)
+
+
+def test_load_config_circular_inheritance(tmp_path):
+    """Test indirect and direct config inheritance cycles"""
+    parent = tmp_path / "parent.json"
+    child = tmp_path / "child.json"
+    ConfigType.JSON.write(parent, {"inherit_from": "child.json"})
+    ConfigType.JSON.write(child, {"inherit_from": "parent.json"})
+    with pytest.raises(COMPASSValueError, match="Circular config inheritance"):
+        load_config(child)
+
+    ConfigType.JSON.write(child, {"inherit_from": "child.json"})
+    with pytest.raises(COMPASSValueError, match="Circular config inheritance"):
+        load_config(child)
+
+
+def test_load_config_missing_parent(tmp_path):
+    """Test inherited file errors retain the custom file label"""
+    child = tmp_path / "child.json"
+    ConfigType.JSON.write(child, {"inherit_from": "missing.json"})
+    with pytest.raises(
+        COMPASSFileNotFoundError, match="Plugin file does not exist"
+    ):
+        load_config(child, True, "Plugin")
+
+
+def test_load_config_windows_style_inheritance(tmp_path):
+    """Test Windows-style parent references on any host"""
+    parent_dir = tmp_path / "parents"
+    parent_dir.mkdir()
+    ConfigType.JSON.write(parent_dir / "parent.json", {"keep": 1})
+    child = tmp_path / "child.json"
+    ConfigType.JSON.write(
+        child, {"inherit_from": r".\parents\parent.json", "add": 2}
+    )
+    assert load_config(child, resolve_paths=False) == {"keep": 1, "add": 2}
+
+
+@pytest.mark.parametrize("parent_data", [None, [], "text", 1])
+def test_load_config_non_mapping_parent(tmp_path, parent_data):
+    """Test inheritance requires a mapping without changing plain loads"""
+    parent = tmp_path / "parent.json"
+    child = tmp_path / "child.json"
+    ConfigType.JSON.write(parent, parent_data)
+    ConfigType.JSON.write(child, {"inherit_from": "parent.json"})
+    assert load_config(parent) == parent_data
+    with pytest.raises(COMPASSValueError, match="must be a mapping"):
+        load_config(child)
+
+
+def test_load_config_standalone_excluded_keys(tmp_path):
+    """Test exclusions and literal DELETE values without inheritance"""
+    config_file = tmp_path / "standalone.json"
+    ConfigType.JSON.write(
+        config_file,
+        {"literal": "./unchanged", "value": "DELETE", "path": "./resolved"},
+    )
+    assert load_config(config_file, excluded_keys={"literal"}) == {
+        "literal": "./unchanged",
+        "value": "DELETE",
+        "path": (tmp_path / "resolved").as_posix(),
+    }
+
+
+def test_resolve_all_paths_excluded_keys(tmp_path):
+    """Test excluded values are preserved throughout nested containers"""
+    container = {
+        "literal": {"path": "./untouched"},
+        "nested": [{"literal": "../untouched", "path": "./resolved"}],
+    }
+    assert resolve_all_paths(container, tmp_path, {"literal"}) == {
+        "literal": {"path": "./untouched"},
+        "nested": [
+            {
+                "literal": "../untouched",
+                "path": (tmp_path / "resolved").as_posix(),
+            }
+        ],
+    }
 
 
 if __name__ == "__main__":
