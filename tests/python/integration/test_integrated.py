@@ -1,9 +1,11 @@
 """Ordinance integration tests"""
 
+import os
 import time
 import logging
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 from contextlib import asynccontextmanager
 
 import aiohttp
@@ -14,7 +16,6 @@ import elm.web.html_pw
 from elm.web.search.dux import DuxDistributedGlobalSearch
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.document import HTMLDocument
-from flaky import flaky
 
 from compass.services.usage import TimeBoundedUsageTracker, LLMUsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
@@ -174,16 +175,37 @@ async def test_openai_query(
         }
 
 
-@flaky(max_runs=3, min_passes=1)
 @pytest.mark.asyncio
-async def test_google_search_with_logging(tmp_path):
-    """Test searching google for some locations with logging"""
+async def test_search_with_logging(tmp_path, monkeypatch):
+    """Test search result handling with concurrent location logging"""
 
     assert not list(tmp_path.glob("*"))
 
     logger = logging.getLogger("search_test")
     test_locations = ["El Paso County, Colorado", "Decatur County, Indiana"]
     num_requested_links = 5
+    search_queries = []
+
+    def fake_text(query, **kwargs):
+        search_queries.append(query)
+        assert kwargs["backend"] == "all"
+        assert kwargs["max_results"] == num_requested_links
+        location_slug = "paso" if "El Paso" in query else "decatur"
+        return [
+            {
+                "title": f"Wind ordinance {result_index}",
+                "href": (
+                    f"https://example.test/{location_slug}/{result_index}"
+                ),
+                "body": "Wind energy zoning ordinance",
+            }
+            for result_index in range(num_requested_links)
+        ]
+
+    monkeypatch.setattr(
+        "elm.web.search.dux.DDGS",
+        lambda **_kwargs: SimpleNamespace(text=fake_text),
+    )
 
     async def search_single(location):
         logger.info("This location is %r", location)
@@ -196,7 +218,7 @@ async def test_google_search_with_logging(tmp_path):
     async def search_location_with_logs(
         listener, log_dir, location, level="INFO"
     ):
-        with LocationFileLog(
+        async with LocationFileLog(
             listener, log_dir, location=location, level=level
         ):
             logger.info("A generic test log")
@@ -214,6 +236,10 @@ async def test_google_search_with_logging(tmp_path):
         ]
         output = await asyncio.gather(*searchers)
 
+    assert sorted(search_queries) == sorted(
+        f"Wind energy zoning ordinance {location}"
+        for location in test_locations
+    )
     expected_words = ["paso", "decatur"]
     assert len(output) == 2
     for query_results, expected_word in zip(
@@ -233,6 +259,25 @@ async def test_google_search_with_logging(tmp_path):
         assert any(
             f"This location is {loc!r}" in text for loc in test_locations
         )
+
+
+@pytest.mark.skipif(
+    os.getenv("COMPASS_RUN_LIVE_SEARCH_TESTS") != "true",
+    reason="Set COMPASS_RUN_LIVE_SEARCH_TESTS=true to enable live search",
+)
+@pytest.mark.asyncio
+async def test_google_search_live():
+    """Smoke test the external Google search backend"""
+    num_requested_links = 5
+    search_engine = DuxDistributedGlobalSearch(backend="google")
+    results = await search_engine.results(
+        "Wind energy zoning ordinance El Paso County, Colorado",
+        num_results=num_requested_links,
+    )
+
+    assert len(results) == 1
+    assert 0 < len(results[0]) <= num_requested_links
+    assert all(link.startswith(("http://", "https://")) for link in results[0])
 
 
 @pytest.mark.asyncio
