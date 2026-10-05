@@ -255,7 +255,7 @@ def load_config(
     return config
 
 
-def resolve_all_paths(container, base_dir):
+def resolve_all_paths(container, base_dir, excluded_keys=None):
     """Perform a deep string replacement and path resolve in `container`
 
     Parameters
@@ -266,12 +266,17 @@ def resolve_all_paths(container, base_dir):
     base_dir : path-like
         Base path to directory from which to resolve path string
         (typically current directory)
+    excluded_keys : collection of str, optional
+        Dictionary keys whose values should not be resolved as paths.
+        By default, ``None``.
 
     Returns
     -------
     dict or list
         Input container with updated strings.
     """
+
+    excluded_keys = set(excluded_keys or ())
 
     if isinstance(container, str):
         # `resolve_path` is safe to call on any string,
@@ -280,13 +285,22 @@ def resolve_all_paths(container, base_dir):
 
     elif isinstance(container, collections.abc.Mapping):
         container = {
-            key: resolve_all_paths(val, Path(base_dir))
+            key: (
+                val
+                if key in excluded_keys
+                else resolve_all_paths(
+                    val, Path(base_dir), excluded_keys=excluded_keys
+                )
+            )
             for key, val in container.items()
         }
 
     elif isinstance(container, collections.abc.Sequence):
         container = [
-            resolve_all_paths(item, Path(base_dir)) for item in container
+            resolve_all_paths(
+                item, Path(base_dir), excluded_keys=excluded_keys
+            )
+            for item in container
         ]
 
     return container
