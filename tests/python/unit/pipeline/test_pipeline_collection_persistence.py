@@ -304,8 +304,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         collected_docs,
         {"crawl"},
         relative_to=tmp_path,
-        search_candidates=[],
-        num_search_results_crawled=3,
+        num_search_results_to_crawl=3,
     )
 
     assert collection_info["documents"] == [
@@ -322,8 +321,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         }
     ]
     assert missing_parsed_doc.attrs["parsed_fp"] is None
-    assert collection_info["search_candidates"] == []
-    assert collection_info["num_search_results_crawled"] == 3
+    assert collection_info["num_search_results_to_crawl"] == 3
 
 
 @pytest.mark.asyncio
