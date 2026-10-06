@@ -88,6 +88,7 @@ class SingleJurisdictionRun:
         self.num_search_results_crawled = None
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
+        self.search_crawl_candidates = []
         self.collection = DocumentCollection(self)
         self.extraction = DocumentExtraction(self)
 
@@ -336,6 +337,8 @@ class SingleJurisdictionRun:
             completed_steps=completed_steps,
             relative_to=self._relative_to,
             jurisdiction_website=self.jurisdiction_website,
+            search_crawl_candidates=self.search_crawl_candidates,
+            num_search_results_crawled=self.num_search_results_crawled,
         )
 
         try:
