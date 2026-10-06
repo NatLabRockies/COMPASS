@@ -127,6 +127,50 @@ class _Link(c4AILink):
         return "pdf" in self.title.casefold() or "pdf" in self.href.casefold()
 
 
+class _PageVisit:
+    """Track traversal metadata and document identity for a visited URL
+
+    Navigation pages may be revisited at a shallower depth when crawling
+    with a depth limit. Documents have no descendants to explore, so
+    they never need a second visit. Document identity is retained even
+    when validation rejects the document, preventing repeated work.
+
+    The source identifies the fetched document, which may differ from
+    the visited URL, and is stored case-folded for matching. Source
+    aliases do not create additional visits.
+    """
+
+    def __init__(self, depth, score):
+        """
+
+        Parameters
+        ----------
+        depth : int
+            Link depth of this visit, with the landing page at zero.
+        score : float
+            Relevance score assigned to the link for this visit.
+        """
+        self.depth = depth
+        self.score = score
+        self.is_document = False
+        self.source = None
+
+    def can_revisit(self, depth):
+        """Check whether a navigation-page visit is shallower
+
+        Parameters
+        ----------
+        depth : int
+            Link depth of the proposed visit.
+
+        Returns
+        -------
+        bool
+            Whether this is a shallower visit to a navigation page.
+        """
+        return not self.is_document and depth < self.depth
+
+
 class COMPASSCrawler:
     """A simple website crawler to search for ordinance documents"""
 
