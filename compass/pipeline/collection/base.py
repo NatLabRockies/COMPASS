@@ -12,6 +12,7 @@ from compass.pipeline.collection.steps import (
     KnownLocalDocumentsStep,
     KnownUrlDocumentsStep,
     SearchEngineDocumentsStep,
+    SearchResultsCrawlStep,
 )
 
 logger = logging.getLogger(__name__)
@@ -82,6 +83,14 @@ class DocumentCollection:
                 self.workflow.jurisdiction.full_name,
             )
 
+        if self.workflow.perform_search_based_crawl:
+            steps.append(SearchResultsCrawlStep())
+        else:
+            logger.debug(
+                "%r processing doesn't have SE-based crawl enabled",
+                self.workflow.jurisdiction.full_name,
+            )
+
         if self.workflow.perform_website_search:
             steps.extend([CompassWebsiteCrawlStep(), ElmWebsiteCrawlStep()])
         else:
@@ -100,7 +109,9 @@ class DocumentCollection:
             1. Process any/all known local documents
             2. Process any/all known document URLs
             3. Search engine-based search for ordinance documents
-            4. Jurisdiction website crawl-based search for ordinance
+            4. Crawl HTML pages among the ranked search results, when
+               configured
+            5. Jurisdiction website crawl-based search for ordinance
                documents
 
         Users can disable any of these steps via the workflow
@@ -150,6 +161,9 @@ class DocumentCollection:
         self._collection_info = (
             await self.workflow.load_existing_collection_shard()
         ) or {}
+        self.workflow.num_search_results_to_crawl = self._collection_info.get(
+            "num_search_results_to_crawl"
+        )
 
         docs = [
             _PersistedDocument(doc_info)
