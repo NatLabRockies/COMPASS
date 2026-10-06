@@ -140,7 +140,7 @@ class _PageVisit:
     aliases do not create additional visits.
     """
 
-    def __init__(self, depth, score):
+    def __init__(self, depth, score, is_document=False, source=None):
         """
 
         Parameters
@@ -149,11 +149,17 @@ class _PageVisit:
             Link depth of this visit, with the landing page at zero.
         score : float
             Relevance score assigned to the link for this visit.
+        is_document : bool, optional
+            Whether this visit corresponds to a document rather than a
+            navigation page. By default, ``False``.
+        source : str, optional
+            The source URL of the document, which may differ from the
+            visited URL. By default, ``None``.
         """
         self.depth = depth
         self.score = score
-        self.is_document = False
-        self.source = None
+        self.is_document = is_document
+        self.source = source
 
     def can_revisit(self, depth):
         """Check whether a navigation-page visit is shallower
