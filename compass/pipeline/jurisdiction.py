@@ -88,7 +88,6 @@ class SingleJurisdictionRun:
         self.num_search_results_crawled = None
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
-        self.search_crawl_candidates = []
         self.collection = DocumentCollection(self)
         self.extraction = DocumentExtraction(self)
 
