@@ -18,10 +18,8 @@ _SECTION_PROMPT = (
     "and `null` otherwise."
 )
 _SUMMARY_PROMPT = (
-    "The value of the 'summary' key should be a short summary of the "
-    "relevant ordinance, capturing the gist of the requirement along with "
-    "all of its specifics and details. Do not copy the ordinance wording "
-    "here; the verbatim excerpt belongs in 'ordinance_text'. "
+    "The value of the 'summary' key should be a short summary of the relevant "
+    "ordinance, **using direct text excerpts as much as possible.** "
     "If you had to make a selection when reporting the ordinance, be sure to "
     "list out all the other options and their conditions in the summary."
 )
