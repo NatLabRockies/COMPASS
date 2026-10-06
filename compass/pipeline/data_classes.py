@@ -1,5 +1,6 @@
 """Data classes used for the COMPASS pipeline"""
 
+from warnings import warn
 from copy import deepcopy
 import importlib.resources
 from functools import cached_property
@@ -11,6 +12,7 @@ from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
+from compass.warn import COMPASSWarning
 
 
 _DOMAINS = load_config(
@@ -197,9 +199,9 @@ class WebSearchParams:
         Parameters
         ----------
         num_urls_to_check_per_jurisdiction : int, optional
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
-            By default, ``5``.
+            Can never be less than 1. By default, ``5``.
         max_num_concurrent_browsers : int, optional
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -284,8 +286,8 @@ class WebSearchParams:
             Maximum link depth from each HTML search result. The seed
             is depth zero. By default, ``3``.
         """
-        self.num_urls_to_check_per_jurisdiction = (
-            num_urls_to_check_per_jurisdiction
+        self.num_urls_to_check_per_jurisdiction = max(
+            1, int(num_urls_to_check_per_jurisdiction)
         )
         self.max_num_concurrent_browsers = max_num_concurrent_browsers
         self.max_num_concurrent_website_searches = (
@@ -309,6 +311,7 @@ class WebSearchParams:
         self.search_results_crawl_depth = max(
             0, int(search_results_crawl_depth)
         )
+        self._validate_num_search_results_to_crawl()
 
     @cached_property
     def se_kwargs(self):
@@ -326,6 +329,24 @@ class WebSearchParams:
 
         extra_kwargs["search_engines"] = search_engines
         return extra_kwargs
+
+    def _validate_num_search_results_to_crawl(self):
+        """Validate that num searches to crawl <= num URLs per jur"""
+        if (
+            self.num_search_results_to_crawl
+            > self.num_urls_to_check_per_jurisdiction
+        ):
+            msg = (
+                f"Number of ranked search results to crawl "
+                f"({self.num_search_results_to_crawl}) exceeds the "
+                f"number of unique search result URLs to check for each "
+                f"jurisdiction ({self.num_urls_to_check_per_jurisdiction}); "
+                f"using {self.num_urls_to_check_per_jurisdiction}"
+            )
+            warn(msg, COMPASSWarning)
+            self.num_search_results_to_crawl = (
+                self.num_urls_to_check_per_jurisdiction
+            )
 
 
 class DocParsingParams:
@@ -485,7 +506,7 @@ class BaseRequest:
             cost tracking may be unavailable in the progress bar.
             By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
         num_search_results_to_crawl : int, default=0
@@ -576,8 +597,8 @@ class BaseRequest:
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries describing the search engine classes
             and keyword arguments to use for search engine retrieval. If
@@ -866,7 +887,7 @@ class CollectionRequest(BaseRequest):
 
             By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
         num_search_results_to_crawl : int, default=0
@@ -953,8 +974,8 @@ class CollectionRequest(BaseRequest):
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries describing the search engine classes
             and keyword arguments to use for search engine retrieval. If
@@ -1219,8 +1240,8 @@ class ExtractionRequest(BaseRequest):
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         td_kwargs : dict, optional
             Additional keyword arguments to pass to
             :class:`tempfile.TemporaryDirectory`. The temporary
