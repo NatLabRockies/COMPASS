@@ -587,12 +587,11 @@ class COMPASSCrawler:
     def _record_document(self, link, depth, score, source):
         """Record a document and return whether its source is new"""
         is_new = not self._document_source_seen(source)
-        self._already_visited.setdefault(
-            link,
-            _PageVisit(
-                depth, score, is_document=True, source=str(source).casefold()
-            ),
+        visit = self._already_visited.setdefault(
+            link, _PageVisit(depth, score)
         )
+        visit.is_document = True
+        visit.source = str(source).casefold()
         return is_new
 
     async def _get_links_from_page(self, link):
