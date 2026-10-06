@@ -200,6 +200,7 @@ def test_search_crawl_settings(tmp_path):
         out_dir=tmp_path,
         tech="solar",
         jurisdiction_fp="jurisdictions.csv",
+        num_urls_to_check_per_jurisdiction=10,
         num_search_results_to_crawl=7,
         search_results_crawl_depth=0,
     )
