@@ -414,6 +414,8 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     timeout_seconds=3600,
     url_ignore_substrings=None,
     url_keep_substrings=None,
+    browser_semaphore=None,
+    max_depth=None,
 ):
     """Download ord documents from a website using the COMPASS crawler
 
@@ -458,9 +460,13 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         URL parts that exclude matching crawl candidates. These are the
         same values used to filter search results. By default, ``None``.
     url_keep_substrings : iterable of str, optional
-        URL parts that override all crawl blacklist matches. These are
-        the same values used to filter search results. By default,
-        ``None``.
+        URL parts that override crawl blacklist matches and are used for
+        search result filtering. By default, ``None``.
+    browser_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance limiting open browsers. By default, ``None``.
+    max_depth : int, optional
+        Maximum link depth to check, including the starting page. By
+        default, ``None`` (unlimited).
 
     Returns
     -------
@@ -502,6 +508,8 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         max_pages=max_urls,
         url_ignore_substrings=url_ignore_substrings,
         url_keep_substrings=url_keep_substrings,
+        browser_semaphore=browser_semaphore,
+        max_depth=max_depth,
     )
 
     if pb_jurisdiction_name:
