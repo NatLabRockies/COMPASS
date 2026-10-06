@@ -397,7 +397,7 @@ class COMPASSCrawler:
         if self.max_depth is not None and depth >= self.max_depth:
             return
 
-        page_links = await self._get_links_from_page(link, base_url)
+        page_links = await self._get_links_from_page(link)
         for next_link in self._top_scored_links(page_links, link):
             prev_len = len(self._out_docs)
             next_href = await get_redirected_url(
@@ -595,7 +595,7 @@ class COMPASSCrawler:
         )
         return is_new
 
-    async def _get_links_from_page(self, link, base_url):
+    async def _get_links_from_page(self, link):
         """Get all links from a page sorted by relevance score"""
         if not link.consistent_domain:
             logger.debug("Detected new domain, stopping link discovery")
@@ -605,7 +605,7 @@ class COMPASSCrawler:
         page_links = []
         if html_text:
             page_links = _extract_links_from_html(
-                html_text, base_url=base_url, url_filter=self.url_filter
+                html_text, base_url=link.href, url_filter=self.url_filter
             )
             page_links = await self.url_scorer(
                 [dict(link) for link in page_links]
