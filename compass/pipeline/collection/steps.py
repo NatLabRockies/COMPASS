@@ -2,7 +2,9 @@
 
 import logging
 from abc import ABC, abstractmethod
+from operator import itemgetter
 
+from elm.web.document import HTMLDocument
 from elm.web.utilities import get_redirected_url
 
 from compass.scripts.download import (
@@ -14,6 +16,7 @@ from compass.scripts.download import (
     load_known_docs,
 )
 from compass.utilities.enums import COMPASSDocumentCollectionStep
+from compass.utilities.parsing import is_pdf_doc
 from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
 
@@ -211,6 +214,45 @@ class SearchEngineDocumentsStep(CollectionStep):
             )
             return []
 
+        for doc in docs:
+            doc.attrs["compass_crawl"] = False
+            doc.attrs["check_correct_jurisdiction"] = True
+        return docs
+
+
+class SearchResultsCrawlStep(CollectionStep):
+    """Crawl HTML pages discovered by the search-engine step"""
+
+    STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_RESULTS_CRAWL
+    """Identifier for step"""
+
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
+        """Crawl the configured prefix of HTML search candidates"""
+        if not workflow.perform_search_based_crawl:
+            return []
+
+        candidates = _get_search_crawl_candidates(workflow)
+        if not candidates:
+            return []
+
+        heuristic = await workflow.extractor.get_heuristic()
+        keyword_points = await workflow.extractor.get_website_keywords()
+        docs_by_source = {}
+        for candidate in candidates:
+            try:
+                docs = await _crawl_search_candidate(
+                    workflow, candidate, heuristic, keyword_points
+                )
+            except Exception:
+                logger.exception(
+                    "Error crawling search result seed %s",
+                    candidate.get("url"),
+                )
+                continue
+
+            _merge_search_crawl_docs(docs_by_source, docs, candidate)
+
+        docs = list(docs_by_source.values())
         for doc in docs:
             doc.attrs["compass_crawl"] = False
             doc.attrs["check_correct_jurisdiction"] = True
