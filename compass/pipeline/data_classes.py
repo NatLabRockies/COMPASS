@@ -177,6 +177,7 @@ class WebSearchParams:
     enabling straightforward reuse when issuing queries.
     """
 
+    # ruff:ignore[too-many-arguments, too-many-positional-arguments]
     def __init__(
         self,
         num_urls_to_check_per_jurisdiction=5,
