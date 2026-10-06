@@ -130,6 +130,7 @@ class _Link(c4AILink):
 class COMPASSCrawler:
     """A simple website crawler to search for ordinance documents"""
 
+    # ruff:ignore[too-many-arguments,too-many-positional-arguments]
     def __init__(
         self,
         validator,
@@ -142,6 +143,7 @@ class COMPASSCrawler:
         max_same_score_links_per_page=20,
         url_ignore_substrings=None,
         url_keep_substrings=None,
+        max_depth=None,
     ):
         """
 
@@ -196,6 +198,9 @@ class COMPASSCrawler:
         url_keep_substrings : iterable of str, optional
             URL parts that override all crawl blacklist matches. By
             default, ``None``.
+        max_depth : int, optional
+            Maximum link depth to check, including the starting page at
+            depth zero. By default, ``None`` (unlimited).
         """
         self.validator = validator
         self.url_scorer = url_scorer
@@ -203,6 +208,7 @@ class COMPASSCrawler:
         self.checked_previously = already_visited or set()
         self.max_pages = max_pages
         self.max_same_score_links_per_page = max_same_score_links_per_page
+        self.max_depth = max_depth
         self.url_filter = URLPartFilter(
             [*_BLACKLIST_SUBSTRINGS, *(url_ignore_substrings or [])],
             url_keep_substrings,
@@ -328,6 +334,9 @@ class COMPASSCrawler:
         logger.trace("self._already_visited=%r", self._already_visited)
 
         if await self._website_link_is_doc(link, depth, score):
+            return
+
+        if self.max_depth is not None and depth >= self.max_depth:
             return
 
         page_links = await self._get_links_from_page(link, base_url)
