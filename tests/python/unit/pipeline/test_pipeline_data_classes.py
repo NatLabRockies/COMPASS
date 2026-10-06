@@ -12,6 +12,7 @@ from compass.pipeline import (
 )
 from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.io import ConfigType, load_config
+from compass.warn import COMPASSWarning
 
 
 @pytest.mark.parametrize("config_type", list(ConfigType))
@@ -206,6 +207,24 @@ def test_search_crawl_settings(tmp_path):
     )
     assert request.search_settings.num_search_results_to_crawl == 7
     assert request.search_settings.search_results_crawl_depth == 0
+
+
+def test_search_crawl_budget_warns_and_caps_at_url_limit():
+    """Excess crawl budgets warn and use the direct URL limit"""
+    with pytest.warns(COMPASSWarning) as warning_records:
+        settings = WebSearchParams(
+            num_urls_to_check_per_jurisdiction=5,
+            num_search_results_to_crawl=7,
+        )
+
+    assert len(warning_records) == 1
+    assert str(warning_records[0].message) == (
+        "Number of ranked search results to crawl (7) exceeds the "
+        "number of unique search result URLs to check for each "
+        "jurisdiction (5); using 5"
+    )
+    assert settings.num_search_results_to_crawl == 5
+    assert settings.num_urls_to_check_per_jurisdiction == 5
 
 
 if __name__ == "__main__":
