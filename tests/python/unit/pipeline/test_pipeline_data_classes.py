@@ -4,8 +4,92 @@ from pathlib import Path
 
 import pytest
 
-from compass.pipeline import ProcessRequest
+from compass.pipeline import (
+    BaseRequest,
+    CollectionRequest,
+    ExtractionRequest,
+    ProcessRequest,
+)
 from compass.pipeline.data_classes import WebSearchParams
+from compass.utilities.io import ConfigType, load_config
+
+
+@pytest.mark.parametrize("config_type", list(ConfigType))
+@pytest.mark.parametrize(
+    "request_class, source_dir_key, extra_config",
+    [
+        (BaseRequest, "ordinance_file_dir", {}),
+        (ProcessRequest, "ordinance_file_dir", {}),
+        (CollectionRequest, "source_file_dir", {}),
+        (
+            ExtractionRequest,
+            "ordinance_file_dir",
+            {"collection_manifest_fp": "./manifest.json"},
+        ),
+    ],
+)
+def test_request_from_inherited_config(
+    tmp_path, config_type, request_class, source_dir_key, extra_config
+):
+    """Create requests from inherited configs with child overrides"""
+    parent_dir = tmp_path / "parents"
+    parent_dir.mkdir()
+    parent = parent_dir / "parent.json"
+    child = tmp_path / f"child.{config_type}"
+    ConfigType.JSON.write(
+        parent,
+        {
+            "out_dir": "./parent_outputs",
+            "tech": "solar",
+            "jurisdiction_fp": "./jurisdictions.csv",
+            source_dir_key: "./sources",
+            "model": "gpt-4o-mini",
+            "max_num_concurrent_jurisdictions": 3,
+            "log_level": "WARNING",
+            "file_loader_kwargs": {
+                "pw_launch_kwargs": {"headless": True, "timeout": 1000}
+            },
+        },
+    )
+    config_type.write(
+        child,
+        {
+            "inherit_from": "parents/parent.json",
+            "out_dir": "./child_outputs",
+            "log_level": "DEBUG",
+            "file_loader_kwargs": {"pw_launch_kwargs": {"timeout": 2000}},
+            **extra_config,
+        },
+    )
+
+    config = load_config(child)
+    request = request_class(**config)
+
+    assert "inherit_from" not in config
+    assert request.tech == "solar"
+    assert (
+        request.jurisdiction_fp
+        == (parent_dir / "jurisdictions.csv").as_posix()
+    )
+    assert (
+        request.output_settings.out_dir
+        == (tmp_path / "child_outputs").as_posix()
+    )
+    assert (
+        request.output_settings.ordinance_file_dir
+        == (parent_dir / "sources").as_posix()
+    )
+    assert request.user_model_input == "gpt-4o-mini"
+    assert request.runtime_settings.max_num_concurrent_jurisdictions == 3
+    assert request.runtime_settings.log_level == "DEBUG"
+    assert request.file_loader_kwargs == {
+        "pw_launch_kwargs": {"headless": True, "timeout": 2000}
+    }
+    if request_class is ExtractionRequest:
+        assert (
+            request.collection_manifest_fp
+            == (tmp_path / "manifest.json").as_posix()
+        )
 
 
 def test_wsp_se_kwargs():
