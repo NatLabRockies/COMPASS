@@ -357,7 +357,7 @@ class COMPASSCrawler:
             if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
                     logger.debug("    - Document passed validation check!")
-                    self._load_last_doc_with_final_afl(next_link["href"])
+                    await self._load_last_doc_with_final_afl(next_link["href"])
                 else:
                     self._out_docs = self._out_docs[:-1]
 
