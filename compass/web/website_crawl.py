@@ -368,7 +368,7 @@ class COMPASSCrawler:
             logger.debug("Skipping blacklisted URL: %s", link.href)
             return
 
-        if link in self._already_visited:
+        if not self._should_continue_page_crawl(link, depth):
             return
 
         if on_new_page_visit_hook:
