@@ -687,13 +687,15 @@ class COMPASSCrawler:
             return 0
 
         return sum(
-            score for __, score in self._already_visited.values()
+            visit.score for visit in self._already_visited.values()
         ) / len(self._already_visited)
 
     def _crawl_depth_counts(self):
         """Compute number of pages per depth"""
         depth_counts = Counter()
-        depth_counts.update([d for d, __ in self._already_visited.values()])
+        depth_counts.update(
+            visit.depth for visit in self._already_visited.values()
+        )
         return depth_counts
 
 
