@@ -347,6 +347,7 @@ class COMPASSCrawler:
         return self._out_docs
 
     # complexipy: ignore
+    # ruff:ignore[complex-structure]
     async def _run(
         self,
         base_url,
