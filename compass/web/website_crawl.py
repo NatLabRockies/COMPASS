@@ -375,6 +375,12 @@ class COMPASSCrawler:
             logger.debug("Skipping blacklisted URL: %s", link.href)
             return
 
+        if self._document_source_seen(link.href):
+            logger.debug(
+                "Skipping previously collected document URL: %s", link.href
+            )
+            return
+
         if not self._should_continue_page_crawl(link, depth):
             return
 
@@ -527,7 +533,9 @@ class COMPASSCrawler:
             logger.debug("    - Found PDF!")
             doc.attrs[_DEPTH_KEY] = depth
             doc.attrs[_SCORE_KEY] = score
-            self._out_docs.append(doc)
+            source = doc.attrs.get("source", link.href).casefold()
+            if self._record_document(link, depth, score, source):
+                self._out_docs.append(doc)
             return True
 
         return False
@@ -544,8 +552,48 @@ class COMPASSCrawler:
         if cache_fn is not None:
             doc.attrs["cache_fn"] = cache_fn
 
-        self._out_docs.append(doc)
+        if self._record_document(link, depth, score, link.href):
+            self._out_docs.append(doc)
         return True
+
+    def _should_continue_page_crawl(self, link, depth):
+        """Determine whether the crawler should continue crawling"""
+        previous_visit = self._already_visited.get(link)
+        if previous_visit is None:
+            return True
+
+        if self.max_depth is None:
+            # We visited this page with no depth restriction, so we've
+            # already seen all other possible links - no need to recheck
+            return False
+
+        # We visited this page but potentially didn't check links on it
+        # due to depth restriction, so see if we are now visiting it
+        # with a shallower depth, which allows further exploration
+        return previous_visit.can_revisit(depth)
+
+    def _document_source_seen(self, source):
+        """Check known document URLs and reported sources"""
+        source_key = str(source).casefold()
+        return any(
+            visit.is_document
+            and (
+                link.href.casefold() == source_key
+                or visit.source == source_key
+            )
+            for link, visit in self._already_visited.items()
+        )
+
+    def _record_document(self, link, depth, score, source):
+        """Record a document and return whether its source is new"""
+        is_new = not self._document_source_seen(source)
+        self._already_visited.setdefault(
+            link,
+            _PageVisit(
+                depth, score, is_document=True, source=str(source).casefold()
+            ),
+        )
+        return is_new
 
     async def _get_links_from_page(self, link, base_url):
         """Get all links from a page sorted by relevance score"""
