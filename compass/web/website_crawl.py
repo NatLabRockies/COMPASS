@@ -374,10 +374,11 @@ class COMPASSCrawler:
         if on_new_page_visit_hook:
             await on_new_page_visit_hook(link)
 
-        self._already_visited[link] = (depth, score)
+        visit = self._already_visited[link] = _PageVisit(depth, score)
         logger.trace("self._already_visited=%r", self._already_visited)
 
         if await self._website_link_is_doc(link, depth, score):
+            visit.is_document = True
             return
 
         if self.max_depth is not None and depth >= self.max_depth:
