@@ -36,6 +36,7 @@ class SingleJurisdictionRun:
         known_doc_urls=None,
         perform_se_search=True,
         perform_website_search=True,
+        num_search_results_to_crawl=0,
     ):
         """
 
@@ -70,6 +71,10 @@ class SingleJurisdictionRun:
         perform_website_search : bool, optional
             Whether website-specific search and crawl steps should be
             performed for this jurisdiction. By default, ``True``.
+        num_search_results_to_crawl : int, default=0
+            Number of ranked search results to inspect for HTML crawl
+            seeds. PDF results count toward this limit but are not
+            crawled. Zero disables the extra crawl. By default, ``0``.
         """
         self.runtime = runtime
         self.jurisdiction = jurisdiction
@@ -79,10 +84,16 @@ class SingleJurisdictionRun:
         self.known_doc_urls = known_doc_urls
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
+        self.num_search_results_to_crawl = num_search_results_to_crawl
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
         self.collection = DocumentCollection(self)
         self.extraction = DocumentExtraction(self)
+
+    @property
+    def perform_search_based_crawl(self):
+        """Determine if search-based crawl should be performed"""
+        return self.perform_se_search and self.num_search_results_to_crawl > 0
 
     async def process(self):
         """Run process mode for one jurisdiction
