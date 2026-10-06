@@ -2,8 +2,10 @@
 
 from pathlib import Path
 from types import SimpleNamespace
+from contextlib import AsyncExitStack
 
 import pytest
+from elm.web.document import HTMLDocument, MDDocument
 
 import compass.scripts.download as download_module
 from compass.scripts.download import (
@@ -106,6 +108,75 @@ async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
 
     assert docs[0].attrs["collection_step_rank"] == 2
     assert docs[0].attrs["search_engines"] == ["GoogleSearch", "BingSearch"]
+
+
+@pytest.mark.asyncio
+async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
+    """Failed downloads preserve budgets and ranks without extra attrs"""
+    urls = [f"https://example.com/{index}" for index in range(4)]
+    requested = []
+
+    async def search(*args, **kwargs):  # ruff:ignore[unused-async]
+        assert args[2] == 3
+        return {
+            "results": [
+                {
+                    "url": url,
+                    "overall_rank": index + 1,
+                    "search_engines": ["test"],
+                    "filtered_reason": (
+                        None if index < args[2] else "beyond_top_n"
+                    ),
+                }
+                for index, url in enumerate(urls)
+            ]
+        }
+
+    async def fetch_doc(self, url):  # ruff:ignore[unused-async]
+        requested.append(url)
+        if url == urls[1]:
+            raise OSError("failed candidate")
+        doc_class = MDDocument if url == urls[0] else HTMLDocument
+        doc = doc_class(pages=["Ordinance text"])
+        doc.attrs.update(
+            source=f"{url}/resolved",
+            doc_type="pdf" if url == urls[0] else "html",
+        )
+        return doc, None
+
+    monkeypatch.setattr(download_module, "search_single_jurisdiction", search)
+    monkeypatch.setattr(
+        download_module.COMPASSWebFileLoader, "_fetch_doc", fetch_doc
+    )
+    monkeypatch.setattr(
+        download_module,
+        "COMPASS_PB",
+        SimpleNamespace(
+            update_jurisdiction_task=lambda *_args, **_kwargs: None,
+            file_download_prog_bar=lambda *_args: AsyncExitStack(),
+        ),
+    )
+    docs = await download_module._docs_from_web_search(
+        ["{jurisdiction}"],
+        3,
+        None,
+        None,
+        None,
+        SimpleNamespace(full_name="Example"),
+        True,
+    )
+    assert len(docs) == 2
+    assert requested == urls[:3]
+    assert [doc.attrs["doc_type"] for doc in docs] == ["pdf", "html"]
+    assert all(
+        not {"search_doc_type", "search_result_url", "search_resolved_url"}
+        & doc.attrs.keys()
+        for doc in docs
+    )
+    assert docs[1].attrs["source"] == urls[2]
+    assert all("requested_url" not in doc.attrs for doc in docs)
+    assert [doc.attrs["collection_step_rank"] for doc in docs] == [1, 3]
+    assert docs[0].attrs["collection_step_rank"] == 1
 
 
 @pytest.mark.asyncio
