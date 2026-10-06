@@ -401,6 +401,87 @@ class CompassWebsiteCrawlStep(CollectionStep):
         return docs
 
 
+def _get_search_crawl_candidates(workflow):
+    """Select collected HTML search docs using the saved rank cutoff"""
+    candidates = []
+    for info in workflow.collection.de_duplicator.values():
+        if COMPASSDocumentCollectionStep.SEARCH_ENGINE not in info.from_steps:
+            continue
+
+        attrs = info.doc.attrs
+        rank = attrs.get("collection_step_rank")
+        if (
+            rank is None
+            or not 0 < rank <= workflow.num_search_results_to_crawl
+        ):
+            continue
+
+        if is_pdf_doc(info.doc) or not (
+            isinstance(info.doc, HTMLDocument)
+            or str(attrs.get("doc_type", "")).casefold() == "html"
+        ):
+            continue
+
+        candidates.append(
+            {
+                "url": attrs.get("source"),
+                "overall_rank": rank,
+                "search_engines": list(attrs.get("search_engines", [])),
+                "doc_type": "html",
+            }
+        )
+
+    return sorted(candidates, key=itemgetter("overall_rank"))
+
+
+async def _crawl_search_candidate(
+    workflow, candidate, heuristic, keyword_points
+):
+    """Crawl one ranked HTML candidate as a PDF-only seed"""
+    seed_url = candidate.get("url")
+    if not seed_url:
+        return []
+    runtime = workflow.runtime
+    search_params = runtime.search_params
+    async with runtime.crawl_semaphore:
+        crawl = download_jurisdiction_ordinances_from_website_compass_crawl
+        return await crawl(
+            seed_url,
+            heuristic=heuristic,
+            keyword_points=keyword_points,
+            file_loader_kwargs=dict(runtime.file_loader_kwargs),
+            pb_jurisdiction_name=workflow.jurisdiction.full_name,
+            timeout_seconds=search_params.website_crawl_timeout_seconds,
+            url_ignore_substrings=search_params.url_ignore_substrings,
+            url_keep_substrings=search_params.url_keep_substrings,
+            browser_semaphore=runtime.browser_semaphore,
+            max_depth=search_params.search_results_crawl_depth,
+        )
+
+
+def _merge_search_crawl_docs(docs_by_source, docs, candidate):
+    """Merge duplicate crawl docs while retaining each search seed"""
+    provenance = dict(candidate)
+    for doc in docs:
+        source_seeds = doc.attrs.setdefault("search_crawl_seeds", [])
+        if provenance not in source_seeds:
+            source_seeds.append(provenance)
+        source_key = (
+            doc.attrs.get("checksum")
+            or doc.attrs.get("source")
+            or doc.attrs.get("source_fp")
+            or id(doc)
+        )
+        source_key = str(source_key)
+        existing = docs_by_source.get(source_key)
+        if existing is None:
+            docs_by_source[source_key] = doc
+            continue
+        existing_seeds = existing.attrs.setdefault("search_crawl_seeds", [])
+        if provenance not in existing_seeds:
+            existing_seeds.append(provenance)
+
+
 async def _resolve_jurisdiction_website(workflow):
     """Try to set and resolve the website URL for this jurisdiction"""
     if workflow.jurisdiction_website:
