@@ -189,6 +189,8 @@ class WebSearchParams:
         search_engines=None,
         simple_se_result_sort=True,
         pytesseract_exe_fp=None,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
     ):
         """
 
@@ -274,6 +276,13 @@ class WebSearchParams:
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
             Tesseract. By default ``None``.
+        num_search_results_to_crawl : int, default=0
+            Number of ranked search results to inspect for HTML crawl
+            pages. PDF results count toward this limit. Zero disables
+            the extra crawl. By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from each HTML search result. The seed
+            is depth zero. By default, ``3``.
         """
         self.num_urls_to_check_per_jurisdiction = (
             num_urls_to_check_per_jurisdiction
@@ -294,6 +303,12 @@ class WebSearchParams:
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
         self.pytesseract_exe_fp = pytesseract_exe_fp
+        self.num_search_results_to_crawl = max(
+            0, int(num_search_results_to_crawl)
+        )
+        self.search_results_crawl_depth = max(
+            0, int(search_results_crawl_depth)
+        )
 
     @cached_property
     def se_kwargs(self):
@@ -674,6 +689,8 @@ class BaseRequest:
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
             pytesseract_exe_fp=pytesseract_exe_fp,
+            num_search_results_to_crawl=num_search_results_to_crawl,
+            search_results_crawl_depth=search_results_crawl_depth,
         )
         self.parsing_settings = DocParsingParams(
             max_num_docs_per_jurisdiction=(
