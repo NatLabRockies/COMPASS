@@ -343,6 +343,8 @@ class BaseRequest:
         model="gpt-4o-mini",
         llm_costs=None,
         num_urls_to_check_per_jurisdiction=5,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
         max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
@@ -470,6 +472,15 @@ class BaseRequest:
             Number of unique Google search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        num_search_results_to_crawl : int, default=0
+            Inspect this many ranked search results for HTML crawl
+            pages, independently of the direct download limit and
+            website crawl toggle. PDFs count toward the limit. Zero
+            disables this step. By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from HTML search pages, counting the seed
+            as depth zero. Zero disables outgoing traversal. By default,
+            ``3``.
         max_num_docs_to_parse_per_jurisdiction : int, optional
             Maximum number of documents to parse for each jurisdiction
             (regardless of the collection method). If ``None``, all
@@ -731,6 +742,8 @@ class CollectionRequest(BaseRequest):
         *,
         model=None,
         num_urls_to_check_per_jurisdiction=5,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
@@ -838,6 +851,15 @@ class CollectionRequest(BaseRequest):
             Number of unique Google search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        num_search_results_to_crawl : int, default=0
+            Inspect this many ranked results for HTML crawl pages,
+            independently of the direct download limit and website crawl
+            toggle. PDFs count toward the limit. Zero disables this
+            step. By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from HTML search pages, counting the seed
+            as depth zero. Zero disables outgoing traversal. By default,
+            ``3``.
         max_num_concurrent_browsers : int, default=10
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -1027,6 +1049,8 @@ class CollectionRequest(BaseRequest):
             jurisdiction_fp=jurisdiction_fp,
             model=model,
             llm_costs=llm_costs,
+            num_search_results_to_crawl=num_search_results_to_crawl,
+            search_results_crawl_depth=search_results_crawl_depth,
             num_urls_to_check_per_jurisdiction=(
                 num_urls_to_check_per_jurisdiction
             ),
