@@ -4,15 +4,12 @@ data_type_short_desc: data center ordinance
 
 cache_llm_generated_content: true
 
+post_processing_steps:
+  - normalize_data_center_types
+
 query_templates:
   - "{jurisdiction} data center ordinance"
-  - "{jurisdiction} data center zoning ordinance setback"
-  - "{jurisdiction} data center noise generator cooling standards ordinance"
-  - "site:ecode360.com {jurisdiction} data center"
-  - "site:municode.com {jurisdiction} code of ordinances"
-  # Recently adopted ordinances are often published only as a PDF on the
-  # jurisdiction's own site, before they are codified in a code library.
-  - "filetype:pdf {jurisdiction} data center ordinance"
+  - "{jurisdiction} zoning ordinance"
 
 website_keywords:
   pdf: 92160
@@ -89,7 +86,6 @@ heuristic_keywords:
     - database
 
 collection_prompts: true
-text_extraction_prompts: true
 
 extraction_system_prompt: |-
   You are a legal scholar extracting structured data from local data
@@ -128,6 +124,14 @@ extraction_system_prompt: |-
   data_center_type rather than collapsing the tiers into one row or
   mapping the name onto another jurisdiction's taxonomy.
 
+  Set data_center_type to null when the requirement applies to data
+  centers generally. Generic labels such as Data Center, DATA CENTER,
+  and Data Processing Center are not specific facility types. Retain
+  specific class names such as Hyperscale Data Center or Micro Data
+  Center. For accessory data centers, use Accessory Data Center without
+  parenthetical conditions. Keep those conditions in summary and retain
+  the complete source wording in ordinance_text.
+
   Do not extract text focused only on office, warehouse, distribution,
   telecommunications, or utility uses unless the same clause directly
   applies to data centers. Do not extract from proposed, denied, or
@@ -137,5 +141,10 @@ extraction_system_prompt: |-
   unless the clause states an explicit numeric limit.
 
   Follow schema feature definitions literally. Keep units and the
-  jurisdiction's own vocabulary exactly as written. Do not convert
-  units. Do not invent values.
+  jurisdiction's own vocabulary exactly as written, except for the
+  data_center_type rules above. Do not convert units. Do not invent values.
+
+  Write summary in your own words. Copy the supporting source passages
+  verbatim into ordinance_text, retaining the applicable facility class,
+  conditions, and exceptions. Use explanation to state how that evidence
+  supports the selected feature, facility class, value, and units.
