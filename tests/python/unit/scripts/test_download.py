@@ -1,5 +1,6 @@
 """Tests for compass.scripts.download"""
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from contextlib import AsyncExitStack
@@ -9,9 +10,70 @@ from elm.web.document import HTMLDocument, MDDocument
 
 import compass.scripts.download as download_module
 from compass.scripts.download import (
+    download_jurisdiction_ordinance_using_search_engine as search_docs,
     download_jurisdiction_ordinances_from_website_compass_crawl as crawl,
 )
+from compass.pipeline.data_classes import OutputSettings
+from compass.pipeline.runtime import _setup_folders
+from compass.services.provider import RunningAsyncServices
+from compass.services.threaded import GenericFuncRunner
 from compass.utilities.enums import LLMTasks
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("save_search_engine_results", [True, False])
+@pytest.mark.parametrize("has_results", [True, False])
+async def test_search_shards_written_to_disk(
+    tmp_path, monkeypatch, save_search_engine_results, has_results
+):
+    """Persist complete search results only when shard saving is enabled"""
+    dirs = _setup_folders(
+        OutputSettings(
+            tmp_path / "output",
+            save_search_engine_results=save_search_engine_results,
+        )
+    )
+    results = {
+        "results": [
+            {
+                "url": "https://example.com/ordinance.pdf",
+                "filtered_reason": "blocked_domain",
+                "overall_rank": 1,
+            }
+        ]
+        if has_results
+        else []
+    }
+
+    async def fake_search(*_args, **_kwargs):  # ruff:ignore[unused-async]
+        return results
+
+    monkeypatch.setattr(
+        download_module, "search_single_jurisdiction", fake_search
+    )
+    monkeypatch.setattr(
+        download_module,
+        "COMPASS_PB",
+        SimpleNamespace(
+            update_jurisdiction_task=lambda *_args, **_kwargs: None
+        ),
+    )
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        docs = await search_docs(
+            ["{jurisdiction} ordinance"],
+            SimpleNamespace(full_name="Example County, Test"),
+            se_shard_out_dir=dirs.se_shards,
+        )
+
+    assert docs == []
+    shards = list(dirs.out.rglob("*_search_results.json"))
+    if save_search_engine_results:
+        assert len(shards) == 1
+        assert shards[0].parent == dirs.se_shards
+        assert json.loads(shards[0].read_text(encoding="utf-8")) == results
+    else:
+        assert shards == []
+        assert not (dirs.out / "se_results").exists()
 
 
 @pytest.mark.asyncio
@@ -104,6 +166,7 @@ async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
         url_ignore_substrings=None,
         jurisdiction=SimpleNamespace(full_name="Example County, Test"),
         simple_se_result_sort=False,
+        se_shard_out_dir=None,
     )
 
     assert docs[0].attrs["collection_step_rank"] == 2
@@ -164,6 +227,7 @@ async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
         None,
         SimpleNamespace(full_name="Example"),
         True,
+        None,
     )
     assert len(docs) == 2
     assert requested == urls[:3]
