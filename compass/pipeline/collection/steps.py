@@ -3,6 +3,7 @@
 import logging
 from abc import ABC, abstractmethod
 from operator import itemgetter
+from urllib.parse import urlsplit
 
 from elm.web.document import HTMLDocument
 from elm.web.utilities import get_redirected_url
@@ -452,16 +453,10 @@ def _get_search_crawl_candidates(workflow):
 
         attrs = info.doc.attrs
         rank = attrs.get("collection_step_rank")
-        if (
-            rank is None
-            or not 0 < rank <= workflow.num_search_results_to_crawl
-        ):
+        if _exceeds_rank_cutoff(rank, workflow):
             continue
 
-        if is_pdf_doc(info.doc) or not (
-            isinstance(info.doc, HTMLDocument)
-            or str(attrs.get("doc_type", "")).casefold() == "html"
-        ):
+        if not _is_html_page(info):
             continue
 
         source = attrs.get("source")
@@ -478,6 +473,22 @@ def _get_search_crawl_candidates(workflow):
         )
 
     return sorted(candidates, key=itemgetter("overall_rank"))
+
+
+def _exceeds_rank_cutoff(rank, workflow):
+    """Check if the given rank exceeds the saved rank cutoff"""
+    return rank is None or not 0 < rank <= workflow.num_search_results_to_crawl
+
+
+def _is_html_page(info):
+    """Check if the given document info represents a HTML page"""
+    if is_pdf_doc(info.doc):
+        return False
+
+    return (
+        isinstance(info.doc, HTMLDocument)
+        or str(info.doc.attrs.get("doc_type", "")).casefold() == "html"
+    )
 
 
 def _is_local_filepath(source):
