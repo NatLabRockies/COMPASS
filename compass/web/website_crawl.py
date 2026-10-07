@@ -28,6 +28,7 @@ from compass.utilities.url import URLPartFilter, normalize_domain, sanitize_url
 from compass.services.threaded import TempFileCache
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
+from compass.utilities.timing import log_operation
 
 
 logger = logging.getLogger(__name__)
@@ -676,7 +677,8 @@ class COMPASSCrawler:
     async def _get_text_no_err(self, url):
         """Get all text from a page; return empty string if pw error"""
         try:
-            text = await self._get_text(url)
+            async with log_operation(logger, "browser page processing", url):
+                text = await self._get_text(url)
         except (PlaywrightError, RBPlaywrightError):
             text = ""
 

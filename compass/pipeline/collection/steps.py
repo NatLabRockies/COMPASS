@@ -9,6 +9,7 @@ from elm.web.document import HTMLDocument
 from elm.web.utilities import get_redirected_url
 
 from compass.scripts.download import (
+    download_prioritized_ordinances,
     download_jurisdiction_ordinance_using_search_engine,
     download_jurisdiction_ordinances_from_website,
     download_jurisdiction_ordinances_from_website_compass_crawl,
@@ -185,6 +186,10 @@ class SearchEngineDocumentsStep(CollectionStep):
             "Collecting documents using a search engine for jurisdiction: %s",
             workflow.jurisdiction.full_name,
         )
+        if workflow.runtime.search_params.priority_search is not None:
+            logger.info("Search path: LLM priority queue")
+            return await download_prioritized_ordinances(workflow)
+        logger.info("Search path: standard retrieval")
         try:
             query_templates = await workflow.extractor.get_query_templates()
             runtime = workflow.runtime

@@ -50,6 +50,29 @@ def test_load_all_jurisdictions():
     assert "Rhode Island" in set(jurisdiction_info["State"])
 
 
+def test_fips_matching_with_missing_catalog_county(tmp_path):
+    """Match actual catalog codes across county omissions and place types."""
+    path = tmp_path / "jurisdictions.csv"
+    pd.DataFrame(
+        {
+            "FIPS": ["0107000", "1723256", "4204183800", "5183136"],
+            "County": ["Jefferson", "Cook", "Cumberland", "Fauquier"],
+        }
+    ).to_csv(path, index=False)
+
+    result = load_jurisdictions_from_fp(path)
+
+    assert result["FIPS"].tolist() == [
+        "0107000", "1723256", "4204183800", "5183136"
+    ]
+    assert result["Jurisdiction Type"].tolist() == [
+        "city", "village", "township", "town"
+    ]
+    assert result["County"].tolist() == [
+        "Jefferson", None, "Cumberland", None
+    ]
+
+
 def test_jurisdiction_websites():
     """Test the `jurisdiction_websites` function"""
 

@@ -11,6 +11,7 @@ from compass.pipeline import (
     ProcessRequest,
 )
 from compass.pipeline.data_classes import WebSearchParams
+from compass.pipeline.runtime import PipelineRuntime
 from compass.utilities.io import ConfigType, load_config
 from compass.warn import COMPASSWarning
 
@@ -229,3 +230,41 @@ def test_search_crawl_budget_warns_and_caps_at_url_limit():
 
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
+
+
+@pytest.mark.parametrize("mode", ["process", "collect"])
+@pytest.mark.parametrize("priority_search", [{}, {"max_pages": 7}])
+def test_priority_settings_reach_runtime(monkeypatch, mode, priority_search):
+    """Both supported commands pass queue limits through their requests."""
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", "test-azure-key")
+    monkeypatch.setenv("AZURE_OPENAI_VERSION", "2024-10-21")
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://azure.example")
+    cls = ProcessRequest if mode == "process" else CollectionRequest
+    request = cls(
+        out_dir="unused",
+        tech="data_centers",
+        jurisdiction_fp="unused.csv",
+        model="gpt-4o-mini",
+        priority_search=priority_search,
+    )
+    runtime = PipelineRuntime(request)
+    assert runtime.search_params.priority_search == priority_search
+    assert runtime._llm_services
+
+
+@pytest.mark.parametrize("mode", ["process", "collect"])
+@pytest.mark.parametrize("settings", [{}, {"priority_search": None}])
+def test_standard_search_is_default(mode, settings):
+    """Omitted and null settings keep priority collection disabled."""
+    cls = ProcessRequest if mode == "process" else CollectionRequest
+    request = cls(
+        out_dir="unused",
+        tech="data_centers",
+        jurisdiction_fp="unused.csv",
+        model="gpt-4o-mini",
+        **settings,
+    )
+    runtime = PipelineRuntime(request)
+    assert runtime.search_params.priority_search is None
+    if mode == "collect":
+        assert runtime._llm_services == []

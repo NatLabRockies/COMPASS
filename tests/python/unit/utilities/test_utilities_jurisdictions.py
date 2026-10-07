@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 
 from compass.utilities.jurisdictions import (
+    fips_to_str,
     load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
     load_jurisdictions_from_subdivision_names,
@@ -185,6 +186,102 @@ def test_load_jurisdictions_from_fp(tmp_path):
     assert set(jurisdictions["Subdivision"]) != {np.nan}
     assert set(jurisdictions["Jurisdiction Type"]) == {"county"}
     assert {type(val) for val in jurisdictions["FIPS"]} == {str}
+
+
+def test_load_jurisdictions_by_fips_ignores_names(tmp_path):
+    """FIPS overrides conflicting names and deduplicates requests."""
+    path = tmp_path / "jurisdictions.csv"
+    pd.DataFrame(
+        {
+            "FIPS": ["08041", " 08041 ", "49003"],
+            "State": ["Wrong state"] * 3,
+            "County": ["Wrong county"] * 3,
+        }
+    ).to_csv(path, index=False)
+
+    result = load_jurisdictions_from_fp(path)
+
+    assert result["FIPS"].tolist() == ["08041", "49003"]
+    assert result["State"].tolist() == ["Colorado", "Utah"]
+    assert result["County"].tolist() == ["El Paso", "Box Elder"]
+
+
+def test_load_jurisdictions_from_fips_only(tmp_path):
+    """A FIPS-only file preserves leading zeros without requiring names."""
+    path = tmp_path / "jurisdictions.csv"
+    pd.DataFrame({"FIPS": ["08041"]}).to_csv(path, index=False)
+
+    result = load_jurisdictions_from_fp(path)
+
+    assert result["FIPS"].tolist() == ["08041"]
+    assert result["Jurisdiction Type"].tolist() == ["county"]
+
+
+def test_load_jurisdictions_invalid_fips_do_not_fall_back_to_names(tmp_path):
+    """Unknown and missing codes cannot select a different named location."""
+    path = tmp_path / "jurisdictions.csv"
+    pd.DataFrame(
+        {
+            "FIPS": ["9999999999", None, "08041"],
+            "State": ["Colorado"] * 3,
+            "County": ["El Paso"] * 3,
+        }
+    ).to_csv(path, index=False)
+
+    with pytest.warns(COMPASSWarning, match="9999999999"):
+        result = load_jurisdictions_from_fp(path)
+
+    assert result["FIPS"].tolist() == ["08041"]
+
+
+@pytest.mark.parametrize(
+    ("state", "county", "subdivision", "jurisdiction_type", "fips"),
+    [
+        ("California", None, "Monterey Park", "city", "0648914"),
+        ("Colorado", "Adams", None, "county", "08001"),
+        ("California", None, None, "state", "06000"),
+        ("Alabama", "Autauga", "Marbury", "city", "0100192106"),
+    ],
+)
+def test_load_jurisdictions_from_fp_preserves_fips(
+    tmp_path, state, county, subdivision, jurisdiction_type, fips
+):
+    """Preserve canonical codes through CSV lookup and object creation"""
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    pd.DataFrame(
+        {
+            "State": [state],
+            "County": [county],
+            "Subdivision": [subdivision],
+            "Jurisdiction Type": [jurisdiction_type],
+        }
+    ).to_csv(jurisdiction_fp, index=False)
+
+    jurisdictions = load_jurisdictions_from_fp(jurisdiction_fp)
+
+    assert jurisdictions["FIPS"].tolist() == [fips]
+    (jurisdiction,) = jurisdictions_from_df(jurisdictions)
+    assert jurisdiction.code == fips
+    assert jurisdiction.website_url == jurisdiction_websites()[fips]
+
+
+@pytest.mark.parametrize(
+    ("value", "expected"),
+    [
+        ("0648914", "0648914"),
+        ("08001", "08001"),
+        ("06", "06"),
+        ("0100192106", "0100192106"),
+        ("district-01", "district-01"),
+        (18031, "18031"),
+        (18031.0, "18031"),
+        (np.int64(18031), "18031"),
+        (np.float64(18031), "18031"),
+    ],
+)
+def test_fips_to_str(value, expected):
+    """Preserve string identifiers and support numeric codes"""
+    assert fips_to_str(value) == expected
 
 
 def test_load_jurisdictions_from_fp_bad_input(tmp_path):
