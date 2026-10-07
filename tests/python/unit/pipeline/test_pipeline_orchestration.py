@@ -134,6 +134,7 @@ def test_known_sources_match_fips_with_leading_zero(
         extractor_class=Mock(),
         models={},
         rate_tracker=None,
+        search_params=SimpleNamespace(num_search_results_to_crawl=0),
         known_local_docs={"8041": ["ordinance.pdf"]},
         known_doc_urls={"8041": ["https://example.com/ordinance.pdf"]},
         request=SimpleNamespace(

@@ -2,7 +2,10 @@
 
 import logging
 from abc import ABC, abstractmethod
+from operator import itemgetter
+from urllib.parse import urlsplit
 
+from elm.web.document import HTMLDocument
 from elm.web.utilities import get_redirected_url
 
 from compass.scripts.download import (
@@ -15,6 +18,7 @@ from compass.scripts.download import (
     load_known_docs,
 )
 from compass.utilities.enums import COMPASSDocumentCollectionStep
+from compass.utilities.parsing import is_pdf_doc
 from compass.utilities.url import base_website_url
 from compass.pb import COMPASS_PB
 
@@ -222,6 +226,45 @@ class SearchEngineDocumentsStep(CollectionStep):
         return docs
 
 
+class SearchResultsCrawlStep(CollectionStep):
+    """Crawl HTML pages discovered by the search-engine step"""
+
+    STEP_NAME = COMPASSDocumentCollectionStep.SEARCH_RESULTS_CRAWL
+    """Identifier for step"""
+
+    async def collect(self, workflow):  # ruff:ignore[no-self-use]
+        """Crawl the configured prefix of HTML search candidates"""
+        if not workflow.perform_search_based_crawl:
+            return []
+
+        candidates = _get_search_crawl_candidates(workflow)
+        if not candidates:
+            return []
+
+        heuristic = await workflow.extractor.get_heuristic()
+        keyword_points = await workflow.extractor.get_website_keywords()
+        docs_by_source = {}
+        for candidate in candidates:
+            try:
+                docs = await _crawl_search_candidate(
+                    workflow, candidate, heuristic, keyword_points
+                )
+            except Exception:
+                logger.exception(
+                    "Error crawling search result seed %s",
+                    candidate.get("url"),
+                )
+                continue
+
+            _merge_search_crawl_docs(docs_by_source, docs, candidate)
+
+        docs = list(docs_by_source.values())
+        for doc in docs:
+            doc.attrs["compass_crawl"] = False
+            doc.attrs["check_correct_jurisdiction"] = True
+        return docs
+
+
 class ElmWebsiteCrawlStep(CollectionStep):
     """Concrete Strategy for ELM-based website crawling"""
 
@@ -404,6 +447,108 @@ class CompassWebsiteCrawlStep(CollectionStep):
             doc.attrs["compass_crawl"] = True
             doc.attrs["check_correct_jurisdiction"] = True
         return docs
+
+
+def _get_search_crawl_candidates(workflow):
+    """Select collected HTML search docs using the saved rank cutoff"""
+    candidates = []
+    for info in workflow.collection.de_duplicator.values():
+        if COMPASSDocumentCollectionStep.SEARCH_ENGINE not in info.from_steps:
+            continue
+
+        attrs = info.doc.attrs
+        rank = attrs.get("collection_step_rank")
+        if _exceeds_rank_cutoff(rank, workflow):
+            continue
+
+        if not _is_html_page(info):
+            continue
+
+        source = attrs.get("source")
+        if _is_local_filepath(source):
+            continue
+
+        candidates.append(
+            {
+                "url": source,
+                "overall_rank": rank,
+                "search_engines": list(attrs.get("search_engines", [])),
+                "doc_type": "html",
+            }
+        )
+
+    return sorted(candidates, key=itemgetter("overall_rank"))
+
+
+def _exceeds_rank_cutoff(rank, workflow):
+    """Check if the given rank exceeds the saved rank cutoff"""
+    return rank is None or not 0 < rank <= workflow.num_search_results_to_crawl
+
+
+def _is_html_page(info):
+    """Check if the given document info represents a HTML page"""
+    if is_pdf_doc(info.doc):
+        return False
+
+    return (
+        isinstance(info.doc, HTMLDocument)
+        or str(info.doc.attrs.get("doc_type", "")).casefold() == "html"
+    )
+
+
+def _is_local_filepath(source):
+    """Check if the given source is a local file path"""
+    parsed_source = urlsplit(str(source or ""))
+    scheme_not_web = parsed_source.scheme not in {"http", "https"}
+    return scheme_not_web or not parsed_source.netloc
+
+
+async def _crawl_search_candidate(
+    workflow, candidate, heuristic, keyword_points
+):
+    """Crawl one ranked HTML candidate as a PDF-only seed"""
+    seed_url = candidate.get("url")
+    if not seed_url:
+        return []
+    runtime = workflow.runtime
+    search_params = runtime.search_params
+    async with runtime.crawl_semaphore:
+        crawl = download_jurisdiction_ordinances_from_website_compass_crawl
+        return await crawl(
+            seed_url,
+            heuristic=heuristic,
+            keyword_points=keyword_points,
+            file_loader_kwargs=dict(runtime.file_loader_kwargs),
+            pb_jurisdiction_name=workflow.jurisdiction.full_name,
+            timeout_seconds=search_params.website_crawl_timeout_seconds,
+            url_ignore_substrings=search_params.url_ignore_substrings,
+            url_keep_substrings=search_params.url_keep_substrings,
+            browser_semaphore=runtime.browser_semaphore,
+            max_depth=search_params.search_results_crawl_depth,
+        )
+
+
+def _merge_search_crawl_docs(docs_by_source, docs, candidate):
+    """Merge duplicate crawl docs while retaining each search seed"""
+    provenance = dict(candidate)
+    for doc in docs:
+        source_seeds = doc.attrs.setdefault("search_crawl_seeds", [])
+        if provenance not in source_seeds:
+            source_seeds.append(provenance)
+        source_key = (
+            doc.attrs.get("checksum")
+            or doc.attrs.get("source")
+            or doc.attrs.get("source_fp")
+            or id(doc)
+        )
+        source_key = str(source_key)
+        existing = docs_by_source.get(source_key)
+        if existing is None:
+            docs_by_source[source_key] = doc
+            continue
+        existing_seeds = existing.attrs.setdefault("search_crawl_seeds", [])
+        if provenance not in existing_seeds:
+            existing_seeds.append(provenance)
 
 
 async def _resolve_jurisdiction_website(workflow):

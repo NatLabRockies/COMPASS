@@ -13,6 +13,7 @@ from compass.pipeline import (
 from compass.pipeline.data_classes import WebSearchParams
 from compass.pipeline.runtime import PipelineRuntime
 from compass.utilities.io import ConfigType, load_config
+from compass.warn import COMPASSWarning
 
 
 @pytest.mark.parametrize("config_type", list(ConfigType))
@@ -58,6 +59,14 @@ def test_request_from_inherited_config(
             "inherit_from": "parents/parent.json",
             "out_dir": "./child_outputs",
             "log_level": "DEBUG",
+            **(
+                {
+                    "num_search_results_to_crawl": 3,
+                    "search_results_crawl_depth": 2,
+                }
+                if request_class is not ExtractionRequest
+                else {}
+            ),
             "file_loader_kwargs": {"pw_launch_kwargs": {"timeout": 2000}},
             **extra_config,
         },
@@ -83,6 +92,9 @@ def test_request_from_inherited_config(
     assert request.user_model_input == "gpt-4o-mini"
     assert request.runtime_settings.max_num_concurrent_jurisdictions == 3
     assert request.runtime_settings.log_level == "DEBUG"
+    if request_class is not ExtractionRequest:
+        assert request.search_settings.num_search_results_to_crawl == 3
+        assert request.search_settings.search_results_crawl_depth == 2
     assert request.file_loader_kwargs == {
         "pw_launch_kwargs": {"headless": True, "timeout": 2000}
     }
@@ -179,6 +191,41 @@ def test_wsp_url_filter_defaults_are_isolated():
     assert "trusted.example" in custom.url_keep_substrings
     assert "blocked.example" not in defaults.url_ignore_substrings
     assert "trusted.example" not in defaults.url_keep_substrings
+
+
+def test_search_crawl_settings(tmp_path):
+    """Search crawl is opt-in and request settings preserve zero depth"""
+    defaults = WebSearchParams()
+    assert defaults.num_search_results_to_crawl == 0
+    assert defaults.search_results_crawl_depth == 3
+    request = CollectionRequest(
+        out_dir=tmp_path,
+        tech="solar",
+        jurisdiction_fp="jurisdictions.csv",
+        num_urls_to_check_per_jurisdiction=10,
+        num_search_results_to_crawl=7,
+        search_results_crawl_depth=0,
+    )
+    assert request.search_settings.num_search_results_to_crawl == 7
+    assert request.search_settings.search_results_crawl_depth == 0
+
+
+def test_search_crawl_budget_warns_and_caps_at_url_limit():
+    """Excess crawl budgets warn and use the direct URL limit"""
+    with pytest.warns(COMPASSWarning) as warning_records:
+        settings = WebSearchParams(
+            num_urls_to_check_per_jurisdiction=5,
+            num_search_results_to_crawl=7,
+        )
+
+    assert len(warning_records) == 1
+    assert str(warning_records[0].message) == (
+        "Number of ranked search results to crawl (7) exceeds the "
+        "number of unique search result URLs to check for each "
+        "jurisdiction (5); using 5"
+    )
+    assert settings.num_search_results_to_crawl == 5
+    assert settings.num_urls_to_check_per_jurisdiction == 5
 
 
 if __name__ == "__main__":

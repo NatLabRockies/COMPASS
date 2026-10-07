@@ -5,6 +5,7 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
+from elm.web.document import HTMLDocument, MDDocument
 
 from compass.web.file_loader import (
     AsyncDoclingWebFileLoader, COMPASSWebFileLoader,
@@ -94,6 +95,36 @@ async def test_docling_web_file_loader_handles_sourceless_elm_failure(
     assert docs == [partial_doc]
     assert docs[0].attrs["source"] == "failed"
     assert failed_fetcher.calls == [("failed",)]
+
+
+@pytest.mark.asyncio
+async def test_docling_html_rendering_preserves_source(monkeypatch):
+    """Keep the input source on both initial and rendered HTML docs"""
+    loader = AsyncDoclingWebFileLoader()
+    url = "https://example.com/requested"
+    resolved_url = "https://example.com/resolved"
+    rendered_requests = []
+
+    async def fetch_doc(source):  # ruff:ignore[unused-async]
+        doc = MDDocument(pages=["Initial HTML"])
+        doc.attrs.update(source=resolved_url, doc_type="html")
+        return doc, None
+
+    async def render_doc(source):  # ruff:ignore[unused-async]
+        rendered_requests.append(source)
+        doc = HTMLDocument(pages=["Rendered HTML"])
+        doc.attrs["source"] = resolved_url
+        return doc, None
+
+    monkeypatch.setattr(loader, "_fetch_doc", fetch_doc)
+    monkeypatch.setattr(loader.html_loader, "_fetch_doc", render_doc)
+
+    docs = await loader.fetch_all(url)
+
+    assert len(docs) == 2
+    assert rendered_requests == [url]
+    assert all(doc.attrs["source"] == url for doc in docs)
+    assert all("requested_url" not in doc.attrs for doc in docs)
 
 
 @pytest.mark.asyncio

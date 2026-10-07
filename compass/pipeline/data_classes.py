@@ -1,5 +1,6 @@
 """Data classes used for the COMPASS pipeline"""
 
+from warnings import warn
 from copy import deepcopy
 import importlib.resources
 from functools import cached_property
@@ -11,6 +12,7 @@ from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
+from compass.warn import COMPASSWarning
 
 
 _DOMAINS = load_config(
@@ -177,6 +179,7 @@ class WebSearchParams:
     enabling straightforward reuse when issuing queries.
     """
 
+    # ruff:ignore[too-many-arguments, too-many-positional-arguments]
     def __init__(
         self,
         num_urls_to_check_per_jurisdiction=5,
@@ -189,15 +192,17 @@ class WebSearchParams:
         simple_se_result_sort=True,
         priority_search=None,
         pytesseract_exe_fp=None,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
     ):
         """
 
         Parameters
         ----------
         num_urls_to_check_per_jurisdiction : int, optional
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
-            By default, ``5``.
+            Can never be less than 1. By default, ``5``.
         max_num_concurrent_browsers : int, optional
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -278,9 +283,16 @@ class WebSearchParams:
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
             Tesseract. By default ``None``.
+        num_search_results_to_crawl : int, default=0
+            Number of ranked search results to inspect for HTML crawl
+            pages. PDF results count toward this limit. Zero disables
+            the extra crawl. By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from each HTML search result. The seed
+            is depth zero. By default, ``3``.
         """
-        self.num_urls_to_check_per_jurisdiction = (
-            num_urls_to_check_per_jurisdiction
+        self.num_urls_to_check_per_jurisdiction = max(
+            1, int(num_urls_to_check_per_jurisdiction)
         )
         self.max_num_concurrent_browsers = max_num_concurrent_browsers
         self.max_num_concurrent_website_searches = (
@@ -299,6 +311,13 @@ class WebSearchParams:
         self.simple_se_result_sort = simple_se_result_sort
         self.priority_search = priority_search
         self.pytesseract_exe_fp = pytesseract_exe_fp
+        self.num_search_results_to_crawl = max(
+            0, int(num_search_results_to_crawl)
+        )
+        self.search_results_crawl_depth = max(
+            0, int(search_results_crawl_depth)
+        )
+        self._validate_num_search_results_to_crawl()
 
     @cached_property
     def se_kwargs(self):
@@ -316,6 +335,24 @@ class WebSearchParams:
 
         extra_kwargs["search_engines"] = search_engines
         return extra_kwargs
+
+    def _validate_num_search_results_to_crawl(self):
+        """Validate that num searches to crawl <= num URLs per jur"""
+        if (
+            self.num_search_results_to_crawl
+            > self.num_urls_to_check_per_jurisdiction
+        ):
+            msg = (
+                f"Number of ranked search results to crawl "
+                f"({self.num_search_results_to_crawl}) exceeds the "
+                f"number of unique search result URLs to check for each "
+                f"jurisdiction ({self.num_urls_to_check_per_jurisdiction}); "
+                f"using {self.num_urls_to_check_per_jurisdiction}"
+            )
+            warn(msg, COMPASSWarning)
+            self.num_search_results_to_crawl = (
+                self.num_urls_to_check_per_jurisdiction
+            )
 
 
 class DocParsingParams:
@@ -349,6 +386,8 @@ class BaseRequest:
         model="gpt-4o-mini",
         llm_costs=None,
         num_urls_to_check_per_jurisdiction=5,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
         max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
@@ -474,9 +513,20 @@ class BaseRequest:
             cost tracking may be unavailable in the progress bar.
             By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        num_search_results_to_crawl : int, default=0
+            Inspect this many ranked search results for HTML crawl
+            pages, independently of the website crawl toggle. This
+            value is capped at ``num_urls_to_check_per_jurisdiction``;
+            larger values trigger a warning and are reduced to that
+            limit. PDFs count toward the limit. Zero disables this step.
+            By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from HTML search pages, counting the seed
+            as depth zero. Zero disables outgoing traversal. By default,
+            ``3``.
         max_num_docs_to_parse_per_jurisdiction : int, optional
             Maximum number of documents to parse for each jurisdiction
             (regardless of the collection method). If ``None``, all
@@ -556,8 +606,8 @@ class BaseRequest:
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries describing the search engine classes
             and keyword arguments to use for search engine retrieval. If
@@ -674,6 +724,8 @@ class BaseRequest:
             simple_se_result_sort=simple_se_result_sort,
             priority_search=priority_search,
             pytesseract_exe_fp=pytesseract_exe_fp,
+            num_search_results_to_crawl=num_search_results_to_crawl,
+            search_results_crawl_depth=search_results_crawl_depth,
         )
         self.parsing_settings = DocParsingParams(
             max_num_docs_per_jurisdiction=(
@@ -743,6 +795,8 @@ class CollectionRequest(BaseRequest):
         *,
         model=None,
         num_urls_to_check_per_jurisdiction=5,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
@@ -848,9 +902,20 @@ class CollectionRequest(BaseRequest):
 
             By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        num_search_results_to_crawl : int, default=0
+            Inspect this many ranked results for HTML crawl pages,
+            independently of the website crawl toggle. This value is
+            capped at ``num_urls_to_check_per_jurisdiction``; larger
+            values trigger a warning and are reduced to that limit.
+            PDFs count toward the limit. Zero disables this step.
+            By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from HTML search pages, counting the seed
+            as depth zero. Zero disables outgoing traversal. By default,
+            ``3``.
         max_num_concurrent_browsers : int, default=10
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -926,8 +991,8 @@ class CollectionRequest(BaseRequest):
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries describing the search engine classes
             and keyword arguments to use for search engine retrieval. If
@@ -1044,6 +1109,8 @@ class CollectionRequest(BaseRequest):
             jurisdiction_fp=jurisdiction_fp,
             model=model,
             llm_costs=llm_costs,
+            num_search_results_to_crawl=num_search_results_to_crawl,
+            search_results_crawl_depth=search_results_crawl_depth,
             num_urls_to_check_per_jurisdiction=(
                 num_urls_to_check_per_jurisdiction
             ),
@@ -1195,8 +1262,8 @@ class ExtractionRequest(BaseRequest):
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         td_kwargs : dict, optional
             Additional keyword arguments to pass to
             :class:`tempfile.TemporaryDirectory`. The temporary
