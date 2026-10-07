@@ -1,6 +1,7 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
+from collections import Counter
 from urllib.parse import urlsplit, urlunsplit
 
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
@@ -88,6 +89,8 @@ async def search_single_jurisdiction(
         "FIPS": jurisdiction.code,
         "jurisdiction_website": jurisdiction.website_url,
         "queries": queries,
+        "num_results": 0,
+        "search_engine_counts": {},
         "results": [],
         "error": None,
     }
@@ -113,6 +116,10 @@ async def search_single_jurisdiction(
         return base
 
     base["results"] = out
+    base["num_results"] = len(out)
+    base["search_engine_counts"] = dict(
+        Counter(result["search_engine"] for result in out)
+    )
     return base
 
 
