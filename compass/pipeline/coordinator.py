@@ -19,7 +19,7 @@ from compass.utilities import (
 )
 from compass.services.threaded import UsageUpdater
 from compass.utilities.enums import COMPASSRunMode
-from compass.utilities.jurisdictions import jurisdictions_from_df
+from compass.utilities.jurisdictions import jurisdictions_from_df, fips_to_str
 from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
@@ -129,15 +129,18 @@ class BaseRunMode(ABC):
             model_configs=self.runtime.models,
             usage_tracker=usage_tracker,
         )
+        source_key = fips_to_str(jurisdiction.code)
         return SingleJurisdictionRun(
             self.runtime,
             jurisdiction,
             extractor,
             usage_tracker=usage_tracker,
-            known_local_docs=self.runtime.known_local_docs.get(
-                jurisdiction.code
+            known_local_docs=_known_source_for_code(
+                self.runtime.known_local_docs, source_key
             ),
-            known_doc_urls=self.runtime.known_doc_urls.get(jurisdiction.code),
+            known_doc_urls=_known_source_for_code(
+                self.runtime.known_doc_urls, source_key
+            ),
             perform_se_search=self.runtime.request.perform_se_search,
             perform_website_search=(
                 self.runtime.request.perform_website_search
@@ -463,3 +466,12 @@ async def _compute_total_cost():
     if not total_usage:
         return 0
     return compute_total_cost_from_usage(total_usage)
+
+
+def _known_source_for_code(sources, code):
+    """Prefer full codes, then accept keys without leading zeros"""
+    if code in sources:
+        return sources[code]
+    if code.isdecimal():
+        return sources.get(code.lstrip("0") or "0")
+    return None
