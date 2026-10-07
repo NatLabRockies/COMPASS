@@ -156,7 +156,7 @@ def summary(report):
         (
             "COMPASS search-only summary",
             f"tech: {report.get('tech')}",
-            f"timestamp: {report.get('timestamp')}",
+            f"timestamp: {report.get('time_end_utc')}",
             f"requested top urls: {report.get('num_urls_requested')}",
             "",
         )
@@ -164,7 +164,7 @@ def summary(report):
 
     jurisdictions = report.get("jurisdictions", [])
     for jur in jurisdictions:
-        lines.append(f"jurisdiction: {jur.get('jurisdiction')}")
+        lines.append(f"jurisdiction: {jur.get('full_name')}")
 
         if jur.get("error"):
             lines.extend((f"  error: {jur.get('error')}", ""))
