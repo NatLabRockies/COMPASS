@@ -12,6 +12,7 @@ from .extraction import (
     COMPASSGeoHeatPumpExtractor,
     COMPASSGeoElectricityExtractor,
     COMPASSNaturalGasPipelinesExtractor,
+    COMPASSOilGasWellsExtractor,
     COMPASSGeoRMPExtractor,
     COMPASSSmallWindExtractor,
     COMPASSSolarExtractor,

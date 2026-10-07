@@ -183,7 +183,7 @@ The four content columns have distinct jobs:
 | Column | Contents |
 |---|---|
 | `value` | The extracted answer — a number or category for quantitative features. On qualitative rows the LLM returns null and the `summary` text is copied in, so the column is never blank. |
-| `summary` | Prose restatement of the rule. For quantitative features it carries caveats and conditions that `value` and `units` cannot; for qualitative features it *is* the requirement. |
+| `summary` | Technology-specific summary using the existing schema or prompt definition, including its format, conditions, and quotation guidance. The evidence and explanation columns do not replace it. |
 | `ordinance_text` | Exact quotes copied from the source document, trimmed to 5000 characters. |
 | `explanation` | The model's reasoning about how it interpreted the requirement. |
 

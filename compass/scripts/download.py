@@ -16,7 +16,7 @@ from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.web.search import (
-    search_single_jurisdiction, search_ordinance_candidates,
+    search_single_jurisdiction, search_ordinance_candidates, _format_queries,
 )
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.extraction import check_for_relevant_text, extract_date
@@ -213,7 +213,7 @@ async def find_jurisdiction_website(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
     url_ignore_substrings : list of str, optional
@@ -280,6 +280,7 @@ async def download_jurisdiction_ordinances_from_website(
     max_urls=100,
     pb_jurisdiction_name=None,
     return_c4ai_results=False,
+    timeout_seconds=3600,
 ):
     """Download ordinance documents from a jurisdiction website
 
@@ -320,6 +321,9 @@ async def download_jurisdiction_ordinances_from_website(
         return value. This is useful for debugging and examining the
         crawled URLs. If ``False``, only the documents will be returned.
         By default, ``False``.
+    timeout_seconds : float, default=3600
+        Maximum number of seconds to allow for the crawl before timing
+        out. By default, ``3600`` (1 hour).
 
     Returns
     -------
@@ -383,7 +387,7 @@ async def download_jurisdiction_ordinances_from_website(
     if pb_jurisdiction_name:
         COMPASS_PB.update_jurisdiction_task(
             pb_jurisdiction_name,
-            description=f"Searching for documents from {website} ...",
+            description=f"Crawling (ELM) {website} for documents ...",
         )
         cpb = COMPASS_PB.website_crawl_prog_bar(pb_jurisdiction_name, max_urls)
         ch = _crawl_hook
@@ -392,20 +396,18 @@ async def download_jurisdiction_ordinances_from_website(
         ch = None
 
     async with cpb:
-        docs_or_pair = await crawler.run(
-            website,
-            on_result_hook=ch,
-            return_c4ai_results=return_c4ai_results,
+        crawl_result = await crawler.run_with_timeout(
+            website, crawl_timeout_s=timeout_seconds, on_result_hook=ch
         )
 
+    docs = await _finalize_doc_sources(crawl_result.documents, final_afl)
     if return_c4ai_results:
-        docs, c4ai_results = docs_or_pair
-        docs = await _finalize_doc_sources(docs, final_afl)
-        return docs, c4ai_results
+        return docs, crawl_result.raw_results
 
-    return await _finalize_doc_sources(docs_or_pair, final_afl)
+    return docs
 
 
+# ruff:ignore[too-many-arguments,too-many-positional-arguments]
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
     website,
     heuristic,
@@ -415,6 +417,9 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     num_link_scores_to_check_per_page=4,
     max_urls=100,
     pb_jurisdiction_name=None,
+    timeout_seconds=3600,
+    url_ignore_substrings=None,
+    url_keep_substrings=None,
 ):
     """Download ord documents from a website using the COMPASS crawler
 
@@ -452,6 +457,16 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     pb_jurisdiction_name : str, optional
         Optional jurisdiction name to use to update progress bar, if
         it's being used. By default, ``None``.
+    timeout_seconds : float, default=3600
+        Maximum number of seconds to allow for the crawl before timing
+        out. By default, ``3600`` (1 hour).
+    url_ignore_substrings : iterable of str, optional
+        URL parts that exclude matching crawl candidates. These are the
+        same values used to filter search results. By default, ``None``.
+    url_keep_substrings : iterable of str, optional
+        URL parts that override all crawl blacklist matches. These are
+        the same values used to filter search results. By default,
+        ``None``.
 
     Returns
     -------
@@ -491,12 +506,14 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         num_link_scores_to_check_per_page=num_link_scores_to_check_per_page,
         already_visited=already_visited,
         max_pages=max_urls,
+        url_ignore_substrings=url_ignore_substrings,
+        url_keep_substrings=url_keep_substrings,
     )
 
     if pb_jurisdiction_name:
         COMPASS_PB.update_jurisdiction_task(
             pb_jurisdiction_name,
-            description=f"Double-checking {website} for documents ...",
+            description=f"Crawling (COMPASS) {website} for documents ...",
         )
         cpb = COMPASS_PB.compass_website_crawl_prog_bar(
             pb_jurisdiction_name, max_urls
@@ -507,7 +524,9 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         ch = None
 
     async with cpb:
-        return await crawler.run(website, on_new_page_visit_hook=ch)
+        return await crawler.run(
+            website, crawl_timeout_s=timeout_seconds, on_new_page_visit_hook=ch
+        )
 
 
 async def download_prioritized_ordinances(workflow):
@@ -515,10 +534,7 @@ async def download_prioritized_ordinances(workflow):
     runtime = workflow.runtime
     output_dir = runtime.dirs.out / "search" / str(workflow.jurisdiction.code)
     templates = await workflow.extractor.get_query_templates()
-    queries = [
-        template.format(jurisdiction=workflow.jurisdiction.full_name)
-        for template in templates
-    ]
+    queries = _format_queries(workflow.jurisdiction, templates)
     seeds = await search_ordinance_candidates(
         queries, browser_semaphore=runtime.search_engine_semaphore,
         **runtime.search_params.se_kwargs,
@@ -681,7 +697,7 @@ async def filter_ordinance_docs(
         If the document already contains text collected by a given
         collector (i.e. the collector's ``OUT_LABEL`` is found in
         ``doc.attrs``), that collector will be skipped.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
@@ -795,11 +811,14 @@ async def _docs_from_web_search(
         **kwargs,
     )
     ranked_results = {
-        res.get("url"): res.get("overall_rank") or 1
+        res.get("url"): res
         for res in out["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
-    urls = sorted(ranked_results, key=ranked_results.get)
+    urls = sorted(
+        ranked_results,
+        key=lambda url: ranked_results[url].get("overall_rank") or 1,
+    )
     if not urls:
         return []
 
@@ -807,9 +826,14 @@ async def _docs_from_web_search(
         urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
     for doc in docs:
-        doc.attrs[_COLLECTION_SCORE_KEY] = ranked_results.get(
-            doc.attrs.get("source")
-        )
+        result = ranked_results.get(doc.attrs.get("source"))
+        if result is None:
+            doc.attrs[_COLLECTION_SCORE_KEY] = None
+            continue
+
+        doc.attrs[_COLLECTION_SCORE_KEY] = result.get("overall_rank") or 1
+        if "search_engines" in result:
+            doc.attrs["search_engines"] = list(result["search_engines"])
     return docs
 
 

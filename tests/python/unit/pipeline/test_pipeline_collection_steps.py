@@ -1,5 +1,6 @@
 """Tests for collection-step loader configuration"""
 
+import asyncio
 from pathlib import Path
 from types import SimpleNamespace
 from contextlib import AsyncExitStack
@@ -60,7 +61,8 @@ def _build_workflow(*, website="https://example.com", models=None):
         browser_semaphore=None,
         search_engine_semaphore=None,
         search_params=SimpleNamespace(
-            url_ignore_substrings=(),
+            url_ignore_substrings=("blocked.example",),
+            url_keep_substrings=("trusted.example",),
             se_kwargs={},
             website_crawl_timeout_seconds=3600,
         ),
@@ -131,6 +133,14 @@ async def test_compass_website_crawl_uses_ocr_loader(monkeypatch):
         captured["file_loader_kwargs"] is workflow.runtime.file_loader_kwargs
     )
     assert captured["already_visited"] == {"https://seen.example"}
+    assert (
+        captured["url_ignore_substrings"]
+        is workflow.runtime.search_params.url_ignore_substrings
+    )
+    assert (
+        captured["url_keep_substrings"]
+        is workflow.runtime.search_params.url_keep_substrings
+    )
 
 
 @pytest.mark.asyncio
@@ -240,6 +250,67 @@ async def test_elm_website_crawl_skips_discovery_without_models(monkeypatch):
 
     assert docs == []
     assert workflow.jurisdiction_website is None
+
+
+@pytest.mark.asyncio
+async def test_elm_website_crawl_recovers_partial_docs(monkeypatch):
+    """ELM crawl interruption should return docs accepted before it ended"""
+    workflow = _build_workflow()
+    workflow.runtime.search_params.website_crawl_timeout_seconds = 0.001
+    partial_doc = SimpleNamespace(attrs={})
+    partial_result = SimpleNamespace(url="https://example.com/seen")
+
+    async def fake_download(_url, **kwargs):
+        await asyncio.sleep(0)
+        assert kwargs["timeout_seconds"] == pytest.approx(0.001)
+        return [partial_doc], [partial_result]
+
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website",
+        fake_download,
+    )
+
+    docs = await ElmWebsiteCrawlStep().collect(workflow)
+
+    assert docs == [partial_doc]
+    assert partial_doc.attrs == {
+        "compass_crawl": False,
+        "check_correct_jurisdiction": True,
+    }
+    assert workflow.last_scrape_results == [partial_result]
+
+
+@pytest.mark.asyncio
+async def test_compass_website_crawl_recovers_partial_docs(monkeypatch):
+    """COMPASS crawl interruption should return accepted docs"""
+    workflow = _build_workflow()
+    workflow.runtime.search_params.website_crawl_timeout_seconds = 0.001
+    prior_result = SimpleNamespace(url="https://example.com/seen")
+    workflow.last_scrape_results = [[prior_result]]
+    partial_doc = SimpleNamespace(attrs={})
+    captured = {}
+
+    async def fake_download(_url, **kwargs):
+        await asyncio.sleep(0)
+        captured.update(kwargs)
+        return [partial_doc]
+
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        fake_download,
+    )
+
+    docs = await CompassWebsiteCrawlStep().collect(workflow)
+
+    assert docs == [partial_doc]
+    assert partial_doc.attrs == {
+        "compass_crawl": True,
+        "check_correct_jurisdiction": True,
+    }
+    assert captured["already_visited"] == {"https://example.com/seen"}
+    assert workflow.last_scrape_results == [[prior_result]]
 
 
 if __name__ == "__main__":

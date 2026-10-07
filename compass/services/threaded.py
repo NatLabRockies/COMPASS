@@ -416,7 +416,7 @@ class UsageUpdater(ThreadedService):
         """bool: ``True`` if file not currently being written to"""
         return not self._is_processing
 
-    async def process(self, tracker):
+    async def process(self, usage_tracker, rate_tracker):
         """Add usage from tracker to file
 
         Any existing usage info in the file will remain unchanged
@@ -425,9 +425,14 @@ class UsageUpdater(ThreadedService):
 
         Parameters
         ----------
-        tracker : UsageTracker
+        usage_tracker : LLMUsageTracker
             A usage tracker instance that contains usage info to be
-            added to output file.
+            added to output file. Can also be ``None`` to not record
+            usage.
+        rate_tracker : LLMRateTracker
+            Run-level LLM rate tracker to serialize with this usage
+            update. Can also be ``None`` to not record
+            rates.
 
         Returns
         -------
@@ -438,7 +443,11 @@ class UsageUpdater(ThreadedService):
         try:
             loop = asyncio.get_running_loop()
             out = await loop.run_in_executor(
-                self.pool, _dump_usage, self.usage_fp, tracker
+                self.pool,
+                _dump_usage,
+                self.usage_fp,
+                usage_tracker,
+                rate_tracker,
             )
         finally:
             self._is_processing = False
@@ -493,7 +502,7 @@ class JurisdictionUpdater(ThreadedService):
         seconds_elapsed : int or float
             Total number of seconds it took to look for (and possibly
             parse) this document.
-        usage_tracker : UsageTracker, optional
+        usage_tracker : LLMUsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         """
@@ -579,7 +588,7 @@ class GenericFuncRunner(ThreadedService):
         return await loop.run_in_executor(self.pool, func, *args)
 
 
-def _dump_usage(fp, tracker):
+def _dump_usage(fp, usage_tracker, rate_tracker):
     """Dump usage to an existing file"""
     if not Path(fp).exists():
         usage_info = {}
@@ -587,9 +596,13 @@ def _dump_usage(fp, tracker):
         with Path.open(fp, encoding="utf-8") as fh:
             usage_info = json.load(fh)
 
-    if tracker is not None:
-        tracker.add_to(usage_info)
+    if usage_tracker is not None:
+        usage_tracker.add_to(usage_info)
 
+    if rate_tracker is not None:
+        rate_tracker.add_to(usage_info)
+
+    if usage_tracker is not None or rate_tracker is not None:
         with Path.open(fp, "w", encoding="utf-8") as fh:
             json.dump(usage_info, fh, indent=4)
 
@@ -646,7 +659,7 @@ def _dump_jurisdiction_info(
 def _compile_doc_info(doc):
     """Put together meta information about a single document"""
     year, month, day = doc.attrs.get("date") or (None, None, None)
-    out_fp = doc.attrs.get("source_fp", doc.attrs.get("out_fp"))
+    out_fp = doc.attrs.get("out_fp") or doc.attrs.get("source_fp")
     return {
         "source": doc.attrs.get("source"),
         "effective_year": year if year is not None and year > 0 else None,
@@ -670,6 +683,7 @@ def _compile_doc_info(doc):
             "permitted_use_text_ngram_score"
         ),
         "from_steps": doc.attrs.get("from_steps"),
+        "search_engines": doc.attrs.get("search_engines"),
     }
 
 

@@ -13,14 +13,25 @@ authors:
     given-names: Guilherme
     affiliation: National Laboratory of the Rockies
     orcid: 'https://orcid.org/0000-0002-6765-0708'
-  - family-names: Lopez
-    given-names: Anthony
+  - family-names: Pullutasig
+    given-names: Byron
     affiliation: National Laboratory of the Rockies
-    orcid: 'https://orcid.org/0000-0002-5006-1675'
+    orcid: 'https://orcid.org/0000-0002-3327-226X'
   - family-names: Buster
     given-names: Grant
     affiliation: National Laboratory of the Rockies
     orcid: 'https://orcid.org/0000-0001-8616-8100'
+  - family-names: Lopez
+    given-names: Anthony
+    affiliation: National Laboratory of the Rockies
+    orcid: 'https://orcid.org/0000-0002-5006-1675'
+  - family-names: Sky
+    given-names: Haiku
+    affiliation: National Laboratory of the Rockies
+  - family-names: Levine
+    given-names: Aaron
+    affiliation: National Laboratory of the Rockies
+    orcid: 'https://orcid.org/0000-0002-8110-3049'
 identifiers:
   - type: doi
     value: 10.11578/dc.20250415.3

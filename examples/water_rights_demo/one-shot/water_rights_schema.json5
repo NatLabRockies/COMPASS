@@ -67,7 +67,7 @@
           },
           "summary": {
             "type": ["string", "null"],
-            "description": "Short requirement summary capturing the gist along with all specifics and details. Do not copy the ordinance wording here; the verbatim excerpt belongs in ordinance_text. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
+            "description": "Short requirement summary using direct excerpts/quotes whenever possible. Include key conditions, exemptions, qualifiers, application scope (permit/well/aquifer), and explanation for selected value. Null when no requirement exists.",
             "default": null
           },
           "ordinance_text": {
@@ -218,8 +218,8 @@
   "$instructions": {
     "general": [
       "Extract only enacted district requirements, not proposed language or general background text.",
-      "Use direct excerpts/quotes in ordinance_text; summary should restate the requirement in prose rather than quote it.",
-      "Whenever a feature row is emitted, ordinance_text must be the complete relevant excerpt from the source document for the requirement being extracted, copy-pasted verbatim. Its first sentence must be the one corresponding to the extracted value and summary, reproduced in full; after that, gather any other passages bearing on the same requirement, whether they appear earlier or later in the document, and join them with an ellipsis ('...') in document order. Unlike summary, every character outside the ellipses must appear exactly as written in the source, with no paraphrasing, normalization, added context, or commentary.",
+      "Use direct excerpts/quotes in summary whenever possible.",
+      "Whenever a feature row is emitted, ordinance_text must be the complete relevant excerpt from the source document for the requirement being extracted, copy-pasted verbatim. Its first sentence must be the one corresponding to the extracted value and summary, reproduced in full; after that, gather any other passages bearing on the same requirement, whether they appear earlier or later in the document, and join them with an ellipsis ('...') in document order. Every character outside the ellipses must appear exactly as written in the source, with no paraphrasing, normalization, added context, or commentary.",
       "If a feature has no enacted requirement in the source text, omit the feature row entirely. Never emit a row with a null or empty ordinance_text to signal absence.",
       "When multiple values exist for one feature, choose the value applicable to the primary general rule and describe alternatives/conditions in summary.",
       "Preserve distinctions between drilling permits, extraction permits, transfer permits, and reporting obligations.",

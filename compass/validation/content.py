@@ -471,29 +471,13 @@ async def parse_by_chunks(
     callbacks = callbacks or []
     outer_task_name = asyncio.current_task().get_name()
 
-    for ind, text in enumerate(chunk_parser.text_chunks):
-        passed_heuristic_mem.append(heuristic.check(text))
-        if ind < min_chunks_to_process:
-            if text_kind_validator is not None:
-                is_correct_text_kind = await text_kind_validator.check_chunk(
-                    chunk_parser, ind
-                )
-                if not is_correct_text_kind:
-                    continue  # don't bother checking this chunk
-
-        elif (
-            text_kind_validator is not None
-            and not text_kind_validator.is_correct_kind_of_text
-        ):
-            return  # don't bother checking this document
-
-        # hasn't passed heuristic, so don't pass it to callbacks
-        elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):
-            continue
-
-        logger.debug("Processing text at ind %d", ind)
-        logger.debug_to_file("Text:\n%s", text)
-
+    async for ind in _chunks_to_check(
+        chunk_parser,
+        heuristic,
+        text_kind_validator,
+        min_chunks_to_process,
+        passed_heuristic_mem,
+    ):
         if not callbacks:
             continue
 
@@ -507,3 +491,47 @@ async def parse_by_chunks(
         # the following chunk to be checked (it will only be checked if
         # it itself passes the heuristic)
         passed_heuristic_mem[-1] = not any(cb_results)
+
+
+async def _chunks_to_check(
+    chunk_parser,
+    heuristic,
+    text_kind_validator,
+    min_chunks_to_process,
+    passed_heuristic_mem,
+):
+    """Yield indices of chunks that should be checked"""
+    for ind, text in enumerate(chunk_parser.text_chunks):
+        passed_heuristic_mem.append(heuristic.check(text))
+        if ind < min_chunks_to_process:
+            if not await _chunk_is_correct_text_kind(
+                chunk_parser, ind, text_kind_validator
+            ):
+                continue
+
+        elif not _document_is_correct_text_kind(text_kind_validator):
+            return  # don't bother checking this document
+
+        # hasn't passed heuristic, so don't pass it to callbacks
+        elif not any(passed_heuristic_mem[-chunk_parser.num_to_recall :]):
+            continue
+
+        logger.debug("Processing text at ind %d", ind)
+        logger.debug_to_file("Text:\n%s", text)
+        yield ind
+
+
+async def _chunk_is_correct_text_kind(chunk_parser, ind, text_kind_validator):
+    """Check if a specific chunk of text is of the correct kind"""
+    if text_kind_validator is None:
+        return True  # assume chunk is good if no validator given
+
+    return await text_kind_validator.check_chunk(chunk_parser, ind)
+
+
+def _document_is_correct_text_kind(text_kind_validator):
+    """Check if the entire document is of the correct kind"""
+    if text_kind_validator is None:
+        return True  # assume doc is good if no validator given
+
+    return text_kind_validator.is_correct_kind_of_text

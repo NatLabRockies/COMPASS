@@ -131,6 +131,7 @@ docling-parse = ">=5.3.2,<6.0.0"
 # ELM dependencies explicitly enumerated
 # We should remove this once ELM better defines its dependencies
 [feature.elm.pypi-dependencies]
+browserforge = ">=1.2.1,<2"
 camoufox = ">=0.4.11,<0.5"
 ddgs = ">=9.2.3,<10"
 fake-useragent = ">=2.0.3,<3"
@@ -147,6 +148,9 @@ jupyter = ">=1.0.0,<1.1"
 pipreqs = ">=0.4.13,<0.5"
 ruff = ">=0.16,<0.17"
 seaborn = ">=0.13.2,<0.14"
+
+[feature.python-dev.pypi-dependencies]
+complexipy = ">=7.0.1,<8"
 
 [feature.python-test.dependencies]
 codespell = ">=2.4,<3"

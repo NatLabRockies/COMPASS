@@ -55,6 +55,23 @@ class DocumentDeDuplicator(UserDict):
             doc_info = self.data.setdefault(key, _DocInfo.from_doc(doc))
             doc_info.add_step(step_name)
 
+    def info(self, doc):
+        """Get the info for a given document
+
+        Parameters
+        ----------
+        doc : BaseDocument
+            The document for which to retrieve the deduplication info.
+
+        Returns
+        -------
+        object
+            The deduplication info for the given document.
+        """
+        return self.data.get(
+            _collection_doc_key(doc.attrs), _DocInfo(doc=doc, from_steps=[])
+        )
+
 
 def _collection_doc_key(doc_info):
     """Build the deduplication key for a collected document"""

@@ -69,7 +69,11 @@ def patched_workflow(monkeypatch):
             DummyWorkflow.LAST_MODE_USED = self.runtime.mode
             return f"processed {self.runtime.mode}"
 
-    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
+    monkeypatch.setattr(
+        data_classes_module,
+        "build_models",
+        lambda _model_input, **_kwargs: {},
+    )
     monkeypatch.setattr(
         coordinator_module,
         "_load_jurisdictions_to_process",
@@ -129,6 +133,7 @@ def test_known_sources_match_fips_with_leading_zero(
     runtime = SimpleNamespace(
         extractor_class=Mock(),
         models={},
+        rate_tracker=None,
         known_local_docs={"8041": ["ordinance.pdf"]},
         known_doc_urls={"8041": ["https://example.com/ordinance.pdf"]},
         request=SimpleNamespace(
@@ -284,7 +289,11 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
         "_load_jurisdictions_to_process",
         _load_single_jurisdiction,
     )
-    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
+    monkeypatch.setattr(
+        data_classes_module,
+        "build_models",
+        lambda _model_input: {},
+    )
     monkeypatch.setattr(
         coordinator_module,
         "_select_workflow",

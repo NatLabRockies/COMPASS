@@ -4,8 +4,10 @@ from copy import deepcopy
 import importlib.resources
 from functools import cached_property
 
+from elm.web.search.run import SEARCH_ENGINE_OPTIONS
+
 from compass.llm import OpenAIConfig
-from compass.web import SEARCH_ENGINE_OPTIONS
+from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
@@ -209,13 +211,14 @@ class WebSearchParams:
         website_crawl_timeout_seconds : int, default=3600
             Maximum number of seconds to allow for a website crawl to
             complete before timing out. If the crawl exceeds this time,
-            it will be terminated and no documents will be returned for
-            the crawl step for the jurisdiction. By default, ``3600``
+            it will be terminated and documents accepted before the
+            timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -233,15 +236,15 @@ class WebSearchParams:
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         search_engines : list, optional
@@ -250,7 +253,7 @@ class WebSearchParams:
             for the document retrieval process. Each dictionary should
             contain at least the key ``"se_name"``, which should
             correspond to one of the search engine class names from
-            :obj:`compass.web.SEARCH_ENGINE_OPTIONS`. The rest of
+            :obj:`elm.web.search.run.SEARCH_ENGINE_OPTIONS`. The rest of
             the keys in the dictionary should contain keyword-value
             pairs to be used as parameters to initialize the search
             engine class (things like API keys and configuration
@@ -284,10 +287,14 @@ class WebSearchParams:
             max_num_concurrent_website_searches
         )
         self.website_crawl_timeout_seconds = website_crawl_timeout_seconds
-        self.url_ignore_substrings = _DOMAINS["blacklist"]
-        self.url_ignore_substrings += url_ignore_substrings or []
-        self.url_keep_substrings = _DOMAINS["whitelist"]
-        self.url_keep_substrings += url_keep_substrings or []
+        self.url_ignore_substrings = [
+            *_DOMAINS["blacklist"],
+            *(url_ignore_substrings or []),
+        ]
+        self.url_keep_substrings = [
+            *_DOMAINS["whitelist"],
+            *(url_keep_substrings or []),
+        ]
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
         self.priority_search = priority_search
@@ -491,13 +498,14 @@ class BaseRequest:
         website_crawl_timeout_seconds : int, default=3600
             Maximum number of seconds to allow for a website crawl to
             complete before timing out. If the crawl exceeds this time,
-            it will be terminated and no documents will be returned for
-            the crawl step for the jurisdiction. By default, ``3600``
+            it will be terminated and documents accepted before the
+            timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -515,15 +523,15 @@ class BaseRequest:
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
@@ -696,13 +704,22 @@ class BaseRequest:
         )
         self.user_model_input = model
         self.llm_costs = llm_costs
+        self._rate_tracker = LLMRateTracker()
 
     @cached_property
     def models(self):
         """dict: Mapping of LLM task to OpenAIConfig for this request"""
         if not self.user_model_input:
             return {}
-        return build_models(self.user_model_input)
+
+        return build_models(
+            self.user_model_input, rate_tracker=self._rate_tracker
+        )
+
+    @property
+    def rate_tracker(self):
+        """LLMRateTracker: Rate tracker for LLM calls"""
+        return self._rate_tracker
 
 
 class ProcessRequest(BaseRequest):
@@ -851,13 +868,14 @@ class CollectionRequest(BaseRequest):
         website_crawl_timeout_seconds : int, default=3600
             Maximum number of seconds to allow for a website crawl to
             complete before timing out. If the crawl exceeds this time,
-            it will be terminated and no documents will be returned for
-            the crawl step for the jurisdiction. By default, ``3600``
+            it will be terminated and documents accepted before the
+            timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -875,15 +893,15 @@ class CollectionRequest(BaseRequest):
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
@@ -1297,7 +1315,7 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def build_models(user_input, *, allow_empty=False):
+def build_models(user_input, *, allow_empty=False, rate_tracker=None):
     """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
@@ -1307,22 +1325,40 @@ def build_models(user_input, *, allow_empty=False):
 
     caller_instances = {}
     for raw_kwargs in user_input:
-        kwargs = dict(raw_kwargs)
-        tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
-        if isinstance(tasks, str):
-            tasks = [tasks]
-
-        model_config = OpenAIConfig(**kwargs)
-        for task in tasks:
-            if task in caller_instances:
-                msg = (
-                    f"Found duplicated task: {task!r}. Please ensure "
-                    "each LLM caller definition has uniquely-assigned "
-                    "tasks."
-                )
-                raise COMPASSValueError(msg)
+        for task, model_config in _config_for_tasks(raw_kwargs, rate_tracker):
+            _verify_task_not_duplicate(task, caller_instances)
             caller_instances[task] = model_config
 
+    _verify_default_case_handled(caller_instances, allow_empty)
+    return caller_instances
+
+
+def _config_for_tasks(kwargs, rate_tracker=None):
+    """Yield (task, model_config) pairs for the given raw kwargs"""
+    kwargs = dict(kwargs)
+    tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
+    if isinstance(tasks, str):
+        tasks = [tasks]
+
+    model_config = OpenAIConfig(**kwargs)
+    model_config.llm_call_kwargs.update({"rate_tracker": rate_tracker})
+    for task in tasks:
+        yield task, model_config
+
+
+def _verify_task_not_duplicate(task, caller_instances):
+    """Verify that the given task has not already been defined"""
+    if task in caller_instances:
+        msg = (
+            f"Found duplicated task: {task!r}. Please ensure "
+            "each LLM caller definition has uniquely-assigned "
+            "tasks."
+        )
+        raise COMPASSValueError(msg)
+
+
+def _verify_default_case_handled(caller_instances, allow_empty):
+    """Verify that the default LLM task is handled correctly"""
     if not allow_empty and LLMTasks.DEFAULT not in caller_instances:
         msg = (
             "No 'default' LLM caller defined in the `model` portion "
@@ -1331,5 +1367,3 @@ def build_models(user_input, *, allow_empty=False):
             f"unspecified. Found tasks: {list(caller_instances)}"
         )
         raise COMPASSValueError(msg)
-
-    return caller_instances

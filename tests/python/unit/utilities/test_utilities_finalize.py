@@ -174,6 +174,38 @@ def test_save_run_meta_handles_getuser_error(tmp_path, monkeypatch):
     assert meta["models"] == []
 
 
+def test_save_run_meta_writes_llm_usage_rates(tmp_path, monkeypatch):
+    """Write LLM usage rates into run metadata"""
+
+    monkeypatch.setattr(finalize.getpass, "getuser", lambda: "testuser")
+    dirs = SimpleNamespace(
+        logs=tmp_path / "logs",
+        clean_files=tmp_path / "clean",
+        jurisdiction_dbs=tmp_path / "jurisdictions",
+        ordinance_files=tmp_path / "ordinances",
+        out=tmp_path,
+    )
+    llm_usage_rates = {
+        "overall": {"requests_per_second": {"min": 0}},
+        "models": {"gpt-4o": {"requests_per_second": {"max": 2}}},
+    }
+
+    finalize.save_run_meta(
+        dirs,
+        "solar",
+        datetime(2025, 1, 1),
+        datetime(2025, 1, 1, 0, 1),
+        num_jurisdictions_searched=1,
+        num_jurisdictions_found=0,
+        total_cost=0,
+        models={},
+        llm_usage_rates=llm_usage_rates,
+    )
+
+    meta = json.loads((tmp_path / "meta.json").read_text(encoding="utf-8"))
+    assert meta["llm_usage_rates"] == llm_usage_rates
+
+
 def test_save_run_meta_manifest_walks_up_for_sibling_dirs(
     tmp_path, monkeypatch
 ):
@@ -724,7 +756,7 @@ def test_extract_model_info_from_all_models_groups_tasks():
     first, second = info
     assert first["name"] == "gpt"
     assert first["tasks"] == ["task_one", "task_two"]
-    assert first["llm_call_kwargs"] is None
+    assert first["llm_call_kwargs"] == {}
 
     assert second["name"] == "gpt-4"
     assert second["tasks"] == ["task_three"]
@@ -759,6 +791,63 @@ def test_elapsed_time_as_str_with_days():
     """Format elapsed time spanning days"""
 
     assert finalize._elapsed_time_as_str(90061) == "1 day, 1:01:01"
+
+
+def test_trim_ordinance_text_leaves_short_text_alone():
+    """Test excerpts within the limit are untouched"""
+
+    text = "Turbines shall not exceed 100 feet."
+    db = pd.DataFrame([{"ordinance_text": text}])
+
+    out = finalize.trim_ordinance_text(db)
+
+    assert out.iloc[0]["ordinance_text"] == text
+
+
+def test_trim_ordinance_text_trims_long_text():
+    """Test over-long excerpts are cut back and marked"""
+
+    long_text = "word " * (finalize.MAX_ORDINANCE_TEXT_CHARS // 2)
+    db = pd.DataFrame([{"ordinance_text": long_text}])
+
+    out = finalize.trim_ordinance_text(db)
+    trimmed = out.iloc[0]["ordinance_text"]
+
+    assert len(trimmed) <= finalize.MAX_ORDINANCE_TEXT_CHARS + len(" ...")
+    assert trimmed.endswith(" ...")
+    # cut on a word boundary, so no partial word is left behind
+    assert not trimmed.removesuffix(" ...").endswith("wor")
+
+
+def test_trim_ordinance_text_preserves_non_strings():
+    """Test null entries survive trimming"""
+
+    db = pd.DataFrame(
+        [{"ordinance_text": None}, {"ordinance_text": "short text"}]
+    )
+
+    out = finalize.trim_ordinance_text(db)
+
+    assert out.iloc[0]["ordinance_text"] is None
+    assert out.iloc[1]["ordinance_text"] == "short text"
+
+
+def test_trim_ordinance_text_without_column():
+    """Test databases lacking the column pass through unchanged"""
+
+    db = pd.DataFrame([{"feature": "Height"}])
+
+    out = finalize.trim_ordinance_text(db)
+
+    assert list(out.columns) == ["feature"]
+
+
+def test_trim_ordinance_text_with_empty_db():
+    """Test empty databases pass through unchanged"""
+
+    db = pd.DataFrame(columns=["ordinance_text"])
+
+    assert finalize.trim_ordinance_text(db).empty
 
 
 if __name__ == "__main__":

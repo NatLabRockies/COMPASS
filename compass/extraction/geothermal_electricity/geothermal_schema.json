@@ -85,7 +85,7 @@
           },
           "summary": {
             "type": "string",
-            "description": "A short summary capturing the gist of the requirement along with all of its specifics and details. Do not copy the ordinance wording here; the verbatim excerpt belongs in ordinance_text. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should state the requirement in full. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
+            "description": "A short summary with direct ordinance excerpts or quotes whenever possible. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should contain direct ordinance language. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
           },
           "ordinance_text": {
             "type": "string",
@@ -312,7 +312,7 @@
       "For any numeric feature, the summary must support the same requirement that produced value and units for that row. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
       "Standardize units in the units field using this schema's canonical vocabulary, while preserving ordinance-specific wording in summary.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
-      "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. Unlike summary, ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
+      "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",

@@ -1,5 +1,6 @@
 """COMPASS Ordinance content validation tests"""
 
+import asyncio
 import os
 from pathlib import Path
 
@@ -74,6 +75,89 @@ async def test_validation_with_mem():
         {"test": False},
         {"test": False},
     ]
+
+
+@pytest.mark.asyncio
+async def test_parse_by_chunks_masks_chunk_after_successful_callback():
+    """Test callback dispatch respects heuristic and callback results"""
+
+    class MatchingHeuristic:
+        """Recognize chunks explicitly marked as matching"""
+
+        def check(self, text):
+            """Return whether a chunk matches"""
+            return text == "match"
+
+    processed_indices = []
+
+    async def callback(chunk_parser, ind):
+        """Record processed chunk indices"""
+        processed_indices.append(ind)
+        await asyncio.sleep(0)
+        return True
+
+    chunk_parser = ParseChunksWithMemory(
+        ["match", "skip", "match"], num_to_recall=2
+    )
+
+    await parse_by_chunks(
+        chunk_parser,
+        heuristic=MatchingHeuristic(),
+        callbacks=[callback],
+        min_chunks_to_process=0,
+    )
+
+    assert processed_indices == [0, 2]
+
+
+@pytest.mark.asyncio
+async def test_parse_by_chunks_stops_after_initial_invalid_chunks():
+    """Test invalid initial chunks stop later callback processing"""
+
+    class AlwaysMatchingHeuristic:
+        """Recognize every chunk"""
+
+        def check(self, text):
+            """Return a matching result"""
+            return True
+
+    class InvalidTextValidator:
+        """Reject every chunk and document"""
+
+        def __init__(self):
+            self.checked_indices = []
+
+        async def check_chunk(self, chunk_parser, ind):
+            """Record and reject a chunk"""
+            self.checked_indices.append(ind)
+            return False
+
+        @property
+        def is_correct_kind_of_text(self):
+            """bool: Always reject the document"""
+            return False
+
+    processed_indices = []
+    validator = InvalidTextValidator()
+
+    async def callback(chunk_parser, ind):
+        """Record processed chunk indices"""
+        processed_indices.append(ind)
+        await asyncio.sleep(0)
+        return True
+
+    chunk_parser = ParseChunksWithMemory(["one", "two", "three"])
+
+    await parse_by_chunks(
+        chunk_parser,
+        heuristic=AlwaysMatchingHeuristic(),
+        text_kind_validator=validator,
+        callbacks=[callback],
+        min_chunks_to_process=2,
+    )
+
+    assert validator.checked_indices == [0, 1]
+    assert processed_indices == []
 
 
 @flaky(max_runs=3, min_passes=1)

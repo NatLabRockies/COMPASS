@@ -39,7 +39,7 @@ def _workflow(existing_collection_info=None):
     """Build a minimal collection workflow"""
     workflow = SimpleNamespace(
         jurisdiction=SimpleNamespace(full_name="Example Township"),
-        extraction_workflow=None,
+        extraction=None,
     )
     workflow.writes = []
 

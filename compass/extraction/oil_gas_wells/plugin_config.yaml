@@ -1,0 +1,160 @@
+schema: ./oil_and_gas_wells_schema.json
+
+data_type_short_desc: oil and gas well ordinance
+
+cache_llm_generated_content: true
+
+query_templates:
+  - "filetype:pdf {jurisdiction} oil gas well exploration drilling ordinance"
+  - "{jurisdiction} oil gas well setback"
+  - "{jurisdiction} oil gas zoning ordinance"
+  - "{jurisdiction} oil gas wells land use code"
+  - "{jurisdiction} oil gas exploration code of ordinances"
+
+website_keywords:
+  pdf: 2643840
+  "oil and gas": 132192
+  "oil & gas": 132192
+  "gas and oil": 132192
+  oil-and-gas: 132192
+  oil_gas: 132192
+  "oil well": 132192
+  "gas well": 132192
+  oil-well: 132192
+  gas-well: 132192
+  wellhead: 7776
+  "well pad": 7776
+  well-pad: 7776
+  "drilling permit": 7776
+  "drilling ordinance": 7776
+  "hydraulic fracturing": 7776
+  fracking: 7776
+  drilling: 7776
+  planning: 3888
+  government: 972
+  plan: 1944
+  code: 324
+  area: 324
+  "code of ordinances": 27
+  code_of_ordinances: 27
+  "land use code": 27
+  land_use_code: 27
+  "land development": 27
+  ordinance: 9
+  zoning: 9
+  land: 3
+  environment: 3
+  municipal: 1
+  department: 1
+
+heuristic_keywords:
+  good_tech_keywords:
+    - "wellhead"
+    - "derrick"
+    - "pumpjack"
+    - "hydrocarbon"
+    - "fracking"
+  good_tech_acronyms:
+    - "o&g"
+    - "e&p"
+    - "swd"
+  good_tech_phrases:
+    - "oil well"
+    - "gas well"
+    - "oil and gas"
+    - "oil & gas"
+    - "gas and oil"
+    - "gas & oil"
+    - "oil and gas exploration"
+    - "gas and oil exploration"
+    - "gas & oil exploration"
+    - "oil and gas drilling"
+    - "gas and oil drilling"
+    - "gas & oil drilling"
+    - "oil and gas production"
+    - "gas and oil production"
+    - "gas & oil production"
+    - "oil and gas development"
+    - "gas and oil development"
+    - "gas & oil development"
+    - "oil and gas operation"
+    - "gas and oil operation"
+    - "gas & oil operation"
+    - "oil and gas extraction"
+    - "gas and oil extraction"
+    - "gas & oil extraction"
+    - "petroleum exploration"
+    - "petroleum production"
+    - "hydrocarbon exploration"
+    - "hydrocarbon production"
+    - "well pad"
+    - "well site"
+    - "well spacing"
+    - "well setback"
+    - "drilling operation"
+    - "drilling rig"
+    - "drilling permit"
+    - "exploratory well"
+    - "production well"
+    - "injection well"
+    - "disposal well"
+    - "saltwater disposal well"
+    - "enhanced oil recovery"
+    - "hydraulic fracturing"
+    - "horizontal drilling"
+    - "directional drilling"
+    - "plugging and abandonment"
+    - "well reclamation"
+    - "oil and gas commission"
+    - "oil and gas conservation"
+    - "gas and oil commission"
+    - "gas and oil conservation"
+  not_tech_words:
+    - "soil"
+    - "wellness"
+    - "water well contractor"
+    - "water well drilling"
+    - "drinking water well construction"
+    - "domestic water well permit"
+    - "groundwater extraction well"
+    - "monitoring well installation"
+    - "geothermal power plant"
+    - "geothermal drilling"
+    - "geothermal heat pump"
+    - "ground source heat pump"
+    - "ground-source heat pump"
+    - "residential water well"
+
+collection_prompts:
+  - key: contains_relevant_text
+    label: oil and gas well applicability or governing standards
+    prompt: |-
+      You are validating whether an ordinance text chunk should be retained
+      for oil and gas well extraction.
+
+      Return JSON (not markdown) with exactly two keys:
+      1) "{key}" (boolean)
+      2) "explanation" (string)
+
+      Set "{key}" = true when the chunk contains substantive regulatory text
+      that is likely usable for oil and gas well extraction, including
+      any of the following:
+      - explicit oil well, gas well, petroleum, or hydrocarbon language; OR
+      - oil and gas exploration, drilling, production, injection, disposal,
+        hydraulic fracturing, plugging, abandonment, or reclamation terms; OR
+      - operative zoning or development standards, use-table notes, permit
+        requirements, siting constraints, hazard/site-condition requirements,
+        decommissioning, bonding, lighting, fencing, color, or visual-impact
+        requirements that can govern listed oil and gas wells, extraction uses,
+        or directly associated well-site equipment within the same ordinance
+        structure.
+
+      Treat enforceable table notes and standards as relevant even when the
+      same chunk does not repeat "oil and gas", as long as the text is
+      substantive ordinance language tied to an oil-and-gas use in the same
+      governing structure (not only headings/indexes).
+
+      Set "{key}" = false only when the chunk is clearly irrelevant
+      (e.g., table of contents, navigation text, or content focused on
+      unrelated activities such as water wells, geothermal development,
+      pipelines, refineries, bulk storage, or retail fuel sales only).
