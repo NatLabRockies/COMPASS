@@ -10,6 +10,7 @@ quality before invoking the full pipeline.
 import asyncio
 import json
 import logging
+from statistics import median
 from datetime import datetime, UTC
 from pathlib import Path
 
@@ -86,6 +87,14 @@ async def run_search(request, config_path=None):
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
     config_path = str(Path(config_path).resolve()) if config_path else None
+
+    result_counts = []
+    se_counts = {}
+    for results in jur_results:
+        result_counts.append(results.get("num_results", 0))
+        for se, count in results["search_engine_counts"].items():
+            se_counts[se] = se_counts.get(se, 0) + count
+
     return {
         "tech": runtime.tech,
         "versions": {"compass": compass_version, "elm": elm_version},
@@ -101,6 +110,13 @@ async def run_search(request, config_path=None):
         "num_jurisdictions_found": sum(
             results.get("num_results", 0) > 0 for results in jur_results
         ),
+        "search_engine_totals": dict(se_counts),
+        "result_stats": {
+            "min": min(result_counts, default=0),
+            "max": max(result_counts, default=0),
+            "median": median(result_counts) if result_counts else 0,
+            "total": sum(result_counts),
+        },
         "jurisdictions": jur_results,
     }
 
