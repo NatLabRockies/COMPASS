@@ -14,6 +14,69 @@ _WEBSITE_QUERY_TEMPLATE = "site:{jurisdiction_website} zoning ordinance"
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("simple", [True, False])
+@pytest.mark.parametrize("outcome", ["results", "empty", "error"])
+async def test_search_returns_jurisdiction_and_result_metadata(
+    monkeypatch, simple, outcome
+):
+    """Return jurisdiction metadata and counts on success or failure"""
+    results = (
+        [
+            {"url": "https://example.com/a", "search_engine": "Google"},
+            {"url": "https://example.com/b", "search_engine": "Google"},
+            {"url": "https://example.com/c", "search_engine": "Bing"},
+        ]
+        if outcome == "results"
+        else []
+    )
+    search_backend = AsyncMock(
+        return_value=results,
+        side_effect=RuntimeError("Search unavailable")
+        if outcome == "error"
+        else None,
+    )
+    monkeypatch.setattr(
+        search_module,
+        "_run_simple_sort_search" if simple else "_run_holistic_sort_search",
+        search_backend,
+    )
+    jurisdiction = Jurisdiction(
+        "city",
+        "Colorado",
+        county="Adams",
+        subdivision_name="Thornton",
+        code="0877290",
+        website_url="https://www.thorntonco.gov/government",
+    )
+
+    output = await search_module.search_single_jurisdiction(
+        [_JURISDICTION_QUERY_TEMPLATE], jurisdiction, simple=simple
+    )
+
+    search_backend.assert_awaited_once()
+    assert output == {
+        "full_name": "City of Thornton, Adams County, Colorado",
+        "state": "Colorado",
+        "county": "Adams",
+        "subdivision": "Thornton",
+        "jurisdiction_type": "City",
+        "FIPS": "0877290",
+        "jurisdiction_website": "https://www.thorntonco.gov/government",
+        "queries": [
+            "City of Thornton, Adams County, Colorado zoning ordinance"
+        ],
+        "num_results": len(results),
+        "search_engine_counts": {"Google": 2, "Bing": 1}
+        if outcome == "results"
+        else {},
+        "results": results,
+        "error": "RuntimeError: Search unavailable"
+        if outcome == "error"
+        else None,
+    }
+
+
+@pytest.mark.asyncio
 async def test_search_formats_query_with_known_jurisdiction_website(
     monkeypatch,
 ):
@@ -83,9 +146,20 @@ async def test_search_skips_backend_when_no_queries_remain(monkeypatch):
     )
 
     search_backend.assert_not_awaited()
-    assert output["queries"] == []
-    assert output["results"] == []
-    assert output["error"] is None
+    assert output == {
+        "full_name": "Adams County, Colorado",
+        "state": "Colorado",
+        "county": "Adams",
+        "subdivision": None,
+        "jurisdiction_type": "County",
+        "FIPS": None,
+        "jurisdiction_website": None,
+        "queries": [],
+        "num_results": 0,
+        "search_engine_counts": {},
+        "results": [],
+        "error": None,
+    }
 
 
 @pytest.mark.asyncio
