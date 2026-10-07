@@ -78,7 +78,7 @@ schema: ./my_schema.json
 | `schema` | string (path) | [base.py#L124–L131](../../../compass/plugin/one_shot/base.py) |
 | `data_type_short_desc` | string | [base.py#L483](../../../compass/plugin/one_shot/base.py#L483) |
 | `query_templates` | list | [base.py#L217–L240](../../../compass/plugin/one_shot/base.py#L217) |
-| `website_keywords` | dict | [base.py#L281–L338](../../../compass/plugin/one_shot/base.py#L281) |
+| `website_keywords` | list of lists or dict | [base.py#L281–L338](../../../compass/plugin/one_shot/base.py#L281) |
 | `heuristic_keywords` | dict or `true` | [base.py#L340–L390](../../../compass/plugin/one_shot/base.py#L340); [base.py#L512](../../../compass/plugin/one_shot/base.py#L512) |
 | `collection_prompts` | list or `true` | [base.py#L413–L436](../../../compass/plugin/one_shot/base.py#L413) |
 | `text_extraction_prompts` | list or `true` | [base.py#L438–L468](../../../compass/plugin/one_shot/base.py#L438) |
@@ -172,11 +172,11 @@ query_templates:
   - "{jurisdiction} <tech> zoning ordinance"
   - "{jurisdiction} <tech> permitting requirements"
 website_keywords:
-  pdf: 92160
-  <tech>: 46080
-  ordinance: 23040
-  zoning: 2880
-  permit: 1440
+  - pdf
+  - <tech>
+  - ordinance
+  - zoning
+  - permit
 heuristic_keywords:
   GOOD_TECH_KEYWORDS:
     - "<tech keyword 1>"
@@ -192,6 +192,14 @@ heuristic_keywords:
 ```
 
 Swap vocabulary for any technology while keeping the same structure.
+
+Website keyword tiers are ordered from highest priority to lowest priority.
+Each tier can be a string or a list of strings.
+COMPASS computes the scores so one keyword in a tier outweighs every possible
+combination of keywords in lower tiers. Multi-word keywords automatically add
+space, `%20`, and `+` URL forms before COMPASS computes weights. Existing
+keyword-to-score mappings remain supported for generated or legacy configs,
+but tier lists are preferred for authored plugin YAML.
 
 ## Stable development mode
 

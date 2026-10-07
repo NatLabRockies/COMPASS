@@ -11,24 +11,18 @@ query_templates:
   - "What are the zoning district regulations and setback requirements for public utility or power generation facilities in {jurisdiction}?"
 
 website_keywords:
-  pdf: 92160
-  zoning: 46080
-  ordinance: 23040
-  generating facility: 11520
-  power plant: 11520
-  electric: 5760
-  industrial district: 2880
-  planning: 720
-  plan: 360
-  government: 180
-  code: 60
-  area: 60
-  land development: 15
-  land: 3
-  utility: 3
-  energy: 3
-  municipal: 1
-  department: 1
+  - "pdf"
+  - ["gas", "natural gas", "generating facility", "power plant"]
+  - ["zoning", "ordinance", "regulation"]
+  - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
+  - ["power", "electric", "industrial district"]
+  - ["plan", "planning", "permit"]
+  - "government"
+  - ["setback", "noise"]
+  - ["code", "area"]
+  - ["land development", "land use"]
+  - ["land", "environment"]
+  - ["municipal", "department", "development", "board"]
 
 heuristic_keywords:
   good_tech_keywords:
@@ -92,7 +86,7 @@ heuristic_keywords:
 
 collection_prompts: true
 text_extraction_prompts: true
-cache_llm_generated_content: true  
+cache_llm_generated_content: true
 
 extraction_system_prompt: |-
   You are a legal scholar extracting structured data from natural gas electric
