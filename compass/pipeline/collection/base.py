@@ -161,9 +161,8 @@ class DocumentCollection:
         self._collection_info = (
             await self.workflow.load_existing_collection_shard()
         ) or {}
-        self.workflow.num_search_results_to_crawl = self._collection_info.get(
-            "num_search_results_to_crawl"
-        )
+
+        self._set_num_search_results_to_crawl()
 
         docs = [
             _PersistedDocument(doc_info)
@@ -174,6 +173,14 @@ class DocumentCollection:
         self._completed_steps |= set(
             self._collection_info.get("completed_step_document_counts", {})
         )
+
+    def _set_num_search_results_to_crawl(self):
+        """Set the number of results to crawl based on persisted info"""
+        num_to_crawl = self._collection_info.get("num_search_results_to_crawl")
+        if num_to_crawl is not None:
+            self.workflow.num_search_results_to_crawl = max(
+                0, int(num_to_crawl)
+            )
 
     def _unfinished_steps(self):
         """Yield unfinished collection steps"""
