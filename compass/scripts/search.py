@@ -13,6 +13,9 @@ import logging
 from datetime import datetime, UTC
 from pathlib import Path
 
+from elm.version import __version__ as elm_version
+
+from compass import __version__ as compass_version
 from compass.web.search import search_single_jurisdiction
 from compass.pipeline.runtime import PipelineRuntime
 from compass.utilities.jurisdictions import (
@@ -56,6 +59,7 @@ async def run_search(request, config_path=None):
         URLs and filtering reasons.
     """
 
+    time_start_utc = datetime.now(UTC)
     runtime = PipelineRuntime(request)
 
     qt = await runtime.extractor_class(None, None).get_query_templates()
@@ -76,19 +80,27 @@ async def run_search(request, config_path=None):
         )
         for jur in jurisdictions_from_df(jurisdictions_df)
     ]
+    num_jurisdictions_searched = len(tasks)
     jur_results = await asyncio.gather(*tasks)
 
-    timestamp = (
-        datetime.now(UTC).isoformat(timespec="seconds").replace("+00:00", "Z")
-    )
+    time_end_utc = datetime.now(UTC)
+    time_elapsed = time_end_utc - time_start_utc
     config_path = str(Path(config_path).resolve()) if config_path else None
     return {
-        "timestamp": timestamp,
-        "config_path": config_path,
         "tech": runtime.tech,
+        "versions": {"compass": compass_version, "elm": elm_version},
+        "config_path": config_path,
         "num_urls_requested": num_urls,
         "search_engines": list(se_kwargs["search_engines"]),
         "query_templates": list(qt),
+        "time_start_utc": time_start_utc.isoformat(),
+        "time_end_utc": time_end_utc.isoformat(),
+        "total_time": time_elapsed.total_seconds(),
+        "total_time_string": str(time_elapsed),
+        "num_jurisdictions_searched": num_jurisdictions_searched,
+        "num_jurisdictions_found": sum(
+            results.get("num_results", 0) > 0 for results in jur_results
+        ),
         "jurisdictions": jur_results,
     }
 
