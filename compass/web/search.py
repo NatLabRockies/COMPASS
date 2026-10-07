@@ -67,10 +67,15 @@ async def search_single_jurisdiction(
     dict
         Dictionary containing the following keys:
 
-            - ``jurisdiction``: Full jurisdiction name
+            - ``full_name``: Full jurisdiction name
             - ``state``: Jurisdiction state
             - ``county``: Jurisdiction county
             - ``subdivision``: Jurisdiction subdivision name
+            - ``jurisdiction_type``: Type of the jurisdiction (e.g.,
+              state, county)
+            - ``FIPS``: FIPS code of the jurisdiction
+            - ``jurisdiction_website``: Known website URL of the
+              jurisdiction
             - ``queries``: List of formatted query strings that were
               searched
             - ``results``: List of search results dictionaries, with at
