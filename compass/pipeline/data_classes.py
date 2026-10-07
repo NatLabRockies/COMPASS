@@ -511,9 +511,11 @@ class BaseRequest:
             By default, ``5``.
         num_search_results_to_crawl : int, default=0
             Inspect this many ranked search results for HTML crawl
-            pages, independently of the direct download limit and
-            website crawl toggle. PDFs count toward the limit. Zero
-            disables this step. By default, ``0``.
+            pages, independently of the website crawl toggle. This
+            value is capped at ``num_urls_to_check_per_jurisdiction``;
+            larger values trigger a warning and are reduced to that
+            limit. PDFs count toward the limit. Zero disables this step.
+            By default, ``0``.
         search_results_crawl_depth : int, default=3
             Maximum link depth from HTML search pages, counting the seed
             as depth zero. Zero disables outgoing traversal. By default,
@@ -892,9 +894,11 @@ class CollectionRequest(BaseRequest):
             By default, ``5``.
         num_search_results_to_crawl : int, default=0
             Inspect this many ranked results for HTML crawl pages,
-            independently of the direct download limit and website crawl
-            toggle. PDFs count toward the limit. Zero disables this
-            step. By default, ``0``.
+            independently of the website crawl toggle. This value is
+            capped at ``num_urls_to_check_per_jurisdiction``; larger
+            values trigger a warning and are reduced to that limit.
+            PDFs count toward the limit. Zero disables this step.
+            By default, ``0``.
         search_results_crawl_depth : int, default=3
             Maximum link depth from HTML search pages, counting the seed
             as depth zero. Zero disables outgoing traversal. By default,
