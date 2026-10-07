@@ -352,8 +352,8 @@ class COMPASSCrawler:
         self._out_docs.sort(key=lambda x: -1 * x.attrs[_SCORE_KEY])
         return self._out_docs
 
-    # complexipy: ignore
     # ruff:ignore[complex-structure]
+    # complexipy: ignore
     async def _run(
         self,
         base_url,
