@@ -19,7 +19,7 @@ from compass.utilities.io import load_config
 
 
 @click.command(
-    name="search", context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS
+    name="search-debug", context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS
 )
 @click.option(
     "--config",
@@ -75,7 +75,9 @@ from compass.utilities.io import load_config
     help="One-shot plugin configuration to register before searching",
 )
 @click.pass_context
-def search(ctx, config, n_top_urls, output, output_format, verbose, plugin):
+def search_debug(
+    ctx, config, n_top_urls, output, output_format, verbose, plugin
+):
     """Run only the search step and emit ranked URL results"""
     config_path = config
     config = load_config(config)
