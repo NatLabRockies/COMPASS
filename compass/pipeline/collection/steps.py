@@ -464,9 +464,13 @@ def _get_search_crawl_candidates(workflow):
         ):
             continue
 
+        source = attrs.get("source")
+        if _is_local_filepath(source):
+            continue
+
         candidates.append(
             {
-                "url": attrs.get("source"),
+                "url": source,
                 "overall_rank": rank,
                 "search_engines": list(attrs.get("search_engines", [])),
                 "doc_type": "html",
@@ -474,6 +478,13 @@ def _get_search_crawl_candidates(workflow):
         )
 
     return sorted(candidates, key=itemgetter("overall_rank"))
+
+
+def _is_local_filepath(source):
+    """Check if the given source is a local file path"""
+    parsed_source = urlsplit(str(source or ""))
+    scheme_not_web = parsed_source.scheme not in {"http", "https"}
+    return scheme_not_web or not parsed_source.netloc
 
 
 async def _crawl_search_candidate(
