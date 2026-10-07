@@ -1,6 +1,6 @@
 """Shared URL utilities for COMPASS web modules"""
 
-from urllib.parse import quote, urlsplit, urlunsplit
+from urllib.parse import quote, urlsplit, urlunsplit, unquote
 
 
 _PATH_SAFE_CHARS = "/:@-._~!$&'()*+,;=%"
@@ -25,6 +25,21 @@ def sanitize_url(url):
     query = quote(parsed.query, safe=_QUERY_SAFE_CHARS)
     fragment = quote(parsed.fragment, safe="")
     return urlunsplit((parsed.scheme, parsed.netloc, path, query, fragment))
+
+
+def canonical_url(url):
+    """Remove tracking parameters, preserving document identifiers."""
+    parsed = urlsplit(sanitize_url(url.strip()))
+    query = "&".join(
+        part for part in parsed.query.split("&")
+        if not unquote(part.split("=", 1)[0]).lower().startswith("utm_")
+        and unquote(part.split("=", 1)[0]).lower() not in {"gclid", "fbclid"}
+    )
+    fragment = "" if parsed.path.lower().endswith(".pdf") else parsed.fragment
+    return urlunsplit((
+        parsed.scheme.lower(), parsed.netloc.lower(), parsed.path or "/",
+        query, fragment,
+    ))
 
 
 def base_website_url(url):

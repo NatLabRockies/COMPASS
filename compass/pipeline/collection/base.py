@@ -5,6 +5,7 @@ from functools import cached_property
 
 from elm.web.document import BaseDocument
 
+from compass.utilities.timing import log_operation
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
@@ -134,7 +135,15 @@ class DocumentCollection:
                 )
                 continue
 
-            docs = await step.collect(self.workflow)
+            async with log_operation(
+                logger, f"collection {step.STEP_NAME}",
+                self.workflow.jurisdiction.full_name,
+            ):
+                docs = await step.collect(self.workflow)
+            logger.info(
+                "Collection %s returned %d document(s)", step.STEP_NAME,
+                len(docs),
+            )
             self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
             completed_steps.add(step.STEP_NAME)
             if eager_extract:

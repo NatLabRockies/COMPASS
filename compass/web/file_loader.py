@@ -16,6 +16,7 @@ from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
 from compass.services.cpu import read_docling_web_file, read_docling_local_file
 from compass.services.threaded import TempFileCache
+from compass.utilities.timing import log_operation
 
 
 logger = logging.getLogger(__name__)
@@ -474,8 +475,21 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
 
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
-    COMPASSWebFileLoader = AsyncDoclingWebFileLoader
+    _WebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
-    COMPASSWebFileLoader = AsyncWebFileLoader
+    _WebFileLoader = AsyncWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalFileLoader
+
+
+class COMPASSWebFileLoader(_WebFileLoader):
+    """Use the configured loader with per-source timing logs."""
+
+    async def fetch(self, source):
+        """Load and cache one document using the configured backend."""
+        async with log_operation(logger, "document retrieval", source):
+            doc = await super().fetch(source)
+        logger.info(
+            "Document retrieval result: %s | empty=%s", source, doc.empty
+        )
+        return doc

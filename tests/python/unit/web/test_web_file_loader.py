@@ -6,7 +6,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from compass.web.file_loader import AsyncDoclingWebFileLoader
+from compass.web.file_loader import (
+    AsyncDoclingWebFileLoader, COMPASSWebFileLoader,
+)
+from unittest.mock import AsyncMock
 
 
 def _doc(source, doc_type="pdf", empty=False, conversion_status="success"):
@@ -92,6 +95,20 @@ async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     assert doc.attrs["doc_type"] == "pdf"
     assert raw_content == b"content"
     assert captured["pdf_pipeline_options"] == {"document_timeout": 120}
+
+
+@pytest.mark.parametrize("empty", [False, True])
+async def test_timing_preserves_backend_result(monkeypatch, caplog, empty):
+    """Timing retains the backend result and reports empty downloads."""
+    doc = _doc("https://city.gov/code", empty=empty)
+    fetch = AsyncMock(return_value=doc)
+    monkeypatch.setattr(COMPASSWebFileLoader.__bases__[0], "fetch", fetch)
+    with caplog.at_level("INFO"):
+        result = await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+    assert result is doc
+    fetch.assert_awaited_once_with(doc.attrs["source"])
+    assert "Finished document retrieval" in caplog.text
+    assert f"empty={empty}" in caplog.text
 
 
 if __name__ == "__main__":

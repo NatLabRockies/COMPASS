@@ -185,6 +185,7 @@ class WebSearchParams:
         url_keep_substrings=None,
         search_engines=None,
         simple_se_result_sort=True,
+        priority_search=None,
         pytesseract_exe_fp=None,
     ):
         """
@@ -266,6 +267,10 @@ class WebSearchParams:
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
             search engines (``False``). By default, ``True``.
+        priority_search : dict, optional
+            Disabled by default (None). Pass a dict to opt into
+            LLM-ranked search and link traversal. Options are
+            max_pages (15), max_depth (3), and max_links (3).
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -285,6 +290,7 @@ class WebSearchParams:
         self.url_keep_substrings += url_keep_substrings or []
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
+        self.priority_search = priority_search
         self.pytesseract_exe_fp = pytesseract_exe_fp
 
     @cached_property
@@ -348,6 +354,7 @@ class BaseRequest:
         file_loader_kwargs=None,
         search_engines=None,
         simple_se_result_sort=True,
+        priority_search=None,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -553,6 +560,10 @@ class BaseRequest:
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
             search engines (``False``). By default, ``True``.
+        priority_search : dict, optional
+            Disabled by default (None). Pass a dict to opt into
+            LLM-ranked search and link traversal. Options are
+            max_pages (15), max_depth (3), and max_links (3).
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -653,6 +664,7 @@ class BaseRequest:
             url_keep_substrings=url_keep_substrings,
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
+            priority_search=priority_search,
             pytesseract_exe_fp=pytesseract_exe_fp,
         )
         self.parsing_settings = DocParsingParams(
@@ -725,6 +737,7 @@ class CollectionRequest(BaseRequest):
         file_loader_kwargs=None,
         search_engines=None,
         simple_se_result_sort=True,
+        priority_search=None,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -907,6 +920,10 @@ class CollectionRequest(BaseRequest):
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
             search engines (``False``). By default, ``True``.
+        priority_search : dict, optional
+            Disabled by default (None). Pass a dict to opt into
+            LLM-ranked search and link traversal. Options are
+            max_pages (15), max_depth (3), and max_links (3).
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -1025,6 +1042,7 @@ class CollectionRequest(BaseRequest):
             file_loader_kwargs=file_loader_kwargs,
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
+            priority_search=priority_search,
             pytesseract_exe_fp=pytesseract_exe_fp,
             td_kwargs=td_kwargs,
             tpe_kwargs=tpe_kwargs,

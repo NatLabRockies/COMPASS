@@ -7,8 +7,8 @@ from abc import ABC, abstractmethod
 from elm.web.utilities import get_redirected_url
 
 from compass.scripts.download import (
+    download_prioritized_ordinances,
     download_jurisdiction_ordinance_using_search_engine,
-    download_jurisdiction_ordinances_from_search_result_links,
     download_jurisdiction_ordinances_from_website,
     download_jurisdiction_ordinances_from_website_compass_crawl,
     download_known_urls,
@@ -183,6 +183,10 @@ class SearchEngineDocumentsStep(CollectionStep):
             "Collecting documents using a search engine for jurisdiction: %s",
             workflow.jurisdiction.full_name,
         )
+        if workflow.runtime.search_params.priority_search is not None:
+            logger.info("Search path: LLM priority queue")
+            return await download_prioritized_ordinances(workflow)
+        logger.info("Search path: standard retrieval")
         try:
             query_templates = await workflow.extractor.get_query_templates()
             runtime = workflow.runtime
@@ -216,55 +220,7 @@ class SearchEngineDocumentsStep(CollectionStep):
         for doc in docs:
             doc.attrs["compass_crawl"] = False
             doc.attrs["check_correct_jurisdiction"] = True
-
-        docs.extend(await _expand_search_result_links(workflow, docs))
         return docs
-
-
-async def _expand_search_result_links(workflow, docs):
-    """Follow document links from the pages the search engine returned
-
-    Search engines reliably surface a jurisdiction's topic landing page
-    but rarely the adopted ordinance PDF linked from it, so the pages
-    collected above are used as crawl seeds to reach those documents.
-    """
-    seed_urls = []
-    for doc in docs:
-        source = doc.attrs.get("source")
-        if source and str(source).startswith("http"):
-            seed_urls.append(str(source))
-
-    if not seed_urls:
-        return []
-
-    expand = download_jurisdiction_ordinances_from_search_result_links
-    try:
-        linked_docs = await expand(
-            seed_urls,
-            heuristic=await workflow.extractor.get_heuristic(),
-            keyword_points=await workflow.extractor.get_website_keywords(),
-            file_loader_kwargs=workflow.runtime.file_loader_kwargs,
-            pb_jurisdiction_name=workflow.jurisdiction.full_name,
-        )
-    except Exception:
-        logger.exception(
-            "Error expanding search result links for %s",
-            workflow.jurisdiction.full_name,
-        )
-        return []
-
-    for doc in linked_docs:
-        doc.attrs["compass_crawl"] = True
-        doc.attrs["check_correct_jurisdiction"] = True
-
-    if linked_docs:
-        logger.info(
-            "Found %d additional document(s) by following links from "
-            "search results for %s",
-            len(linked_docs),
-            workflow.jurisdiction.full_name,
-        )
-    return linked_docs
 
 
 class ElmWebsiteCrawlStep(CollectionStep):

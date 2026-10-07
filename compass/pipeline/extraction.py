@@ -5,6 +5,7 @@ import logging
 from compass.extraction.context import ExtractionContext
 from compass.services.threaded import OrdDBFileWriter
 from compass.pb import COMPASS_PB
+from compass.utilities.timing import log_operation
 
 
 logger = logging.getLogger(__name__)
@@ -40,9 +41,12 @@ class DocumentExtraction:
             return None
 
         extraction_context = ExtractionContext(documents=docs)
-        extraction_context = await self.workflow.extractor.filter_docs(
-            extraction_context, self.max_docs_to_parse
-        )
+        async with log_operation(
+            logger, "document filtering", self.workflow.jurisdiction.full_name
+        ):
+            extraction_context = await self.workflow.extractor.filter_docs(
+                extraction_context, self.max_docs_to_parse
+            )
         if not extraction_context:
             return None
 
@@ -54,10 +58,19 @@ class DocumentExtraction:
             self.workflow.jurisdiction.full_name,
             description="Extracting structured data...",
         )
-        context = await self.workflow.extractor.parse_docs_for_structured_data(
-            extraction_context
-        )
-        await self._write_out_structured_data(extraction_context)
+        async with log_operation(
+            logger, "structured extraction",
+            self.workflow.jurisdiction.full_name,
+        ):
+            context = (
+                await self.workflow.extractor.parse_docs_for_structured_data(
+                    extraction_context
+                )
+            )
+        async with log_operation(
+            logger, "saving extraction", self.workflow.jurisdiction.full_name
+        ):
+            await self._write_out_structured_data(extraction_context)
         logger.debug("Final extraction context:\n%s", context)
         return context
 
