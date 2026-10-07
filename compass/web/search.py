@@ -16,7 +16,8 @@ _JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
 async def search_ordinance_candidates(queries, **se_kwargs):
     """Merge ten results per query and engine, retaining provenance."""
     se_kwargs["search_engines"] = [
-        "SerpAPIGoogleSearch", "SerpAPIDuckDuckGoSearch",
+        "SerpAPIGoogleSearch",
+        "SerpAPIDuckDuckGoSearch",
     ]
     for query in queries:
         logger.info("Search query: %s", query)
@@ -26,9 +27,13 @@ async def search_ordinance_candidates(queries, **se_kwargs):
         for batch in engine:
             for result in batch:
                 url = canonical_url(result["url"])
-                entry = candidates.setdefault(url, {
-                    "url": url, "sources": [],
-                })
+                entry = candidates.setdefault(
+                    url,
+                    {
+                        "url": url,
+                        "sources": [],
+                    },
+                )
                 entry["sources"].append(result)
     return list(candidates.values())
 

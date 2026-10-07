@@ -21,13 +21,18 @@ async def log_operation(logger, operation, target, *, interval=30):
     except BaseException as exc:
         logger.info(
             "Stopped %s after %.1fs (%s): %s",
-            operation, time.monotonic() - started, type(exc).__name__, target,
+            operation,
+            time.monotonic() - started,
+            type(exc).__name__,
+            target,
         )
         raise
     else:
         logger.info(
             "Finished %s in %.1fs: %s",
-            operation, time.monotonic() - started, target,
+            operation,
+            time.monotonic() - started,
+            target,
         )
     finally:
         monitor.cancel()
@@ -40,7 +45,9 @@ async def _report_wait(logger, operation, target, owner, started, interval):
         await asyncio.sleep(interval)
         logger.info(
             "Still waiting for %s after %.1fs: %s | awaiting: %s",
-            operation, time.monotonic() - started, target,
+            operation,
+            time.monotonic() - started,
+            target,
             _await_chain(owner),
         )
 

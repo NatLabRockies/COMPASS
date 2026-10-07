@@ -59,7 +59,8 @@ class DocumentExtraction:
             description="Extracting structured data...",
         )
         async with log_operation(
-            logger, "structured extraction",
+            logger,
+            "structured extraction",
             self.workflow.jurisdiction.full_name,
         ):
             context = (

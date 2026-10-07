@@ -120,9 +120,11 @@ class PriorityCrawler:
         )
         response.raise_for_status()
         for previous in self.entries.values():
-            if (previous["id"] != entry["id"]
+            if (
+                previous["id"] != entry["id"]
                 and previous.get("final_url") == entry["final_url"]
-                and previous["state"] == "assessed"):
+                and previous["state"] == "assessed"
+            ):
                 entry.update(state="duplicate", duplicate_of=previous["id"])
                 return
         raw = response.content
@@ -339,12 +341,16 @@ class SearchUsage:
         )
         usage = response.usage
         metrics = {
-            "model": model, "usage": usage.model_dump(),
+            "model": model,
+            "usage": usage.model_dump(),
             "estimated_usd_without_cache_discount": (
                 cost_for_model(
-                    model, usage.prompt_tokens, usage.completion_tokens,
+                    model,
+                    usage.prompt_tokens,
+                    usage.completion_tokens,
                 )
-                if model in LLM_COST_REGISTRY else None
+                if model in LLM_COST_REGISTRY
+                else None
             ),
             "rates_per_million_tokens": LLM_COST_REGISTRY.get(model),
             "cost_basis": "Configured rates; not invoice charges.",
@@ -362,12 +368,21 @@ def _ranking_links(seeds):
     for i, seed in enumerate(seeds):
         sources = [
             {
-                **{key: source.get(key) for key in (
-                    "query", "search_engine", "query_rank",
-                )},
-                **{key: source.get("attrs", {}).get(key) for key in (
-                    "title", "snippet",
-                )},
+                **{
+                    key: source.get(key)
+                    for key in (
+                        "query",
+                        "search_engine",
+                        "query_rank",
+                    )
+                },
+                **{
+                    key: source.get("attrs", {}).get(key)
+                    for key in (
+                        "title",
+                        "snippet",
+                    )
+                },
             }
             for source in seed.get("sources", [])
         ]
@@ -420,10 +435,13 @@ def _assessment_excerpts(doc, technology):
     for i in selected:
         match = pattern.search(pages[i])
         start = max(0, match.start() - 1000) if match else 0
-        excerpts.append({
-            "page": i + 1, "start_character": start,
-            "text": pages[i][start:start + 4500],
-        })
+        excerpts.append(
+            {
+                "page": i + 1,
+                "start_character": start,
+                "text": pages[i][start : start + 4500],
+            }
+        )
     return excerpts
 
 

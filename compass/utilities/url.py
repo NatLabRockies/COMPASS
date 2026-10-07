@@ -89,15 +89,21 @@ def canonical_url(url):
     """Remove tracking parameters, preserving document identifiers."""
     parsed = urlsplit(sanitize_url(url.strip()))
     query = "&".join(
-        part for part in parsed.query.split("&")
+        part
+        for part in parsed.query.split("&")
         if not unquote(part.split("=", 1)[0]).lower().startswith("utm_")
         and unquote(part.split("=", 1)[0]).lower() not in {"gclid", "fbclid"}
     )
     fragment = "" if parsed.path.lower().endswith(".pdf") else parsed.fragment
-    return urlunsplit((
-        parsed.scheme.lower(), parsed.netloc.lower(), parsed.path or "/",
-        query, fragment,
-    ))
+    return urlunsplit(
+        (
+            parsed.scheme.lower(),
+            parsed.netloc.lower(),
+            parsed.path or "/",
+            query,
+            fragment,
+        )
+    )
 
 
 def base_website_url(url):

@@ -16,7 +16,9 @@ from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
 from compass.web.search import (
-    search_single_jurisdiction, search_ordinance_candidates, _format_queries,
+    search_single_jurisdiction,
+    search_ordinance_candidates,
+    _format_queries,
 )
 from compass.llm.calling import SchemaOutputLLMCaller
 from compass.extraction import check_for_relevant_text, extract_date
@@ -544,7 +546,8 @@ async def download_prioritized_ordinances(workflow):
     templates = await workflow.extractor.get_query_templates()
     queries = _format_queries(workflow.jurisdiction, templates)
     seeds = await search_ordinance_candidates(
-        queries, browser_semaphore=runtime.search_engine_semaphore,
+        queries,
+        browser_semaphore=runtime.search_engine_semaphore,
         **runtime.search_params.se_kwargs,
     )
     model = runtime.models[LLMTasks.DEFAULT]
@@ -552,20 +555,27 @@ async def download_prioritized_ordinances(workflow):
     call_kwargs = dict(model.llm_call_kwargs)
     call_kwargs.update(max_completion_tokens=4000)
     caller = SchemaOutputLLMCaller(
-        model.llm_service, usage_tracker=usage, **call_kwargs,
+        model.llm_service,
+        usage_tracker=usage,
+        **call_kwargs,
     )
     loader = AsyncWebFileLoader(
         browser_semaphore=runtime.browser_semaphore,
         **runtime.file_loader_kwargs,
     )
     crawler = PriorityCrawler(
-        caller, loader,
-        {"technology": runtime.tech.replace("_", " "),
-         "jurisdiction": workflow.jurisdiction.full_name,
-         "as_of": date.today().isoformat(),
-         "queries": queries,
-         "model": model.name, "model_parameters": call_kwargs},
-        output_dir, **runtime.search_params.priority_search,
+        caller,
+        loader,
+        {
+            "technology": runtime.tech.replace("_", " "),
+            "jurisdiction": workflow.jurisdiction.full_name,
+            "as_of": date.today().isoformat(),
+            "queries": queries,
+            "model": model.name,
+            "model_parameters": call_kwargs,
+        },
+        output_dir,
+        **runtime.search_params.priority_search,
     )
     docs = await crawler.run(seeds)
     for doc in docs:

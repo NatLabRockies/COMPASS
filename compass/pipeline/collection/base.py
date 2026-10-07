@@ -198,12 +198,14 @@ class DocumentCollection:
     async def _run_collection_step(self, step):
         """Run collection step and record results"""
         async with log_operation(
-            logger, f"collection {step.STEP_NAME}",
+            logger,
+            f"collection {step.STEP_NAME}",
             self.workflow.jurisdiction.full_name,
         ):
             docs = await step.collect(self.workflow)
         logger.info(
-            "Collection %s returned %d document(s)", step.STEP_NAME,
+            "Collection %s returned %d document(s)",
+            step.STEP_NAME,
             len(docs),
         )
         self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))

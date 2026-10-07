@@ -234,8 +234,11 @@ if __name__ == "__main__":
 
 @pytest.mark.parametrize("mode", ["process", "collect"])
 @pytest.mark.parametrize("priority_search", [{}, {"max_pages": 7}])
-def test_priority_settings_reach_runtime(mode, priority_search):
+def test_priority_settings_reach_runtime(monkeypatch, mode, priority_search):
     """Both supported commands pass queue limits through their requests."""
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", "test-azure-key")
+    monkeypatch.setenv("AZURE_OPENAI_VERSION", "2024-10-21")
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://azure.example")
     cls = ProcessRequest if mode == "process" else CollectionRequest
     request = cls(
         out_dir="unused",
