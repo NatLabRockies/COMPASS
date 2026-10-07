@@ -76,7 +76,6 @@
     "num_urls_to_check_per_jurisdiction": 5,
     // Opt in with 4 to crawl HTML among the first 4 ranked search results.
     // PDFs count toward N; only relevant PDFs are collected by this crawl.
-    // This is independent of the direct download and website crawl settings.
     "num_search_results_to_crawl": 4,
     // The seed is depth 0; follow links through depth 3 inclusive.
     "search_results_crawl_depth": 3,
