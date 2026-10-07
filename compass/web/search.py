@@ -80,10 +80,13 @@ async def search_single_jurisdiction(
 
     queries = _format_queries(jurisdiction, query_templates)
     base = {
-        "jurisdiction": jurisdiction.full_name,
+        "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
         "county": jurisdiction.county,
         "subdivision": jurisdiction.subdivision_name,
+        "jurisdiction_type": jurisdiction.type,
+        "FIPS": jurisdiction.code,
+        "jurisdiction_website": jurisdiction.website_url,
         "queries": queries,
         "results": [],
         "error": None,
