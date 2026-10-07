@@ -1,11 +1,15 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
+from urllib.parse import urlsplit, urlunsplit
 
-from elm.web.search.run import search_with_fallback, search_all_se
+from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
+
+from compass.utilities.url import URLPartFilter
 
 
 logger = logging.getLogger(__name__)
+_JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
 
 
 async def search_single_jurisdiction(
@@ -25,7 +29,10 @@ async def search_single_jurisdiction(
     query_templates : iterable of str
         Query templates to format with the jurisdiction name and search.
         Each template should include a ``{jurisdiction}`` placeholder
-        for the jurisdiction name.
+        for the jurisdiction name. Templates may include a
+        ``{jurisdiction_website}`` placeholder for the jurisdiction's
+        known website URL. Website templates are skipped when the
+        jurisdiction does not have a known website.
     jurisdiction : Jurisdiction
         Jurisdiction instance representing the jurisdiction to search
         documents for.
@@ -71,10 +78,7 @@ async def search_single_jurisdiction(
 
     """
 
-    queries = [
-        query.format(jurisdiction=jurisdiction.full_name)
-        for query in query_templates
-    ]
+    queries = _format_queries(jurisdiction, query_templates)
     base = {
         "jurisdiction": jurisdiction.full_name,
         "state": jurisdiction.state,
@@ -84,6 +88,9 @@ async def search_single_jurisdiction(
         "results": [],
         "error": None,
     }
+    if not queries:
+        return base
+
     run_meth = _run_simple_sort_search if simple else _run_holistic_sort_search
 
     try:
@@ -106,6 +113,33 @@ async def search_single_jurisdiction(
     return base
 
 
+def _format_queries(jurisdiction, query_templates):
+    """Format query templates for a given jurisdiction"""
+    jurisdiction_website = _format_jurisdiction_website(jurisdiction)
+    return [
+        query.format(
+            jurisdiction=jurisdiction.full_name,
+            jurisdiction_website=jurisdiction_website,
+        )
+        for query in query_templates
+        if _JURISDICTION_WEBSITE_PLACEHOLDER not in query
+        or jurisdiction.website_url
+    ]
+
+
+def _format_jurisdiction_website(jurisdiction):
+    """Strip paths and ensure a valid URL scheme for a jur website"""
+    jurisdiction_website = jurisdiction.website_url
+    if jurisdiction_website:
+        website_parts = urlsplit(jurisdiction_website)
+        if not website_parts.netloc:
+            website_parts = urlsplit(f"//{jurisdiction_website}")
+        jurisdiction_website = urlunsplit(
+            (website_parts.scheme, website_parts.netloc, "", "", "")
+        ).removeprefix("//")
+    return jurisdiction_website
+
+
 async def _run_simple_sort_search(
     queries,
     num_urls,
@@ -116,7 +150,7 @@ async def _run_simple_sort_search(
     **se_kwargs,
 ):
     """Run search with fallback search engines, applying simple sort"""
-    urls = await search_with_fallback(
+    return await search_with_fallback_with_attrs(
         queries,
         num_urls=num_urls,
         url_ignore_substrings=url_ignore_substrings,
@@ -125,7 +159,6 @@ async def _run_simple_sort_search(
         task_name=jurisdiction_full_name,
         **se_kwargs,
     )
-    return [{"url": url} for url in urls]
 
 
 async def _run_holistic_sort_search(
@@ -185,36 +218,13 @@ def _flatten_results(results):
 
 def _apply_blacklist_filters(results, url_blacklist, url_whitelist):
     """Mark rows that match any blacklist substring"""
-    blacklist_terms = _parsed_list(url_blacklist)
-    whitelist_terms = _parsed_list(url_whitelist)
+    url_filter = URLPartFilter(url_blacklist, url_whitelist)
 
     for entry in results:
-        url_cf = entry["url"].casefold()
-        if _url_is_whitelisted(url_cf, whitelist_terms):
+        blacklist_match = url_filter.blacklist_match(entry["url"])
+        if blacklist_match is None:
             continue
-
-        match_index = _blacklist_match_index(url_cf, blacklist_terms)
-        if match_index is None:
-            continue
-        entry["filtered_reason"] = f"blacklist:{blacklist_terms[match_index]}"
-
-
-def _parsed_list(url_list):
-    """Parse a list of URL substrings; normalize each non-empty entry"""
-    return [sub.casefold() for sub in url_list or [] if sub]
-
-
-def _url_is_whitelisted(url_cf, whitelist_terms):
-    """Check if the URL matches any whitelist substring"""
-    return any(sub in url_cf for sub in whitelist_terms)
-
-
-def _blacklist_match_index(url_cf, blacklist_terms):
-    """Return the index of the first matching blacklist substring"""
-    return next(
-        (i for i, sub_cf in enumerate(blacklist_terms) if sub_cf in url_cf),
-        None,
-    )
+        entry["filtered_reason"] = f"blacklist:{blacklist_match}"
 
 
 def _apply_duplicate_filters(results):
@@ -225,6 +235,9 @@ def _apply_duplicate_filters(results):
     config only wins among entries that are otherwise tied (same
     ``query_rank`` and ``query_index``).
     """
+    for entry in results:
+        entry["search_engines"] = [entry["search_engine"]]
+
     winners = {}
     for entry in _active_results_sorted(results):
         key = entry["url"]
@@ -241,6 +254,8 @@ def _apply_duplicate_filters(results):
                 "query_rank": entry["query_rank"],
             }
         )
+        if entry["search_engine"] not in winner["search_engines"]:
+            winner["search_engines"].append(entry["search_engine"])
 
         entry["filtered_reason"] = "duplicate"
 

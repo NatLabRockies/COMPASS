@@ -57,6 +57,7 @@ class PipelineRuntime:
         self.mode = request.MODE
         self.tech = request.tech
         self.models = request.models
+        self.rate_tracker = request.rate_tracker
         self.search_params = request.search_settings
         self.log_level = _normalize_log_level(
             request.runtime_settings.log_level

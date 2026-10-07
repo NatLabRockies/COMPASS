@@ -380,6 +380,12 @@ class CompassWebsiteCrawlStep(CollectionStep):
                     already_visited=checked_urls,
                     pb_jurisdiction_name=workflow.jurisdiction.full_name,
                     timeout_seconds=crawl_timeout_s,
+                    url_ignore_substrings=(
+                        workflow.runtime.search_params.url_ignore_substrings
+                    ),
+                    url_keep_substrings=(
+                        workflow.runtime.search_params.url_keep_substrings
+                    ),
                 )
         except Exception:
             logger.exception(
@@ -414,7 +420,7 @@ async def _resolve_jurisdiction_website(workflow):
 async def _get_base_website(website):
     """Get the base URL for a website, following redirects if needed"""
     try:
-        website = await get_redirected_url(website, timeout=30)
+        website = await get_redirected_url(website, timeout=30, verify=False)
     except Exception:
         logger.exception("Error getting redirected URL for %s", website)
         return None

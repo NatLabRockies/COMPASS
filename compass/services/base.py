@@ -138,7 +138,9 @@ class LLMService(Service):
         LLM service for OpenAI models.
     """
 
-    def __init__(self, model_name, rate_limit, rate_tracker, service_tag=None):
+    def __init__(
+        self, model_name, rate_limit, timed_tracker, service_tag=None
+    ):
         """
 
         Parameters
@@ -150,7 +152,7 @@ class LLMService(Service):
             if the rate tracker is set to compute the total over
             minute-long intervals, this value should be the max usage
             per minute.
-        rate_tracker : TimeBoundedUsageTracker
+        timed_tracker : TimeBoundedUsageTracker
             Instance used to track usage per time interval and compare
             to `rate_limit` input.
         service_tag : str, optional
@@ -160,13 +162,13 @@ class LLMService(Service):
         """
         self.model_name = model_name
         self.rate_limit = rate_limit
-        self.rate_tracker = rate_tracker
+        self.timed_tracker = timed_tracker
         self.service_tag = service_tag or ""
 
     @property
     def can_process(self):
         """bool: Check if usage is under the rate limit"""
-        return self.rate_tracker.total < self.rate_limit
+        return self.timed_tracker.total < self.rate_limit
 
     @property
     def name(self):

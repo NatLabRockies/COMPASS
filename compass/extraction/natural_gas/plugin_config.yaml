@@ -1,0 +1,103 @@
+schema: ./natural_gas_schema.json
+
+data_type_short_desc: natural gas electric generating facility ordinance
+
+query_templates:
+  - "filetype:pdf {jurisdiction} electric generating facility zoning ordinance"
+  - "{jurisdiction} gas-fired electric generating facility ordinance"
+  - "{jurisdiction} power plant zoning ordinance setbacks"
+  - "{jurisdiction} heavy industrial district setback requirements zoning"
+  - "Where can I find the legal text for zoning ordinances governing electric generating facilities or power plants in {jurisdiction}?"
+  - "What are the zoning district regulations and setback requirements for public utility or power generation facilities in {jurisdiction}?"
+
+website_keywords:
+  pdf: 92160
+  zoning: 46080
+  ordinance: 23040
+  generating facility: 11520
+  power plant: 11520
+  electric: 5760
+  industrial district: 2880
+  planning: 720
+  plan: 360
+  government: 180
+  code: 60
+  area: 60
+  land development: 15
+  land: 3
+  utility: 3
+  energy: 3
+  municipal: 1
+  department: 1
+
+heuristic_keywords:
+  good_tech_keywords:
+    - "setback"
+    - "generating"
+    - "electric"
+  good_tech_acronyms:
+    - "mw"
+    - "ccgt"
+    - "chp"
+  good_tech_phrases:
+    - "electric generating facility"
+    - "gas-fired electric generating"
+    - "gas fired power plant"
+    - "electric generating plant"
+    - "electric generation facility"
+    - "power generating facility"
+    - "power generation plant"
+    - "combined cycle"
+    - "simple cycle"
+    - "peaking plant"
+    - "public utility facility"
+  not_tech_words:
+    - "oil and gas well"
+    - "gas well"
+    - "well pad"
+    - "drilling"
+    - "fracking"
+    - "hydraulic fracturing"
+    - "wellhead"
+    - "mineral extraction"
+    - "gas extraction"
+    - "gas production"
+    - "pipeline"
+    - "compressor station"
+    - "metering station"
+    - "regulator station"
+    - "gas storage"
+    - "underground storage"
+    - "lng"
+    - "cng"
+    - "liquefied natural gas"
+    - "compressed natural gas"
+    - "fueling station"
+    - "filling station"
+    - "propane"
+    - "gas service line"
+    - "gas meter"
+    - "gas appliance"
+    - "gas furnace"
+    - "water heater"
+    - "gas fireplace"
+    - "gas grill"
+    - "gas station"
+    - "emergency generator"
+    - "standby generator"
+    - "backup generator"
+    - "portable generator"
+    - "gas main"
+    - "gas line"
+
+collection_prompts: true
+text_extraction_prompts: true
+cache_llm_generated_content: true  
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data from natural gas electric
+  generating facility ordinances. Follow all instructions in the schema
+  descriptions carefully.
+  Only extract requirements for natural gas-fired electric generating facilities
+  that produce electricity for offsite sale, not for gas extraction, pipelines,
+  storage, fueling, building appliances, or backup generators.

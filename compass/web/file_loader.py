@@ -156,7 +156,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             value smaller than this. By default, ``3``.
         to_md_kwargs : dict, optional
             Keyword-value argument pairs to pass to to Docling's
-            :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+            :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
             method for converting the raw content to a markdown
             document. Can be useful to specify image placeholders (i.e.
             ``"image_placeholder"=""``) or page break placeholders (i.e.
@@ -384,7 +384,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             document. By default, ``None``.
         to_md_kwargs : dict, optional
             Keyword-value argument pairs to pass to to Docling's
-            :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+            :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
             method for converting the raw content to a markdown
             document. Can be useful to specify image placeholders (i.e.
             ``"image_placeholder"=""``) or page break placeholders (i.e.

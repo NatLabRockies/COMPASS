@@ -67,7 +67,7 @@ async def check_for_relevant_text(
         If the document already contains text collected by a given
         collector (i.e. the collector's ``OUT_LABEL`` is found in
         ``doc.attrs``), that collector will be skipped.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
     min_chunks_to_process : int, optional
@@ -154,7 +154,7 @@ async def extract_date(doc, model_config, usage_tracker=None):
     model_config : compass.llm.config.LLMConfig
         Configuration describing which LLM service, splitter, and call
         parameters should be used for date extraction.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 

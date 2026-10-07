@@ -58,6 +58,57 @@ async def test_find_jurisdiction_website_returns_base_domain(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
+    """Copy selected URL search engine provenance to document attrs"""
+
+    async def fake_search_single_jurisdiction(  # ruff:ignore[unused-async]
+        *_args, **_kwargs
+    ):
+        return {
+            "results": [
+                {
+                    "url": "https://example.com/ordinance.pdf",
+                    "overall_rank": 2,
+                    "filtered_reason": None,
+                    "search_engines": ["GoogleSearch", "BingSearch"],
+                }
+            ]
+        }
+
+    async def fake_docs_from_urls(  # ruff:ignore[unused-async]
+        urls, *_args, **_kwargs
+    ):
+        assert urls == ["https://example.com/ordinance.pdf"]
+        return [
+            SimpleNamespace(
+                attrs={"source": "https://example.com/ordinance.pdf"}
+            )
+        ]
+
+    monkeypatch.setattr(
+        download_module,
+        "search_single_jurisdiction",
+        fake_search_single_jurisdiction,
+    )
+    monkeypatch.setattr(
+        download_module, "_docs_from_urls", fake_docs_from_urls
+    )
+
+    docs = await download_module._docs_from_web_search(
+        query_templates=["{jurisdiction} ordinance"],
+        num_urls=5,
+        search_semaphore=None,
+        browser_semaphore=None,
+        url_ignore_substrings=None,
+        jurisdiction=SimpleNamespace(full_name="Example County, Test"),
+        simple_se_result_sort=False,
+    )
+
+    assert docs[0].attrs["collection_step_rank"] == 2
+    assert docs[0].attrs["search_engines"] == ["GoogleSearch", "BingSearch"]
+
+
+@pytest.mark.asyncio
 async def test_elm_crawl_tracks_accepted_partial_results(monkeypatch):
     """ELM crawl should retain accepted docs and completed pages early"""
 
@@ -108,10 +159,12 @@ async def test_elm_crawl_tracks_accepted_partial_results(monkeypatch):
 @pytest.mark.asyncio
 async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     """COMPASS crawl should retain accepted docs before an early exit"""
+    crawler_kwargs = {}
 
     class DummyCrawler:
-        def __init__(self, validator, **_kwargs):
+        def __init__(self, validator, **kwargs):
             self.validator = validator
+            crawler_kwargs.update(kwargs)
 
         async def run(self, _website, crawl_timeout_s, **_kwargs):
             assert crawl_timeout_s == 3600
@@ -124,14 +177,20 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     monkeypatch.setattr(download_module, "COMPASSCrawler", DummyCrawler)
 
     heuristic = SimpleNamespace(check=lambda text: text == "keep")
+    url_ignore_substrings = ["blocked.example"]
+    url_keep_substrings = ["trusted.example"]
 
     docs = await crawl(
         "https://example.com",
         heuristic,
         {"ordinance": 1},
+        url_ignore_substrings=url_ignore_substrings,
+        url_keep_substrings=url_keep_substrings,
     )
 
     assert [doc.text for doc in docs] == ["keep"]
+    assert crawler_kwargs["url_ignore_substrings"] is url_ignore_substrings
+    assert crawler_kwargs["url_keep_substrings"] is url_keep_substrings
 
 
 if __name__ == "__main__":

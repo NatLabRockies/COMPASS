@@ -1,9 +1,11 @@
 """Ordinance integration tests"""
 
+import os
 import time
 import logging
 import asyncio
 from pathlib import Path
+from types import SimpleNamespace
 from contextlib import asynccontextmanager
 
 import aiohttp
@@ -14,9 +16,8 @@ import elm.web.html_pw
 from elm.web.search.dux import DuxDistributedGlobalSearch
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.document import HTMLDocument
-from flaky import flaky
 
-from compass.services.usage import TimeBoundedUsageTracker, UsageTracker
+from compass.services.usage import TimeBoundedUsageTracker, LLMUsageTracker
 from compass.services.openai import OpenAIService, usage_from_response
 from compass.services.threaded import TempFileCache
 from compass.services.provider import RunningAsyncServices
@@ -112,17 +113,17 @@ async def test_openai_query(
         max_seconds=time_limit * sleep_mult * 0.8
     )
     openai_service = OpenAIService(
-        client, model_name="gpt-4", rate_limit=3, rate_tracker=rate_tracker
+        client, model_name="gpt-4", rate_limit=3, timed_tracker=rate_tracker
     )
 
-    usage_tracker = UsageTracker("my_county", usage_from_response)
+    usage_tracker = LLMUsageTracker("my_county", usage_from_response)
     async with RunningAsyncServices([openai_service]):
         start_time = time.perf_counter()
         message = await openai_service.call(usage_tracker=usage_tracker)
         patched_clock.advance(time_limit * 3)
         message2 = await openai_service.call()
 
-        assert openai_service.rate_tracker.total == 13
+        assert openai_service.timed_tracker.total == 13
         assert message == "test_response"
         assert message2 == "test_response"
         assert len(elapsed_times) == 3
@@ -141,7 +142,7 @@ async def test_openai_query(
         }
 
         patched_clock.advance(time_limit * sleep_mult)
-        assert openai_service.rate_tracker.total == 0
+        assert openai_service.timed_tracker.total == 0
 
         start_time = time.perf_counter() - time_limit - 1
         await openai_service.call()
@@ -155,14 +156,14 @@ async def test_openai_query(
 
         patched_clock.advance(time_limit * sleep_mult)
         start_time = time.perf_counter() - time_limit - 1
-        assert openai_service.rate_tracker.total == 0
+        assert openai_service.timed_tracker.total == 0
 
         with pytest.raises(openai.NotFoundError):
             message = await openai_service.call(
                 usage_tracker=usage_tracker, bad_request=True
             )
 
-        assert openai_service.rate_tracker.total <= 3
+        assert openai_service.timed_tracker.total <= 3
         assert usage_tracker == {
             "gpt-4": {
                 LLMUsageCategory.DEFAULT: {
@@ -174,16 +175,37 @@ async def test_openai_query(
         }
 
 
-@flaky(max_runs=3, min_passes=1)
 @pytest.mark.asyncio
-async def test_google_search_with_logging(tmp_path):
-    """Test searching google for some locations with logging"""
+async def test_search_with_logging(tmp_path, monkeypatch):
+    """Test search result handling with concurrent location logging"""
 
     assert not list(tmp_path.glob("*"))
 
     logger = logging.getLogger("search_test")
     test_locations = ["El Paso County, Colorado", "Decatur County, Indiana"]
     num_requested_links = 5
+    search_queries = []
+
+    def fake_text(query, **kwargs):
+        search_queries.append(query)
+        assert kwargs["backend"] == "all"
+        assert kwargs["max_results"] == num_requested_links
+        location_slug = "paso" if "El Paso" in query else "decatur"
+        return [
+            {
+                "title": f"Wind ordinance {result_index}",
+                "href": (
+                    f"https://example.test/{location_slug}/{result_index}"
+                ),
+                "body": "Wind energy zoning ordinance",
+            }
+            for result_index in range(num_requested_links)
+        ]
+
+    monkeypatch.setattr(
+        "elm.web.search.dux.DDGS",
+        lambda **_kwargs: SimpleNamespace(text=fake_text),
+    )
 
     async def search_single(location):
         logger.info("This location is %r", location)
@@ -196,7 +218,7 @@ async def test_google_search_with_logging(tmp_path):
     async def search_location_with_logs(
         listener, log_dir, location, level="INFO"
     ):
-        with LocationFileLog(
+        async with LocationFileLog(
             listener, log_dir, location=location, level=level
         ):
             logger.info("A generic test log")
@@ -214,6 +236,10 @@ async def test_google_search_with_logging(tmp_path):
         ]
         output = await asyncio.gather(*searchers)
 
+    assert sorted(search_queries) == sorted(
+        f"Wind energy zoning ordinance {location}"
+        for location in test_locations
+    )
     expected_words = ["paso", "decatur"]
     assert len(output) == 2
     for query_results, expected_word in zip(
@@ -233,6 +259,25 @@ async def test_google_search_with_logging(tmp_path):
         assert any(
             f"This location is {loc!r}" in text for loc in test_locations
         )
+
+
+@pytest.mark.skipif(
+    os.getenv("COMPASS_RUN_LIVE_SEARCH_TESTS") != "true",
+    reason="Set COMPASS_RUN_LIVE_SEARCH_TESTS=true to enable live search",
+)
+@pytest.mark.asyncio
+async def test_google_search_live():
+    """Smoke test the external Google search backend"""
+    num_requested_links = 5
+    search_engine = DuxDistributedGlobalSearch(backend="google")
+    results = await search_engine.results(
+        "Wind energy zoning ordinance El Paso County, Colorado",
+        num_results=num_requested_links,
+    )
+
+    assert len(results) == 1
+    assert 0 < len(results[0]) <= num_requested_links
+    assert all(link.startswith(("http://", "https://")) for link in results[0])
 
 
 @pytest.mark.asyncio

@@ -149,7 +149,7 @@ def registered_roundtrip_plugin():
 def patched_model_configs(monkeypatch):
     """Replace pipeline model config setup with a deterministic stub"""
 
-    def _dummy_build_models(request):
+    def _dummy_build_models(model_input, rate_tracker):
         return {LLMTasks.DEFAULT: _DummyModelConfig()}
 
     monkeypatch.setattr(

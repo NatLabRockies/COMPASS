@@ -207,7 +207,7 @@ async def find_jurisdiction_website(
         Semaphore instance that can be used to limit the number of
         playwright browsers open concurrently. If ``None``, no limits
         are applied. By default, ``None``.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
     url_ignore_substrings : list of str, optional
@@ -381,7 +381,7 @@ async def download_jurisdiction_ordinances_from_website(
     if pb_jurisdiction_name:
         COMPASS_PB.update_jurisdiction_task(
             pb_jurisdiction_name,
-            description=f"Searching for documents from {website} ...",
+            description=f"Crawling (ELM) {website} for documents ...",
         )
         cpb = COMPASS_PB.website_crawl_prog_bar(pb_jurisdiction_name, max_urls)
         ch = _crawl_hook
@@ -401,6 +401,7 @@ async def download_jurisdiction_ordinances_from_website(
     return docs
 
 
+# ruff:ignore[too-many-arguments,too-many-positional-arguments]
 async def download_jurisdiction_ordinances_from_website_compass_crawl(
     website,
     heuristic,
@@ -411,6 +412,8 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     max_urls=100,
     pb_jurisdiction_name=None,
     timeout_seconds=3600,
+    url_ignore_substrings=None,
+    url_keep_substrings=None,
 ):
     """Download ord documents from a website using the COMPASS crawler
 
@@ -451,6 +454,13 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
     timeout_seconds : float, default=3600
         Maximum number of seconds to allow for the crawl before timing
         out. By default, ``3600`` (1 hour).
+    url_ignore_substrings : iterable of str, optional
+        URL parts that exclude matching crawl candidates. These are the
+        same values used to filter search results. By default, ``None``.
+    url_keep_substrings : iterable of str, optional
+        URL parts that override all crawl blacklist matches. These are
+        the same values used to filter search results. By default,
+        ``None``.
 
     Returns
     -------
@@ -490,12 +500,14 @@ async def download_jurisdiction_ordinances_from_website_compass_crawl(
         num_link_scores_to_check_per_page=num_link_scores_to_check_per_page,
         already_visited=already_visited,
         max_pages=max_urls,
+        url_ignore_substrings=url_ignore_substrings,
+        url_keep_substrings=url_keep_substrings,
     )
 
     if pb_jurisdiction_name:
         COMPASS_PB.update_jurisdiction_task(
             pb_jurisdiction_name,
-            description=f"Double-checking {website} for documents ...",
+            description=f"Crawling (COMPASS) {website} for documents ...",
         )
         cpb = COMPASS_PB.compass_website_crawl_prog_bar(
             pb_jurisdiction_name, max_urls
@@ -641,7 +653,7 @@ async def filter_ordinance_docs(
         If the document already contains text collected by a given
         collector (i.e. the collector's ``OUT_LABEL`` is found in
         ``doc.attrs``), that collector will be skipped.
-    usage_tracker : UsageTracker, optional
+    usage_tracker : LLMUsageTracker, optional
         Optional tracker instance to monitor token usage during
         LLM calls. By default, ``None``.
 
@@ -755,11 +767,14 @@ async def _docs_from_web_search(
         **kwargs,
     )
     ranked_results = {
-        res.get("url"): res.get("overall_rank") or 1
+        res.get("url"): res
         for res in out["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
-    urls = sorted(ranked_results, key=ranked_results.get)
+    urls = sorted(
+        ranked_results,
+        key=lambda url: ranked_results[url].get("overall_rank") or 1,
+    )
     if not urls:
         return []
 
@@ -767,9 +782,14 @@ async def _docs_from_web_search(
         urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
     for doc in docs:
-        doc.attrs[_COLLECTION_SCORE_KEY] = ranked_results.get(
-            doc.attrs.get("source")
-        )
+        result = ranked_results.get(doc.attrs.get("source"))
+        if result is None:
+            doc.attrs[_COLLECTION_SCORE_KEY] = None
+            continue
+
+        doc.attrs[_COLLECTION_SCORE_KEY] = result.get("overall_rank") or 1
+        if "search_engines" in result:
+            doc.attrs["search_engines"] = list(result["search_engines"])
     return docs
 
 

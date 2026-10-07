@@ -18,16 +18,16 @@ def test_base_llm_limited_service(patched_clock):
             """Always return 0"""
             return 0
 
-    rate_tracker = TimeBoundedUsageTracker(max_seconds=0.1)
+    timed_tracker = TimeBoundedUsageTracker(max_seconds=0.1)
     service = TestService(
-        model_name="test", rate_limit=100, rate_tracker=rate_tracker
+        model_name="test", rate_limit=100, timed_tracker=timed_tracker
     )
 
     assert service.can_process
-    service.rate_tracker.add(50)
+    service.timed_tracker.add(50)
     assert service.can_process
     patched_clock.advance(0.01)
-    service.rate_tracker.add(75)
+    service.timed_tracker.add(75)
     assert not service.can_process
     patched_clock.advance(0.099)
     assert service.can_process

@@ -17,7 +17,7 @@ from compass.utilities.costs import (
 )
 from compass.utilities.enums import LLMTasks
 from compass.services.openai import usage_from_response
-from compass.services.usage import UsageTracker
+from compass.services.usage import LLMUsageTracker
 from compass.services.provider import RunningAsyncServices
 from compass.services.cpu import (
     FileLoader,
@@ -226,7 +226,7 @@ async def _run_case(
         **build_local_file_loader_kwargs(pytesseract_exe_fp="tesseract"),
         doc_attrs={"source": case["source"]},
     )
-    usage_tracker = UsageTracker(label, usage_from_response)
+    usage_tracker = LLMUsageTracker(label, usage_from_response)
 
     async def _load_and_extract():
         doc = await loader.fetch(case["fp"])
