@@ -14,7 +14,7 @@ from compass.plugin.registry import PLUGIN_REGISTRY
 from compass.utilities import Directories
 from compass.utilities.io import load_config
 from compass.utilities.jurisdictions import Jurisdiction
-from compass.utilities.finalize import save_run_meta
+from compass.utilities.finalize import save_run_meta, doc_infos_to_db, save_db
 from compass.services.usage import LLM_USAGE_RATES_KEY
 from compass.pipeline import build_models
 
@@ -137,4 +137,6 @@ def _compile_db(jurisdictions, dirs, tech):
             {"ord_db_fp": ord_db_fp, "jurisdiction": jurisdiction}
         )
 
-    PLUGIN_REGISTRY[tech].save_structured_data(all_doc_infos, dirs.out)
+    out_cols = PLUGIN_REGISTRY[tech].OUTPUT_COLUMNS
+    db, __ = doc_infos_to_db(all_doc_infos, out_cols)
+    save_db(db, dirs.out, out_cols)
