@@ -23,7 +23,7 @@ website_keywords:
   - ["code", "area"]
   - "land development"
   - ["land", "environment", "energy", 'renewable']
-  - ["municipal", "department", "development"]
+  - ["municipal", "department", "development", "board"]
 
 collection_prompts: True  # Can disable this to pass entire document to context
 
