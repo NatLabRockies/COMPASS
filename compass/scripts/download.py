@@ -779,7 +779,7 @@ async def _docs_from_web_search(
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    out = await search_single_jurisdiction(
+    se_results = await search_single_jurisdiction(
         query_templates,
         jurisdiction,
         num_urls,
@@ -790,11 +790,12 @@ async def _docs_from_web_search(
     )
     if se_shard_out_dir is not None:
         await GenericFuncRunner.call(
-            _write_se_shard, se_shard_out_dir, out, jurisdiction
+            _write_se_shard, se_shard_out_dir, se_results, jurisdiction
         )
+
     ranked_results = {
         res.get("url"): res
-        for res in out["results"]
+        for res in se_results["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
     urls = sorted(
@@ -807,16 +808,7 @@ async def _docs_from_web_search(
     docs = await _docs_from_urls(
         urls, jurisdiction.full_name, browser_semaphore, **kwargs
     )
-    for doc in docs:
-        result = ranked_results.get(doc.attrs.get("source"))
-        if result is None:
-            doc.attrs[_COLLECTION_SCORE_KEY] = None
-            continue
-
-        doc.attrs[_COLLECTION_SCORE_KEY] = result.get("overall_rank") or 1
-        if "search_engines" in result:
-            doc.attrs["search_engines"] = list(result["search_engines"])
-    return docs
+    return _add_se_metadata(docs, ranked_results)
 
 
 async def _docs_from_urls(
@@ -1017,3 +1009,18 @@ def _write_se_shard(out_dir, se_results, jurisdiction):
         encoding="utf-8",
     )
     return out_fp
+
+
+def _add_se_metadata(docs, ranked_results):
+    """Add search engine metadata to documents"""
+    for doc in docs:
+        result = ranked_results.get(doc.attrs.get("source"))
+        if result is None:
+            doc.attrs[_COLLECTION_SCORE_KEY] = None
+            continue
+
+        doc.attrs[_COLLECTION_SCORE_KEY] = result.get("overall_rank") or 1
+        if "search_engines" in result:
+            doc.attrs["search_engines"] = list(result["search_engines"])
+
+    return docs
