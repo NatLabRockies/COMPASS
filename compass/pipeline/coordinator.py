@@ -143,6 +143,9 @@ class BaseRunMode(ABC):
             perform_website_search=(
                 self.runtime.request.perform_website_search
             ),
+            num_search_results_to_crawl=(
+                self.runtime.search_params.num_search_results_to_crawl
+            ),
         )
 
     @abstractmethod
