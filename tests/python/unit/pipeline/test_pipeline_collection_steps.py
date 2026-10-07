@@ -211,6 +211,35 @@ def test_search_crawl_uses_existing_document_type(
         ]
 
 
+@pytest.mark.parametrize(
+    "source,eligible",
+    [
+        ("/home/user/ordinance.html", False),
+        ("documents/ordinance.html", False),
+        (r"C:\documents\ordinance.html", False),
+        (Path("documents/ordinance.html"), False),
+        ("file:///home/user/ordinance.html", False),
+        (None, False),
+        ("http://example.com/ordinance", True),
+        ("https://example.com/ordinance", True),
+    ],
+)
+def test_search_crawl_skips_local_sources(source, eligible):
+    """Only web sources are eligible for search-result crawling"""
+    workflow = _build_workflow(num_search_results_to_crawl=1)
+    doc = HTMLDocument(pages=["Ordinance text"])
+    doc.attrs.update(source=source, collection_step_rank=1)
+    workflow.collection.de_duplicator.add_docs(
+        [doc], step_name=COMPASSDocumentCollectionStep.SEARCH_ENGINE
+    )
+
+    candidates = steps_module._get_search_crawl_candidates(workflow)
+
+    assert bool(candidates) is eligible
+    if eligible:
+        assert candidates[0]["url"] == source
+
+
 @pytest.mark.asyncio
 async def test_search_results_crawl_uses_first_n_html_candidates_and_settings(
     monkeypatch,
