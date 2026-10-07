@@ -1010,9 +1010,8 @@ def _best_step(from_steps):
 
 def _write_se_shard(out_dir, se_results, jurisdiction):
     """Write a search engine result shard to disk"""
-    fn = f"{jurisdiction.full_name} search results.json"
-    fn = normalize_output_stem(fn)
-    out_fp = Path(out_dir) / fn
+    fn = normalize_output_stem(f"{jurisdiction.full_name} search results")
+    out_fp = Path(out_dir) / f"{fn}.json"
     out_fp.write_text(
         json.dumps(convert_paths_to_strings(se_results), indent=4),
         encoding="utf-8",
