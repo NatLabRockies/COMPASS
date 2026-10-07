@@ -1,7 +1,9 @@
 """Ordinance file downloading logic"""
 
+import json
 import pprint
 import logging
+from pathlib import Path
 from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
@@ -15,7 +17,11 @@ from elm.web.utilities import filter_documents
 
 from compass.web.search import search_single_jurisdiction
 from compass.extraction import check_for_relevant_text, extract_date
-from compass.services.threaded import TempFileCache, TempFileCachePB
+from compass.services.threaded import (
+    TempFileCache,
+    TempFileCachePB,
+    GenericFuncRunner,
+)
 from compass.validation.location import (
     DTreeJurisdictionValidator,
     JurisdictionValidator,
@@ -28,7 +34,8 @@ from compass.web.file_loader import (
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
-from compass.utilities.parsing import is_pdf_doc
+from compass.utilities.parsing import is_pdf_doc, convert_paths_to_strings
+from compass.utilities.io import normalize_output_stem
 from compass.pb import COMPASS_PB
 
 
@@ -540,6 +547,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     search_semaphore=None,
     browser_semaphore=None,
     url_ignore_substrings=None,
+    se_shard_out_dir=None,
     **kwargs,
 ):
     """Download the ordinance document(s) for a single jurisdiction
@@ -581,6 +589,10 @@ async def download_jurisdiction_ordinance_using_search_engine(
     url_ignore_substrings : list of str, optional
         URL substrings that should be excluded from search results.
         Substrings are applied case-insensitively. By default, ``None``.
+    se_shard_out_dir : path-like, optional
+        Directory where search engine shard results should be written.
+        If ``None``, the results will not be written to disk.
+        By default, ``None``.
     **kwargs
         Additional keyword arguments forwarded to
         :func:`elm.web.search.run.web_search_links_as_docs`. Common
@@ -613,6 +625,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             url_ignore_substrings=url_ignore_substrings,
             jurisdiction=jurisdiction,
             simple_se_result_sort=simple_se_result_sort,
+            se_shard_out_dir=se_shard_out_dir,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -761,6 +774,7 @@ async def _docs_from_web_search(
     url_ignore_substrings,
     jurisdiction,
     simple_se_result_sort,
+    se_shard_out_dir,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
@@ -774,6 +788,10 @@ async def _docs_from_web_search(
         simple=simple_se_result_sort,
         **kwargs,
     )
+    if se_shard_out_dir is not None:
+        await GenericFuncRunner.call(
+            _write_se_shard, se_shard_out_dir, out, jurisdiction
+        )
     ranked_results = {
         res.get("url"): res
         for res in out["results"]
@@ -988,3 +1006,15 @@ def _best_step(from_steps):
     return max(
         COMPASSDocumentCollectionStep(step).priority for step in from_steps
     )
+
+
+def _write_se_shard(out_dir, se_results, jurisdiction):
+    """Write a search engine result shard to disk"""
+    fn = f"{jurisdiction.full_name} search results.json"
+    fn = normalize_output_stem(fn)
+    out_fp = Path(out_dir) / fn
+    out_fp.write_text(
+        json.dumps(convert_paths_to_strings(se_results), indent=4),
+        encoding="utf-8",
+    )
+    return out_fp
