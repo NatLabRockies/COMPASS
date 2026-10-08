@@ -24,17 +24,12 @@ from compass.utilities.io import load_config
     "config may also be passed as an extra CLI option (using the syntax "
     "`--my_param=new`) to override the config value.",
 )
-@click.option(
-    "-v",
-    "--verbose",
-    count=True,
-    help="Show logs on the terminal.",
-)
+@click.option("-v", "--verbose", count=True, help="Show logs on the terminal.")
 @click.option(
     "-np",
     "--no-progress",
     is_flag=True,
-    help="Flag to hide progress bars during collection.",
+    help="Hide progress bars during collection.",
 )
 @click.option(
     "--plugin",
