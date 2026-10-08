@@ -207,6 +207,9 @@ class PipelineRuntime:
     @cached_property
     def _base_services(self):
         """Base services required for this run"""
+        if self.mode == self.mode.SEARCH:
+            return [GenericFuncRunner(**self.tpe_kwargs)]
+
         runtime_settings = self.request.runtime_settings
         services = [
             TempFileCachePB(
