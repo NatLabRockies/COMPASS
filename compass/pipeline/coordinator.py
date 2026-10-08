@@ -71,7 +71,9 @@ async def run_compass(request):
         msg = "PipelineCoordinator.run expects a request object"
         raise COMPASSValueError(msg)
 
-    if request.MODE == COMPASSRunMode.EXTRACT:
+    if request.MODE == COMPASSRunMode.SEARCH:
+        steps = ["Search for document URLs"]
+    elif request.MODE == COMPASSRunMode.EXTRACT:
         steps = ["Extract collected documents"]
     else:
         steps = _enabled_steps(
