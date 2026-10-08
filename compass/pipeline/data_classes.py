@@ -789,9 +789,7 @@ class SearchRequest(BaseRequest):
     MODE = COMPASSRunMode.SEARCH
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(
-        self, out_dir, tech, jurisdiction_fp, *, config_path=None, **kwargs
-    ):
+    def __init__(self, out_dir, tech, jurisdiction_fp, **kwargs):
         """
 
         Parameters
@@ -802,9 +800,6 @@ class SearchRequest(BaseRequest):
             Registered technology whose query templates are used.
         jurisdiction_fp : path-like
             Jurisdiction CSV, or ``None`` to search all jurisdictions.
-        config_path : path-like, optional
-            Originating configuration recorded in the manifest.
-            By default, ``None``.
         **kwargs : dict
             Settings accepted by :class:`BaseRequest`. Note that in
             search mode, ``model`` is forced to ``None`` and
@@ -814,7 +809,6 @@ class SearchRequest(BaseRequest):
         kwargs["model"] = None
         kwargs["save_search_engine_results"] = True
         super().__init__(out_dir, tech, jurisdiction_fp, **kwargs)
-        self.config_path = config_path
 
 
 class ProcessRequest(BaseRequest):
