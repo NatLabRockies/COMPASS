@@ -193,11 +193,17 @@ class COMPASSFullProcessing(BaseRunMode):
             len(jurisdictions_df),
         )
         tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
             usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
+            workflow = self._create(
+                jurisdiction,
+                known_se_results=se_results,
+                usage_tracker=usage_tracker,
+            )
             tasks.append(
                 asyncio.create_task(
                     workflow.run_process_with_logging(),
@@ -244,8 +250,12 @@ class COMPASSCollection(BaseRunMode):
         )
         start_date = datetime.now(UTC)
         tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            workflow = self._create(jurisdiction, usage_tracker=None)
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
+            workflow = self._create(
+                jurisdiction, known_se_results=se_results, usage_tracker=None
+            )
             tasks.append(
                 asyncio.create_task(
                     workflow.run_collection_with_logging(),
