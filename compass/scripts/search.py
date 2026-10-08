@@ -107,7 +107,7 @@ async def run_search(request, config_path=None):
         "versions": {"compass": compass_version, "elm": elm_version},
         "config_path": config_path,
         "num_urls_requested": num_urls,
-        "search_engines": list(se_kwargs["search_engines"]),
+        "search_engines": list(se_kwargs.get("search_engines", [])),
         "query_templates": list(qt),
         "time_start_utc": time_start_utc.isoformat(),
         "time_end_utc": time_end_utc.isoformat(),
