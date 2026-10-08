@@ -340,8 +340,8 @@ def _setup_folders(output_settings, collect_only=False, search_only=False):
         output_settings.clean_dir,
         output_settings.ordinance_file_dir,
         output_settings.jurisdiction_dbs_dir,
-        collect_only=collect_only,
         save_se_shards=output_settings.save_search_engine_results,
+        collect_only=collect_only,
         search_only=search_only,
     )
 
