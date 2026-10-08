@@ -196,7 +196,7 @@ class WebSearchParams:
         url_ignore_substrings=None,
         url_keep_substrings=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         num_search_results_to_crawl=0,
         search_results_crawl_depth=3,
@@ -276,11 +276,11 @@ class WebSearchParams:
             fallback (in order that they appear). If ``None``, then all
             default configurations for the search engines (along with
             the fallback order) are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -400,7 +400,7 @@ class BaseRequest:
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -615,11 +615,11 @@ class BaseRequest:
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -844,7 +844,7 @@ class CollectionRequest(BaseRequest):
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -1036,11 +1036,11 @@ class CollectionRequest(BaseRequest):
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's

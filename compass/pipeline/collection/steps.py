@@ -488,14 +488,14 @@ async def _download_docs_using_se(workflow):
     return await download_jurisdiction_ordinance_using_search_engine(
         query_templates,
         workflow.jurisdiction,
-        num_urls=(runtime.search_params.num_urls_to_check_per_jurisdiction),
-        simple_se_result_sort=(runtime.search_params.simple_se_result_sort),
+        num_urls=runtime.search_params.num_urls_to_check_per_jurisdiction,
+        simple_se_result_sort=runtime.search_params.simple_se_result_sort,
         se_shard_out_dir=runtime.dirs.se_shards,
         file_loader_kwargs=runtime.file_loader_kwargs,
         search_semaphore=runtime.search_engine_semaphore,
         browser_semaphore=runtime.browser_semaphore,
-        url_ignore_substrings=(runtime.search_params.url_ignore_substrings),
-        url_keep_substrings=(runtime.search_params.url_keep_substrings),
+        url_ignore_substrings=runtime.search_params.url_ignore_substrings,
+        url_keep_substrings=runtime.search_params.url_keep_substrings,
         **runtime.search_params.se_kwargs,
     )
 
