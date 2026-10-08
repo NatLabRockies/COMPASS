@@ -414,6 +414,7 @@ class BaseRequest:
         make_paths_relative=False,
         log_level="INFO",
         keep_async_logs=False,
+        search_result_manifest_fp=None,
         collection_manifest_fp=None,
         save_search_engine_results=True,
     ):
@@ -689,6 +690,11 @@ class BaseRequest:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        search_result_manifest_fp : path-like or list of path-like, optional
+            Saved search manifest, shard directory, or glob paths to
+            replay instead of querying search engines. Missing
+            jurisdictions are skipped. Only used when
+            ``perform_se_search=True``. By default, ``None``.
         collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
             collection step. This can be a single path or a list of
@@ -708,6 +714,7 @@ class BaseRequest:
         self.jurisdiction_fp = jurisdiction_fp
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
+        self.search_result_manifest_fp = search_result_manifest_fp
         self.collection_manifest_fp = collection_manifest_fp
         self.file_loader_kwargs = file_loader_kwargs
 
@@ -824,6 +831,7 @@ class CollectionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
+        search_result_manifest_fp=None,
         save_search_engine_results=True,
     ):
         """
@@ -1105,6 +1113,11 @@ class CollectionRequest(BaseRequest):
             a ``se_results`` subdirectory of `out_dir`. If ``False``, no
             search engine result directory or files are created.
             By default, ``True``.
+        search_result_manifest_fp : path-like or list, optional
+            Saved search manifest, shard directory, or glob paths to
+            replay without new search queries. Missing jurisdictions
+            are skipped. Ignored when ``perform_se_search=False``.
+            By default, ``None``.
         """
         super().__init__(
             out_dir=out_dir,
@@ -1143,6 +1156,7 @@ class CollectionRequest(BaseRequest):
             make_paths_relative=make_paths_relative,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            search_result_manifest_fp=search_result_manifest_fp,
             save_search_engine_results=save_search_engine_results,
         )
 
