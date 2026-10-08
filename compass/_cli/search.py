@@ -108,7 +108,7 @@ def search_debug(
     request = ProcessRequest(**config)
 
     report = loop.run_until_complete(
-        run_search(request, config_path=config_path)
+        run_search_from_request(request, config_path=config_path)
     )
     if output_format == "json":
         if output is None:
