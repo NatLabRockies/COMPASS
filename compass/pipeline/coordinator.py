@@ -87,7 +87,9 @@ async def run_compass(request):
             known_local_docs=request.known_sources.known_local_docs,
             known_doc_urls=request.known_sources.known_doc_urls,
             perform_se_search=request.perform_se_search,
-            num_search_results_to_crawl=request.num_search_results_to_crawl,
+            num_search_results_to_crawl=(
+                request.search_settings.num_search_results_to_crawl
+            ),
             perform_website_search=request.perform_website_search,
         )
 
