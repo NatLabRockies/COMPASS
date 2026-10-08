@@ -14,7 +14,11 @@ from compass._cli.common import (
 )
 from compass.pipeline import ProcessRequest
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.search import run_search, summary, write_search_report
+from compass.scripts.search import (
+    run_search_from_request,
+    summary,
+    write_search_report,
+)
 from compass.utilities.io import load_config
 
 

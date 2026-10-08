@@ -67,7 +67,9 @@ async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
     )
 
     before = datetime.now(UTC)
-    report = await search_module.run_search(request, config_path=config_path)
+    report = await search_module.run_search_from_request(
+        request, config_path=config_path
+    )
     after = datetime.now(UTC)
 
     assert search_backend.await_count == 4

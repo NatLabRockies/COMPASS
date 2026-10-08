@@ -28,7 +28,7 @@ from compass.utilities.jurisdictions import (
 logger = logging.getLogger(__name__)
 
 
-async def run_search(request, config_path=None):
+async def run_search_from_request(request, config_path=None):
     """Run search-engine queries for every jurisdiction in a config
 
     The function loads jurisdictions, fetches query templates from the
