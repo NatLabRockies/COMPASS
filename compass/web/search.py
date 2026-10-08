@@ -128,7 +128,7 @@ async def search_single_jurisdiction(
     base["results"] = out
     base["num_results"] = len(out)
     base["num_kept_results"] = sum(
-        row.get("filtered_reason") is None for row in out["results"]
+        row.get("filtered_reason") is None for row in out
     )
     base["search_engine_counts"] = dict(
         Counter(result["search_engine"] for result in out)
