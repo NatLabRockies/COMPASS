@@ -15,7 +15,10 @@ from elm.web.website_crawl import (
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
-from compass.web.search import search_single_jurisdiction
+from compass.web.search import (
+    search_single_jurisdiction,
+    write_search_result_shard,
+)
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import (
     TempFileCache,
@@ -790,7 +793,10 @@ async def _docs_from_web_search(
     )
     if se_shard_out_dir is not None:
         await GenericFuncRunner.call(
-            _write_se_shard, se_shard_out_dir, se_results, jurisdiction
+            write_search_result_shard,
+            se_shard_out_dir,
+            search_results,
+            jurisdiction,
         )
 
     ranked_results = {
@@ -998,17 +1004,6 @@ def _best_step(from_steps):
     return max(
         COMPASSDocumentCollectionStep(step).priority for step in from_steps
     )
-
-
-def _write_se_shard(out_dir, se_results, jurisdiction):
-    """Write a search engine result shard to disk"""
-    fn = normalize_output_stem(f"{jurisdiction.full_name} search results")
-    out_fp = Path(out_dir) / f"{fn}.json"
-    out_fp.write_text(
-        json.dumps(convert_paths_to_strings(se_results), indent=4),
-        encoding="utf-8",
-    )
-    return out_fp
 
 
 def _add_se_metadata(docs, ranked_results):
