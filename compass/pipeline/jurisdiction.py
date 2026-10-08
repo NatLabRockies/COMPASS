@@ -34,6 +34,7 @@ class SingleJurisdictionRun:
         usage_tracker=None,
         known_local_docs=None,
         known_doc_urls=None,
+        known_se_results=None,
         perform_se_search=True,
         perform_website_search=True,
         num_search_results_to_crawl=0,
@@ -65,6 +66,10 @@ class SingleJurisdictionRun:
             Optional URL-based document descriptors that should be
             seeded into collection for this jurisdiction before any
             search or crawl steps are run. By default, ``None``.
+        known_se_results : list of dict, optional
+            Optional search engine result descriptors that should be
+            seeded into collection for this jurisdiction before any
+            search or crawl steps are run. By default, ``None``.
         perform_se_search : bool, optional
             Whether search-engine-driven discovery should be performed
             for this jurisdiction. By default, ``True``.
@@ -82,6 +87,7 @@ class SingleJurisdictionRun:
         self.usage_tracker = usage_tracker
         self.known_local_docs = known_local_docs
         self.known_doc_urls = known_doc_urls
+        self.known_se_results = known_se_results
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
         self.num_search_results_to_crawl = num_search_results_to_crawl
