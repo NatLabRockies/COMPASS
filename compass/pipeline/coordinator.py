@@ -427,6 +427,44 @@ def _enabled_steps(
     return steps
 
 
+async def _jurisdictions_with_search_input(runtime, jurisdictions_df):
+    """Skip jurisdictions absent from supplied search results"""
+    known_search_results = await _load_known_se_results(runtime)
+
+    for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+        if known_search_results is not None:
+            if jurisdiction.code not in known_search_results:
+                logger.warning(
+                    "No known search results found for %s; skipping "
+                    "jurisdiction",
+                    jurisdiction.full_name,
+                )
+                continue
+            else:
+                yield jurisdiction, known_search_results[jurisdiction.code]
+        else:
+            yield jurisdiction, None
+
+
+async def _load_known_se_results(runtime):
+    """Load known search engine results from the manifest file"""
+    run_mode_has_se = runtime.request.MODE in {
+        COMPASSRunMode.COLLECT,
+        COMPASSRunMode.PROCESS,
+    }
+    se_enabled = runtime.request.perform_se_search
+    known_se_results_file_exists = (
+        runtime.request.search_result_manifest_fp is not None
+    )
+    if run_mode_has_se and se_enabled and known_se_results_file_exists:
+        return await GenericFuncRunner.call(
+            load_search_result_jurisdictions,
+            runtime.request.search_result_manifest_fp,
+            runtime.tech,
+        )
+    return None
+
+
 async def _finalize_extraction(
     runtime, results, start_date, num_jurisdictions
 ):
