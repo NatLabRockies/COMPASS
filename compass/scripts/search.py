@@ -163,6 +163,20 @@ async def run_search(
     }
 
 
+def _validate_search_result_tech(payload, expected_tech, path):
+    """Validate declared search result technology"""
+    if not isinstance(payload, dict):
+        msg = f"Invalid search result payload: {path}"
+        raise COMPASSValueError(msg)
+
+    if (tech := payload.get("tech")) is not None and tech != expected_tech:
+        msg = (
+            f"Search result technology '{tech}' does not match "
+            f"'{expected_tech}': {path}"
+        )
+        raise COMPASSValueError(msg)
+
+
 def _validate_search_result_record(record, path):
     """Validate replay identity and result structure"""
     if _invalid_record(record):
