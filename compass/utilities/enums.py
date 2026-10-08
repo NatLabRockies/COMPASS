@@ -192,6 +192,8 @@ class COMPASSRunMode(CaseInsensitiveEnum):
     """Collect potential ordinance documents for jurisdictions"""
     EXTRACT = auto()
     """Extract data from ordinance documents for jurisdictions"""
+    SEARCH = auto()
+    """Save search results for later document collection"""
 
     @classmethod
     def _new_post_hook(cls, obj, value):
