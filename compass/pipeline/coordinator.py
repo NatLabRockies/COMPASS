@@ -122,7 +122,9 @@ class BaseRunMode(ABC):
         """
         self.runtime = runtime
 
-    def _create(self, jurisdiction, *, usage_tracker=None):
+    def _create(
+        self, jurisdiction, *, known_se_results=None, usage_tracker=None
+    ):
         """Create one configured jurisdiction workflow"""
         extractor = self.runtime.extractor_class(
             jurisdiction=jurisdiction,
@@ -139,6 +141,7 @@ class BaseRunMode(ABC):
                 jurisdiction.code
             ),
             known_doc_urls=self.runtime.known_doc_urls.get(jurisdiction.code),
+            known_se_results=known_se_results,
             perform_se_search=self.runtime.request.perform_se_search,
             perform_website_search=(
                 self.runtime.request.perform_website_search
