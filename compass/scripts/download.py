@@ -548,7 +548,6 @@ async def download_jurisdiction_ordinance_using_search_engine(
     browser_semaphore=None,
     url_ignore_substrings=None,
     se_shard_out_dir=None,
-    known_search_results=None,
     **kwargs,
 ):
     """Download the ordinance document(s) for a single jurisdiction
@@ -594,10 +593,6 @@ async def download_jurisdiction_ordinance_using_search_engine(
         Directory where search engine shard results should be written.
         If ``None``, the results will not be written to disk.
         By default, ``None``.
-    known_search_results : dict, optional
-        Pre-run search results to download without querying search
-        engines or reapplying URL filters and top-N.
-        By default, ``None``.
     **kwargs
         Additional keyword arguments forwarded to
         :func:`elm.web.search.run.web_search_links_as_docs`. Common
@@ -622,7 +617,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     kwargs.update(file_loader_kwargs or {})
     kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     try:
-        docs = await _docs_from_web_search(
+        docs = await _docs_from_se_search(
             query_templates,
             num_urls=num_urls,
             search_semaphore=search_semaphore,
@@ -631,7 +626,6 @@ async def download_jurisdiction_ordinance_using_search_engine(
             jurisdiction=jurisdiction,
             simple_se_result_sort=simple_se_result_sort,
             se_shard_out_dir=se_shard_out_dir,
-            search_results=known_search_results,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -640,6 +634,81 @@ async def download_jurisdiction_ordinance_using_search_engine(
         msg = (
             "Encountered error of type %r while searching web for docs for %s:"
         )
+        err_type = type(e)
+        logger.exception(msg, err_type, jurisdiction.full_name)
+        docs = []
+
+    return docs
+
+
+async def download_jurisdiction_ordinance_from_search_results(
+    jurisdiction,
+    known_search_results,
+    file_loader_kwargs=None,
+    browser_semaphore=None,
+    se_shard_out_dir=None,
+    **kwargs,
+):
+    """Download the ordinance document(s) for a single jurisdiction
+
+    Parameters
+    ----------
+    jurisdiction : Jurisdiction
+        Location objects representing the jurisdiction.
+    known_search_results : dict
+        Pre-run search results to download without querying search
+        engines or reapplying URL filters and top-N.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword-argument pairs to initialize
+        :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,
+        the "pw_launch_kwargs" key in these will also be used to
+        initialize the
+        :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the google URL search. By default, ``None``.
+    browser_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        playwright browsers used to download content from the web open
+        concurrently. If ``None``, no limits are applied.
+        By default, ``None``.
+    se_shard_out_dir : path-like, optional
+        Directory where search engine shard results should be written.
+        If ``None``, the results will not be written to disk.
+        By default, ``None``.
+    **kwargs
+        Additional keyword arguments forwarded to
+        :func:`elm.web.search.run.web_search_links_as_docs`. Common
+        entries include ``usage_tracker`` for logging LLM usage and
+        extra Playwright configuration.
+
+    Returns
+    -------
+    list or None
+        List of BaseDocument instances possibly containing ordinance
+        information, or ``None`` if no ordinance document was found.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
+    service to be running.
+    """
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction.full_name, description="Downloading SE docs..."
+    )
+
+    kwargs.update(file_loader_kwargs or {})
+    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
+    try:
+        docs = await _docs_from_search_results(
+            known_search_results,
+            browser_semaphore=browser_semaphore,
+            jurisdiction=jurisdiction,
+            se_shard_out_dir=se_shard_out_dir,
+            **kwargs,
+        )
+    except KeyboardInterrupt:
+        raise
+    except Exception as e:
+        msg = "Encountered error of type %r while downloading SE docs for %s:"
         err_type = type(e)
         logger.exception(msg, err_type, jurisdiction.full_name)
         docs = []
@@ -772,7 +841,7 @@ def _normalize_website_candidates(urls):
     return normalized_urls
 
 
-async def _docs_from_web_search(
+async def _docs_from_se_search(
     query_templates,
     num_urls,
     search_semaphore,
@@ -781,21 +850,33 @@ async def _docs_from_web_search(
     jurisdiction,
     simple_se_result_sort,
     se_shard_out_dir,
-    search_results,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    if search_results is None:
-        search_results = await search_single_jurisdiction(
-            query_templates,
-            jurisdiction,
-            num_urls,
-            search_semaphore,
-            url_ignore_substrings,
-            simple=simple_se_result_sort,
-            **kwargs,
-        )
+    search_results = await search_single_jurisdiction(
+        query_templates,
+        jurisdiction,
+        num_urls,
+        search_semaphore,
+        url_ignore_substrings,
+        simple=simple_se_result_sort,
+        **kwargs,
+    )
+
+    return await _docs_from_search_results(
+        search_results,
+        browser_semaphore,
+        jurisdiction,
+        se_shard_out_dir,
+        **kwargs,
+    )
+
+
+async def _docs_from_search_results(
+    search_results, browser_semaphore, jurisdiction, se_shard_out_dir, **kwargs
+):
+    """Retrieve documents from search results"""
 
     if se_shard_out_dir is not None:
         await GenericFuncRunner.call(

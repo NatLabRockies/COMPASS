@@ -122,7 +122,7 @@ async def test_find_jurisdiction_website_returns_base_domain(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
+async def test_docs_from_se_search_adds_search_engine_attrs(monkeypatch):
     """Copy selected URL search engine provenance to document attrs"""
 
     async def fake_search_single_jurisdiction(  # ruff:ignore[unused-async]
@@ -158,7 +158,7 @@ async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
         download_module, "_docs_from_urls", fake_docs_from_urls
     )
 
-    docs = await download_module._docs_from_web_search(
+    docs = await download_module._docs_from_se_search(
         query_templates=["{jurisdiction} ordinance"],
         num_urls=5,
         search_semaphore=None,
@@ -167,7 +167,6 @@ async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
         jurisdiction=SimpleNamespace(full_name="Example County, Test"),
         simple_se_result_sort=False,
         se_shard_out_dir=None,
-        search_results=None,
     )
 
     assert docs[0].attrs["collection_step_rank"] == 2
@@ -220,7 +219,7 @@ async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
             file_download_prog_bar=lambda *_args: AsyncExitStack(),
         ),
     )
-    docs = await download_module._docs_from_web_search(
+    docs = await download_module._docs_from_se_search(
         ["{jurisdiction}"],
         3,
         None,
@@ -228,7 +227,6 @@ async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
         None,
         SimpleNamespace(full_name="Example"),
         True,
-        None,
         None,
     )
     assert len(docs) == 2
