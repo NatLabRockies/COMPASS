@@ -31,7 +31,8 @@ class CaseInsensitiveEnum(StrEnum):
         return None
 
     @classmethod
-    def _new_post_hook(cls, obj, value):  # ruff:ignore[unused-class-method-argument]
+    # ruff:ignore[unused-class-method-argument]
+    def _new_post_hook(cls, obj, value):
         """Hook for post-processing after __new__"""
         return obj
 
