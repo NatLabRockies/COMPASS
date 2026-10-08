@@ -90,7 +90,6 @@ async def search_single_jurisdiction(
 
     queries = _format_queries(jurisdiction, query_templates)
     base = {
-        "tech": "unknown",  # can be filled in later by callers
         "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
         "county": jurisdiction.county,
