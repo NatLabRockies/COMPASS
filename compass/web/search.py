@@ -1,12 +1,16 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
+import json
+from pathlib import Path
 from collections import Counter
 from urllib.parse import urlsplit, urlunsplit
 
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
 from compass.utilities.url import URLPartFilter
+from compass.utilities.io import normalize_output_stem
+from compass.utilities.parsing import convert_paths_to_strings
 
 
 logger = logging.getLogger(__name__)
@@ -126,6 +130,35 @@ async def search_single_jurisdiction(
         Counter(result["search_engine"] for result in out)
     )
     return base
+
+
+def write_search_result_shard(out_dir, se_results, jurisdiction):
+    """Write one jurisdiction's existing search result shard format
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Directory for search result shards.
+    se_results : dict
+        Search results for one jurisdiction.
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction represented by the results.
+
+    Returns
+    -------
+    pathlib.Path
+        Written shard path.
+    """
+    filename = normalize_output_stem(
+        f"{jurisdiction.full_name} search results"
+    )
+    out_fp = Path(out_dir) / f"{filename}.json"
+    out_fp.parent.mkdir(parents=True, exist_ok=True)
+    out_fp.write_text(
+        json.dumps(convert_paths_to_strings(se_results), indent=4),
+        encoding="utf-8",
+    )
+    return out_fp
 
 
 def _format_queries(jurisdiction, query_templates):
