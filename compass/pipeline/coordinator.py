@@ -18,6 +18,13 @@ from compass.utilities import (
     save_run_meta,
 )
 from compass.services.threaded import UsageUpdater
+from compass.services.threaded import GenericFuncRunner
+from compass.scripts.search import (
+    run_search,
+    load_search_result_jurisdictions,
+    write_search_report,
+    SEARCH_RESULT_MANIFEST_FILENAME,
+)
 from compass.utilities.enums import COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
@@ -280,6 +287,26 @@ class COMPASSCollection(BaseRunMode):
         for sub_msg in collection_msg.split("\n"):
             logger.info(sub_msg)
         return collection_msg
+
+
+class COMPASSSearch(BaseRunMode):
+    """Search-only strategy using existing reports and shards"""
+
+    async def run(self, jurisdictions_df):
+        """Persist search shards and their aggregate manifest"""
+        manifest = await run_search(self.runtime, jurisdictions_df)
+        manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
+        await GenericFuncRunner.call(
+            write_search_report, manifest, manifest_fp
+        )
+        message = (
+            f"Search completed for {manifest['num_jurisdictions_searched']} "
+            f"jurisdictions; kept "
+            f"{manifest['filtered_result_stats']['total']} URLs.\n"
+            f"Search result manifest: {manifest_fp}"
+        )
+        logger.info(message)
+        return message
 
 
 class COMPASSExtraction(BaseRunMode):
