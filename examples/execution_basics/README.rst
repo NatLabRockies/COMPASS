@@ -240,6 +240,71 @@ or run with ``pixi`` directly:
 Replace ``config.json5`` with the path to your actual configuration file.
 
 
+Save and Reuse Search Results
+------------------------------
+Use ``search`` when you want to inspect search results or reuse the same
+ranked URLs in later collection and processing runs. A search configuration
+uses the normal request settings, including the technology, jurisdictions,
+output directory, search engines, URL filters, and ranking mode. For example:
+
+.. code-block:: json
+
+    {
+        "tech": "wind",
+        "jurisdiction_fp": "./jurisdictions.csv",
+        "out_dir": "./searched",
+        "num_urls_to_check_per_jurisdiction": 5,
+        "simple_se_result_sort": true
+    }
+
+Paths beginning with ``./`` are relative to the configuration file. Run:
+
+.. code-block:: shell
+
+    pixi run compass search -c search_config.json5
+
+The output contains ``logs/``, per-jurisdiction JSON shards in
+``se_results/``, and ``search_result_manifest.json``. Shards are written as
+each jurisdiction finishes, including empty and failed searches. The
+manifest summarizes all results and records relative shard references.
+``result_stats`` counts reported rows, including filtered rows;
+``filtered_result_stats`` counts the URLs retained for collection. Search does
+not need an LLM endpoint and honors ``simple_se_result_sort``. Use the same
+plugin registration option as collection when running a one-shot plugin.
+
+To reuse these results, add the following setting to a collection or
+processing configuration and choose a separate ``out_dir``:
+
+.. code-block:: json
+
+    {
+        "search_result_manifest_fp": "./searched/search_result_manifest.json",
+        "perform_se_search": true
+    }
+
+Then run the normal command:
+
+.. code-block:: shell
+
+    pixi run compass collect -c collection_config.json5
+    pixi run compass process -c process_config.json5
+
+The input can also be ``./searched``, ``./searched/se_results``, a shard
+file, or a list of paths and glob patterns. A run directory uses the
+aggregate manifest when present and otherwise loads its search shards.
+Declared technologies must match the consuming configuration, and duplicate
+jurisdiction entries are rejected. Existing shards without technology
+metadata remain usable with a warning.
+
+Replay uses the saved kept URLs and their ranking unchanged; it does not
+apply the new configuration's search URL filters or top-N again. Missing
+jurisdictions are logged and skipped, as with extraction from a collection
+manifest. An explicit empty or failed result is not a missing entry, so
+other enabled collection steps may still run. No missing or failed entry
+triggers a new search query. Setting ``perform_se_search`` to ``false``
+disables the entire search-result collection step, including replay.
+
+
 Split Collection and Extraction
 -------------------------------
 Use ``collect`` when you want to gather documents first and defer extraction:
