@@ -60,11 +60,40 @@ async def run_search_from_request(request, config_path=None):
         URLs and filtering reasons.
     """
 
-    time_start_utc = datetime.now(UTC)
     runtime = PipelineRuntime(request)
+    jurisdictions_df = load_jurisdictions_from_fp(request.jurisdiction_fp)
+    return await run_search(runtime, jurisdictions_df, config_path)
+
+
+async def run_search(
+    runtime, jurisdictions_df, config_path=None, *, persist=False
+):
+    """Search jurisdictions and aggregate their results
+
+    Parameters
+    ----------
+    runtime : compass.pipeline.runtime.PipelineRuntime
+        The runtime object containing all necessary context and
+        configurations for executing the search.
+    jurisdictions_df : pandas.DataFrame
+        DataFrame containing jurisdiction information loaded from the
+        config.
+    config_path : path-like, optional
+        Absolute path of the originating config file, embedded in the
+        returned report for traceability. By default, ``None``.
+    persist : bool, optional
+        Whether to persist intermediate search results to disk.
+        By default, ``False``.
+
+    Returns
+    -------
+    dict
+        JSON-serializable report containing per-jurisdiction ranked
+        URLs and filtering reasons.
+    """
+    time_start_utc = datetime.now(UTC)
 
     qt = await runtime.extractor_class(None, None).get_query_templates()
-    jurisdictions_df = load_jurisdictions_from_fp(request.jurisdiction_fp)
     se_kwargs = runtime.search_params.se_kwargs
     num_urls = runtime.search_params.num_urls_to_check_per_jurisdiction
 
