@@ -10,65 +10,38 @@ quality before invoking the full pipeline.
 import asyncio
 import json
 import logging
+from os import PathLike
 from statistics import median
 from datetime import datetime, UTC
 from pathlib import Path
+from warnings import warn
 
 from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
-from compass.web.search import search_single_jurisdiction
-from compass.pipeline.runtime import PipelineRuntime
-from compass.utilities.jurisdictions import (
-    jurisdictions_from_df,
-    load_jurisdictions_from_fp,
+from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.utilities.io import load_config
+from compass.services.threaded import GenericFuncRunner
+from compass.web.search import (
+    write_search_result_shard,
+    search_single_jurisdiction,
 )
+from compass.utilities.jurisdictions import jurisdictions_from_df
+from compass.warn import COMPASSWarning
 
 
 logger = logging.getLogger(__name__)
+SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
 
-async def run_search_from_request(request, config_path=None):
-    """Run search-engine queries for every jurisdiction in a config
+async def run_search(runtime, jurisdictions_df):
+    """Run search-engine queries for every input jurisdiction
 
-    The function loads jurisdictions, fetches query templates from the
-    plugin registered for ``tech``, formats them, and submits each
-    query to the configured search engines (with fallback). All ranked
-    URLs are returned in a JSON-serializable structure annotated with
-    filtering reasons (blacklist, duplicate, or beyond requested
-    top-N).
-
-    Parameters
-    ----------
-    request : compass.pipeline.data_classes.BaseRequest
-        The request object containing all user-specified settings and
-        configurations for the pipeline run. This should be an instance
-        of one of the specific request types (e.g., ProcessRequest,
-        CollectionRequest, ExtractionRequest) that inherit from
-        BaseRequest, and should include all necessary information such
-        as the mode to run in, output directories, jurisdiction
-        information, model configurations, and any other relevant
-        settings.
-    config_path : path-like, optional
-        Absolute path of the originating config file, embedded in the
-        returned report for traceability. By default, ``None``.
-
-    Returns
-    -------
-    dict
-        JSON-serializable report containing per-jurisdiction ranked
-        URLs and filtering reasons.
-    """
-
-    runtime = PipelineRuntime(request)
-    jurisdictions_df = load_jurisdictions_from_fp(request.jurisdiction_fp)
-    return await run_search(runtime, jurisdictions_df, config_path)
-
-
-async def run_search(
-    runtime, jurisdictions_df, config_path=None, *, persist=False
-):
-    """Search jurisdictions and aggregate their results
+    The function fetches query templates from the plugin registered for
+    ``tech``, formats them, and submits each query to the configured
+    search engines (with fallback). All ranked URLs are returned in a
+    JSON-serializable structure annotated with filtering reasons
+    (blacklist, duplicate, or beyond requested top-N).
 
     Parameters
     ----------
@@ -78,12 +51,6 @@ async def run_search(
     jurisdictions_df : pandas.DataFrame
         DataFrame containing jurisdiction information loaded from the
         config.
-    config_path : path-like, optional
-        Absolute path of the originating config file, embedded in the
-        returned report for traceability. By default, ``None``.
-    persist : bool, optional
-        Whether to persist intermediate search results to disk.
-        By default, ``False``.
 
     Returns
     -------
@@ -98,15 +65,8 @@ async def run_search(
     num_urls = runtime.search_params.num_urls_to_check_per_jurisdiction
 
     tasks = [
-        search_single_jurisdiction(
-            qt,
-            jur,
-            num_urls,
-            runtime.search_engine_semaphore,
-            runtime.search_params.url_ignore_substrings,
-            runtime.search_params.url_keep_substrings,
-            simple=False,
-            **se_kwargs,
+        asyncio.create_task(
+            _search_jurisdiction(runtime, qt, jur), name=jur.full_name
         )
         for jur in jurisdictions_from_df(jurisdictions_df)
     ]
@@ -115,7 +75,6 @@ async def run_search(
 
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
-    config_path = str(Path(config_path).resolve()) if config_path else None
 
     result_counts = []
     filtered_counts = []
@@ -134,7 +93,6 @@ async def run_search(
     return {
         "tech": runtime.tech,
         "versions": {"compass": compass_version, "elm": elm_version},
-        "config_path": config_path,
         "num_urls_requested": num_urls,
         "search_engines": list(se_kwargs.get("search_engines", [])),
         "query_templates": list(qt),
@@ -161,6 +119,136 @@ async def run_search(
         },
         "jurisdictions": jur_results,
     }
+
+
+async def _search_jurisdiction(runtime, templates, jurisdiction):
+    """Search one jurisdiction with optional persistence and logging"""
+
+    logger.info("Searching for %s", jurisdiction.full_name)
+    search_params = runtime.search_params
+    results = await search_single_jurisdiction(
+        templates,
+        jurisdiction,
+        search_params.num_urls_to_check_per_jurisdiction,
+        runtime.search_engine_semaphore,
+        search_params.url_ignore_substrings,
+        search_params.url_keep_substrings,
+        simple=runtime.search_params.simple_se_result_sort,
+        **search_params.se_kwargs,
+    )
+
+    results["tech"] = runtime.tech
+    await GenericFuncRunner.call(
+        write_search_result_shard,
+        runtime.dirs.se_shards,
+        results,
+        jurisdiction,
+    )
+
+    logger.info("Completed search for %s", jurisdiction.full_name)
+    return results
+
+
+def load_search_result_jurisdictions(manifest_fp, expected_tech):
+    """Load saved search results indexed by jurisdiction code
+
+    Parameters
+    ----------
+    manifest_fp : path-like or list of path-like
+        Manifest, shard, run directory, shard directory, or glob paths.
+    expected_tech : str
+        Technology required when the input declares its technology.
+
+    Returns
+    -------
+    dict
+        Saved jurisdiction results indexed by their FIPS codes.
+    """
+    if isinstance(manifest_fp, (str, PathLike)):
+        manifest_fp = [manifest_fp]
+
+    jurisdictions = {}
+    for pattern in manifest_fp:
+        jurisdictions.update(
+            dict(_records_from_files(pattern, expected_tech, jurisdictions))
+        )
+
+    return jurisdictions
+
+
+def _records_from_files(pattern, expected_tech, jurisdictions):
+    """Yield search records from files matching the given pattern"""
+    for shard_fp in _search_result_paths(Path(pattern).expanduser()):
+        yield from _records_from_single_file(
+            shard_fp, expected_tech, jurisdictions
+        )
+
+
+def _search_result_paths(path):
+    """Select an aggregate manifest or the existing result shards"""
+    if not path.exists():
+        return _try_find_from_relative(path)
+
+    if not path.is_dir():
+        return [path]
+
+    manifest = path / SEARCH_RESULT_MANIFEST_FILENAME
+    if manifest.is_file():
+        return [manifest]
+
+    shard_dir = path / "se_results"
+    if not shard_dir.is_dir():
+        shard_dir = path
+
+    paths = sorted(shard_dir.glob("*.json"))
+    if not paths:
+        msg = f"No search result shards found in {shard_dir}"
+        raise COMPASSFileNotFoundError(msg)
+
+    return paths
+
+
+def _try_find_from_relative(path):
+    """Try to find search result files from a relative path"""
+    base = Path(path.anchor or ".")
+    pattern = path.relative_to(base) if path.is_absolute() else path
+    matches = sorted(base.glob(str(pattern)))
+    if not matches:
+        msg = f"Search result input not found: {path}"
+        raise COMPASSFileNotFoundError(msg)
+
+    return [
+        shard_fp
+        for match in matches
+        for shard_fp in _search_result_paths(match)
+    ]
+
+
+def _records_from_single_file(shard_fp, expected_tech, jurisdictions):
+    """Extract search result records from a single file"""
+    payload = load_config(shard_fp, resolve_paths=False)
+    _validate_search_result_tech(payload, expected_tech, shard_fp)
+    if payload.get("tech") is None:
+        msg = (
+            f"Search result input {shard_fp} has no technology "
+            "metadata; its technology cannot be verified"
+        )
+        warn(msg, COMPASSWarning)
+
+    records = payload.get("jurisdictions", [payload])
+    if not isinstance(records, list):
+        msg = f"Invalid search result jurisdictions: {shard_fp}"
+        raise COMPASSValueError(msg)
+
+    for record in records:
+        _validate_search_result_record(record, shard_fp)
+        _validate_search_result_tech(record, expected_tech, shard_fp)
+        code = str(record["FIPS"])
+        if code in jurisdictions:
+            msg = f"Duplicate search result entry for FIPS '{code}'"
+            raise COMPASSValueError(msg)
+
+        yield code, record
 
 
 def _validate_search_result_tech(payload, expected_tech, path):
