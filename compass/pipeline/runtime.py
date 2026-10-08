@@ -95,6 +95,7 @@ class PipelineRuntime:
         return _setup_folders(
             self.request.output_settings,
             collect_only=(self.mode == self.mode.COLLECT),
+            search_only=(self.mode == self.mode.SEARCH),
         )
 
     @cached_property
@@ -331,7 +332,7 @@ def _configure_main_logging(log_dir, level, listener, keep_async_logs):
         logger.debug_to_file("Using async log format: %s", log_fmt)
 
 
-def _setup_folders(output_settings, collect_only=False):
+def _setup_folders(output_settings, collect_only=False, search_only=False):
     """Create output folders for the run"""
     dirs = Directories(
         output_settings.out_dir,
@@ -339,8 +340,9 @@ def _setup_folders(output_settings, collect_only=False):
         output_settings.clean_dir,
         output_settings.ordinance_file_dir,
         output_settings.jurisdiction_dbs_dir,
-        collect_only,
+        collect_only=collect_only,
         save_se_shards=output_settings.save_search_engine_results,
+        search_only=search_only,
     )
 
     if not collect_only and dirs.out.exists():
