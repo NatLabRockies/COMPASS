@@ -89,9 +89,16 @@ async def run_search(request, config_path=None):
     config_path = str(Path(config_path).resolve()) if config_path else None
 
     result_counts = []
+    filtered_counts = []
     se_counts = {}
     for results in jur_results:
         result_counts.append(results.get("num_results", 0))
+        filtered_counts.append(
+            sum(
+                row.get("filtered_reason") is None
+                for row in results["results"]
+            )
+        )
         for se, count in results["search_engine_counts"].items():
             se_counts[se] = se_counts.get(se, 0) + count
 
@@ -116,6 +123,12 @@ async def run_search(request, config_path=None):
             "max": max(result_counts, default=0),
             "median": median(result_counts) if result_counts else 0,
             "total": sum(result_counts),
+        },
+        "filtered_result_stats": {
+            "min": min(filtered_counts, default=0),
+            "max": max(filtered_counts, default=0),
+            "median": median(filtered_counts) if filtered_counts else 0,
+            "total": sum(filtered_counts),
         },
         "jurisdictions": jur_results,
     }
