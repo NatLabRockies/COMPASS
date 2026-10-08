@@ -80,6 +80,7 @@ async def run_compass(request):
             known_local_docs=request.known_sources.known_local_docs,
             known_doc_urls=request.known_sources.known_doc_urls,
             perform_se_search=request.perform_se_search,
+            num_search_results_to_crawl=request.num_search_results_to_crawl,
             perform_website_search=request.perform_website_search,
         )
 
@@ -413,6 +414,7 @@ def _enabled_steps(
     known_local_docs=None,
     known_doc_urls=None,
     perform_se_search=True,
+    num_search_results_to_crawl=0,
     perform_website_search=True,
 ):
     """Return enabled collection steps or raise when none are enabled"""
@@ -423,6 +425,10 @@ def _enabled_steps(
         steps.append("Check known document URL")
     if perform_se_search:
         steps.append("Look for document using search engine")
+        if num_search_results_to_crawl > 0:
+            steps.append(
+                f"Crawl top {num_search_results_to_crawl:,d} search results"
+            )
     if perform_website_search:
         steps.append("Look for document on jurisdiction website")
 
