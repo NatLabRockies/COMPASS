@@ -9,6 +9,7 @@ from elm.web.document import HTMLDocument
 from elm.web.utilities import get_redirected_url
 
 from compass.scripts.download import (
+    download_jurisdiction_ordinance_from_search_results,
     download_jurisdiction_ordinance_using_search_engine,
     download_jurisdiction_ordinances_from_website,
     download_jurisdiction_ordinances_from_website_compass_crawl,
