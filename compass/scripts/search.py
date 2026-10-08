@@ -163,6 +163,64 @@ async def run_search(
     }
 
 
+def _validate_search_result_record(record, path):
+    """Validate replay identity and result structure"""
+    if _invalid_record(record):
+        msg = f"Invalid search result FIPS: {path}"
+        raise COMPASSValueError(msg)
+
+    if _invalid_results_list(record.get("results")):
+        msg = f"Invalid search results: {path}"
+        raise COMPASSValueError(msg)
+
+
+def _invalid_record(record):
+    """Validate a SE record
+
+    Checks:
+        - record is a dict
+        - record contains a non-empty "FIPS" string
+    """
+    if not isinstance(record, dict):
+        return True
+    if not isinstance(record.get("FIPS"), str):
+        return True
+    return not record["FIPS"].strip()
+
+
+def _invalid_results_list(results):
+    """Validate a SE results list
+
+    Checks:
+        - results is a list
+        - all result dicts within are valid
+    """
+    if not isinstance(results, list):
+        return True
+    return any(_invalid_result(result) for result in results)
+
+
+def _invalid_result(result):
+    """Validate a SE result dictionary
+
+    Checks:
+        - result is a dict
+        - URL exists and is str
+        - URL is non-empty
+        - overall_rank is either None or a positive integer
+    """
+    if not isinstance(result, dict):
+        return True
+    if not isinstance(result.get("url"), str):
+        return True
+    if not result["url"].strip():
+        return True
+
+    return result.get("overall_rank") is not None and (
+        type(result["overall_rank"]) is not int or result["overall_rank"] < 1
+    )
+
+
 def write_search_report(report, out_path):
     """Write a search-only report as JSON
 
