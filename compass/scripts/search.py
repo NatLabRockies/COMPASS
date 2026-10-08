@@ -269,6 +269,7 @@ def summary(report):
     lines.extend(
         (
             "COMPASS search-only summary",
+            "---------------------------",
             f"tech: {report.get('tech')}",
             f"timestamp: {report.get('time_end_utc')}",
             f"requested top urls: {report.get('num_urls_requested')}",
