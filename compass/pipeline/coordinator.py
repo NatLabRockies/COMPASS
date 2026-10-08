@@ -378,6 +378,7 @@ def _request_to_log_args(request):
         "mode": str(request.MODE),
         "tech": request.tech,
         "jurisdiction_fp": request.jurisdiction_fp,
+        "search_result_manifest_fp": request.search_result_manifest_fp,
         "collection_manifest_fp": request.collection_manifest_fp,
         "perform_se_search": request.perform_se_search,
         "perform_website_search": request.perform_website_search,
