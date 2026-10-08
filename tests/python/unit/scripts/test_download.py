@@ -167,6 +167,7 @@ async def test_docs_from_web_search_adds_search_engine_attrs(monkeypatch):
         jurisdiction=SimpleNamespace(full_name="Example County, Test"),
         simple_se_result_sort=False,
         se_shard_out_dir=None,
+        search_results=None,
     )
 
     assert docs[0].attrs["collection_step_rank"] == 2
@@ -227,6 +228,7 @@ async def test_search_candidate_budget_and_failed_downloads(monkeypatch):
         None,
         SimpleNamespace(full_name="Example"),
         True,
+        None,
         None,
     )
     assert len(docs) == 2
