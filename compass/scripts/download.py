@@ -1,9 +1,7 @@
 """Ordinance file downloading logic"""
 
-import json
 import pprint
 import logging
-from pathlib import Path
 from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
@@ -37,8 +35,7 @@ from compass.web.file_loader import (
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
-from compass.utilities.parsing import is_pdf_doc, convert_paths_to_strings
-from compass.utilities.io import normalize_output_stem
+from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
 
 
@@ -551,6 +548,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     browser_semaphore=None,
     url_ignore_substrings=None,
     se_shard_out_dir=None,
+    known_search_results=None,
     **kwargs,
 ):
     """Download the ordinance document(s) for a single jurisdiction
@@ -596,6 +594,10 @@ async def download_jurisdiction_ordinance_using_search_engine(
         Directory where search engine shard results should be written.
         If ``None``, the results will not be written to disk.
         By default, ``None``.
+    known_search_results : dict, optional
+        Pre-run search results to download without querying search
+        engines or reapplying URL filters and top-N.
+        By default, ``None``.
     **kwargs
         Additional keyword arguments forwarded to
         :func:`elm.web.search.run.web_search_links_as_docs`. Common
@@ -629,6 +631,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
             jurisdiction=jurisdiction,
             simple_se_result_sort=simple_se_result_sort,
             se_shard_out_dir=se_shard_out_dir,
+            search_results=known_search_results,
             **kwargs,
         )
     except KeyboardInterrupt:
@@ -778,19 +781,22 @@ async def _docs_from_web_search(
     jurisdiction,
     simple_se_result_sort,
     se_shard_out_dir,
+    search_results,
     **kwargs,
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    se_results = await search_single_jurisdiction(
-        query_templates,
-        jurisdiction,
-        num_urls,
-        search_semaphore,
-        url_ignore_substrings,
-        simple=simple_se_result_sort,
-        **kwargs,
-    )
+    if search_results is None:
+        search_results = await search_single_jurisdiction(
+            query_templates,
+            jurisdiction,
+            num_urls,
+            search_semaphore,
+            url_ignore_substrings,
+            simple=simple_se_result_sort,
+            **kwargs,
+        )
+
     if se_shard_out_dir is not None:
         await GenericFuncRunner.call(
             write_search_result_shard,
@@ -801,7 +807,7 @@ async def _docs_from_web_search(
 
     ranked_results = {
         res.get("url"): res
-        for res in se_results["results"]
+        for res in search_results["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
     urls = sorted(
