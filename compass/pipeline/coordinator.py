@@ -355,6 +355,8 @@ def _select_workflow(runtime):
         return COMPASSExtraction(runtime)
     if runtime.mode == COMPASSRunMode.PROCESS:
         return COMPASSFullProcessing(runtime)
+    if runtime.mode == COMPASSRunMode.SEARCH:
+        return COMPASSSearch(runtime)
 
     msg = f"Unsupported mode: {runtime.mode}"
     raise COMPASSValueError(msg)
