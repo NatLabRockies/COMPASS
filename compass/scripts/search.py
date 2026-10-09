@@ -7,9 +7,7 @@ jurisdiction. The output is intended to help diagnose retrieval
 quality before invoking the full pipeline.
 """
 
-import asyncio
 import json
-import logging
 from os import PathLike
 from statistics import median
 from datetime import datetime, UTC
@@ -21,36 +19,24 @@ from elm.version import __version__ as elm_version
 from compass import __version__ as compass_version
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.utilities.io import load_config
-from compass.services.threaded import GenericFuncRunner
-from compass.web.search import (
-    write_search_result_shard,
-    search_single_jurisdiction,
-)
-from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.warn import COMPASSWarning
 
 
-logger = logging.getLogger(__name__)
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
 
-async def run_search(runtime, jurisdictions_df):
-    """Run search-engine queries for every input jurisdiction
-
-    The function fetches query templates from the plugin registered for
-    ``tech``, formats them, and submits each query to the configured
-    search engines (with fallback). All ranked URLs are returned in a
-    JSON-serializable structure annotated with filtering reasons
-    (blacklist, duplicate, or beyond requested top-N).
+async def build_search_report(runtime, jur_results, time_start_utc):
+    """Aggregate jurisdiction search results into a report
 
     Parameters
     ----------
     runtime : compass.pipeline.runtime.PipelineRuntime
-        The runtime object containing all necessary context and
-        configurations for executing the search.
-    jurisdictions_df : pandas.DataFrame
-        DataFrame containing jurisdiction information loaded from the
-        config.
+        Runtime containing the search settings and technology.
+    jur_results : list of dict or None
+        Results for each requested jurisdiction. Failed workflows may
+        return ``None``.
+    time_start_utc : datetime.datetime
+        UTC timestamp when the search run started.
 
     Returns
     -------
@@ -58,20 +44,10 @@ async def run_search(runtime, jurisdictions_df):
         JSON-serializable report containing per-jurisdiction ranked
         URLs and filtering reasons.
     """
-    time_start_utc = datetime.now(UTC)
-
     qt = await runtime.extractor_class(None, None).get_query_templates()
     se_kwargs = runtime.search_params.se_kwargs
     num_urls = runtime.search_params.num_urls_to_check_per_jurisdiction
-
-    tasks = [
-        asyncio.create_task(
-            _search_jurisdiction(runtime, qt, jur), name=jur.full_name
-        )
-        for jur in jurisdictions_from_df(jurisdictions_df)
-    ]
-    num_jurisdictions_searched = len(tasks)
-    jur_results = await asyncio.gather(*tasks)
+    num_jurisdictions_searched = len(jur_results)
 
     time_end_utc = datetime.now(UTC)
     time_elapsed = time_end_utc - time_start_utc
@@ -79,7 +55,14 @@ async def run_search(runtime, jurisdictions_df):
     result_counts = []
     filtered_counts = []
     se_counts = {}
+    out_results = []
     for results in jur_results:
+        if results is None:
+            result_counts.append(0)
+            filtered_counts.append(0)
+            continue
+
+        out_results.append(results)
         result_counts.append(results.get("num_results", 0))
         filtered_counts.append(
             sum(
@@ -102,7 +85,7 @@ async def run_search(runtime, jurisdictions_df):
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
         "num_jurisdictions_found": sum(
-            results.get("num_results", 0) > 0 for results in jur_results
+            results.get("num_results", 0) > 0 for results in out_results
         ),
         "search_engine_totals": dict(se_counts),
         "result_stats": {
@@ -117,36 +100,8 @@ async def run_search(runtime, jurisdictions_df):
             "median": median(filtered_counts) if filtered_counts else 0,
             "total": sum(filtered_counts),
         },
-        "jurisdictions": jur_results,
+        "jurisdictions": out_results,
     }
-
-
-async def _search_jurisdiction(runtime, templates, jurisdiction):
-    """Search one jurisdiction with optional persistence and logging"""
-
-    logger.info("Searching for %s", jurisdiction.full_name)
-    search_params = runtime.search_params
-    results = await search_single_jurisdiction(
-        templates,
-        jurisdiction,
-        search_params.num_urls_to_check_per_jurisdiction,
-        runtime.search_engine_semaphore,
-        search_params.url_ignore_substrings,
-        search_params.url_keep_substrings,
-        simple=runtime.search_params.simple_se_result_sort,
-        **search_params.se_kwargs,
-    )
-
-    results["tech"] = runtime.tech
-    await GenericFuncRunner.call(
-        write_search_result_shard,
-        runtime.dirs.se_shards,
-        results,
-        jurisdiction,
-    )
-
-    logger.info("Completed search for %s", jurisdiction.full_name)
-    return results
 
 
 def load_search_result_jurisdictions(manifest_fp, expected_tech):
@@ -170,7 +125,7 @@ def load_search_result_jurisdictions(manifest_fp, expected_tech):
     jurisdictions = {}
     for pattern in manifest_fp:
         jurisdictions.update(
-            dict(_records_from_files(pattern, expected_tech, jurisdictions))
+            _records_from_files(pattern, expected_tech, jurisdictions)
         )
 
     return jurisdictions
@@ -329,7 +284,7 @@ def write_search_report(report, out_path):
     Parameters
     ----------
     report : dict
-        Report returned by :func:`run_search`.
+        Report returned by :func:`build_search_report`.
     out_path : path-like
         Destination file path.
     """
@@ -345,7 +300,7 @@ def summary(report):
     Parameters
     ----------
     report : dict
-        Dictionary produced by :func:`run_search`.
+        Dictionary produced by :func:`build_search_report`.
 
     Returns
     -------
