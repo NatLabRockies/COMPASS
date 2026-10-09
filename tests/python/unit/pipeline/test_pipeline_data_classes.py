@@ -9,7 +9,9 @@ from compass.pipeline import (
     CollectionRequest,
     ExtractionRequest,
     ProcessRequest,
+    SearchRequest,
 )
+from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.data_classes import WebSearchParams
 from compass.utilities.io import ConfigType, load_config
 from compass.warn import COMPASSWarning
@@ -22,6 +24,7 @@ from compass.warn import COMPASSWarning
         (BaseRequest, "ordinance_file_dir", {}),
         (ProcessRequest, "ordinance_file_dir", {}),
         (CollectionRequest, "source_file_dir", {}),
+        (SearchRequest, "log_dir", {}),
         (
             ExtractionRequest,
             "ordinance_file_dir",
@@ -33,6 +36,7 @@ def test_request_from_inherited_config(
     tmp_path, config_type, request_class, source_dir_key, extra_config
 ):
     """Create requests from inherited configs with child overrides"""
+    is_search = request_class is SearchRequest
     parent_dir = tmp_path / "parents"
     parent_dir.mkdir()
     parent = parent_dir / "parent.json"
@@ -44,12 +48,21 @@ def test_request_from_inherited_config(
             "tech": "solar",
             "jurisdiction_fp": "./jurisdictions.csv",
             source_dir_key: "./sources",
-            "model": "gpt-4o-mini",
-            "max_num_concurrent_jurisdictions": 3,
             "log_level": "WARNING",
-            "file_loader_kwargs": {
-                "pw_launch_kwargs": {"headless": True, "timeout": 1000}
-            },
+            **(
+                {
+                    "model": "gpt-4o-mini",
+                    "max_num_concurrent_jurisdictions": 3,
+                    "file_loader_kwargs": {
+                        "pw_launch_kwargs": {
+                            "headless": True,
+                            "timeout": 1000,
+                        }
+                    },
+                }
+                if not is_search
+                else {}
+            ),
         },
     )
     config_type.write(
@@ -63,10 +76,14 @@ def test_request_from_inherited_config(
                     "num_search_results_to_crawl": 3,
                     "search_results_crawl_depth": 2,
                 }
-                if request_class is not ExtractionRequest
+                if request_class not in {ExtractionRequest, SearchRequest}
                 else {}
             ),
-            "file_loader_kwargs": {"pw_launch_kwargs": {"timeout": 2000}},
+            **(
+                {"file_loader_kwargs": {"pw_launch_kwargs": {"timeout": 2000}}}
+                if not is_search
+                else {}
+            ),
             **extra_config,
         },
     )
@@ -85,23 +102,73 @@ def test_request_from_inherited_config(
         == (tmp_path / "child_outputs").as_posix()
     )
     assert (
-        request.output_settings.ordinance_file_dir
-        == (parent_dir / "sources").as_posix()
+        request.output_settings.log_dir
+        if is_search
+        else request.output_settings.ordinance_file_dir
+    ) == (parent_dir / "sources").as_posix()
+    assert request.user_model_input == (None if is_search else "gpt-4o-mini")
+    assert request.runtime_settings.max_num_concurrent_jurisdictions == (
+        25 if is_search else 3
     )
-    assert request.user_model_input == "gpt-4o-mini"
-    assert request.runtime_settings.max_num_concurrent_jurisdictions == 3
     assert request.runtime_settings.log_level == "DEBUG"
-    if request_class is not ExtractionRequest:
+    if request_class not in {ExtractionRequest, SearchRequest}:
         assert request.search_settings.num_search_results_to_crawl == 3
         assert request.search_settings.search_results_crawl_depth == 2
-    assert request.file_loader_kwargs == {
-        "pw_launch_kwargs": {"headless": True, "timeout": 2000}
-    }
+    assert request.file_loader_kwargs == (
+        None
+        if is_search
+        else {"pw_launch_kwargs": {"headless": True, "timeout": 2000}}
+    )
     if request_class is ExtractionRequest:
         assert (
             request.collection_manifest_fp
             == (tmp_path / "manifest.json").as_posix()
         )
+
+
+@pytest.mark.parametrize("request_class", [CollectionRequest, ProcessRequest])
+def test_saved_search_request(tmp_path, request_class):
+    """Forward saved search inputs through both consumer requests"""
+    manifest_fp = tmp_path / "search_result_manifest.json"
+    request = request_class(
+        tmp_path / "output",
+        "wind",
+        None,
+        search_result_manifest_fp=manifest_fp,
+    )
+    assert request.search_result_manifest_fp == manifest_fp
+
+
+def test_search_runtime_resources(tmp_path):
+    """Search needs no models, document workers, or document directories"""
+    request = SearchRequest(tmp_path / "output", "wind", None)
+    runtime = PipelineRuntime(request)
+    assert request.user_model_input is None
+    assert request.output_settings.save_search_engine_results is True
+    assert runtime.models == {}
+    assert [type(service).__name__ for service in runtime._services] == [
+        "GenericFuncRunner"
+    ]
+    assert {path.name for path in runtime.dirs.out.iterdir()} == {
+        "logs",
+        "se_results",
+    }
+
+
+@pytest.mark.parametrize(
+    "option",
+    [
+        "model",
+        "ordinance_file_dir",
+        "num_search_results_to_crawl",
+        "file_loader_kwargs",
+        "save_search_engine_results",
+    ],
+)
+def test_search_request_rejects_non_search_options(tmp_path, option):
+    """Search requests reject settings for collection or extraction"""
+    with pytest.raises(TypeError, match="unexpected keyword argument"):
+        SearchRequest(tmp_path / "output", "wind", None, **{option: None})
 
 
 def test_wsp_se_kwargs():
