@@ -4,17 +4,23 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from unittest.mock import AsyncMock
+from types import SimpleNamespace
 
 import pytest
 
 import compass.scripts.search as search_module
 import compass.web.search as web_search_module
-from compass.pipeline.data_classes import CollectionRequest
+from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.pipeline.runtime import PipelineRuntime
+from compass.pipeline.data_classes import SearchRequest
+from compass.pipeline.coordinator import COMPASSSearch
+from compass.pb import COMPASS_PB
+from compass.utilities.jurisdictions import load_jurisdictions_from_fp
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("with_results", [True, False])
-async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
+async def test_search_report_metadata(tmp_path, monkeypatch, with_results):
     """Report run metadata and aggregate successful, empty, failed searches"""
     jurisdiction_fp = tmp_path / "jurisdictions.csv"
     jurisdiction_fp.write_text(
@@ -26,10 +32,7 @@ async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
         encoding="utf-8",
     )
     monkeypatch.chdir(tmp_path)
-    config_path = Path("config.json") if with_results else None
-    if config_path is not None:
-        config_path.write_text("{}", encoding="utf-8")
-    request = CollectionRequest(
+    request = SearchRequest(
         out_dir=tmp_path / "output",
         tech="wind",
         jurisdiction_fp=jurisdiction_fp,
@@ -39,11 +42,10 @@ async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
             {"se_name": "APIDuckDuckGoSearch"},
         ],
     )
-    query_templates = (
-        await search_module.PipelineRuntime(request)
-        .extractor_class(None, None)
-        .get_query_templates()
-    )
+    runtime = PipelineRuntime(request)
+    query_templates = await runtime.extractor_class(
+        None, None
+    ).get_query_templates()
     first_results = [
         {"url": "https://example.com/a", "search_engine": "Google"},
         {"url": "https://example.com/b", "search_engine": "Bing"},
@@ -67,8 +69,18 @@ async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
     )
 
     before = datetime.now(UTC)
-    report = await search_module.run_search_from_request(
-        request, config_path=config_path
+    jurisdictions_df = load_jurisdictions_from_fp(request.jurisdiction_fp)
+    COMPASS_PB.reset()
+    COMPASS_PB.create_main_task(num_jurisdictions=len(jurisdictions_df))
+    try:
+        async with runtime:
+            await COMPASSSearch(runtime).run(jurisdictions_df)
+    finally:
+        COMPASS_PB.reset()
+    report = json.loads(
+        (
+            runtime.dirs.out / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+        ).read_text(encoding="utf-8")
     )
     after = datetime.now(UTC)
 
@@ -78,9 +90,6 @@ async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
         "compass": search_module.compass_version,
         "elm": search_module.elm_version,
     }
-    assert report["config_path"] == (
-        str(config_path.resolve()) if config_path is not None else None
-    )
     assert report["num_urls_requested"] == 7
     assert report["search_engines"] == [
         "PlaywrightGoogleLinkSearch",
@@ -110,7 +119,45 @@ async def test_run_search_report_metadata(tmp_path, monkeypatch, with_results):
     assert report["jurisdictions"][-1]["error"] == (
         "RuntimeError: Search unavailable"
     )
+    shards = [
+        json.loads(path.read_text(encoding="utf-8"))
+        for path in runtime.dirs.se_shards.glob("*.json")
+    ]
+    assert {shard["FIPS"]: shard for shard in shards} == {
+        result["FIPS"]: result for result in report["jurisdictions"]
+    }
+    location_logs = list(runtime.dirs.logs.glob("*.log"))
+    assert len(location_logs) >= 4
+    for path in location_logs:
+        if path.name == "main.log":
+            continue
+        text = path.read_text(encoding="utf-8")
+        assert "Kicking off search for jurisdiction:" in text
+        assert "Completed search for" in text
     assert json.loads(json.dumps(report)) == report
+
+
+@pytest.mark.parametrize("jur_results", [[], [None]])
+async def test_build_search_report_without_results(tmp_path, jur_results):
+    """Aggregate empty runs and failed workflows without invalid records"""
+    runtime = PipelineRuntime(SearchRequest(tmp_path, "wind", None))
+    report = await search_module.build_search_report(
+        runtime, jur_results, datetime.now(UTC)
+    )
+    assert report["num_jurisdictions_searched"] == len(jur_results)
+    assert report["num_jurisdictions_found"] == 0
+    assert report["jurisdictions"] == []
+    assert report["search_engine_totals"] == {}
+    assert (
+        report["result_stats"]
+        == report["filtered_result_stats"]
+        == {
+            "min": 0,
+            "max": 0,
+            "median": 0,
+            "total": 0,
+        }
+    )
 
 
 def test_summary_keeps_only_unfiltered_and_sorted():
@@ -161,6 +208,84 @@ def test_summary_keeps_only_unfiltered_and_sorted():
     assert "https://example.com/rank1" in output
     assert "https://example.com/rank2" in output
     assert "https://example.com/dup" not in output
+
+
+@pytest.mark.parametrize(
+    "source", ["manifest", "run", "shards", "glob", "current"]
+)
+def test_load_search_results(tmp_path, monkeypatch, source):
+    """Load aggregates and existing shards without dropping empty records"""
+    records = [
+        {"FIPS": "08001", "full_name": "Adams", "results": []},
+        {
+            "FIPS": "08013",
+            "full_name": "Boulder",
+            "results": [{"url": "https://example.com", "overall_rank": 1}],
+        },
+    ]
+    shard_dir = tmp_path / "se_results"
+    for record in records:
+        web_search_module.write_search_result_shard(
+            shard_dir, record, SimpleNamespace(full_name=record["full_name"])
+        )
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    search_module.write_search_report(
+        {"tech": "wind", "jurisdictions": records}, manifest
+    )
+    inputs = {
+        "manifest": manifest,
+        "run": tmp_path,
+        "shards": shard_dir,
+        "glob": str(shard_dir / "*.json"),
+        "current": ".",
+    }
+    monkeypatch.chdir(tmp_path)
+    loaded = search_module.load_search_result_jurisdictions(
+        inputs[source], "wind"
+    )
+    assert loaded == {record["FIPS"]: record for record in records}
+    manifest.unlink()
+    assert (
+        search_module.load_search_result_jurisdictions(tmp_path, "wind")
+        == loaded
+    )
+
+
+@pytest.mark.parametrize(
+    "payload, message",
+    [
+        ({"tech": "solar", "jurisdictions": []}, "technology"),
+        ({"FIPS": None, "results": []}, "FIPS"),
+        ({"FIPS": "08001", "results": [{}]}, "Invalid search results"),
+        (
+            {
+                "FIPS": "08001",
+                "results": [
+                    {"url": "https://example.com", "overall_rank": "first"}
+                ],
+            },
+            "Invalid search results",
+        ),
+        ({"jurisdictions": {}}, "jurisdictions"),
+        (
+            {"jurisdictions": [{"FIPS": "08001", "results": []}] * 2},
+            "Duplicate",
+        ),
+    ],
+)
+def test_reject_invalid_search_results(tmp_path, payload, message):
+    """Reject invalid inputs before collecting any documents"""
+    manifest = tmp_path / "search.json"
+    search_module.write_search_report(payload, manifest)
+    with pytest.raises(COMPASSValueError, match=message):
+        search_module.load_search_result_jurisdictions(manifest, "wind")
+
+
+def test_missing_search_results(tmp_path):
+    """Reject nonexistent inputs and empty shard directories"""
+    for path in (tmp_path / "missing.json", tmp_path):
+        with pytest.raises(COMPASSFileNotFoundError):
+            search_module.load_search_result_jurisdictions(path, "wind")
 
 
 if __name__ == "__main__":
