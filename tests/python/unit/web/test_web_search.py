@@ -15,7 +15,7 @@ _WEBSITE_QUERY_TEMPLATE = "site:{jurisdiction_website} zoning ordinance"
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("simple", [True, False])
-@pytest.mark.parametrize("outcome", ["results", "empty", "error"])
+@pytest.mark.parametrize("outcome", ["results", "filtered", "empty", "error"])
 async def test_search_returns_jurisdiction_and_result_metadata(
     monkeypatch, simple, outcome
 ):
@@ -24,9 +24,15 @@ async def test_search_returns_jurisdiction_and_result_metadata(
         [
             {"url": "https://example.com/a", "search_engine": "Google"},
             {"url": "https://example.com/b", "search_engine": "Google"},
-            {"url": "https://example.com/c", "search_engine": "Bing"},
+            {
+                "url": "https://example.com/c",
+                "search_engine": "Bing",
+                "filtered_reason": "beyond_top_n"
+                if outcome == "filtered"
+                else None,
+            },
         ]
-        if outcome == "results"
+        if outcome in {"results", "filtered"}
         else []
     )
     search_backend = AsyncMock(
@@ -66,8 +72,9 @@ async def test_search_returns_jurisdiction_and_result_metadata(
             "City of Thornton, Adams County, Colorado zoning ordinance"
         ],
         "num_results": len(results),
+        "num_kept_results": len(results) - (outcome == "filtered"),
         "search_engine_counts": {"Google": 2, "Bing": 1}
-        if outcome == "results"
+        if outcome in {"results", "filtered"}
         else {},
         "results": results,
         "error": "RuntimeError: Search unavailable"
@@ -156,6 +163,7 @@ async def test_search_skips_backend_when_no_queries_remain(monkeypatch):
         "jurisdiction_website": None,
         "queries": [],
         "num_results": 0,
+        "num_kept_results": 0,
         "search_engine_counts": {},
         "results": [],
         "error": None,
