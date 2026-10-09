@@ -1,6 +1,7 @@
 """COMPASS ordinance document web search functionality"""
 
 import logging
+from collections import Counter
 from urllib.parse import urlsplit, urlunsplit
 
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
@@ -66,10 +67,15 @@ async def search_single_jurisdiction(
     dict
         Dictionary containing the following keys:
 
-            - ``jurisdiction``: Full jurisdiction name
+            - ``full_name``: Full jurisdiction name
             - ``state``: Jurisdiction state
             - ``county``: Jurisdiction county
             - ``subdivision``: Jurisdiction subdivision name
+            - ``jurisdiction_type``: Type of the jurisdiction (e.g.,
+              state, county)
+            - ``FIPS``: FIPS code of the jurisdiction
+            - ``jurisdiction_website``: Known website URL of the
+              jurisdiction
             - ``queries``: List of formatted query strings that were
               searched
             - ``results``: List of search results dictionaries, with at
@@ -80,11 +86,16 @@ async def search_single_jurisdiction(
 
     queries = _format_queries(jurisdiction, query_templates)
     base = {
-        "jurisdiction": jurisdiction.full_name,
+        "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
         "county": jurisdiction.county,
         "subdivision": jurisdiction.subdivision_name,
+        "jurisdiction_type": jurisdiction.type,
+        "FIPS": jurisdiction.code,
+        "jurisdiction_website": jurisdiction.website_url,
         "queries": queries,
+        "num_results": 0,
+        "search_engine_counts": {},
         "results": [],
         "error": None,
     }
@@ -110,6 +121,10 @@ async def search_single_jurisdiction(
         return base
 
     base["results"] = out
+    base["num_results"] = len(out)
+    base["search_engine_counts"] = dict(
+        Counter(result["search_engine"] for result in out)
+    )
     return base
 
 

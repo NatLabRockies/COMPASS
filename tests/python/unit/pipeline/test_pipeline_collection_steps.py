@@ -16,6 +16,8 @@ from compass.pipeline.collection.steps import (
     SearchResultsCrawlStep,
 )
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
+from compass.pipeline.data_classes import CollectionRequest, ProcessRequest
+from compass.pipeline.runtime import _setup_folders
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 
 
@@ -85,6 +87,7 @@ def _build_workflow(
         crawl_semaphore=AsyncExitStack(),
         browser_semaphore=None,
         search_engine_semaphore=None,
+        dirs=SimpleNamespace(se_shards=None),
         search_params=SimpleNamespace(
             num_urls_to_check_per_jurisdiction=2,
             simple_se_result_sort=True,
@@ -115,6 +118,49 @@ def _build_workflow(
 class _SearchExtractor(_DummyExtractor):
     async def get_query_templates(self):
         return ["{jurisdiction} ordinance"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_class", [CollectionRequest, ProcessRequest])
+@pytest.mark.parametrize("save_search_engine_results", [None, True, False])
+async def test_search_shard_output_setting(
+    tmp_path, monkeypatch, request_class, save_search_engine_results
+):
+    """Create and forward shard output only when saving is enabled"""
+    options = (
+        {}
+        if save_search_engine_results is None
+        else {"save_search_engine_results": save_search_engine_results}
+    )
+    request = request_class(
+        tmp_path / "output", "solar", "jurisdictions.csv", **options
+    )
+    dirs = _setup_folders(
+        request.output_settings,
+        collect_only=request_class is CollectionRequest,
+    )
+    expected_dir = dirs.out / "se_results"
+    enabled = save_search_engine_results is not False
+    assert request.output_settings.save_search_engine_results is enabled
+    assert expected_dir.is_dir() is enabled
+    assert dirs.se_shards == (expected_dir if enabled else None)
+
+    workflow = _build_workflow()
+    workflow.runtime.dirs = dirs
+    workflow.extractor = _SearchExtractor()
+    captured = {}
+
+    async def fake_search(*_args, **kwargs):  # ruff:ignore[unused-async]
+        captured.update(kwargs)
+        return []
+
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinance_using_search_engine",
+        fake_search,
+    )
+    await SearchEngineDocumentsStep().collect(workflow)
+    assert captured["se_shard_out_dir"] == dirs.se_shards
 
 
 def test_search_candidates_never_refresh_completed_search(monkeypatch):

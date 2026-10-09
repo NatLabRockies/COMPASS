@@ -10,9 +10,17 @@ from compass.services.cpu import FileLoader, read_docling_local_file
 from compass.web.file_loader import AsyncLocalDoclingFileLoader
 from compass.services.provider import RunningAsyncServices
 from compass.exceptions import COMPASSNotInitializedError
+from compass.utilities.logs import LogListener
 
 
 PYT_CMD = os.getenv("TESSERACT_CMD")
+
+
+@pytest.fixture(autouse=True)
+async def subprocess_log_listener():
+    """Drain worker logs until process-pool shutdown completes"""
+    async with LogListener([]):
+        yield
 
 
 @pytest.mark.skipif(

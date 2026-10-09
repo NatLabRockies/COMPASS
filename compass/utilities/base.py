@@ -49,6 +49,7 @@ class Directories:
         ordinance_files=None,
         jurisdiction_dbs=None,
         collect_only=False,
+        save_se_shards=False,
     ):
         """
 
@@ -76,6 +77,9 @@ class Directories:
             ``True``, the default directories for cleaned text and
             ordinance files are changed to ``out/parsed_docs`` and
             ``out/source_docs``, respectively. By default, ``False``.
+        save_se_shards : bool, default=False
+            Create an ``out/se_results`` directory for search engine
+            result shards. By default, ``False``.
         """
         self.out = _full_path(out)
         self.logs = _full_path(logs) if logs else self.out / "logs"
@@ -96,6 +100,7 @@ class Directories:
             else self.out
             / ("manifest_shards" if collect_only else "jurisdiction_dbs")
         )
+        self.se_shards = self.out / "se_results" if save_se_shards else None
 
     def __iter__(self):
         """Yield managed directory paths in canonical order
@@ -105,12 +110,15 @@ class Directories:
         pathlib.Path
             Each of the managed directories in the following order:
             out, logs, clean_files, ordinance_files, jurisdiction_dbs.
+            The search shard directory is included last when enabled.
         """
         yield self.out
         yield self.logs
         yield self.clean_files
         yield self.ordinance_files
         yield self.jurisdiction_dbs
+        if self.se_shards is not None:
+            yield self.se_shards
 
     def make_dirs(self):
         """Create the managed directories if they do not exist"""

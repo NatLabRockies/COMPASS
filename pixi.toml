@@ -25,8 +25,8 @@ lint = "ruff check ./compass"
 format = "ruff format ./compass"
 
 [feature.python-test.tasks]
-tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=50 tests/python"
-tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=50 tests/python/unit"
+tests-p = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=65 tests/python"
+tests-u = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=65 tests/python/unit"
 tests-i = "pytest --durations=20 -rapP -vv --cov=compass --cov-report=html --cov-branch --cov-report=xml:coverage.xml --cov-fail-under=40 tests/python/integration"
 evals = { cmd = "pytest -rapP -vv -n auto --dist=load -m evals --log-cli-level=INFO evals/test_run_{{ name }}_evals.py", args = ["name"], default-environment = "ptest" }
 codespell = "codespell --toml pyproject.toml compass/extraction"

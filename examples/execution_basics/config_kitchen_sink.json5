@@ -147,6 +147,7 @@
     "clean_dir": "cleaned_text",
     "ordinance_file_dir": "ordinance_files",
     "jurisdiction_dbs_dir": "jurisdiction_dbs",
+    "save_search_engine_results": true,  // Save search results in out_dir/se_results
     "perform_website_search": true,  // set to false to only use search engines
     "llm_costs": {
         // required input to display running cost

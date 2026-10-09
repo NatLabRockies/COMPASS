@@ -89,6 +89,7 @@ class OutputSettings:
         ordinance_file_dir=None,
         jurisdiction_dbs_dir=None,
         make_paths_relative=False,
+        save_search_engine_results=True,
     ):
         """
 
@@ -125,6 +126,11 @@ class OutputSettings:
             be loaded correctly on a different machine. If ``False``,
             absolute paths are used in the manifest.
             By default, ``True``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
         """
         self.out_dir = out_dir
         self.log_dir = log_dir
@@ -132,6 +138,7 @@ class OutputSettings:
         self.ordinance_file_dir = ordinance_file_dir
         self.jurisdiction_dbs_dir = jurisdiction_dbs_dir
         self.make_paths_relative = make_paths_relative
+        self.save_search_engine_results = save_search_engine_results
 
 
 class KnownSourcesInput:
@@ -408,6 +415,7 @@ class BaseRequest:
         log_level="INFO",
         keep_async_logs=False,
         collection_manifest_fp=None,
+        save_search_engine_results=True,
     ):
         """
 
@@ -690,6 +698,11 @@ class BaseRequest:
             collected document for extraction. Only needed if running in
             extraction mode with a separate collection step.
             By default, ``None``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
         """  # ruff:ignore[doc-line-too-long]
         self.tech = tech
         self.jurisdiction_fp = jurisdiction_fp
@@ -737,6 +750,7 @@ class BaseRequest:
             ordinance_file_dir=ordinance_file_dir,
             jurisdiction_dbs_dir=jurisdiction_dbs_dir,
             make_paths_relative=make_paths_relative,
+            save_search_engine_results=save_search_engine_results,
         )
         self.known_sources = KnownSourcesInput(
             known_local_docs=known_local_docs,
@@ -810,6 +824,7 @@ class CollectionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
+        save_search_engine_results=True,
     ):
         """
 
@@ -1085,6 +1100,11 @@ class CollectionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
         """
         super().__init__(
             out_dir=out_dir,
@@ -1123,6 +1143,7 @@ class CollectionRequest(BaseRequest):
             make_paths_relative=make_paths_relative,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            save_search_engine_results=save_search_engine_results,
         )
 
 
