@@ -158,7 +158,7 @@ class SingleJurisdictionRun:
             "Kicking off search for jurisdiction: %s",
             self.jurisdiction.full_name,
         )
-        query_templates = self.extractor.get_query_templates()
+        query_templates = await self.extractor.get_query_templates()
         search_results = await self.se_search.execute(query_templates)
         logger.info(
             "Completed search for jurisdiction: %s",
