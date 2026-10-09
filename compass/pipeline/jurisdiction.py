@@ -146,13 +146,8 @@ class SingleJurisdictionRun:
             ord_db_fp=extraction_context.attrs.get("ord_db_fp"),
         )
 
-    async def search(self, query_templates):
+    async def search(self):
         """Run search-only mode for one jurisdiction
-
-        Parameters
-        ----------
-        query_templates : iterable of str
-            Query templates to format for this jurisdiction.
 
         Returns
         -------
@@ -163,6 +158,7 @@ class SingleJurisdictionRun:
             "Kicking off search for jurisdiction: %s",
             self.jurisdiction.full_name,
         )
+        query_templates = self.extractor.get_query_templates()
         search_results = await self.se_search.execute(query_templates)
         logger.info(
             "Completed search for jurisdiction: %s",
@@ -296,13 +292,8 @@ class SingleJurisdictionRun:
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
         )
 
-    async def run_search_with_logging(self, query_templates):
+    async def run_search_with_logging(self):
         """Search one jurisdiction under location-scoped logging
-
-        Parameters
-        ----------
-        query_templates : iterable of str
-            Query templates to format for this jurisdiction.
 
         Returns
         -------
@@ -310,9 +301,7 @@ class SingleJurisdictionRun:
             Ranked results, or ``None`` if the workflow failed.
         """
         return await self._run_with_logging_context(
-            partial(self.search, query_templates),
-            error_action="searching",
-            fallback=None,
+            partial(self.search), error_action="searching", fallback=None
         )
 
     async def run_collection_with_logging(self):
