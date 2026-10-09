@@ -284,6 +284,15 @@
       "aggregated": false
     },
     {
+      "feature": "voltage threshold",
+      "value": 138,
+      "units": "kV",
+      "section": "14-5-24 – Utilities",
+      "summary": "All utilities shall be installed underground, with the exception of high voltage transmission lines above 138 kV.",
+      "explanation": "The 138 kV cutoff qualifies which lines count as the high voltage transmission lines the ordinance treats specially, even though it sits inside an undergrounding requirement whose main subject is a generic 'all utilities' class; the line-qualifying voltage still sets the coverage floor, so a single voltage threshold row is emitted rather than dismissing the value as part of a generic-utility rule.",
+      "aggregated": false
+    },
+    {
       "feature": "district use restriction",
       "value": null,
       "units": "text",
