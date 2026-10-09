@@ -20,7 +20,7 @@ from compass.utilities import (
 from compass.services.threaded import UsageUpdater
 from compass.services.threaded import GenericFuncRunner
 from compass.scripts.search import (
-    run_search,
+    build_search_report,
     load_search_result_jurisdictions,
     write_search_report,
     SEARCH_RESULT_MANIFEST_FILENAME,
@@ -296,7 +296,22 @@ class COMPASSSearch(BaseRunMode):
 
     async def run(self, jurisdictions_df):
         """Persist search shards and their aggregate manifest"""
-        manifest = await run_search(self.runtime, jurisdictions_df)
+        logger.info(
+            "Searching for document URLs for %d jurisdiction(s)",
+            len(jurisdictions_df),
+        )
+        start_date = datetime.now(UTC)
+        tasks = []
+        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+            workflow = self._create(jurisdiction)
+            tasks.append(
+                asyncio.create_task(
+                    workflow.run_search_with_logging(),
+                    name=jurisdiction.full_name,
+                )
+            )
+        results = await asyncio.gather(*tasks)
+        manifest = await build_search_report(self.runtime, results, start_date)
         manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
         await GenericFuncRunner.call(
             write_search_report, manifest, manifest_fp
