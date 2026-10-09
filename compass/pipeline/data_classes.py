@@ -789,26 +789,132 @@ class SearchRequest(BaseRequest):
     MODE = COMPASSRunMode.SEARCH
     """COMPASSRunMode associated with this request type"""
 
-    def __init__(self, out_dir, tech, jurisdiction_fp, **kwargs):
+    # ruff: ignore[too-many-arguments]
+    def __init__(
+        self,
+        out_dir,
+        tech,
+        jurisdiction_fp,
+        *,
+        num_urls_to_check_per_jurisdiction=5,
+        url_ignore_substrings=None,
+        url_keep_substrings=None,
+        search_engines=None,
+        simple_se_result_sort=False,
+        tpe_kwargs=None,
+        log_dir=None,
+        log_level="INFO",
+        keep_async_logs=False,
+    ):
         """
 
         Parameters
         ----------
         out_dir : path-like
-            Output directory for logs, shards, and the search manifest.
+            Path to the output directory. If it does not exist, it will
+            be created. This directory will contain the logs, shards,
+            and the search manifest.
         tech : str
-            Registered technology whose query templates are used.
+            Label indicating which technology type is being processed.
+            Must be one of the keys of
+            :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.
         jurisdiction_fp : path-like
-            Jurisdiction CSV, or ``None`` to search all jurisdictions.
-        **kwargs : dict
-            Settings accepted by :class:`BaseRequest`. Note that in
-            search mode, ``model`` is forced to ``None`` and
-            ``save_search_engine_results`` is forced to ``True``
-            regardless of the value provided in ``**kwargs``.
+            Path to a CSV file specifying the jurisdictions to process.
+            The CSV must contain at least two columns: "County" and
+            "State", which specify the county and state names,
+            respectively. If you would like to process a subdivision
+            with a county, you must also include "Subdivision" and
+            "Jurisdiction Type" columns. The "Subdivision" should be the
+            name of the subdivision, and the "Jurisdiction Type" should
+            be a string identifying the type of subdivision (e.g.,
+            "City", "Township", etc.)
+        num_urls_to_check_per_jurisdiction : int, default=5
+            Number of unique search result URLs to check for each
+            jurisdiction when attempting to locate ordinance documents.
+            By default, ``5``.
+        url_ignore_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be excluded from search results. This can be used
+            to specify particular websites or entire domains to ignore.
+            For example::
+
+                url_ignore_substrings = [
+                    "wikipedia",
+                    "nlr.gov",
+                    "www.co.delaware.in.us/documents/1649699794_0382.pdf",
+                ]
+
+            The above configuration would ignore all `wikipedia`
+            articles, all websites on the NLR domain, and the specific
+            file located at
+            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
+            This input will include all of the blacklisted domains from
+            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
+            so you will need to whitelist any domains in that list that
+            you want to allow. By default, ``None``.
+        url_keep_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be kept in search results, regardless of the
+            default blacklist or the `url_ignore_substrings` input. For
+            example::
+
+                url_keep_substrings = [
+                    "my_ordinance_collection.edu",
+                ]
+
+            The above configuration would keep all URLs from
+            "my_ordinance_collection.edu" despite the fact that ``.edu``
+            urls are blacklisted by default. By default, ``None``.
+        search_engines : list, optional
+            A list of dictionaries describing the search engine classes
+            and keyword arguments to use for search engine retrieval. If
+            ``None``, the default search engine configurations and
+            fallback order are used. By default, ``None``.
+        simple_se_result_sort : bool, default=False
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``False``.
+        tpe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ThreadPoolExecutor`, used for
+            I/O-bound tasks such as logging and file writes.
+            By default, ``None``.
+        log_dir : path-like, optional
+            Path to the directory for storing log files. If not
+            provided, a ``logs`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        log_level : str, default="INFO"
+            Logging level for ordinance scraping and parsing (e.g.,
+            "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
+            By default, ``"INFO"``.
+        keep_async_logs : bool, default=False
+            Option to store the full asynchronous log record to a file.
+            This is only useful if you intend to monitor overall
+            processing progress from a file instead of from the
+            terminal. If ``True``, all of the unordered records are
+            written to a "all.log" file in the `log_dir` directory.
+            By default, ``False``.
         """
-        kwargs["model"] = None
-        kwargs["save_search_engine_results"] = True
-        super().__init__(out_dir, tech, jurisdiction_fp, **kwargs)
+        super().__init__(
+            out_dir,
+            tech,
+            jurisdiction_fp,
+            model=None,
+            perform_se_search=True,
+            save_search_engine_results=True,
+            num_urls_to_check_per_jurisdiction=(
+                num_urls_to_check_per_jurisdiction
+            ),
+            url_ignore_substrings=url_ignore_substrings,
+            url_keep_substrings=url_keep_substrings,
+            search_engines=search_engines,
+            simple_se_result_sort=simple_se_result_sort,
+            tpe_kwargs=tpe_kwargs,
+            log_dir=log_dir,
+            log_level=log_level,
+            keep_async_logs=keep_async_logs,
+        )
 
 
 class ProcessRequest(BaseRequest):
