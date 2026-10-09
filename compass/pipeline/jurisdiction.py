@@ -15,6 +15,7 @@ from compass.pipeline.collection.persistence import (
     load_specific_collection_manifest_shard,
 )
 from compass.pipeline.extraction import DocumentExtraction
+from compass.pipeline.search import SearchEngineLinkCollection
 from compass.pb import COMPASS_PB
 from compass.exceptions import COMPASSPluginConfigurationError
 
@@ -93,6 +94,7 @@ class SingleJurisdictionRun:
         self.num_search_results_to_crawl = num_search_results_to_crawl
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
+        self.se_search = SearchEngineLinkCollection(self)
         self.collection = DocumentCollection(self)
         self.extraction = DocumentExtraction(self)
 
@@ -143,6 +145,30 @@ class SingleJurisdictionRun:
             jurisdiction=self.jurisdiction,
             ord_db_fp=extraction_context.attrs.get("ord_db_fp"),
         )
+
+    async def search(self, query_templates):
+        """Run search-only mode for one jurisdiction
+
+        Parameters
+        ----------
+        query_templates : iterable of str
+            Query templates to format for this jurisdiction.
+
+        Returns
+        -------
+        dict
+            Ranked search results and jurisdiction metadata.
+        """
+        logger.info(
+            "Kicking off search for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        search_results = await self.se_search.execute(query_templates)
+        logger.info(
+            "Completed search for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        return search_results
 
     async def collect(self):
         """Run collection mode for one jurisdiction
@@ -268,6 +294,25 @@ class SingleJurisdictionRun:
             self.process,
             error_action="processing",
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
+        )
+
+    async def run_search_with_logging(self, query_templates):
+        """Search one jurisdiction under location-scoped logging
+
+        Parameters
+        ----------
+        query_templates : iterable of str
+            Query templates to format for this jurisdiction.
+
+        Returns
+        -------
+        dict or None
+            Ranked results, or ``None`` if the workflow failed.
+        """
+        return await self._run_with_logging_context(
+            partial(self.search, query_templates),
+            error_action="searching",
+            fallback=None,
         )
 
     async def run_collection_with_logging(self):
