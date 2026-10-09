@@ -5,12 +5,16 @@ from pathlib import Path
 
 import pandas as pd
 import pytest
+from elm.web.document import MDDocument
 
 import compass.pipeline.data_classes as data_classes_module
+import compass.web.search as web_search_module
+import compass.scripts.download as download_module
 from compass.pipeline import (
     CollectionRequest,
     ExtractionRequest,
     ProcessRequest,
+    SearchRequest,
 )
 from compass.pipeline.collection.persistence import (
     COLLECTION_MANIFEST_FILENAME,
@@ -63,8 +67,8 @@ class _RoundtripTestPlugin(BaseExtractionPlugin):
     IDENTIFIER = "roundtrip-test"
 
     async def get_query_templates(self):
-        """Return empty query templates for local-doc tests"""
-        return []
+        """Return deterministic query templates for round-trip tests"""
+        return ["{jurisdiction} ordinance"]
 
     async def get_website_keywords(self):
         """Return empty website keywords for local-doc tests"""
@@ -371,6 +375,187 @@ async def test_process_writes_manifest_and_structured_outputs(
     assert not (out_dir / COLLECTION_MANIFEST_FILENAME).exists()
     assert (out_dir / "roundtrip_test_combined.csv").exists()
     assert any((out_dir / "jurisdiction_dbs").glob("*.csv"))
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_class", [CollectionRequest, ProcessRequest])
+@pytest.mark.parametrize("source", ["manifest", "shards"])
+async def test_search_then_replay(
+    tmp_path,
+    monkeypatch,
+    registered_roundtrip_plugin,
+    patched_model_configs,
+    roundtrip_local_docs_inputs,
+    request_class,
+    source,
+):
+    """Replay persisted search results without queries or new filtering"""
+    jurisdiction_fp, _ = roundtrip_local_docs_inputs
+    search_calls = []
+    downloads = []
+
+    async def search_backend(queries, **kwargs):  # ruff:ignore[unused-async]
+        search_calls.append(queries)
+        name = "whatcom" if "Whatcom" in kwargs["task_name"] else "caneadea"
+        return [
+            {
+                "url": f"https://example.com/{name}/{rank}",
+                "overall_rank": rank,
+                "filtered_reason": None if rank < 3 else "beyond_top_n",
+                "search_engine": "fixture",
+                "search_engines": ["fixture"],
+            }
+            for rank in (2, 1, 3)
+        ]
+
+    async def fetch_doc(self, url):  # ruff:ignore[unused-async]
+        downloads.append(url)
+        return MDDocument(pages=[f"Ordinance at {url}"]), None
+
+    monkeypatch.setattr(
+        web_search_module, "search_with_fallback_with_attrs", search_backend
+    )
+    search_dir = tmp_path / "searched"
+    await run_compass(
+        SearchRequest(
+            search_dir,
+            "roundtrip-test",
+            jurisdiction_fp,
+            simple_se_result_sort=True,
+        )
+    )
+    assert len(search_calls) == 2
+    manifest_fp = search_dir / "search_result_manifest.json"
+    manifest = json.loads(manifest_fp.read_text(encoding="utf-8"))
+    assert manifest["result_stats"]["total"] == 6
+    assert manifest["filtered_result_stats"]["total"] == 4
+    assert len(list((search_dir / "se_results").glob("*.json"))) == 2
+    assert (search_dir / "logs" / "main.log").exists()
+    assert len(list((search_dir / "logs").glob("*.log"))) >= 3
+
+    def unexpected_search(*_args, **_kwargs):
+        pytest.fail("Replay must not query engines or request templates")
+
+    monkeypatch.setattr(
+        web_search_module, "search_with_fallback_with_attrs", unexpected_search
+    )
+    monkeypatch.setattr(
+        _RoundtripTestPlugin, "get_query_templates", unexpected_search
+    )
+    monkeypatch.setattr(
+        download_module.COMPASSWebFileLoader, "_fetch_doc", fetch_doc
+    )
+    saved_source = manifest_fp
+    if source == "shards":
+        manifest_fp.unlink()
+        saved_source = search_dir / "se_results"
+    COMPASS_PB.reset()
+    output = tmp_path / "replayed"
+    await run_compass(
+        request_class(
+            output,
+            "roundtrip-test",
+            jurisdiction_fp,
+            model=None,
+            search_result_manifest_fp=saved_source,
+            perform_website_search=False,
+            num_urls_to_check_per_jurisdiction=1,
+            url_ignore_substrings=["example.com"],
+        )
+    )
+    assert len(downloads) == 4
+    for name in ("whatcom", "caneadea"):
+        assert [url for url in downloads if name in url] == [
+            f"https://example.com/{name}/1",
+            f"https://example.com/{name}/2",
+        ]
+    if request_class is CollectionRequest:
+        collected = json.loads(
+            (output / COLLECTION_MANIFEST_FILENAME).read_text(encoding="utf-8")
+        )
+        assert collected["num_doc_stats"]["total"] == 4
+        for info in collected["jurisdictions"]:
+            assert [
+                doc["collection_step_rank"] for doc in info["documents"]
+            ] == [1, 2]
+            assert all(
+                doc["search_engines"] == ["fixture"]
+                and doc["from_steps"] == ["search_engine"]
+                for doc in info["documents"]
+            )
+    else:
+        assert len(pd.read_csv(output / "roundtrip_test_combined.csv")) == 4
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("request_class", [CollectionRequest, ProcessRequest])
+@pytest.mark.parametrize("state", ["missing", "empty", "error", "disabled"])
+async def test_replay_missing_empty_and_disabled(
+    tmp_path,
+    monkeypatch,
+    registered_roundtrip_plugin,
+    patched_model_configs,
+    roundtrip_local_docs_inputs,
+    request_class,
+    state,
+):
+    """Skip missing jurisdictions but run other sources for empty entries"""
+    jurisdiction_fp, known_local_docs = roundtrip_local_docs_inputs
+    saved = tmp_path / "search.json"
+    records = (
+        []
+        if state == "missing"
+        else [
+            {
+                "FIPS": code,
+                "results": [],
+                "error": "failed" if state == "error" else None,
+            }
+            for code in known_local_docs
+        ]
+    )
+    saved.write_text(
+        json.dumps({"tech": "roundtrip-test", "jurisdictions": records}),
+        encoding="utf-8",
+    )
+    if state == "disabled":
+        saved.unlink()
+
+    def unexpected_search(*_args, **_kwargs):
+        pytest.fail("Saved inputs must never trigger a search")
+
+    monkeypatch.setattr(
+        web_search_module, "search_with_fallback_with_attrs", unexpected_search
+    )
+    monkeypatch.setattr(
+        _RoundtripTestPlugin, "get_query_templates", unexpected_search
+    )
+    output = tmp_path / "output"
+    await run_compass(
+        request_class(
+            output,
+            "roundtrip-test",
+            jurisdiction_fp,
+            model=None,
+            known_local_docs=known_local_docs,
+            search_result_manifest_fp=saved,
+            perform_se_search=state != "disabled",
+            perform_website_search=False,
+        )
+    )
+    if state == "missing":
+        assert not list(output.rglob("*_collection_manifest.json"))
+        assert not (output / "roundtrip_test_combined.csv").exists()
+        assert "skipping jurisdiction" in (
+            output / "logs" / "main.log"
+        ).read_text(encoding="utf-8")
+    elif request_class is CollectionRequest:
+        manifest = json.loads(
+            (output / COLLECTION_MANIFEST_FILENAME).read_text(encoding="utf-8")
+        )
+        assert manifest["num_doc_stats"]["total"] == 2
+    else:
+        assert len(pd.read_csv(output / "roundtrip_test_combined.csv")) == 2
 
 
 if __name__ == "__main__":
