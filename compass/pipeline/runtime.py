@@ -38,7 +38,7 @@ from compass.utilities.logs import NoLocationFilter, LogListener
 
 
 logger = logging.getLogger(__name__)
-MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 10
+MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 50
 
 
 class PipelineRuntime:
