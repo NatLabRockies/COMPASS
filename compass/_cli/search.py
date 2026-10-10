@@ -21,7 +21,7 @@ from compass.utilities.io import load_config
     "-c",
     required=True,
     type=click.Path(exists=True),
-    help="Path to a collection configuration JSON or JSON5 file. This file "
+    help="Path to a search configuration JSON or JSON5 file. This file "
     "should contain any/all the arguments to pass to "
     ":class:`~compass.pipeline.data_classes.SearchRequest`. Any top-level "
     "config may also be passed as an extra CLI option (using the syntax "

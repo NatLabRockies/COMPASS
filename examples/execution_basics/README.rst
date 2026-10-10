@@ -266,11 +266,10 @@ Paths beginning with ``./`` are relative to the configuration file. Run:
 The output contains ``logs/``, per-jurisdiction JSON shards in
 ``se_results/``, and ``search_result_manifest.json``. Shards are written as
 each jurisdiction finishes, including empty and failed searches. The
-manifest summarizes all results and records relative shard references.
-``result_stats`` counts reported rows, including filtered rows;
-``filtered_result_stats`` counts the URLs retained for collection. Search does
-not need an LLM endpoint and honors ``simple_se_result_sort``. Use the same
-plugin registration option as collection when running a one-shot plugin.
+manifest summarizes all results. ``result_stats`` counts reported rows, including
+filtered rows; ``filtered_result_stats`` counts the URLs retained for collection.
+Search does not need an LLM endpoint and honors ``simple_se_result_sort``.
+Use the same plugin registration option as collection when running a one-shot plugin.
 
 To reuse these results, add the following setting to a collection or
 processing configuration and choose a separate ``out_dir``:
