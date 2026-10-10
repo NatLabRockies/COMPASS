@@ -99,11 +99,13 @@ def run_async_command(
         refresh_per_second=20,
         transient=True,
     )
-    with live_display:
-        run_msg = loop.run_until_complete(run_compass(request))
+    try:
+        with live_display:
+            run_msg = loop.run_until_complete(run_compass(request))
+    finally:
+        COMPASS_PB.console = None
 
     console.print(run_msg)
-    COMPASS_PB.console = None
 
 
 def setup_cli_logging(console, verbosity_level, log_level="INFO"):
