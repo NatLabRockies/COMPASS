@@ -9,7 +9,7 @@ from urllib.parse import urlsplit, urlunsplit
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
 from compass.utilities.url import URLPartFilter
-from compass.utilities.io import normalize_output_stem
+from compass.utilities.io import normalize_output_stem, write_text_atomic
 from compass.utilities.parsing import convert_paths_to_strings
 
 
@@ -157,10 +157,9 @@ def write_search_result_shard(out_dir, se_results, jurisdiction):
         f"{jurisdiction.full_name} search results"
     )
     out_fp = Path(out_dir) / f"{filename}.json"
-    out_fp.parent.mkdir(parents=True, exist_ok=True)
-    out_fp.write_text(
+    write_text_atomic(
+        out_fp,
         json.dumps(convert_paths_to_strings(se_results), indent=4),
-        encoding="utf-8",
     )
     return out_fp
 

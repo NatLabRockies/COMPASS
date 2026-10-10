@@ -289,9 +289,7 @@ def write_search_report(report, out_path):
         Destination file path.
     """
     payload = json.dumps(report, indent=4, ensure_ascii=False)
-    out_path = Path(out_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(payload, encoding="utf-8")
+    write_text_atomic(out_path, payload)
 
 
 def summary(report):
