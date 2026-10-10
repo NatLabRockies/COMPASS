@@ -965,8 +965,8 @@ class CollectionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
-        search_result_manifest_fp=None,
         save_search_engine_results=True,
+        search_result_manifest_fp=None,
     ):
         """
 
