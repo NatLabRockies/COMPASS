@@ -48,8 +48,9 @@ class Directories:
         clean_files=None,
         ordinance_files=None,
         jurisdiction_dbs=None,
-        collect_only=False,
         save_se_shards=False,
+        collect_only=False,
+        search_only=False,
     ):
         """
 
@@ -72,14 +73,16 @@ class Directories:
             Directory for storing jurisdiction databases. If not
             specified, defaults to ``out/jurisdiction_dbs``.
             By default, ``None``
+        save_se_shards : bool, default=False
+            Create an ``out/se_results`` directory for search engine
+            result shards. By default, ``False``.
         collect_only : bool, optional
             Flag indicating whether the run is a collection-only run. If
             ``True``, the default directories for cleaned text and
             ordinance files are changed to ``out/parsed_docs`` and
             ``out/source_docs``, respectively. By default, ``False``.
-        save_se_shards : bool, default=False
-            Create an ``out/se_results`` directory for search engine
-            result shards. By default, ``False``.
+        search_only : bool, default=False
+            Create only logs and search shards. By default, ``False``.
         """
         self.out = _full_path(out)
         self.logs = _full_path(logs) if logs else self.out / "logs"
@@ -101,6 +104,7 @@ class Directories:
             / ("manifest_shards" if collect_only else "jurisdiction_dbs")
         )
         self.se_shards = self.out / "se_results" if save_se_shards else None
+        self.search_only = search_only
 
     def __iter__(self):
         """Yield managed directory paths in canonical order
@@ -114,9 +118,10 @@ class Directories:
         """
         yield self.out
         yield self.logs
-        yield self.clean_files
-        yield self.ordinance_files
-        yield self.jurisdiction_dbs
+        if not self.search_only:
+            yield self.clean_files
+            yield self.ordinance_files
+            yield self.jurisdiction_dbs
         if self.se_shards is not None:
             yield self.se_shards
 

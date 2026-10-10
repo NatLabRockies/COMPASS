@@ -1,9 +1,7 @@
 """Ordinance file downloading logic"""
 
-import json
 import pprint
 import logging
-from pathlib import Path
 from contextlib import AsyncExitStack
 
 from elm.web.search.run import load_docs, search_with_fallback
@@ -15,7 +13,10 @@ from elm.web.website_crawl import (
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
-from compass.web.search import search_single_jurisdiction
+from compass.web.search import (
+    search_single_jurisdiction,
+    write_search_result_shard,
+)
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import (
     TempFileCache,
@@ -34,8 +35,7 @@ from compass.web.file_loader import (
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
-from compass.utilities.parsing import is_pdf_doc, convert_paths_to_strings
-from compass.utilities.io import normalize_output_stem
+from compass.utilities.parsing import is_pdf_doc
 from compass.pb import COMPASS_PB
 
 
@@ -542,7 +542,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     query_templates,
     jurisdiction,
     num_urls=5,
-    simple_se_result_sort=True,
+    simple_se_result_sort=False,
     file_loader_kwargs=None,
     search_semaphore=None,
     browser_semaphore=None,
@@ -562,11 +562,11 @@ async def download_jurisdiction_ordinance_using_search_engine(
     num_urls : int, optional
         Number of unique Google search result URL's to check for
         ordinance document. By default, ``5``.
-    simple_se_result_sort : bool, optional
+    simple_se_result_sort : bool, default=False
         Flag indicating whether to use a simple top-n sort from the
         first search engine that gives results (``True``) or to apply a
         holistic link sorting based on all results from all search
-        engines (``False``). By default, ``True``.
+        engines (``False``). By default, ``False``.
     file_loader_kwargs : dict, optional
         Dictionary of keyword-argument pairs to initialize
         :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,
@@ -617,7 +617,7 @@ async def download_jurisdiction_ordinance_using_search_engine(
     kwargs.update(file_loader_kwargs or {})
     kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
     try:
-        docs = await _docs_from_web_search(
+        docs = await _docs_from_se_search(
             query_templates,
             num_urls=num_urls,
             search_semaphore=search_semaphore,
@@ -634,6 +634,81 @@ async def download_jurisdiction_ordinance_using_search_engine(
         msg = (
             "Encountered error of type %r while searching web for docs for %s:"
         )
+        err_type = type(e)
+        logger.exception(msg, err_type, jurisdiction.full_name)
+        docs = []
+
+    return docs
+
+
+async def download_jurisdiction_ordinance_from_search_results(
+    jurisdiction,
+    known_search_results,
+    file_loader_kwargs=None,
+    browser_semaphore=None,
+    se_shard_out_dir=None,
+    **kwargs,
+):
+    """Download the ordinance document(s) for a single jurisdiction
+
+    Parameters
+    ----------
+    jurisdiction : Jurisdiction
+        Location objects representing the jurisdiction.
+    known_search_results : dict
+        Pre-run search results to download without querying search
+        engines or reapplying URL filters and top-N.
+    file_loader_kwargs : dict, optional
+        Dictionary of keyword-argument pairs to initialize
+        :class:`elm.web.file_loader.AsyncWebFileLoader` with. If found,
+        the "pw_launch_kwargs" key in these will also be used to
+        initialize the
+        :class:`elm.web.search.google.PlaywrightGoogleLinkSearch`
+        used for the google URL search. By default, ``None``.
+    browser_semaphore : :class:`asyncio.Semaphore`, optional
+        Semaphore instance that can be used to limit the number of
+        playwright browsers used to download content from the web open
+        concurrently. If ``None``, no limits are applied.
+        By default, ``None``.
+    se_shard_out_dir : path-like, optional
+        Directory where search engine shard results should be written.
+        If ``None``, the results will not be written to disk.
+        By default, ``None``.
+    **kwargs
+        Additional keyword arguments forwarded to
+        :func:`elm.web.search.run.web_search_links_as_docs`. Common
+        entries include ``usage_tracker`` for logging LLM usage and
+        extra Playwright configuration.
+
+    Returns
+    -------
+    list or None
+        List of BaseDocument instances possibly containing ordinance
+        information, or ``None`` if no ordinance document was found.
+
+    Notes
+    -----
+    Requires :class:`~compass.services.threaded.TempFileCachePB`
+    service to be running.
+    """
+    COMPASS_PB.update_jurisdiction_task(
+        jurisdiction.full_name, description="Downloading SE docs..."
+    )
+
+    kwargs.update(file_loader_kwargs or {})
+    kwargs.update({"file_cache_coroutine": TempFileCachePB.call})
+    try:
+        docs = await _docs_from_search_results(
+            known_search_results,
+            browser_semaphore=browser_semaphore,
+            jurisdiction=jurisdiction,
+            se_shard_out_dir=se_shard_out_dir,
+            **kwargs,
+        )
+    except KeyboardInterrupt:
+        raise
+    except Exception as e:
+        msg = "Encountered error of type %r while downloading SE docs for %s:"
         err_type = type(e)
         logger.exception(msg, err_type, jurisdiction.full_name)
         docs = []
@@ -766,7 +841,7 @@ def _normalize_website_candidates(urls):
     return normalized_urls
 
 
-async def _docs_from_web_search(
+async def _docs_from_se_search(
     query_templates,
     num_urls,
     search_semaphore,
@@ -779,7 +854,7 @@ async def _docs_from_web_search(
 ):
     """Retrieve top ``N`` search results as document instances"""
 
-    se_results = await search_single_jurisdiction(
+    search_results = await search_single_jurisdiction(
         query_templates,
         jurisdiction,
         num_urls,
@@ -788,14 +863,32 @@ async def _docs_from_web_search(
         simple=simple_se_result_sort,
         **kwargs,
     )
+
+    return await _docs_from_search_results(
+        search_results,
+        browser_semaphore,
+        jurisdiction,
+        se_shard_out_dir,
+        **kwargs,
+    )
+
+
+async def _docs_from_search_results(
+    search_results, browser_semaphore, jurisdiction, se_shard_out_dir, **kwargs
+):
+    """Retrieve documents from search results"""
+
     if se_shard_out_dir is not None:
         await GenericFuncRunner.call(
-            _write_se_shard, se_shard_out_dir, se_results, jurisdiction
+            write_search_result_shard,
+            se_shard_out_dir,
+            search_results,
+            jurisdiction,
         )
 
     ranked_results = {
         res.get("url"): res
-        for res in se_results["results"]
+        for res in search_results["results"]
         if res.get("filtered_reason") is None and res.get("url") is not None
     }
     urls = sorted(
@@ -998,17 +1091,6 @@ def _best_step(from_steps):
     return max(
         COMPASSDocumentCollectionStep(step).priority for step in from_steps
     )
-
-
-def _write_se_shard(out_dir, se_results, jurisdiction):
-    """Write a search engine result shard to disk"""
-    fn = normalize_output_stem(f"{jurisdiction.full_name} search results")
-    out_fp = Path(out_dir) / f"{fn}.json"
-    out_fp.write_text(
-        json.dumps(convert_paths_to_strings(se_results), indent=4),
-        encoding="utf-8",
-    )
-    return out_fp
 
 
 def _add_se_metadata(docs, ranked_results):

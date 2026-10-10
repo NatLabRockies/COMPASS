@@ -108,6 +108,7 @@ def _build_workflow(
         jurisdiction=SimpleNamespace(full_name="Example Township"),
         extractor=_DummyExtractor(),
         runtime=runtime,
+        known_se_results=None,
         last_scrape_results=[],
         usage_tracker=None,
         num_search_results_to_crawl=num_search_results_to_crawl,

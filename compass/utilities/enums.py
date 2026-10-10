@@ -31,7 +31,8 @@ class CaseInsensitiveEnum(StrEnum):
         return None
 
     @classmethod
-    def _new_post_hook(cls, obj, value):  # ruff:ignore[unused-class-method-argument]
+    # ruff:ignore[unused-class-method-argument]
+    def _new_post_hook(cls, obj, value):
         """Hook for post-processing after __new__"""
         return obj
 
@@ -191,6 +192,8 @@ class COMPASSRunMode(CaseInsensitiveEnum):
     """Collect potential ordinance documents for jurisdictions"""
     EXTRACT = auto()
     """Extract data from ordinance documents for jurisdictions"""
+    SEARCH = auto()
+    """Save search results for later document collection"""
 
     @classmethod
     def _new_post_hook(cls, obj, value):

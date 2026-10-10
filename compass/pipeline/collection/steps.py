@@ -9,6 +9,7 @@ from elm.web.document import HTMLDocument
 from elm.web.utilities import get_redirected_url
 
 from compass.scripts.download import (
+    download_jurisdiction_ordinance_from_search_results,
     download_jurisdiction_ordinance_using_search_engine,
     download_jurisdiction_ordinances_from_website,
     download_jurisdiction_ordinances_from_website_compass_crawl,
@@ -186,29 +187,10 @@ class SearchEngineDocumentsStep(CollectionStep):
             workflow.jurisdiction.full_name,
         )
         try:
-            query_templates = await workflow.extractor.get_query_templates()
-            runtime = workflow.runtime
-            docs = await download_jurisdiction_ordinance_using_search_engine(
-                query_templates,
-                workflow.jurisdiction,
-                num_urls=(
-                    runtime.search_params.num_urls_to_check_per_jurisdiction
-                ),
-                simple_se_result_sort=(
-                    runtime.search_params.simple_se_result_sort
-                ),
-                se_shard_out_dir=runtime.dirs.se_shards,
-                file_loader_kwargs=runtime.file_loader_kwargs,
-                search_semaphore=runtime.search_engine_semaphore,
-                browser_semaphore=runtime.browser_semaphore,
-                url_ignore_substrings=(
-                    runtime.search_params.url_ignore_substrings
-                ),
-                url_keep_substrings=(
-                    runtime.search_params.url_keep_substrings
-                ),
-                **runtime.search_params.se_kwargs,
-            )
+            if workflow.known_se_results is not None:
+                docs = await _download_docs_using_se_results(workflow)
+            else:
+                docs = await _download_docs_using_se(workflow)
         except Exception:
             logger.exception(
                 "Error collecting documents using a search engine for %s",
@@ -497,6 +479,38 @@ def _is_local_filepath(source):
     parsed_source = urlsplit(str(source or ""))
     scheme_not_web = parsed_source.scheme not in {"http", "https"}
     return scheme_not_web or not parsed_source.netloc
+
+
+async def _download_docs_using_se(workflow):
+    """Download documents using the search engine"""
+    runtime = workflow.runtime
+    query_templates = await workflow.extractor.get_query_templates()
+    return await download_jurisdiction_ordinance_using_search_engine(
+        query_templates,
+        workflow.jurisdiction,
+        num_urls=runtime.search_params.num_urls_to_check_per_jurisdiction,
+        simple_se_result_sort=runtime.search_params.simple_se_result_sort,
+        se_shard_out_dir=runtime.dirs.se_shards,
+        file_loader_kwargs=runtime.file_loader_kwargs,
+        search_semaphore=runtime.search_engine_semaphore,
+        browser_semaphore=runtime.browser_semaphore,
+        url_ignore_substrings=runtime.search_params.url_ignore_substrings,
+        url_keep_substrings=runtime.search_params.url_keep_substrings,
+        **runtime.search_params.se_kwargs,
+    )
+
+
+async def _download_docs_using_se_results(workflow):
+    """Download documents using known search results"""
+    runtime = workflow.runtime
+    return await download_jurisdiction_ordinance_from_search_results(
+        workflow.jurisdiction,
+        workflow.known_se_results,
+        file_loader_kwargs=runtime.file_loader_kwargs,
+        browser_semaphore=runtime.browser_semaphore,
+        se_shard_out_dir=runtime.dirs.se_shards,
+        **runtime.search_params.se_kwargs,
+    )
 
 
 async def _crawl_search_candidate(

@@ -18,6 +18,13 @@ from compass.utilities import (
     save_run_meta,
 )
 from compass.services.threaded import UsageUpdater
+from compass.services.threaded import GenericFuncRunner
+from compass.scripts.search import (
+    build_search_report,
+    load_search_result_jurisdictions,
+    write_search_report,
+    SEARCH_RESULT_MANIFEST_FILENAME,
+)
 from compass.utilities.enums import COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
@@ -71,13 +78,18 @@ async def run_compass(request):
         msg = "PipelineCoordinator.run expects a request object"
         raise COMPASSValueError(msg)
 
-    if request.MODE == COMPASSRunMode.EXTRACT:
+    if request.MODE == COMPASSRunMode.SEARCH:
+        steps = ["Search for document URLs"]
+    elif request.MODE == COMPASSRunMode.EXTRACT:
         steps = ["Extract collected documents"]
     else:
         steps = _enabled_steps(
             known_local_docs=request.known_sources.known_local_docs,
             known_doc_urls=request.known_sources.known_doc_urls,
             perform_se_search=request.perform_se_search,
+            num_search_results_to_crawl=(
+                request.search_settings.num_search_results_to_crawl
+            ),
             perform_website_search=request.perform_website_search,
         )
 
@@ -122,7 +134,9 @@ class BaseRunMode(ABC):
         """
         self.runtime = runtime
 
-    def _create(self, jurisdiction, *, usage_tracker=None):
+    def _create(
+        self, jurisdiction, *, known_se_results=None, usage_tracker=None
+    ):
         """Create one configured jurisdiction workflow"""
         extractor = self.runtime.extractor_class(
             jurisdiction=jurisdiction,
@@ -139,6 +153,7 @@ class BaseRunMode(ABC):
                 jurisdiction.code
             ),
             known_doc_urls=self.runtime.known_doc_urls.get(jurisdiction.code),
+            known_se_results=known_se_results,
             perform_se_search=self.runtime.request.perform_se_search,
             perform_website_search=(
                 self.runtime.request.perform_website_search
@@ -188,11 +203,17 @@ class COMPASSFullProcessing(BaseRunMode):
             len(jurisdictions_df),
         )
         tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
             usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
+            workflow = self._create(
+                jurisdiction,
+                known_se_results=se_results,
+                usage_tracker=usage_tracker,
+            )
             tasks.append(
                 asyncio.create_task(
                     workflow.run_process_with_logging(),
@@ -239,8 +260,12 @@ class COMPASSCollection(BaseRunMode):
         )
         start_date = datetime.now(UTC)
         tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            workflow = self._create(jurisdiction, usage_tracker=None)
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
+            workflow = self._create(
+                jurisdiction, known_se_results=se_results, usage_tracker=None
+            )
             tasks.append(
                 asyncio.create_task(
                     workflow.run_collection_with_logging(),
@@ -264,6 +289,41 @@ class COMPASSCollection(BaseRunMode):
         for sub_msg in collection_msg.split("\n"):
             logger.info(sub_msg)
         return collection_msg
+
+
+class COMPASSSearch(BaseRunMode):
+    """Search-only strategy using existing reports and shards"""
+
+    async def run(self, jurisdictions_df):
+        """Persist search shards and their aggregate manifest"""
+        logger.info(
+            "Searching for document URLs for %d jurisdiction(s)",
+            len(jurisdictions_df),
+        )
+        start_date = datetime.now(UTC)
+        tasks = []
+        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+            workflow = self._create(jurisdiction)
+            tasks.append(
+                asyncio.create_task(
+                    workflow.run_search_with_logging(),
+                    name=jurisdiction.full_name,
+                )
+            )
+        results = await asyncio.gather(*tasks)
+        manifest = await build_search_report(self.runtime, results, start_date)
+        manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
+        await GenericFuncRunner.call(
+            write_search_report, manifest, manifest_fp
+        )
+        message = (
+            f"Search completed for {manifest['num_jurisdictions_searched']} "
+            f"jurisdictions; kept "
+            f"{manifest['filtered_result_stats']['total']} URLs.\n"
+            f"Search result manifest: {manifest_fp}"
+        )
+        logger.info(message)
+        return message
 
 
 class COMPASSExtraction(BaseRunMode):
@@ -352,6 +412,8 @@ def _select_workflow(runtime):
         return COMPASSExtraction(runtime)
     if runtime.mode == COMPASSRunMode.PROCESS:
         return COMPASSFullProcessing(runtime)
+    if runtime.mode == COMPASSRunMode.SEARCH:
+        return COMPASSSearch(runtime)
 
     msg = f"Unsupported mode: {runtime.mode}"
     raise COMPASSValueError(msg)
@@ -378,6 +440,7 @@ def _request_to_log_args(request):
         "mode": str(request.MODE),
         "tech": request.tech,
         "jurisdiction_fp": request.jurisdiction_fp,
+        "search_result_manifest_fp": request.search_result_manifest_fp,
         "collection_manifest_fp": request.collection_manifest_fp,
         "perform_se_search": request.perform_se_search,
         "perform_website_search": request.perform_website_search,
@@ -395,6 +458,7 @@ def _enabled_steps(
     known_local_docs=None,
     known_doc_urls=None,
     perform_se_search=True,
+    num_search_results_to_crawl=0,
     perform_website_search=True,
 ):
     """Return enabled collection steps or raise when none are enabled"""
@@ -405,6 +469,10 @@ def _enabled_steps(
         steps.append("Check known document URL")
     if perform_se_search:
         steps.append("Look for document using search engine")
+        if num_search_results_to_crawl > 0:
+            steps.append(
+                f"Crawl top {num_search_results_to_crawl:,d} search results"
+            )
     if perform_website_search:
         steps.append("Look for document on jurisdiction website")
 
@@ -417,6 +485,44 @@ def _enabled_steps(
         raise COMPASSValueError(msg)
 
     return steps
+
+
+async def _jurisdictions_with_search_input(runtime, jurisdictions_df):
+    """Skip jurisdictions absent from supplied search results"""
+    known_search_results = await _load_known_se_results(runtime)
+
+    for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+        if known_search_results is not None:
+            if jurisdiction.code not in known_search_results:
+                logger.warning(
+                    "No known search results found for %s; skipping "
+                    "jurisdiction",
+                    jurisdiction.full_name,
+                )
+                continue
+            else:
+                yield jurisdiction, known_search_results[jurisdiction.code]
+        else:
+            yield jurisdiction, None
+
+
+async def _load_known_se_results(runtime):
+    """Load known search engine results from the manifest file"""
+    run_mode_has_se = runtime.request.MODE in {
+        COMPASSRunMode.COLLECT,
+        COMPASSRunMode.PROCESS,
+    }
+    se_enabled = runtime.request.perform_se_search
+    known_se_results_file_exists = (
+        runtime.request.search_result_manifest_fp is not None
+    )
+    if run_mode_has_se and se_enabled and known_se_results_file_exists:
+        return await GenericFuncRunner.call(
+            load_search_result_jurisdictions,
+            runtime.request.search_result_manifest_fp,
+            runtime.tech,
+        )
+    return None
 
 
 async def _finalize_extraction(

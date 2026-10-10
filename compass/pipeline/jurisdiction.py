@@ -15,6 +15,7 @@ from compass.pipeline.collection.persistence import (
     load_specific_collection_manifest_shard,
 )
 from compass.pipeline.extraction import DocumentExtraction
+from compass.pipeline.search import SearchEngineLinkCollection
 from compass.pb import COMPASS_PB
 from compass.exceptions import COMPASSPluginConfigurationError
 
@@ -34,6 +35,7 @@ class SingleJurisdictionRun:
         usage_tracker=None,
         known_local_docs=None,
         known_doc_urls=None,
+        known_se_results=None,
         perform_se_search=True,
         perform_website_search=True,
         num_search_results_to_crawl=0,
@@ -65,6 +67,10 @@ class SingleJurisdictionRun:
             Optional URL-based document descriptors that should be
             seeded into collection for this jurisdiction before any
             search or crawl steps are run. By default, ``None``.
+        known_se_results : list of dict, optional
+            Optional search engine result descriptors that should be
+            seeded into collection for this jurisdiction before any
+            search or crawl steps are run. By default, ``None``.
         perform_se_search : bool, optional
             Whether search-engine-driven discovery should be performed
             for this jurisdiction. By default, ``True``.
@@ -82,11 +88,13 @@ class SingleJurisdictionRun:
         self.usage_tracker = usage_tracker
         self.known_local_docs = known_local_docs
         self.known_doc_urls = known_doc_urls
+        self.known_se_results = known_se_results
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
         self.num_search_results_to_crawl = num_search_results_to_crawl
         self.jurisdiction_website = jurisdiction.website_url
         self.last_scrape_results = []
+        self.se_search = SearchEngineLinkCollection(self)
         self.collection = DocumentCollection(self)
         self.extraction = DocumentExtraction(self)
 
@@ -137,6 +145,26 @@ class SingleJurisdictionRun:
             jurisdiction=self.jurisdiction,
             ord_db_fp=extraction_context.attrs.get("ord_db_fp"),
         )
+
+    async def search(self):
+        """Run search-only mode for one jurisdiction
+
+        Returns
+        -------
+        dict
+            Ranked search results and jurisdiction metadata.
+        """
+        logger.info(
+            "Kicking off search for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        query_templates = await self.extractor.get_query_templates()
+        search_results = await self.se_search.execute(query_templates)
+        logger.info(
+            "Completed search for jurisdiction: %s",
+            self.jurisdiction.full_name,
+        )
+        return search_results
 
     async def collect(self):
         """Run collection mode for one jurisdiction
@@ -262,6 +290,18 @@ class SingleJurisdictionRun:
             self.process,
             error_action="processing",
             fallback=JurisdictionResult(jurisdiction=self.jurisdiction),
+        )
+
+    async def run_search_with_logging(self):
+        """Search one jurisdiction under location-scoped logging
+
+        Returns
+        -------
+        dict or None
+            Ranked results, or ``None`` if the workflow failed.
+        """
+        return await self._run_with_logging_context(
+            partial(self.search), error_action="searching", fallback=None
         )
 
     async def run_collection_with_logging(self):

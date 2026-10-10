@@ -60,20 +60,32 @@ def jurisdiction_run(monkeypatch, tmp_path):
 
 
 @pytest.mark.asyncio
-async def test_run_process_with_logging_reraises_plugin_config_errors(
-    monkeypatch, jurisdiction_run
+@pytest.mark.parametrize("action", ["process", "search"])
+@pytest.mark.parametrize(
+    "error_class", [COMPASSPluginConfigurationError, RuntimeError]
+)
+async def test_run_with_logging_handles_errors(
+    monkeypatch, jurisdiction_run, action, error_class
 ):
-    """Plugin configuration errors should propagate out of logging wrapper"""
+    """Propagate plugin configuration errors and contain ordinary failures"""
 
-    async def _raise_config_error(self):  # ruff:ignore[unused-async]
-        raise COMPASSPluginConfigurationError("bad plugin config")
+    async def _raise_error(self, *args):  # ruff:ignore[unused-async]
+        assert self.runtime.jurisdiction_semaphore.locked()
+        raise error_class("workflow failed")
 
-    monkeypatch.setattr(SingleJurisdictionRun, "process", _raise_config_error)
+    monkeypatch.setattr(SingleJurisdictionRun, action, _raise_error)
+    runner = getattr(jurisdiction_run, f"run_{action}_with_logging")
 
-    with pytest.raises(
-        COMPASSPluginConfigurationError, match="bad plugin config"
-    ):
-        await jurisdiction_run.run_process_with_logging()
+    if error_class is COMPASSPluginConfigurationError:
+        with pytest.raises(error_class, match="workflow failed"):
+            await runner()
+    else:
+        result = await runner()
+        if action == "search":
+            assert result is None
+        else:
+            assert result.jurisdiction == jurisdiction_run.jurisdiction
+    assert not jurisdiction_run.runtime.jurisdiction_semaphore.locked()
 
 
 @pytest.mark.asyncio

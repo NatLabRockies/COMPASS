@@ -196,7 +196,7 @@ class WebSearchParams:
         url_ignore_substrings=None,
         url_keep_substrings=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         num_search_results_to_crawl=0,
         search_results_crawl_depth=3,
@@ -276,11 +276,11 @@ class WebSearchParams:
             fallback (in order that they appear). If ``None``, then all
             default configurations for the search engines (along with
             the fallback order) are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -400,7 +400,7 @@ class BaseRequest:
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -414,6 +414,7 @@ class BaseRequest:
         make_paths_relative=False,
         log_level="INFO",
         keep_async_logs=False,
+        search_result_manifest_fp=None,
         collection_manifest_fp=None,
         save_search_engine_results=True,
     ):
@@ -614,11 +615,11 @@ class BaseRequest:
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -689,6 +690,11 @@ class BaseRequest:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        search_result_manifest_fp : path-like or list of path-like, optional
+            Saved search manifest, shard directory, or glob paths to
+            replay instead of querying search engines. Missing
+            jurisdictions are skipped. Only used when
+            ``perform_se_search=True``. By default, ``None``.
         collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
             collection step. This can be a single path or a list of
@@ -708,6 +714,7 @@ class BaseRequest:
         self.jurisdiction_fp = jurisdiction_fp
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
+        self.search_result_manifest_fp = search_result_manifest_fp
         self.collection_manifest_fp = collection_manifest_fp
         self.file_loader_kwargs = file_loader_kwargs
 
@@ -776,6 +783,140 @@ class BaseRequest:
         return self._rate_tracker
 
 
+class SearchRequest(BaseRequest):
+    """Parameter Object for persistent search-only mode"""
+
+    MODE = COMPASSRunMode.SEARCH
+    """COMPASSRunMode associated with this request type"""
+
+    # ruff: ignore[too-many-arguments]
+    def __init__(
+        self,
+        out_dir,
+        tech,
+        jurisdiction_fp,
+        *,
+        num_urls_to_check_per_jurisdiction=5,
+        url_ignore_substrings=None,
+        url_keep_substrings=None,
+        search_engines=None,
+        simple_se_result_sort=False,
+        tpe_kwargs=None,
+        log_dir=None,
+        log_level="INFO",
+        keep_async_logs=False,
+    ):
+        """
+
+        Parameters
+        ----------
+        out_dir : path-like
+            Path to the output directory. If it does not exist, it will
+            be created. This directory will contain the logs, shards,
+            and the search manifest.
+        tech : str
+            Label indicating which technology type is being processed.
+            Must be one of the keys of
+            :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.
+        jurisdiction_fp : path-like
+            Path to a CSV file specifying the jurisdictions to process.
+            The CSV must contain at least two columns: "County" and
+            "State", which specify the county and state names,
+            respectively. If you would like to process a subdivision
+            with a county, you must also include "Subdivision" and
+            "Jurisdiction Type" columns. The "Subdivision" should be the
+            name of the subdivision, and the "Jurisdiction Type" should
+            be a string identifying the type of subdivision (e.g.,
+            "City", "Township", etc.)
+        num_urls_to_check_per_jurisdiction : int, default=5
+            Number of unique search result URLs to check for each
+            jurisdiction when attempting to locate ordinance documents.
+            By default, ``5``.
+        url_ignore_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be excluded from search results. This can be used
+            to specify particular websites or entire domains to ignore.
+            For example::
+
+                url_ignore_substrings = [
+                    "wikipedia",
+                    "nlr.gov",
+                    "www.co.delaware.in.us/documents/1649699794_0382.pdf",
+                ]
+
+            The above configuration would ignore all `wikipedia`
+            articles, all websites on the NLR domain, and the specific
+            file located at
+            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
+            This input will include all of the blacklisted domains from
+            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
+            so you will need to whitelist any domains in that list that
+            you want to allow. By default, ``None``.
+        url_keep_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be kept in search results, regardless of the
+            default blacklist or the `url_ignore_substrings` input. For
+            example::
+
+                url_keep_substrings = [
+                    "my_ordinance_collection.edu",
+                ]
+
+            The above configuration would keep all URLs from
+            "my_ordinance_collection.edu" despite the fact that ``.edu``
+            urls are blacklisted by default. By default, ``None``.
+        search_engines : list, optional
+            A list of dictionaries describing the search engine classes
+            and keyword arguments to use for search engine retrieval. If
+            ``None``, the default search engine configurations and
+            fallback order are used. By default, ``None``.
+        simple_se_result_sort : bool, default=False
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``False``.
+        tpe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ThreadPoolExecutor`, used for
+            I/O-bound tasks such as logging and file writes.
+            By default, ``None``.
+        log_dir : path-like, optional
+            Path to the directory for storing log files. If not
+            provided, a ``logs`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        log_level : str, default="INFO"
+            Logging level for ordinance scraping and parsing (e.g.,
+            "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
+            By default, ``"INFO"``.
+        keep_async_logs : bool, default=False
+            Option to store the full asynchronous log record to a file.
+            This is only useful if you intend to monitor overall
+            processing progress from a file instead of from the
+            terminal. If ``True``, all of the unordered records are
+            written to a "all.log" file in the `log_dir` directory.
+            By default, ``False``.
+        """
+        super().__init__(
+            out_dir,
+            tech,
+            jurisdiction_fp,
+            model=None,
+            perform_se_search=True,
+            save_search_engine_results=True,
+            num_urls_to_check_per_jurisdiction=(
+                num_urls_to_check_per_jurisdiction
+            ),
+            url_ignore_substrings=url_ignore_substrings,
+            url_keep_substrings=url_keep_substrings,
+            search_engines=search_engines,
+            simple_se_result_sort=simple_se_result_sort,
+            tpe_kwargs=tpe_kwargs,
+            log_dir=log_dir,
+            log_level=log_level,
+            keep_async_logs=keep_async_logs,
+        )
+
+
 class ProcessRequest(BaseRequest):
     """Parameter Object for full process mode"""
 
@@ -809,7 +950,7 @@ class CollectionRequest(BaseRequest):
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -825,6 +966,7 @@ class CollectionRequest(BaseRequest):
         log_level="INFO",
         keep_async_logs=False,
         save_search_engine_results=True,
+        search_result_manifest_fp=None,
     ):
         """
 
@@ -1000,11 +1142,11 @@ class CollectionRequest(BaseRequest):
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -1105,6 +1247,11 @@ class CollectionRequest(BaseRequest):
             a ``se_results`` subdirectory of `out_dir`. If ``False``, no
             search engine result directory or files are created.
             By default, ``True``.
+        search_result_manifest_fp : path-like or list, optional
+            Saved search manifest, shard directory, or glob paths to
+            replay without new search queries. Missing jurisdictions
+            are skipped. Ignored when ``perform_se_search=False``.
+            By default, ``None``.
         """
         super().__init__(
             out_dir=out_dir,
@@ -1143,6 +1290,7 @@ class CollectionRequest(BaseRequest):
             make_paths_relative=make_paths_relative,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            search_result_manifest_fp=search_result_manifest_fp,
             save_search_engine_results=save_search_engine_results,
         )
 
