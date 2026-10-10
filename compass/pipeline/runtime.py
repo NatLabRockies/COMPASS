@@ -44,7 +44,7 @@ MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 50
 class PipelineRuntime:
     """Context Object for runtime dependencies in one pipeline run"""
 
-    def __init__(self, request):
+    def __init__(self, request, continue_existing=False, targets=None):
         """
 
         Parameters
@@ -52,8 +52,17 @@ class PipelineRuntime:
         request : compass.pipeline.data_classes.BaseRequest
             Request object containing all user inputs and settings for
             this run.
+        continue_existing : bool, default=False
+            Reuse nonempty shards in an existing output directory.
+            Missing and empty shards are processed again.
+            By default, ``False``.
+        targets : dict, optional
+            Per-shard metric names mapped to minimum counts. All targets
+            must pass. By default, ``None``.
         """
         self.request = request
+        self.continue_existing = continue_existing
+        self.targets = targets
         self.mode = request.MODE
         self.tech = request.tech
         self.models = request.models
