@@ -10,10 +10,12 @@ from statistics import median
 from collections import Counter
 from warnings import warn
 from datetime import datetime, UTC
+from functools import partial
 
 from elm.version import __version__ as elm_version
 
 from compass import __version__ as compass_version
+from compass.pipeline.targets import normalize_targets
 from compass.services.threaded import (
     FileMover,
     ParsedFileWriter,
@@ -23,6 +25,7 @@ from compass.services.threaded import (
 from compass.services.cpu import read_docling_local_file
 from compass.utilities.io import load_config
 from compass.utilities.io import resolve_all_paths
+from compass.utilities.enums import COMPASSDocumentCollectionStep
 from compass.utilities.parsing import convert_paths_to_strings, is_pdf_doc
 from compass.warn import COMPASSWarning
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
@@ -278,6 +281,34 @@ async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
     return await GenericFuncRunner.call(
         _load_specific_collection_manifest_shard, shard_dir, jurisdiction
     )
+
+
+async def reset_collection_manifest_shard(
+    shard_dir, manifest_dir, jurisdiction
+):
+    """Remove one collection checkpoint and its stale aggregate manifest
+
+    Parameters
+    ----------
+    shard_dir : path-like
+        Directory containing jurisdiction collection shards.
+    manifest_dir : path-like
+        Directory containing the aggregate collection manifest.
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction whose collection checkpoint should be reset.
+    """
+    await GenericFuncRunner.call(
+        _reset_collection_manifest_shard, shard_dir, manifest_dir, jurisdiction
+    )
+
+
+def _reset_collection_manifest_shard(shard_dir, manifest_dir, jurisdiction):
+    """Remove checkpoint metadata without deleting saved files"""
+    filename = _collection_manifest_shard_filename(
+        {"FIPS": jurisdiction.code, "full_name": jurisdiction.full_name}
+    )
+    (Path(shard_dir) / filename).unlink(missing_ok=True)
+    (Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME).unlink(missing_ok=True)
 
 
 def _write_collection_manifest(manifest_dir, collection_manifest):
