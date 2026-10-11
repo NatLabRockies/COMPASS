@@ -49,6 +49,7 @@ def jurisdiction_run(monkeypatch, tmp_path):
         log_listener=None,
         dirs=SimpleNamespace(logs=tmp_path),
         log_level="INFO",
+        re_run_targets=None,
     )
     jurisdiction = SimpleNamespace(
         full_name="Test County, Colorado",
@@ -89,9 +90,10 @@ async def test_run_with_logging_handles_errors(
 
 
 @pytest.mark.asyncio
-async def test_collect_executes_collection_workflow(jurisdiction_run):
+@pytest.mark.parametrize("targets", [None, {"num_docs": 2}])
+async def test_collect_executes_collection_workflow(jurisdiction_run, targets):
     """Collection should delegate to the collection workflow"""
-    collection_info = {"FIPS": "08001", "documents": []}
+    collection_info = {"FIPS": "08001", "results": []}
     captured = {}
 
     class _CollectionWorkflow:
@@ -102,6 +104,7 @@ async def test_collect_executes_collection_workflow(jurisdiction_run):
             return collection_info
 
     jurisdiction_run.collection = _CollectionWorkflow()
+    jurisdiction_run.runtime.re_run_targets = targets
 
     out = await jurisdiction_run.collect()
 
@@ -118,7 +121,7 @@ async def test_load_existing_collection_shard_restores_website(
         "FIPS": "08001",
         "jurisdiction_website": "https://saved.example.com",
         "completed_step_document_counts": {"known_local_docs": 0},
-        "documents": [],
+        "results": [],
     }
 
     async def _load_shard(*args):  # ruff:ignore[unused-async]
