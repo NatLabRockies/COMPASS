@@ -93,7 +93,7 @@ def search(
         no_progress=no_progress,
         out_dir_exists=out_dir_exists,
         override_args=ctx.args,
-        re_run_targets=targets,
+        re_run_targets=targets if targets or policy == "continue" else None,
     )
 
     if not targets and not summarize:
