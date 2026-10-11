@@ -253,79 +253,6 @@ class COMPASSFullProcessing(BaseRunMode):
         )
 
 
-class COMPASSCollection(BaseRunMode):
-    """Concrete Strategy for document collection mode"""
-
-    async def run(self, jurisdictions_df):
-        """Run process mode over all requested jurisdictions
-
-        Parameters
-        ----------
-        jurisdictions_df : pandas.DataFrame
-            A DataFrame containing information about the jurisdictions
-            to process. This DataFrame should include all necessary
-            information for each jurisdiction, such as its code, full
-            name, and any other relevant metadata needed for processing.
-            The workflow will iterate over each jurisdiction in the
-            DataFrame and execute the collection step for each one,
-            using the information provided in the DataFrame to guide the
-            processing steps.
-
-        Returns
-        -------
-        str
-            A summary message of the collection run, including key
-            information such as the number of jurisdictions processed,
-            documents found, total cost, and output locations. The exact
-            content of the message may vary depending on the results of
-            the processing.
-        """
-        logger.info(
-            "Collecting documents for %d jurisdiction(s)",
-            len(jurisdictions_df),
-        )
-        start_date = datetime.now(UTC)
-
-        metrics = validate_collection_targets(self.runtime.re_run_targets)
-        tasks = []
-        jurisdictions = []
-        async for jurisdiction, se_results in _jurisdictions_with_search_input(
-            self.runtime, jurisdictions_df
-        ):
-            jurisdictions.append(jurisdiction)
-            workflow = self._create(
-                jurisdiction, known_se_results=se_results, usage_tracker=None
-            )
-            tasks.append(
-                asyncio.create_task(
-                    workflow.run_collection_with_logging(),
-                    name=jurisdiction.full_name,
-                )
-            )
-
-        collection_infos = await asyncio.gather(*tasks)
-        failures = self._unmet_requirements(
-            jurisdictions, collection_infos, metrics
-        )
-
-        manifest = build_collection_manifest(
-            self.runtime.tech,
-            collection_infos,
-            start_date,
-            len(jurisdictions_df),
-            failed_targets=failures,
-        )
-        manifest_fp = await write_collection_manifest(
-            self.runtime.dirs.out, manifest
-        )
-        collection_msg = compile_collection_summary_message(
-            manifest_fp, manifest
-        )
-        for sub_msg in collection_msg.split("\n"):
-            logger.info(sub_msg)
-        return collection_msg
-
-
 class COMPASSSearch(BaseRunMode):
     """Search-only strategy using existing reports and shards"""
 
@@ -441,6 +368,79 @@ class COMPASSSearch(BaseRunMode):
             pending, await asyncio.gather(*tasks), strict=True
         ):
             results[index] = result
+
+
+class COMPASSCollection(BaseRunMode):
+    """Concrete Strategy for document collection mode"""
+
+    async def run(self, jurisdictions_df):
+        """Run process mode over all requested jurisdictions
+
+        Parameters
+        ----------
+        jurisdictions_df : pandas.DataFrame
+            A DataFrame containing information about the jurisdictions
+            to process. This DataFrame should include all necessary
+            information for each jurisdiction, such as its code, full
+            name, and any other relevant metadata needed for processing.
+            The workflow will iterate over each jurisdiction in the
+            DataFrame and execute the collection step for each one,
+            using the information provided in the DataFrame to guide the
+            processing steps.
+
+        Returns
+        -------
+        str
+            A summary message of the collection run, including key
+            information such as the number of jurisdictions processed,
+            documents found, total cost, and output locations. The exact
+            content of the message may vary depending on the results of
+            the processing.
+        """
+        logger.info(
+            "Collecting documents for %d jurisdiction(s)",
+            len(jurisdictions_df),
+        )
+        start_date = datetime.now(UTC)
+
+        metrics = validate_collection_targets(self.runtime.re_run_targets)
+        tasks = []
+        jurisdictions = []
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
+            jurisdictions.append(jurisdiction)
+            workflow = self._create(
+                jurisdiction, known_se_results=se_results, usage_tracker=None
+            )
+            tasks.append(
+                asyncio.create_task(
+                    workflow.run_collection_with_logging(),
+                    name=jurisdiction.full_name,
+                )
+            )
+
+        collection_infos = await asyncio.gather(*tasks)
+        failures = self._unmet_requirements(
+            jurisdictions, collection_infos, metrics
+        )
+
+        manifest = build_collection_manifest(
+            self.runtime.tech,
+            collection_infos,
+            start_date,
+            len(jurisdictions_df),
+            failed_targets=failures,
+        )
+        manifest_fp = await write_collection_manifest(
+            self.runtime.dirs.out, manifest
+        )
+        collection_msg = compile_collection_summary_message(
+            manifest_fp, manifest
+        )
+        for sub_msg in collection_msg.split("\n"):
+            logger.info(sub_msg)
+        return collection_msg
 
 
 class COMPASSExtraction(BaseRunMode):
