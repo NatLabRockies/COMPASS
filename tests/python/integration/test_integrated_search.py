@@ -12,7 +12,7 @@ from compass import __version__ as compass_version
 import compass.web.search as web_search_module
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.data_classes import SearchRequest
-from compass.pipeline.search import COMPASSSearch
+from compass.pipeline.coordinator import COMPASSSearch
 from compass.pipeline.search.persistence import SEARCH_RESULT_MANIFEST_FILENAME
 from compass.pb import COMPASS_PB
 from compass.utilities.jurisdictions import load_jurisdictions_from_fp
