@@ -136,7 +136,7 @@ class DocumentCollection:
             structured data was extracted, or ``None`` if no structured
             data was extracted from any of the collected documents.
         """
-        await self._load_persisted_docs()
+        await self._determine_unfinished_steps()
         for step in self._unfinished_steps():
             docs = await self._run_collection_step(step)
             if eager_extract:
@@ -158,20 +158,28 @@ class DocumentCollection:
         self._log_execute_results()
         return self._collection_info
 
-    async def _load_persisted_docs(self):
+    async def _determine_unfinished_steps(self):
         """Get any previously persisted documents and completed steps"""
+        # Save these before loading persisted state info,
+        # as loading may overwrite them
+        user_configured_budget = self.workflow.num_search_results_to_crawl
+        user_configured_website = self.workflow.jurisdiction_website
+
+        await self._load_persisted_state_info()
+
+        await self._check_targets_for_completion(
+            user_configured_budget, user_configured_website
+        )
+
+        self._load_persisted_docs()
+
+    async def _load_persisted_state_info(self):
+        """Load persisted state information for the collection shard"""
         self._collection_info = (
             await self.workflow.load_existing_collection_shard()
         ) or {}
 
         self._set_num_search_results_to_crawl()
-
-        docs = [
-            _PersistedDocument(doc_info)
-            for doc_info in self._collection_info.get("results", [])
-        ]
-        self.de_duplicator.add_docs(docs)
-
         self._completed_steps |= set(
             self._collection_info.get("completed_step_document_counts", {})
         )
@@ -183,6 +191,65 @@ class DocumentCollection:
             self.workflow.num_search_results_to_crawl = max(
                 0, int(num_to_crawl)
             )
+
+    async def _check_targets_for_completion(
+        self, user_configured_budget, user_configured_website
+    ):
+        """Check if the collection targets are met"""
+        re_run_targets = self.workflow.runtime.re_run_targets
+        if not re_run_targets or not self._collection_info:
+            return
+
+        unfinished = any(
+            step.STEP_NAME not in self._completed_steps for step in self.steps
+        )
+        if unfinished:
+            logger.info(
+                "Resuming unfinished collection steps for %s",
+                self.workflow.jurisdiction.full_name,
+            )
+            return
+
+        metrics = validate_collection_targets(re_run_targets)
+        failures = shard_failures(
+            self._collection_info, re_run_targets, metrics
+        )
+        if not failures:
+            logger.info(
+                "Reusing collection shard for %s",
+                self.workflow.jurisdiction.full_name,
+            )
+            return
+
+        logger.info(
+            "Resetting collection shard for %s: %s",
+            self.workflow.jurisdiction.full_name,
+            failures,
+        )
+        await self._reset_collection_state(
+            user_configured_budget, user_configured_website
+        )
+
+    async def _reset_collection_state(
+        self, user_configured_budget, user_configured_website
+    ):
+        """Reset the collection state to start fresh"""
+        await self.workflow.reset_collection_shard()
+
+        self.workflow.num_search_results_to_crawl = user_configured_budget
+        self.workflow.jurisdiction_website = user_configured_website
+        self.__dict__.pop("steps", None)  # reset @cached_property
+        self._collection_info = {}
+        self._completed_steps.clear()
+        self.de_duplicator = DocumentDeDuplicator()
+
+    def _load_persisted_docs(self):
+        """Populate the de-duplicator with persisted documents"""
+        docs = [
+            _PersistedDocument(doc_info)
+            for doc_info in self._collection_info.get("results", [])
+        ]
+        self.de_duplicator.add_docs(docs)
 
     def _unfinished_steps(self):
         """Yield unfinished collection steps"""
