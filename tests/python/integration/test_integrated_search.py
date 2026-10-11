@@ -6,12 +6,14 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
+from elm.version import __version__ as elm_version
 
-import compass.scripts.search as search_module
+from compass import __version__ as compass_version
 import compass.web.search as web_search_module
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.data_classes import SearchRequest
-from compass.pipeline.coordinator import COMPASSSearch
+from compass.pipeline.search import COMPASSSearch
+from compass.pipeline.search.persistence import SEARCH_RESULT_MANIFEST_FILENAME
 from compass.pb import COMPASS_PB
 from compass.utilities.jurisdictions import load_jurisdictions_from_fp
 
@@ -76,17 +78,17 @@ async def test_search_report_metadata(tmp_path, monkeypatch, with_results):
     finally:
         COMPASS_PB.reset()
     report = json.loads(
-        (
-            runtime.dirs.out / search_module.SEARCH_RESULT_MANIFEST_FILENAME
-        ).read_text(encoding="utf-8")
+        (runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME).read_text(
+            encoding="utf-8"
+        )
     )
     after = datetime.now(UTC)
 
     assert search_backend.await_count == 4
     assert report["tech"] == "wind"
     assert report["versions"] == {
-        "compass": search_module.compass_version,
-        "elm": search_module.elm_version,
+        "compass": compass_version,
+        "elm": elm_version,
     }
     assert report["num_urls_requested"] == 7
     assert report["search_engines"] == [

@@ -1,4 +1,4 @@
-"""Tests for compass.scripts.search"""
+"""Tests for compass.pipeline.search.persistence"""
 
 from pathlib import Path
 from unittest.mock import AsyncMock

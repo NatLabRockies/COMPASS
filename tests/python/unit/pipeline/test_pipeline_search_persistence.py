@@ -1,4 +1,4 @@
-"""Tests for compass.scripts.search"""
+"""Tests for compass.pipeline.search.persistence"""
 
 from datetime import UTC, datetime
 from pathlib import Path
