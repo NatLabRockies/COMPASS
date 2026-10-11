@@ -120,7 +120,7 @@
           },
           "aggregated": {
             "type": "boolean",
-            "description": "True when this row's value was selected from multiple competing explicit values for the same feature, keeping the most restrictive one per $core_principles.numeric_prioritization (most restrictive is the largest value for setbacks, the smallest value for noise and height limits, and so on depending on the feature). False when the value comes from a single explicit value with no competing values to reconcile."
+            "description": "True when this row combines more than one distinct source fact: either a numeric value selected from multiple competing explicit values by keeping the most restrictive one per $core_principles.numeric_prioritization (most restrictive is the largest value for setbacks, the smallest value for noise and height limits, and so on depending on the feature), or a qualitative row that folds more than one qualifying item into a single row (for example multiple restricted districts, excluded land types, or named grantees). False when the row comes from a single source fact with nothing to combine or reconcile."
           }
         }
       }
@@ -352,6 +352,14 @@
       "Prefer numeric values with units ('feet', 'meters').",
       "Setback rows must contain numeric value and non-null units; never emit qualitative-only setback rows.",
       "Treat property-line, lot-line, and parcel-boundary setbacks as 'property lines' when the ordinance measures the setback from that boundary.",
+    ],
+    "aggregation": [
+      "Set aggregated=true for a numeric row when its feature's value was chosen from two or more competing explicit values in the ordinance text by applying the most-restrictive rule in $core_principles.numeric_prioritization (for example a voltage-tiered setback table, or a noise/height table with several stated limits for the same district).",
+      "Set aggregated=false when the row's value comes from a single explicit value with no competing values to reconcile.",
+      "Most restrictive depends on the feature: largest value for setbacks, smallest value for noise and height limits; follow the direction defined in $core_principles.numeric_prioritization.",
+      "Exception for 'franchise': set aggregated=true when the row folds together more than one named electric grantee, and aggregated=false when only a single grantee is present.",
+      "Exception for 'district use restriction': set aggregated=true when the single row folds together more than one restricted district (or a district plus a jurisdiction-wide restriction), and aggregated=false when only a single district or a single jurisdiction-wide restriction is present.",
+      "Exception for 'excluded lands': the feature is triggered only when the ordinance excludes at least one land type from its list of interest (historic sites, critical species habitat, wetlands, floodplains, residences, hospitals, schools, daycare centers, institutions of higher education), matching by clear synonym is allowed. Set aggregated=true when more than one land type is excluded in total (at least one listed type plus any other excluded land type, whether or not that other type is on the list), and aggregated=false when only a single land type is excluded.",
     ],
     "encompassment_scope": [
       "Encompassment applies only when the broader class the ordinance regulates is electric transmission itself or electric lines/facilities that logically include high-voltage transmission: extract when the provision governs 'electric transmission', 'electric transmission lines', 'electric lines', 'electric utility lines', or 'electric facilities' without a voltage qualifier and does not carve out transmission or limit itself to lower-voltage/distribution infrastructure. All electric transmission — and unqualified electric-line or electric-facility language — includes high-voltage transmission, so such wording is in scope.",
