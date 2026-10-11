@@ -173,7 +173,7 @@ class BaseRunMode(ABC):
             ),
         )
 
-    def _unmet_requirements(self, jurisdictions, results, metrics, key):
+    def _unmet_requirements(self, jurisdictions, results, metrics):
         """Describe remaining shard failures after persistence"""
         if self.runtime.re_run_targets is None:
             return None
@@ -184,7 +184,7 @@ class BaseRunMode(ABC):
                 f"{jurisdiction.full_name}: {failure['metric']}="
                 f"{failure['actual']} (minimum {failure['minimum']})"
                 for failure in shard_failures(
-                    record, self.runtime.re_run_targets, metrics, key
+                    record, self.runtime.re_run_targets, metrics
                 )
             )
         return messages
@@ -305,7 +305,7 @@ class COMPASSCollection(BaseRunMode):
 
         collection_infos = await asyncio.gather(*tasks)
         failures = self._unmet_requirements(
-            jurisdictions, collection_infos, metrics, "documents"
+            jurisdictions, collection_infos, metrics
         )
 
         manifest = build_collection_manifest(

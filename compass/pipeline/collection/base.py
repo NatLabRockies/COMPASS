@@ -168,7 +168,7 @@ class DocumentCollection:
 
         docs = [
             _PersistedDocument(doc_info)
-            for doc_info in self._collection_info.get("documents", [])
+            for doc_info in self._collection_info.get("results", [])
         ]
         self.de_duplicator.add_docs(docs)
 

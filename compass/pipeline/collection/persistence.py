@@ -46,7 +46,7 @@ def validate_collection_targets(targets):
     """
     metrics = {
         "num_docs": lambda record: record.get(
-            "num_docs", len(record.get("documents", []))
+            "num_docs", len(record.get("results", []))
         )
     }
     for step in COMPASSDocumentCollectionStep:
@@ -118,7 +118,7 @@ def build_collection_manifest(
     for info in jurisdictions:
         if info is None:
             continue
-        docs = info.get("documents", [])
+        docs = info.get("results", [])
         if not docs:
             continue
         out_jurisdictions.append(info)
@@ -388,6 +388,7 @@ async def persist_documents(
     )
     for step in completed_steps:
         completed_step_document_counts.setdefault(step, 0)
+
     return {
         "full_name": jurisdiction.full_name,
         "county": jurisdiction.county,
@@ -398,7 +399,7 @@ async def persist_documents(
         "num_docs": len(documents),
         "completed_step_document_counts": dict(completed_step_document_counts),
         **kwargs,
-        "documents": documents,
+        "results": documents,
     }
 
 
@@ -421,7 +422,7 @@ async def load_collected_docs(collection_info, *, task_name):
     """
     tasks = [
         asyncio.create_task(_load_single_doc(doc_info), name=task_name)
-        for doc_info in collection_info.get("documents") or []
+        for doc_info in collection_info.get("results") or []
     ]
 
     return await asyncio.gather(*tasks)

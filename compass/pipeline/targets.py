@@ -112,7 +112,7 @@ def evaluate_targets(record, targets, metrics):
     return failures
 
 
-def shard_failures(record, targets, metrics, key):
+def shard_failures(record, targets, metrics, key="results"):
     """Evaluate default nonempty results and explicit shard minimums
 
     Parameters
@@ -123,8 +123,9 @@ def shard_failures(record, targets, metrics, key):
         Validated search minimum targets.
     metrics : dict
         Search metric accessors returned by target validation.
-    key : str
+    key : str, default="results"
         The key in the record to check for nonempty results.
+        By default, ``"results"``.
 
     Returns
     -------
