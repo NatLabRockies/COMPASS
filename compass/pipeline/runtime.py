@@ -54,8 +54,9 @@ class PipelineRuntime:
             this run.
         re_run_targets : dict, optional
             Per-shard metric names mapped to minimum counts for
-            continuing a run. All targets must pass in the re-run.
-            By default, ``None``.
+            continuing a run. An empty mapping continues with the
+            default nonempty shard requirement. All targets must pass in
+            the re-run. By default, ``None`` starts a fresh run.
 
         """
         self.request = request
