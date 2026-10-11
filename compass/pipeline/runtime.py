@@ -54,9 +54,9 @@ class PipelineRuntime:
             this run.
         re_run_targets : dict, optional
             Per-shard metric names mapped to minimum counts for
-            continuing a run. All targets must pass in the re-run.
-            By default, ``None``.
-
+            continuing a run. An empty mapping continues with the
+            default nonempty shard requirement. All targets must pass in
+            the re-run. By default, ``None`` starts a fresh run.
         """
         self.request = request
         self.re_run_targets = re_run_targets
@@ -82,10 +82,11 @@ class PipelineRuntime:
         LLM_COST_REGISTRY.update(request.llm_costs or {})
 
     async def __aenter__(self):
+        log_dir = self.dirs.logs  # make sure directory is set up
         self._listener_ctx = self.log_listener
         listener = await self._listener_ctx.__aenter__()
         _configure_main_logging(
-            self.dirs.logs, self.log_level, listener, self.keep_async_logs
+            log_dir, self.log_level, listener, self.keep_async_logs
         )
         await self._running_services.__aenter__()
         return self
@@ -102,6 +103,7 @@ class PipelineRuntime:
             self.request.output_settings,
             collect_only=(self.mode == self.mode.COLLECT),
             search_only=(self.mode == self.mode.SEARCH),
+            allow_existing=self.re_run_targets is not None,
         )
 
     @cached_property
@@ -341,7 +343,12 @@ def _configure_main_logging(log_dir, level, listener, keep_async_logs):
         logger.debug_to_file("Using async log format: %s", log_fmt)
 
 
-def _setup_folders(output_settings, collect_only=False, search_only=False):
+def _setup_folders(
+    output_settings,
+    collect_only=False,
+    search_only=False,
+    allow_existing=False,
+):
     """Create output folders for the run"""
     dirs = Directories(
         output_settings.out_dir,
@@ -354,7 +361,7 @@ def _setup_folders(output_settings, collect_only=False, search_only=False):
         search_only=search_only,
     )
 
-    if not collect_only and not search_only and dirs.out.exists():
+    if not collect_only and not allow_existing and dirs.out.exists():
         msg = (
             f"Output directory '{output_settings.out_dir!s}' already "
             "exists! Please specify a new directory for every COMPASS run."

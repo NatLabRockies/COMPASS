@@ -66,8 +66,9 @@ def run_async_command(
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
     re_run_targets : dict, optional
-        Per-shard metric names mapped to minimum counts. Only
-        applicable when ``--out-dir-exists continue``.
+        Per-shard metric names mapped to minimum counts. An empty
+        mapping continues with the default nonempty shard requirement.
+        Only applicable when ``--out-dir-exists continue``.
         By default, ``None``.
     """
     if override_args:

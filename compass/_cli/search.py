@@ -59,7 +59,7 @@ from compass.utilities.io import load_config
     multiple=True,
     help="Per-shard minimum METRIC=VALUE. Repeat for multiple requirements. "
     "Supports num_results, num_kept_results, and search_engine_counts.ENGINE."
-    "Only works with ``--out-dir-exists continue``",
+    "Only works on fresh runs or with ``--out-dir-exists continue``",
 )
 @click.pass_context
 def search(
@@ -93,7 +93,7 @@ def search(
         no_progress=no_progress,
         out_dir_exists=out_dir_exists,
         override_args=ctx.args,
-        re_run_targets=targets,
+        re_run_targets=targets if targets or policy == "continue" else None,
     )
 
     if not targets and not summarize:

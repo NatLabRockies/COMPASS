@@ -287,7 +287,7 @@ def _invalid_result(result):
     )
 
 
-def validate_search_targets(targets, num_urls=5, search_engines=None):
+def validate_search_targets(targets, num_urls=5):
     """Validate shard count targets and return search metric accessors
 
     Parameters
@@ -296,9 +296,6 @@ def validate_search_targets(targets, num_urls=5, search_engines=None):
         Shard metric names and nonnegative integer minimums.
     num_urls : int, default=5
         Maximum retained URLs per jurisdiction. By default, ``5``.
-    search_engines : list of str or dict, optional
-        Configured engines. ``None`` allows registered engine labels.
-        By default, ``None``.
 
     Returns
     -------
@@ -306,24 +303,11 @@ def validate_search_targets(targets, num_urls=5, search_engines=None):
         Supported metric names mapped to shard value accessors.
     """
 
-    options = {}
-    if search_engines:
-        names = [
-            params if isinstance(params, str) else params["se_name"]
-            for params in search_engines
-        ]
-        unknown = set(names).difference(SEARCH_ENGINE_OPTIONS)
-        if unknown:
-            msg = f"Unknown search engines: {sorted(unknown)}"
-            raise COMPASSValueError(msg)
-
-        options = {name: SEARCH_ENGINE_OPTIONS[name] for name in names}
-
     metrics = {
         "num_results": lambda record: record.get("num_results", 0),
         "num_kept_results": _kept_result_count,
     }
-    for option in options.values():
+    for option in SEARCH_ENGINE_OPTIONS.values():
         label = option.se_class._SE_NAME  # ruff:ignore[private-member-access]
         metrics[f"search_engine_counts.{label}"] = partial(
             _engine_result_count, engine=label
@@ -389,7 +373,7 @@ def search_shard_failures(record, targets, metrics):
 
 
 def load_search_shards(out_dir, jurisdictions, expected_tech):
-    """Inventory actual requested shards without trusting the manifest
+    """Inventory individual requested shards
 
     Parameters
     ----------
@@ -407,16 +391,35 @@ def load_search_shards(out_dir, jurisdictions, expected_tech):
         Missing shards have no entry.
     """
     out_dir = Path(out_dir)
-    manifest = out_dir / SEARCH_RESULT_MANIFEST_FILENAME
-    if manifest.is_file():
-        _validate_search_result_tech(
-            load_config(manifest, resolve_paths=False), expected_tech, manifest
-        )
 
     requested = {
         jurisdiction.code: jurisdiction for jurisdiction in jurisdictions
     }
     shard_dir = out_dir / "se_results"
+    expected_paths = _expected_shard_paths(shard_dir, requested)
+
+    shards = {}
+    for path in sorted(shard_dir.glob("*.json")):
+        record = load_config(path, resolve_paths=False)
+        _validate_search_result_record(record, path)
+
+        code = record["FIPS"]
+        _validate_code_path_combination(code, path, expected_paths)
+
+        if code not in requested:
+            continue
+
+        _validate_search_result_tech(record, expected_tech, path)
+        _ensure_code_not_duplicate(code, shards)
+        _validate_search_shard_counts(record, path)
+
+        shards[code] = {"record": record, "path": path}
+
+    return shards
+
+
+def _expected_shard_paths(shard_dir, requested):
+    """Compile expected shard paths for requested jurisdictions"""
     expected_paths = {
         _search_result_shard_path(shard_dir, jurisdiction): code
         for code, jurisdiction in requested.items()
@@ -425,27 +428,21 @@ def load_search_shards(out_dir, jurisdictions, expected_tech):
         msg = "Requested jurisdiction shard filenames collide"
         raise COMPASSValueError(msg)
 
-    shards = {}
-    for path in sorted(shard_dir.glob("*.json")):
-        record = load_config(path, resolve_paths=False)
-        _validate_search_result_record(record, path)
-        code = record["FIPS"]
-        if path in expected_paths and code != expected_paths[path]:
-            msg = f"Search shard FIPS does not match {path}"
-            raise COMPASSValueError(msg)
+    return expected_paths
 
-        if code not in requested:
-            continue
 
-        _validate_search_result_tech(record, expected_tech, path)
-        if code in shards:
-            msg = f"Duplicate search result entry for FIPS '{code}'"
-            raise COMPASSValueError(msg)
+def _validate_code_path_combination(code, path, expected_paths):
+    """Ensure the FIPS code matches the expected path"""
+    if path in expected_paths and code != expected_paths[path]:
+        msg = f"Search shard FIPS does not match {path}"
+        raise COMPASSValueError(msg)
 
-        _validate_search_shard_counts(record, path)
-        shards[code] = {"record": record, "path": path}
 
-    return shards
+def _ensure_code_not_duplicate(code, shards):
+    """Ensure the FIPS code is not already present in the shards"""
+    if code in shards:
+        msg = f"Duplicate search result entry for FIPS '{code}'"
+        raise COMPASSValueError(msg)
 
 
 def _validate_search_shard_counts(record, path):

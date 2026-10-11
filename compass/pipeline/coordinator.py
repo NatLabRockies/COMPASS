@@ -5,6 +5,7 @@ import asyncio
 import logging
 from datetime import datetime, UTC
 from abc import ABC, abstractmethod
+from functools import cached_property
 
 from compass.services.openai import usage_from_response
 from compass.services.usage import LLMUsageTracker
@@ -64,7 +65,9 @@ async def run_compass(request, re_run_targets=None):
         settings.
     re_run_targets : dict, optional
         Per-shard metric names mapped to minimum counts for continuing a
-        run. All targets must pass in the re-run. By default, ``None``.
+        run. An empty mapping continues with the default nonempty shard
+        requirement. All targets must pass in the re-run.
+        By default, ``None`` starts a fresh run.
 
     Returns
     -------
@@ -319,6 +322,11 @@ class COMPASSCollection(BaseRunMode):
 class COMPASSSearch(BaseRunMode):
     """Search-only strategy using existing reports and shards"""
 
+    @cached_property
+    def is_continuation_run(self):
+        """bool: Indicates whether this run is a continuation run"""
+        return self.runtime.re_run_targets is not None
+
     async def run(self, jurisdictions_df):
         """Persist search shards and their aggregate manifest"""
         logger.info(
@@ -331,13 +339,12 @@ class COMPASSSearch(BaseRunMode):
         metrics = validate_search_targets(
             self.runtime.re_run_targets,
             self.runtime.search_params.num_urls_to_check_per_jurisdiction,
-            self.runtime.search_params.se_kwargs.get("search_engines"),
         )
         results, pending, purge_paths = await self._select_unfinished_searches(
             jurisdictions, metrics
         )
         manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
-        if self.runtime.re_run_targets and pending:
+        if self.is_continuation_run and pending:
             await GenericFuncRunner.call(
                 _purge_search_shards, manifest_fp, purge_paths
             )
@@ -362,43 +369,58 @@ class COMPASSSearch(BaseRunMode):
 
     async def _select_unfinished_searches(self, jurisdictions, metrics):
         """Plan shard reuse and reruns before purging any files"""
-        shards = {}
-        if self.runtime.re_run_targets:
-            shards = await GenericFuncRunner.call(
-                load_search_shards,
-                self.runtime.dirs.out,
-                jurisdictions,
-                self.runtime.tech,
-            )
+        shards = await self._load_search_shards(jurisdictions)
 
         results = [None] * len(jurisdictions)
         pending = []
         purge_paths = []
         for index, jurisdiction in enumerate(jurisdictions):
             shard = shards.get(jurisdiction.code)
-            record = shard["record"] if shard else None
-            failures = search_shard_failures(
-                record, self.runtime.re_run_targets, metrics
-            )
-            if shard and not failures:
-                results[index] = record
-                COMPASS_PB.progress_main_task()
+            if shard and self._can_re_use_shard(
+                shard, metrics, purge_paths, jurisdiction
+            ):
                 logger.info(
                     "Reusing search shard for %s", jurisdiction.full_name
                 )
+                results[index] = shard["record"]
+                COMPASS_PB.progress_main_task()
                 continue
 
+            logger.info("Searching %s", jurisdiction.full_name)
             pending.append(index)
-            if shard:
-                purge_paths.append(shard["path"])
 
-            if self.runtime.re_run_targets:
-                logger.info(
-                    "Searching %s: %s",
-                    jurisdiction.full_name,
-                    "missing shard" if shard is None else failures,
-                )
         return results, pending, purge_paths
+
+    async def _load_search_shards(self, jurisdictions):
+        """Load search shards for the given jurisdictions"""
+        if not self.is_continuation_run:
+            return {}
+
+        return await GenericFuncRunner.call(
+            load_search_shards,
+            self.runtime.dirs.out,
+            jurisdictions,
+            self.runtime.tech,
+        )
+
+    def _can_re_use_shard(self, shard, metrics, purge_paths, jurisdiction):
+        """Determine if a search shard can be reused"""
+        failures = search_shard_failures(
+            shard["record"], self.runtime.re_run_targets, metrics
+        )
+        if not failures:
+            return True
+
+        if shard:
+            purge_paths.append(shard["path"])
+
+        logger.info(
+            "Found failures in shard for %s: %s",
+            jurisdiction.full_name,
+            failures,
+        )
+
+        return False
 
     async def _process_pending_searches(self, pending, jurisdictions, results):
         """Run search for pending tasks"""
@@ -419,7 +441,7 @@ class COMPASSSearch(BaseRunMode):
 
     def _unmet_requirements(self, jurisdictions, results, metrics):
         """Describe remaining shard failures after persistence"""
-        if not self.runtime.re_run_targets:
+        if self.runtime.re_run_targets is None:
             return None
 
         messages = []
