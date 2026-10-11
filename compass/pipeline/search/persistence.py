@@ -1,11 +1,4 @@
-"""Search-only orchestration for COMPASS
-
-Runs the web-search portion of the COMPASS pipeline (no download,
-filtering, validation, or extraction) and emits a JSON report of the
-ranked URLs returned by each configured search engine for each
-jurisdiction. The output is intended to help diagnose retrieval
-quality before invoking the full pipeline.
-"""
+"""Persistence for search results documents"""
 
 import json
 from datetime import UTC, datetime
@@ -24,6 +17,7 @@ from compass.pipeline.targets import normalize_targets
 from compass.utilities.io import write_text_atomic, load_config
 from compass.warn import COMPASSWarning
 from compass.web.search import _search_result_shard_path
+
 
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
@@ -450,76 +444,3 @@ def write_search_report(report, out_path):
     """
     payload = json.dumps(report, indent=4, ensure_ascii=False)
     write_text_atomic(out_path, payload)
-
-
-def summary(report):
-    """Format search-only output as readable plain text
-
-    Parameters
-    ----------
-    report : dict
-        Dictionary produced by :func:`build_search_report`.
-
-    Returns
-    -------
-    str
-        Multi-line summary containing only records that were not
-        filtered, sorted by ``overall_rank`` within each jurisdiction.
-    """
-    lines = []
-    lines.extend(
-        (
-            "COMPASS search-only summary",
-            "---------------------------",
-            f"tech: {report.get('tech')}",
-            f"timestamp: {report.get('time_end_utc')}",
-            f"requested top urls: {report.get('num_urls_requested')}",
-            "",
-        )
-    )
-
-    jurisdictions = report.get("jurisdictions", [])
-    for jur in jurisdictions:
-        lines.append(f"jurisdiction: {jur.get('full_name')}")
-
-        if jur.get("error"):
-            lines.extend((f"  error: {jur.get('error')}", ""))
-            continue
-
-        kept = [
-            entry
-            for entry in jur.get("results", [])
-            if entry.get("filtered_reason") is None
-        ]
-        kept.sort(
-            key=lambda entry: (
-                entry.get("overall_rank")
-                if entry.get("overall_rank") is not None
-                else float("inf"),
-                entry.get("query_rank")
-                if entry.get("query_rank") is not None
-                else float("inf"),
-            )
-        )
-
-        if not kept:
-            lines.extend(("  no unfiltered results", ""))
-            continue
-
-        for entry in kept:
-            lines.extend(
-                (
-                    (
-                        "  "
-                        f"[{entry.get('overall_rank')}] "
-                        f"{entry.get('search_engine')} "
-                        f"(query_rank={entry.get('query_rank')})"
-                    ),
-                    f"    query: {entry.get('query')}",
-                    f"    url: {entry.get('url')}",
-                )
-            )
-
-        lines.append("")
-
-    return "\n".join(lines).rstrip()

@@ -6,8 +6,8 @@ from types import SimpleNamespace
 
 import pytest
 
-import compass.scripts.search as search_module
 import compass.web.search as web_search_module
+import compass.pipeline.search.persistence as search_module
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.data_classes import SearchRequest
@@ -36,56 +36,6 @@ async def test_build_search_report_without_results(tmp_path, jur_results):
             "total": 0,
         }
     )
-
-
-def test_summary_keeps_only_unfiltered_and_sorted():
-    """Render only unfiltered rows sorted by overall rank"""
-    report = {
-        "tech": "wind",
-        "timestamp": "2026-01-01T00:00:00Z",
-        "num_urls_requested": 2,
-        "jurisdictions": [
-            {
-                "jurisdiction": "Example County, Test",
-                "error": None,
-                "results": [
-                    {
-                        "overall_rank": 2,
-                        "query_rank": 1,
-                        "search_engine": "A",
-                        "query": "q2",
-                        "url": "https://example.com/rank2",
-                        "filtered_reason": None,
-                    },
-                    {
-                        "overall_rank": 1,
-                        "query_rank": 1,
-                        "search_engine": "A",
-                        "query": "q1",
-                        "url": "https://example.com/rank1",
-                        "filtered_reason": None,
-                    },
-                    {
-                        "overall_rank": None,
-                        "query_rank": 2,
-                        "search_engine": "A",
-                        "query": "q-dup",
-                        "url": "https://example.com/dup",
-                        "filtered_reason": "duplicate",
-                    },
-                ],
-            }
-        ],
-    }
-
-    output = search_module.summary(report)
-
-    first_rank = output.index("[1]")
-    second_rank = output.index("[2]")
-    assert first_rank < second_rank
-    assert "https://example.com/rank1" in output
-    assert "https://example.com/rank2" in output
-    assert "https://example.com/dup" not in output
 
 
 @pytest.mark.parametrize(

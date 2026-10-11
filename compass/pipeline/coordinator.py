@@ -20,14 +20,6 @@ from compass.utilities import (
 )
 from compass.services.threaded import UsageUpdater
 from compass.services.threaded import GenericFuncRunner
-from compass.scripts.search import (
-    build_search_report,
-    load_search_result_jurisdictions,
-    load_search_shards,
-    validate_search_targets,
-    write_search_report,
-    SEARCH_RESULT_MANIFEST_FILENAME,
-)
 from compass.utilities.enums import COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
@@ -37,6 +29,14 @@ from compass.pipeline.collection.persistence import (
     validate_collection_targets,
     write_collection_manifest,
     load_collection_manifest_jurisdictions,
+)
+from compass.pipeline.search.persistence import (
+    build_search_report,
+    load_search_result_jurisdictions,
+    load_search_shards,
+    validate_search_targets,
+    write_search_report,
+    SEARCH_RESULT_MANIFEST_FILENAME,
 )
 from compass.pipeline.targets import shard_failures
 from compass.pipeline import BaseRequest
