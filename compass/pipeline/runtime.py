@@ -349,7 +349,7 @@ def _setup_folders(
     output_settings,
     collect_only=False,
     search_only=False,
-    continue_existing=False,
+    continue_existing_run=False,
 ):
     """Create output folders for the run"""
     dirs = Directories(
@@ -363,7 +363,7 @@ def _setup_folders(
         search_only=search_only,
     )
 
-    if not collect_only and not continue_existing and dirs.out.exists():
+    if not collect_only and not continue_existing_run and dirs.out.exists():
         msg = (
             f"Output directory '{output_settings.out_dir!s}' already "
             "exists! Please specify a new directory for every COMPASS run."
