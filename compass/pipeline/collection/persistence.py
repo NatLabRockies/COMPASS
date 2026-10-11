@@ -31,6 +31,51 @@ from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 COLLECTION_MANIFEST_FILENAME = "collection_manifest.json"
 
 
+def validate_collection_targets(targets):
+    """Validate collection count targets and return metric accessors
+
+    Parameters
+    ----------
+    targets : dict or None
+        Shard metric names mapped to nonnegative integer minimums.
+
+    Returns
+    -------
+    dict
+        Supported metric names mapped to shard value accessors.
+    """
+    metrics = {
+        "num_docs": lambda record: record.get(
+            "num_docs", len(record.get("documents", []))
+        )
+    }
+    for step in COMPASSDocumentCollectionStep:
+        metrics[f"completed_step_document_counts.{step}"] = partial(
+            _collection_step_document_count, step=str(step)
+        )
+
+    for metric, minimum in normalize_targets(targets).items():
+        if metric not in metrics:
+            msg = (
+                f"Unknown collection shard target '{metric}'. "
+                f"Available targets: {', '.join(sorted(metrics))}"
+            )
+            raise COMPASSValueError(msg)
+
+        if not isinstance(minimum, int) or minimum < 0:
+            msg = (
+                f"Collection target '{metric}' requires a nonnegative integer"
+            )
+            raise COMPASSValueError(msg)
+
+    return metrics
+
+
+def _collection_step_document_count(record, step):
+    """Read a completed step count, treating absent steps as zero"""
+    return record.get("completed_step_document_counts", {}).get(step, 0)
+
+
 def build_collection_manifest(
     tech, jurisdictions, time_start_utc, num_jurisdictions_searched
 ):
