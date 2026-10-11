@@ -183,10 +183,7 @@ class SingleJurisdictionRun:
             self.jurisdiction.full_name,
         )
 
-        # TODO: fix
-        collection_info = await self.collection.execute(
-            eager_extract=False, re_run_targets=self.runtime.re_run_targets
-        )
+        collection_info = await self.collection.execute(eager_extract=False)
 
         logger.info(
             "Completed collection for jurisdiction: %s",
