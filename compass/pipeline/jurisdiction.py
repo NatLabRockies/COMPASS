@@ -420,7 +420,6 @@ class SingleJurisdictionRun:
             )
         return collection_info
 
-    # TODO: fix
     async def reset_collection_shard(self):
         """Reset this jurisdiction's collection checkpoint metadata
 
