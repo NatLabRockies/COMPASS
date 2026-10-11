@@ -42,7 +42,7 @@ def normalize_targets(targets):
     return normalized
 
 
-def parse_target_options(options):
+def parse_search_target_options(options):
     """Parse repeated CLI targets, retaining the strictest minimum
 
     Parameters
@@ -52,8 +52,9 @@ def parse_target_options(options):
 
     Returns
     -------
-    dict
+    dict | None
         Parsed targets. Repeated metrics use their largest minimum.
+        If no targets are specified, returns ``None``.
     """
     targets = {}
     for option in options:
@@ -71,7 +72,7 @@ def parse_target_options(options):
         for name, value in normalize_targets({metric: minimum}).items():
             targets[name] = max(targets.get(name, value), value)
 
-    return targets
+    return targets or None
 
 
 def evaluate_targets(record, targets, metrics):
