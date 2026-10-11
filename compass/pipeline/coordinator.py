@@ -34,6 +34,8 @@ from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
+    collection_shard_failures,
+    validate_collection_targets,
     write_collection_manifest,
     load_collection_manifest_jurisdictions,
 )
@@ -264,11 +266,14 @@ class COMPASSCollection(BaseRunMode):
             "Collecting documents for %d jurisdiction(s)",
             len(jurisdictions_df),
         )
+        metrics = validate_collection_targets(self.runtime.re_run_targets)
         start_date = datetime.now(UTC)
         tasks = []
+        jurisdictions = []
         async for jurisdiction, se_results in _jurisdictions_with_search_input(
             self.runtime, jurisdictions_df
         ):
+            jurisdictions.append(jurisdiction)
             workflow = self._create(
                 jurisdiction, known_se_results=se_results, usage_tracker=None
             )
@@ -280,11 +285,25 @@ class COMPASSCollection(BaseRunMode):
             )
 
         collection_infos = await asyncio.gather(*tasks)
+        failures = None
+        if self.runtime.re_run_targets:  # TODO: Fix to match search
+            failures = [
+                f"{jurisdiction.full_name}: {failure['metric']}="
+                f"{failure['actual']} (minimum {failure['minimum']})"
+                for jurisdiction, record in zip(
+                    jurisdictions, collection_infos, strict=True
+                )
+                for failure in collection_shard_failures(
+                    record, self.runtime.re_run_targets, metrics
+                )
+            ]
+
         manifest = build_collection_manifest(
             self.runtime.tech,
             collection_infos,
             start_date,
             len(jurisdictions_df),
+            failed_targets=failures,
         )
         manifest_fp = await write_collection_manifest(
             self.runtime.dirs.out, manifest
