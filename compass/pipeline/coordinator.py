@@ -310,7 +310,7 @@ class COMPASSSearch(BaseRunMode):
         jurisdictions = list(jurisdictions_from_df(jurisdictions_df))
 
         metrics = validate_search_targets(
-            self.runtime.targets,
+            self.runtime.re_run_targets,
             self.runtime.search_params.num_urls_to_check_per_jurisdiction,
             self.runtime.search_params.se_kwargs.get("search_engines"),
         )
@@ -359,7 +359,7 @@ class COMPASSSearch(BaseRunMode):
             shard = shards.get(jurisdiction.code)
             record = shard["record"] if shard else None
             failures = search_shard_failures(
-                record, self.runtime.targets, metrics
+                record, self.runtime.re_run_targets, metrics
             )
             if shard and not failures:
                 results[index] = record
@@ -400,7 +400,7 @@ class COMPASSSearch(BaseRunMode):
 
     def _unmet_requirements(self, jurisdictions, results, metrics):
         """Describe remaining shard failures after persistence"""
-        if not self.runtime.targets:
+        if not self.runtime.re_run_targets:
             return None
 
         messages = []
@@ -409,7 +409,7 @@ class COMPASSSearch(BaseRunMode):
                 f"{jurisdiction.full_name}: {failure['metric']}="
                 f"{failure['actual']} (minimum {failure['minimum']})"
                 for failure in search_shard_failures(
-                    record, self.runtime.targets, metrics
+                    record, self.runtime.re_run_targets, metrics
                 )
             )
         return messages
