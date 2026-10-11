@@ -99,13 +99,18 @@ class PipelineRuntime:
         (self.dirs.logs / "all.log").unlink(missing_ok=True)
 
     @cached_property
+    def continue_existing_run(self):
+        """bool: Flag indicating whether to continue an existing run"""
+        return self.targets is not None
+
+    @cached_property
     def dirs(self):
         """Directories object for this run"""
         return _setup_folders(
             self.request.output_settings,
             collect_only=(self.mode == self.mode.COLLECT),
             search_only=(self.mode == self.mode.SEARCH),
-            continue_existing=self.continue_existing,
+            continue_existing_run=self.continue_existing_run,
         )
 
     @cached_property
