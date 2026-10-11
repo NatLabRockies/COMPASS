@@ -37,6 +37,9 @@ async def build_search_report(runtime, jur_results, time_start_utc):
         return ``None``.
     time_start_utc : datetime.datetime
         UTC timestamp when the search run started.
+    failed_targets : list of str, optional
+        List of failed target descriptions/specifications, if any.
+        By default, ``None``.
 
     Returns
     -------
@@ -100,6 +103,7 @@ async def build_search_report(runtime, jur_results, time_start_utc):
             "median": median(filtered_counts) if filtered_counts else 0,
             "total": sum(filtered_counts),
         },
+        "failed_targets": failed_targets,
         "jurisdictions": out_results,
     }
 
