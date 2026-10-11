@@ -43,7 +43,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def run_compass(request):
+async def run_compass(request, continue_existing=False, targets=None):
     """Run the requested pipeline mode
 
     Parameters
@@ -57,6 +57,13 @@ async def run_compass(request):
         as the mode to run in, output directories, jurisdiction
         information, model configurations, and any other relevant
         settings.
+    continue_existing : bool, default=False
+        Reuse nonempty shards in an existing output directory.
+        Missing and empty shards are processed again.
+        By default, ``False``.
+    targets : dict, optional
+        Per-shard metric names mapped to minimum counts. All targets
+        must pass. By default, ``None``.
 
     Returns
     -------
@@ -93,7 +100,9 @@ async def run_compass(request):
             perform_website_search=request.perform_website_search,
         )
 
-    runtime = PipelineRuntime(request)
+    runtime = PipelineRuntime(
+        request, continue_existing=continue_existing, targets=targets
+    )
 
     _log_execution_info(request, steps)
     jurisdictions_df = _load_jurisdictions_to_process(request.jurisdiction_fp)
