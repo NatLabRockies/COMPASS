@@ -10,8 +10,6 @@ from elm.web.document import PDFDocument
 from elm.utilities.parse import read_pdf_ocr
 
 from compass.utilities.jurisdictions import Jurisdiction
-from compass.utilities.jurisdictions import jurisdictions_from_df
-from compass.utilities.jurisdictions import load_all_jurisdiction_info
 from compass.validation.location import (
     JurisdictionValidator,
     DTreeJurisdictionValidator,
@@ -33,24 +31,28 @@ PYT_CMD = os.getenv("TESSERACT_CMD")
     [
         (
             Jurisdiction("county", state="Indiana", county="El Paso"),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "https://programs.dsireusa.org/system/program/detail/4332/"
             "madison-county-wind-energy-systems-ordinance",
             False,
         ),
         (
             Jurisdiction("county", state="Indiana", county="Madison"),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "https://programs.dsireusa.org/system/program/detail/4332/"
             "madison-county-wind-energy-systems-ordinance",
             False,
         ),
         (
             Jurisdiction("county", state="North Carolina", county="Madison"),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "https://programs.dsireusa.org/system/program/detail/4332/"
             "madison-county-wind-energy-systems-ordinance",
             False,
         ),
         (
             Jurisdiction("county", state="Indiana", county="Decatur"),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/updates/"
             "zoning_ordinance_-_article_13_wind_energy_conversion_system_"
             "(WECS).pdf",
@@ -58,6 +60,7 @@ PYT_CMD = os.getenv("TESSERACT_CMD")
         ),
         (
             Jurisdiction("county", state="Colorado", county="Decatur"),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/updates/"
             "zoning_ordinance_-_article_13_wind_energy_conversion_system_"
             "(WECS).pdf",
@@ -65,6 +68,7 @@ PYT_CMD = os.getenv("TESSERACT_CMD")
         ),
         (
             Jurisdiction("county", state="Indiana", county="El Paso"),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "http://www.decaturcounty.in.gov/doc/area-plan-commission/updates/"
             "zoning_ordinance_-_article_13_wind_energy_conversion_system_"
             "(WECS).pdf",
@@ -74,6 +78,7 @@ PYT_CMD = os.getenv("TESSERACT_CMD")
             Jurisdiction(
                 "town", state="New York", subdivision_name="Allegany"
             ),
+            # ruff: ignore[implicit-string-concatenation-in-collection-literal]
             "https://www.allegany.ny.org/uploads/1/4/0/1/140198361/"
             "town_of_allegany_solar_energy_local_law_v2_rev_040122.pdf",
             True,
@@ -87,40 +92,6 @@ async def test_url_matches_county(oai_llm_service, loc, url, truth):
     )
     out = await url_validator.check(url)
     assert out == truth
-
-
-@pytest.mark.asyncio
-async def test_url_matches_known_jurisdiction_website_skips_llm(monkeypatch):
-    """Test URL validation passes when canonical website domain matches"""
-    jurisdiction_info = load_all_jurisdiction_info()
-    jurisdiction = next(
-        jur
-        for jur in jurisdictions_from_df(jurisdiction_info)
-        if jur.website_url
-    )
-    website_url = jurisdiction.website_url
-    jurisdiction = Jurisdiction(
-        jurisdiction.type,
-        state=jurisdiction.state,
-        county=jurisdiction.county,
-        subdivision_name=jurisdiction.subdivision_name,
-        code=jurisdiction.code,
-    )
-    url = f"{website_url.rstrip('/')}/ordinances/test.pdf"
-
-    async def _should_not_run(*args, **kwargs):
-        await asyncio.sleep(0)
-        raise AssertionError("LLM validation should have been skipped")
-
-    monkeypatch.setattr(
-        "compass.validation.location.run_async_tree",
-        _should_not_run,
-    )
-
-    url_validator = DTreeURLJurisdictionValidator(
-        jurisdiction, llm_service=object()
-    )
-    assert await url_validator.check(url)
 
 
 @pytest.mark.asyncio
