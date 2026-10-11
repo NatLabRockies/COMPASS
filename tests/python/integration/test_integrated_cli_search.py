@@ -68,6 +68,7 @@ def test_search_writes_manifest(cli_runner, cfg_file, search_backend):
     payload = json.loads(report_fp.read_text(encoding="utf-8"))
     assert payload["tech"] == "wind"
     assert payload["num_jurisdictions_searched"] == 1
+    assert payload["failed_targets"] is None
     assert len(search_backend) == 1
 
 
@@ -196,8 +197,9 @@ def test_persistent_search_command(
 
 
 @pytest.mark.parametrize("no_progress", [True, False])
+@pytest.mark.parametrize("targets", [[], ["--target", "num_results=1"]])
 def test_search_continue_reuses_nonempty_shard(
-    cli_runner, cfg_file, search_backend, no_progress
+    cli_runner, cfg_file, search_backend, no_progress, targets
 ):
     """Reuse a successful shard without calling the search provider"""
     args = ["search", "-c", str(cfg_file)]
@@ -231,8 +233,7 @@ def test_search_continue_reuses_nonempty_shard(
             *args,
             "--out-dir-exists",
             "continue",
-            "--target",
-            "num_results=1",
+            *targets,
         ],
     )
 
@@ -246,8 +247,20 @@ def test_search_continue_reuses_nonempty_shard(
 
 
 @pytest.mark.parametrize("no_progress", [True, False])
+@pytest.mark.parametrize(
+    "targets",
+    [
+        [],
+        [
+            "--target",
+            "num_results=3",
+            "--target",
+            "search_engine_counts.Google=3",
+        ],
+    ],
+)
 def test_search_continue_selectively_purges_shards(
-    cli_runner, tmp_path, monkeypatch, no_progress
+    cli_runner, tmp_path, monkeypatch, no_progress, targets
 ):
     """Purge only failing shards and search missing ones exactly once"""
     counties = ["Adams", "Boulder", "Denver", "Jefferson", "Weld"]
@@ -321,7 +334,8 @@ def test_search_continue_selectively_purges_shards(
     }
     original_bytes = shard_paths["Adams"].read_bytes()
     shard_paths["Weld"].unlink()
-    purged_paths = [shard_paths[county] for county in counties[1:]]
+    rerun_counties = counties[1:] if targets else counties[-2:]
+    purged_paths = [shard_paths[county] for county in rerun_counties]
     continuing = True
     calls.clear()
     COMPASS_PB.reset()
@@ -331,20 +345,17 @@ def test_search_continue_selectively_purges_shards(
             *args,
             "--out-dir-exists",
             "continue",
-            "--target",
-            "num_results=3",
-            "--target",
-            "search_engine_counts.Google=3",
+            *targets,
         ],
     )
 
     assert result.exit_code == 0, result.output
-    assert sorted(calls) == sorted(counties[1:])
+    assert sorted(calls) == sorted(rerun_counties)
     assert shard_paths["Adams"].read_bytes() == original_bytes
     manifest = json.loads((output / "search_result_manifest.json").read_text())
     assert manifest["num_jurisdictions_searched"] == 5
-    assert manifest["result_stats"]["total"] == 15
-    for county in counties[1:]:
+    assert manifest["result_stats"]["total"] == (15 if targets else 13)
+    for county in rerun_counties:
         record = json.loads(shard_paths[county].read_text())
         assert all("/True/" in row["url"] for row in record["results"])
 
