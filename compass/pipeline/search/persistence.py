@@ -22,6 +22,54 @@ from compass.web.search import _search_result_shard_path
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
 
+def validate_search_targets(targets, num_urls=5):
+    """Validate shard count targets and return search metric accessors
+
+    Parameters
+    ----------
+    targets : dict
+        Shard metric names and nonnegative integer minimums.
+    num_urls : int, default=5
+        Maximum retained URLs per jurisdiction. By default, ``5``.
+
+    Returns
+    -------
+    dict
+        Supported metric names mapped to shard value accessors.
+    """
+
+    metrics = {
+        "num_results": lambda record: record.get("num_results", 0),
+        "num_kept_results": _kept_result_count,
+    }
+    for option in SEARCH_ENGINE_OPTIONS.values():
+        label = option.se_class._SE_NAME  # ruff:ignore[private-member-access]
+        metrics[f"search_engine_counts.{label}"] = partial(
+            _engine_result_count, engine=label
+        )
+
+    for metric, minimum in normalize_targets(targets).items():
+        if metric not in metrics:
+            msg = (
+                f"Unknown search shard target '{metric}'. "
+                f"Available targets: {', '.join(sorted(metrics))}"
+            )
+            raise COMPASSValueError(msg)
+
+        if not isinstance(minimum, int) or minimum < 0:
+            msg = f"Search target '{metric}' requires a nonnegative integer"
+            raise COMPASSValueError(msg)
+
+        if metric == "num_kept_results" and minimum > num_urls:
+            msg = (
+                f"Target num_kept_results={minimum} exceeds the configured "
+                f"retained URL limit ({num_urls})"
+            )
+            raise COMPASSValueError(msg)
+
+    return metrics
+
+
 async def build_search_manifest(
     runtime, jur_results, time_start_utc, failed_targets=None
 ):
@@ -132,6 +180,66 @@ def load_search_result_jurisdictions(manifest_fp, expected_tech):
         )
 
     return jurisdictions
+
+
+def load_search_shards(out_dir, jurisdictions, expected_tech):
+    """Inventory individual requested shards
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Existing search output directory.
+    jurisdictions : iterable of Jurisdiction
+        Jurisdictions requested in the current configuration.
+    expected_tech : str
+        Required technology when saved outputs declare one.
+
+    Returns
+    -------
+    dict
+        FIPS codes mapped to dictionaries with ``record`` and ``path``.
+        Missing shards have no entry.
+    """
+    out_dir = Path(out_dir)
+
+    requested = {
+        jurisdiction.code: jurisdiction for jurisdiction in jurisdictions
+    }
+    shard_dir = out_dir / "se_results"
+    expected_paths = _expected_shard_paths(shard_dir, requested)
+
+    shards = {}
+    for path in sorted(shard_dir.glob("*.json")):
+        record = load_config(path, resolve_paths=False)
+        _validate_search_result_record(record, path)
+
+        code = record["FIPS"]
+        _validate_code_path_combination(code, path, expected_paths)
+
+        if code not in requested:
+            continue
+
+        _validate_search_result_tech(record, expected_tech, path)
+        _ensure_code_not_duplicate(code, shards)
+        _validate_search_shard_counts(record, path)
+
+        shards[code] = {"record": record, "path": path}
+
+    return shards
+
+
+def write_search_report(report, out_path):
+    """Write a search-only report as JSON
+
+    Parameters
+    ----------
+    report : dict
+        Report returned by :func:`build_search_manifest`.
+    out_path : path-like
+        Destination file path.
+    """
+    payload = json.dumps(report, indent=4, ensure_ascii=False)
+    write_text_atomic(out_path, payload)
 
 
 def _records_from_files(pattern, expected_tech, jurisdictions):
@@ -281,54 +389,6 @@ def _invalid_result(result):
     )
 
 
-def validate_search_targets(targets, num_urls=5):
-    """Validate shard count targets and return search metric accessors
-
-    Parameters
-    ----------
-    targets : dict
-        Shard metric names and nonnegative integer minimums.
-    num_urls : int, default=5
-        Maximum retained URLs per jurisdiction. By default, ``5``.
-
-    Returns
-    -------
-    dict
-        Supported metric names mapped to shard value accessors.
-    """
-
-    metrics = {
-        "num_results": lambda record: record.get("num_results", 0),
-        "num_kept_results": _kept_result_count,
-    }
-    for option in SEARCH_ENGINE_OPTIONS.values():
-        label = option.se_class._SE_NAME  # ruff:ignore[private-member-access]
-        metrics[f"search_engine_counts.{label}"] = partial(
-            _engine_result_count, engine=label
-        )
-
-    for metric, minimum in normalize_targets(targets).items():
-        if metric not in metrics:
-            msg = (
-                f"Unknown search shard target '{metric}'. "
-                f"Available targets: {', '.join(sorted(metrics))}"
-            )
-            raise COMPASSValueError(msg)
-
-        if not isinstance(minimum, int) or minimum < 0:
-            msg = f"Search target '{metric}' requires a nonnegative integer"
-            raise COMPASSValueError(msg)
-
-        if metric == "num_kept_results" and minimum > num_urls:
-            msg = (
-                f"Target num_kept_results={minimum} exceeds the configured "
-                f"retained URL limit ({num_urls})"
-            )
-            raise COMPASSValueError(msg)
-
-    return metrics
-
-
 def _kept_result_count(record):
     """Read retained counts or derive them for older search shards"""
     return record.get(
@@ -340,52 +400,6 @@ def _kept_result_count(record):
 def _engine_result_count(record, engine):
     """Read one engine count, treating an absent engine as zero"""
     return record.get("search_engine_counts", {}).get(engine, 0)
-
-
-def load_search_shards(out_dir, jurisdictions, expected_tech):
-    """Inventory individual requested shards
-
-    Parameters
-    ----------
-    out_dir : path-like
-        Existing search output directory.
-    jurisdictions : iterable of Jurisdiction
-        Jurisdictions requested in the current configuration.
-    expected_tech : str
-        Required technology when saved outputs declare one.
-
-    Returns
-    -------
-    dict
-        FIPS codes mapped to dictionaries with ``record`` and ``path``.
-        Missing shards have no entry.
-    """
-    out_dir = Path(out_dir)
-
-    requested = {
-        jurisdiction.code: jurisdiction for jurisdiction in jurisdictions
-    }
-    shard_dir = out_dir / "se_results"
-    expected_paths = _expected_shard_paths(shard_dir, requested)
-
-    shards = {}
-    for path in sorted(shard_dir.glob("*.json")):
-        record = load_config(path, resolve_paths=False)
-        _validate_search_result_record(record, path)
-
-        code = record["FIPS"]
-        _validate_code_path_combination(code, path, expected_paths)
-
-        if code not in requested:
-            continue
-
-        _validate_search_result_tech(record, expected_tech, path)
-        _ensure_code_not_duplicate(code, shards)
-        _validate_search_shard_counts(record, path)
-
-        shards[code] = {"record": record, "path": path}
-
-    return shards
 
 
 def _expected_shard_paths(shard_dir, requested):
@@ -430,17 +444,3 @@ def _validate_search_shard_counts(record, path):
     if any(type(value) is not int or value < 0 for value in values):
         msg = f"Invalid search shard counts: {path}"
         raise COMPASSValueError(msg)
-
-
-def write_search_report(report, out_path):
-    """Write a search-only report as JSON
-
-    Parameters
-    ----------
-    report : dict
-        Report returned by :func:`build_search_manifest`.
-    out_path : path-like
-        Destination file path.
-    """
-    payload = json.dumps(report, indent=4, ensure_ascii=False)
-    write_text_atomic(out_path, payload)

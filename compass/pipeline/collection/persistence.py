@@ -74,11 +74,6 @@ def validate_collection_targets(targets):
     return metrics
 
 
-def _collection_step_document_count(record, step):
-    """Read a completed step count, treating absent steps as zero"""
-    return record.get("completed_step_document_counts", {}).get(step, 0)
-
-
 def build_collection_manifest(
     tech,
     jurisdictions,
@@ -237,30 +232,6 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
     return jurisdictions_by_fips
 
 
-async def _load_jur_manifests(manifest_fp, expected_tech):
-    """Load one or more collection manifest(s) for jurisdictions"""
-    task_fps = []
-    for maybe_glob in manifest_fp:
-        # ruff: ignore[glob]
-        new_fps = [
-            Path(match) for match in glob(str(maybe_glob), recursive=True)
-        ]
-        task_fps.extend(new_fps or [maybe_glob])
-
-    tasks = [
-        GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
-        for fp in task_fps
-    ]
-    return await asyncio.gather(*tasks)
-
-
-def _validate_not_duplicate_jurisdiction(fips, jurisdictions_by_fips):
-    """Validate that a jurisdiction is not duplicated in the manifest"""
-    if fips in jurisdictions_by_fips:
-        msg = f"Duplicate collection manifest entry for FIPS '{fips}'"
-        raise COMPASSValueError(msg)
-
-
 async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
     """Load one jurisdiction collection manifest shard when present
 
@@ -299,81 +270,6 @@ async def reset_collection_manifest_shard(
     """
     await GenericFuncRunner.call(
         _reset_collection_manifest_shard, shard_dir, manifest_dir, jurisdiction
-    )
-
-
-def _reset_collection_manifest_shard(shard_dir, manifest_dir, jurisdiction):
-    """Remove checkpoint metadata without deleting saved files"""
-    filename = _collection_manifest_shard_filename(
-        {"FIPS": jurisdiction.code, "full_name": jurisdiction.full_name}
-    )
-    (Path(shard_dir) / filename).unlink(missing_ok=True)
-    (Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME).unlink(missing_ok=True)
-
-
-def _write_collection_manifest(manifest_dir, collection_manifest):
-    """Write a collection manifest to disk"""
-    manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
-    manifest_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
-        encoding="utf-8",
-    )
-    return manifest_fp
-
-
-def _write_collection_manifest_shard(shard_dir, collection_info):
-    """Write one jurisdiction collection manifest shard to disk"""
-    shard_dir = Path(shard_dir)
-    shard_dir.mkdir(parents=True, exist_ok=True)
-    shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
-    shard_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_info), indent=4),
-        encoding="utf-8",
-    )
-    return shard_fp
-
-
-def _load_collection_manifest(manifest_fp, expected_tech):
-    """Load a collection manifest from disk"""
-    try:
-        manifest = load_config(
-            manifest_fp, resolve_paths=True, file_name="Collection manifest"
-        )
-    except COMPASSFileNotFoundError:
-        manifest = _load_collection_manifest_from_shards(
-            manifest_fp, expected_tech
-        )
-        if manifest is None:
-            raise
-
-        msg = (
-            f"Collection manifest file '{manifest_fp}' is missing; rebuilding "
-            "collection manifest from jurisdiction shard files"
-        )
-        warn(msg, COMPASSWarning)
-
-    _validate_collection_manifest(manifest, expected_tech)
-    return manifest
-
-
-def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
-    """Load one jurisdiction collection manifest shard if it exists"""
-    shard_dir = Path(shard_dir).expanduser().resolve()
-    shard_fp = shard_dir / _collection_manifest_shard_filename(
-        {
-            "FIPS": jurisdiction.code,
-            "full_name": jurisdiction.full_name,
-        }
-    )
-    if not shard_fp.exists():
-        return None
-
-    return load_config(
-        shard_fp,
-        # paths are NOT relative to the shard directory, so should not
-        # be resolved here
-        resolve_paths=False,
-        file_name="Collection manifest shard",
     )
 
 
@@ -457,6 +353,110 @@ async def load_collected_docs(collection_info, *, task_name):
     ]
 
     return await asyncio.gather(*tasks)
+
+
+def _collection_step_document_count(record, step):
+    """Read a completed step count, treating absent steps as zero"""
+    return record.get("completed_step_document_counts", {}).get(step, 0)
+
+
+async def _load_jur_manifests(manifest_fp, expected_tech):
+    """Load one or more collection manifest(s) for jurisdictions"""
+    task_fps = []
+    for maybe_glob in manifest_fp:
+        # ruff: ignore[glob]
+        new_fps = [
+            Path(match) for match in glob(str(maybe_glob), recursive=True)
+        ]
+        task_fps.extend(new_fps or [maybe_glob])
+
+    tasks = [
+        GenericFuncRunner.call(_load_collection_manifest, fp, expected_tech)
+        for fp in task_fps
+    ]
+    return await asyncio.gather(*tasks)
+
+
+def _validate_not_duplicate_jurisdiction(fips, jurisdictions_by_fips):
+    """Validate that a jurisdiction is not duplicated in the manifest"""
+    if fips in jurisdictions_by_fips:
+        msg = f"Duplicate collection manifest entry for FIPS '{fips}'"
+        raise COMPASSValueError(msg)
+
+
+def _reset_collection_manifest_shard(shard_dir, manifest_dir, jurisdiction):
+    """Remove checkpoint metadata without deleting saved files"""
+    filename = _collection_manifest_shard_filename(
+        {"FIPS": jurisdiction.code, "full_name": jurisdiction.full_name}
+    )
+    (Path(shard_dir) / filename).unlink(missing_ok=True)
+    (Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME).unlink(missing_ok=True)
+
+
+def _write_collection_manifest(manifest_dir, collection_manifest):
+    """Write a collection manifest to disk"""
+    manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
+    manifest_fp.write_text(
+        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
+        encoding="utf-8",
+    )
+    return manifest_fp
+
+
+def _write_collection_manifest_shard(shard_dir, collection_info):
+    """Write one jurisdiction collection manifest shard to disk"""
+    shard_dir = Path(shard_dir)
+    shard_dir.mkdir(parents=True, exist_ok=True)
+    shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
+    shard_fp.write_text(
+        json.dumps(convert_paths_to_strings(collection_info), indent=4),
+        encoding="utf-8",
+    )
+    return shard_fp
+
+
+def _load_collection_manifest(manifest_fp, expected_tech):
+    """Load a collection manifest from disk"""
+    try:
+        manifest = load_config(
+            manifest_fp, resolve_paths=True, file_name="Collection manifest"
+        )
+    except COMPASSFileNotFoundError:
+        manifest = _load_collection_manifest_from_shards(
+            manifest_fp, expected_tech
+        )
+        if manifest is None:
+            raise
+
+        msg = (
+            f"Collection manifest file '{manifest_fp}' is missing; rebuilding "
+            "collection manifest from jurisdiction shard files"
+        )
+        warn(msg, COMPASSWarning)
+
+    _validate_collection_manifest(manifest, expected_tech)
+    return manifest
+
+
+def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
+    """Load one jurisdiction collection manifest shard if it exists"""
+    shard_dir = Path(shard_dir).expanduser().resolve()
+    shard_fp = shard_dir / _collection_manifest_shard_filename(
+        {
+            "FIPS": jurisdiction.code,
+            "full_name": jurisdiction.full_name,
+        }
+    )
+    if not shard_fp.exists():
+        return None
+
+    return load_config(
+        shard_fp,
+        # paths are NOT relative to the shard directory, so should not
+        # be resolved here
+        resolve_paths=False,
+        file_name="Collection manifest shard",
+    )
 
 
 def _validate_collection_manifest(manifest, tech):
