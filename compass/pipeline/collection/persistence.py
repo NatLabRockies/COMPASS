@@ -51,6 +51,8 @@ def build_collection_manifest(
     num_jurisdictions_searched : int
         Number of jurisdictions that were searched during the collection
         process, included in the manifest for informational purposes.
+    failed_targets : list of str, optional
+        Remaining per-shard target failures. By default, ``None``.
 
     Returns
     -------
