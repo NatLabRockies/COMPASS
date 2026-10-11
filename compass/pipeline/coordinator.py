@@ -35,7 +35,7 @@ from compass.pipeline.search.persistence import (
     load_search_result_jurisdictions,
     load_search_shards,
     validate_search_targets,
-    write_search_report,
+    write_search_manifest,
     SEARCH_RESULT_MANIFEST_FILENAME,
 )
 from compass.pipeline.targets import shard_failures
@@ -362,9 +362,7 @@ class COMPASSSearch(BaseRunMode):
         manifest = await build_search_manifest(
             self.runtime, results, start_date, failures
         )
-        await GenericFuncRunner.call(
-            write_search_report, manifest, manifest_fp
-        )
+        await write_search_manifest(self.runtime.dirs.out, manifest)
         message = (
             f"Search completed for {manifest['num_jurisdictions_searched']} "
             f"jurisdictions; kept "

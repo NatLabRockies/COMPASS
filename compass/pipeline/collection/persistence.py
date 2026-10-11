@@ -23,8 +23,11 @@ from compass.services.threaded import (
     GenericFuncRunner,
 )
 from compass.services.cpu import read_docling_local_file
-from compass.utilities.io import load_config
-from compass.utilities.io import resolve_all_paths
+from compass.utilities.io import (
+    load_config,
+    resolve_all_paths,
+    write_text_atomic,
+)
 from compass.utilities.enums import COMPASSDocumentCollectionStep
 from compass.utilities.parsing import convert_paths_to_strings, is_pdf_doc
 from compass.warn import COMPASSWarning
@@ -396,10 +399,8 @@ def _reset_collection_manifest_shard(shard_dir, manifest_dir, jurisdiction):
 def _write_collection_manifest(manifest_dir, collection_manifest):
     """Write a collection manifest to disk"""
     manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
-    manifest_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
-        encoding="utf-8",
-    )
+    payload = json.dumps(collection_manifest, indent=4, ensure_ascii=False)
+    write_text_atomic(manifest_fp, payload)
     return manifest_fp
 
 
@@ -408,10 +409,8 @@ def _write_collection_manifest_shard(shard_dir, collection_info):
     shard_dir = Path(shard_dir)
     shard_dir.mkdir(parents=True, exist_ok=True)
     shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
-    shard_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_info), indent=4),
-        encoding="utf-8",
-    )
+    payload = json.dumps(convert_paths_to_strings(collection_info), indent=4)
+    write_text_atomic(shard_fp, payload)
     return shard_fp
 
 

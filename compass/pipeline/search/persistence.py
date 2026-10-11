@@ -160,6 +160,27 @@ async def build_search_manifest(
     }
 
 
+async def write_search_manifest(manifest_dir, collection_manifest):
+    """Write a collection manifest to disk
+
+    Parameters
+    ----------
+    manifest_dir : path-like
+        Path to the directory where the manifest should be written.
+    collection_manifest : dict
+        Dictionary containing collection manifest information to be
+        serialized and written to disk.
+
+    Returns
+    -------
+    pathlib.Path
+        Path to the written manifest file.
+    """
+    return await GenericFuncRunner.call(
+        _write_search_manifest, manifest_dir, collection_manifest
+    )
+
+
 async def write_search_manifest_shard(manifest_dir, se_results, jurisdiction):
     """Write one jurisdiction's existing search result shard format
 
@@ -180,20 +201,6 @@ async def write_search_manifest_shard(manifest_dir, se_results, jurisdiction):
     return await GenericFuncRunner.call(
         _write_search_result_shard, manifest_dir, se_results, jurisdiction
     )
-
-
-def write_search_report(report, out_path):
-    """Write a search-only report as JSON
-
-    Parameters
-    ----------
-    report : dict
-        Report returned by :func:`build_search_manifest`.
-    out_path : path-like
-        Destination file path.
-    """
-    payload = json.dumps(report, indent=4, ensure_ascii=False)
-    write_text_atomic(out_path, payload)
 
 
 def load_search_result_jurisdictions(manifest_fp, expected_tech):
@@ -275,6 +282,14 @@ def _search_result_shard_path(out_dir, jurisdiction):
         f"{jurisdiction.full_name} search results"
     )
     return Path(out_dir) / f"{filename}.json"
+
+
+def _write_search_manifest(manifest_dir, report):
+    """Write a search-only report as JSON"""
+    manifest_fp = Path(manifest_dir) / SEARCH_RESULT_MANIFEST_FILENAME
+    payload = json.dumps(report, indent=4, ensure_ascii=False)
+    write_text_atomic(manifest_fp, payload)
+    return manifest_fp
 
 
 def _write_search_result_shard(out_dir, se_results, jurisdiction):
