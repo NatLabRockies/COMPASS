@@ -25,7 +25,9 @@ from compass.warn import COMPASSWarning
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
 
-async def build_search_report(runtime, jur_results, time_start_utc):
+async def build_search_report(
+    runtime, jur_results, time_start_utc, failed_targets=None
+):
     """Aggregate jurisdiction search results into a report
 
     Parameters
