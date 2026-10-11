@@ -10,7 +10,7 @@ import compass.pipeline.search.persistence as search_module
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.data_classes import SearchRequest
-from compass.pipeline.coordinator import _purge_search_shards
+from compass.pipeline.search.persistence import _purge_search_shards
 from compass.pipeline.targets import shard_failures
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import GenericFuncRunner
@@ -65,8 +65,8 @@ async def test_load_search_results(tmp_path, monkeypatch, source):
             shard_dir, record, SimpleNamespace(full_name=record["full_name"])
         )
     manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
-    search_module.write_search_report(
-        {"tech": "wind", "jurisdictions": records}, manifest
+    await search_module.write_search_manifest(
+        tmp_path, {"tech": "wind", "jurisdictions": records}
     )
     inputs = {
         "manifest": manifest,
@@ -109,10 +109,10 @@ async def test_load_search_results(tmp_path, monkeypatch, source):
         ),
     ],
 )
-def test_reject_invalid_search_results(tmp_path, payload, message):
+async def test_reject_invalid_search_results(tmp_path, payload, message):
     """Reject invalid inputs before collecting any documents"""
-    manifest = tmp_path / "search.json"
-    search_module.write_search_report(payload, manifest)
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    await search_module.write_search_manifest(tmp_path, payload)
     with pytest.raises(COMPASSValueError, match=message):
         search_module.load_search_result_jurisdictions(manifest, "wind")
 
@@ -187,9 +187,9 @@ async def test_shard_inventory_ignores_stale_manifest(tmp_path):
     path = await search_module.write_search_manifest_shard(
         tmp_path / "se_results", record, jurisdictions[0]
     )
-    search_module.write_search_report(
+    await search_module.write_search_manifest(
+        tmp_path,
         {"tech": "wind", "jurisdictions": [record, {"FIPS": "08013"}]},
-        tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME,
     )
     assert search_module.load_search_shards(
         tmp_path, jurisdictions, "wind"
@@ -200,12 +200,12 @@ async def test_shard_inventory_ignores_stale_manifest(tmp_path):
     )
 
 
-def test_atomic_report_preserves_old_file_on_write_failure(
+async def test_atomic_report_preserves_old_file_on_write_failure(
     tmp_path, monkeypatch
 ):
     """Leave the old report intact if atomic replacement fails"""
-    manifest = tmp_path / "report.json"
-    search_module.write_search_report({"before": True}, manifest)
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    await search_module.write_search_manifest(tmp_path, {"before": True})
     original = manifest.read_bytes()
 
     def fail_replace(path, target):
@@ -213,7 +213,7 @@ def test_atomic_report_preserves_old_file_on_write_failure(
 
     monkeypatch.setattr(Path, "replace", fail_replace)
     with pytest.raises(OSError, match="Simulated"):
-        search_module.write_search_report({"after": True}, manifest)
+        await search_module.write_search_manifest(tmp_path, {"after": True})
     assert manifest.read_bytes() == original
     assert list(tmp_path.iterdir()) == [manifest]
 
@@ -274,11 +274,11 @@ async def test_purge_recovery_uses_surviving_files(tmp_path):
         for record, jurisdiction in zip(records, jurisdictions, strict=True)
     ]
     manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
-    search_module.write_search_report(
-        {"tech": "wind", "jurisdictions": records}, manifest
+    await search_module.write_search_manifest(
+        tmp_path, {"tech": "wind", "jurisdictions": records}
     )
     original = paths[0].read_bytes()
-    _purge_search_shards(manifest, [paths[1]])
+    _purge_search_shards(tmp_path, [paths[1]])
     assert not manifest.exists()
     assert not paths[1].exists()
     assert paths[0].read_bytes() == original

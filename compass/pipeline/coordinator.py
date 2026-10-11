@@ -34,9 +34,9 @@ from compass.pipeline.search.persistence import (
     build_search_manifest,
     load_search_result_jurisdictions,
     load_search_shards,
+    reset_search_manifest_shards,
     validate_search_targets,
     write_search_manifest,
-    SEARCH_RESULT_MANIFEST_FILENAME,
 )
 from compass.pipeline.targets import shard_failures
 from compass.pipeline import BaseRequest
@@ -350,10 +350,9 @@ class COMPASSSearch(BaseRunMode):
         results, pending, purge_paths = await self._select_unfinished_searches(
             jurisdictions, metrics
         )
-        manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
         if self.is_continuation_run and pending:
-            await GenericFuncRunner.call(
-                _purge_search_shards, manifest_fp, purge_paths
+            await reset_search_manifest_shards(
+                self.runtime.dirs.out, purge_paths
             )
 
         await self._process_pending_searches(pending, jurisdictions, results)
@@ -367,7 +366,6 @@ class COMPASSSearch(BaseRunMode):
             f"Search completed for {manifest['num_jurisdictions_searched']} "
             f"jurisdictions; kept "
             f"{manifest['filtered_result_stats']['total']} URLs.\n"
-            f"Search result manifest: {manifest_fp}"
         )
         logger.info(message)
         return message
@@ -699,10 +697,3 @@ async def _compute_total_cost(rate_tracker):
         compute_total_cost_from_usage(total_usage),
         total_usage.get(rate_tracker.label),
     )
-
-
-def _purge_search_shards(manifest_path, paths):
-    """Purge aggregate and selected search shards"""
-    manifest_path.unlink(missing_ok=True)
-    for path in paths:
-        path.unlink(missing_ok=True)

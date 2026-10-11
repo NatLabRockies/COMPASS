@@ -203,6 +203,19 @@ async def write_search_manifest_shard(manifest_dir, se_results, jurisdiction):
     )
 
 
+async def reset_search_manifest_shards(manifest_dir, paths):
+    """Remove one collection checkpoint and its stale aggregate manifest
+
+    Parameters
+    ----------
+    manifest_dir : path-like
+        Directory containing the aggregate collection manifest.
+    paths : iterable of path-like
+        Search shards to purge.
+    """
+    await GenericFuncRunner.call(_purge_search_shards, manifest_dir, paths)
+
+
 def load_search_result_jurisdictions(manifest_fp, expected_tech):
     """Load saved search results indexed by jurisdiction code
 
@@ -300,6 +313,15 @@ def _write_search_result_shard(out_dir, se_results, jurisdiction):
         json.dumps(convert_paths_to_strings(se_results), indent=4),
     )
     return out_fp
+
+
+def _purge_search_shards(manifest_dir, paths):
+    """Purge aggregate and selected search shards"""
+    (Path(manifest_dir) / SEARCH_RESULT_MANIFEST_FILENAME).unlink(
+        missing_ok=True
+    )
+    for path in paths:
+        path.unlink(missing_ok=True)
 
 
 def _records_from_files(pattern, expected_tech, jurisdictions):
