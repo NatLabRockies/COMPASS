@@ -9,6 +9,8 @@ import compass._cli.search as cli_module
 import compass.web.search as web_search_module
 from compass._cli.main import main
 from compass.pb import COMPASS_PB
+from compass.pipeline import SearchRequest
+from compass.pipeline.coordinator import run_compass
 
 
 @pytest.fixture(autouse=True)
@@ -55,6 +57,28 @@ def search_backend(monkeypatch):
         web_search_module, "search_with_fallback_with_attrs", backend
     )
     return calls
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("re_run_targets", [{}, {"num_results": 1}])
+async def test_programmatic_search_continuation_allows_existing_output_dir(
+    cfg_file, search_backend, re_run_targets
+):
+    """Explicit API continuation may reuse existing search output"""
+    out_dir = cfg_file.parent / "output"
+    out_dir.mkdir()
+    request = SearchRequest(
+        out_dir=out_dir,
+        tech="wind",
+        jurisdiction_fp=cfg_file.parent / "jurisdictions.csv",
+        simple_se_result_sort=True,
+    )
+
+    await run_compass(request, re_run_targets=re_run_targets)
+
+    assert len(search_backend) == 1
+    assert (out_dir / "search_result_manifest.json").exists()
+    assert len(list((out_dir / "se_results").glob("*.json"))) == 1
 
 
 def test_search_writes_manifest(cli_runner, cfg_file, search_backend):
