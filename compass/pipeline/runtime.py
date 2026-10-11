@@ -31,7 +31,6 @@ from compass.services.threaded import (
     GenericFuncRunner,
     read_html_file,
 )
-from compass.pipeline.targets import normalize_targets
 from compass.utilities import LLM_COST_REGISTRY, Directories
 from compass.utilities.jurisdictions import fips_to_str
 from compass.utilities.io import load_config
@@ -63,7 +62,7 @@ class PipelineRuntime:
         """
         self.request = request
         self.continue_existing = continue_existing
-        self.targets = normalize_targets(targets)
+        self.targets = targets
         self.mode = request.MODE
         self.tech = request.tech
         self.models = request.models
