@@ -22,6 +22,9 @@ from compass.services.threaded import GenericFuncRunner
 from compass.scripts.search import (
     build_search_report,
     load_search_result_jurisdictions,
+    load_search_shards,
+    search_shard_failures,
+    validate_search_targets,
     write_search_report,
     SEARCH_RESULT_MANIFEST_FILENAME,
 )
@@ -43,7 +46,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def run_compass(request):
+async def run_compass(request, re_run_targets=None):
     """Run the requested pipeline mode
 
     Parameters
@@ -57,6 +60,9 @@ async def run_compass(request):
         as the mode to run in, output directories, jurisdiction
         information, model configurations, and any other relevant
         settings.
+    re_run_targets : dict, optional
+        Per-shard metric names mapped to minimum counts for continuing a
+        run. All targets must pass in the re-run. By default, ``None``.
 
     Returns
     -------
@@ -93,7 +99,7 @@ async def run_compass(request):
             perform_website_search=request.perform_website_search,
         )
 
-    runtime = PipelineRuntime(request)
+    runtime = PipelineRuntime(request, re_run_targets=re_run_targets)
 
     _log_execution_info(request, steps)
     jurisdictions_df = _load_jurisdictions_to_process(request.jurisdiction_fp)
@@ -301,18 +307,28 @@ class COMPASSSearch(BaseRunMode):
             len(jurisdictions_df),
         )
         start_date = datetime.now(UTC)
-        tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            workflow = self._create(jurisdiction)
-            tasks.append(
-                asyncio.create_task(
-                    workflow.run_search_with_logging(),
-                    name=jurisdiction.full_name,
-                )
-            )
-        results = await asyncio.gather(*tasks)
-        manifest = await build_search_report(self.runtime, results, start_date)
+        jurisdictions = list(jurisdictions_from_df(jurisdictions_df))
+
+        metrics = validate_search_targets(
+            self.runtime.re_run_targets,
+            self.runtime.search_params.num_urls_to_check_per_jurisdiction,
+            self.runtime.search_params.se_kwargs.get("search_engines"),
+        )
+        results, pending, purge_paths = await self._select_unfinished_searches(
+            jurisdictions, metrics
+        )
         manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
+        if self.runtime.re_run_targets and pending:
+            await GenericFuncRunner.call(
+                _purge_search_shards, manifest_fp, purge_paths
+            )
+
+        await self._process_pending_searches(pending, jurisdictions, results)
+
+        failures = self._unmet_requirements(jurisdictions, results, metrics)
+        manifest = await build_search_report(
+            self.runtime, results, start_date, failures
+        )
         await GenericFuncRunner.call(
             write_search_report, manifest, manifest_fp
         )
@@ -324,6 +340,79 @@ class COMPASSSearch(BaseRunMode):
         )
         logger.info(message)
         return message
+
+    async def _select_unfinished_searches(self, jurisdictions, metrics):
+        """Plan shard reuse and reruns before purging any files"""
+        shards = {}
+        if self.runtime.re_run_targets:
+            shards = await GenericFuncRunner.call(
+                load_search_shards,
+                self.runtime.dirs.out,
+                jurisdictions,
+                self.runtime.tech,
+            )
+
+        results = [None] * len(jurisdictions)
+        pending = []
+        purge_paths = []
+        for index, jurisdiction in enumerate(jurisdictions):
+            shard = shards.get(jurisdiction.code)
+            record = shard["record"] if shard else None
+            failures = search_shard_failures(
+                record, self.runtime.re_run_targets, metrics
+            )
+            if shard and not failures:
+                results[index] = record
+                COMPASS_PB.progress_main_task()
+                logger.info(
+                    "Reusing search shard for %s", jurisdiction.full_name
+                )
+                continue
+
+            pending.append(index)
+            if shard:
+                purge_paths.append(shard["path"])
+
+            if self.runtime.re_run_targets:
+                logger.info(
+                    "Searching %s: %s",
+                    jurisdiction.full_name,
+                    "missing shard" if shard is None else failures,
+                )
+        return results, pending, purge_paths
+
+    async def _process_pending_searches(self, pending, jurisdictions, results):
+        """Run search for pending tasks"""
+        tasks = []
+        for index in pending:
+            jurisdiction = jurisdictions[index]
+            workflow = self._create(jurisdiction)
+            tasks.append(
+                asyncio.create_task(
+                    workflow.run_search_with_logging(),
+                    name=jurisdiction.full_name,
+                )
+            )
+        for index, result in zip(
+            pending, await asyncio.gather(*tasks), strict=True
+        ):
+            results[index] = result
+
+    def _unmet_requirements(self, jurisdictions, results, metrics):
+        """Describe remaining shard failures after persistence"""
+        if not self.runtime.re_run_targets:
+            return None
+
+        messages = []
+        for jurisdiction, record in zip(jurisdictions, results, strict=True):
+            messages.extend(
+                f"{jurisdiction.full_name}: {failure['metric']}="
+                f"{failure['actual']} (minimum {failure['minimum']})"
+                for failure in search_shard_failures(
+                    record, self.runtime.re_run_targets, metrics
+                )
+            )
+        return messages
 
 
 class COMPASSExtraction(BaseRunMode):
@@ -580,3 +669,10 @@ async def _compute_total_cost(rate_tracker):
         compute_total_cost_from_usage(total_usage),
         total_usage.get(rate_tracker.label),
     )
+
+
+def _purge_search_shards(manifest_path, paths):
+    """Purge aggregate and selected search shards"""
+    manifest_path.unlink(missing_ok=True)
+    for path in paths:
+        path.unlink(missing_ok=True)

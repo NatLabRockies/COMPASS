@@ -33,6 +33,10 @@ class COMPASSValueError(COMPASSError, ValueError):
     """COMPASS ValueError"""
 
 
+class COMPASSTargetError(COMPASSError, ValueError):
+    """Shard minimum targets remain unmet after saving run outputs"""
+
+
 class COMPASSRuntimeError(COMPASSError, RuntimeError):
     """COMPASS RuntimeError"""
 

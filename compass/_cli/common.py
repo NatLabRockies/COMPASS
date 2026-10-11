@@ -36,6 +36,7 @@ def run_async_command(
     no_progress,
     out_dir_exists=None,
     override_args=None,
+    re_run_targets=None,
 ):
     """Run a COMPASS async command with shared CLI behavior
 
@@ -64,6 +65,10 @@ def run_async_command(
         ``"overwrite"``, and ``"prompt"``. If ``None``, the policy is
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
+    re_run_targets : list, optional
+        List of re-run target specifications for the command. Only
+        applicable when ``--out-dir-exists continue``.
+        By default, ``None``.
     """
     if override_args:
         config = apply_cli_config_overrides(config, override_args)
@@ -87,7 +92,9 @@ def run_async_command(
 
     request = request_class(**config)
     if no_progress:
-        loop.run_until_complete(run_compass(request))
+        loop.run_until_complete(
+            run_compass(request, re_run_targets=re_run_targets)
+        )
         return
 
     warnings.filterwarnings("ignore")
@@ -99,11 +106,15 @@ def run_async_command(
         refresh_per_second=20,
         transient=True,
     )
-    with live_display:
-        run_msg = loop.run_until_complete(run_compass(request))
+    try:
+        with live_display:
+            run_msg = loop.run_until_complete(
+                run_compass(request, re_run_targets=re_run_targets)
+            )
+    finally:
+        COMPASS_PB.console = None
 
     console.print(run_msg)
-    COMPASS_PB.console = None
 
 
 def setup_cli_logging(console, verbosity_level, log_level="INFO"):

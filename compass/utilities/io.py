@@ -9,6 +9,7 @@ import contextlib
 import collections
 from copy import deepcopy
 from pathlib import Path
+from tempfile import NamedTemporaryFile
 from abc import ABC, abstractmethod
 
 import json
@@ -478,3 +479,25 @@ def normalize_output_stem(out_stem):
         .replace("\\", "_")
         .replace(" ", "_")
     )
+
+
+def write_text_atomic(path, text):
+    """[NOT PUBLIC API] Write out full text file; no partial content"""
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = None
+    try:
+        with NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=path.parent,
+            prefix=f".{path.name}.",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary:
+            temporary_path = Path(temporary.name)
+            temporary.write(text)
+        temporary_path.replace(path)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)

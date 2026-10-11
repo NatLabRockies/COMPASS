@@ -10,6 +10,7 @@ from compass._cli.common import (
     OUT_DIR_POLICY_CHOICES,
 )
 from compass.pipeline import SearchRequest
+from compass.pipeline.targets import parse_search_target_options
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.search import summary, SEARCH_RESULT_MANIFEST_FILENAME
 from compass.utilities.io import load_config
@@ -52,12 +53,34 @@ from compass.utilities.io import load_config
 @click.option(
     "--summarize", "-s", is_flag=True, help="Summarize search results"
 )
+@click.option(
+    "--target",
+    "targets",
+    multiple=True,
+    help="Per-shard minimum METRIC=VALUE. Repeat for multiple requirements. "
+    "Supports num_results, num_kept_results, and search_engine_counts.ENGINE."
+    "Only works with ``--out-dir-exists continue``",
+)
 @click.pass_context
 def search(
-    ctx, config, verbose, no_progress, plugin, out_dir_exists, summarize
+    ctx,
+    config,
+    verbose,
+    no_progress,
+    plugin,
+    out_dir_exists,
+    summarize,
+    targets,
 ):
     """Save ranked search results and logs for later collection"""
     config = load_config(config)
+
+    policy = out_dir_exists.lower() if out_dir_exists else None
+    targets = parse_search_target_options(targets)
+    if targets and policy not in {None, "continue"}:
+        msg = "--targets conflicts with --out-dir-exists"
+        raise click.ClickException(msg)
+
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(
             config=plugin, tech=config["tech"]
@@ -70,11 +93,20 @@ def search(
         no_progress=no_progress,
         out_dir_exists=out_dir_exists,
         override_args=ctx.args,
+        re_run_targets=targets,
     )
 
+    if not targets and not summarize:
+        return
+
+    report_fp = Path(config["out_dir"]) / SEARCH_RESULT_MANIFEST_FILENAME
+    report = load_config(report_fp)
+
     if summarize:
-        report_fp = Path(config["out_dir"]) / SEARCH_RESULT_MANIFEST_FILENAME
-        report = load_config(report_fp)
         text_report = summary(report)
         print()
         print(text_report)
+
+    if targets and report["failed_targets"]:
+        msg = f"Failed {len(report['failed_targets']):,d} targets"
+        raise click.ClickException(msg)

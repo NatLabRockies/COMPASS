@@ -38,13 +38,13 @@ from compass.utilities.logs import NoLocationFilter, LogListener
 
 
 logger = logging.getLogger(__name__)
-MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 10
+MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 50
 
 
 class PipelineRuntime:
     """Context Object for runtime dependencies in one pipeline run"""
 
-    def __init__(self, request):
+    def __init__(self, request, re_run_targets=None):
         """
 
         Parameters
@@ -52,8 +52,14 @@ class PipelineRuntime:
         request : compass.pipeline.data_classes.BaseRequest
             Request object containing all user inputs and settings for
             this run.
+        re_run_targets : dict, optional
+            Per-shard metric names mapped to minimum counts for
+            continuing a run. All targets must pass in the re-run.
+            By default, ``None``.
+
         """
         self.request = request
+        self.re_run_targets = re_run_targets
         self.mode = request.MODE
         self.tech = request.tech
         self.models = request.models
@@ -348,7 +354,7 @@ def _setup_folders(output_settings, collect_only=False, search_only=False):
         search_only=search_only,
     )
 
-    if not collect_only and dirs.out.exists():
+    if not collect_only and not search_only and dirs.out.exists():
         msg = (
             f"Output directory '{output_settings.out_dir!s}' already "
             "exists! Please specify a new directory for every COMPASS run."

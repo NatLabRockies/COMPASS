@@ -8,24 +8,29 @@ quality before invoking the full pipeline.
 """
 
 import json
+from datetime import UTC, datetime
+from functools import partial
 from os import PathLike
-from statistics import median
-from datetime import datetime, UTC
 from pathlib import Path
+from statistics import median
 from warnings import warn
 
 from elm.version import __version__ as elm_version
+from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass import __version__ as compass_version
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
-from compass.utilities.io import load_config
+from compass.pipeline.targets import evaluate_targets, normalize_targets
+from compass.utilities.io import write_text_atomic, load_config
 from compass.warn import COMPASSWarning
-
+from compass.web.search import _search_result_shard_path
 
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
 
-async def build_search_report(runtime, jur_results, time_start_utc):
+async def build_search_report(
+    runtime, jur_results, time_start_utc, failed_targets=None
+):
     """Aggregate jurisdiction search results into a report
 
     Parameters
@@ -37,6 +42,9 @@ async def build_search_report(runtime, jur_results, time_start_utc):
         return ``None``.
     time_start_utc : datetime.datetime
         UTC timestamp when the search run started.
+    failed_targets : list of str, optional
+        List of failed target descriptions/specifications, if any.
+        By default, ``None``.
 
     Returns
     -------
@@ -100,6 +108,7 @@ async def build_search_report(runtime, jur_results, time_start_utc):
             "median": median(filtered_counts) if filtered_counts else 0,
             "total": sum(filtered_counts),
         },
+        "failed_targets": failed_targets,
         "jurisdictions": out_results,
     }
 
@@ -278,6 +287,184 @@ def _invalid_result(result):
     )
 
 
+def validate_search_targets(targets, num_urls=5, search_engines=None):
+    """Validate shard count targets and return search metric accessors
+
+    Parameters
+    ----------
+    targets : dict
+        Shard metric names and nonnegative integer minimums.
+    num_urls : int, default=5
+        Maximum retained URLs per jurisdiction. By default, ``5``.
+    search_engines : list of str or dict, optional
+        Configured engines. ``None`` allows registered engine labels.
+        By default, ``None``.
+
+    Returns
+    -------
+    dict
+        Supported metric names mapped to shard value accessors.
+    """
+
+    options = {}
+    if search_engines:
+        names = [
+            params if isinstance(params, str) else params["se_name"]
+            for params in search_engines
+        ]
+        unknown = set(names).difference(SEARCH_ENGINE_OPTIONS)
+        if unknown:
+            msg = f"Unknown search engines: {sorted(unknown)}"
+            raise COMPASSValueError(msg)
+
+        options = {name: SEARCH_ENGINE_OPTIONS[name] for name in names}
+
+    metrics = {
+        "num_results": lambda record: record.get("num_results", 0),
+        "num_kept_results": _kept_result_count,
+    }
+    for option in options.values():
+        label = option.se_class._SE_NAME  # ruff:ignore[private-member-access]
+        metrics[f"search_engine_counts.{label}"] = partial(
+            _engine_result_count, engine=label
+        )
+
+    for metric, minimum in normalize_targets(targets).items():
+        if metric not in metrics:
+            msg = (
+                f"Unknown search shard target '{metric}'. "
+                f"Available targets: {', '.join(sorted(metrics))}"
+            )
+            raise COMPASSValueError(msg)
+
+        if not isinstance(minimum, int) or minimum < 0:
+            msg = f"Search target '{metric}' requires a nonnegative integer"
+            raise COMPASSValueError(msg)
+
+        if metric == "num_kept_results" and minimum > num_urls:
+            msg = (
+                f"Target num_kept_results={minimum} exceeds the configured "
+                f"retained URL limit ({num_urls})"
+            )
+            raise COMPASSValueError(msg)
+
+    return metrics
+
+
+def _kept_result_count(record):
+    """Read retained counts or derive them for older search shards"""
+    return record.get(
+        "num_kept_results",
+        sum(row.get("filtered_reason") is None for row in record["results"]),
+    )
+
+
+def _engine_result_count(record, engine):
+    """Read one engine count, treating an absent engine as zero"""
+    return record.get("search_engine_counts", {}).get(engine, 0)
+
+
+def search_shard_failures(record, targets, metrics):
+    """Evaluate default nonempty results and explicit shard minimums
+
+    Parameters
+    ----------
+    record : dict or None
+        One search shard, or ``None`` when its file is missing.
+    targets : dict
+        Validated search minimum targets.
+    metrics : dict
+        Search metric accessors returned by target validation.
+
+    Returns
+    -------
+    list of dict
+        Unmet default and explicit requirements for this shard.
+    """
+    record = record or {"results": []}
+    failures = []
+    if not record["results"]:
+        failures.append({"metric": "results", "actual": 0, "minimum": 1})
+    return failures + evaluate_targets(record, targets, metrics)
+
+
+def load_search_shards(out_dir, jurisdictions, expected_tech):
+    """Inventory actual requested shards without trusting the manifest
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Existing search output directory.
+    jurisdictions : iterable of Jurisdiction
+        Jurisdictions requested in the current configuration.
+    expected_tech : str
+        Required technology when saved outputs declare one.
+
+    Returns
+    -------
+    dict
+        FIPS codes mapped to dictionaries with ``record`` and ``path``.
+        Missing shards have no entry.
+    """
+    out_dir = Path(out_dir)
+    manifest = out_dir / SEARCH_RESULT_MANIFEST_FILENAME
+    if manifest.is_file():
+        _validate_search_result_tech(
+            load_config(manifest, resolve_paths=False), expected_tech, manifest
+        )
+
+    requested = {
+        jurisdiction.code: jurisdiction for jurisdiction in jurisdictions
+    }
+    shard_dir = out_dir / "se_results"
+    expected_paths = {
+        _search_result_shard_path(shard_dir, jurisdiction): code
+        for code, jurisdiction in requested.items()
+    }
+    if len(expected_paths) != len(requested):
+        msg = "Requested jurisdiction shard filenames collide"
+        raise COMPASSValueError(msg)
+
+    shards = {}
+    for path in sorted(shard_dir.glob("*.json")):
+        record = load_config(path, resolve_paths=False)
+        _validate_search_result_record(record, path)
+        code = record["FIPS"]
+        if path in expected_paths and code != expected_paths[path]:
+            msg = f"Search shard FIPS does not match {path}"
+            raise COMPASSValueError(msg)
+
+        if code not in requested:
+            continue
+
+        _validate_search_result_tech(record, expected_tech, path)
+        if code in shards:
+            msg = f"Duplicate search result entry for FIPS '{code}'"
+            raise COMPASSValueError(msg)
+
+        _validate_search_shard_counts(record, path)
+        shards[code] = {"record": record, "path": path}
+
+    return shards
+
+
+def _validate_search_shard_counts(record, path):
+    """Reject malformed shard counts before any continuation purge"""
+    counts = record.get("search_engine_counts")
+    if not isinstance(counts, dict):
+        msg = f"Invalid search engine counts: {path}"
+        raise COMPASSValueError(msg)
+
+    values = [
+        record.get("num_results"),
+        _kept_result_count(record),
+        *counts.values(),
+    ]
+    if any(type(value) is not int or value < 0 for value in values):
+        msg = f"Invalid search shard counts: {path}"
+        raise COMPASSValueError(msg)
+
+
 def write_search_report(report, out_path):
     """Write a search-only report as JSON
 
@@ -289,9 +476,7 @@ def write_search_report(report, out_path):
         Destination file path.
     """
     payload = json.dumps(report, indent=4, ensure_ascii=False)
-    out_path = Path(out_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(payload, encoding="utf-8")
+    write_text_atomic(out_path, payload)
 
 
 def summary(report):
