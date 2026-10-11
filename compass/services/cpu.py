@@ -504,11 +504,14 @@ def _read_docling_without_timeout(
 
 def _run_docling_in_subprocess(fn, *, args, kwargs, timeout):
     """Run one Docling conversion in a disposable child process"""
-    mp_context = multiprocessing.get_context(
-        "fork"
-        if "fork" in multiprocessing.get_all_start_methods()
-        else "spawn"
-    )
+    # macOS: forking after PyTorch/MPS (Metal) init crashes the child,
+    # so fall back to spawn there.
+    available_methods = multiprocessing.get_all_start_methods()
+    if platform.system() == "Darwin" or "fork" not in available_methods:
+        start_method = "spawn"
+    else:
+        start_method = "fork"
+    mp_context = multiprocessing.get_context(start_method)
     receiver, sender = mp_context.Pipe(duplex=False)
     process = mp_context.Process(
         target=_run_docling_subprocess, args=(sender, fn, args, kwargs)
