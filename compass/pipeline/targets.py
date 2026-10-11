@@ -52,9 +52,8 @@ def parse_search_target_options(options):
 
     Returns
     -------
-    dict | None
+    dict
         Parsed targets. Repeated metrics use their largest minimum.
-        If no targets are specified, returns ``None``.
     """
     targets = {}
     for option in options:
@@ -72,7 +71,7 @@ def parse_search_target_options(options):
         for name, value in normalize_targets({metric: minimum}).items():
             targets[name] = max(targets.get(name, value), value)
 
-    return targets or None
+    return targets
 
 
 def evaluate_targets(record, targets, metrics):

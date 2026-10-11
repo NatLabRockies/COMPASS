@@ -306,6 +306,7 @@ def validate_search_targets(targets, num_urls=5, search_engines=None):
         Supported metric names mapped to shard value accessors.
     """
 
+    options = {}
     if search_engines:
         names = [
             params if isinstance(params, str) else params["se_name"]

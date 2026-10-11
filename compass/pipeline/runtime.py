@@ -96,18 +96,12 @@ class PipelineRuntime:
         (self.dirs.logs / "all.log").unlink(missing_ok=True)
 
     @cached_property
-    def continue_existing_run(self):
-        """bool: Flag indicating whether to continue an existing run"""
-        return self.re_run_targets is not None
-
-    @cached_property
     def dirs(self):
         """Directories object for this run"""
         return _setup_folders(
             self.request.output_settings,
             collect_only=(self.mode == self.mode.COLLECT),
             search_only=(self.mode == self.mode.SEARCH),
-            continue_existing_run=self.continue_existing_run,
         )
 
     @cached_property
@@ -347,12 +341,7 @@ def _configure_main_logging(log_dir, level, listener, keep_async_logs):
         logger.debug_to_file("Using async log format: %s", log_fmt)
 
 
-def _setup_folders(
-    output_settings,
-    collect_only=False,
-    search_only=False,
-    continue_existing_run=False,
-):
+def _setup_folders(output_settings, collect_only=False, search_only=False):
     """Create output folders for the run"""
     dirs = Directories(
         output_settings.out_dir,
@@ -365,7 +354,7 @@ def _setup_folders(
         search_only=search_only,
     )
 
-    if not collect_only and not continue_existing_run and dirs.out.exists():
+    if not collect_only and not search_only and dirs.out.exists():
         msg = (
             f"Output directory '{output_settings.out_dir!s}' already "
             "exists! Please specify a new directory for every COMPASS run."

@@ -318,7 +318,7 @@ class COMPASSSearch(BaseRunMode):
             jurisdictions, metrics
         )
         manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
-        if self.runtime.continue_existing_run and pending:
+        if self.runtime.re_run_targets and pending:
             await GenericFuncRunner.call(
                 _purge_search_shards, manifest_fp, purge_paths
             )
@@ -344,7 +344,7 @@ class COMPASSSearch(BaseRunMode):
     async def _select_unfinished_searches(self, jurisdictions, metrics):
         """Plan shard reuse and reruns before purging any files"""
         shards = {}
-        if self.runtime.continue_existing_run:
+        if self.runtime.re_run_targets:
             shards = await GenericFuncRunner.call(
                 load_search_shards,
                 self.runtime.dirs.out,
@@ -373,7 +373,7 @@ class COMPASSSearch(BaseRunMode):
             if shard:
                 purge_paths.append(shard["path"])
 
-            if self.runtime.continue_existing_run:
+            if self.runtime.re_run_targets:
                 logger.info(
                     "Searching %s: %s",
                     jurisdiction.full_name,
