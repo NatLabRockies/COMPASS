@@ -358,9 +358,7 @@ class COMPASSSearch(BaseRunMode):
 
         await self._process_pending_searches(pending, jurisdictions, results)
 
-        failures = self._unmet_requirements(
-            jurisdictions, results, metrics, "results"
-        )
+        failures = self._unmet_requirements(jurisdictions, results, metrics)
         manifest = await build_search_report(
             self.runtime, results, start_date, failures
         )
