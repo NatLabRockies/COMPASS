@@ -360,6 +360,30 @@ def _engine_result_count(record, engine):
     return record.get("search_engine_counts", {}).get(engine, 0)
 
 
+def search_shard_failures(record, targets, metrics):
+    """Evaluate default nonempty results and explicit shard minimums
+
+    Parameters
+    ----------
+    record : dict or None
+        One search shard, or ``None`` when its file is missing.
+    targets : dict
+        Validated search minimum targets.
+    metrics : dict
+        Search metric accessors returned by target validation.
+
+    Returns
+    -------
+    list of dict
+        Unmet default and explicit requirements for this shard.
+    """
+    record = record or {"results": []}
+    failures = []
+    if not record["results"]:
+        failures.append({"metric": "results", "actual": 0, "minimum": 1})
+    return failures + evaluate_targets(record, targets, metrics)
+
+
 def write_search_report(report, out_path):
     """Write a search-only report as JSON
 
