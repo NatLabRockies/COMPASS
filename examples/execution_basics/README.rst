@@ -277,7 +277,7 @@ minimum targets. For example:
 .. code-block:: shell
 
     pixi run compass search -c search_config.json5 \
-      --continue ./searched \
+      --out-dir-exists continue \
       --target num_results=3 \
       --target 'search_engine_counts.SerpAPI (Google)=10'
 
