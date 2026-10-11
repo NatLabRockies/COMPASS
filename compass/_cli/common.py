@@ -65,10 +65,10 @@ def run_async_command(
         ``"overwrite"``, and ``"prompt"``. If ``None``, the policy is
         chosen automatically based on whether the session is
         interactive. By default, ``None``.
-    re_run_targets : list, optional
-        List of re-run target specifications for the command. Only
-        applicable when ``--out-dir-exists continue``.
-        By default, ``None``.
+    re_run_targets : dict, optional
+        Per-shard metric names mapped to minimum counts. An empty
+        mapping continues with the default nonempty shard requirement.
+        By default, ``None`` starts a fresh run.
     """
     if override_args:
         config = apply_cli_config_overrides(config, override_args)
