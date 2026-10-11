@@ -42,7 +42,7 @@ def normalize_targets(targets):
     return normalized
 
 
-def parse_search_target_options(options):
+def parse_target_options(options):
     """Parse repeated CLI targets, retaining the strictest minimum
 
     Parameters

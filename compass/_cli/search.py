@@ -10,7 +10,7 @@ from compass._cli.common import (
     OUT_DIR_POLICY_CHOICES,
 )
 from compass.pipeline import SearchRequest
-from compass.pipeline.targets import parse_search_target_options
+from compass.pipeline.targets import parse_target_options
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.scripts.search import summary, SEARCH_RESULT_MANIFEST_FILENAME
 from compass.utilities.io import load_config
@@ -76,7 +76,7 @@ def search(
     config = load_config(config)
 
     policy = out_dir_exists.lower() if out_dir_exists else None
-    targets = parse_search_target_options(targets)
+    targets = parse_target_options(targets)
     if targets and policy not in {None, "continue"}:
         msg = "--targets conflicts with --out-dir-exists"
         raise click.ClickException(msg)
