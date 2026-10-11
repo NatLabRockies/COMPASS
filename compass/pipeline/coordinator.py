@@ -320,7 +320,6 @@ class COMPASSSearch(BaseRunMode):
         metrics = validate_search_targets(
             self.runtime.re_run_targets,
             self.runtime.search_params.num_urls_to_check_per_jurisdiction,
-            self.runtime.search_params.se_kwargs.get("search_engines"),
         )
         results, pending, purge_paths = await self._select_unfinished_searches(
             jurisdictions, metrics

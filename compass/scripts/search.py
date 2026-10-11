@@ -287,7 +287,7 @@ def _invalid_result(result):
     )
 
 
-def validate_search_targets(targets, num_urls=5, search_engines=None):
+def validate_search_targets(targets, num_urls=5):
     """Validate shard count targets and return search metric accessors
 
     Parameters
@@ -296,9 +296,6 @@ def validate_search_targets(targets, num_urls=5, search_engines=None):
         Shard metric names and nonnegative integer minimums.
     num_urls : int, default=5
         Maximum retained URLs per jurisdiction. By default, ``5``.
-    search_engines : list of str or dict, optional
-        Configured engines. ``None`` allows registered engine labels.
-        By default, ``None``.
 
     Returns
     -------
@@ -306,24 +303,11 @@ def validate_search_targets(targets, num_urls=5, search_engines=None):
         Supported metric names mapped to shard value accessors.
     """
 
-    options = {}
-    if search_engines:
-        names = [
-            params if isinstance(params, str) else params["se_name"]
-            for params in search_engines
-        ]
-        unknown = set(names).difference(SEARCH_ENGINE_OPTIONS)
-        if unknown:
-            msg = f"Unknown search engines: {sorted(unknown)}"
-            raise COMPASSValueError(msg)
-
-        options = {name: SEARCH_ENGINE_OPTIONS[name] for name in names}
-
     metrics = {
         "num_results": lambda record: record.get("num_results", 0),
         "num_kept_results": _kept_result_count,
     }
-    for option in options.values():
+    for option in SEARCH_ENGINE_OPTIONS.values():
         label = option.se_class._SE_NAME  # ruff:ignore[private-member-access]
         metrics[f"search_engine_counts.{label}"] = partial(
             _engine_result_count, engine=label

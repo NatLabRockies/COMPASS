@@ -165,16 +165,20 @@ def test_missing_search_results(tmp_path):
             search_module.load_search_result_jurisdictions(path, "wind")
 
 
-def test_shard_target_metrics():
+@pytest.mark.parametrize(
+    "search_engines",
+    [["SerpAPIGoogleSearch"], [{"se_name": "SerpAPIGoogleSearch"}]],
+)
+def test_shard_target_metrics(search_engines):
     """Evaluate raw, retained, and literal engine counts independently"""
     targets = {
         "num_results": 2,
         "num_kept_results": 2,
         "search_engine_counts.SerpAPI (Google)": 3,
     }
-    metrics = search_module.validate_search_targets(
-        targets, search_engines=[{"se_name": "SerpAPIGoogleSearch"}]
-    )
+    metrics = search_module.validate_search_targets(targets)
+    assert "num_results" in metrics
+    assert "num_kept_results" in metrics
     record = {
         "num_results": 2,
         "search_engine_counts": {},
