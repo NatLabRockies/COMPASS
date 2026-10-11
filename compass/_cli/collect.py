@@ -84,7 +84,7 @@ def collect(
     policy = out_dir_exists.lower() if out_dir_exists else None
     targets = parse_target_options(targets)
     if targets and policy not in {None, "continue"}:
-        msg = "--targets conflicts with --out-dir-exists"
+        msg = "--target options conflicts with --out-dir-exists"
         raise click.ClickException(msg)
 
     if plugin is not None:
@@ -99,7 +99,7 @@ def collect(
         no_progress=no_progress,
         out_dir_exists=out_dir_exists,
         override_args=ctx.args,
-        re_run_targets=targets,
+        re_run_targets=targets if targets or policy == "continue" else None,
     )
 
     if targets:

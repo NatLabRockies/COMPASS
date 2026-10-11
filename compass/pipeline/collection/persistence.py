@@ -399,7 +399,11 @@ def _reset_collection_manifest_shard(shard_dir, manifest_dir, jurisdiction):
 def _write_collection_manifest(manifest_dir, collection_manifest):
     """Write a collection manifest to disk"""
     manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
-    payload = json.dumps(collection_manifest, indent=4, ensure_ascii=False)
+    payload = json.dumps(
+        convert_paths_to_strings(collection_manifest),
+        indent=4,
+        ensure_ascii=False,
+    )
     write_text_atomic(manifest_fp, payload)
     return manifest_fp
 
