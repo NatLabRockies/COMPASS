@@ -6,6 +6,8 @@ from functools import cached_property
 from elm.web.document import BaseDocument
 
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
+from compass.pipeline.collection.persistence import validate_collection_targets
+from compass.pipeline.targets import shard_failures
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
     ElmWebsiteCrawlStep,
