@@ -8,13 +8,13 @@ from compass.exceptions import COMPASSValueError
 from compass.pipeline.targets import (
     evaluate_targets,
     normalize_targets,
-    parse_search_target_options,
+    parse_target_options,
 )
 
 
 def test_parse_targets_preserves_literal_metric_names():
     """Keep engine labels intact and combine repeated minimums"""
-    assert parse_search_target_options(
+    assert parse_target_options(
         [
             "num_results=5",
             "num_results=3",
@@ -39,7 +39,21 @@ def test_parse_targets_preserves_literal_metric_names():
 def test_reject_invalid_target_options(option):
     """Reject malformed expressions and nonnumeric lower bounds"""
     with pytest.raises(COMPASSValueError):
-        parse_search_target_options([option])
+        parse_target_options([option])
+
+
+def test_parse_collection_targets_keeps_strictest_minimum():
+    """Collection counts use the same parser as search counts"""
+    assert parse_target_options(
+        [
+            "num_docs=3",
+            "num_docs=1",
+            "completed_step_document_counts.search_engine=2",
+        ]
+    ) == {
+        "num_docs": 3,
+        "completed_step_document_counts.search_engine": 2,
+    }
 
 
 def test_targets_are_stage_independent():
