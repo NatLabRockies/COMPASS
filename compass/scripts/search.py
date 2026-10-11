@@ -284,6 +284,82 @@ def _invalid_result(result):
     )
 
 
+def validate_search_targets(targets, num_urls=5, search_engines=None):
+    """Validate shard count targets and return search metric accessors
+
+    Parameters
+    ----------
+    targets : dict
+        Shard metric names and nonnegative integer minimums.
+    num_urls : int, default=5
+        Maximum retained URLs per jurisdiction. By default, ``5``.
+    search_engines : list of str or dict, optional
+        Configured engines. ``None`` allows registered engine labels.
+        By default, ``None``.
+
+    Returns
+    -------
+    dict
+        Supported metric names mapped to shard value accessors.
+    """
+
+    if search_engines:
+        names = [
+            params if isinstance(params, str) else params["se_name"]
+            for params in search_engines
+        ]
+        unknown = set(names).difference(SEARCH_ENGINE_OPTIONS)
+        if unknown:
+            msg = f"Unknown search engines: {sorted(unknown)}"
+            raise COMPASSValueError(msg)
+
+        options = {name: SEARCH_ENGINE_OPTIONS[name] for name in names}
+
+    metrics = {
+        "num_results": lambda record: record.get("num_results", 0),
+        "num_kept_results": _kept_result_count,
+    }
+    for option in options.values():
+        label = option.se_class._SE_NAME  # ruff:ignore[private-member-access]
+        metrics[f"search_engine_counts.{label}"] = partial(
+            _engine_result_count, engine=label
+        )
+
+    for metric, minimum in normalize_targets(targets).items():
+        if metric not in metrics:
+            msg = (
+                f"Unknown search shard target '{metric}'. "
+                f"Available targets: {', '.join(sorted(metrics))}"
+            )
+            raise COMPASSValueError(msg)
+
+        if not isinstance(minimum, int) or minimum < 0:
+            msg = f"Search target '{metric}' requires a nonnegative integer"
+            raise COMPASSValueError(msg)
+
+        if metric == "num_kept_results" and minimum > num_urls:
+            msg = (
+                f"Target num_kept_results={minimum} exceeds the configured "
+                f"retained URL limit ({num_urls})"
+            )
+            raise COMPASSValueError(msg)
+
+    return metrics
+
+
+def _kept_result_count(record):
+    """Read retained counts or derive them for older search shards"""
+    return record.get(
+        "num_kept_results",
+        sum(row.get("filtered_reason") is None for row in record["results"]),
+    )
+
+
+def _engine_result_count(record, engine):
+    """Read one engine count, treating an absent engine as zero"""
+    return record.get("search_engine_counts", {}).get(engine, 0)
+
+
 def write_search_report(report, out_path):
     """Write a search-only report as JSON
 
