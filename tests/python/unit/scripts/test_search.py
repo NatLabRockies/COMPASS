@@ -12,6 +12,7 @@ from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.data_classes import SearchRequest
 from compass.pipeline.coordinator import _purge_search_shards
+from compass.pipeline.targets import shard_failures
 
 
 @pytest.mark.parametrize("jur_results", [[], [None]])
@@ -187,7 +188,7 @@ def test_shard_target_metrics(search_engines):
             {"url": "b", "filtered_reason": "duplicate"},
         ],
     }
-    assert search_module.search_shard_failures(record, targets, metrics) == [
+    assert shard_failures(record, targets, metrics, "results") == [
         {"metric": "num_kept_results", "actual": 1, "minimum": 2},
         {
             "metric": "search_engine_counts.SerpAPI (Google)",
