@@ -31,7 +31,7 @@ from compass.pipeline.collection.persistence import (
     load_collection_manifest_jurisdictions,
 )
 from compass.pipeline.search.persistence import (
-    build_search_report,
+    build_search_manifest,
     load_search_result_jurisdictions,
     load_search_shards,
     validate_search_targets,
@@ -359,7 +359,7 @@ class COMPASSSearch(BaseRunMode):
         await self._process_pending_searches(pending, jurisdictions, results)
 
         failures = self._unmet_requirements(jurisdictions, results, metrics)
-        manifest = await build_search_report(
+        manifest = await build_search_manifest(
             self.runtime, results, start_date, failures
         )
         await GenericFuncRunner.call(

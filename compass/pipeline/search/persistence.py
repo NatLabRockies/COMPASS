@@ -22,7 +22,7 @@ from compass.web.search import _search_result_shard_path
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
 
-async def build_search_report(
+async def build_search_manifest(
     runtime, jur_results, time_start_utc, failed_targets=None
 ):
     """Aggregate jurisdiction search results into a report
@@ -438,7 +438,7 @@ def write_search_report(report, out_path):
     Parameters
     ----------
     report : dict
-        Report returned by :func:`build_search_report`.
+        Report returned by :func:`build_search_manifest`.
     out_path : path-like
         Destination file path.
     """

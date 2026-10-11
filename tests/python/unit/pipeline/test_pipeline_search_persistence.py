@@ -16,10 +16,10 @@ from compass.pipeline.targets import shard_failures
 
 
 @pytest.mark.parametrize("jur_results", [[], [None]])
-async def test_build_search_report_without_results(tmp_path, jur_results):
+async def test_build_search_manifest_without_results(tmp_path, jur_results):
     """Aggregate empty runs and failed workflows without invalid records"""
     runtime = PipelineRuntime(SearchRequest(tmp_path, "wind", None))
-    report = await search_module.build_search_report(
+    report = await search_module.build_search_manifest(
         runtime, jur_results, datetime.now(UTC)
     )
     assert report["num_jurisdictions_searched"] == len(jur_results)
