@@ -383,6 +383,55 @@ document entry stores the persisted parsed text path, the saved source file
 path when one exists, whether the source was a PDF, and the collected document
 attributes and provenance needed to rebuild extraction inputs later.
 
+To continue collection with minimum counts for each jurisdiction shard,
+use the configured output directory and repeat ``--target`` for each
+requirement:
+
+.. code-block:: shell
+
+        pixi run compass collect -c config.json5 \
+            --out-dir-exists continue \
+            --target num_docs=2 \
+            --target completed_step_document_counts.search_engine=1
+
+``num_docs`` counts collected documents. The
+``completed_step_document_counts.<step>`` metrics count documents attributed
+to a collection step. Supported step names are ``known_local_docs``,
+``known_doc_urls``, ``search_engine``, ``search_results_crawl``,
+``website_search_elm``, and ``website_search_compass``. An absent step count
+is zero. Targets inspect saved counts; they do not enable collection steps.
+Counts must be nonnegative integers, all supplied minimums must pass, and
+repeated targets for the same metric retain their largest minimum. These
+requirements apply to individual shards, not aggregate manifest statistics.
+Targeted collection also requires at least one document, even when all
+explicit minimums are zero.
+
+Continuation preserves documents and completed-step checkpoints when a shard
+has unfinished enabled steps, then runs only those remaining steps. This
+also applies when a partial shard already meets its count targets. Once all
+enabled steps are complete, a nonempty shard meeting every target is reused
+without rewriting it. A complete shard below its targets is reset and
+collected again from scratch. Missing shards are collected normally.
+
+A reset discards that shard's document metadata and completed-step
+checkpoints and invalidates the stale aggregate collection manifest. It does
+not explicitly delete saved source or parsed files, original inputs, saved
+input search results, or other jurisdictions' shards. Normal recollection
+may overwrite existing artifact paths for the reset jurisdiction. Partial
+shards retain their saved crawl budget; full resets use current settings.
+
+Each jurisdiction makes one collection pass per invocation. The command
+saves its shards and rebuilt manifest before returning a nonzero exit status
+if requirements remain unmet. The manifest's ``failed_targets`` field lists
+the remaining jurisdiction, metric, actual count, and minimum. If finishing
+a partial shard still misses targets, invoke continuation again to reset
+that now-complete failing shard. There is no internal retry loop.
+
+Without explicit targets, collection retains its normal checkpoint-based
+resume behavior. Explicit targets may also check a fresh collection after
+its single pass. Targets cannot be combined with conflicting explicit
+output-directory policies such as ``overwrite`` or ``increment``.
+
 You can then run extraction from that manifest:
 
 .. code-block:: shell
