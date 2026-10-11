@@ -8,19 +8,22 @@ quality before invoking the full pipeline.
 """
 
 import json
+from datetime import UTC, datetime
+from functools import partial
 from os import PathLike
-from statistics import median
-from datetime import datetime, UTC
 from pathlib import Path
+from statistics import median
 from warnings import warn
 
 from elm.version import __version__ as elm_version
+from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass import __version__ as compass_version
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
-from compass.utilities.io import load_config
+from compass.pipeline.targets import evaluate_targets, normalize_targets
+from compass.utilities.io import write_text_atomic, load_config
 from compass.warn import COMPASSWarning
-
+from compass.web.search import _search_result_shard_path
 
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
 
@@ -382,6 +385,83 @@ def search_shard_failures(record, targets, metrics):
     if not record["results"]:
         failures.append({"metric": "results", "actual": 0, "minimum": 1})
     return failures + evaluate_targets(record, targets, metrics)
+
+
+def load_search_shards(out_dir, jurisdictions, expected_tech):
+    """Inventory actual requested shards without trusting the manifest
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Existing search output directory.
+    jurisdictions : iterable of Jurisdiction
+        Jurisdictions requested in the current configuration.
+    expected_tech : str
+        Required technology when saved outputs declare one.
+
+    Returns
+    -------
+    dict
+        FIPS codes mapped to dictionaries with ``record`` and ``path``.
+        Missing shards have no entry.
+    """
+    out_dir = Path(out_dir)
+    manifest = out_dir / SEARCH_RESULT_MANIFEST_FILENAME
+    if manifest.is_file():
+        _validate_search_result_tech(
+            load_config(manifest, resolve_paths=False), expected_tech, manifest
+        )
+
+    requested = {
+        jurisdiction.code: jurisdiction for jurisdiction in jurisdictions
+    }
+    shard_dir = out_dir / "se_results"
+    expected_paths = {
+        _search_result_shard_path(shard_dir, jurisdiction): code
+        for code, jurisdiction in requested.items()
+    }
+    if len(expected_paths) != len(requested):
+        msg = "Requested jurisdiction shard filenames collide"
+        raise COMPASSValueError(msg)
+
+    shards = {}
+    for path in sorted(shard_dir.glob("*.json")):
+        record = load_config(path, resolve_paths=False)
+        _validate_search_result_record(record, path)
+        code = record["FIPS"]
+        if path in expected_paths and code != expected_paths[path]:
+            msg = f"Search shard FIPS does not match {path}"
+            raise COMPASSValueError(msg)
+
+        if code not in requested:
+            continue
+
+        _validate_search_result_tech(record, expected_tech, path)
+        if code in shards:
+            msg = f"Duplicate search result entry for FIPS '{code}'"
+            raise COMPASSValueError(msg)
+
+        _validate_search_shard_counts(record, path)
+        shards[code] = {"record": record, "path": path}
+
+    return shards
+
+
+def _validate_search_shard_counts(record, path):
+    """Reject malformed shard counts before any continuation purge"""
+    counts = record.get("search_engine_counts")
+    if not isinstance(counts, dict):
+        msg = f"Invalid search engine counts: {path}"
+        raise COMPASSValueError(msg)
+
+    values = [
+        record.get("num_results"),
+        _kept_result_count(record),
+        *counts.values(),
+    ]
+    if any(type(value) is not int or value < 0 for value in values):
+        msg = f"Invalid search shard counts: {path}"
+        raise COMPASSValueError(msg)
 
 
 def write_search_report(report, out_path):
