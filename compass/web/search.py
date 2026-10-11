@@ -153,15 +153,20 @@ def write_search_result_shard(out_dir, se_results, jurisdiction):
     pathlib.Path
         Written shard path.
     """
-    filename = normalize_output_stem(
-        f"{jurisdiction.full_name} search results"
-    )
-    out_fp = Path(out_dir) / f"{filename}.json"
+    out_fp = _search_result_shard_path(out_dir, jurisdiction)
     write_text_atomic(
         out_fp,
         json.dumps(convert_paths_to_strings(se_results), indent=4),
     )
     return out_fp
+
+
+def _search_result_shard_path(out_dir, jurisdiction):
+    """Build the normalized search result shard path for a jur"""
+    filename = normalize_output_stem(
+        f"{jurisdiction.full_name} search results"
+    )
+    return Path(out_dir) / f"{filename}.json"
 
 
 def _format_queries(jurisdiction, query_templates):
