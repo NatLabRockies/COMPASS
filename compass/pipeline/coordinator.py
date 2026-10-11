@@ -174,6 +174,22 @@ class BaseRunMode(ABC):
             ),
         )
 
+    def _unmet_requirements(self, jurisdictions, results, metrics, fail_func):
+        """Describe remaining shard failures after persistence"""
+        if self.runtime.re_run_targets is None:
+            return None
+
+        messages = []
+        for jurisdiction, record in zip(jurisdictions, results, strict=True):
+            messages.extend(
+                f"{jurisdiction.full_name}: {failure['metric']}="
+                f"{failure['actual']} (minimum {failure['minimum']})"
+                for failure in fail_func(
+                    record, self.runtime.re_run_targets, metrics
+                )
+            )
+        return messages
+
     @abstractmethod
     async def run(self, jurisdictions_df):
         """Run the mode workflow"""
@@ -269,8 +285,9 @@ class COMPASSCollection(BaseRunMode):
             "Collecting documents for %d jurisdiction(s)",
             len(jurisdictions_df),
         )
-        metrics = validate_collection_targets(self.runtime.re_run_targets)
         start_date = datetime.now(UTC)
+
+        metrics = validate_collection_targets(self.runtime.re_run_targets)
         tasks = []
         jurisdictions = []
         async for jurisdiction, se_results in _jurisdictions_with_search_input(
@@ -288,18 +305,9 @@ class COMPASSCollection(BaseRunMode):
             )
 
         collection_infos = await asyncio.gather(*tasks)
-        failures = None
-        if self.runtime.re_run_targets:  # TODO: Fix to match search
-            failures = [
-                f"{jurisdiction.full_name}: {failure['metric']}="
-                f"{failure['actual']} (minimum {failure['minimum']})"
-                for jurisdiction, record in zip(
-                    jurisdictions, collection_infos, strict=True
-                )
-                for failure in collection_shard_failures(
-                    record, self.runtime.re_run_targets, metrics
-                )
-            ]
+        failures = self._unmet_requirements(
+            jurisdictions, collection_infos, metrics, collection_shard_failures
+        )
 
         manifest = build_collection_manifest(
             self.runtime.tech,
@@ -351,7 +359,9 @@ class COMPASSSearch(BaseRunMode):
 
         await self._process_pending_searches(pending, jurisdictions, results)
 
-        failures = self._unmet_requirements(jurisdictions, results, metrics)
+        failures = self._unmet_requirements(
+            jurisdictions, results, metrics, search_shard_failures
+        )
         manifest = await build_search_report(
             self.runtime, results, start_date, failures
         )
@@ -438,22 +448,6 @@ class COMPASSSearch(BaseRunMode):
             pending, await asyncio.gather(*tasks), strict=True
         ):
             results[index] = result
-
-    def _unmet_requirements(self, jurisdictions, results, metrics):
-        """Describe remaining shard failures after persistence"""
-        if self.runtime.re_run_targets is None:
-            return None
-
-        messages = []
-        for jurisdiction, record in zip(jurisdictions, results, strict=True):
-            messages.extend(
-                f"{jurisdiction.full_name}: {failure['metric']}="
-                f"{failure['actual']} (minimum {failure['minimum']})"
-                for failure in search_shard_failures(
-                    record, self.runtime.re_run_targets, metrics
-                )
-            )
-        return messages
 
 
 class COMPASSExtraction(BaseRunMode):
