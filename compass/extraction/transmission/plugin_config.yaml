@@ -5,16 +5,16 @@ data_type_short_desc: high-voltage transmission lines ordinance
 doc_selection_method: "multi doc mixed"
 
 query_templates:
-  - 'site:municode.com {jurisdiction} electrical transmission line'
-  - 'site:codelibrary.amlegal.com {jurisdiction} electrical transmission line'
   - '"{jurisdiction}" zoning code electric transmission line setback'
   - '"{jurisdiction}" high voltage transmission line ordinance'
   - '"{jurisdiction}" overhead electric utility line zoning'
   - '"{jurisdiction}" power line'
-  - 'filetype:pdf "{jurisdiction}" electric transmission line ordinance'
   - '"{jurisdiction}" electric utility franchise ordinance'
   - '"{jurisdiction}" code of ordinances electric franchise'
+  - 'filetype:pdf "{jurisdiction}" electric transmission line ordinance'
   - 'filetype:pdf "{jurisdiction}" electric franchise agreement'
+  - 'site:municode.com {jurisdiction} electrical transmission line'
+  - 'site:codelibrary.amlegal.com {jurisdiction} electrical transmission line'
 
 website_keywords:
   pdf: 92160
@@ -151,7 +151,28 @@ extraction_system_prompt: |-
   transmission lines, towers, poles, substations, and their
   rights-of-way. Do not extract requirements that apply only to
   local electric distribution, telecommunications, gas or oil
-  pipelines, or low-voltage service lines.
+  pipelines, low-voltage service lines, or to electric
+  generation or storage facilities such as wind, solar,
+  geothermal, or battery/energy-storage systems — including
+  their decommissioning, bonding, or financial-assurance
+  provisions.
+
+  Judge scope one provision at a time, not one document or one
+  section at a time. A provision's subject matter — not the
+  presence of a feature signal — decides whether it is in scope:
+  strong cues such as bond, surety, financial-assurance,
+  decommissioning, permit, or setback language never pull an
+  out-of-scope provision into scope. When a document mixes
+  in-scope electric-transmission provisions with out-of-scope
+  ones (electric distribution, lower-voltage lines, or
+  non-transmission energy systems such as wind, solar,
+  geothermal, or storage), evaluate each independently and
+  extract only from the in-scope provisions. A separate
+  out-of-scope provision must never suppress an in-scope
+  extraction, and a value stated only in an out-of-scope
+  provision must never be attributed to an in-scope feature.
+  Isolate by scope only — do not sever a definition from the
+  requirement it modifies.
 
   For franchise content (2), the "franchise" feature is the
   primary output: name every explicitly named grantee company
@@ -169,5 +190,5 @@ extraction_system_prompt: |-
   check against the schema and ensure each explicitly supported
   feature is captured exactly once.
   Pay extra attention to any descriptions, instructions, examples,
-  and definitions in the schema, and follow all schema
-  instructions carefully.
+  definitions, and the QA checklist in the schema, and follow all
+  schema instructions carefully.
