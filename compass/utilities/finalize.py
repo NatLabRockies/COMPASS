@@ -433,7 +433,7 @@ def compile_collection_summary_message(manifest_fp, collection_manifest):
     """
     num_jurisdictions = len(collection_manifest.get("jurisdictions", []))
     num_documents = sum(
-        len((info or {}).get("documents") or [])
+        len((info or {}).get("results") or [])
         for info in collection_manifest.get("jurisdictions", [])
     )
     runtime = _elapsed_time_as_str(collection_manifest["total_time"])

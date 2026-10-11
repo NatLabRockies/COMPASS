@@ -748,7 +748,7 @@ def test_collection_cli_selectively_resets_and_collects_missing_shards(
     failed = json.loads(shards["8001"].read_text(encoding="utf-8"))
     failed.update(
         num_docs=0,
-        documents=[],
+        results=[],
         completed_step_document_counts={"known_local_docs": 0},
     )
     shards["8001"].write_text(json.dumps(failed), encoding="utf-8")
@@ -806,7 +806,7 @@ def test_collection_cli_empty_results_save_failures(
     )
     assert manifest["jurisdictions"] == []
     assert manifest["failed_targets"] == [
-        "Whatcom County, Washington: documents=0 (minimum 1)"
+        "Whatcom County, Washington: results=0 (minimum 1)"
     ]
     assert COMPASS_PB.console is None
 
