@@ -583,3 +583,10 @@ async def _compute_total_cost(rate_tracker):
         compute_total_cost_from_usage(total_usage),
         total_usage.get(rate_tracker.label),
     )
+
+
+def _purge_search_shards(manifest_path, paths):
+    """Purge aggregate and selected search shards"""
+    manifest_path.unlink(missing_ok=True)
+    for path in paths:
+        path.unlink(missing_ok=True)
