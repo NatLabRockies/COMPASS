@@ -77,7 +77,11 @@ def _collection_step_document_count(record, step):
 
 
 def build_collection_manifest(
-    tech, jurisdictions, time_start_utc, num_jurisdictions_searched
+    tech,
+    jurisdictions,
+    time_start_utc,
+    num_jurisdictions_searched,
+    failed_targets=None,
 ):
     """Build the serialized collection manifest payload
 
@@ -131,6 +135,7 @@ def build_collection_manifest(
         "total_time": time_elapsed.total_seconds(),
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
+        "failed_targets": failed_targets,
         "num_jurisdictions_found": sum(
             bool(count) for count in document_counts
         ),
