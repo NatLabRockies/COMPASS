@@ -13,16 +13,10 @@ from elm.web.website_crawl import (
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
-from compass.web.search import (
-    search_single_jurisdiction,
-    write_search_result_shard,
-)
+from compass.web.search import search_single_jurisdiction
 from compass.extraction import check_for_relevant_text, extract_date
-from compass.services.threaded import (
-    TempFileCache,
-    TempFileCachePB,
-    GenericFuncRunner,
-)
+from compass.services.threaded import TempFileCache, TempFileCachePB
+from compass.pipeline.search.persistence import write_search_manifest_shard
 from compass.validation.location import (
     DTreeJurisdictionValidator,
     JurisdictionValidator,
@@ -879,11 +873,8 @@ async def _docs_from_search_results(
     """Retrieve documents from search results"""
 
     if se_shard_out_dir is not None:
-        await GenericFuncRunner.call(
-            write_search_result_shard,
-            se_shard_out_dir,
-            search_results,
-            jurisdiction,
+        await write_search_manifest_shard(
+            se_shard_out_dir, search_results, jurisdiction
         )
 
     ranked_results = {

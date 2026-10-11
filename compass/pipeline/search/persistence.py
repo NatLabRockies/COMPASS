@@ -12,11 +12,16 @@ from elm.version import __version__ as elm_version
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass import __version__ as compass_version
-from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.services.threaded import GenericFuncRunner
 from compass.pipeline.targets import normalize_targets
-from compass.utilities.io import write_text_atomic, load_config
+from compass.utilities.io import (
+    load_config,
+    normalize_output_stem,
+    write_text_atomic,
+)
+from compass.utilities.parsing import convert_paths_to_strings
+from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.warn import COMPASSWarning
-from compass.web.search import _search_result_shard_path
 
 
 SEARCH_RESULT_MANIFEST_FILENAME = "search_result_manifest.json"
@@ -155,6 +160,42 @@ async def build_search_manifest(
     }
 
 
+async def write_search_manifest_shard(manifest_dir, se_results, jurisdiction):
+    """Write one jurisdiction's existing search result shard format
+
+    Parameters
+    ----------
+    out_dir : path-like
+        Directory for search result shards.
+    se_results : dict
+        Search results for one jurisdiction.
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction represented by the results.
+
+    Returns
+    -------
+    pathlib.Path
+        Written shard path.
+    """
+    return await GenericFuncRunner.call(
+        _write_search_result_shard, manifest_dir, se_results, jurisdiction
+    )
+
+
+def write_search_report(report, out_path):
+    """Write a search-only report as JSON
+
+    Parameters
+    ----------
+    report : dict
+        Report returned by :func:`build_search_manifest`.
+    out_path : path-like
+        Destination file path.
+    """
+    payload = json.dumps(report, indent=4, ensure_ascii=False)
+    write_text_atomic(out_path, payload)
+
+
 def load_search_result_jurisdictions(manifest_fp, expected_tech):
     """Load saved search results indexed by jurisdiction code
 
@@ -228,18 +269,22 @@ def load_search_shards(out_dir, jurisdictions, expected_tech):
     return shards
 
 
-def write_search_report(report, out_path):
-    """Write a search-only report as JSON
+def _search_result_shard_path(out_dir, jurisdiction):
+    """Build the normalized search result shard path for a jur"""
+    filename = normalize_output_stem(
+        f"{jurisdiction.full_name} search results"
+    )
+    return Path(out_dir) / f"{filename}.json"
 
-    Parameters
-    ----------
-    report : dict
-        Report returned by :func:`build_search_manifest`.
-    out_path : path-like
-        Destination file path.
-    """
-    payload = json.dumps(report, indent=4, ensure_ascii=False)
-    write_text_atomic(out_path, payload)
+
+def _write_search_result_shard(out_dir, se_results, jurisdiction):
+    """Write one jurisdiction's existing search result shard format"""
+    out_fp = _search_result_shard_path(out_dir, jurisdiction)
+    write_text_atomic(
+        out_fp,
+        json.dumps(convert_paths_to_strings(se_results), indent=4),
+    )
+    return out_fp
 
 
 def _records_from_files(pattern, expected_tech, jurisdictions):
