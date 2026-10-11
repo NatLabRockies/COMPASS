@@ -24,7 +24,6 @@ from compass.scripts.search import (
     build_search_report,
     load_search_result_jurisdictions,
     load_search_shards,
-    search_shard_failures,
     validate_search_targets,
     write_search_report,
     SEARCH_RESULT_MANIFEST_FILENAME,
@@ -35,11 +34,11 @@ from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
-    collection_shard_failures,
     validate_collection_targets,
     write_collection_manifest,
     load_collection_manifest_jurisdictions,
 )
+from compass.pipeline.targets import shard_failures
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.jurisdiction import SingleJurisdictionRun
@@ -174,7 +173,7 @@ class BaseRunMode(ABC):
             ),
         )
 
-    def _unmet_requirements(self, jurisdictions, results, metrics, fail_func):
+    def _unmet_requirements(self, jurisdictions, results, metrics, key):
         """Describe remaining shard failures after persistence"""
         if self.runtime.re_run_targets is None:
             return None
@@ -184,8 +183,8 @@ class BaseRunMode(ABC):
             messages.extend(
                 f"{jurisdiction.full_name}: {failure['metric']}="
                 f"{failure['actual']} (minimum {failure['minimum']})"
-                for failure in fail_func(
-                    record, self.runtime.re_run_targets, metrics
+                for failure in shard_failures(
+                    record, self.runtime.re_run_targets, metrics, key
                 )
             )
         return messages
@@ -306,7 +305,7 @@ class COMPASSCollection(BaseRunMode):
 
         collection_infos = await asyncio.gather(*tasks)
         failures = self._unmet_requirements(
-            jurisdictions, collection_infos, metrics, collection_shard_failures
+            jurisdictions, collection_infos, metrics, "documents"
         )
 
         manifest = build_collection_manifest(
@@ -360,7 +359,7 @@ class COMPASSSearch(BaseRunMode):
         await self._process_pending_searches(pending, jurisdictions, results)
 
         failures = self._unmet_requirements(
-            jurisdictions, results, metrics, search_shard_failures
+            jurisdictions, results, metrics, "results"
         )
         manifest = await build_search_report(
             self.runtime, results, start_date, failures
@@ -415,8 +414,8 @@ class COMPASSSearch(BaseRunMode):
 
     def _can_re_use_shard(self, shard, metrics, purge_paths, jurisdiction):
         """Determine if a search shard can be reused"""
-        failures = search_shard_failures(
-            shard["record"], self.runtime.re_run_targets, metrics
+        failures = shard_failures(
+            shard["record"], self.runtime.re_run_targets, metrics, "results"
         )
         if not failures:
             return True

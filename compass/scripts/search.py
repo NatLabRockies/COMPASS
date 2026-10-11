@@ -20,7 +20,7 @@ from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass import __version__ as compass_version
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
-from compass.pipeline.targets import evaluate_targets, normalize_targets
+from compass.pipeline.targets import normalize_targets
 from compass.utilities.io import write_text_atomic, load_config
 from compass.warn import COMPASSWarning
 from compass.web.search import _search_result_shard_path
@@ -346,30 +346,6 @@ def _kept_result_count(record):
 def _engine_result_count(record, engine):
     """Read one engine count, treating an absent engine as zero"""
     return record.get("search_engine_counts", {}).get(engine, 0)
-
-
-def search_shard_failures(record, targets, metrics):
-    """Evaluate default nonempty results and explicit shard minimums
-
-    Parameters
-    ----------
-    record : dict or None
-        One search shard, or ``None`` when its file is missing.
-    targets : dict
-        Validated search minimum targets.
-    metrics : dict
-        Search metric accessors returned by target validation.
-
-    Returns
-    -------
-    list of dict
-        Unmet default and explicit requirements for this shard.
-    """
-    record = record or {"results": []}
-    failures = []
-    if not record["results"]:
-        failures.append({"metric": "results", "actual": 0, "minimum": 1})
-    return failures + evaluate_targets(record, targets, metrics)
 
 
 def load_search_shards(out_dir, jurisdictions, expected_tech):
