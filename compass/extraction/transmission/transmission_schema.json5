@@ -303,8 +303,8 @@
       "units": "text",
       "section": "Sec. 12.04 – District Use Restrictions",
       "summary": "Overhead electric transmission lines rated above 69 kV are prohibited outright in all residential districts (R-1, R-2, R-3). In agricultural districts (including irrigated farmland and ranch land) such lines are allowed only by conditional-use permit and must follow existing field boundaries.",
-      "explanation": "Ordinance restricts transmission lines in two district types of interest (residential and agricultural); a single row summarizes both. Summarizing districts is not aggregation, so aggregated is false.",
-      "aggregated": false
+      "explanation": "Ordinance restricts transmission lines in two district types (residential and agricultural); the single row folds together more than one restricted district, so aggregated is true.",
+      "aggregated": true
     },
     {
       "feature": "district use restriction",
@@ -312,7 +312,7 @@
       "units": "text",
       "section": "Sec. 9.11 – Prohibited Utility Infrastructure",
       "summary": "New overhead electric transmission lines rated above 69 kV are prohibited anywhere within the jurisdiction; only underground installation is permitted.",
-      "explanation": "The prohibition applies jurisdiction-wide rather than to specific zoning districts; the single summarizing row is not an aggregation, so aggregated is false.",
+      "explanation": "The prohibition applies jurisdiction-wide as a single restriction with no other district folded into the row, so aggregated is false.",
       "aggregated": false
     },
     {
@@ -339,7 +339,16 @@
       "units": "text",
       "section": "Ch. 8 Franchises — List of Franchises",
       "summary": "Under the 'Electric Franchises' heading of the codified list of franchises: Dixie Electric Membership Corporation (99 years), Ordinance of May 10, 1939; Louisiana Power and Light Company (no time limit), Ordinance of February 10, 1937. The code omits the full text of these franchise ordinances and preserves only this listing of grantees, durations, and originating ordinances.",
-      "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded.",
+      "explanation": "The codification records the electric franchises only as a list naming the grantees, their durations, and the originating ordinances; this electric-franchise listing is substantive franchise data even though the full granting clause was omitted. Only entries under the 'Electric Franchises' heading are extracted; cable, gas, and pipeline entries in the same list are excluded. More than one electric grantee is folded into the single row, so aggregated is true.",
+      "aggregated": true
+    },
+    {
+      "feature": "permit",
+      "value": null,
+      "units": "text",
+      "section": "165.19(2)(D) Special Exceptions",
+      "summary": "Special exception required for 'Public utility substations, either publicly or privately owned' and for 'the type or location of any poles, towers, wires, cables, conduits or any similar distributing equipment of a ... light, power ... company'; 'no permit shall be issued unless any and all equipment used or located thereon shall be housed in a building comparable in appearance and size to the surrounding buildings and houses or the use for which the area is zoned.'",
+      "explanation": "A discretionary special-exception permit governing public utility substations and the poles, towers, wires, and cables of a 'light, power' (electric) company is in scope; the electric items are extracted even though telephone, telegraph, gas, pipeline, and railroad utilities appear in the same list, and the generic word 'distributing' does not limit the provision to distribution voltage.",
       "aggregated": false
     }
   ],
