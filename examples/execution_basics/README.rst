@@ -271,6 +271,63 @@ filtered rows; ``filtered_result_stats`` counts the URLs retained for collection
 Search does not need an LLM endpoint and honors ``simple_se_result_sort``.
 Use the same plugin registration option as collection when running a one-shot plugin.
 
+To continue an existing search, provide its output directory and optional
+minimum targets. For example:
+
+.. code-block:: shell
+
+    pixi run compass search -c search_config.json5 \
+      --continue ./searched \
+      --target num_results=3 \
+      --target 'search_engine_counts.SerpAPI (Google)=10'
+
+Targets apply to each jurisdiction's shard, not to the aggregate manifest.
+Every target is a lower bound, and a shard must meet all supplied targets.
+``num_results`` counts reported rows, including filtered rows;
+``num_kept_results`` counts retained results; and
+``search_engine_counts.<engine label>`` counts rows attributed to that
+engine. Engine labels are the exact strings in ``search_engine_counts``.
+Quote targets containing spaces or parentheses. An absent engine count is
+zero, but an unknown or unconfigured engine label is an input error.
+Targets do not change which engines the configured search strategy runs.
+
+Continuation reuses passing shards without modifying their saved ranks or
+filters. It deletes shards below their targets or containing an empty
+``results`` list, then searches those jurisdictions again. Jurisdictions
+with no shard are always searched, even if the aggregate manifest still
+lists old results for them. Fresh shards replace the previous results;
+old and new rows are not merged. Files belonging to jurisdictions outside
+the configured jurisdiction list are left untouched.
+
+Without explicit targets, continuation reuses nonempty shards and retries
+only missing or empty ones. Each selected jurisdiction is searched once
+per invocation. The command saves its shards and rebuilt aggregate
+manifest before returning a nonzero exit status if requirements remain
+unmet. Inspect the reported failures and invoke continuation again when
+appropriate; there is no internal rerun loop. Unsuccessful fresh shards
+remain available for inspection. Interrupted runs can continue from the
+surviving shard files even if no aggregate manifest exists.
+
+The ``--continue`` directory is relative to the shell's working directory
+and overrides ``out_dir`` in the configuration. It cannot be combined with
+a conflicting explicit output-directory override or directory policy.
+``--out-dir-exists continue`` uses the same continuation behavior with
+the configured ``out_dir``.
+
+CLI targets override matching configuration targets and preserve other
+configured minimums. Repeated CLI targets for the same metric use the
+largest minimum. Counts must be nonnegative integers, and retained-result
+targets cannot exceed ``num_urls_to_check_per_jurisdiction``. Aggregate
+fields such as ``result_stats.min`` are not valid shard targets. Explicit
+targets may also validate a fresh search after its single pass. A fresh
+search without targets retains its normal completion behavior.
+
+The rebuilt manifest describes all currently requested jurisdictions,
+including reused shards and unsuccessful searches. Its timing and search
+settings describe the current invocation, not accumulated rerun history.
+Reuse does not refresh passing shards after changes to queries, filters,
+or ranking settings; use a fresh search to regenerate all results.
+
 To reuse these results, add the following setting to a collection or
 processing configuration and choose a separate ``out_dir``:
 
