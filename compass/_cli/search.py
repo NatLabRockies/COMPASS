@@ -118,7 +118,7 @@ def summary(report):
     Parameters
     ----------
     report : dict
-        Dictionary produced by :func:`build_search_report`.
+        Search manifest to summarize.
 
     Returns
     -------
