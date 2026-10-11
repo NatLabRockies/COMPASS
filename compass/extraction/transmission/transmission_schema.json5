@@ -355,6 +355,9 @@
   "$instructions": {
     "general": [
       "Use direct text excerpts and quotes in summary whenever possible.",
+      "Fidelity is mandatory: every quotation in summary must appear verbatim in the source text of the cited section. Never insert, complete, paraphrase inside quotation marks, or otherwise alter a quotation to add a word that is not literally present in the source.",
+      "Never introduce the term 'transmission', 'electric transmission line', or any other feature or technology keyword into a summary, quotation, or enumerated list when it does not literally appear in the cited text; do not use ellipses to join fragments in a way that implies a word not present between them.",
+      "A provision's applicability to transmission must be supported by verbatim text, established per $instructions.encompassment_scope; if that tie is absent, do not emit the row and never manufacture the transmission connection.",
     ],
     "setbacks": [
       "Setbacks should be extracted as minimum separation distances.",
