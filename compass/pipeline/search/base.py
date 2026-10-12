@@ -1,11 +1,8 @@
 """Search workflow for jurisdictions"""
 
 from compass.pb import COMPASS_PB
-from compass.services.threaded import GenericFuncRunner
-from compass.web.search import (
-    search_single_jurisdiction,
-    write_search_result_shard,
-)
+from compass.web.search import search_single_jurisdiction
+from compass.pipeline.search.persistence import write_search_manifest_shard
 
 
 class SearchEngineLinkCollection:
@@ -45,10 +42,7 @@ class SearchEngineLinkCollection:
             **search_params.se_kwargs,
         )
         results["tech"] = runtime.tech
-        await GenericFuncRunner.call(
-            write_search_result_shard,
-            runtime.dirs.se_shards,
-            results,
-            jurisdiction,
+        await write_search_manifest_shard(
+            runtime.dirs.se_shards, results, jurisdiction
         )
         return results

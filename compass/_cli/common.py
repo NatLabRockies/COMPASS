@@ -68,7 +68,8 @@ def run_async_command(
     re_run_targets : dict, optional
         Per-shard metric names mapped to minimum counts. An empty
         mapping continues with the default nonempty shard requirement.
-        By default, ``None`` starts a fresh run.
+        Only applicable when ``--out-dir-exists continue``.
+        By default, ``None``.
     """
     if override_args:
         config = apply_cli_config_overrides(config, override_args)

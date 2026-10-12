@@ -13,6 +13,7 @@ from compass.pipeline.collection.persistence import (
     load_collected_docs,
     write_collection_manifest_shard,
     load_specific_collection_manifest_shard,
+    reset_collection_manifest_shard,
 )
 from compass.pipeline.extraction import DocumentExtraction
 from compass.pipeline.search import SearchEngineLinkCollection
@@ -418,6 +419,17 @@ class SingleJurisdictionRun:
                 self.jurisdiction.full_name,
             )
         return collection_info
+
+    async def reset_collection_shard(self):
+        """Reset this jurisdiction's collection checkpoint metadata
+
+        Saved source and parsed files are not removed.
+        """
+        await reset_collection_manifest_shard(
+            self.runtime.dirs.jurisdiction_dbs,
+            self.runtime.dirs.out,
+            self.jurisdiction,
+        )
 
     @cached_property
     def _relative_to(self):

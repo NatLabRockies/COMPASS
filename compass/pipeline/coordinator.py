@@ -20,24 +20,25 @@ from compass.utilities import (
 )
 from compass.services.threaded import UsageUpdater
 from compass.services.threaded import GenericFuncRunner
-from compass.scripts.search import (
-    build_search_report,
-    load_search_result_jurisdictions,
-    load_search_shards,
-    search_shard_failures,
-    validate_search_targets,
-    write_search_report,
-    SEARCH_RESULT_MANIFEST_FILENAME,
-)
 from compass.utilities.enums import COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
+    validate_collection_targets,
     write_collection_manifest,
     load_collection_manifest_jurisdictions,
 )
+from compass.pipeline.search.persistence import (
+    build_search_manifest,
+    load_search_result_jurisdictions,
+    load_search_shards,
+    reset_search_manifest_shards,
+    validate_search_targets,
+    write_search_manifest,
+)
+from compass.pipeline.targets import shard_failures
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.jurisdiction import SingleJurisdictionRun
@@ -172,6 +173,22 @@ class BaseRunMode(ABC):
             ),
         )
 
+    def _unmet_requirements(self, jurisdictions, results, metrics):
+        """Describe remaining shard failures after persistence"""
+        if self.runtime.re_run_targets is None:
+            return None
+
+        messages = []
+        for jurisdiction, record in zip(jurisdictions, results, strict=True):
+            messages.extend(
+                f"{jurisdiction.full_name}: {failure['metric']}="
+                f"{failure['actual']} (minimum {failure['minimum']})"
+                for failure in shard_failures(
+                    record, self.runtime.re_run_targets, metrics
+                )
+            )
+        return messages
+
     @abstractmethod
     async def run(self, jurisdictions_df):
         """Run the mode workflow"""
@@ -236,70 +253,6 @@ class COMPASSFullProcessing(BaseRunMode):
         )
 
 
-class COMPASSCollection(BaseRunMode):
-    """Concrete Strategy for document collection mode"""
-
-    async def run(self, jurisdictions_df):
-        """Run process mode over all requested jurisdictions
-
-        Parameters
-        ----------
-        jurisdictions_df : pandas.DataFrame
-            A DataFrame containing information about the jurisdictions
-            to process. This DataFrame should include all necessary
-            information for each jurisdiction, such as its code, full
-            name, and any other relevant metadata needed for processing.
-            The workflow will iterate over each jurisdiction in the
-            DataFrame and execute the collection step for each one,
-            using the information provided in the DataFrame to guide the
-            processing steps.
-
-        Returns
-        -------
-        str
-            A summary message of the collection run, including key
-            information such as the number of jurisdictions processed,
-            documents found, total cost, and output locations. The exact
-            content of the message may vary depending on the results of
-            the processing.
-        """
-        logger.info(
-            "Collecting documents for %d jurisdiction(s)",
-            len(jurisdictions_df),
-        )
-        start_date = datetime.now(UTC)
-        tasks = []
-        async for jurisdiction, se_results in _jurisdictions_with_search_input(
-            self.runtime, jurisdictions_df
-        ):
-            workflow = self._create(
-                jurisdiction, known_se_results=se_results, usage_tracker=None
-            )
-            tasks.append(
-                asyncio.create_task(
-                    workflow.run_collection_with_logging(),
-                    name=jurisdiction.full_name,
-                )
-            )
-
-        collection_infos = await asyncio.gather(*tasks)
-        manifest = build_collection_manifest(
-            self.runtime.tech,
-            collection_infos,
-            start_date,
-            len(jurisdictions_df),
-        )
-        manifest_fp = await write_collection_manifest(
-            self.runtime.dirs.out, manifest
-        )
-        collection_msg = compile_collection_summary_message(
-            manifest_fp, manifest
-        )
-        for sub_msg in collection_msg.split("\n"):
-            logger.info(sub_msg)
-        return collection_msg
-
-
 class COMPASSSearch(BaseRunMode):
     """Search-only strategy using existing reports and shards"""
 
@@ -324,26 +277,22 @@ class COMPASSSearch(BaseRunMode):
         results, pending, purge_paths = await self._select_unfinished_searches(
             jurisdictions, metrics
         )
-        manifest_fp = self.runtime.dirs.out / SEARCH_RESULT_MANIFEST_FILENAME
         if self.is_continuation_run and pending:
-            await GenericFuncRunner.call(
-                _purge_search_shards, manifest_fp, purge_paths
+            await reset_search_manifest_shards(
+                self.runtime.dirs.out, purge_paths
             )
 
         await self._process_pending_searches(pending, jurisdictions, results)
 
         failures = self._unmet_requirements(jurisdictions, results, metrics)
-        manifest = await build_search_report(
+        manifest = await build_search_manifest(
             self.runtime, results, start_date, failures
         )
-        await GenericFuncRunner.call(
-            write_search_report, manifest, manifest_fp
-        )
+        await write_search_manifest(self.runtime.dirs.out, manifest)
         message = (
             f"Search completed for {manifest['num_jurisdictions_searched']} "
             f"jurisdictions; kept "
             f"{manifest['filtered_result_stats']['total']} URLs.\n"
-            f"Search result manifest: {manifest_fp}"
         )
         logger.info(message)
         return message
@@ -386,8 +335,8 @@ class COMPASSSearch(BaseRunMode):
 
     def _can_re_use_shard(self, shard, metrics, purge_paths, jurisdiction):
         """Determine if a search shard can be reused"""
-        failures = search_shard_failures(
-            shard["record"], self.runtime.re_run_targets, metrics
+        failures = shard_failures(
+            shard["record"], self.runtime.re_run_targets, metrics, "results"
         )
         if not failures:
             return True
@@ -420,21 +369,78 @@ class COMPASSSearch(BaseRunMode):
         ):
             results[index] = result
 
-    def _unmet_requirements(self, jurisdictions, results, metrics):
-        """Describe remaining shard failures after persistence"""
-        if self.runtime.re_run_targets is None:
-            return None
 
-        messages = []
-        for jurisdiction, record in zip(jurisdictions, results, strict=True):
-            messages.extend(
-                f"{jurisdiction.full_name}: {failure['metric']}="
-                f"{failure['actual']} (minimum {failure['minimum']})"
-                for failure in search_shard_failures(
-                    record, self.runtime.re_run_targets, metrics
+class COMPASSCollection(BaseRunMode):
+    """Concrete Strategy for document collection mode"""
+
+    async def run(self, jurisdictions_df):
+        """Run process mode over all requested jurisdictions
+
+        Parameters
+        ----------
+        jurisdictions_df : pandas.DataFrame
+            A DataFrame containing information about the jurisdictions
+            to process. This DataFrame should include all necessary
+            information for each jurisdiction, such as its code, full
+            name, and any other relevant metadata needed for processing.
+            The workflow will iterate over each jurisdiction in the
+            DataFrame and execute the collection step for each one,
+            using the information provided in the DataFrame to guide the
+            processing steps.
+
+        Returns
+        -------
+        str
+            A summary message of the collection run, including key
+            information such as the number of jurisdictions processed,
+            documents found, total cost, and output locations. The exact
+            content of the message may vary depending on the results of
+            the processing.
+        """
+        logger.info(
+            "Collecting documents for %d jurisdiction(s)",
+            len(jurisdictions_df),
+        )
+        start_date = datetime.now(UTC)
+
+        metrics = validate_collection_targets(self.runtime.re_run_targets)
+        tasks = []
+        jurisdictions = []
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
+            jurisdictions.append(jurisdiction)
+            workflow = self._create(
+                jurisdiction, known_se_results=se_results, usage_tracker=None
+            )
+            tasks.append(
+                asyncio.create_task(
+                    workflow.run_collection_with_logging(),
+                    name=jurisdiction.full_name,
                 )
             )
-        return messages
+
+        collection_infos = await asyncio.gather(*tasks)
+        failures = self._unmet_requirements(
+            jurisdictions, collection_infos, metrics
+        )
+
+        manifest = build_collection_manifest(
+            self.runtime.tech,
+            collection_infos,
+            start_date,
+            len(jurisdictions_df),
+            failed_targets=failures,
+        )
+        manifest_fp = await write_collection_manifest(
+            self.runtime.dirs.out, manifest
+        )
+        collection_msg = compile_collection_summary_message(
+            manifest_fp, manifest
+        )
+        for sub_msg in collection_msg.split("\n"):
+            logger.info(sub_msg)
+        return collection_msg
 
 
 class COMPASSExtraction(BaseRunMode):
@@ -691,10 +697,3 @@ async def _compute_total_cost(rate_tracker):
         compute_total_cost_from_usage(total_usage),
         total_usage.get(rate_tracker.label),
     )
-
-
-def _purge_search_shards(manifest_path, paths):
-    """Purge aggregate and selected search shards"""
-    manifest_path.unlink(missing_ok=True)
-    for path in paths:
-        path.unlink(missing_ok=True)

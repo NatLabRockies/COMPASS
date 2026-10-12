@@ -10,9 +10,9 @@ from compass._cli.common import (
     OUT_DIR_POLICY_CHOICES,
 )
 from compass.pipeline import SearchRequest
-from compass.pipeline.targets import parse_search_target_options
+from compass.pipeline.search.persistence import SEARCH_RESULT_MANIFEST_FILENAME
+from compass.pipeline.targets import parse_target_options
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.search import summary, SEARCH_RESULT_MANIFEST_FILENAME
 from compass.utilities.io import load_config
 
 
@@ -76,9 +76,9 @@ def search(
     config = load_config(config)
 
     policy = out_dir_exists.lower() if out_dir_exists else None
-    targets = parse_search_target_options(targets)
+    targets = parse_target_options(targets)
     if targets and policy not in {None, "continue"}:
-        msg = "--targets conflicts with --out-dir-exists"
+        msg = "--target options conflicts with --out-dir-exists"
         raise click.ClickException(msg)
 
     if plugin is not None:
@@ -110,3 +110,76 @@ def search(
     if targets and report["failed_targets"]:
         msg = f"Failed {len(report['failed_targets']):,d} targets"
         raise click.ClickException(msg)
+
+
+def summary(report):
+    """Format search-only output as readable plain text
+
+    Parameters
+    ----------
+    report : dict
+        Search manifest to summarize.
+
+    Returns
+    -------
+    str
+        Multi-line summary containing only records that were not
+        filtered, sorted by ``overall_rank`` within each jurisdiction.
+    """
+    lines = []
+    lines.extend(
+        (
+            "COMPASS search-only summary",
+            "---------------------------",
+            f"tech: {report.get('tech')}",
+            f"timestamp: {report.get('time_end_utc')}",
+            f"requested top urls: {report.get('num_urls_requested')}",
+            "",
+        )
+    )
+
+    jurisdictions = report.get("jurisdictions", [])
+    for jur in jurisdictions:
+        lines.append(f"jurisdiction: {jur.get('full_name')}")
+
+        if jur.get("error"):
+            lines.extend((f"  error: {jur.get('error')}", ""))
+            continue
+
+        kept = [
+            entry
+            for entry in jur.get("results", [])
+            if entry.get("filtered_reason") is None
+        ]
+        kept.sort(
+            key=lambda entry: (
+                entry.get("overall_rank")
+                if entry.get("overall_rank") is not None
+                else float("inf"),
+                entry.get("query_rank")
+                if entry.get("query_rank") is not None
+                else float("inf"),
+            )
+        )
+
+        if not kept:
+            lines.extend(("  no unfiltered results", ""))
+            continue
+
+        for entry in kept:
+            lines.extend(
+                (
+                    (
+                        "  "
+                        f"[{entry.get('overall_rank')}] "
+                        f"{entry.get('search_engine')} "
+                        f"(query_rank={entry.get('query_rank')})"
+                    ),
+                    f"    query: {entry.get('query')}",
+                    f"    url: {entry.get('url')}",
+                )
+            )
+
+        lines.append("")
+
+    return "\n".join(lines).rstrip()

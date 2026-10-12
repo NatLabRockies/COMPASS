@@ -42,7 +42,7 @@ def normalize_targets(targets):
     return normalized
 
 
-def parse_search_target_options(options):
+def parse_target_options(options):
     """Parse repeated CLI targets, retaining the strictest minimum
 
     Parameters
@@ -110,6 +110,33 @@ def evaluate_targets(record, targets, metrics):
             )
 
     return failures
+
+
+def shard_failures(record, targets, metrics, key="results"):
+    """Evaluate default nonempty results and explicit shard minimums
+
+    Parameters
+    ----------
+    record : dict or None
+        One search shard, or ``None`` when its file is missing.
+    targets : dict
+        Validated search minimum targets.
+    metrics : dict
+        Search metric accessors returned by target validation.
+    key : str, default="results"
+        The key in the record to check for nonempty results.
+        By default, ``"results"``.
+
+    Returns
+    -------
+    list of dict
+        Unmet default and explicit requirements for this shard.
+    """
+    record = record or {}
+    failures = []
+    if not record.get(key):
+        failures.append({"metric": key, "actual": 0, "minimum": 1})
+    return failures + evaluate_targets(record, targets, metrics)
 
 
 def _is_number(value):
