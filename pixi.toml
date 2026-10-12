@@ -106,7 +106,7 @@ greenlet = "==3.1.1"  # version pin required for rebrowser-playwright
 pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [feature.python-default.pypi-dependencies]
-crawl4ai = ">=0.8.6,<0.9"
+crawl4ai = ">=0.9.4,<0.10"
 docling = ">=2.90.0,<3"
 docling-slim = ">=2.95.0,<3"
 docling-core = ">=2.101.1,<3"
