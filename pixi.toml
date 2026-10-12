@@ -107,10 +107,10 @@ pyee = "==12.0.0"  # version pin required for rebrowser-playwright
 
 [feature.python-default.pypi-dependencies]
 crawl4ai = ">=0.8.6,<0.9"
-docling = ">=2.90.0, <3"
-docling-slim = ">=2.95.0, <3"
-docling-core = ">=2.101.1, <3"
-docling-parse = ">=5.11.0, <8"
+docling = ">=2.90.0,<3"
+docling-slim = ">=2.95.0,<3"
+docling-core = ">=2.101.1,<3"
+docling-parse = ">=5.11.0,<8"
 INFRA-COMPASS = { path = ".", editable = true}
 
 [feature.python-default.target.linux-aarch64.pypi-dependencies]
@@ -126,7 +126,7 @@ docling = "==2.90.0"
 
 [feature.python-default.target.osx.dependencies]
 docling = ">=2.96.1,<3"
-docling-slim = ">=2.95.0, <3"
+docling-slim = ">=2.95.0,<3"
 docling-core = ">=2.101.1,<3"
 docling-parse = ">=6.2.0,<8"
 
@@ -144,15 +144,15 @@ scrapling = ">=0.2.99,<0.3"
 tavily-python = ">=0.5.0,<0.6"
 
 [feature.python-dev.dependencies]
-geopandas = ">=1.0.1,<2"
-ipykernel = ">=7.1.0,<8"
-jupyter = ">=1.0.0,<1.1"
-pipreqs = ">=0.4.13,<0.5"
-ruff = ">=0.16,<0.17"
+geopandas = ">=1.2.0,<2"
+ipykernel = ">=7.4.0,<8"
+jupyter = ">=1.1.1,<2"
+pipreqs = ">=0.5.0,<0.6"
+ruff = ">=0.17.0,<0.18"
 seaborn = ">=0.13.2,<0.14"
 
 [feature.python-dev.pypi-dependencies]
-complexipy = ">=7.0.1,<8"
+complexipy = ">=8.0.1,<9"
 
 [feature.python-test.dependencies]
 codespell = ">=2.4,<3"
