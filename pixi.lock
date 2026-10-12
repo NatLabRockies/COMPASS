@@ -34220,10 +34220,10 @@ packages:
   - rich>=13.9.4,<14
   - toml>=0.10.2,<0.11
   - pytesseract>=0.3.13,<0.4 ; extra == 'ocr'
-  - complexipy>=7.0.1,<8 ; extra == 'dev'
-  - jupyter>=1.0.0,<1.1 ; extra == 'dev'
-  - pipreqs>=0.4.13,<0.5 ; extra == 'dev'
-  - ruff>=0.16,<0.17 ; extra == 'dev'
+  - complexipy>=8.0.1,<9 ; extra == 'dev'
+  - jupyter>=1.1.1,<2 ; extra == 'dev'
+  - pipreqs>=0.5.0,<0.6 ; extra == 'dev'
+  - ruff>=0.17.0,<0.18 ; extra == 'dev'
   - codespell>=2.4,<3 ; extra == 'test'
   - flaky>=3.8.1,<4 ; extra == 'test'
   - pytest>=9.0.3,<9.1 ; extra == 'test'
