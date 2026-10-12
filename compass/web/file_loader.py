@@ -280,7 +280,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             len(to_re_fetch),
             to_re_fetch,
         )
-        docs += await self.html_loader.fetch_all(*to_re_fetch)
+        rendered_docs = await self.html_loader.fetch_all(*to_re_fetch)
+        docs.extend(
+            doc for doc in rendered_docs if doc is not None and not doc.empty
+        )
         return docs
 
     async def _maybe_fetch_failed_docs_with_elm(self, docs, sources):
