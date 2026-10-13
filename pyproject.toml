@@ -288,6 +288,7 @@ addopts = '--durations=10 --disable-warnings -m "not evals"'
 asyncio_mode="auto"
 asyncio_default_fixture_loop_scope="function"
 markers = [
+  "docling_backend: production loader and collection tests requiring COMPASS_FILE_LOAD_BACKEND=docling before pytest starts.",
   "evals: accuracy/quality evals (live billable LLM calls). Deselected by default. Run with `pixi run evals <name>` (dev dataset) or `pixi run evals <name> --held-out` (held-out dataset).",
 ]
 testpaths = [
