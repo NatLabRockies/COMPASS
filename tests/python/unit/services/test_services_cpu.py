@@ -11,10 +11,9 @@ from types import SimpleNamespace
 from unittest.mock import Mock
 
 import numpy as np
-import pandas as pd
 import pytest
-from docling.datamodel.base_models import InputFormat
-from docling.exceptions import ConversionError
+from docling_rs.datamodel.base_models import InputFormat
+from docling_rs.exceptions import ConversionError
 
 from compass.exceptions import COMPASSValueError
 from compass.services.cpu import (
@@ -74,37 +73,27 @@ def _exit_subprocess():
 @pytest.fixture
 def converter_state(monkeypatch):
     """Capture converter inputs without invoking external models"""
-    state = {
-        "mean_score": np.nan,
-        "low_score": pd.NA,
-        "ocr_score": np.nan,
-        "status": "success",
-    }
+    state = {"status": "success"}
 
     def export_markdown(**kwargs):
         state["export_kwargs"] = kwargs
-        return "<!-- page break -->\nmarkdown body"
+        return state.get("markdown", "<!-- page break -->\nmarkdown body")
 
     class FakeDocumentConverter:
-        def __init__(self, format_options):
+        def __init__(self, format_options, document_timeout=None):
             state["format_options"] = format_options
+            state["document_timeout"] = document_timeout
 
-        def convert(self, stream, headers=None):
+        def convert(self, stream):
             state["stream_name"] = stream.name
             state["stream_bytes"] = stream.stream.read()
-            state["headers"] = headers
+            state["stream_format"] = stream.format
             return SimpleNamespace(
-                confidence=SimpleNamespace(
-                    mean_score=state["mean_score"],
-                    low_score=state["low_score"],
-                    pages={0: SimpleNamespace(ocr_score=state["ocr_score"])},
+                input=SimpleNamespace(file=Path(stream.name)),
+                document=SimpleNamespace(
+                    export_to_markdown=export_markdown,
+                    pages={1: "page 1", 2: "page 2"},
                 ),
-                input=SimpleNamespace(
-                    file=Path(stream.name),
-                    format=SimpleNamespace(value="html"),
-                ),
-                pages=["page 1", "page 2"],
-                document=SimpleNamespace(export_to_markdown=export_markdown),
                 status=SimpleNamespace(value=state["status"]),
             )
 
@@ -213,7 +202,7 @@ async def test_process_streams_are_forwarded_to_logs(capfd):
 @pytest.mark.parametrize(
     "configured_options,tesseract_path,expected_tables,expected_ocr",
     [
-        ({}, None, True, False),
+        ({}, None, True, True),
         ({}, "tesseract", True, True),
         (
             {"do_table_structure": False, "do_ocr": False},
@@ -222,16 +211,17 @@ async def test_process_streams_are_forwarded_to_logs(capfd):
             False,
         ),
         ({"do_table_structure": True, "do_ocr": True}, None, True, True),
+        ({"document_timeout": 30}, None, True, True),
     ],
 )
-def test_read_docling_converts_missing_confidences_to_none(
+def test_read_docling_honors_native_pdf_options(
     converter_state,
     configured_options,
     tesseract_path,
     expected_tables,
     expected_ocr,
 ):
-    """Honor explicit PDF options while normalizing missing confidences"""
+    """Honor native PDF options without requiring a Tesseract executable"""
     doc = _read_docling_without_timeout(
         b"<html></html>",
         "sample.html",
@@ -242,13 +232,15 @@ def test_read_docling_converts_missing_confidences_to_none(
     assert "markdown body" in doc.text
     assert doc.attrs["mean_confidence"] is None
     assert doc.attrs["low_score_confidence"] is None
+    assert doc.attrs["from_ocr"] is None
+    assert converter_state["document_timeout"] == configured_options.get(
+        "document_timeout"
+    )
     pdf_options = converter_state["format_options"][InputFormat.PDF]
     pdf_options = pdf_options.pipeline_options
     assert pdf_options.do_table_structure is expected_tables
     assert pdf_options.do_ocr is expected_ocr
     assert pdf_options.table_structure_options.do_cell_matching
-    if tesseract_path:
-        assert pdf_options.ocr_options.tesseract_cmd == tesseract_path
 
 
 @pytest.mark.parametrize("source_uri", [None, "https://example.com/code/"])
@@ -256,12 +248,7 @@ def test_docling_converter_preserves_inputs_and_metadata(
     converter_state, source_uri
 ):
     """Forward conversion inputs and preserve useful result metadata"""
-    converter_state.update(
-        mean_score=0.9,
-        low_score=0.5,
-        ocr_score=0.8,
-        status="partial_success",
-    )
+    converter_state["status"] = "partial_success"
     configured_options = {
         "table_structure_options": {"do_cell_matching": False},
     }
@@ -277,15 +264,13 @@ def test_docling_converter_preserves_inputs_and_metadata(
 
     assert converter_state["stream_name"] == "sample.html"
     assert converter_state["stream_bytes"] == b"<html>ordinance</html>"
-    assert converter_state["headers"] == {"Content-Type": "text/html"}
+    assert converter_state["stream_format"] == InputFormat.HTML
     assert converter_state["export_kwargs"] == {
         "image_placeholder": "",
         "page_break_placeholder": "<!-- page break -->",
     }
     options = converter_state["format_options"]
-    assert str(options[InputFormat.HTML].backend_options.source_uri) == (
-        source_uri or "sample.html"
-    )
+    assert set(options) == {InputFormat.PDF}
     assert not (
         options[
             InputFormat.PDF
@@ -298,11 +283,34 @@ def test_docling_converter_preserves_inputs_and_metadata(
     assert doc.attrs["doc_type"] == "html"
     assert doc.attrs["conversion_status"] == "partial_success"
     assert doc.attrs["num_pages"] == 2
-    assert doc.attrs["from_ocr"]
-    assert doc.attrs["mean_confidence"] == pytest.approx(0.9)
-    assert doc.attrs["low_score_confidence"] == pytest.approx(0.5)
+    assert doc.attrs["from_ocr"] is None
+    assert doc.attrs["mean_confidence"] is None
+    assert doc.attrs["low_score_confidence"] is None
     assert doc.attrs["conversion_time_seconds"] >= 0
     assert "<!-- page break -->" in doc.text
+
+
+@pytest.mark.parametrize(
+    "source,status,do_ocr",
+    [
+        ("empty.pdf", "success", False),
+        ("empty.pdf", "partial_success", True),
+        ("empty.html", "success", True),
+    ],
+)
+def test_docling_empty_results_do_not_trigger_unwanted_ocr(
+    converter_state, source, status, do_ocr
+):
+    """Respect OCR opt-outs and avoid retries for partial or non-PDF input"""
+    converter_state.update(markdown="", status=status)
+
+    doc = _read_docling_without_timeout(
+        b"document", source, pdf_pipeline_options={"do_ocr": do_ocr}
+    )
+
+    assert doc.empty
+    assert doc.attrs["conversion_status"] == status
+    assert doc.attrs["doc_type"] == Path(source).suffix.lstrip(".")
 
 
 @pytest.mark.parametrize(
@@ -408,6 +416,76 @@ def test_docling_local_reader_reports_missing_files(tmp_path):
     """Report missing local files before attempting a conversion"""
     with pytest.raises(FileNotFoundError):
         _read_file_docling(tmp_path / "missing.pdf")
+
+
+@pytest.mark.parametrize(
+    "source,headers",
+    [
+        ("sample.html", None),
+        ("sample.htm", None),
+        ("https://example.com/code.html?version=2", None),
+        ("download", {"content-type": "text/html; charset=utf-8"}),
+        ("sample.pdf", [("Content-Type", "text/html")]),
+    ],
+)
+@pytest.mark.parametrize(
+    "base,expected_url",
+    [
+        ("", "https://example.com/code/rules"),
+        (
+            '<base href="../ordinances/">',
+            "https://example.com/ordinances/rules",
+        ),
+    ],
+)
+def test_docling_html_resolves_source_links(
+    source, headers, base, expected_url
+):
+    """Convert real HTML with MIME hints and source-relative links"""
+    content = (
+        f"<html><head>{base}</head><body>"
+        '<a href="rules">County ordinance</a></body></html>'
+    ).encode()
+
+    doc = _read_docling(
+        content,
+        source,
+        headers=headers,
+        source_uri="https://example.com/code/",
+        pdf_pipeline_options={"document_timeout": 30},
+        pytesseract_exe_fp="unused-tesseract",
+    )
+
+    assert not doc.empty
+    assert f"[County ordinance]({expected_url})" in doc.text
+    assert doc.attrs["doc_type"] == "html"
+    assert doc.attrs["conversion_status"] == "success"
+    assert doc.attrs["mean_confidence"] is None
+    assert doc.attrs["low_score_confidence"] is None
+    assert doc.attrs["from_ocr"] is None
+
+
+@pytest.mark.parametrize(
+    "source,headers,expected_format",
+    [
+        ("CODE.PDF", None, InputFormat.PDF),
+        ("code.pdf?download=1", None, InputFormat.PDF),
+        ("code.bin", {"Content-Type": "application/pdf"}, InputFormat.PDF),
+        ("code.docx", None, InputFormat.DOCX),
+        ("code.png", None, InputFormat.IMAGE),
+        ("code.bin", {"Content-Type": "image/png"}, InputFormat.IMAGE),
+        ("code.txt", None, InputFormat.MD),
+    ],
+)
+def test_docling_stream_preserves_format_hints(
+    converter_state, source, headers, expected_format
+):
+    """Use native format hints without forwarding unsupported headers"""
+    doc = _read_docling_without_timeout(b"document", source, headers=headers)
+
+    assert converter_state["stream_format"] == expected_format
+    assert converter_state["stream_bytes"] == b"document"
+    assert doc.attrs["doc_type"] == expected_format.value
 
 
 def test_docling_subprocess_returns_result():
