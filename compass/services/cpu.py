@@ -383,7 +383,6 @@ def _read_docling_catch_error(
     doc_bytes,
     file_source,
     headers=None,
-    pytesseract_exe_fp=None,
     source_uri=None,
     pdf_pipeline_options=None,
     **kwargs,
@@ -394,7 +393,6 @@ def _read_docling_catch_error(
             doc_bytes=doc_bytes,
             file_source=file_source,
             headers=headers,
-            pytesseract_exe_fp=pytesseract_exe_fp,
             source_uri=source_uri,
             pdf_pipeline_options=pdf_pipeline_options,
             **kwargs,
@@ -407,7 +405,6 @@ def _read_docling(
     doc_bytes,
     file_source,
     headers=None,
-    pytesseract_exe_fp=None,
     source_uri=None,
     pdf_pipeline_options=None,
     **kwargs,
@@ -424,7 +421,6 @@ def _read_docling(
         args=(doc_bytes, file_source),
         kwargs={
             "headers": headers,
-            "pytesseract_exe_fp": pytesseract_exe_fp,
             "source_uri": source_uri,
             "pdf_pipeline_options": pdf_pipeline_options,
             **kwargs,
@@ -448,7 +444,7 @@ def _read_docling_without_timeout(
     if headers is not None:
         headers = dict(headers)
 
-    kwargs.pop("pytesseract_exe_fp", None)
+    kwargs.pop("pytesseract_exe_fp", None)  # safeguard
     configured_options = dict(pdf_pipeline_options or {})
     document_timeout = configured_options.pop("document_timeout", None)
     configured_options.setdefault("do_table_structure", True)
