@@ -1,0 +1,6 @@
+compass.pipeline.targets.normalize\_targets
+===========================================
+
+.. currentmodule:: compass.pipeline.targets
+
+.. autofunction:: normalize_targets

@@ -1,0 +1,36 @@
+compass.services.threaded.GenericFuncRunner
+===========================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: GenericFuncRunner
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~GenericFuncRunner.acquire_resources
+      ~GenericFuncRunner.call
+      ~GenericFuncRunner.process
+      ~GenericFuncRunner.process_using_futures
+      ~GenericFuncRunner.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~GenericFuncRunner.MAX_CONCURRENT_JOBS
+      ~GenericFuncRunner.can_process
+      ~GenericFuncRunner.name
+   
+   

@@ -1,0 +1,31 @@
+compass.pipeline.search
+=======================
+
+.. automodule:: compass.pipeline.search
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   base
+   persistence
+

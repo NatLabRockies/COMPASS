@@ -1,0 +1,6 @@
+compass.utilities.finalize.QUALITATIVE\_UNITS
+=============================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autodata:: QUALITATIVE_UNITS

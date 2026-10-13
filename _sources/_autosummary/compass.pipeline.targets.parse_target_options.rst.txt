@@ -1,0 +1,6 @@
+compass.pipeline.targets.parse\_target\_options
+===============================================
+
+.. currentmodule:: compass.pipeline.targets
+
+.. autofunction:: parse_target_options

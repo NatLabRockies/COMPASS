@@ -1,0 +1,31 @@
+compass.pipeline.search.base
+============================
+
+.. automodule:: compass.pipeline.search.base
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      SearchEngineLinkCollection
+   
+   
+
+   
+   
+   
+
+
+

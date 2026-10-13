@@ -1,0 +1,23 @@
+compass.extraction.oil\_gas\_wells
+==================================
+
+.. automodule:: compass.extraction.oil_gas_wells
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

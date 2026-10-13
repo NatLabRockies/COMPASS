@@ -1,0 +1,34 @@
+compass.utilities.io.JSON5Handler
+=================================
+
+.. currentmodule:: compass.utilities.io
+
+.. autoclass:: JSON5Handler
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~JSON5Handler.dump
+      ~JSON5Handler.dumps
+      ~JSON5Handler.load
+      ~JSON5Handler.loads
+      ~JSON5Handler.write
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~JSON5Handler.FILE_EXTENSION
+   
+   

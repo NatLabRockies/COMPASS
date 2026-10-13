@@ -1,0 +1,6 @@
+compass.extraction.solar.graphs.setup\_multiplier
+=================================================
+
+.. currentmodule:: compass.extraction.solar.graphs
+
+.. autofunction:: setup_multiplier

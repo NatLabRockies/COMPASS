@@ -1,0 +1,32 @@
+compass.web.file\_loader
+========================
+
+.. automodule:: compass.web.file_loader
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AsyncDoclingWebFileLoader
+      AsyncLocalDoclingFileLoader
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,33 @@
+compass.plugin.ordinance.PromptBasedTextCollector
+=================================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: PromptBasedTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~PromptBasedTextCollector.call
+      ~PromptBasedTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~PromptBasedTextCollector.OUT_LABEL
+      ~PromptBasedTextCollector.PROMPTS
+      ~PromptBasedTextCollector.relevant_text
+   
+   

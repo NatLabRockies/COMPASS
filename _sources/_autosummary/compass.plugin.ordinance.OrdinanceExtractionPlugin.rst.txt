@@ -1,0 +1,58 @@
+compass.plugin.ordinance.OrdinanceExtractionPlugin
+==================================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: OrdinanceExtractionPlugin
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OrdinanceExtractionPlugin.extract_ordinances_from_text
+      ~OrdinanceExtractionPlugin.extract_relevant_text
+      ~OrdinanceExtractionPlugin.filter_docs
+      ~OrdinanceExtractionPlugin.get_heuristic
+      ~OrdinanceExtractionPlugin.get_query_templates
+      ~OrdinanceExtractionPlugin.get_structured_data_row_count
+      ~OrdinanceExtractionPlugin.get_website_keywords
+      ~OrdinanceExtractionPlugin.parse_docs_for_structured_data
+      ~OrdinanceExtractionPlugin.parse_for_structured_data
+      ~OrdinanceExtractionPlugin.parse_multi_doc_concat
+      ~OrdinanceExtractionPlugin.parse_multi_doc_context_for_structured_data
+      ~OrdinanceExtractionPlugin.parse_multi_doc_merge
+      ~OrdinanceExtractionPlugin.parse_single_doc_for_structured_data
+      ~OrdinanceExtractionPlugin.post_filter_docs_hook
+      ~OrdinanceExtractionPlugin.pre_filter_docs_hook
+      ~OrdinanceExtractionPlugin.record_usage
+      ~OrdinanceExtractionPlugin.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OrdinanceExtractionPlugin.DOC_SELECTION_METHOD
+      ~OrdinanceExtractionPlugin.HEURISTIC
+      ~OrdinanceExtractionPlugin.IDENTIFIER
+      ~OrdinanceExtractionPlugin.JURISDICTION_DATA_FP
+      ~OrdinanceExtractionPlugin.OUTPUT_COLUMNS
+      ~OrdinanceExtractionPlugin.PARSERS
+      ~OrdinanceExtractionPlugin.POST_PROCESSING_STEPS
+      ~OrdinanceExtractionPlugin.QUERY_TEMPLATES
+      ~OrdinanceExtractionPlugin.TEXT_COLLECTORS
+      ~OrdinanceExtractionPlugin.TEXT_EXTRACTORS
+      ~OrdinanceExtractionPlugin.WEBSITE_KEYWORDS
+      ~OrdinanceExtractionPlugin.consumer_producer_pairs
+      ~OrdinanceExtractionPlugin.producers
+   
+   

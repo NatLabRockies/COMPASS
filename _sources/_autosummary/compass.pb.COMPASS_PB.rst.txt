@@ -1,0 +1,6 @@
+compass.pb.COMPASS\_PB
+======================
+
+.. currentmodule:: compass.pb
+
+.. autodata:: COMPASS_PB

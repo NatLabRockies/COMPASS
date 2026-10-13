@@ -1,0 +1,6 @@
+compass.extraction.solar.graphs.setup\_graph\_sef\_types
+========================================================
+
+.. currentmodule:: compass.extraction.solar.graphs
+
+.. autofunction:: setup_graph_sef_types

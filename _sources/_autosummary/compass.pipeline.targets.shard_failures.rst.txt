@@ -1,0 +1,6 @@
+compass.pipeline.targets.shard\_failures
+========================================
+
+.. currentmodule:: compass.pipeline.targets
+
+.. autofunction:: shard_failures

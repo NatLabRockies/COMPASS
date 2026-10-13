@@ -1,0 +1,6 @@
+compass.utilities.finalize.trim\_ordinance\_text
+================================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autofunction:: trim_ordinance_text

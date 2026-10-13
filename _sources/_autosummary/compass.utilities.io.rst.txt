@@ -1,0 +1,52 @@
+compass.utilities.io
+====================
+
+.. automodule:: compass.utilities.io
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      ConfigType
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      load_config
+      resolve_all_paths
+      resolve_path
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      ConfigType
+      Handler
+      JSON5Handler
+      JSONHandler
+      TOMLHandler
+      YAMLHandler
+   
+   
+
+   
+   
+   
+
+
+

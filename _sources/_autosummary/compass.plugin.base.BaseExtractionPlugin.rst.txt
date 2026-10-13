@@ -1,0 +1,37 @@
+compass.plugin.base.BaseExtractionPlugin
+========================================
+
+.. currentmodule:: compass.plugin.base
+
+.. autoclass:: BaseExtractionPlugin
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseExtractionPlugin.filter_docs
+      ~BaseExtractionPlugin.get_heuristic
+      ~BaseExtractionPlugin.get_query_templates
+      ~BaseExtractionPlugin.get_website_keywords
+      ~BaseExtractionPlugin.parse_docs_for_structured_data
+      ~BaseExtractionPlugin.record_usage
+      ~BaseExtractionPlugin.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseExtractionPlugin.IDENTIFIER
+      ~BaseExtractionPlugin.JURISDICTION_DATA_FP
+   
+   

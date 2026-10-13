@@ -1,0 +1,24 @@
+compass.llm.calling.SchemaOutputLLMCaller
+=========================================
+
+.. currentmodule:: compass.llm.calling
+
+.. autoclass:: SchemaOutputLLMCaller
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SchemaOutputLLMCaller.call
+   
+   
+
+   
+   
+   

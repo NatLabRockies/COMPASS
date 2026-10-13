@@ -1,0 +1,6 @@
+compass.utilities.finalize.save\_db
+===================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autofunction:: save_db

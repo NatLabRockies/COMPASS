@@ -1,0 +1,6 @@
+compass.validation.graphs.setup\_graph\_correct\_document\_type
+===============================================================
+
+.. currentmodule:: compass.validation.graphs
+
+.. autofunction:: setup_graph_correct_document_type

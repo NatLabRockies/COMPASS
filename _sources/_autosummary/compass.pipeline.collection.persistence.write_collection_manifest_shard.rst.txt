@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.write\_collection\_manifest\_shard
+==========================================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: write_collection_manifest_shard

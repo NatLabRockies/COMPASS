@@ -1,0 +1,6 @@
+compass.exceptions.COMPASSError
+===============================
+
+.. currentmodule:: compass.exceptions
+
+.. autoexception:: COMPASSError

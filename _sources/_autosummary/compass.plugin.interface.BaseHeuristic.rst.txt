@@ -1,0 +1,24 @@
+compass.plugin.interface.BaseHeuristic
+======================================
+
+.. currentmodule:: compass.plugin.interface
+
+.. autoclass:: BaseHeuristic
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseHeuristic.check
+   
+   
+
+   
+   
+   

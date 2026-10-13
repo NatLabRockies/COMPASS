@@ -1,0 +1,6 @@
+compass.utilities.parsing.num\_ordinances\_dataframe
+====================================================
+
+.. currentmodule:: compass.utilities.parsing
+
+.. autofunction:: num_ordinances_dataframe

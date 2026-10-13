@@ -1,0 +1,6 @@
+compass.services.cpu.read\_docling\_web\_file
+=============================================
+
+.. currentmodule:: compass.services.cpu
+
+.. autofunction:: read_docling_web_file

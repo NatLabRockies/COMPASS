@@ -1,0 +1,57 @@
+compass.extraction.wind.plugin.COMPASSWindExtractor
+===================================================
+
+.. currentmodule:: compass.extraction.wind.plugin
+
+.. autoclass:: COMPASSWindExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSWindExtractor.extract_ordinances_from_text
+      ~COMPASSWindExtractor.extract_relevant_text
+      ~COMPASSWindExtractor.filter_docs
+      ~COMPASSWindExtractor.get_heuristic
+      ~COMPASSWindExtractor.get_query_templates
+      ~COMPASSWindExtractor.get_structured_data_row_count
+      ~COMPASSWindExtractor.get_website_keywords
+      ~COMPASSWindExtractor.parse_docs_for_structured_data
+      ~COMPASSWindExtractor.parse_for_structured_data
+      ~COMPASSWindExtractor.parse_multi_doc_concat
+      ~COMPASSWindExtractor.parse_multi_doc_context_for_structured_data
+      ~COMPASSWindExtractor.parse_multi_doc_merge
+      ~COMPASSWindExtractor.parse_single_doc_for_structured_data
+      ~COMPASSWindExtractor.post_filter_docs_hook
+      ~COMPASSWindExtractor.pre_filter_docs_hook
+      ~COMPASSWindExtractor.record_usage
+      ~COMPASSWindExtractor.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~COMPASSWindExtractor.DOC_SELECTION_METHOD
+      ~COMPASSWindExtractor.IDENTIFIER
+      ~COMPASSWindExtractor.JURISDICTION_DATA_FP
+      ~COMPASSWindExtractor.OUTPUT_COLUMNS
+      ~COMPASSWindExtractor.PARSERS
+      ~COMPASSWindExtractor.POST_PROCESSING_STEPS
+      ~COMPASSWindExtractor.QUERY_TEMPLATES
+      ~COMPASSWindExtractor.TEXT_COLLECTORS
+      ~COMPASSWindExtractor.TEXT_EXTRACTORS
+      ~COMPASSWindExtractor.WEBSITE_KEYWORDS
+      ~COMPASSWindExtractor.consumer_producer_pairs
+      ~COMPASSWindExtractor.producers
+   
+   

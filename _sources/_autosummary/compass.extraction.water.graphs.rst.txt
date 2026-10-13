@@ -1,0 +1,45 @@
+compass.extraction.water.graphs
+===============================
+
+.. automodule:: compass.extraction.water.graphs
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      setup_graph_contingency
+      setup_graph_drought
+      setup_graph_external_transfer
+      setup_graph_extraction
+      setup_graph_geothermal
+      setup_graph_limits
+      setup_graph_metering_device
+      setup_graph_oil_and_gas
+      setup_graph_permits
+      setup_graph_plugging_reqs
+      setup_graph_production_cost
+      setup_graph_production_reporting
+      setup_graph_redrilling
+      setup_graph_setback_features
+      setup_graph_time
+      setup_graph_well_spacing
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
