@@ -500,8 +500,6 @@ def _read_docling_without_timeout(
         "conversion_status": conv_result.status.value,
         "num_pages": len(conv_result.document.pages),
         "from_ocr": None,
-        "mean_confidence": None,
-        "low_score_confidence": None,
     }
     return MDDocument([doc_text], attrs=attrs, remove_comments=False)
 

@@ -230,8 +230,6 @@ def test_read_docling_honors_native_pdf_options(
     )
 
     assert "markdown body" in doc.text
-    assert doc.attrs["mean_confidence"] is None
-    assert doc.attrs["low_score_confidence"] is None
     assert doc.attrs["from_ocr"] is None
     assert converter_state["document_timeout"] == configured_options.get(
         "document_timeout"
@@ -284,8 +282,6 @@ def test_docling_converter_preserves_inputs_and_metadata(
     assert doc.attrs["conversion_status"] == "partial_success"
     assert doc.attrs["num_pages"] == 2
     assert doc.attrs["from_ocr"] is None
-    assert doc.attrs["mean_confidence"] is None
-    assert doc.attrs["low_score_confidence"] is None
     assert doc.attrs["conversion_time_seconds"] >= 0
     assert "<!-- page break -->" in doc.text
 
@@ -460,8 +456,6 @@ def test_docling_html_resolves_source_links(
     assert f"[County ordinance]({expected_url})" in doc.text
     assert doc.attrs["doc_type"] == "html"
     assert doc.attrs["conversion_status"] == "success"
-    assert doc.attrs["mean_confidence"] is None
-    assert doc.attrs["low_score_confidence"] is None
     assert doc.attrs["from_ocr"] is None
 
 
