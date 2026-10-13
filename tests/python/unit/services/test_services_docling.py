@@ -11,13 +11,17 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
-from docling_rs.datamodel.base_models import InputFormat
+from PIL import Image
+from pdf2image import convert_from_bytes
+from docling_core.types.doc import DocItemLabel, DoclingDocument
+from docling_rs.datamodel.base_models import ConversionStatus, InputFormat
 from docling_rs.exceptions import ConversionError
 
 from compass.services.docling import (
     TIMEOUT_PARAMS,
     _read_docling,
     _read_docling_catch_error,
+    _read_docling_pdf_images,
     _read_docling_without_timeout,
     _read_file_docling,
     _receive_docling_result,
@@ -198,6 +202,94 @@ def test_docling_empty_results_do_not_trigger_unwanted_ocr(
     assert doc.empty
     assert doc.attrs["conversion_status"] == status
     assert doc.attrs["doc_type"] == Path(source).suffix.lstrip(".")
+
+
+@pytest.mark.parametrize(
+    "outcome",
+    [
+        "success",
+        "partial_success",
+        "conversion_error",
+        "encoding_error",
+        "render_error",
+    ],
+)
+def test_docling_pdf_retry_releases_each_page(monkeypatch, tmp_path, outcome):
+    """Render one page at a time and close it even when OCR fails"""
+    source = tmp_path / "scanned.pdf"
+    with Image.new("RGB", (20, 30), "white") as image:
+        image.save(
+            source, format="PDF", save_all=True, append_images=[image, image]
+        )
+    rendered_images = []
+    converted_names = []
+
+    def fail_encoding(*args, **kwargs):
+        raise RuntimeError("encoding failed")
+
+    def render_page(doc_bytes, **kwargs):
+        for previous_image in rendered_images:
+            with pytest.raises(ValueError):
+                previous_image.getpixel((0, 0))
+        page_number = len(rendered_images) + 1
+        assert kwargs.get("first_page") == page_number
+        assert kwargs.get("last_page") == page_number
+        if outcome == "render_error" and page_number == 2:
+            raise RuntimeError("render failed")
+        images = convert_from_bytes(doc_bytes, **kwargs)
+        assert len(images) == 1
+        rendered_images.extend(images)
+        if outcome == "encoding_error" and page_number == 2:
+            monkeypatch.setattr(images[0], "save", fail_encoding)
+        return images
+
+    def convert(stream):
+        page_number = len(converted_names) + 1
+        converted_names.append(stream.name)
+        assert stream.format == InputFormat.IMAGE
+        assert stream.stream.read().startswith(b"\x89PNG")
+        if outcome == "conversion_error" and page_number == 2:
+            raise RuntimeError("conversion failed")
+        document = DoclingDocument(name=stream.name)
+        document.add_text(label=DocItemLabel.TEXT, text=f"Page {page_number}")
+        status = (
+            ConversionStatus.PARTIAL_SUCCESS
+            if outcome == "partial_success" and page_number == 2
+            else ConversionStatus.SUCCESS
+        )
+        return SimpleNamespace(document=document, status=status)
+
+    monkeypatch.setattr(
+        "compass.services.docling.convert_from_bytes", render_page
+    )
+    converter = SimpleNamespace(convert=convert)
+    if outcome.endswith("error"):
+        with pytest.raises(RuntimeError, match="failed"):
+            _read_docling_pdf_images(
+                converter, source.read_bytes(), str(source)
+            )
+    else:
+        result = _read_docling_pdf_images(
+            converter, source.read_bytes(), str(source)
+        )
+        assert result.status == ConversionStatus(outcome)
+        assert result.input.file.name == source.name
+        assert result.document.export_to_markdown().split() == [
+            "Page",
+            "1",
+            "Page",
+            "2",
+            "Page",
+            "3",
+        ]
+        assert converted_names == [
+            "scanned-1.png",
+            "scanned-2.png",
+            "scanned-3.png",
+        ]
+    for image in rendered_images:
+        with pytest.raises(ValueError):
+            image.getpixel((0, 0))
 
 
 @pytest.mark.parametrize(

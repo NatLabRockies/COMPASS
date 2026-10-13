@@ -11,7 +11,7 @@ from urllib.parse import urljoin, urlparse
 
 from bs4 import BeautifulSoup
 from elm.web.document import MDDocument
-from pdf2image import convert_from_bytes
+from pdf2image import convert_from_bytes, pdfinfo_from_bytes
 from docling_core.types.doc import DoclingDocument
 from docling_rs.datamodel.base_models import (
     ConversionStatus,
@@ -231,27 +231,31 @@ def _read_docling_without_timeout(
 
 def _read_docling_pdf_images(converter, doc_bytes, file_source):
     """Retry empty PDFs with Poppler renders and native OCR"""
-    images = convert_from_bytes(doc_bytes)
+    page_count = pdfinfo_from_bytes(doc_bytes)["Pages"]
     documents = []
     conversion_status = ConversionStatus.SUCCESS
-    try:
-        for page_number, image in enumerate(images, start=1):
-            with BytesIO() as stream:
-                image.save(stream, format="PNG")
-                stream.seek(0)
-                result = converter.convert(
-                    DocumentStream(
-                        name=f"{Path(file_source).stem}-{page_number}.png",
-                        stream=stream,
-                        format=InputFormat.IMAGE,
+    for page_number in range(1, page_count + 1):
+        images = convert_from_bytes(
+            doc_bytes, first_page=page_number, last_page=page_number
+        )
+        try:
+            for image in images:
+                with BytesIO() as stream:
+                    image.save(stream, format="PNG")
+                    stream.seek(0)
+                    result = converter.convert(
+                        DocumentStream(
+                            name=f"{Path(file_source).stem}-{page_number}.png",
+                            stream=stream,
+                            format=InputFormat.IMAGE,
+                        )
                     )
-                )
-            documents.append(result.document)
-            if result.status != ConversionStatus.SUCCESS:
-                conversion_status = ConversionStatus.PARTIAL_SUCCESS
-    finally:
-        for image in images:
-            image.close()
+                documents.append(result.document)
+                if result.status != ConversionStatus.SUCCESS:
+                    conversion_status = ConversionStatus.PARTIAL_SUCCESS
+        finally:
+            for image in images:
+                image.close()
 
     return ConversionResult(
         status=conversion_status,
@@ -408,7 +412,7 @@ def _validate_docling_timeout(timeout):
         or not math.isfinite(timeout)
         or timeout <= 0
     ):
-        msg = "`docling_timeout` must be a positive number of seconds"
+        msg = "`document_timeout` must be a positive number of seconds"
         raise COMPASSValueError(msg)
 
 
