@@ -10,24 +10,20 @@ query_templates:
   - "What is the specific legal information regarding zoning ordinances for commercial wind energy conversion systems in {jurisdiction}?"
 
 website_keywords:
-  pdf: 92160
-  wecs: 46080
-  wind: 23040
-  zoning: 11520
-  ordinance: 5760
-  renewable energy: 1440
-  planning: 720
-  plan: 360
-  government: 180
-  code: 60
-  area: 60
-  land development: 15
-  land: 3
-  environment: 3
-  energy: 3
-  renewable: 3
-  municipal: 1
-  department: 1
+  - "pdf"
+  - "wecs"
+  - "wind"
+  - ["zoning", "ordinance", "regulation"]
+  - ["dsireusa", "windaction"]
+  - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
+  - "renewable energy"
+  - ["plan", "planning", "permit"]
+  - "government"
+  - ["setback", "noise"]
+  - ["code", "area"]
+  - ["land development", "land use"]
+  - ["land", "environment", "energy", "renewable"]
+  - ["municipal", "department", "development", "board"]
 
 heuristic_keywords:
   good_tech_keywords:

@@ -1,121 +1,185 @@
 """COMPASS CLI search subcommand"""
 
-import asyncio
 from pathlib import Path
 
 import click
-from rich.console import Console
-from rich.theme import Theme
 
 from compass._cli.common import (
-    setup_cli_logging,
     CONFIG_OVERRIDE_CONTEXT_SETTINGS,
-    apply_cli_config_overrides,
+    run_async_command,
+    OUT_DIR_POLICY_CHOICES,
 )
-from compass.pipeline import ProcessRequest
+from compass.pipeline import SearchRequest
+from compass.pipeline.search.persistence import SEARCH_RESULT_MANIFEST_FILENAME
+from compass.pipeline.targets import parse_target_options
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
-from compass.scripts.search import run_search, summary, write_search_report
 from compass.utilities.io import load_config
 
 
-@click.command(
-    name="search", context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS
-)
+@click.command(context_settings=CONFIG_OVERRIDE_CONTEXT_SETTINGS)
 @click.option(
     "--config",
     "-c",
     required=True,
     type=click.Path(exists=True),
-    help="Path to ordinance configuration JSON or JSON5 file. Only the "
-    "search-related keys (``tech``, ``jurisdiction_fp``, "
-    "``search_engines``, ``url_ignore_substrings``, ``url_keep_substrings``, "
-    "``num_urls_to_check_per_jurisdiction``, "
-    "``max_num_concurrent_browsers``) are read. Any top-level "
+    help="Path to a search configuration JSON or JSON5 file. This file "
+    "should contain any/all the arguments to pass to "
+    ":class:`~compass.pipeline.data_classes.SearchRequest`. Any top-level "
     "config may also be passed as an extra CLI option (using the syntax "
     "`--my_param=new`) to override the config value.",
 )
+@click.option("-v", "--verbose", count=True, help="Show logs on the terminal.")
 @click.option(
-    "-n",
-    "--n-top-urls",
-    "n_top_urls",
-    type=int,
-    default=None,
-    help="Override the number of top URLs to retain per jurisdiction "
-    "(``num_urls_to_check_per_jurisdiction``).",
-)
-@click.option(
-    "-o",
-    "--output",
-    "output",
-    type=click.Path(),
-    default=None,
-    help="Optional path to write the report. If omitted, the report is "
-    "written to stdout.",
-)
-@click.option(
-    "--output-format",
-    "output_format",
-    type=click.Choice(["json", "summary"], case_sensitive=False),
-    default="json",
-    show_default=True,
-    help="Output representation for search results.",
-)
-@click.option(
-    "-v",
-    "--verbose",
-    count=True,
-    help="Show logs on stderr. Add extra libraries to get logs from by "
-    "increasing the input (-v, -vv, -vvv).",
+    "-np",
+    "--no-progress",
+    is_flag=True,
+    help="Hide progress bars during search.",
 )
 @click.option(
     "--plugin",
     "-p",
-    required=False,
     default=None,
-    help="One-shot plugin configuration to register before searching",
+    help="One-shot plugin configuration to add to COMPASS before search",
+)
+@click.option(
+    "--out-dir-exists",
+    "-o",
+    default=None,
+    type=click.Choice(
+        [*OUT_DIR_POLICY_CHOICES, "continue"], case_sensitive=False
+    ),
+    help="Policy for an existing output directory, as in collect/process.",
+)
+@click.option(
+    "--summarize", "-s", is_flag=True, help="Summarize search results"
+)
+@click.option(
+    "--target",
+    "targets",
+    multiple=True,
+    help="Per-shard minimum METRIC=VALUE. Repeat for multiple requirements. "
+    "Supports num_results, num_kept_results, and search_engine_counts.ENGINE."
+    "Only works on fresh runs or with ``--out-dir-exists continue``",
 )
 @click.pass_context
-def search(ctx, config, n_top_urls, output, output_format, verbose, plugin):
-    """Run only the search step and emit ranked URL results"""
-    config_path = config
+def search(
+    ctx,
+    config,
+    verbose,
+    no_progress,
+    plugin,
+    out_dir_exists,
+    summarize,
+    targets,
+):
+    """Save ranked search results and logs for later collection"""
     config = load_config(config)
-    if ctx.args:
-        config = apply_cli_config_overrides(config, ctx.args)
+
+    policy = out_dir_exists.lower() if out_dir_exists else None
+    targets = parse_target_options(targets)
+    if targets and policy not in {None, "continue"}:
+        msg = "--target options conflicts with --out-dir-exists"
+        raise click.ClickException(msg)
 
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(
             config=plugin, tech=config["tech"]
         )
 
-    if n_top_urls is not None:
-        config["num_urls_to_check_per_jurisdiction"] = n_top_urls
-
-    custom_theme = Theme({"logging.level.trace": "rgb(94,79,162)"})
-    console = Console(theme=custom_theme, stderr=True)
-    setup_cli_logging(
-        console, verbose, log_level=config.get("log_level", "INFO")
+    run_async_command(
+        config,
+        request_class=SearchRequest,
+        verbose=verbose,
+        no_progress=no_progress,
+        out_dir_exists=out_dir_exists,
+        override_args=ctx.args,
+        re_run_targets=targets if targets or policy == "continue" else None,
     )
 
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
+    if not targets and not summarize:
+        return
 
-    request = ProcessRequest(**config)
+    report_fp = Path(config["out_dir"]) / SEARCH_RESULT_MANIFEST_FILENAME
+    report = load_config(report_fp)
 
-    report = loop.run_until_complete(
-        run_search(request, config_path=config_path)
+    if summarize:
+        text_report = summary(report)
+        print()
+        print(text_report)
+
+    if targets and report["failed_targets"]:
+        msg = f"Failed {len(report['failed_targets']):,d} targets"
+        raise click.ClickException(msg)
+
+
+def summary(report):
+    """Format search-only output as readable plain text
+
+    Parameters
+    ----------
+    report : dict
+        Search manifest to summarize.
+
+    Returns
+    -------
+    str
+        Multi-line summary containing only records that were not
+        filtered, sorted by ``overall_rank`` within each jurisdiction.
+    """
+    lines = []
+    lines.extend(
+        (
+            "COMPASS search-only summary",
+            "---------------------------",
+            f"tech: {report.get('tech')}",
+            f"timestamp: {report.get('time_end_utc')}",
+            f"requested top urls: {report.get('num_urls_requested')}",
+            "",
+        )
     )
-    if output_format == "json":
-        if output is None:
-            console.print_json(data=report)
-        else:
-            write_search_report(report, output)
-        return
 
-    text_report = summary(report)
-    if output is None:
-        console.print(text_report)
-        return
+    jurisdictions = report.get("jurisdictions", [])
+    for jur in jurisdictions:
+        lines.append(f"jurisdiction: {jur.get('full_name')}")
 
-    out_path = Path(output)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(f"{text_report}\n", encoding="utf-8")
+        if jur.get("error"):
+            lines.extend((f"  error: {jur.get('error')}", ""))
+            continue
+
+        kept = [
+            entry
+            for entry in jur.get("results", [])
+            if entry.get("filtered_reason") is None
+        ]
+        kept.sort(
+            key=lambda entry: (
+                entry.get("overall_rank")
+                if entry.get("overall_rank") is not None
+                else float("inf"),
+                entry.get("query_rank")
+                if entry.get("query_rank") is not None
+                else float("inf"),
+            )
+        )
+
+        if not kept:
+            lines.extend(("  no unfiltered results", ""))
+            continue
+
+        for entry in kept:
+            lines.extend(
+                (
+                    (
+                        "  "
+                        f"[{entry.get('overall_rank')}] "
+                        f"{entry.get('search_engine')} "
+                        f"(query_rank={entry.get('query_rank')})"
+                    ),
+                    f"    query: {entry.get('query')}",
+                    f"    url: {entry.get('url')}",
+                )
+            )
+
+        lines.append("")
+
+    return "\n".join(lines).rstrip()

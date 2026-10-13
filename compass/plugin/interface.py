@@ -24,12 +24,6 @@ class OutputColumn:
     name: str
     """Name of column in output CSV"""
 
-    include_in_quant_output: bool = True
-    """Flag indicating whether to include in the quantitative output"""
-
-    include_in_qual_output: bool = True
-    """Flag indicating whether to include in the qualitative output"""
-
 
 class BaseHeuristic(ABC):
     """Base class for a heuristic check"""

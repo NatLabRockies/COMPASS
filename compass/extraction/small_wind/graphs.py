@@ -215,7 +215,8 @@ def setup_multiplier(**kwargs):
             "Please respond based on our entire conversation so far. "
             "Return your answer in JSON "
             "format (not markdown). Your JSON file must include exactly "
-            "four keys. The keys are 'value', 'units', 'summary', and "
+            "six keys. The keys are 'value', 'units', 'summary', "
+            "'ordinance_text', 'explanation', and "
             "'section'. The value of the 'value' key should be a "
             "**numerical** value corresponding to the setback distance value "
             "from {feature} or `null` if there was no such value. "
@@ -224,7 +225,8 @@ def setup_multiplier(**kwargs):
             "{feature} or `null` if there was no such value. "
             "As before, focus only on setbacks that would apply for "
             "{system_size_reminder}"
-            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+            "{SUMMARY_PROMPT} {ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} "
+            "{SECTION_PROMPT}"
         ),
     )
     G.add_edge("init", "m_single", condition=llm_response_starts_with_yes)
@@ -311,9 +313,10 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Please respond based on our entire conversation so far. "
             "Return your answer as a single dictionary in JSON "
-            "format (not markdown). Your JSON file must include exactly five "
-            "keys. The keys are 'mult_value', 'mult_type', 'adder', "
-            "'summary', and 'section'. The value of the "
+            "format (not markdown). Your JSON file must include exactly "
+            "seven keys. The keys are 'mult_value', 'mult_type', 'adder', "
+            "'summary', 'ordinance_text', 'explanation', and "
+            "'section'. The value of the "
             "'mult_value' key should be a **numerical** value corresponding "
             "to the multiplier value we determined earlier. The value of the "
             "'mult_type' key should be a string corresponding to the "
@@ -322,7 +325,8 @@ def setup_multiplier(**kwargs):
             "**numerical** value corresponding to the static value to be "
             "added to the total setback distance after multiplication, as we "
             "determined earlier, or `null` if there is no such value. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+            "{SUMMARY_PROMPT} {ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} "
+            "{SECTION_PROMPT}"
         ),
     )
     G.add_node(
@@ -330,15 +334,17 @@ def setup_multiplier(**kwargs):
         prompt=(
             "Please respond based on our entire conversation so far. "
             "Return your answer as a single dictionary in JSON "
-            "format (not markdown). Your JSON file must include exactly four "
+            "format (not markdown). Your JSON file must include exactly six "
             "keys. The keys are 'mult_value', 'mult_type', "
-            "'summary', and 'section'. The value of the "
+            "'summary', 'ordinance_text', 'explanation', and "
+            "'section'. The value of the "
             "'mult_value' key should be a **numerical** value corresponding "
             "to the multiplier value we determined earlier. The value of the "
             "'mult_type' key should be a string corresponding to the "
             "dimension that the multiplier should be applied to, as we "
             "determined earlier. "
-            "{SUMMARY_PROMPT} {SECTION_PROMPT}"
+            "{SUMMARY_PROMPT} {ORDINANCE_TEXT_PROMPT} {EXPLANATION_PROMPT} "
+            "{SECTION_PROMPT}"
         ),
     )
 

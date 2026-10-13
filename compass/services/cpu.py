@@ -290,7 +290,7 @@ async def read_docling_web_file(
         specified. By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
-        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+        :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
         method.
 
     Returns
@@ -317,7 +317,7 @@ async def read_docling_local_file(fp, **kwargs):
         Path to local file to read.
     **kwargs
         Additional keyword arguments passed to Docling's
-        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+        :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
         method.
 
     Returns
@@ -446,15 +446,18 @@ def _read_docling_without_timeout(
     if headers is not None:
         headers = dict(headers)
 
-    pipeline_options = PdfPipelineOptions(**(pdf_pipeline_options or {}))
-    pipeline_options.do_table_structure = True
-    pipeline_options.table_structure_options = TableStructureOptions(
-        do_cell_matching=True
+    configured_options = dict(pdf_pipeline_options or {})
+    configured_options.setdefault("do_table_structure", True)
+    configured_options.setdefault("do_ocr", pytesseract_exe_fp is not None)
+    configured_options.setdefault(
+        "table_structure_options", TableStructureOptions(do_cell_matching=True)
     )
-    if pytesseract_exe_fp is None:
-        pipeline_options.do_ocr = False
-    else:
-        pipeline_options.do_ocr = True
+    if isinstance(configured_options["table_structure_options"], dict):
+        configured_options["table_structure_options"] = TableStructureOptions(
+            **configured_options["table_structure_options"]
+        )
+    pipeline_options = PdfPipelineOptions(**configured_options)
+    if pytesseract_exe_fp is not None:
         pipeline_options.ocr_options = TesseractCliOcrOptions(
             tesseract_cmd=pytesseract_exe_fp
         )

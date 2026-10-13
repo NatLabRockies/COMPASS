@@ -31,7 +31,8 @@ class CaseInsensitiveEnum(StrEnum):
         return None
 
     @classmethod
-    def _new_post_hook(cls, obj, value):  # ruff:ignore[unused-class-method-argument]
+    # ruff:ignore[unused-class-method-argument]
+    def _new_post_hook(cls, obj, value):
         """Hook for post-processing after __new__"""
         return obj
 
@@ -191,6 +192,8 @@ class COMPASSRunMode(CaseInsensitiveEnum):
     """Collect potential ordinance documents for jurisdictions"""
     EXTRACT = auto()
     """Extract data from ordinance documents for jurisdictions"""
+    SEARCH = auto()
+    """Save search results for later document collection"""
 
     @classmethod
     def _new_post_hook(cls, obj, value):
@@ -218,6 +221,9 @@ class COMPASSDocumentCollectionStep(CaseInsensitiveEnum):
     SEARCH_ENGINE = auto()
     """Collect documents discovered via search engine queries"""
 
+    SEARCH_RESULTS_CRAWL = auto()
+    """Crawl HTML documents discovered via search engine queries"""
+
     WEBSITE_SEARCH_ELM = auto()
     """Collect documents discovered via website search for ELM"""
 
@@ -228,10 +234,12 @@ class COMPASSDocumentCollectionStep(CaseInsensitiveEnum):
     def _new_post_hook(cls, obj, value):
         """Hook for post-processing after __new__; adds methods"""
         if value == "known_local_docs":
-            obj.priority = 5
+            obj.priority = 6
         elif value == "known_doc_urls":
-            obj.priority = 4
+            obj.priority = 5
         elif value == "search_engine":
+            obj.priority = 4
+        elif value == "search_results_crawl":
             obj.priority = 3
         elif value == "website_search_elm":
             obj.priority = 2

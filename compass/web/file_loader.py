@@ -156,7 +156,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             value smaller than this. By default, ``3``.
         to_md_kwargs : dict, optional
             Keyword-value argument pairs to pass to to Docling's
-            :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+            :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
             method for converting the raw content to a markdown
             document. Can be useful to specify image placeholders (i.e.
             ``"image_placeholder"=""``) or page break placeholders (i.e.
@@ -280,7 +280,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             len(to_re_fetch),
             to_re_fetch,
         )
-        docs += await self.html_loader.fetch_all(*to_re_fetch)
+        rendered_docs = await self.html_loader.fetch_all(*to_re_fetch)
+        docs.extend(
+            doc for doc in rendered_docs if doc is not None and not doc.empty
+        )
         return docs
 
     async def _maybe_fetch_failed_docs_with_elm(self, docs, sources):
@@ -384,7 +387,7 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             document. By default, ``None``.
         to_md_kwargs : dict, optional
             Keyword-value argument pairs to pass to to Docling's
-            :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
+            :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
             method for converting the raw content to a markdown
             document. Can be useful to specify image placeholders (i.e.
             ``"image_placeholder"=""``) or page break placeholders (i.e.

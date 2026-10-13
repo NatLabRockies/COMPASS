@@ -1,5 +1,7 @@
 """COMPASS CLI collect subcommand"""
 
+from pathlib import Path
+
 import click
 
 from compass._cli.common import (
@@ -9,6 +11,10 @@ from compass._cli.common import (
 )
 from compass.plugin import create_schema_based_one_shot_extraction_plugin
 from compass.pipeline import CollectionRequest
+from compass.pipeline.targets import parse_target_options
+from compass.pipeline.collection.persistence import (
+    COLLECTION_MANIFEST_FILENAME,
+)
 from compass.utilities.io import load_config
 
 
@@ -24,17 +30,12 @@ from compass.utilities.io import load_config
     "config may also be passed as an extra CLI option (using the syntax "
     "`--my_param=new`) to override the config value.",
 )
-@click.option(
-    "-v",
-    "--verbose",
-    count=True,
-    help="Show logs on the terminal.",
-)
+@click.option("-v", "--verbose", count=True, help="Show logs on the terminal.")
 @click.option(
     "-np",
     "--no-progress",
     is_flag=True,
-    help="Flag to hide progress bars during collection.",
+    help="Hide progress bars during collection.",
 )
 @click.option(
     "--plugin",
@@ -56,8 +57,18 @@ from compass.utilities.io import load_config
     " If omitted, prompts interactively when running in a terminal,"
     " or fails when running non-interactively (e.g. CI).",
 )
+@click.option(
+    "--target",
+    "targets",
+    multiple=True,
+    help="Per-shard minimum METRIC=VALUE. Repeat for multiple requirements. "
+    "Supports num_docs and completed_step_document_counts.STEP. "
+    "Use --out-dir-exists continue for existing output directories.",
+)
 @click.pass_context
-def collect(ctx, config, verbose, no_progress, plugin, out_dir_exists):
+def collect(
+    ctx, config, verbose, no_progress, plugin, out_dir_exists, targets
+):
     """Collect ordinance documents for a list of jurisdictions
 
     This command runs the "first half" (i.e. the collection portion) of
@@ -69,6 +80,12 @@ def collect(ctx, config, verbose, no_progress, plugin, out_dir_exists):
     extraction command.
     """
     config = load_config(config)
+
+    policy = out_dir_exists.lower() if out_dir_exists else None
+    targets = parse_target_options(targets)
+    if targets and policy not in {None, "continue"}:
+        msg = "--target options conflicts with --out-dir-exists"
+        raise click.ClickException(msg)
 
     if plugin is not None:
         create_schema_based_one_shot_extraction_plugin(
@@ -82,4 +99,12 @@ def collect(ctx, config, verbose, no_progress, plugin, out_dir_exists):
         no_progress=no_progress,
         out_dir_exists=out_dir_exists,
         override_args=ctx.args,
+        re_run_targets=targets if targets or policy == "continue" else None,
     )
+
+    if targets:
+        report_fp = Path(config["out_dir"]) / COLLECTION_MANIFEST_FILENAME
+        report = load_config(report_fp)
+        if report["failed_targets"]:
+            msg = f"Failed {len(report['failed_targets']):,d} targets"
+            raise click.ClickException(msg)

@@ -1,0 +1,318 @@
+"""Tests for compass.pipeline.search.persistence"""
+
+from datetime import UTC, datetime
+from pathlib import Path
+from types import SimpleNamespace
+
+import pytest
+
+import compass.pipeline.search.persistence as search_module
+from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.pipeline.runtime import PipelineRuntime
+from compass.pipeline.data_classes import SearchRequest
+from compass.pipeline.search.persistence import _purge_search_shards
+from compass.pipeline.targets import shard_failures
+from compass.services.provider import RunningAsyncServices
+from compass.services.threaded import GenericFuncRunner
+
+
+@pytest.fixture(autouse=True)
+async def running_generic_func_runner():
+    """Run the generic function service for each persistence test"""
+    async with RunningAsyncServices([GenericFuncRunner()]):
+        yield
+
+
+@pytest.mark.parametrize("jur_results", [[], [None]])
+async def test_build_search_manifest_without_results(tmp_path, jur_results):
+    """Aggregate empty runs and failed workflows without invalid records"""
+    runtime = PipelineRuntime(SearchRequest(tmp_path, "wind", None))
+    report = await search_module.build_search_manifest(
+        runtime, jur_results, datetime.now(UTC)
+    )
+    assert report["num_jurisdictions_searched"] == len(jur_results)
+    assert report["num_jurisdictions_found"] == 0
+    assert report["jurisdictions"] == []
+    assert report["search_engine_totals"] == {}
+    assert (
+        report["result_stats"]
+        == report["filtered_result_stats"]
+        == {
+            "min": 0,
+            "max": 0,
+            "median": 0,
+            "total": 0,
+        }
+    )
+
+
+@pytest.mark.parametrize(
+    "source", ["manifest", "run", "shards", "glob", "current"]
+)
+async def test_load_search_results(tmp_path, monkeypatch, source):
+    """Load aggregates and existing shards without dropping empty records"""
+    records = [
+        {"FIPS": "08001", "full_name": "Adams", "results": []},
+        {
+            "FIPS": "08013",
+            "full_name": "Boulder",
+            "results": [{"url": "https://example.com", "overall_rank": 1}],
+        },
+    ]
+    shard_dir = tmp_path / "se_results"
+    for record in records:
+        await search_module.write_search_manifest_shard(
+            shard_dir, record, SimpleNamespace(full_name=record["full_name"])
+        )
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    await search_module.write_search_manifest(
+        tmp_path, {"tech": "wind", "jurisdictions": records}
+    )
+    inputs = {
+        "manifest": manifest,
+        "run": tmp_path,
+        "shards": shard_dir,
+        "glob": str(shard_dir / "*.json"),
+        "current": ".",
+    }
+    monkeypatch.chdir(tmp_path)
+    loaded = search_module.load_search_result_jurisdictions(
+        inputs[source], "wind"
+    )
+    assert loaded == {record["FIPS"]: record for record in records}
+    manifest.unlink()
+    assert (
+        search_module.load_search_result_jurisdictions(tmp_path, "wind")
+        == loaded
+    )
+
+
+@pytest.mark.parametrize(
+    "payload, message",
+    [
+        ({"tech": "solar", "jurisdictions": []}, "technology"),
+        ({"FIPS": None, "results": []}, "FIPS"),
+        ({"FIPS": "08001", "results": [{}]}, "Invalid search results"),
+        (
+            {
+                "FIPS": "08001",
+                "results": [
+                    {"url": "https://example.com", "overall_rank": "first"}
+                ],
+            },
+            "Invalid search results",
+        ),
+        ({"jurisdictions": {}}, "jurisdictions"),
+        (
+            {"jurisdictions": [{"FIPS": "08001", "results": []}] * 2},
+            "Duplicate",
+        ),
+    ],
+)
+async def test_reject_invalid_search_results(tmp_path, payload, message):
+    """Reject invalid inputs before collecting any documents"""
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    await search_module.write_search_manifest(tmp_path, payload)
+    with pytest.raises(COMPASSValueError, match=message):
+        search_module.load_search_result_jurisdictions(manifest, "wind")
+
+
+def test_missing_search_results(tmp_path):
+    """Reject nonexistent inputs and empty shard directories"""
+    for path in (tmp_path / "missing.json", tmp_path):
+        with pytest.raises(COMPASSFileNotFoundError):
+            search_module.load_search_result_jurisdictions(path, "wind")
+
+
+@pytest.mark.parametrize(
+    "search_engines",
+    [["SerpAPIGoogleSearch"], [{"se_name": "SerpAPIGoogleSearch"}]],
+)
+def test_shard_target_metrics(search_engines):
+    """Evaluate raw, retained, and literal engine counts independently"""
+    targets = {
+        "num_results": 2,
+        "num_kept_results": 2,
+        "search_engine_counts.SerpAPI (Google)": 3,
+    }
+    metrics = search_module.validate_search_targets(targets)
+    assert "num_results" in metrics
+    assert "num_kept_results" in metrics
+    record = {
+        "num_results": 2,
+        "search_engine_counts": {},
+        "results": [
+            {"url": "a"},
+            {"url": "b", "filtered_reason": "duplicate"},
+        ],
+    }
+    assert shard_failures(record, targets, metrics, "results") == [
+        {"metric": "num_kept_results", "actual": 1, "minimum": 2},
+        {
+            "metric": "search_engine_counts.SerpAPI (Google)",
+            "actual": 0,
+            "minimum": 3,
+        },
+    ]
+
+
+@pytest.mark.parametrize(
+    "targets",
+    [
+        {"num_results": -1},
+        {"num_results": 1.5},
+        {"num_kept_results": 6},
+        {"result_stats.min": 3},
+        {"search_engine_counts.Unknown": 3},
+    ],
+)
+def test_reject_unsupported_search_targets(targets):
+    """Reject invalid or impossible shard requirements before purging"""
+    with pytest.raises(COMPASSValueError):
+        search_module.validate_search_targets(targets)
+
+
+async def test_shard_inventory_ignores_stale_manifest(tmp_path):
+    """Require files even when missing shards appear in the manifest"""
+    jurisdictions = [
+        SimpleNamespace(code="08001", full_name="Adams"),
+        SimpleNamespace(code="08013", full_name="Boulder"),
+    ]
+    record = {
+        "FIPS": "08001",
+        "num_results": 1,
+        "search_engine_counts": {"Google": 1},
+        "results": [{"url": "https://example.com"}],
+    }
+    path = await search_module.write_search_manifest_shard(
+        tmp_path / "se_results", record, jurisdictions[0]
+    )
+    await search_module.write_search_manifest(
+        tmp_path,
+        {"tech": "wind", "jurisdictions": [record, {"FIPS": "08013"}]},
+    )
+    assert search_module.load_search_shards(
+        tmp_path, jurisdictions, "wind"
+    ) == {"08001": {"record": record, "path": path}}
+    path.unlink()
+    assert (
+        search_module.load_search_shards(tmp_path, jurisdictions, "wind") == {}
+    )
+
+
+async def test_atomic_report_preserves_old_file_on_write_failure(
+    tmp_path, monkeypatch
+):
+    """Leave the old report intact if atomic replacement fails"""
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    await search_module.write_search_manifest(tmp_path, {"before": True})
+    original = manifest.read_bytes()
+
+    def fail_replace(path, target):
+        raise OSError("Simulated filesystem failure")
+
+    monkeypatch.setattr(Path, "replace", fail_replace)
+    with pytest.raises(OSError, match="Simulated"):
+        await search_module.write_search_manifest(tmp_path, {"after": True})
+    assert manifest.read_bytes() == original
+    assert list(tmp_path.iterdir()) == [manifest]
+
+
+@pytest.mark.parametrize(
+    "fault", ["duplicate", "identity", "counts", "technology"]
+)
+async def test_shard_inventory_rejects_unsafe_inputs(tmp_path, fault):
+    """Reject unsafe identities and malformed counts without deleting files"""
+    jurisdiction = SimpleNamespace(code="08001", full_name="Adams")
+    record = {
+        "FIPS": "08001",
+        "num_results": 0,
+        "search_engine_counts": {},
+        "results": [],
+    }
+    if fault == "identity":
+        record["FIPS"] = "08013"
+    elif fault == "counts":
+        record["num_results"] = False
+    elif fault == "technology":
+        record["tech"] = "solar"
+    path = await search_module.write_search_manifest_shard(
+        tmp_path / "se_results", record, jurisdiction
+    )
+    if fault == "duplicate":
+        await search_module.write_search_manifest_shard(
+            tmp_path / "se_results", record, SimpleNamespace(full_name="Alias")
+        )
+    before = {file: file.read_bytes() for file in tmp_path.rglob("*.json")}
+    with pytest.raises(COMPASSValueError):
+        search_module.load_search_shards(tmp_path, [jurisdiction], "wind")
+    assert {
+        file: file.read_bytes() for file in tmp_path.rglob("*.json")
+    } == before
+    assert path.exists()
+
+
+async def test_purge_recovery_uses_surviving_files(tmp_path):
+    """Recover from remaining shards after aggregate invalidation"""
+    jurisdictions = [
+        SimpleNamespace(code="08001", full_name="Adams"),
+        SimpleNamespace(code="08013", full_name="Boulder"),
+    ]
+    records = [
+        {
+            "FIPS": jurisdiction.code,
+            "num_results": 1,
+            "search_engine_counts": {"Google": 1},
+            "results": [{"url": "https://example.org"}],
+        }
+        for jurisdiction in jurisdictions
+    ]
+    paths = [
+        await search_module.write_search_manifest_shard(
+            tmp_path / "se_results", record, jurisdiction
+        )
+        for record, jurisdiction in zip(records, jurisdictions, strict=True)
+    ]
+    manifest = tmp_path / search_module.SEARCH_RESULT_MANIFEST_FILENAME
+    await search_module.write_search_manifest(
+        tmp_path, {"tech": "wind", "jurisdictions": records}
+    )
+    original = paths[0].read_bytes()
+    _purge_search_shards(tmp_path, [paths[1]])
+    assert not manifest.exists()
+    assert not paths[1].exists()
+    assert paths[0].read_bytes() == original
+    loaded = search_module.load_search_shards(tmp_path, jurisdictions, "wind")
+    assert list(loaded) == ["08001"]
+    assert search_module.load_search_result_jurisdictions(
+        tmp_path, "wind"
+    ) == {"08001": records[0]}
+
+
+async def test_inventory_keeps_unrequested_shards_and_renamed_files(tmp_path):
+    """Identify by FIPS without deleting unrelated jurisdiction outputs"""
+    jurisdiction = SimpleNamespace(code="08001", full_name="Adams")
+    record = {
+        "FIPS": "08001",
+        "num_results": 1,
+        "search_engine_counts": {},
+        "results": [{"url": "https://example.org"}],
+    }
+    path = await search_module.write_search_manifest_shard(
+        tmp_path / "se_results",
+        record,
+        SimpleNamespace(full_name="Previous Name"),
+    )
+    unrelated = await search_module.write_search_manifest_shard(
+        tmp_path / "se_results",
+        {**record, "FIPS": "08013", "tech": "solar"},
+        SimpleNamespace(full_name="Unrequested"),
+    )
+    assert search_module.load_search_shards(
+        tmp_path, [jurisdiction], "wind"
+    ) == {"08001": {"record": record, "path": path}}
+    assert unrelated.exists()
+
+
+if __name__ == "__main__":
+    pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])

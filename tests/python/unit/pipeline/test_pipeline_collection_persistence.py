@@ -10,6 +10,7 @@ import pytest
 import compass.pipeline.collection.persistence as persistence_module
 from compass.exceptions import COMPASSValueError
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
+from compass.pipeline.targets import shard_failures
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import GenericFuncRunner
 
@@ -64,7 +65,7 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
             }
             for path_case, source_fp in document_paths.items()
         ]
-        jurisdiction = {"FIPS": f"{index:03d}", "documents": documents}
+        jurisdiction = {"FIPS": f"{index:03d}", "results": documents}
         manifest_fp.parent.mkdir(parents=True)
         manifest_fp.write_text(
             json.dumps(
@@ -78,7 +79,7 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
         expected_jurisdictions.append(
             {
                 "FIPS": f"{index:03d}",
-                "documents": [
+                "results": [
                     {
                         "path_case": doc_info["path_case"],
                         "source_fp": str(
@@ -137,7 +138,7 @@ async def test_load_collection_manifest_jurisdictions_path_variants(
     assert jurisdictions == expected_jurisdictions
     for fips, jurisdiction in sorted(jurisdictions.items()):
         manifest_fp = manifest_fps[int(fips) - 1]
-        for doc_info in jurisdiction["documents"]:
+        for doc_info in jurisdiction["results"]:
             for key in ("source_fp", "parsed_fp"):
                 assert Path(doc_info[key]).is_absolute()
                 expected_path = document_paths[doc_info["path_case"]]
@@ -194,7 +195,7 @@ async def test_load_collection_manifest_jurisdictions_rejects_duplicate_fips(
             json.dumps(
                 {
                     "tech": "solar",
-                    "jurisdictions": [{"FIPS": "12345", "documents": []}],
+                    "jurisdictions": [{"FIPS": "12345", "results": []}],
                 }
             ),
             encoding="utf-8",
@@ -221,7 +222,7 @@ async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
     collection_info = {
         "FIPS": "12345",
         "full_name": "Example Township",
-        "documents": [
+        "results": [
             {
                 "source_fp": "./downloaded/source.html",
                 "parsed_fp": "./parsed/source.txt",
@@ -246,7 +247,7 @@ async def test_load_collection_manifest_jurisdictions_resolves_shard_paths(
             )
         )
 
-    document = jurisdictions["12345"]["documents"][0]
+    document = jurisdictions["12345"]["results"][0]
     assert document["source_fp"] == str(
         (manifest_dir / "downloaded/source.html").resolve().as_posix()
     )
@@ -304,9 +305,10 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         collected_docs,
         {"crawl"},
         relative_to=tmp_path,
+        num_search_results_to_crawl=3,
     )
 
-    assert collection_info["documents"] == [
+    assert collection_info["results"] == [
         {
             "source": "https://example.com/valid.html",
             "checksum": "https://example.com/valid.html",
@@ -320,6 +322,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
         }
     ]
     assert missing_parsed_doc.attrs["parsed_fp"] is None
+    assert collection_info["num_search_results_to_crawl"] == 3
 
 
 @pytest.mark.asyncio
@@ -377,7 +380,7 @@ async def test_persist_documents_includes_collection_step_metadata(
         "crawl": 2,
         "search": 1,
     }
-    assert [doc["from_steps"] for doc in collection_info["documents"]] == [
+    assert [doc["from_steps"] for doc in collection_info["results"]] == [
         ["crawl", "search"],
         ["crawl"],
     ]
@@ -436,8 +439,8 @@ async def test_persist_documents_preserves_restored_docs_and_step_counts(
     )
 
     assert collection_info["jurisdiction_website"] == "https://example.com"
-    assert collection_info["documents"][0] == restored_doc.attrs
-    assert collection_info["documents"][1]["source_fp"] == Path(
+    assert collection_info["results"][0] == restored_doc.attrs
+    assert collection_info["results"][1]["source_fp"] == Path(
         "Example Township_2.html"
     )
     assert collection_info["completed_step_document_counts"] == {
@@ -466,7 +469,7 @@ def test_load_specific_collection_manifest_shard_resolves_paths(tmp_path):
     collection_info = {
         "FIPS": "12345",
         "full_name": "Example Township",
-        "documents": [
+        "results": [
             {
                 "source": "https://example.com/valid.html",
                 "source_fp": "./Example Township_1.html",
@@ -486,9 +489,9 @@ def test_load_specific_collection_manifest_shard_resolves_paths(tmp_path):
         shard_dir, _build_jurisdiction()
     )
 
-    assert loaded["documents"][0]["source"] == "https://example.com/valid.html"
-    assert loaded["documents"][0]["source_fp"] == "./Example Township_1.html"
-    assert loaded["documents"][0]["parsed_fp"] == "./Example Township_1.txt"
+    assert loaded["results"][0]["source"] == "https://example.com/valid.html"
+    assert loaded["results"][0]["source_fp"] == "./Example Township_1.html"
+    assert loaded["results"][0]["parsed_fp"] == "./Example Township_1.txt"
 
 
 def test_build_collection_manifest_computes_doc_stats():
@@ -496,9 +499,9 @@ def test_build_collection_manifest_computes_doc_stats():
     manifest = persistence_module.build_collection_manifest(
         "solar",
         [
-            {"full_name": "Alpha", "documents": [{"id": 1}, {"id": 2}]},
-            {"full_name": "Beta", "documents": [{"id": 3}]},
-            {"full_name": "Gamma", "documents": []},
+            {"full_name": "Alpha", "results": [{"id": 1}, {"id": 2}]},
+            {"full_name": "Beta", "results": [{"id": 3}]},
+            {"full_name": "Gamma", "results": []},
             None,
         ],
         datetime(2026, 1, 1, tzinfo=UTC),
@@ -526,7 +529,7 @@ def test_build_collection_manifest_omits_checkpoint_only_jurisdiction():
         [
             {
                 "full_name": "No Documents",
-                "documents": [],
+                "results": [],
                 "completed_step_document_counts": {
                     "known_local_docs": 0,
                     "search_engine": 0,
@@ -540,6 +543,71 @@ def test_build_collection_manifest_omits_checkpoint_only_jurisdiction():
     assert manifest["num_jurisdictions_found"] == 0
     assert manifest["completed_step_document_totals"] == {}
     assert manifest["jurisdictions"] == []
+
+
+@pytest.mark.parametrize(
+    "targets, error",
+    [
+        ({"num_docs": -1}, "nonnegative integer"),
+        ({"num_docs": 1.5}, "nonnegative integer"),
+        ({"num_docs": True}, "finite numeric minimum"),
+        ({"num_doc_stats.min": 1}, "Unknown collection shard target"),
+        (
+            {"completed_step_document_counts.unknown": 1},
+            "Unknown collection shard target",
+        ),
+    ],
+)
+def test_validate_collection_targets_rejects_invalid_counts(targets, error):
+    """Collection targets reject invalid counts and unknown metrics"""
+    with pytest.raises(COMPASSValueError, match=error):
+        persistence_module.validate_collection_targets(targets)
+
+
+@pytest.mark.parametrize("saved_count", [None, 2])
+def test_collection_targets_read_document_and_step_counts(saved_count):
+    """Read saved counts and derive document counts for older shards"""
+    record = {
+        "results": [{"id": 1}, {"id": 2}],
+        "completed_step_document_counts": {"known_local_docs": 2},
+    }
+    if saved_count is not None:
+        record["num_docs"] = saved_count
+    targets = {
+        "num_docs": 2,
+        "completed_step_document_counts.known_local_docs": 2,
+        "completed_step_document_counts.search_engine": 0,
+    }
+    metrics = persistence_module.validate_collection_targets(targets)
+
+    assert not shard_failures(record, targets, metrics)
+    targets["completed_step_document_counts.search_engine"] = 1
+    assert shard_failures(record, targets, metrics) == [
+        {
+            "metric": "completed_step_document_counts.search_engine",
+            "actual": 0,
+            "minimum": 1,
+        }
+    ]
+
+
+@pytest.mark.parametrize("record", [None, {"results": [], "num_docs": 0}])
+def test_collection_targets_require_nonempty_documents(record):
+    """Zero explicit minima do not allow empty or missing shards"""
+    targets = {"num_docs": 0}
+    metrics = persistence_module.validate_collection_targets(targets)
+    assert shard_failures(record, targets, metrics) == [
+        {"metric": "results", "actual": 0, "minimum": 1}
+    ]
+
+
+@pytest.mark.parametrize("failures", [None, [], ["Example: documents=0"]])
+def test_collection_manifest_preserves_target_failures(failures):
+    """Target failures remain visible even for documentless jurisdictions"""
+    manifest = persistence_module.build_collection_manifest(
+        "solar", [], datetime.now(UTC), 1, failed_targets=failures
+    )
+    assert manifest["failed_targets"] == failures
 
 
 if __name__ == "__main__":

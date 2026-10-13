@@ -74,6 +74,11 @@
     // Number of URLs to check per jurisdiction
     // larger number = more docs to search
     "num_urls_to_check_per_jurisdiction": 5,
+    // Opt in with 4 to crawl HTML among the first 4 ranked search results.
+    // PDFs count toward N; only relevant PDFs are collected by this crawl.
+    "num_search_results_to_crawl": 4,
+    // The seed is depth 0; follow links through depth 3 inclusive.
+    "search_results_crawl_depth": 3,
     // Try to keep reasonably low , especially on laptops
     "max_num_concurrent_browsers": 10,
     "max_num_concurrent_website_searches": 10,
@@ -142,6 +147,7 @@
     "clean_dir": "cleaned_text",
     "ordinance_file_dir": "ordinance_files",
     "jurisdiction_dbs_dir": "jurisdiction_dbs",
+    "save_search_engine_results": true,  // Save search results in out_dir/se_results
     "perform_website_search": true,  // set to false to only use search engines
     "llm_costs": {
         // required input to display running cost

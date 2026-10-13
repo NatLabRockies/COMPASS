@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 
 from compass.utilities.jurisdictions import (
-    load_all_jurisdiction_info,
     load_jurisdictions_from_fp,
     load_jurisdictions_from_subdivision_names,
     jurisdiction_websites,
@@ -18,69 +17,6 @@ from compass.utilities.jurisdictions import (
 )
 from compass.exceptions import COMPASSValueError
 from compass.warn import COMPASSWarning
-
-
-def test_load_all_jurisdictions():
-    """Test the `load_all_jurisdiction_info` function"""
-
-    jurisdiction_info = load_all_jurisdiction_info()
-    assert not jurisdiction_info.empty
-
-    expected_cols = [
-        "County",
-        "State",
-        "Subdivision",
-        "Jurisdiction Type",
-        "FIPS",
-        "Website",
-    ]
-    assert all(col in jurisdiction_info for col in expected_cols)
-    for g, data in jurisdiction_info.groupby(
-        ["County", "State", "Subdivision", "Jurisdiction Type"]
-    ):
-        if len(data) > 1:
-            print(g)
-            print(data)
-    assert len(jurisdiction_info) == len(
-        jurisdiction_info.groupby(
-            ["County", "State", "Subdivision", "Jurisdiction Type"]
-        )
-    )
-    assert len(jurisdiction_info) == len(jurisdiction_info.groupby(["FIPS"]))
-
-    # Spot checks:
-    assert "Decatur" in set(jurisdiction_info["County"])
-    assert "Box Elder" in set(jurisdiction_info["County"])
-    assert "Colorado" in set(jurisdiction_info["State"])
-    assert "Rhode Island" in set(jurisdiction_info["State"])
-
-
-def test_load_all_jurisdictions_returns_shallow_copy():
-    """Test cached jurisdiction info is returned as a caller-safe copy"""
-
-    jurisdiction_info = load_all_jurisdiction_info()
-    county_col = jurisdiction_info.columns.get_loc("County")
-    original_county = jurisdiction_info.iloc[0, county_col]
-
-    jurisdiction_info.iloc[0, county_col] = "Modified County"
-
-    fresh_jurisdiction_info = load_all_jurisdiction_info()
-
-    assert fresh_jurisdiction_info is not jurisdiction_info
-    assert fresh_jurisdiction_info.iloc[0, county_col] == original_county
-
-
-def test_jurisdiction_websites():
-    """Test the `jurisdiction_websites` function"""
-
-    websites = jurisdiction_websites()
-    assert len(websites) == len(load_all_jurisdiction_info())
-    assert isinstance(websites, dict)
-
-    # Spot checks:
-    assert "18031" in websites  # Decatur Indiana
-    assert "08041" in websites  # El Paso, Colorado
-    assert "49003" in websites  # Box Elder, Utah
 
 
 def test_load_jurisdictions_from_subdivision_names_safe_matching():

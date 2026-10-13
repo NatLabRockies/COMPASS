@@ -7,6 +7,7 @@ from compass.pipeline.data_classes import (
     KnownSourcesInput,
     OutputSettings,
     ProcessRequest,
+    SearchRequest,
     RuntimeSettings,
     JurisdictionResult,
     WebSearchParams,

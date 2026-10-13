@@ -135,7 +135,7 @@ The key options are listed below:
 
 - ``data_type_short_desc``: Short label used in prompts (e.g., ``wind energy ordinance``).
 - ``query_templates``: Search queries with a ``{jurisdiction}`` placeholder.
-- ``website_keywords``: Keyword weights for document search prioritization.
+- ``website_keywords``: Ordered keyword tiers for website document search prioritization.
 - ``heuristic_keywords``: mapping of good and bad keywords for heuristic text checks.
 - ``collection_prompts``: Prompt list for chunk filtering, or ``true`` to auto-generate.
 - ``text_extraction_prompts``: Prompt list for text consolidation, or ``true`` to auto-generate.

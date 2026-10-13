@@ -1,0 +1,303 @@
+{
+  "title": "Natural Gas Generation Facility Ordinance Extraction Schema",
+  "description": "Single-shot structured extraction schema for natural gas plant ordinances. This schema encodes the complete multi-step decision tree logic from COMPASS into comprehensive field descriptions that guide LLMs to extract all ordinance features in one call. The output is structured as a flat array of extraction objects, where each object represents one row in the final CSV/DataFrame output.",
+  "version": "1.0.0",
+  "type": "object",
+  "required": ["outputs"],
+  "additionalProperties": false,
+  "properties": {
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["feature", "value", "units", "section", "summary"],
+        "additionalProperties": false,
+        "properties": {
+          "feature": {
+            "type": "string",
+            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
+            "enum": [
+              "residential dwellings",
+              "property line",
+              "residential district",
+              "front yard",
+              "street",
+              "roads",
+              "railroads",
+              "water",
+              "noise (dBA)",
+              "noise (dBC)",
+              "generation capacity",
+              "maximum building height",
+              "minimum lot size",
+              "minimum lot width",
+              "minimum lot frontage",
+              "minimum lot width to depth ratio",
+              "maximum lot coverage",
+              "fence height",
+              "screening and landscaping",
+              "visual impact",
+              "lighting",
+              "air quality",
+              "water use",
+              "signage",
+              "traffic and access",
+              "decommissioning",
+              "prohibitions",
+              "special use districts",
+              "primary use districts",
+              "accessory use districts",
+              "ordinance effective year",
+              "prohibited use districts"
+            ]
+          },
+          "value": {
+            "description": "The extracted ordinance value. Type and format depend on the feature. For setbacks and numerical limits: a number. For generation capacity: a number in MW. For lot ratios: a string like '1:2'. For district features: an array of district names. For qualitative features: null (summary holds the text). Can be null if no value found.",
+            "anyOf": [
+              {"type": "number"},
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}, "additionalProperties": false},
+              {"type": "null"}
+            ]
+          },
+          "units": {
+            "type": ["string", "null"],
+            "description": "Units for the extracted value. Distances: 'feet' or 'miles'. Noise: 'dBA' or 'dBC'. Capacity: 'MW'. Lot size: 'acres' or 'square feet'. Coverage: 'percent'. Null for qualitative features or ratios."
+          },
+          "section": {
+            "type": ["string", "null"],
+            "description": "The section title or number from the ordinance where this requirement is found (e.g., 'SECTION 1308 – Performance / Construction Standards'). Include numerical labels if provided. Null if no section identifier is available."
+          },
+          "summary": {
+            "type": ["string", "null"],
+            "description": "A short summary of the relevant ordinance requirement using direct text excerpts and quotes as much as possible. If multiple options exist and a selection was made, list all other options and their conditions in the summary. For qualitative restrictions, this is the primary output field containing the full extracted text. Can be null if no requirement found."
+          }
+        }
+      }
+    }
+  },
+  "$definitions": {
+    "system_size_context": {
+      "description": "RITICAL CONTEXT: Only extract ordinances for natural gas-fired electric generating facilities — plants that combust natural gas to produce electricity for offsite sale or delivery to the grid. This includes simple-cycle, combined-cycle, peaking, and cogeneration plants where power export is a primary purpose. Do NOT extract text that applies only to: natural gas extraction, drilling, or well operations; pipelines, compressor stations, metering stations, or gas storage; LNG or CNG facilities including fueling stations; propane distribution; gas service lines, meters, or appliances within buildings; or emergency, standby, or backup generators serving a single onsite building. If the ordinance regulates the facility only through a general zoning district (e.g., heavy industrial) rather than a technology-specific section, still extract the applicable district requirements."
+    },
+    "setback_features": {
+      "description": "Setback features with their aliases and extraction guidance",
+      "properties": {
+        "residential dwellings": {"description": "Setback requirements from occupied dwellings, residences, or places of public assembly. May also be labeled as setbacks from habitable structures or occupied buildings. VALUE & UNITS: numerical distance in feet or miles. If multiple values are given for different zoning districts, extract the most restrictive (largest) value and list the other values and their district conditions in the summary."},
+
+        "property line": {
+          "description": "Setback requirements from property lines, lot lines, or parcel boundaries. Side and rear yard setbacks fall here. VALUE & UNITS: numerical distance in feet. If multiple values are given for different zoning districts, extract the most restrictive (largest) value and list the others and their conditions in the summary."
+        },
+        "residential district": {
+          "description": "Setback requirements measured from the boundary of a residentially zoned district, as distinct from an individual dwelling. VALUE & UNITS: numerical distance in feet or miles."
+        },
+        "front yard": {
+          "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet. If multiple values are given for different zoning districts, extract the most restrictive (largest) value and list the others and their conditions in the summary."
+        },
+        "roads": {
+          "description": "Setback requirements from roads. Roads may also be labeled as rights-of-way. Before extracting, verify this is truly a road setback and not better classified as a property line setback. VALUE & UNITS: Same rules as 'residential dwellings'. IGNORE: Do not respond based on setbacks from dwellings, property lines, residential districts, front yards, railroads or water. Only focus on utility-scale generating facilities."
+        },
+        "street": {
+          "description": "Setback requirements from streets, as distinct from roads or rights-of-way. VALUE & UNITS: numerical distance in feet."
+        },
+        "water": {
+          "description": "Setback requirements from lakes, reservoirs, streams, rivers, or wetlands. VALUE & UNITS: Same rules as 'residential dwellings'. IGNORE: Do not respond based on setbacks from dwellings, property lines, residential districts, front yards, streets, roads or railroads. Only focus on utility-scale generating facilities."
+        }, 
+        "railroads": {
+          "description" : "Setback requirements from railroads. VALUE & UNITS: Same rules as 'residential dwellings'. IGNORE: Do not respond based on setbacks from dwellings, property lines, residential districts, front yards, streets, roads, or water. Only focus on utility-scale generating facilities."
+        }
+      }
+    },
+    "numerical_restrictions": {
+      "description": "Non-setback numerical restriction features",
+      "properties": {
+        "generation capacity": {
+          "description": "Rated generating capacity of the facility, typically the threshold at which the ordinance applies rather than a cap. VALUE: number. UNITS: 'MW'. Note in the summary whether this is an applicability threshold or a maximum limit."
+        },
+        
+        "maximum building height": {
+          "description": "Maximum permitted height of buildings or structures. VALUE: number. UNITS: 'feet'. If different limits apply by district, extract the most restrictive (smallest) and list the others in the summary."
+        }, 
+        "minimum lot size" : {
+          "description": "Minimum parcel size required. VALUE: number. UNITS: 'acres' or 'square feet' as stated in the ordinance."
+        }, 
+        "minimum lot width" : {
+          "description": "Minimum required lot width. VALUE: number. UNITS: 'feet'."
+        }, 
+        "minimum lot frontage" : {
+          "description": "Minimum required lot frontage along a street or road. VALUE: number. UNITS: 'feet'."
+        }, 
+        "minimum lot width to depth ratio" : {
+          "description": "Required ratio of lot width to lot depth. VALUE: string in the form '1:2'. UNITS: null."
+        }, 
+        "fence height": {
+          "description": "Required or maximum fence or perimeter barrier height. VALUE: number. UNITS: 'feet'."
+        },
+        "maximum lot coverage": {
+          "description": "Maximum share of the lot that may be covered by structures or impervious surface. VALUE: number. UNITS: 'percent'."
+        },
+        "noise (dBA)" : {
+          "description": "Noise limit expressed in A-weighted decibels. Capture the receptor location and time period (day/night) in the summary. VALUE: number. UNITS: 'dBA'."
+        },
+        "noise (dBC)" : {
+          "description": "Noise limit expressed in C-weighted decibels. Capture the receptor location and time period in the summary. VALUE: number. UNITS: 'dBC'."
+        }
+      }
+    },
+    "qualitative_restrictions": {
+      "description": "Non-numerical restriction features that require text extraction",
+      "properties": {
+                "screening and landscaping": {
+          "description": "Requirements for screening, buffering, berms, or landscaping around the facility."
+        },
+        "visual impact": {
+          "description": "Requirements addressing visual or aesthetic impact, including color, finish, or design standards."
+        },
+        "lighting": {
+          "description": "Requirements governing facility lighting, including shielding, direction, and hours."
+        },
+        "air quality": {
+          "description": "Requirements addressing emissions, air quality permits, or stack discharge."
+        },
+        "water use": {
+          "description": "Requirements addressing water supply, cooling water, consumption, or discharge."
+        },
+        "signage": {
+          "description": "Requirements for signs, warning placards, or facility identification."
+        },
+        "traffic and access": {
+          "description": "Requirements addressing site access, driveways, road improvements, or traffic studies."
+        },
+        "decommissioning": {
+          "description": "Requirements for decommissioning, site restoration, or financial assurance at end of life."
+        },
+        "prohibitions": {
+          "description": "Text that explicitly prohibits natural gas generating facilities in the jurisdiction or in specified districts."
+        }
+        }
+      },
+    "permitted_use_districts": {
+      "description": "Zoning districts where natural gas generating facilities are permitted under various conditions",
+      "properties": {
+        "primary use districts": {
+          "description": "Extract all zoning districts where natural gas generating facilities are permitted as primary use or similar (e.g., permitted by right, without special conditions or approval beyond standard permitting). VALUE: An array of district names/codes as strings (e.g., ['EU-2 Exclusive Use Two', 'M1 Heavy Industrial', 'GC General Commercial']). If no districts allow primary use, use null. SUMMARY: Provide a brief summary with direct text excerpts describing which districts allow the facility as primary use and under what general conditions. SECTION: Include the section title/number where this information is found. CLARIFICATION: Natural gas generating facilities may also be referred to as: gas-fired electric generating facilities, electric generating plants, power plants, energy generation facilities, public utility facilities, or similar terminology. Only focus on facilities as defined in system_size_context."
+        },
+        "special use districts": {
+          "description": "Extract all zoning districts where natural gas generating facilities are permitted as special use, conditional use, or similar (e.g., requires approval by zoning appeals board, planning commission, special use permit, conditional use permit, or meeting certain conditions). VALUE: An array of district names/codes as strings. If no districts require special use approval, use null. SUMMARY: Provide summary with direct text excerpts. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on facilities as defined in system_size_context."
+        },
+        "accessory use districts": {
+          "description": "Extract all zoning districts where natural gas generating facilities are permitted as accessory use or similar (e.g., secondary to another primary use, or as an accessory to a principal use such as an industrial operation). Do NOT include districts where the facility is allowed as accessory but also separately as primary or special use. VALUE: An array of district names/codes as strings. If no districts specify accessory use, use null. SUMMARY: Provide summary with direct text excerpts explaining the accessory use conditions. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on facilities as defined in system_size_context."
+        },
+        "prohibited use districts": {
+          "description": "Extract all zoning districts where natural gas generating facilities are prohibited or similar (e.g., not allowed, banned, or explicitly excluded). CRITICAL: Only output specific districts where the facility is prohibited **unconditionally**. Do not include districts where it might be allowed with special approval or under certain conditions. If the facility is allowed in any capacity in a district, it should not be listed here. VALUE: An array of district names/codes as strings. If no districts prohibit unconditionally, use null. SUMMARY: Provide summary with direct text excerpts clearly stating the prohibition. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on facilities as defined in system_size_context."
+        }
+      }
+    }
+  },
+    "$examples": [
+    {
+      "feature": "residential dwellings",
+      "value": 1000,
+      "units": "feet",
+      "section": "Sec. 3(e)",
+      "summary": "Setback to dwellings and places of public assembly, 1,000 feet. The requirement applies to gas-fired electric generating facilities and is measured to the nearest occupied dwelling or place of public assembly."
+    },
+    {
+      "feature": "residential district",
+      "value": 2.25,
+      "units": "miles",
+      "section": "Sec. 3(g)(3)(i)",
+      "summary": "A gas-fired electric generating facility may not be located within 2.25 miles of a residentially zoned district. This is distinct from the 1,000-foot setback to individual dwellings specified in Sec. 3(e)."
+    },
+    {
+      "feature": "generation capacity",
+      "value": 25,
+      "units": "MW",
+      "section": "Sec. 3, Chapter 107, Article VII, Section 107-150",
+      "summary": "The ordinance recognizes gas-fired electric generating facilities of 25 MW or greater. This is an applicability threshold determining which facilities the ordinance governs, not a maximum capacity limit."
+    },
+    {
+      "feature": "noise (dBA)",
+      "value": 55,
+      "units": "dBA",
+      "section": "Sec. 3(i)(7)(a)",
+      "summary": "The average hourly noise level shall not exceed fifty-five (55) dBA when measured at a residential district boundary. A separate limit of 65 dBA applies when measured from non-residential districts."
+    },
+    {
+      "feature": "noise (dBC)",
+      "value": 65,
+      "units": "dBC",
+      "section": "Sec. 3(i)(7)(a)",
+      "summary": "The average hourly noise level shall not exceed sixty-five (65) dBC when measured at a residential district boundary. A separate limit of 75 dBC applies when measured from non-residential districts."
+    },
+    {
+      "feature": "front yard",
+      "value": 80,
+      "units": "feet",
+      "section": "Zoning district setback table",
+      "summary": "Front yard setback requirements vary by district. The most restrictive value is 80 feet; a 55-foot front yard setback applies in other districts. Values are drawn from the per-district setback tables rather than a single facility-specific section."
+    },
+    {
+      "feature": "primary use districts",
+      "value": ["EU-2 Exclusive Use Two", "C2 Heavy Industrial", "GC General Commercial", "LI Limited Industrial"],
+      "units": null,
+      "section": "Sec. 3, Chapter 107, Article VII",
+      "summary": "Gas-fired electric generating facilities are listed as a principal permitted use in the EU-2 (Exclusive Use Two) district. Additional districts permitting the use as principal include C2 Heavy Industrial, GC General Commercial, and LI Limited Industrial."
+    },
+    {
+      "feature": "decommissioning",
+      "value": null,
+      "units": null,
+      "section": "Sec. 3",
+      "summary": "The ordinance requires the operator to remove all above-grade structures and restore the site to its pre-construction condition upon permanent cessation of operations, and to post financial assurance in an amount sufficient to cover removal costs."
+    }
+  ],
+    "$instructions": {
+    "general": [
+      "Extract ordinance requirements ONLY for natural gas-fired electric generating facilities that produce electricity for offsite sale or grid delivery. Do NOT extract requirements that apply only to gas extraction or drilling, pipelines, compressor stations, gas storage, LNG or CNG facilities, propane distribution, building gas service, or emergency/standby/backup generators.",
+      "Many jurisdictions do not have a technology-specific section. If the facility is regulated only through a general zoning district such as heavy industrial, extract the applicable district requirements and note the district in the summary.",
+      "Use direct text excerpts and quotes in the summary field as much as possible. If multiple options exist and you make a selection, list all other options and their conditions in the summary.",
+      "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
+      "For features where no requirement exists, omit the feature from the array entirely.",
+      "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
+      "When multiple values are mentioned for the same feature, select the most restrictive value (largest minimum, smallest maximum) and note the other values and their district conditions in the summary.",
+      "Ensure units are expressed using standard, conventional names ('feet', 'miles', 'acres', 'square feet', 'percent', 'dBA', 'dBC', 'MW')."
+    ],
+    "setback_specific": [
+      "Extract the numerical value and units (feet or miles) for all setbacks.",
+      "Setback values are frequently found in per-district tables rather than in a facility-specific section. Check district tables before concluding a setback is absent.",
+      "Distinguish setbacks to individual dwellings from setbacks to residential district boundaries. These are separate features and often carry very different values.",
+      "Distinguish front yard setbacks from general property line setbacks. Side and rear yard setbacks are classified as property line.",
+      "Distinguish street setbacks from road setbacks where the ordinance uses both terms.",
+      "If text includes conditional minimums ('the greater of', 'no less than'), note the minimum threshold in the summary.",
+      "If text includes conditional maximums ('the lesser of', 'no more than'), note the maximum limit in the summary."
+    ],
+    "restriction_specific": [
+      "For generation capacity: state in the summary whether the value is an applicability threshold that triggers the ordinance or a maximum limit on facility size.",
+      "For maximum building height: must be absolute height from ground or final grade.",
+      "For minimum lot size: must be an area value, not a linear distance.",
+      "For minimum lot width to depth ratio: value is a string in the form '1:2' and units are null.",
+      "For noise: dBA and dBC are separate features. Capture the receptor location and any day/night distinction in the summary.",
+      "For qualitative restrictions: extract full relevant text in the summary field using direct excerpts. Value and units are null.",
+      "For prohibitions: only extract if unconditional and currently in effect. If the jurisdiction allows the facility under any conditions, this is not a prohibition."
+    ],
+    "district_specific": [
+      "For permitted use districts: extract an array of district names/codes. Consider energy or utility overlay districts as primary use.",
+      "For special use districts: include districts requiring board approval, special permits, or conditional use permits.",
+      "For accessory use districts: include districts where the facility is only allowed as accessory or secondary to another use.",
+      "For prohibited use districts: only include districts with unconditional prohibitions currently in effect.",
+      "Use the exact district names/codes as they appear in the ordinance text."
+    ]
+  },
+  "$qualitative_features": [
+      "screening and landscaping",
+      "visual impact",
+      "lighting",
+      "air quality",
+      "water use",
+      "signage",
+      "traffic and access",
+      "decommissioning",
+      "prohibitions"
+  ]
+}
