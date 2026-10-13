@@ -158,10 +158,42 @@ jobs:
         cache-write: false
         environments: pdev
 
-    - run: |
-        pixi reinstall -e pdev INFRA-COMPASS
-        pixi run -e pdev python -c "from docling_rs import download_models; download_models()"
-        pixi run -e pdev tests-i
+    - name: Prepare Docling models
+      run: |
+        pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked python -c "from docling_rs import download_models; download_models()"
+
+    - name: Run integration tests
+      run: pixi run -e pdev tests-i
+
+  docling-tests:
+    needs: lint
+    name: Docling Backend Integration Tests (Pixi)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@9dabb60412d3d2d967a8d682f7ce01317af40514 # v0.11.0
+      with:
+        pixi-version: v0.81.0
+        locked: true
+        cache: true
+        cache-write: false
+        environments: pdev
+
+    - name: Prepare Docling models
+      run: |
+        pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked python -c "from docling_rs import download_models; download_models()"
+
+    - name: Test production Docling backend
+      run: pixi run -e pdev --locked tests-docling
 
   tox-tests:
     needs: lint
