@@ -7,7 +7,6 @@ import math
 import pprint
 import asyncio
 import logging
-import warnings
 import platform
 import contextlib
 import multiprocessing
@@ -15,25 +14,29 @@ from glob import iglob
 from io import BytesIO
 from pathlib import Path
 from functools import partial
+from urllib.parse import urljoin, urlparse
 from concurrent.futures import ProcessPoolExecutor
 
-import numpy as np
-import pandas as pd
+from bs4 import BeautifulSoup
 from elm.web.document import PDFDocument, MDDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
-from docling.datamodel.backend_options import HTMLBackendOptions
-from docling.datamodel.base_models import DocumentStream, InputFormat
-from docling.document_converter import (
+from pdf2image import convert_from_bytes
+from docling_core.types.doc import DoclingDocument
+from docling_rs.datamodel.base_models import (
+    ConversionStatus,
+    DocumentStream,
+    InputFormat,
+)
+from docling_rs.document_converter import (
+    ConversionResult,
     DocumentConverter,
-    HTMLFormatOption,
     PdfFormatOption,
 )
-from docling.datamodel.pipeline_options import (
+from docling_rs.datamodel.pipeline_options import (
     PdfPipelineOptions,
     TableStructureOptions,
-    TesseractCliOcrOptions,
 )
-from docling.exceptions import ConversionError
+from docling_rs.exceptions import ConversionError
 
 from compass.exceptions import COMPASSValueError
 from compass.services.base import Service
@@ -280,14 +283,14 @@ async def read_docling_web_file(
         Filename or URL of the file to read.
     source_uri : str, optional
         Original remote URL for the file. If specified, this is used
-        as the HTML base URI while ``url`` is still used as the stream
-        name for Docling format inference. By default, ``None``.
+        to resolve relative HTML links while ``url`` is still used as
+        the stream name for format inference. By default, ``None``.
     pdf_pipeline_options : dict, optional
         Dictionary of keyword-value arguments to pass to
-        :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-        initializer. Table structure defaults to enabled when omitted.
-        OCR defaults to enabled only when ``pytesseract_exe_fp`` is
-        specified. By default, ``None``.
+        ``docling_rs.PdfPipelineOptions`` initializer. Table structure
+        and native OCR default to enabled. ``document_timeout`` sets
+        both the native conversion budget and the subprocess deadline.
+        By default, ``None``.
     **kwargs
         Additional keyword arguments passed to Docling's
         :meth:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
@@ -434,7 +437,6 @@ def _read_docling_without_timeout(
     doc_bytes,
     file_source,
     headers=None,
-    pytesseract_exe_fp=None,
     source_uri=None,
     pdf_pipeline_options=None,
     **kwargs,
@@ -446,9 +448,11 @@ def _read_docling_without_timeout(
     if headers is not None:
         headers = dict(headers)
 
+    kwargs.pop("pytesseract_exe_fp", None)
     configured_options = dict(pdf_pipeline_options or {})
+    document_timeout = configured_options.pop("document_timeout", None)
     configured_options.setdefault("do_table_structure", True)
-    configured_options.setdefault("do_ocr", pytesseract_exe_fp is not None)
+    configured_options.setdefault("do_ocr", True)
     configured_options.setdefault(
         "table_structure_options", TableStructureOptions(do_cell_matching=True)
     )
@@ -457,52 +461,145 @@ def _read_docling_without_timeout(
             **configured_options["table_structure_options"]
         )
     pipeline_options = PdfPipelineOptions(**configured_options)
-    if pytesseract_exe_fp is not None:
-        pipeline_options.ocr_options = TesseractCliOcrOptions(
-            tesseract_cmd=pytesseract_exe_fp
-        )
-
-    html_backend_options = HTMLBackendOptions(source_uri=source_uri)
 
     doc_converter = DocumentConverter(
         format_options={
             InputFormat.PDF: PdfFormatOption(
                 pipeline_options=pipeline_options
             ),
-            InputFormat.HTML: HTMLFormatOption(
-                backend_options=html_backend_options
-            ),
-        }
+        },
+        document_timeout=document_timeout,
     )
 
     start_time = time.perf_counter()
-    stream = DocumentStream(name=file_source, stream=BytesIO(doc_bytes))
-    conv_result = doc_converter.convert(stream, headers=headers)
-    conversion_time_seconds = time.perf_counter() - start_time
+    input_format = _docling_input_format(file_source, headers)
+    if input_format == InputFormat.HTML:
+        doc_bytes = _resolve_docling_html_links(doc_bytes, source_uri)
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)
-        mean_confidence = _none_if_missing(conv_result.confidence.mean_score)
-        low_score_confidence = _none_if_missing(
-            conv_result.confidence.low_score
+    stream = DocumentStream(
+        name=file_source, stream=BytesIO(doc_bytes), format=input_format
+    )
+    conv_result = doc_converter.convert(stream)
+    doc_text = conv_result.document.export_to_markdown(**kwargs)
+    if (
+        input_format == InputFormat.PDF
+        and pipeline_options.do_ocr
+        and conv_result.status.value == "success"
+        and not doc_text.strip()
+    ):
+        logger.info(
+            "Native PDF conversion returned no text; rendering pages "
+            "for Docling-RS OCR"
         )
+        conv_result = _read_docling_pdf_images(
+            doc_converter, doc_bytes, file_source
+        )
+        doc_text = conv_result.document.export_to_markdown(**kwargs)
+    conversion_time_seconds = time.perf_counter() - start_time
 
     attrs = {
         "doc_filename": conv_result.input.file.stem,
-        "doc_type": conv_result.input.format.value,
+        "doc_type": input_format.value if input_format else "unknown",
         "conversion_time_seconds": conversion_time_seconds,
         "conversion_status": conv_result.status.value,
-        "num_pages": len(conv_result.pages),
-        "from_ocr": any(
-            ~np.isnan(c.ocr_score)
-            for c in conv_result.confidence.pages.values()
-        ),
-        "mean_confidence": mean_confidence,
-        "low_score_confidence": low_score_confidence,
+        "num_pages": len(conv_result.document.pages),
+        "from_ocr": None,
+        "mean_confidence": None,
+        "low_score_confidence": None,
     }
-    doc_text = conv_result.document.export_to_markdown(**kwargs)
-
     return MDDocument([doc_text], attrs=attrs, remove_comments=False)
+
+
+def _read_docling_pdf_images(converter, doc_bytes, file_source):
+    """Retry empty PDFs with Poppler renders and native OCR"""
+    images = convert_from_bytes(doc_bytes)
+    documents = []
+    conversion_status = ConversionStatus.SUCCESS
+    try:
+        for page_number, image in enumerate(images, start=1):
+            with BytesIO() as stream:
+                image.save(stream, format="PNG")
+                stream.seek(0)
+                result = converter.convert(
+                    DocumentStream(
+                        name=f"{Path(file_source).stem}-{page_number}.png",
+                        stream=stream,
+                        format=InputFormat.IMAGE,
+                    )
+                )
+            documents.append(result.document)
+            if result.status != ConversionStatus.SUCCESS:
+                conversion_status = ConversionStatus.PARTIAL_SUCCESS
+    finally:
+        for image in images:
+            image.close()
+
+    return ConversionResult(
+        status=conversion_status,
+        input_name=file_source,
+        document=DoclingDocument.concatenate(documents),
+    )
+
+
+def _docling_input_format(file_source, headers):
+    """Infer the native stream format from headers or its name"""
+    content_type = next(
+        (
+            value.partition(";")[0].strip().lower()
+            for key, value in (headers or {}).items()
+            if key.lower() == "content-type"
+        ),
+        None,
+    )
+    content_formats = {
+        "application/pdf": InputFormat.PDF,
+        "text/html": InputFormat.HTML,
+        "text/markdown": InputFormat.MD,
+        "text/plain": InputFormat.MD,
+    }
+    if content_type in content_formats:
+        return content_formats[content_type]
+
+    if content_type and content_type.startswith("image/"):
+        return InputFormat.IMAGE
+
+    extension = Path(urlparse(file_source).path).suffix.lower().lstrip(".")
+    aliases = {
+        "htm": "html",
+        "txt": "md",
+        "jpg": "image",
+        "jpeg": "image",
+        "png": "image",
+        "tif": "image",
+        "tiff": "image",
+        "bmp": "image",
+    }
+    extension = aliases.get(extension, extension)
+    return next(
+        (
+            input_format
+            for input_format in InputFormat
+            if input_format.value == extension
+        ),
+        None,
+    )
+
+
+def _resolve_docling_html_links(doc_bytes, source_uri):
+    """Resolve HTML references against their original source URL"""
+    document = BeautifulSoup(doc_bytes, "html.parser")
+    base = document.find("base", href=True)
+    base_uri = urljoin(source_uri, base["href"]) if base else source_uri
+    changed = False
+    for element in document.find_all(["a", "img"]):
+        attribute = "href" if element.name == "a" else "src"
+        reference = element.get(attribute)
+        if reference:
+            resolved = urljoin(base_uri, reference)
+            if resolved != reference:
+                element[attribute] = resolved
+                changed = True
+    return str(document).encode("utf-8") if changed else doc_bytes
 
 
 def _run_docling_in_subprocess(fn, *, args, kwargs, timeout):
@@ -628,11 +725,6 @@ def _pytesseract_cleanup_win(temp_name):
     for filename in iglob(f"{temp_name}*" if temp_name else temp_name):
         with contextlib.suppress(OSError):
             os.remove(filename)  # ruff:ignore[os-remove]
-
-
-def _none_if_missing(value):
-    """Return ``None`` when a scalar confidence value is missing"""
-    return None if pd.isna(value) else value
 
 
 def _try_decode_ocr_pages(pages):
