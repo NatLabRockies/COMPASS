@@ -107,3 +107,25 @@ you may have to run the following command (requires ``sudo``):
 .. code-block:: shell
 
     playwright install-deps
+
+
+Preparing for Docling-RS PDF Parsing
+------------------------------------
+The Docling backend uses Docling-RS for native document conversion. Before
+parsing PDFs or scanned images, download its model assets once:
+
+.. code-block:: shell
+
+    pixi run python -c "from docling_rs import download_models; download_models()"
+
+Models are cached under ``~/.cache/docling.rs`` by default. Set
+``DOCLING_RS_CACHE_DIR`` to use a different cache directory, and make that
+cache available to the worker processes. HTML and Markdown conversion do
+not require these models.
+
+Some scanned PDFs use image encodings that the native PDF renderer cannot
+read completely. If an OCR-enabled PDF converts successfully but produces
+no Markdown, COMPASS renders its pages with Poppler and retries them with
+the same Docling-RS OCR engine. This retry preserves the original PDF and
+page count, respects explicit OCR opt-outs, and remains subject to the
+subprocess deadline. Poppler is included in the Pixi environment.
