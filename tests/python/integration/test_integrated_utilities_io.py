@@ -19,7 +19,7 @@ from compass.pipeline.collection.persistence import (
     load_collected_docs,
     persist_documents,
 )
-from compass.services.cpu import (
+from compass.services.docling import (
     FileLoader,
     read_docling_local_file,
     read_docling_web_file,

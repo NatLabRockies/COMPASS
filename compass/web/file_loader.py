@@ -14,7 +14,10 @@ from elm.web.file_loader import (
 from elm.web.document import MDDocument
 from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
-from compass.services.cpu import read_docling_web_file, read_docling_local_file
+from compass.services.docling import (
+    read_docling_web_file,
+    read_docling_local_file,
+)
 from compass.services.threaded import TempFileCache
 
 
