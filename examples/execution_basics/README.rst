@@ -160,9 +160,6 @@ in its disposable child process after a 10 percent grace period.
 This setting applies only when ``COMPASS_FILE_LOAD_BACKEND=docling``. The deadline wrapper
 does not retry a timed-out document.
 
-Docling-RS does not expose whether OCR was actually used for a document.
-COMPASS sets ``from_ocr`` to ``None`` in this case.
-
 
 Kitchen Sink Config
 -------------------
