@@ -160,6 +160,7 @@ jobs:
 
     - run: |
         pixi reinstall -e pdev INFRA-COMPASS
+        pixi run python -c "from docling_rs import download_models; download_models()"
         pixi run -e pdev tests-i
 
   tox-tests:
