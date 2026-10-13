@@ -16,6 +16,7 @@ on:
       - pyproject.toml
       - pixi.toml
       - pixi.lock
+      - tox.ini
   pull_request:
     paths:
       - compass/**
@@ -24,6 +25,7 @@ on:
       - pyproject.toml
       - pixi.toml
       - pixi.lock
+      - tox.ini
   workflow_dispatch:
 
 jobs:
@@ -97,6 +99,17 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
+    - name: Install ONNX Runtime for Intel macOS
+      if: runner.os == 'macOS' && runner.arch == 'X64'
+      shell: bash
+      run: |
+        brew install onnxruntime
+        ort_lib="$(brew --prefix onnxruntime)/lib"
+        test -f "$ort_lib/libonnxruntime.dylib"
+        echo "ORT_LIB_LOCATION=$ort_lib" >> "$GITHUB_ENV"
+        echo "ORT_PREFER_DYNAMIC_LINK=1" >> "$GITHUB_ENV"
+        echo "RUSTFLAGS=${RUSTFLAGS:-} -C link-arg=-Wl,-rpath,$ort_lib" >> "$GITHUB_ENV"
+
     - uses: prefix-dev/setup-pixi@9dabb60412d3d2d967a8d682f7ce01317af40514 # v0.11.0
       with:
         pixi-version: v0.81.0
@@ -125,6 +138,17 @@ jobs:
       with:
         fetch-depth: 0
         fetch-tags: true
+
+    - name: Install ONNX Runtime for Intel macOS
+      if: runner.os == 'macOS' && runner.arch == 'X64'
+      shell: bash
+      run: |
+        brew install onnxruntime
+        ort_lib="$(brew --prefix onnxruntime)/lib"
+        test -f "$ort_lib/libonnxruntime.dylib"
+        echo "ORT_LIB_LOCATION=$ort_lib" >> "$GITHUB_ENV"
+        echo "ORT_PREFER_DYNAMIC_LINK=1" >> "$GITHUB_ENV"
+        echo "RUSTFLAGS=${RUSTFLAGS:-} -C link-arg=-Wl,-rpath,$ort_lib" >> "$GITHUB_ENV"
 
     - uses: prefix-dev/setup-pixi@9dabb60412d3d2d967a8d682f7ce01317af40514 # v0.11.0
       with:
@@ -184,6 +208,17 @@ jobs:
       shell: bash
       run: |
         brew install poppler
+
+    - name: Install ONNX Runtime for Intel macOS
+      if: runner.os == 'macOS' && runner.arch == 'X64'
+      shell: bash
+      run: |
+        brew install onnxruntime
+        ort_lib="$(brew --prefix onnxruntime)/lib"
+        test -f "$ort_lib/libonnxruntime.dylib"
+        echo "ORT_LIB_LOCATION=$ort_lib" >> "$GITHUB_ENV"
+        echo "ORT_PREFER_DYNAMIC_LINK=1" >> "$GITHUB_ENV"
+        echo "RUSTFLAGS=${RUSTFLAGS:-} -C link-arg=-Wl,-rpath,$ort_lib" >> "$GITHUB_ENV"
 
     - name: Install Dependencies
       run: |
