@@ -122,10 +122,10 @@ async def test_real_docling_office_conversion_preserves_table(
         assert expected in doc.text
 
 
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true",
-    reason="requires heavyweight Docling-RS PDF models",
-)
+# @pytest.mark.skipif(
+#     os.getenv("GITHUB_ACTIONS") == "true",
+#     reason="requires heavyweight Docling-RS PDF models",
+# )
 @pytest.mark.asyncio
 async def test_real_docling_ocr_preserves_known_scanned_text(tmp_path):
     """Recover known setback values from a generated image-only PDF"""
@@ -306,9 +306,9 @@ async def subprocess_log_listener():
         yield
 
 
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
+# @pytest.mark.skipif(
+#     os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+# )
 @pytest.mark.asyncio
 async def test_basic_load_pdf(test_data_files_dir):
     """Test basic loading of local PDF document"""
@@ -329,9 +329,9 @@ async def test_basic_load_pdf(test_data_files_dir):
     assert "Section 15.4" in doc.text
 
 
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
+# @pytest.mark.skipif(
+#     os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+# )
 @pytest.mark.asyncio
 async def test_basic_load_html(test_data_files_dir):
     """Test basic loading of local HTML document"""
@@ -348,9 +348,9 @@ async def test_basic_load_html(test_data_files_dir):
     assert len(doc.pages) == 1
 
 
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
+# @pytest.mark.skipif(
+#     os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+# )
 @pytest.mark.asyncio
 async def test_basic_load_pdf_with_service(test_data_files_dir):
     """Test basic loading of local PDF document with service"""
@@ -372,10 +372,10 @@ async def test_basic_load_pdf_with_service(test_data_files_dir):
     assert doc.text == doc_2[0].text
 
 
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true",
-    reason="requires heavyweight Docling-RS PDF models",
-)
+# @pytest.mark.skipif(
+#     os.getenv("GITHUB_ACTIONS") == "true",
+#     reason="requires heavyweight Docling-RS PDF models",
+# )
 @pytest.mark.asyncio
 async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
     """Test basic loading of local PDF document with service"""
@@ -405,9 +405,9 @@ async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
     assert raw == test_fp.read_bytes()
 
 
-@pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
-)
+# @pytest.mark.skipif(
+#     os.getenv("GITHUB_ACTIONS") == "true", reason="Docling too heavy for GHA"
+# )
 @pytest.mark.asyncio
 async def test_basic_load_html_with_service(test_data_files_dir):
     """Test basic loading of local HTML document with service"""
