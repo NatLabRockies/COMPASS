@@ -82,7 +82,6 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
     loader = AsyncDoclingWebFileLoader(
         file_cache_coroutine=cache_document,
         to_md_kwargs={"image_placeholder": ""},
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"document_timeout": 30},
     )
     loader.content_fetcher.fetch = AsyncMock(
@@ -101,7 +100,6 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
         url=f"code.{doc_type}",
         source_uri=url,
         headers=headers,
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"document_timeout": 30},
         image_placeholder="",
     )
@@ -167,7 +165,6 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
             "jurisdiction": "Test",
         },
         to_md_kwargs={"page_break_placeholder": "<!-- page break -->"},
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"do_table_structure": False},
     )
 
@@ -175,7 +172,6 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
 
     converter.assert_awaited_once_with(
         source,
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"do_table_structure": False},
         page_break_placeholder="<!-- page break -->",
     )
