@@ -123,8 +123,8 @@ async def test_real_docling_office_conversion_preserves_table(
 
 
 @pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true" or not PYT_CMD,
-    reason="requires Tesseract and heavyweight Docling PDF models",
+    os.getenv("GITHUB_ACTIONS") == "true",
+    reason="requires heavyweight Docling-RS PDF models",
 )
 @pytest.mark.asyncio
 async def test_real_docling_ocr_preserves_known_scanned_text(tmp_path):
@@ -154,7 +154,7 @@ async def test_real_docling_ocr_preserves_known_scanned_text(tmp_path):
         )
 
     assert not doc.empty
-    assert doc.attrs["from_ocr"]
+    assert doc.attrs["from_ocr"] is None
     assert doc.attrs["num_pages"] == 1
     assert doc.attrs["conversion_status"] == "success"
     assert "EXAMPLE COUNTY WIND ORDINANCE" in doc.text.upper()
@@ -373,8 +373,8 @@ async def test_basic_load_pdf_with_service(test_data_files_dir):
 
 
 @pytest.mark.skipif(
-    os.getenv("GITHUB_ACTIONS") == "true" or not PYT_CMD,
-    reason="requires PyTesseract command to be set; Docling too heavy for GHA",
+    os.getenv("GITHUB_ACTIONS") == "true",
+    reason="requires heavyweight Docling-RS PDF models",
 )
 @pytest.mark.asyncio
 async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
@@ -389,7 +389,7 @@ async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
 
     fl = AsyncLocalDoclingFileLoader(pytesseract_exe_fp=PYT_CMD)
     async with RunningAsyncServices([FileLoader()]):
-        doc, __ = await read_docling_local_file(
+        doc, raw = await read_docling_local_file(
             test_fp, pytesseract_exe_fp=PYT_CMD
         )
         doc_2 = await load_docs([test_fp], fl)
@@ -397,6 +397,12 @@ async def test_basic_load_ocr_pdf_with_service(test_data_files_dir):
     assert not doc.empty
     assert not doc_2[0].empty
     assert doc.text == doc_2[0].text
+    assert doc.attrs["doc_type"] == "pdf"
+    assert doc.attrs["num_pages"] == 6
+    assert doc.attrs["from_ocr"] is None
+    assert "SEDGWICK COUNTY" in doc.text.upper()
+    assert "RENEWABLE ENERGY SYSTEMS" in doc.text.upper()
+    assert raw == test_fp.read_bytes()
 
 
 @pytest.mark.skipif(
