@@ -205,17 +205,22 @@ def test_docling_empty_results_do_not_trigger_unwanted_ocr(
 
 
 @pytest.mark.parametrize(
-    "outcome",
+    "outcome,entry_point",
     [
-        "success",
-        "partial_success",
-        "conversion_error",
-        "encoding_error",
-        "render_error",
+        ("success", "helper"),
+        ("partial_success", "helper"),
+        ("success", "reader"),
+        ("partial_success", "reader"),
+        ("conversion_error", "helper"),
+        ("encoding_error", "helper"),
+        ("render_error", "helper"),
     ],
 )
-def test_docling_pdf_retry_releases_each_page(monkeypatch, tmp_path, outcome):
-    """Render one page at a time and close it even when OCR fails"""
+# ruff: ignore[complex-structure]
+def test_docling_pdf_retry_releases_each_page(
+    monkeypatch, tmp_path, outcome, entry_point
+):
+    """Recover empty PDFs with ordered Markdown and close rendered images"""
     source = tmp_path / "scanned.pdf"
     with Image.new("RGB", (20, 30), "white") as image:
         image.save(
@@ -223,6 +228,7 @@ def test_docling_pdf_retry_releases_each_page(monkeypatch, tmp_path, outcome):
         )
     rendered_images = []
     converted_names = []
+    native_pdf_inputs = []
 
     def fail_encoding(*args, **kwargs):
         raise RuntimeError("encoding failed")
@@ -244,14 +250,34 @@ def test_docling_pdf_retry_releases_each_page(monkeypatch, tmp_path, outcome):
         return images
 
     def convert(stream):
+        if stream.format == InputFormat.PDF:
+            native_pdf_inputs.append(stream.name)
+            assert stream.stream.read() == source.read_bytes()
+            return SimpleNamespace(
+                document=DoclingDocument(name=stream.name),
+                status=ConversionStatus.SUCCESS,
+            )
         page_number = len(converted_names) + 1
         converted_names.append(stream.name)
         assert stream.format == InputFormat.IMAGE
         assert stream.stream.read().startswith(b"\x89PNG")
         if outcome == "conversion_error" and page_number == 2:
             raise RuntimeError("conversion failed")
-        document = DoclingDocument(name=stream.name)
+        document = DoclingDocument.model_validate(
+            {
+                "name": stream.name,
+                "pages": {
+                    1: {
+                        "page_no": 1,
+                        "size": {"width": 20, "height": 30},
+                    }
+                },
+            }
+        )
         document.add_text(label=DocItemLabel.TEXT, text=f"Page {page_number}")
+        document.add_text(
+            label=DocItemLabel.SECTION_HEADER, text="Excluded heading"
+        )
         status = (
             ConversionStatus.PARTIAL_SUCCESS
             if outcome == "partial_success" and page_number == 2
@@ -263,18 +289,40 @@ def test_docling_pdf_retry_releases_each_page(monkeypatch, tmp_path, outcome):
         "compass.services.docling.convert_from_bytes", render_page
     )
     converter = SimpleNamespace(convert=convert)
+    monkeypatch.setattr(
+        "compass.services.docling.DocumentConverter",
+        lambda **__: converter,
+    )
     if outcome.endswith("error"):
         with pytest.raises(RuntimeError, match="failed"):
             _read_docling_pdf_images(
                 converter, source.read_bytes(), str(source)
             )
     else:
-        result = _read_docling_pdf_images(
-            converter, source.read_bytes(), str(source)
-        )
-        assert result.status == ConversionStatus(outcome)
-        assert result.input.file.name == source.name
-        assert result.document.export_to_markdown().split() == [
+        export_options = {"labels": {DocItemLabel.TEXT}}
+        if entry_point == "reader":
+            doc = _read_docling_without_timeout(
+                source.read_bytes(),
+                str(source),
+                pdf_pipeline_options={"do_ocr": True},
+                **export_options,
+            )
+            markdown = doc.text
+            assert native_pdf_inputs == [str(source)]
+            assert doc.attrs["doc_filename"] == source.stem
+            assert doc.attrs["doc_type"] == "pdf"
+            assert doc.attrs["conversion_status"] == outcome
+            assert doc.attrs["num_pages"] == 3
+            assert doc.attrs["from_ocr"] is True
+        else:
+            result = _read_docling_pdf_images(
+                converter, source.read_bytes(), str(source)
+            )
+            assert result.status == ConversionStatus(outcome)
+            assert result.input.file.name == source.name
+            assert list(result.document.pages) == [1, 2, 3]
+            markdown = result.document.export_to_markdown(**export_options)
+        assert markdown.split() == [
             "Page",
             "1",
             "Page",
