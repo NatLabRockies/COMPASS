@@ -499,7 +499,7 @@ def _read_docling_without_timeout(
         "conversion_time_seconds": conversion_time_seconds,
         "conversion_status": conv_result.status.value,
         "num_pages": len(conv_result.document.pages),
-        "from_ocr": None,
+        "from_ocr": configured_options["do_ocr"],
     }
     return MDDocument([doc_text], attrs=attrs, remove_comments=False)
 
