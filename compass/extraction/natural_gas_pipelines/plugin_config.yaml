@@ -8,9 +8,9 @@ query_templates:
   - "{jurisdiction} natural gas compressor station ordinance"
   - "{jurisdiction} natural gas pipeline facilities zoning ordinance"
   - "{jurisdiction} compressor station setback noise ordinance code"
-  # Many jurisdictions regulate natural gas compressor stations inside broader
-  # "oil and gas" or gas-well chapters. Cast a wider net at discovery; the
-  # schema scope gate and applies_to field filter out well-only content later.
+  # Compressor stations are often regulated inside broader oil-and-gas
+  # chapters. These queries widen discovery; well-only text is rejected later
+  # by the schema scope gate and extraction instructions.
   - "{jurisdiction} oil and gas facilities zoning ordinance"
   - "{jurisdiction} gas well ordinance compressor pipeline"
   - "site:ecode360.com {jurisdiction}"
@@ -57,8 +57,6 @@ heuristic_keywords:
     - pipeline
     - transmission
     - gathering
-    - ecode360
-    - municode
   good_tech_phrases:
     - natural gas compressor station
     - natural gas pipeline
