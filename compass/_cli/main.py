@@ -10,7 +10,7 @@ from compass._cli.finalize import finalize
 from compass._cli.search import search
 
 
-@click.group()
+@click.group
 @click.version_option(version=__version__)
 @click.pass_context
 def main(ctx):
