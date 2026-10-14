@@ -79,6 +79,8 @@ def converter_state(monkeypatch):
             state["stream_name"] = stream.name
             state["stream_bytes"] = stream.stream.read()
             state["stream_format"] = stream.format
+            if "error" in state:
+                raise state["error"]
             return SimpleNamespace(
                 input=SimpleNamespace(file=Path(stream.name)),
                 document=SimpleNamespace(
@@ -205,12 +207,37 @@ def test_docling_empty_results_do_not_trigger_unwanted_ocr(
 
 
 @pytest.mark.parametrize(
+    "source,do_ocr,message",
+    [
+        ("sample.pdf", False, "pdfium support is not compiled in"),
+        ("sample.html", True, "pdfium support is not compiled in"),
+        ("sample.pdf", True, "invalid PDF"),
+    ],
+)
+def test_docling_pdfium_retry_does_not_mask_other_errors(
+    converter_state, source, do_ocr, message
+):
+    """Propagate errors when the PDFium retry conditions are not met"""
+    error = ConversionError(message)
+    converter_state["error"] = error
+
+    with pytest.raises(ConversionError, match=message) as raised:
+        _read_docling_without_timeout(
+            b"document", source, pdf_pipeline_options={"do_ocr": do_ocr}
+        )
+
+    assert raised.value is error
+
+
+@pytest.mark.parametrize(
     "outcome,entry_point",
     [
         ("success", "helper"),
         ("partial_success", "helper"),
         ("success", "reader"),
         ("partial_success", "reader"),
+        ("success", "pdfium_reader"),
+        ("partial_success", "pdfium_reader"),
         ("conversion_error", "helper"),
         ("encoding_error", "helper"),
         ("render_error", "helper"),
@@ -220,7 +247,7 @@ def test_docling_empty_results_do_not_trigger_unwanted_ocr(
 def test_docling_pdf_retry_releases_each_page(
     monkeypatch, tmp_path, outcome, entry_point
 ):
-    """Recover empty PDFs with ordered Markdown and close rendered images"""
+    """Recover failed or empty PDFs and close rendered images"""
     source = tmp_path / "scanned.pdf"
     with Image.new("RGB", (20, 30), "white") as image:
         image.save(
@@ -253,6 +280,8 @@ def test_docling_pdf_retry_releases_each_page(
         if stream.format == InputFormat.PDF:
             native_pdf_inputs.append(stream.name)
             assert stream.stream.read() == source.read_bytes()
+            if entry_point == "pdfium_reader":
+                raise ConversionError("pdfium support is not compiled in")
             return SimpleNamespace(
                 document=DoclingDocument(name=stream.name),
                 status=ConversionStatus.SUCCESS,
@@ -300,7 +329,7 @@ def test_docling_pdf_retry_releases_each_page(
             )
     else:
         export_options = {"labels": {DocItemLabel.TEXT}}
-        if entry_point == "reader":
+        if entry_point in {"reader", "pdfium_reader"}:
             doc = _read_docling_without_timeout(
                 source.read_bytes(),
                 str(source),

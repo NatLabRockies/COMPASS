@@ -200,7 +200,21 @@ def _read_docling_without_timeout(
     stream = DocumentStream(
         name=file_source, stream=BytesIO(doc_bytes), format=input_format
     )
-    conv_result = doc_converter.convert(stream)
+    try:
+        conv_result = doc_converter.convert(stream)
+    except ConversionError as error:
+        if (
+            input_format != InputFormat.PDF
+            or not pipeline_options.do_ocr
+            or "pdfium support is not compiled in" not in str(error)
+        ):
+            raise
+        logger.info(
+            "Native PDF reader unavailable; retrying with Poppler renders"
+        )
+        conv_result = _read_docling_pdf_images(
+            doc_converter, doc_bytes, file_source
+        )
     doc_text = conv_result.document.export_to_markdown(**kwargs)
     if (
         input_format == InputFormat.PDF
