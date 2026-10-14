@@ -81,22 +81,67 @@ def llm_response_as_json(content):
     decode failure. The logging includes guidance for increasing token
     limits or updating prompts.
     """
+    original_content = content
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
     content = content.replace("True", "true").replace("False", "false")
     try:
-        content = json.loads(content)
-    except json.decoder.JSONDecodeError:
-        logger.exception(
-            "LLM returned improperly formatted JSON. "
-            "This is likely due to the completion running out of tokens. "
-            "Setting a higher token limit may fix this error. "
-            "Also ensure you are requesting JSON output in your prompt. "
-            "JSON returned:\n%s",
-            content,
+        return json.loads(content)
+    except json.decoder.JSONDecodeError as error:
+        decode_error = error
+
+    embedded = _extract_embedded_json(original_content)
+    if embedded is not None:
+        logger.debug(
+            "LLM response contained leading/trailing text around the "
+            "JSON payload. Recovered JSON from an embedded fenced or "
+            "bare object/array instead of the full response."
         )
-        content = {}
-    return content
+        return embedded
+
+    logger.error(
+        "LLM returned improperly formatted JSON. "
+        "This is likely due to the completion running out of tokens. "
+        "Setting a higher token limit may fix this error. "
+        "Also ensure you are requesting JSON output in your prompt. "
+        "JSON returned:\n%s",
+        content,
+        exc_info=decode_error,
+    )
+    return {}
+
+
+def _extract_embedded_json(content):
+    """Recover the JSON payload surrounded by extra LLM text"""
+    content = content.replace("True", "true").replace("False", "false")
+    fence = "```json"
+    starts = []
+    index = content.find(fence)
+    while index >= 0:
+        starts.append(index + len(fence))
+        index = content.find(fence, index + 1)
+    starts.append(0)
+
+    for start in starts:
+        for opener in "{[":
+            value = _first_decodable_json(content, start, opener)
+            if value is not None:
+                return value
+    return None
+
+
+def _first_decodable_json(content, start, opener):
+    """Decode the first JSON value beginning with `opener`"""
+    decoder = json.JSONDecoder()
+    index = content.find(opener, start)
+    while index >= 0:
+        try:
+            value, __ = decoder.raw_decode(content, index)
+        except json.decoder.JSONDecodeError:
+            index = content.find(opener, index + 1)
+            continue
+        return value
+    return None
 
 
 def merge_overlapping_texts(text_chunks, n=300):

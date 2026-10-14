@@ -74,6 +74,33 @@ def test_raw_pages_from_pdf_preserves_page_within_splitter_budget(doc_class):
         ('{"a": True', {}),
         ('json\n{"key": "value"}', {"key": "value"}),
         ('{"a": True, "b": False}', {"a": True, "b": False}),
+        (
+            (
+                "Reasoning first.\n```json\n"
+                '{"year": 2025, "month": 6, "day": 3}'
+                "\n```"
+            ),
+            {"year": 2025, "month": 6, "day": 3},
+        ),
+        (
+            (
+                'Preamble {"rows": [{"feature": "setback", "value": 50}]} '
+                "trailing {not JSON}"
+            ),
+            {"rows": [{"feature": "setback", "value": 50}]},
+        ),
+        (
+            (
+                "Dates found:\n```html\ndata-code-date={2026}\n```\n"
+                '```json\n{"year": 2026, "month": 1, "day": 20}'
+            ),
+            {"year": 2026, "month": 1, "day": 20},
+        ),
+        (
+            'See section [1] for details. {"year": 2025}',
+            {"year": 2025},
+        ),
+        ("No JSON here [unclosed", {}),
     ],
 )
 def test_llm_response_as_json(in_str, expected):

@@ -7,7 +7,7 @@ from functools import cached_property
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
-from compass.llm import OpenAIConfig
+from compass.llm import LiteLLMConfig, OpenAIConfig
 from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
@@ -452,7 +452,10 @@ class BaseRequest:
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments.
+            arguments. Provider-prefixed model names (e.g.
+            ``"anthropic/claude-sonnet-4-5"``) or ``"client_type":
+            "litellm"`` use :class:`~compass.llm.config.LiteLLMConfig`
+            instead.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1008,7 +1011,10 @@ class CollectionRequest(BaseRequest):
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments.
+            arguments. Provider-prefixed model names (e.g.
+            ``"anthropic/claude-sonnet-4-5"``) or ``"client_type":
+            "litellm"`` use :class:`~compass.llm.config.LiteLLMConfig`
+            instead.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1364,7 +1370,10 @@ class ExtractionRequest(BaseRequest):
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments.
+            arguments. Provider-prefixed model names (e.g.
+            ``"anthropic/claude-sonnet-4-5"``) or ``"client_type":
+            "litellm"`` use :class:`~compass.llm.config.LiteLLMConfig`
+            instead.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1539,7 +1548,7 @@ def build_models(user_input, *, allow_empty=False, rate_tracker=None):
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
 
     if isinstance(user_input, str):
-        return {LLMTasks.DEFAULT: OpenAIConfig(name=user_input)}
+        return {LLMTasks.DEFAULT: _model_config(name=user_input)}
 
     caller_instances = {}
     for raw_kwargs in user_input:
@@ -1558,10 +1567,24 @@ def _config_for_tasks(kwargs, rate_tracker=None):
     if isinstance(tasks, str):
         tasks = [tasks]
 
-    model_config = OpenAIConfig(**kwargs)
+    model_config = _model_config(**kwargs)
     model_config.llm_call_kwargs.update({"rate_tracker": rate_tracker})
     for task in tasks:
         yield task, model_config
+
+
+def _model_config(**kwargs):
+    """Build LiteLLM config for provider-prefixed names, else OpenAI"""
+    client_type = kwargs.get("client_type")
+    if client_type is None:
+        is_litellm = "/" in kwargs.get("name", "")
+    else:
+        is_litellm = client_type.casefold() == "litellm"
+
+    if is_litellm:
+        kwargs.pop("client_type", None)
+        return LiteLLMConfig(**kwargs)
+    return OpenAIConfig(**kwargs)
 
 
 def _verify_task_not_duplicate(task, caller_instances):
