@@ -797,6 +797,7 @@ class SearchRequest(BaseRequest):
         jurisdiction_fp,
         *,
         num_urls_to_check_per_jurisdiction=5,
+        max_num_concurrent_jurisdictions=25,
         url_ignore_substrings=None,
         url_keep_substrings=None,
         search_engines=None,
@@ -832,6 +833,10 @@ class SearchRequest(BaseRequest):
             Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        max_num_concurrent_jurisdictions : int, default=25
+            Maximum number of jurisdictions to process concurrently.
+            Limiting this can help manage memory usage when dealing with
+            a large number of documents. By default, ``25``.
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
             the URL to be excluded from search results. This can be used
@@ -905,6 +910,9 @@ class SearchRequest(BaseRequest):
             save_search_engine_results=True,
             num_urls_to_check_per_jurisdiction=(
                 num_urls_to_check_per_jurisdiction
+            ),
+            max_num_concurrent_jurisdictions=(
+                max_num_concurrent_jurisdictions
             ),
             url_ignore_substrings=url_ignore_substrings,
             url_keep_substrings=url_keep_substrings,
