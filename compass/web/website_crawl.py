@@ -9,6 +9,7 @@ import math
 import asyncio
 import logging
 import operator
+from functools import cached_property
 from collections import Counter
 from contextlib import AsyncExitStack
 from urllib.parse import urljoin, urlsplit
@@ -18,12 +19,12 @@ from bs4 import BeautifulSoup
 from rebrowser_playwright.async_api import async_playwright
 from rebrowser_playwright.async_api import Error as RBPlaywrightError
 from playwright._impl._errors import Error as PlaywrightError  # ruff:ignore[import-private-name]
-from elm.web.utilities import pw_page
+from elm.web.utilities import pw_page, PWKwargs, get_redirected_url
 from elm.web.document import HTMLDocument
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.website_crawl import ELMLinkScorer, _SCORE_KEY  # ruff:ignore[import-private-name]
 
-from compass.utilities.url import sanitize_url
+from compass.utilities.url import URLPartFilter, normalize_domain, sanitize_url
 from compass.services.threaded import TempFileCache
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
@@ -104,10 +105,21 @@ class _Link(c4AILink):
             return NotImplemented
         return self.href.casefold() == other.href.casefold()
 
-    @property
+    @cached_property
     def consistent_domain(self):
         """bool: ``True`` if the link is from the base domain"""
-        return self.base_domain.casefold() in self.href.casefold()
+        norm_b = normalize_domain(self.base_domain)
+        norm_href = normalize_domain(self.href)
+        is_consistent = norm_href == norm_b or (
+            bool(norm_b) and norm_href.endswith(f".{norm_b}")
+        )
+        logger.trace(
+            "Consistent domain between %s and %s: %r",
+            norm_href,
+            norm_b,
+            is_consistent,
+        )
+        return is_consistent
 
     @property
     def resembles_pdf(self):
@@ -115,18 +127,73 @@ class _Link(c4AILink):
         return "pdf" in self.title.casefold() or "pdf" in self.href.casefold()
 
 
+class _PageVisit:
+    """Track traversal metadata and document identity for a visited URL
+
+    Navigation pages may be revisited at a shallower depth when crawling
+    with a depth limit. Documents have no descendants to explore, so
+    they never need a second visit. Document identity is retained even
+    when validation rejects the document, preventing repeated work.
+
+    The source identifies the fetched document, which may differ from
+    the visited URL, and is stored case-folded for matching. Source
+    aliases do not create additional visits.
+    """
+
+    def __init__(self, depth, score, is_document=False, source=None):
+        """
+
+        Parameters
+        ----------
+        depth : int
+            Link depth of this visit, with the landing page at zero.
+        score : float
+            Relevance score assigned to the link for this visit.
+        is_document : bool, optional
+            Whether this visit corresponds to a document rather than a
+            navigation page. By default, ``False``.
+        source : str, optional
+            The source URL of the document, which may differ from the
+            visited URL. By default, ``None``.
+        """
+        self.depth = depth
+        self.score = score
+        self.is_document = is_document
+        self.source = source
+
+    def can_revisit(self, depth):
+        """Check whether a navigation-page visit is shallower
+
+        Parameters
+        ----------
+        depth : int
+            Link depth of the proposed visit.
+
+        Returns
+        -------
+        bool
+            Whether this is a shallower visit to a navigation page.
+        """
+        return not self.is_document and depth < self.depth
+
+
 class COMPASSCrawler:
     """A simple website crawler to search for ordinance documents"""
 
+    # ruff:ignore[too-many-arguments,too-many-positional-arguments]
     def __init__(
         self,
         validator,
         url_scorer,
         file_loader_kwargs=None,
         already_visited=None,
+        browser_semaphore=None,
         num_link_scores_to_check_per_page=4,
         max_pages=100,
-        browser_semaphore=None,
+        max_same_score_links_per_page=20,
+        url_ignore_substrings=None,
+        url_keep_substrings=None,
+        max_depth=None,
     ):
         """
 
@@ -158,7 +225,11 @@ class COMPASSCrawler:
             that have already been visited. This is used to avoid
             re-visiting links that have already been checked.
             By default, ``None``.
-        num_link_scores_to_check_per_page : int, default=3
+        browser_semaphore : :class:`asyncio.Semaphore`, optional
+            Semaphore instance that can be used to limit the number of
+            playwright browsers open concurrently. If ``None``, no
+            limits are applied. By default, ``None``.
+        num_link_scores_to_check_per_page : int, default=4
             Number of top unique-scoring links per page to use for
             recursive crawling. This helps the crawl stay focused on the
             most likely links to contain documents of interest.
@@ -166,16 +237,32 @@ class COMPASSCrawler:
             Maximum number of pages to crawl before terminating,
             regardless of whether the document was found or not.
             By default, ``100``.
-        browser_semaphore : :class:`asyncio.Semaphore`, optional
-            Semaphore instance that can be used to limit the number of
-            playwright browsers open concurrently. If ``None``, no
-            limits are applied. By default, ``None``.
+        max_same_score_links_per_page : int, default=20
+            Maximum number of links with the same score to check per
+            page. This helps prevent the crawler from spending too much
+            time on links that have identical scores.
+            By default, ``20``.
+        url_ignore_substrings : iterable of str, optional
+            URL parts that exclude matching crawl candidates. By
+            default, ``None``.
+        url_keep_substrings : iterable of str, optional
+            URL parts that override all crawl blacklist matches. By
+            default, ``None``.
+        max_depth : int, optional
+            Maximum link depth to check, including the starting page at
+            depth zero. By default, ``None`` (unlimited).
         """
         self.validator = validator
         self.url_scorer = url_scorer
         self.num_scores_to_check_per_page = num_link_scores_to_check_per_page
         self.checked_previously = already_visited or set()
         self.max_pages = max_pages
+        self.max_same_score_links_per_page = max_same_score_links_per_page
+        self.max_depth = max_depth
+        self.url_filter = URLPartFilter(
+            [*_BLACKLIST_SUBSTRINGS, *(url_ignore_substrings or [])],
+            url_keep_substrings,
+        )
 
         file_loader_kwargs = file_loader_kwargs or {}
         flk = {"verify_ssl": False}
@@ -187,7 +274,8 @@ class COMPASSCrawler:
         # best parsing file loader selected by user
         self.final_afl = COMPASSWebFileLoader(**flk)
 
-        self.pw_launch_kwargs = (
+        self.pw_launch_kwargs = PWKwargs.launch_kwargs()
+        self.pw_launch_kwargs.update(
             file_loader_kwargs.get("pw_launch_kwargs") or {}
         )
         self.browser_semaphore = (
@@ -264,6 +352,7 @@ class COMPASSCrawler:
         self._out_docs.sort(key=lambda x: -1 * x.attrs[_SCORE_KEY])
         return self._out_docs
 
+    # ruff:ignore[complex-structure]
     # complexipy: ignore
     async def _run(
         self,
@@ -275,34 +364,50 @@ class COMPASSCrawler:
     ):
         """Recursive web crawl function"""
         if link is None:
-            base_url, link = self._reset_crawl(base_url)
+            base_url, link = await self._reset_crawl(base_url)
             logger.debug(
                 "Starting COMPASS crawl for base URL: %s\nLink: %r",
                 base_url,
                 link,
             )
 
-        if link in self._already_visited:
+        if self.url_filter.blacklist_match(link.href) is not None:
+            logger.debug("Skipping blacklisted URL: %s", link.href)
+            return
+
+        if self._document_source_seen(link.href):
+            logger.debug(
+                "Skipping previously collected document URL: %s", link.href
+            )
+            return
+
+        if not self._should_continue_page_crawl(link, depth):
             return
 
         if on_new_page_visit_hook:
             await on_new_page_visit_hook(link)
 
-        self._already_visited[link] = (depth, score)
+        visit = self._already_visited[link] = _PageVisit(depth, score)
         logger.trace("self._already_visited=%r", self._already_visited)
 
         if await self._website_link_is_doc(link, depth, score):
+            visit.is_document = True
             return
 
-        num_urls_checked_on_this_page = 0
-        curr_url_score = None
-        for next_link in await self._get_links_from_page(link, base_url):
+        if self.max_depth is not None and depth >= self.max_depth:
+            return
+
+        page_links = await self._get_links_from_page(link)
+        for next_link in self._top_scored_links(page_links, link):
             prev_len = len(self._out_docs)
+            next_href = await get_redirected_url(
+                next_link["href"], verify=False
+            )
             await self._run(
                 base_url,
                 link=_Link(
                     title=next_link["title"],
-                    href=next_link["href"],
+                    href=next_href,
                     base_domain=base_url,
                 ),
                 depth=depth + 1,
@@ -319,24 +424,11 @@ class COMPASSCrawler:
             if doc_was_just_found:
                 if await self.validator(self._out_docs[-1]):
                     logger.debug("    - Document passed validation check!")
-                    self._load_last_doc_with_final_afl(next_link["href"])
+                    await self._load_last_doc_with_final_afl(next_link["href"])
                 else:
                     self._out_docs = self._out_docs[:-1]
-            elif (
-                not link.resembles_pdf and curr_url_score != next_link["score"]
-            ):
-                logger.trace(
-                    "Finished checking score %d at depth %d. Next score: %d",
-                    curr_url_score or -1,
-                    depth,
-                    next_link["score"],
-                )
-                num_urls_checked_on_this_page += 1
-                curr_url_score = next_link["score"]
 
-            if await self._should_terminate_crawl(
-                num_urls_checked_on_this_page, link
-            ):
+            if await self._should_terminate_crawl():
                 break
 
         return
@@ -361,12 +453,13 @@ class COMPASSCrawler:
             err_type = type(e)
             logger.exception(msg, err_type, link)
 
-    def _reset_crawl(self, base_url):
+    async def _reset_crawl(self, base_url):
         """Reset crawl state and initialize crawling link"""
         self._out_docs = []
         self._already_visited = {}
         self._failed_external_domains = set()
         base_url = sanitize_url(base_url)
+        base_url = await get_redirected_url(base_url, verify=False)
         return base_url, _Link(
             title="Landing Page",
             href=sanitize_url(urljoin(base_url, base_url.split(" ")[0])),
@@ -440,7 +533,9 @@ class COMPASSCrawler:
             logger.debug("    - Found PDF!")
             doc.attrs[_DEPTH_KEY] = depth
             doc.attrs[_SCORE_KEY] = score
-            self._out_docs.append(doc)
+            source = doc.attrs.get("source", link.href).casefold()
+            if self._record_document(link, depth, score, source):
+                self._out_docs.append(doc)
             return True
 
         return False
@@ -457,10 +552,49 @@ class COMPASSCrawler:
         if cache_fn is not None:
             doc.attrs["cache_fn"] = cache_fn
 
-        self._out_docs.append(doc)
+        if self._record_document(link, depth, score, link.href):
+            self._out_docs.append(doc)
         return True
 
-    async def _get_links_from_page(self, link, base_url):
+    def _should_continue_page_crawl(self, link, depth):
+        """Determine whether the crawler should continue crawling"""
+        previous_visit = self._already_visited.get(link)
+        if previous_visit is None:
+            return True
+
+        if self.max_depth is None:
+            # We visited this page with no depth restriction, so we've
+            # already seen all other possible links - no need to recheck
+            return False
+
+        # We visited this page but potentially didn't check links on it
+        # due to depth restriction, so see if we are now visiting it
+        # with a shallower depth, which allows further exploration
+        return previous_visit.can_revisit(depth)
+
+    def _document_source_seen(self, source):
+        """Check known document URLs and reported sources"""
+        source_key = str(source).casefold()
+        return any(
+            visit.is_document
+            and (
+                link.href.casefold() == source_key
+                or visit.source == source_key
+            )
+            for link, visit in self._already_visited.items()
+        )
+
+    def _record_document(self, link, depth, score, source):
+        """Record a document and return whether its source is new"""
+        is_new = not self._document_source_seen(source)
+        visit = self._already_visited.setdefault(
+            link, _PageVisit(depth, score)
+        )
+        visit.is_document = True
+        visit.source = str(source).casefold()
+        return is_new
+
+    async def _get_links_from_page(self, link):
         """Get all links from a page sorted by relevance score"""
         if not link.consistent_domain:
             logger.debug("Detected new domain, stopping link discovery")
@@ -469,7 +603,9 @@ class COMPASSCrawler:
         html_text = await self._get_text_no_err(link.href)
         page_links = []
         if html_text:
-            page_links = _extract_links_from_html(html_text, base_url=base_url)
+            page_links = _extract_links_from_html(
+                html_text, base_url=link.href, url_filter=self.url_filter
+            )
             page_links = await self.url_scorer(
                 [dict(link) for link in page_links]
             )
@@ -478,6 +614,64 @@ class COMPASSCrawler:
             )
         _debug_info_on_links(page_links)
         return page_links
+
+    def _top_scored_links(self, page_links, link):
+        """Yield the configured number of links from each top score"""
+        num_link_scores_checked = 0
+        num_same_score_links_checked = 0
+        has_warned = False
+        curr_url_score = None
+        for page_link in page_links:
+            page_link_score = page_link["score"]
+            if page_link_score == 0:
+                continue
+
+            if curr_url_score != page_link_score:
+                if self._max_score_cats_checked(num_link_scores_checked, link):
+                    return
+                curr_url_score = page_link_score
+                num_link_scores_checked += 1
+                num_same_score_links_checked = 0
+                has_warned = False
+
+            if self._max_same_score_links_checked(
+                num_same_score_links_checked
+            ):
+                has_warned = self._warn_about_max_links(
+                    has_warned, curr_url_score, link
+                )
+                continue
+
+            num_same_score_links_checked += 1
+            yield page_link
+
+    def _max_score_cats_checked(self, num_link_scores_checked, link):
+        """Determine if the max score categories limit is reached"""
+        if num_link_scores_checked >= self.num_scores_to_check_per_page:
+            logger.debug(
+                "Reached max score categories (%d) to check for page: %s",
+                self.num_scores_to_check_per_page,
+                link.href,
+            )
+            return True
+        return False
+
+    def _max_same_score_links_checked(self, num_same_score_links_checked):
+        """Determine if the same-score-link limit has been reached"""
+        return (
+            num_same_score_links_checked >= self.max_same_score_links_per_page
+        )
+
+    def _warn_about_max_links(self, has_warned, curr_url_score, link):
+        """Log a warning for max links for the current score"""
+        if not has_warned:
+            logger.warning(
+                "Reached max links (%d) to check for score %d for page: %s",
+                self.max_same_score_links_per_page,
+                curr_url_score,
+                link.href,
+            )
+        return True
 
     async def _get_text_no_err(self, url):
         """Get all text from a page; return empty string if pw error"""
@@ -515,18 +709,8 @@ class COMPASSCrawler:
 
         return "\n".join(all_text)
 
-    async def _should_terminate_crawl(
-        self, num_urls_checked_on_this_page, link
-    ):
+    async def _should_terminate_crawl(self):
         """Check if crawl should terminate"""
-        if num_urls_checked_on_this_page >= self.num_scores_to_check_per_page:
-            logger.debug(
-                "Already checked %d unique link scores from %s",
-                self.num_scores_to_check_per_page,
-                link.href,
-            )
-            return True
-
         if await self._should_stop(self._out_docs):
             logger.debug("Exiting crawl early due to user condition")
             return True
@@ -553,14 +737,19 @@ class COMPASSCrawler:
 
     def _compute_avg_link_score(self):
         """Compute the average score of the crawled results"""
+        if not self._already_visited:
+            return 0
+
         return sum(
-            score for __, score in self._already_visited.values()
+            visit.score for visit in self._already_visited.values()
         ) / len(self._already_visited)
 
     def _crawl_depth_counts(self):
         """Compute number of pages per depth"""
         depth_counts = Counter()
-        depth_counts.update([d for d, __ in self._already_visited.values()])
+        depth_counts.update(
+            visit.depth for visit in self._already_visited.values()
+        )
         return depth_counts
 
 
@@ -590,37 +779,43 @@ def _debug_info_on_links(links):
         logger.debug("    ...")
 
 
-def _extract_links_from_html(text, base_url):
+def _extract_links_from_html(text, base_url, url_filter=None):
     """Parse HTML and extract all links"""
     soup = BeautifulSoup(text, "html.parser")
     links = [
         (a.get_text().strip(), a["href"])
         for a in soup.find_all("a", href=True)
     ]
-    return set(_sanitized_links(links, base_url))
+    return set(_sanitized_links(links, base_url, url_filter=url_filter))
 
 
-def _sanitized_links(links, base_url):
+def _sanitized_links(links, base_url, url_filter=None):
     """Sanitized links from the given list of (title, path) tuples"""
+    url_filter = url_filter or URLPartFilter(_BLACKLIST_SUBSTRINGS)
     for title, path in links:
         if not title or not path:
-            continue
-
-        if _is_blacklisted(title, path):
             continue
 
         href = sanitize_url(urljoin(base_url, path))
         if urlsplit(href).scheme not in {"http", "https"}:
             continue
 
+        if _is_blacklisted(title, path, href, url_filter):
+            continue
+
         yield _Link(title=title, href=href, base_domain=base_url)
 
 
-def _is_blacklisted(title, path):
-    """Check if a link is blacklisted based on title or path"""
-    if any(substr in title.lower() for substr in _BLACKLIST_SUBSTRINGS):
+def _is_blacklisted(title, path, url, url_filter):
+    """Check whether a link title or URL is blacklisted"""
+    if url_filter.is_whitelisted(url):
+        return False
+
+    title_and_path = f"{title}\n{path}".casefold()
+    if any(substr in title_and_path for substr in _BLACKLIST_SUBSTRINGS):
         return True
-    return any(substr in path.lower() for substr in _BLACKLIST_SUBSTRINGS)
+
+    return url_filter.blacklist_match(url) is not None
 
 
 async def _get_text_from_all_locators(page):

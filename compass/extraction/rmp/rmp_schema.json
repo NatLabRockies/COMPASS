@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "location", "restriction_type", "restriction_level", "geothermal_applicability", "rights_status", "binding_status", "value", "units", "section", "map_reference", "summary", "source"],
+        "required": ["feature", "location", "restriction_type", "restriction_level", "geothermal_applicability", "rights_status", "binding_status", "value", "units", "section", "map_reference", "summary", "ordinance_text", "explanation", "source"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -82,7 +82,15 @@
           },
           "summary": {
             "type": ["string", "null"],
-            "description": "A structured text field with two labeled sections separated by a newline. Format exactly as: 'Summary: [summary text]\\nJustification: [justification text]'. The Summary section (2–4 sentences) covers: (1) the area name and acreage if stated, (2) the exact language used in the document describing what is restricted (quoted where possible), (3) the stated reason or resource being protected, and (4) any conditions, exceptions, or relevant context. Use direct text excerpts and quotes from the document where possible. The Justification section (1–2 sentences) explains why this restriction was included — specifically, how it relates to or could affect geothermal leasing or development (e.g., 'Included because mineral leasing closures under the Mineral Leasing Act encompass geothermal leasing.', 'Included because this NSO stipulation applies to all surface-disturbing activities associated with mineral leasing, which includes geothermal drilling.'). Null only if no relevant information is found."
+            "description": "A structured text field with two labeled sections separated by a newline. Format exactly as: 'Summary: [summary text]\\nJustification: [justification text]'. The Summary section (2\u20134 sentences) covers: (1) the area name and acreage if stated, (2) the exact language used in the document describing what is restricted (quoted where possible), (3) the stated reason or resource being protected, and (4) any conditions, exceptions, or relevant context. Use direct text excerpts and quotes from the document where possible. The Justification section (1\u20132 sentences) explains why this restriction was included \u2014 specifically, how it relates to or could affect geothermal leasing or development (e.g., 'Included because mineral leasing closures under the Mineral Leasing Act encompass geothermal leasing.', 'Included because this NSO stipulation applies to all surface-disturbing activities associated with mineral leasing, which includes geothermal drilling.'). Null only if no relevant information is found."
+          },
+          "ordinance_text": {
+            "type": ["string", "null"],
+            "description": "The complete relevant text excerpt from the document describing what is restricted, copy-pasted verbatim. The first sentence must be the one that corresponds to the extracted value and summary, reproduced in full. After that first sentence, gather any other passages in the document that bear on this same restriction, whether they appear before or after it, and join them with an ellipsis ('...') in the order they appear. Include the area name and acreage wording, the language describing what is restricted, and any stated conditions or exceptions, so long as all of it appears verbatim in the document. Every character outside the ellipses must match the source exactly: no paraphrasing, normalization, or added commentary. Null only if no relevant information is found."
+          },
+          "explanation": {
+            "type": ["string", "null"],
+            "description": "A 1-2 sentence justification explaining why this restriction was included - specifically, how it relates to or could affect geothermal leasing or development (e.g., 'Included because mineral leasing closures under the Mineral Leasing Act encompass geothermal leasing.', 'Included because this NSO stipulation applies to all surface-disturbing activities associated with mineral leasing, which includes geothermal drilling.'). Also note the stated reason or resource being protected where the document gives one. Null only if no relevant information is found."
           },
           "source": {
             "type": ["number", "null"],
@@ -140,6 +148,8 @@
       "units": null,
       "section": "Minerals and Energy: Areas Closed to Oil, Gas and Geothermal Leasing",
       "summary": "Walker Lake is closed to oil, gas, and geothermal leasing as part of 'Key Scenic, Wildlife, Recreation, and Historic Areas' totaling 45,392 acres. Document language: 'Areas Closed to Oil, Gas and Geothermal Leasing.' Individual acreage not specified; group total is 45,392 acres.",
+      "ordinance_text": "Areas Closed to Oil, Gas and Geothermal Leasing. ... Key Scenic, Wildlife, Recreation, and Historic Areas ... 45,392 acres.",
+      "explanation": "Walker Lake falls under a closure to oil, gas, and geothermal leasing, so it directly forecloses geothermal leasing in this area. Individual acreage is not specified; the 45,392 acres is the group total.",
       "source": 0
     },
     {
@@ -153,6 +163,8 @@
       "units": "acres",
       "section": "Minerals and Energy: Areas Closed to Mineral Entry (22,672 Acres)",
       "summary": "Grimes Point Archaeological Area (400 acres) is closed to mineral entry under the General Mining Law. Stated reason: cultural resource protection. Note: a separate geothermal-specific closure also exists for this area (640 acres) under section 9.",
+      "ordinance_text": "Areas Closed to Mineral Entry (22,672 Acres) ... Grimes Point Archaeological Area (400 acres).",
+      "explanation": "Included because closure to mineral entry under the General Mining Law restricts surface use for cultural resource protection. Note that a separate geothermal-specific closure also exists for this area (640 acres) under section 9.",
       "source": 0
     },
     {
@@ -164,7 +176,9 @@
       "value": 1200,
       "units": "acres",
       "section": "Table 2-1: Mineral Stipulations",
-      "summary": "Jack's Valley (1,200 acres) is closed to all mineral leasing including geothermal. Reason stated: 'Key Scenic, Wildlife, Recreation, and Historic Areas'. Closure applies to oil, gas, and geothermal leasing."
+      "summary": "Jack's Valley (1,200 acres) is closed to all mineral leasing including geothermal. Reason stated: 'Key Scenic, Wildlife, Recreation, and Historic Areas'. Closure applies to oil, gas, and geothermal leasing.",
+      "ordinance_text": "Jack's Valley (1,200 acres) ... Key Scenic, Wildlife, Recreation, and Historic Areas.",
+      "explanation": "Included because the closure applies to all mineral leasing, which encompasses oil, gas, and geothermal leasing."
     },
     {
       "feature": "geothermal_closure",
@@ -175,7 +189,9 @@
       "value": null,
       "units": null,
       "section": "Chapter 3: Energy and Minerals, Special Designations",
-      "summary": "Grimes Point Archaeological Area is closed specifically to geothermal leasing. Stated reason: 'cultural resource protection'. Acreage not specified in document."
+      "summary": "Grimes Point Archaeological Area is closed specifically to geothermal leasing. Stated reason: 'cultural resource protection'. Acreage not specified in document.",
+      "ordinance_text": "Grimes Point Archaeological Area ... closed to geothermal leasing ... cultural resource protection.",
+      "explanation": "Included because this is an explicit geothermal leasing closure. Acreage is not specified in the document."
     },
     {
       "feature": "no_surface_occupancy",
@@ -186,7 +202,9 @@
       "value": 500,
       "units": "feet",
       "section": "Appendix B: Lease Stipulations, Stipulation NSO-1",
-      "summary": "No Surface Occupancy stipulation applies within 500 feet of any perennial or intermittent stream, river, lake, or reservoir. Applies to all geothermal and mineral lease activities. No acreage specified. Details: 'No surface-disturbing activities associated with mineral leasing operations will be permitted within 500 feet of any water body.'"
+      "summary": "No Surface Occupancy stipulation applies within 500 feet of any perennial or intermittent stream, river, lake, or reservoir. Applies to all geothermal and mineral lease activities. No acreage specified. Details: 'No surface-disturbing activities associated with mineral leasing operations will be permitted within 500 feet of any water body.'",
+      "ordinance_text": "No surface-disturbing activities associated with mineral leasing operations will be permitted within 500 feet of any water body.",
+      "explanation": "Included because the NSO stipulation applies to all surface-disturbing activities associated with mineral leasing, which includes geothermal drilling. No acreage is specified."
     },
     {
       "feature": "no_surface_occupancy",
@@ -197,7 +215,9 @@
       "value": null,
       "units": null,
       "section": "Appendix B: Lease Stipulations, Stipulation NSO-4",
-      "summary": "No Surface Occupancy applies within all designated Riparian Management Areas. No numeric setback distance specified — restriction applies to the full extent of the riparian management zone. Approximately 3,400 acres affected. Applies to all surface-disturbing activities associated with mineral leasing."
+      "summary": "No Surface Occupancy applies within all designated Riparian Management Areas. No numeric setback distance specified \u2014 restriction applies to the full extent of the riparian management zone. Approximately 3,400 acres affected. Applies to all surface-disturbing activities associated with mineral leasing.",
+      "ordinance_text": "No Surface Occupancy ... within all designated Riparian Management Areas ... approximately 3,400 acres.",
+      "explanation": "Included because the stipulation applies to all surface-disturbing activities associated with mineral leasing. No numeric setback distance is given; the restriction covers the full extent of the riparian management zone."
     },
     {
       "feature": "seasonal_restriction",
@@ -209,7 +229,9 @@
       "value": "March 1 - July 30",
       "units": "dates",
       "section": "Appendix B: Lease Stipulations, Stipulation TL-3",
-      "summary": "Seasonal timing limitation applies in Sage Grouse breeding habitat. Species protected: Sage Grouse. Restriction period: March 1 through July 30. Activity restricted: 'all surface-disturbing activities'. Approximately 45,000 acres affected. Applies to geothermal and all mineral leasing operations within designated Sage Grouse habitat areas."
+      "summary": "Seasonal timing limitation applies in Sage Grouse breeding habitat. Species protected: Sage Grouse. Restriction period: March 1 through July 30. Activity restricted: 'all surface-disturbing activities'. Approximately 45,000 acres affected. Applies to geothermal and all mineral leasing operations within designated Sage Grouse habitat areas.",
+      "ordinance_text": "all surface-disturbing activities ... March 1 through July 30 ... Sage Grouse breeding habitat ... approximately 45,000 acres.",
+      "explanation": "Included because the seasonal timing limitation applies to geothermal and all other mineral leasing operations within designated Sage Grouse habitat. Species protected: Sage Grouse."
     },
     {
       "feature": "seasonal_restriction",
@@ -221,7 +243,9 @@
       "value": "spring",
       "units": "dates",
       "section": "Areas Where Some Restrictions Apply to Geothermal Leasing: Seasonal Restrictions, Spring Restrictions",
-      "summary": "Spring seasonal restriction applies north of Cold Springs (referenced in Fort Churchill/Clan Alpine Geothermal EAR 1975). Restriction period: spring season. Activity restricted: surface-disturbing activities associated with geothermal leasing operations. No acreage specified for this subarea."
+      "summary": "Spring seasonal restriction applies north of Cold Springs (referenced in Fort Churchill/Clan Alpine Geothermal EAR 1975). Restriction period: spring season. Activity restricted: surface-disturbing activities associated with geothermal leasing operations. No acreage specified for this subarea.",
+      "ordinance_text": "north of Cold Springs ... spring season ... surface-disturbing activities associated with geothermal leasing operations.",
+      "explanation": "Included because the restriction explicitly names geothermal leasing operations. Referenced in the Fort Churchill/Clan Alpine Geothermal EAR 1975. No acreage is specified for this subarea."
     },
     {
       "feature": "wildlife_restriction",
@@ -232,7 +256,9 @@
       "value": 0.25,
       "units": "miles",
       "section": "Chapter 3: Wildlife, Special Status Species",
-      "summary": "No surface disturbance allowed within 0.25 miles of active Prairie Falcon nest sites. Species: Prairie Falcon (special status). Restriction type: buffer zone / no surface disturbance. Applies to all energy development and surface-disturbing activities associated with mineral leasing. Details extracted as written: 'Avoid all surface-disturbing activities within one-quarter mile of active Prairie Falcon nesting sites.'"
+      "summary": "No surface disturbance allowed within 0.25 miles of active Prairie Falcon nest sites. Species: Prairie Falcon (special status). Restriction type: buffer zone / no surface disturbance. Applies to all energy development and surface-disturbing activities associated with mineral leasing. Details extracted as written: 'Avoid all surface-disturbing activities within one-quarter mile of active Prairie Falcon nesting sites.'",
+      "ordinance_text": "Avoid all surface-disturbing activities within one-quarter mile of active Prairie Falcon nesting sites.",
+      "explanation": "Included because the buffer applies to all energy development and surface-disturbing activities associated with mineral leasing. Species: Prairie Falcon (special status)."
     },
     {
       "feature": "water_restriction",
@@ -243,7 +269,9 @@
       "value": 300,
       "units": "feet",
       "section": "Appendix B: Lease Stipulations, Stipulation NSO-2",
-      "summary": "No Surface Occupancy setback of 300 feet from all springs, seeps, and wetlands. Restriction type: no surface occupancy. Applies to all geothermal and mineral leasing surface-disturbing activities. Details: 'No surface occupancy or surface-disturbing activities will be permitted within 300 feet of springs, seeps, or wetland areas.'"
+      "summary": "No Surface Occupancy setback of 300 feet from all springs, seeps, and wetlands. Restriction type: no surface occupancy. Applies to all geothermal and mineral leasing surface-disturbing activities. Details: 'No surface occupancy or surface-disturbing activities will be permitted within 300 feet of springs, seeps, or wetland areas.'",
+      "ordinance_text": "No surface occupancy or surface-disturbing activities will be permitted within 300 feet of springs, seeps, or wetland areas.",
+      "explanation": "Included because the NSO setback applies to all geothermal and mineral leasing surface-disturbing activities."
     },
     {
       "feature": "other_restriction",
@@ -254,7 +282,9 @@
       "value": "cultural resources",
       "units": null,
       "section": "Chapter 3: Cultural Resources",
-      "summary": "Applies planning-area wide to all ground-disturbing activities associated with geothermal or mineral leasing. Full restriction: 'Prior to any ground-disturbing activities, a Class III cultural resource inventory must be completed and approved by the authorized BLM officer. Any identified cultural resources must be avoided or a mitigation plan approved before surface disturbance may proceed.'"
+      "summary": "Applies planning-area wide to all ground-disturbing activities associated with geothermal or mineral leasing. Full restriction: 'Prior to any ground-disturbing activities, a Class III cultural resource inventory must be completed and approved by the authorized BLM officer. Any identified cultural resources must be avoided or a mitigation plan approved before surface disturbance may proceed.'",
+      "ordinance_text": "Prior to any ground-disturbing activities, a Class III cultural resource inventory must be completed and approved by the authorized BLM officer. Any identified cultural resources must be avoided or a mitigation plan approved before surface disturbance may proceed.",
+      "explanation": "Included because the requirement applies planning-area wide to all ground-disturbing activities associated with geothermal or mineral leasing."
     },
     {
       "feature": "resource_removals",
@@ -265,7 +295,9 @@
       "value": 2956,
       "units": "acres",
       "section": "Plan Amendment Decision: Southern Washoe County Urban Interface",
-      "summary": "'Removed all 2,956 acres available for geothermal leasing in the Warm Springs area due to the lack of a sufficient resource for development and no existing leases.' Action: removed from geothermal leasing availability. Reason: insufficient geothermal resource and no existing leases. Enacted by Southern Washoe County Urban Interface Plan Amendment (2001)."
+      "summary": "'Removed all 2,956 acres available for geothermal leasing in the Warm Springs area due to the lack of a sufficient resource for development and no existing leases.' Action: removed from geothermal leasing availability. Reason: insufficient geothermal resource and no existing leases. Enacted by Southern Washoe County Urban Interface Plan Amendment (2001).",
+      "ordinance_text": "Removed all 2,956 acres available for geothermal leasing in the Warm Springs area due to the lack of a sufficient resource for development and no existing leases.",
+      "explanation": "Included because the amendment explicitly removes acreage from geothermal leasing availability. Reason given: insufficient geothermal resource and no existing leases. Enacted by the Southern Washoe County Urban Interface Plan Amendment (2001)."
     },
     {
       "feature": "geothermal_closure_with_stipulations",
@@ -276,7 +308,9 @@
       "value": 196128,
       "units": "acres",
       "section": "Chapter 2: Wilderness Study Areas, Leasable Minerals SOP",
-      "summary": "'Clan Alpine WSA 196,128 acres.' Managed under the Wilderness Interim Management Policy (IMP): 'restrict mining and energy development activities to those that are allowed under valid existing rights and do not impair wilderness quality.' No new geothermal or mineral leasing permitted. Valid existing rights honored. If designated as wilderness by Congress, will be fully closed to mineral entry."
+      "summary": "'Clan Alpine WSA 196,128 acres.' Managed under the Wilderness Interim Management Policy (IMP): 'restrict mining and energy development activities to those that are allowed under valid existing rights and do not impair wilderness quality.' No new geothermal or mineral leasing permitted. Valid existing rights honored. If designated as wilderness by Congress, will be fully closed to mineral entry.",
+      "ordinance_text": "Clan Alpine WSA 196,128 acres. ... restrict mining and energy development activities to those that are allowed under valid existing rights and do not impair wilderness quality.",
+      "explanation": "Included because management under the Wilderness Interim Management Policy bars new geothermal or mineral leasing while honoring valid existing rights. If designated as wilderness by Congress, the area would be fully closed to mineral entry."
     },
     {
       "feature": "geothermal_closure_with_stipulations",
@@ -287,7 +321,9 @@
       "value": 8000,
       "units": "acres",
       "section": "Chapter 2: Mineral Entry and Energy Development",
-      "summary": "'Approximately 8,000 acres in Sun Valley, Washoe Valley, Steamboat and Peavine Mountain' classified under the Classification and Multiple Use Act. These are discretionary closures — lands segregated from mineral entry under specific legal authority. New mineral leasing and energy development not permitted under current classification."
+      "summary": "'Approximately 8,000 acres in Sun Valley, Washoe Valley, Steamboat and Peavine Mountain' classified under the Classification and Multiple Use Act. These are discretionary closures \u2014 lands segregated from mineral entry under specific legal authority. New mineral leasing and energy development not permitted under current classification.",
+      "ordinance_text": "Approximately 8,000 acres in Sun Valley, Washoe Valley, Steamboat and Peavine Mountain.",
+      "explanation": "Included because these lands are segregated from mineral entry under the Classification and Multiple Use Act, so new mineral leasing and energy development are not permitted under the current classification. These are discretionary closures."
     },
     {
       "feature": "controlled_surface_use",
@@ -298,7 +334,9 @@
       "value": null,
       "units": null,
       "section": "Appendix B: Lease Stipulations, Stipulation CSU-2",
-      "summary": "Controlled Surface Use stipulation applies within designated Sage Grouse habitat in the East Walker River Area. Leasing and surface operations are permitted but subject to required mitigation: operator must prepare and implement a site-specific mitigation plan minimizing disturbance to sage grouse habitat, including requirements for revegetation with native species, limitations on infrastructure footprint, and reporting to BLM. Stipulation code: CSU-2."
+      "summary": "Controlled Surface Use stipulation applies within designated Sage Grouse habitat in the East Walker River Area. Leasing and surface operations are permitted but subject to required mitigation: operator must prepare and implement a site-specific mitigation plan minimizing disturbance to sage grouse habitat, including requirements for revegetation with native species, limitations on infrastructure footprint, and reporting to BLM. Stipulation code: CSU-2.",
+      "ordinance_text": "Controlled Surface Use ... within designated Sage Grouse habitat in the East Walker River Area ... CSU-2.",
+      "explanation": "Included because leasing and surface operations remain permitted but are subject to required mitigation: a site-specific mitigation plan minimizing disturbance to sage grouse habitat, revegetation with native species, limits on infrastructure footprint, and reporting to BLM."
     },
     {
       "feature": "resource_additions",
@@ -309,7 +347,9 @@
       "value": 1933,
       "units": "acres",
       "section": "Plan Amendment Decision: Southern Washoe County Urban Interface, Map 3",
-      "summary": "'Geothermal leasing on 1,933 acres in and adjacent to the Steamboat Known Geothermal Resource Area (KGRA)' retained as open to leasing within an otherwise closed planning area. Action: 1,933 acres explicitly kept open for geothermal leasing. Reason: active KGRA with existing geothermal development potential. Enacted by Southern Washoe County Urban Interface Plan Amendment (2001)."
+      "summary": "'Geothermal leasing on 1,933 acres in and adjacent to the Steamboat Known Geothermal Resource Area (KGRA)' retained as open to leasing within an otherwise closed planning area. Action: 1,933 acres explicitly kept open for geothermal leasing. Reason: active KGRA with existing geothermal development potential. Enacted by Southern Washoe County Urban Interface Plan Amendment (2001).",
+      "ordinance_text": "Geothermal leasing on 1,933 acres in and adjacent to the Steamboat Known Geothermal Resource Area (KGRA).",
+      "explanation": "Included because this acreage is explicitly retained as open to geothermal leasing within an otherwise closed planning area. Reason: active KGRA with existing geothermal development potential. Enacted by the Southern Washoe County Urban Interface Plan Amendment (2001)."
     }
 
   ],

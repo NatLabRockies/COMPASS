@@ -302,7 +302,9 @@ def _skip_internal_api(name, obj):
     if (getattr(obj, "__doc__", None) or "").startswith("[NOT PUBLIC API]"):
         return True
 
-    return name in {"copy", "fromkeys"} and "UsageTracker" in str(obj)
+    return name in {"copy", "fromkeys"} and (
+        "LLMUsageTracker" in str(obj) or "LLMRateTracker" in str(obj)
+    )
 
 
 def _skip_member(app, what, name, obj, skip, options):
@@ -407,6 +409,7 @@ napoleon_type_aliases = {
     "JSONFromTextLLMCaller": ":class:`~compass.llm.calling.JSONFromTextLLMCaller`",
     "SchemaOutputLLMCaller": ":class:`~compass.llm.calling.SchemaOutputLLMCaller`",
     "TimeBoundedUsageTracker": ":class:`~compass.services.usage.TimeBoundedUsageTracker`",
-    "UsageTracker": ":class:`~compass.services.usage.UsageTracker`",
+    "LLMUsageTracker": ":class:`~compass.services.usage.LLMUsageTracker`",
+    "LLMRateTracker": ":class:`~compass.services.usage.LLMRateTracker`",
     "WindOrdinanceTextExtractor": ":class:`~compass.extraction.wind.ordinance.WindOrdinanceTextExtractor`",
 }

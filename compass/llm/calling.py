@@ -40,7 +40,7 @@ class BaseLLMCaller:
         ----------
         llm_service : Service
             LLM service used for queries.
-        usage_tracker : UsageTracker, optional
+        usage_tracker : LLMUsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs
@@ -130,7 +130,7 @@ class ChatLLMCaller(BaseLLMCaller):
             LLM service used for queries.
         system_message : str
             System message to use for chat with LLM.
-        usage_tracker : UsageTracker, optional
+        usage_tracker : LLMUsageTracker, optional
             Optional tracker instance to monitor token usage during
             LLM calls. By default, ``None``.
         **kwargs

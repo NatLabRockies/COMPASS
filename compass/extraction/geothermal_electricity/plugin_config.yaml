@@ -12,33 +12,20 @@ query_templates:
     - "{jurisdiction} geothermal code of ordinances"
 
 website_keywords:
-    pdf: 92160
-    geothermal: 46080
-    ordinance: 23040
-    zoning: 11520
-    regulation: 5760
-    code: 2880
-    power: 1440
-    electricity: 1440
-    planning: 720
-    permit: 720
-    land use: 720
-    municipal: 720
-    county: 360
-    ordinance code: 360
-    code of ordinances: 360
-    land use code: 360
-    use table: 360
-    chapter: 180
-    article: 180
-    title: 180
-    statute: 180
-    administrative code: 180
-    conditional use permit: 180
-    special use permit: 180
-    drilling permit: 180
-    resource development: 180
-    government: 180
+   - "pdf"
+   - "geothermal"
+   - ["zoning", "ordinance", "regulation"]
+   - ["codelibrary", "amlegal", "municode", "codepublishing", "ecode360"]
+   - ["power", "electricity"]
+   - ["plan", "planning", "permit"]
+   - "government"
+   - ["setback", "noise"]
+   - ["code", "area"]
+   - ["land development", "land use"]
+   - ["land", "environment"]
+   - ["municipal", "department", "development", "board"]
+   - ["county", "ordinance code", "code of ordinances", "land use code", "use table"]
+   - ["chapter", "article", "title", "statute", "administrative code", "conditional use permit", "special use permit", "drilling permit", "resource development"]
 
 heuristic_keywords:
   good_tech_keywords:

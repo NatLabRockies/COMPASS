@@ -166,14 +166,30 @@ A successful run produces these files under `out_dir`:
 | `ordinance_files/*.pdf` | Downloaded source documents |
 | `cleaned_text/*.txt` | Heuristic-filtered extracted text |
 | `jurisdiction_dbs/*.csv` | Per-jurisdiction raw extraction rows |
-| `quantitative_ordinances.csv` | Final compiled numeric features |
-| `qualitative_ordinances.csv` | Final compiled qualitative features |
+| `ordinances.csv` | Final compiled features (quantitative and qualitative) |
 | `usage.json` | Per-jurisdiction LLM token and request counts |
 | `meta.json` | Run metadata (cost, timing, version) |
 
 Final CSV columns: `county`, `state`, `subdivision`, `jurisdiction_type`,
 `FIPS`, `feature`, `value`, `units`, `adder`, `min_dist`, `max_dist`,
-`summary`, `year`, `section`, `source`.
+`summary`, `ordinance_text`, `explanation`, `year`, `section`, `source`.
+
+Quantitative and qualitative rows share one file. Select the qualitative
+rows with `units == "str"` — qualitative features have no measurable
+units, so `units` carries that literal instead.
+
+The four content columns have distinct jobs:
+
+| Column | Contents |
+|---|---|
+| `value` | The extracted answer — a number or category for quantitative features. On qualitative rows the LLM returns null and the `summary` text is copied in, so the column is never blank. |
+| `summary` | Technology-specific summary using the existing schema or prompt definition, including its format, conditions, and quotation guidance. The evidence and explanation columns do not replace it. |
+| `ordinance_text` | Exact quotes copied from the source document, trimmed to 5000 characters. |
+| `explanation` | The model's reasoning about how it interpreted the requirement. |
+
+The LLM only ever writes the requirement once: qualitative rows are
+asked for a `summary` and a null `value`, and the copy happens when the
+output is written.
 
 ## Interpreting output status correctly
 
@@ -186,8 +202,7 @@ Check in order:
 
 1. `outputs/*/cleaned_text/*.txt` (text extraction present)
 2. `outputs/*/jurisdiction_dbs/*.csv` (per-jurisdiction parsed rows)
-3. `outputs/*/quantitative_ordinances.csv` and
-   `outputs/*/qualitative_ordinances.csv` (final compiled results)
+3. `outputs/*/ordinances.csv` (final compiled results)
 
 Treat the run as **failed for extraction quality** when either is true:
 - `Number of jurisdictions with extracted data: 0`

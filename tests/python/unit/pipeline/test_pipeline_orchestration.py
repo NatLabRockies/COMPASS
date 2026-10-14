@@ -14,6 +14,7 @@ from compass.pipeline import (
     CollectionRequest,
     ExtractionRequest,
     ProcessRequest,
+    SearchRequest,
 )
 from compass.pipeline.coordinator import run_compass
 from compass.pipeline.runtime import PipelineRuntime
@@ -66,7 +67,11 @@ def patched_workflow(monkeypatch):
             DummyWorkflow.LAST_MODE_USED = self.runtime.mode
             return f"processed {self.runtime.mode}"
 
-    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
+    monkeypatch.setattr(
+        data_classes_module,
+        "build_models",
+        lambda _model_input, **_kwargs: {},
+    )
     monkeypatch.setattr(
         coordinator_module,
         "_load_jurisdictions_to_process",
@@ -136,6 +141,35 @@ def test_runtime_passes_docling_pipeline_options_to_local_loader(tmp_path):
         "document_timeout": 120,
         "do_table_structure": True,
     }
+
+
+@pytest.mark.asyncio
+async def test_search_request_rejects_existing_output_dir(tmp_path):
+    """Fresh programmatic searches must not overwrite existing output"""
+    out_dir = tmp_path / "outputs"
+    out_dir.mkdir()
+    existing_output = out_dir / "search_result_manifest.json"
+    existing_output.write_text("{}", encoding="utf-8")
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.write_text(
+        "State,County\nWashington,Whatcom\n", encoding="utf-8"
+    )
+    request = SearchRequest(
+        out_dir=out_dir, tech="solar", jurisdiction_fp=jurisdiction_fp
+    )
+
+    with pytest.raises(COMPASSValueError, match="already exists"):
+        __ = PipelineRuntime(request).dirs
+
+    loggers = [logging.getLogger(name) for name in ("compass", "elm")]
+    original_handlers = [list(logger.handlers) for logger in loggers]
+
+    with pytest.raises(COMPASSValueError, match="already exists"):
+        await run_compass(request)
+
+    assert [logger.handlers for logger in loggers] == original_handlers
+    assert existing_output.read_text(encoding="utf-8") == "{}"
+    assert not (out_dir / "logs").exists()
 
 
 @pytest.mark.asyncio
@@ -224,7 +258,11 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
         "_load_jurisdictions_to_process",
         _load_single_jurisdiction,
     )
-    monkeypatch.setattr(data_classes_module, "build_models", lambda __: {})
+    monkeypatch.setattr(
+        data_classes_module,
+        "build_models",
+        lambda _model_input: {},
+    )
     monkeypatch.setattr(
         coordinator_module,
         "_select_workflow",

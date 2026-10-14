@@ -1,5 +1,6 @@
 """Data classes used for the COMPASS pipeline"""
 
+from warnings import warn
 from copy import deepcopy
 import importlib.resources
 from functools import cached_property
@@ -7,9 +8,11 @@ from functools import cached_property
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 from compass.llm import OpenAIConfig
+from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
 from compass.exceptions import COMPASSValueError
+from compass.warn import COMPASSWarning
 
 
 _DOMAINS = load_config(
@@ -86,6 +89,7 @@ class OutputSettings:
         ordinance_file_dir=None,
         jurisdiction_dbs_dir=None,
         make_paths_relative=False,
+        save_search_engine_results=True,
     ):
         """
 
@@ -122,6 +126,11 @@ class OutputSettings:
             be loaded correctly on a different machine. If ``False``,
             absolute paths are used in the manifest.
             By default, ``True``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
         """
         self.out_dir = out_dir
         self.log_dir = log_dir
@@ -129,6 +138,7 @@ class OutputSettings:
         self.ordinance_file_dir = ordinance_file_dir
         self.jurisdiction_dbs_dir = jurisdiction_dbs_dir
         self.make_paths_relative = make_paths_relative
+        self.save_search_engine_results = save_search_engine_results
 
 
 class KnownSourcesInput:
@@ -176,6 +186,7 @@ class WebSearchParams:
     enabling straightforward reuse when issuing queries.
     """
 
+    # ruff:ignore[too-many-arguments, too-many-positional-arguments]
     def __init__(
         self,
         num_urls_to_check_per_jurisdiction=5,
@@ -185,17 +196,19 @@ class WebSearchParams:
         url_ignore_substrings=None,
         url_keep_substrings=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
     ):
         """
 
         Parameters
         ----------
         num_urls_to_check_per_jurisdiction : int, optional
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
-            By default, ``5``.
+            Can never be less than 1. By default, ``5``.
         max_num_concurrent_browsers : int, optional
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -213,9 +226,10 @@ class WebSearchParams:
             timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -233,15 +247,15 @@ class WebSearchParams:
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         search_engines : list, optional
@@ -262,31 +276,49 @@ class WebSearchParams:
             fallback (in order that they appear). If ``None``, then all
             default configurations for the search engines (along with
             the fallback order) are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
             Tesseract. By default ``None``.
+        num_search_results_to_crawl : int, default=0
+            Number of ranked search results to inspect for HTML crawl
+            pages. PDF results count toward this limit. Zero disables
+            the extra crawl. By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from each HTML search result. The seed
+            is depth zero. By default, ``3``.
         """
-        self.num_urls_to_check_per_jurisdiction = (
-            num_urls_to_check_per_jurisdiction
+        self.num_urls_to_check_per_jurisdiction = max(
+            1, int(num_urls_to_check_per_jurisdiction)
         )
         self.max_num_concurrent_browsers = max_num_concurrent_browsers
         self.max_num_concurrent_website_searches = (
             max_num_concurrent_website_searches
         )
         self.website_crawl_timeout_seconds = website_crawl_timeout_seconds
-        self.url_ignore_substrings = _DOMAINS["blacklist"]
-        self.url_ignore_substrings += url_ignore_substrings or []
-        self.url_keep_substrings = _DOMAINS["whitelist"]
-        self.url_keep_substrings += url_keep_substrings or []
+        self.url_ignore_substrings = [
+            *_DOMAINS["blacklist"],
+            *(url_ignore_substrings or []),
+        ]
+        self.url_keep_substrings = [
+            *_DOMAINS["whitelist"],
+            *(url_keep_substrings or []),
+        ]
         self._search_engines_input = search_engines
         self.simple_se_result_sort = simple_se_result_sort
         self.pytesseract_exe_fp = pytesseract_exe_fp
+        self.num_search_results_to_crawl = max(
+            0, int(num_search_results_to_crawl)
+        )
+        self.search_results_crawl_depth = max(
+            0, int(search_results_crawl_depth)
+        )
+        self._validate_num_search_results_to_crawl()
 
     @cached_property
     def se_kwargs(self):
@@ -304,6 +336,24 @@ class WebSearchParams:
 
         extra_kwargs["search_engines"] = search_engines
         return extra_kwargs
+
+    def _validate_num_search_results_to_crawl(self):
+        """Validate that num searches to crawl <= num URLs per jur"""
+        if (
+            self.num_search_results_to_crawl
+            > self.num_urls_to_check_per_jurisdiction
+        ):
+            msg = (
+                f"Number of ranked search results to crawl "
+                f"({self.num_search_results_to_crawl}) exceeds the "
+                f"number of unique search result URLs to check for each "
+                f"jurisdiction ({self.num_urls_to_check_per_jurisdiction}); "
+                f"using {self.num_urls_to_check_per_jurisdiction}"
+            )
+            warn(msg, COMPASSWarning)
+            self.num_search_results_to_crawl = (
+                self.num_urls_to_check_per_jurisdiction
+            )
 
 
 class DocParsingParams:
@@ -337,6 +387,8 @@ class BaseRequest:
         model="gpt-4o-mini",
         llm_costs=None,
         num_urls_to_check_per_jurisdiction=5,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
         max_num_docs_to_parse_per_jurisdiction=None,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
@@ -348,7 +400,7 @@ class BaseRequest:
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -362,7 +414,9 @@ class BaseRequest:
         make_paths_relative=False,
         log_level="INFO",
         keep_async_logs=False,
+        search_result_manifest_fp=None,
         collection_manifest_fp=None,
+        save_search_engine_results=True,
     ):
         """
 
@@ -461,9 +515,20 @@ class BaseRequest:
             cost tracking may be unavailable in the progress bar.
             By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        num_search_results_to_crawl : int, default=0
+            Inspect this many ranked search results for HTML crawl
+            pages, independently of the website crawl toggle. This
+            value is capped at ``num_urls_to_check_per_jurisdiction``;
+            larger values trigger a warning and are reduced to that
+            limit. PDFs count toward the limit. Zero disables this step.
+            By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from HTML search pages, counting the seed
+            as depth zero. Zero disables outgoing traversal. By default,
+            ``3``.
         max_num_docs_to_parse_per_jurisdiction : int, optional
             Maximum number of documents to parse for each jurisdiction
             (regardless of the collection method). If ``None``, all
@@ -489,9 +554,10 @@ class BaseRequest:
             timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -509,15 +575,15 @@ class BaseRequest:
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
@@ -542,18 +608,18 @@ class BaseRequest:
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries describing the search engine classes
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -624,6 +690,11 @@ class BaseRequest:
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        search_result_manifest_fp : path-like or list of path-like, optional
+            Saved search manifest, shard directory, or glob paths to
+            replay instead of querying search engines. Missing
+            jurisdictions are skipped. Only used when
+            ``perform_se_search=True``. By default, ``None``.
         collection_manifest_fp : path-like or list of path-like, optional
             Path to the JSON collection manifest created by the document
             collection step. This can be a single path or a list of
@@ -633,11 +704,17 @@ class BaseRequest:
             collected document for extraction. Only needed if running in
             extraction mode with a separate collection step.
             By default, ``None``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
         """  # ruff:ignore[doc-line-too-long]
         self.tech = tech
         self.jurisdiction_fp = jurisdiction_fp
         self.perform_se_search = perform_se_search
         self.perform_website_search = perform_website_search
+        self.search_result_manifest_fp = search_result_manifest_fp
         self.collection_manifest_fp = collection_manifest_fp
         self.file_loader_kwargs = file_loader_kwargs
 
@@ -655,6 +732,8 @@ class BaseRequest:
             search_engines=search_engines,
             simple_se_result_sort=simple_se_result_sort,
             pytesseract_exe_fp=pytesseract_exe_fp,
+            num_search_results_to_crawl=num_search_results_to_crawl,
+            search_results_crawl_depth=search_results_crawl_depth,
         )
         self.parsing_settings = DocParsingParams(
             max_num_docs_per_jurisdiction=(
@@ -678,6 +757,7 @@ class BaseRequest:
             ordinance_file_dir=ordinance_file_dir,
             jurisdiction_dbs_dir=jurisdiction_dbs_dir,
             make_paths_relative=make_paths_relative,
+            save_search_engine_results=save_search_engine_results,
         )
         self.known_sources = KnownSourcesInput(
             known_local_docs=known_local_docs,
@@ -685,13 +765,156 @@ class BaseRequest:
         )
         self.user_model_input = model
         self.llm_costs = llm_costs
+        self._rate_tracker = LLMRateTracker()
 
     @cached_property
     def models(self):
         """dict: Mapping of LLM task to OpenAIConfig for this request"""
         if not self.user_model_input:
             return {}
-        return build_models(self.user_model_input)
+
+        return build_models(
+            self.user_model_input, rate_tracker=self._rate_tracker
+        )
+
+    @property
+    def rate_tracker(self):
+        """LLMRateTracker: Rate tracker for LLM calls"""
+        return self._rate_tracker
+
+
+class SearchRequest(BaseRequest):
+    """Parameter Object for persistent search-only mode"""
+
+    MODE = COMPASSRunMode.SEARCH
+    """COMPASSRunMode associated with this request type"""
+
+    # ruff: ignore[too-many-arguments]
+    def __init__(
+        self,
+        out_dir,
+        tech,
+        jurisdiction_fp,
+        *,
+        num_urls_to_check_per_jurisdiction=5,
+        url_ignore_substrings=None,
+        url_keep_substrings=None,
+        search_engines=None,
+        simple_se_result_sort=False,
+        tpe_kwargs=None,
+        log_dir=None,
+        log_level="INFO",
+        keep_async_logs=False,
+    ):
+        """
+
+        Parameters
+        ----------
+        out_dir : path-like
+            Path to the output directory. If it does not exist, it will
+            be created. This directory will contain the logs, shards,
+            and the search manifest.
+        tech : str
+            Label indicating which technology type is being processed.
+            Must be one of the keys of
+            :obj:`~compass.plugin.registry.PLUGIN_REGISTRY`.
+        jurisdiction_fp : path-like
+            Path to a CSV file specifying the jurisdictions to process.
+            The CSV must contain at least two columns: "County" and
+            "State", which specify the county and state names,
+            respectively. If you would like to process a subdivision
+            with a county, you must also include "Subdivision" and
+            "Jurisdiction Type" columns. The "Subdivision" should be the
+            name of the subdivision, and the "Jurisdiction Type" should
+            be a string identifying the type of subdivision (e.g.,
+            "City", "Township", etc.)
+        num_urls_to_check_per_jurisdiction : int, default=5
+            Number of unique search result URLs to check for each
+            jurisdiction when attempting to locate ordinance documents.
+            By default, ``5``.
+        url_ignore_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be excluded from search results. This can be used
+            to specify particular websites or entire domains to ignore.
+            For example::
+
+                url_ignore_substrings = [
+                    "wikipedia",
+                    "nlr.gov",
+                    "www.co.delaware.in.us/documents/1649699794_0382.pdf",
+                ]
+
+            The above configuration would ignore all `wikipedia`
+            articles, all websites on the NLR domain, and the specific
+            file located at
+            `www.co.delaware.in.us/documents/1649699794_0382.pdf`.
+            This input will include all of the blacklisted domains from
+            https://github.com/NatLabRockies/COMPASS/blob/main/compass/data/domains.json5,
+            so you will need to whitelist any domains in that list that
+            you want to allow. By default, ``None``.
+        url_keep_substrings : list of str, optional
+            A list of substrings that, if found in any URL, will cause
+            the URL to be kept in search results, regardless of the
+            default blacklist or the `url_ignore_substrings` input. For
+            example::
+
+                url_keep_substrings = [
+                    "my_ordinance_collection.edu",
+                ]
+
+            The above configuration would keep all URLs from
+            "my_ordinance_collection.edu" despite the fact that ``.edu``
+            urls are blacklisted by default. By default, ``None``.
+        search_engines : list, optional
+            A list of dictionaries describing the search engine classes
+            and keyword arguments to use for search engine retrieval. If
+            ``None``, the default search engine configurations and
+            fallback order are used. By default, ``None``.
+        simple_se_result_sort : bool, default=False
+            Flag indicating whether to use a simple top-n sort from the
+            first search engine that gives results (``True``) or to
+            apply a holistic link sorting based on all results from all
+            search engines (``False``). By default, ``False``.
+        tpe_kwargs : dict, optional
+            Additional keyword arguments to pass to
+            :class:`concurrent.futures.ThreadPoolExecutor`, used for
+            I/O-bound tasks such as logging and file writes.
+            By default, ``None``.
+        log_dir : path-like, optional
+            Path to the directory for storing log files. If not
+            provided, a ``logs`` subdirectory will be created inside
+            `out_dir`. By default, ``None``.
+        log_level : str, default="INFO"
+            Logging level for ordinance scraping and parsing (e.g.,
+            "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
+            By default, ``"INFO"``.
+        keep_async_logs : bool, default=False
+            Option to store the full asynchronous log record to a file.
+            This is only useful if you intend to monitor overall
+            processing progress from a file instead of from the
+            terminal. If ``True``, all of the unordered records are
+            written to a "all.log" file in the `log_dir` directory.
+            By default, ``False``.
+        """
+        super().__init__(
+            out_dir,
+            tech,
+            jurisdiction_fp,
+            model=None,
+            perform_se_search=True,
+            save_search_engine_results=True,
+            num_urls_to_check_per_jurisdiction=(
+                num_urls_to_check_per_jurisdiction
+            ),
+            url_ignore_substrings=url_ignore_substrings,
+            url_keep_substrings=url_keep_substrings,
+            search_engines=search_engines,
+            simple_se_result_sort=simple_se_result_sort,
+            tpe_kwargs=tpe_kwargs,
+            log_dir=log_dir,
+            log_level=log_level,
+            keep_async_logs=keep_async_logs,
+        )
 
 
 class ProcessRequest(BaseRequest):
@@ -715,6 +938,8 @@ class CollectionRequest(BaseRequest):
         *,
         model=None,
         num_urls_to_check_per_jurisdiction=5,
+        num_search_results_to_crawl=0,
+        search_results_crawl_depth=3,
         max_num_concurrent_browsers=10,
         max_num_concurrent_website_searches=10,
         max_num_concurrent_jurisdictions=25,
@@ -725,7 +950,7 @@ class CollectionRequest(BaseRequest):
         known_doc_urls=None,
         file_loader_kwargs=None,
         search_engines=None,
-        simple_se_result_sort=True,
+        simple_se_result_sort=False,
         pytesseract_exe_fp=None,
         td_kwargs=None,
         tpe_kwargs=None,
@@ -740,6 +965,8 @@ class CollectionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
+        save_search_engine_results=True,
+        search_result_manifest_fp=None,
     ):
         """
 
@@ -819,9 +1046,20 @@ class CollectionRequest(BaseRequest):
 
             By default, ``None``.
         num_urls_to_check_per_jurisdiction : int, default=5
-            Number of unique Google search result URLs to check for each
+            Number of unique search result URLs to check for each
             jurisdiction when attempting to locate ordinance documents.
             By default, ``5``.
+        num_search_results_to_crawl : int, default=0
+            Inspect this many ranked results for HTML crawl pages,
+            independently of the website crawl toggle. This value is
+            capped at ``num_urls_to_check_per_jurisdiction``; larger
+            values trigger a warning and are reduced to that limit.
+            PDFs count toward the limit. Zero disables this step.
+            By default, ``0``.
+        search_results_crawl_depth : int, default=3
+            Maximum link depth from HTML search pages, counting the seed
+            as depth zero. Zero disables outgoing traversal. By default,
+            ``3``.
         max_num_concurrent_browsers : int, default=10
             Maximum number of browser instances to launch concurrently
             for retrieving information from the web. Increasing this
@@ -843,9 +1081,10 @@ class CollectionRequest(BaseRequest):
             timeout will be returned. By default, ``3600``
         url_ignore_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be excluded from consideration. This can be used
-            to specify particular websites or entire domains to ignore.
-            For example::
+            the URL to be excluded from search results and COMPASS
+            website crawl candidates. This can be used to specify
+            particular websites or entire domains to ignore. For
+            example::
 
                 url_ignore_substrings = [
                     "wikipedia",
@@ -863,15 +1102,15 @@ class CollectionRequest(BaseRequest):
             you want to allow. By default, ``None``.
         url_keep_substrings : list of str, optional
             A list of substrings that, if found in any URL, will cause
-            the URL to be kept (regardless of the default blacklist or
-            the `url_ignore_substrings` input) in search results.
-            For example::
+            the URL to be kept in search results and COMPASS website
+            crawl candidates, regardless of the default blacklist or
+            the `url_ignore_substrings` input. For example::
 
                 url_keep_substrings = [
                     "my_ordinance_collection.edu",
                 ]
 
-            The above configuration would keep all url results from
+            The above configuration would keep all URLs from
             "my_ordinance_collection.edu" despite the fact that ``.edu``
             urls are blacklisted by default. By default, ``None``.
         known_local_docs : dict or path-like, optional
@@ -896,18 +1135,18 @@ class CollectionRequest(BaseRequest):
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         search_engines : list, optional
             A list of dictionaries describing the search engine classes
             and keyword arguments to use for search engine retrieval. If
             ``None``, the default search engine configurations and
             fallback order are used. By default, ``None``.
-        simple_se_result_sort : bool, default=True
+        simple_se_result_sort : bool, default=False
             Flag indicating whether to use a simple top-n sort from the
             first search engine that gives results (``True``) or to
             apply a holistic link sorting based on all results from all
-            search engines (``False``). By default, ``True``.
+            search engines (``False``). By default, ``False``.
         pytesseract_exe_fp : path-like, optional
             Path to the `pytesseract` executable. If specified, OCR will
             be used to extract text from scanned PDFs using Google's
@@ -1003,6 +1242,16 @@ class CollectionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
+        search_result_manifest_fp : path-like or list, optional
+            Saved search manifest, shard directory, or glob paths to
+            replay without new search queries. Missing jurisdictions
+            are skipped. Ignored when ``perform_se_search=False``.
+            By default, ``None``.
         """
         super().__init__(
             out_dir=out_dir,
@@ -1010,6 +1259,8 @@ class CollectionRequest(BaseRequest):
             jurisdiction_fp=jurisdiction_fp,
             model=model,
             llm_costs=llm_costs,
+            num_search_results_to_crawl=num_search_results_to_crawl,
+            search_results_crawl_depth=search_results_crawl_depth,
             num_urls_to_check_per_jurisdiction=(
                 num_urls_to_check_per_jurisdiction
             ),
@@ -1039,6 +1290,8 @@ class CollectionRequest(BaseRequest):
             make_paths_relative=make_paths_relative,
             log_level=log_level,
             keep_async_logs=keep_async_logs,
+            search_result_manifest_fp=search_result_manifest_fp,
+            save_search_engine_results=save_search_engine_results,
         )
 
 
@@ -1160,8 +1413,8 @@ class ExtractionRequest(BaseRequest):
             Dictionary of keyword argument pairs to initialize
             :class:`elm.web.file_loader.AsyncWebFileLoader`. If found,
             the ``"pw_launch_kwargs"`` key in these will also be used to
-            initialize the Playwright-backed Google search used for
-            search engine retrieval. By default, ``None``.
+            initialize the Playwright-backed search used for search
+            engine retrieval. By default, ``None``.
         td_kwargs : dict, optional
             Additional keyword arguments to pass to
             :class:`tempfile.TemporaryDirectory`. The temporary
@@ -1280,7 +1533,7 @@ class JurisdictionResult:
         return self.ord_db_fp is not None
 
 
-def build_models(user_input, *, allow_empty=False):
+def build_models(user_input, *, allow_empty=False, rate_tracker=None):
     """[NOT PUBLIC API] Build configured model registry"""
     if user_input is None:
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
@@ -1290,7 +1543,7 @@ def build_models(user_input, *, allow_empty=False):
 
     caller_instances = {}
     for raw_kwargs in user_input:
-        for task, model_config in _config_for_tasks(raw_kwargs):
+        for task, model_config in _config_for_tasks(raw_kwargs, rate_tracker):
             _verify_task_not_duplicate(task, caller_instances)
             caller_instances[task] = model_config
 
@@ -1298,7 +1551,7 @@ def build_models(user_input, *, allow_empty=False):
     return caller_instances
 
 
-def _config_for_tasks(kwargs):
+def _config_for_tasks(kwargs, rate_tracker=None):
     """Yield (task, model_config) pairs for the given raw kwargs"""
     kwargs = dict(kwargs)
     tasks = kwargs.pop("tasks", LLMTasks.DEFAULT)
@@ -1306,6 +1559,7 @@ def _config_for_tasks(kwargs):
         tasks = [tasks]
 
     model_config = OpenAIConfig(**kwargs)
+    model_config.llm_call_kwargs.update({"rate_tracker": rate_tracker})
     for task in tasks:
         yield task, model_config
 
