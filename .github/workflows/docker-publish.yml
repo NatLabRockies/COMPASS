@@ -141,4 +141,17 @@ jobs:
           DIGEST: ${{ steps.build-and-push.outputs.digest }}
         # This step uses the identity token to provision an ephemeral certificate
         # against the sigstore community Fulcio instance.
-        run: echo "${TAGS}" | xargs -I {} cosign sign --yes {}@${DIGEST}
+        run: |
+          set -euo pipefail
+          while IFS= read -r tag; do
+            cosign sign --yes "${tag}@${DIGEST}"
+          done <<< "$TAGS"
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v4.0.0
+        with:
+          name: compass-linux-amd64
+          path: |
+            compass-linux-amd64.sif
+            compass-linux-amd64.sif.sha256
+          compression-level: 0
+          retention-days: 10
