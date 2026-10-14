@@ -200,21 +200,15 @@ def _read_docling_without_timeout(
     stream = DocumentStream(
         name=file_source, stream=BytesIO(doc_bytes), format=input_format
     )
-    try:
-        conv_result = doc_converter.convert(stream)
-    except ConversionError as error:
-        if (
-            input_format != InputFormat.PDF
-            or not pipeline_options.do_ocr
-            or "pdfium support is not compiled in" not in str(error)
-        ):
-            raise
-        logger.info(
-            "Native PDF reader unavailable; retrying with Poppler renders"
-        )
-        conv_result = _read_docling_pdf_images(
-            doc_converter, doc_bytes, file_source
-        )
+
+    conv_result = _run_conversion_with_fallback(
+        doc_converter,
+        stream,
+        input_format,
+        pipeline_options,
+        doc_bytes,
+        file_source,
+    )
     doc_text = conv_result.document.export_to_markdown(**kwargs)
     if (
         input_format == InputFormat.PDF
@@ -241,6 +235,33 @@ def _read_docling_without_timeout(
         "from_ocr": configured_options["do_ocr"],
     }
     return MDDocument([doc_text], attrs=attrs, remove_comments=False)
+
+
+def _run_conversion_with_fallback(
+    doc_converter,
+    stream,
+    input_format,
+    pipeline_options,
+    doc_bytes,
+    file_source,
+):
+    """Run conversion with fallback for pdfium error"""
+    try:
+        conv_result = doc_converter.convert(stream)
+    except ConversionError as error:
+        if (
+            input_format != InputFormat.PDF
+            or not pipeline_options.do_ocr
+            or "pdfium support is not compiled in" not in str(error)
+        ):
+            raise
+        logger.info(
+            "Native PDF reader unavailable; retrying with Poppler renders"
+        )
+        conv_result = _read_docling_pdf_images(
+            doc_converter, doc_bytes, file_source
+        )
+    return conv_result
 
 
 def _read_docling_pdf_images(converter, doc_bytes, file_source):
