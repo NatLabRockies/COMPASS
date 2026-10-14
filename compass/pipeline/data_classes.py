@@ -54,8 +54,9 @@ class RuntimeSettings:
             By default, ``None``.
         max_num_concurrent_jurisdictions : int, default=25
             Maximum number of jurisdictions to process concurrently.
-            Limiting this can help manage memory usage when dealing with
-            a large number of documents. By default, ``25``.
+            Must be an integer greater than or equal to 1. Limiting this
+            can help manage memory usage when dealing with a large
+            number of documents. By default, ``25``.
         log_level : str, default="INFO"
             Logging level for ordinance scraping and parsing (e.g.,
             "TRACE", "DEBUG", "INFO", "WARNING", or "ERROR").
@@ -76,6 +77,20 @@ class RuntimeSettings:
         )
         self.log_level = log_level
         self.keep_async_logs = keep_async_logs
+
+        self._validate_num_concurrent_jurisdictions()
+
+    def _validate_num_concurrent_jurisdictions(self):
+        if (
+            isinstance(self.max_num_concurrent_jurisdictions, bool)
+            or not isinstance(self.max_num_concurrent_jurisdictions, int)
+            or self.max_num_concurrent_jurisdictions < 1
+        ):
+            msg = (
+                "max_num_concurrent_jurisdictions must be an integer >= 1; "
+                f"got {self.max_num_concurrent_jurisdictions!r}"
+            )
+            raise COMPASSValueError(msg)
 
 
 class OutputSettings:
