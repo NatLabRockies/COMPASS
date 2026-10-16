@@ -212,19 +212,19 @@ class OpenAIConfig(LLMConfig):
         arg_env_pairs = []
         if self.client_type == "azure":
             arg_env_pairs = [
-                ("api_key", ("AZURE_OPENAI_API_KEY",)),
-                ("api_version", ("AZURE_OPENAI_VERSION",)),
-                ("azure_endpoint", ("AZURE_OPENAI_ENDPOINT",)),
+                ("api_key", "AZURE_OPENAI_API_KEY"),
+                ("api_version", "AZURE_OPENAI_VERSION"),
+                ("azure_endpoint", "AZURE_OPENAI_ENDPOINT"),
             ]
         elif self.client_type == "openai":
             arg_env_pairs = [
-                ("api_key", ("OPENAI_API_KEY",)),
-                ("base_url", ("OPENAI_BASE_URL",)),
+                ("api_key", "OPENAI_API_KEY"),
+                ("base_url", "OPENAI_BASE_URL"),
             ]
 
-        for key, env_vars in arg_env_pairs:
+        for key, env_var in arg_env_pairs:
             val = self._client_kwargs.get(key)
-            self._client_kwargs[key] = val or _first_env_value(*env_vars)
+            self._client_kwargs[key] = val or os.environ.get(env_var)
 
         return self._client_kwargs
 
@@ -238,15 +238,6 @@ class OpenAIConfig(LLMConfig):
             rate_limit=self.llm_service_rate_limit,
             service_tag=self._tag,
         )
-
-
-def _first_env_value(*env_vars):
-    """Return the first non-empty value among environment variables"""
-    for env_var in env_vars:
-        if value := os.environ.get(env_var):
-            return value
-    return None
-
 
 class LiteLLMConfig(OpenAIConfig):
     """LiteLLM proxy configuration using the shared OpenAI service
@@ -329,9 +320,9 @@ class LiteLLMConfig(OpenAIConfig):
 
         explicit_base_url = kwargs.get("base_url")
         explicit_api_key = kwargs.get("api_key")
-        litellm_base_url = _first_env_value(
-            "LITELLM_BASE_URL", "LITELLM_API_BASE"
-        )
+        litellm_base_url = os.environ.get(
+            "LITELLM_BASE_URL"
+        ) or os.environ.get("LITELLM_API_BASE")
         litellm_api_key = os.environ.get("LITELLM_API_KEY")
         legacy_base_url = os.environ.get("OPENAI_BASE_URL")
         legacy_api_key = os.environ.get("OPENAI_API_KEY")
