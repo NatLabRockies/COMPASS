@@ -1345,6 +1345,7 @@ class ExtractionRequest(BaseRequest):
         llm_costs=None,
         log_level="INFO",
         keep_async_logs=False,
+        save_search_engine_results=True,
     ):
         """
 
@@ -1508,6 +1509,11 @@ class ExtractionRequest(BaseRequest):
             terminal. If ``True``, all of the unordered records are
             written to a "all.log" file in the `log_dir` directory.
             By default, ``False``.
+        save_search_engine_results : bool, default=True
+            Save per-jurisdiction search engine results as JSON files in
+            a ``se_results`` subdirectory of `out_dir`. If ``False``, no
+            search engine result directory or files are created.
+            By default, ``True``.
         """  # ruff:ignore[doc-line-too-long]
 
         super().__init__(
@@ -1531,6 +1537,7 @@ class ExtractionRequest(BaseRequest):
             keep_async_logs=keep_async_logs,
             collection_manifest_fp=collection_manifest_fp,
             llm_costs=llm_costs,
+            save_search_engine_results=save_search_engine_results,
         )
 
 

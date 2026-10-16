@@ -131,7 +131,7 @@ if __name__ == "__main__":
         },
     )
     gpt_41_mini_config = OpenAIConfig(
-        name="wetosa-gpt-4.1-mini",
+        name="gpt-4.1-mini",
         llm_call_kwargs={"temperature": 0, "seed": 42, "timeout": 300},
         llm_service_rate_limit=500_000,
         text_splitter_chunk_size=10_000,
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         },
     )
     gpt_41_config = OpenAIConfig(
-        name="wetosa-gpt-4.1",
+        name="gpt-4.1",
         llm_call_kwargs={"temperature": 0, "seed": 42, "timeout": 300},
         llm_service_rate_limit=500_000,
         text_splitter_chunk_size=10_000,
