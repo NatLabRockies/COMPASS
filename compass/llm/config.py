@@ -212,19 +212,19 @@ class OpenAIConfig(LLMConfig):
         arg_env_pairs = []
         if self.client_type == "azure":
             arg_env_pairs = [
-                ("api_key", "AZURE_OPENAI_API_KEY"),
-                ("api_version", "AZURE_OPENAI_VERSION"),
-                ("azure_endpoint", "AZURE_OPENAI_ENDPOINT"),
+                ("api_key", ("AZURE_OPENAI_API_KEY",)),
+                ("api_version", ("AZURE_OPENAI_VERSION",)),
+                ("azure_endpoint", ("AZURE_OPENAI_ENDPOINT",)),
             ]
         elif self.client_type == "openai":
             arg_env_pairs = [
-                ("api_key", "OPENAI_API_KEY"),
-                ("base_url", "OPENAI_BASE_URL"),
+                ("api_key", ("OPENAI_API_KEY",)),
+                ("base_url", ("OPENAI_BASE_URL",)),
             ]
 
-        for key, env_var in arg_env_pairs:
+        for key, env_vars in arg_env_pairs:
             val = self._client_kwargs.get(key)
-            self._client_kwargs[key] = val or os.environ.get(env_var)
+            self._client_kwargs[key] = val or _first_env_value(*env_vars)
 
         return self._client_kwargs
 
@@ -240,32 +240,39 @@ class OpenAIConfig(LLMConfig):
         )
 
 
-class LiteLLMConfig(OpenAIConfig):
-    """LiteLLM configuration for provider-prefixed model names
+def _first_env_value(*env_vars):
+    """Return the first non-empty value among environment variables"""
+    for env_var in env_vars:
+        if value := os.environ.get(env_var):
+            return value
+    return None
 
-    Calls are made through litellm (e.g.
-    ``"anthropic/claude-sonnet-4-5"`` or ``"openai/gpt-5-mini"``) using
-    the same :class:`~compass.services.openai.OpenAIService` as
-    :class:`OpenAIConfig`, so rate limiting, retries, usage tracking,
-    and cost reporting behave identically. Token prices are taken
-    from litellm's model price table unless the model is already in
+
+class LiteLLMConfig(OpenAIConfig):
+    """LiteLLM proxy configuration using the shared OpenAI service
+
+    Calls go through an OpenAI-compatible LiteLLM proxy while reusing
+    :class:`~compass.services.openai.OpenAIService` for retries, usage
+    tracking, and rate limiting. Token prices are taken from litellm's
+    model price table unless the model is already in
     :obj:`~compass.utilities.costs.LLM_COST_REGISTRY` (e.g. via
     ``llm_costs``).
 
-    Endpoint and key resolution (explicit ``client_kwargs`` win):
+    When ``client_kwargs`` omits proxy details:
 
-        - ``api_base`` falls back to ``LITELLM_API_BASE`` and then
-          ``OPENAI_BASE_URL``.
-        - ``api_key`` falls back to ``LITELLM_API_KEY`` and then
-          ``OPENAI_API_KEY``, but only when an ``api_base`` is set.
-          Without a proxy, litellm reads the provider's own key
-          (e.g. ``ANTHROPIC_API_KEY``), so proxy keys are never sent
-          to a provider directly.
+        - ``base_url`` falls back to ``LITELLM_BASE_URL``, then
+          ``LITELLM_API_BASE``, then the legacy ``OPENAI_BASE_URL``.
+        - ``api_key`` falls back to ``LITELLM_API_KEY``, then the
+          legacy ``OPENAI_API_KEY``.
+
+    Legacy ``OPENAI_*`` fallback is accepted only as a matched pair so
+    COMPASS does not mix credentials across different endpoint
+    namespaces.
     """
 
     def __init__(
         self,
-        name="openai/gpt-4o-mini",
+        name="gpt-4o-mini",
         llm_call_kwargs=None,
         llm_service_rate_limit=500000,
         text_splitter_chunk_size=10_000,
@@ -277,9 +284,9 @@ class LiteLLMConfig(OpenAIConfig):
 
         Parameters
         ----------
-        name : str, default="openai/gpt-4o-mini"
-            litellm-style model name. By default,
-            ``"openai/gpt-4o-mini"``.
+        name : str, default="gpt-4o-mini"
+            Model name or proxy alias forwarded unchanged to the
+            LiteLLM proxy. By default, ``"gpt-4o-mini"``.
         llm_call_kwargs : dict, optional
             Keyword arguments to be passed to the llm service ``call``
             method. See :class:`OpenAIConfig`. By default, ``None``.
@@ -293,8 +300,8 @@ class LiteLLMConfig(OpenAIConfig):
             Overlap of consecutive chunks of the ordinance text.
             By default, ``500``.
         client_kwargs : dict, optional
-            Keyword arguments forwarded to ``litellm.acompletion``
-            on every call (e.g. ``api_key``, ``api_base``).
+            Keyword arguments forwarded to the OpenAI-compatible proxy
+            client on every call (e.g. ``api_key``, ``base_url``).
             By default, ``None``.
         tag : str, optional
             Optional tag to distinguish this model config from another
@@ -315,46 +322,85 @@ class LiteLLMConfig(OpenAIConfig):
 
     @cached_property
     def client_kwargs(self):
-        """dict: Parameters forwarded to ``litellm.acompletion``"""
+        """dict: Parameters forwarded to the LiteLLM proxy client"""
         kwargs = dict(self._client_kwargs)
-        api_base = kwargs.get("api_base") or kwargs.get("base_url")
-        if not api_base:
-            api_base = _first_env_value("LITELLM_API_BASE", "OPENAI_BASE_URL")
-            if api_base:
-                kwargs["api_base"] = api_base
+        if "base_url" not in kwargs and "api_base" in kwargs:
+            kwargs["base_url"] = kwargs.pop("api_base")
 
-        if api_base and not kwargs.get("api_key"):
-            api_key = _first_env_value("LITELLM_API_KEY", "OPENAI_API_KEY")
-            if api_key:
-                kwargs["api_key"] = api_key
+        explicit_base_url = kwargs.get("base_url")
+        explicit_api_key = kwargs.get("api_key")
+        litellm_base_url = _first_env_value(
+            "LITELLM_BASE_URL", "LITELLM_API_BASE"
+        )
+        litellm_api_key = os.environ.get("LITELLM_API_KEY")
+        legacy_base_url = os.environ.get("OPENAI_BASE_URL")
+        legacy_api_key = os.environ.get("OPENAI_API_KEY")
 
-        return kwargs
+        if explicit_base_url:
+            if explicit_api_key:
+                return kwargs
+
+            if explicit_base_url == litellm_base_url and litellm_api_key:
+                kwargs["api_key"] = litellm_api_key
+                return kwargs
+
+            if (
+                explicit_base_url == legacy_base_url
+                and legacy_api_key
+                and not (litellm_base_url or litellm_api_key)
+            ):
+                kwargs["api_key"] = legacy_api_key
+                return kwargs
+
+            msg = (
+                "LiteLLM proxy configs with an explicit base_url must "
+                "also provide a matching api_key via client_kwargs or "
+                "the corresponding proxy environment variables."
+            )
+            raise COMPASSValueError(msg)
+
+        if litellm_base_url or litellm_api_key:
+            if not (litellm_base_url and litellm_api_key):
+                msg = (
+                    "LiteLLM proxy configs require both "
+                    "LITELLM_BASE_URL (or LITELLM_API_BASE) and "
+                    "LITELLM_API_KEY."
+                )
+                raise COMPASSValueError(msg)
+            kwargs["base_url"] = litellm_base_url
+            kwargs["api_key"] = litellm_api_key
+            return kwargs
+
+        if legacy_base_url or legacy_api_key:
+            if not (legacy_base_url and legacy_api_key):
+                msg = (
+                    "Legacy LiteLLM proxy fallback requires both "
+                    "OPENAI_BASE_URL and OPENAI_API_KEY."
+                )
+                raise COMPASSValueError(msg)
+            kwargs["base_url"] = legacy_base_url
+            kwargs["api_key"] = legacy_api_key
+            return kwargs
+
+        msg = (
+            "LiteLLM proxy configs require a proxy base_url and api_key "
+            "via client_kwargs, LITELLM_BASE_URL/LITELLM_API_KEY, or "
+            "legacy OPENAI_BASE_URL/OPENAI_API_KEY."
+        )
+        raise COMPASSValueError(msg)
 
     @cached_property
     def llm_service(self):
         """LLMService: Object that can be used to submit calls to LLM"""
-        from compass.services.litellm import (  # ruff:ignore[import-outside-top-level]
-            LiteLLMClient,
-            register_litellm_model_cost,
-        )
+        from compass.services.litellm import register_litellm_model_cost  # ruff:ignore[import-outside-top-level]
 
         register_litellm_model_cost(self.name)
         return OpenAIService(
-            LiteLLMClient(**self.client_kwargs),
+            openai.AsyncOpenAI(**self.client_kwargs),
             self.name,
             rate_limit=self.llm_service_rate_limit,
             service_tag=self._tag,
         )
-
-
-def _first_env_value(*env_vars):
-    """Return the first non-empty value among environment variables"""
-    for env_var in env_vars:
-        if value := os.environ.get(env_var):
-            return value
-    return None
-
-
 def _count_tokens_safely(text, model):
     """Count tokens with a conservative fallback
 

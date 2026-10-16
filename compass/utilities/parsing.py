@@ -1,8 +1,8 @@
 """COMPASS ordinance parsing utilities"""
 
-import os
 import json
 import logging
+import os
 from pathlib import Path
 
 import numpy as np
@@ -84,11 +84,16 @@ def llm_response_as_json(content):
     original_content = content
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
-    content = content.replace("True", "true").replace("False", "false")
     try:
         return json.loads(content)
     except json.decoder.JSONDecodeError as error:
         decode_error = error
+    normalized = _normalize_python_bool_literals(content)
+    if normalized != content:
+        try:
+            return json.loads(normalized)
+        except json.decoder.JSONDecodeError:
+            pass
 
     embedded = _extract_embedded_json(original_content)
     if embedded is not None:
@@ -113,7 +118,6 @@ def llm_response_as_json(content):
 
 def _extract_embedded_json(content):
     """Recover the JSON payload surrounded by extra LLM text"""
-    content = content.replace("True", "true").replace("False", "false")
     fence = "```json"
     starts = []
     index = content.find(fence)
@@ -123,25 +127,97 @@ def _extract_embedded_json(content):
     starts.append(0)
 
     for start in starts:
-        for opener in "{[":
-            value = _first_decodable_json(content, start, opener)
-            if value is not None:
-                return value
+        for index in _json_start_indexes(content, start):
+            value = _first_decodable_json(content, index)
+            if value is None:
+                continue
+            return value
     return None
 
 
-def _first_decodable_json(content, start, opener):
-    """Decode the first JSON value beginning with `opener`"""
-    decoder = json.JSONDecoder()
-    index = content.find(opener, start)
-    while index >= 0:
-        try:
-            value, __ = decoder.raw_decode(content, index)
-        except json.decoder.JSONDecodeError:
+def _json_start_indexes(content, start):
+    """Yield possible JSON opener positions in source order"""
+    candidates = []
+    for opener in "{[":
+        index = content.find(opener, start)
+        while index >= 0:
+            candidates.append(index)
             index = content.find(opener, index + 1)
+    return sorted(candidates)
+
+
+def _first_decodable_json(content, index):
+    """Decode the first JSON value beginning at `index`"""
+    decoder = json.JSONDecoder()
+    for candidate, candidate_index in (
+        (content, index),
+        (_normalize_python_bool_literals(content[index:]), 0),
+    ):
+        try:
+            value, __ = decoder.raw_decode(candidate, candidate_index)
+        except json.decoder.JSONDecodeError:
+            continue
+        if not _is_probable_embedded_json(value):
             continue
         return value
     return None
+
+
+def _is_probable_embedded_json(value):
+    """Reject list values that are likely prose citation markers"""
+    if not isinstance(value, list) or len(value) != 1:
+        return True
+    return not isinstance(value[0], int | float)
+
+
+def _normalize_python_bool_literals(content):
+    """Lowercase unquoted Python boolean literals for JSON parsing"""
+    replacements = {"True": "true", "False": "false"}
+    out = []
+    index = 0
+    in_string = False
+    escaped = False
+    while index < len(content):
+        char = content[index]
+        if in_string:
+            out.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+
+        if char == '"':
+            in_string = True
+            out.append(char)
+            index += 1
+            continue
+
+        replaced = False
+        for old, new in replacements.items():
+            if not content.startswith(old, index):
+                continue
+            prev_char = content[index - 1] if index > 0 else ""
+            next_index = index + len(old)
+            next_char = content[next_index] if next_index < len(content) else ""
+            if (
+                (prev_char.isalnum() or prev_char == "_")
+                or (next_char.isalnum() or next_char == "_")
+            ):
+                continue
+            out.append(new)
+            index = next_index
+            replaced = True
+            break
+        if replaced:
+            continue
+
+        out.append(char)
+        index += 1
+    return "".join(out)
 
 
 def merge_overlapping_texts(text_chunks, n=300):

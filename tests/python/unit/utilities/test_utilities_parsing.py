@@ -90,6 +90,14 @@ def test_raw_pages_from_pdf_preserves_page_within_splitter_budget(doc_class):
             {"rows": [{"feature": "setback", "value": 50}]},
         ),
         (
+            'Preamble {"answer": "True", "other": False}',
+            {"answer": "True", "other": False},
+        ),
+        (
+            'The pipe is 5" wide. {"answer": True, "other": False}',
+            {"answer": True, "other": False},
+        ),
+        (
             (
                 "Dates found:\n```html\ndata-code-date={2026}\n```\n"
                 '```json\n{"year": 2026, "month": 1, "day": 20}'
@@ -100,6 +108,7 @@ def test_raw_pages_from_pdf_preserves_page_within_splitter_budget(doc_class):
             'See section [1] for details. {"year": 2025}',
             {"year": 2025},
         ),
+        ('Preamble [{"a": 1}] trailing', [{"a": 1}]),
         ("No JSON here [unclosed", {}),
     ],
 )

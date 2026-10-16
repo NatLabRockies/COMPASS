@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from compass.exceptions import COMPASSValueError
 from compass.pipeline import (
     BaseRequest,
     CollectionRequest,
@@ -250,7 +251,7 @@ def test_request_models_accepts_runtime_rate_tracker(tmp_path):
     "model_input,config_type,client_type",
     [
         ("gpt-4o-mini", OpenAIConfig, "azure"),
-        ("openai/gpt-5-mini", LiteLLMConfig, "litellm"),
+        ("openai/gpt-5-mini", COMPASSValueError, None),
         ([{"name": "gpt-4o-mini"}], OpenAIConfig, "azure"),
         (
             [{"name": "gpt-4o-mini", "client_type": "openai"}],
@@ -259,6 +260,11 @@ def test_request_models_accepts_runtime_rate_tracker(tmp_path):
         ),
         (
             [{"name": "anthropic/claude-sonnet-4-5"}],
+            COMPASSValueError,
+            None,
+        ),
+        (
+            [{"name": "anthropic/claude-sonnet-4-5", "client_type": "litellm"}],
             LiteLLMConfig,
             "litellm",
         ),
@@ -277,7 +283,15 @@ def test_request_models_accepts_runtime_rate_tracker(tmp_path):
 def test_build_models_routes_client_type(
     model_input, config_type, client_type
 ):
-    """Prefixed names use LiteLLM; existing configs keep their client"""
+    """Explicit client type controls routing and Azure stays default"""
+    if config_type is COMPASSValueError:
+        with pytest.raises(
+            COMPASSValueError,
+            match="require an explicit client_type|must include an explicit provider",
+        ):
+            build_models(model_input)
+        return
+
     config = build_models(model_input)["default"]
 
     assert type(config) is config_type
