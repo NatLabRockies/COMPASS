@@ -13,10 +13,63 @@ from compass.pipeline import (
     SearchRequest,
 )
 from compass.pipeline.runtime import PipelineRuntime
-from compass.pipeline.data_classes import WebSearchParams, build_models
+from compass.pipeline.data_classes import (
+    RuntimeSettings,
+    WebSearchParams,
+    build_models,
+)
 from compass.llm import LiteLLMConfig, OpenAIConfig
 from compass.utilities.io import ConfigType, load_config
 from compass.warn import COMPASSWarning
+
+
+@pytest.mark.parametrize("limit", [0, -1, 1.0, 1.5, "2", None, True, False])
+def test_runtime_settings_rejects_invalid_jurisdiction_concurrency(limit):
+    """Reject jurisdiction concurrency that is not a positive integer"""
+    with pytest.raises(
+        COMPASSValueError,
+        match="max_num_concurrent_jurisdictions must be an integer >= 1",
+    ):
+        RuntimeSettings(max_num_concurrent_jurisdictions=limit)
+
+
+@pytest.mark.parametrize("limit", [1, 3, 25])
+def test_runtime_settings_accepts_positive_jurisdiction_concurrency(limit):
+    """Preserve valid jurisdiction concurrency limits"""
+    settings = RuntimeSettings(max_num_concurrent_jurisdictions=limit)
+    assert settings.max_num_concurrent_jurisdictions == limit
+
+
+@pytest.mark.parametrize(
+    "request_class",
+    [
+        BaseRequest,
+        ProcessRequest,
+        CollectionRequest,
+        SearchRequest,
+        ExtractionRequest,
+    ],
+)
+def test_requests_reject_zero_jurisdiction_concurrency(
+    tmp_path, request_class
+):
+    """Validate shared runtime settings in every request type"""
+    extra_config = (
+        {"collection_manifest_fp": "./manifest.json"}
+        if request_class is ExtractionRequest
+        else {}
+    )
+    with pytest.raises(
+        COMPASSValueError,
+        match="max_num_concurrent_jurisdictions must be an integer >= 1",
+    ):
+        request_class(
+            out_dir=tmp_path,
+            tech="solar",
+            jurisdiction_fp="jurisdictions.csv",
+            max_num_concurrent_jurisdictions=0,
+            **extra_config,
+        )
 
 
 @pytest.mark.parametrize("config_type", list(ConfigType))
