@@ -239,7 +239,159 @@ class OpenAIConfig(LLMConfig):
             service_tag=self._tag,
         )
 
+class LiteLLMConfig(OpenAIConfig):
+    """LiteLLM proxy configuration using the shared OpenAI service
 
+    Calls go through an OpenAI-compatible LiteLLM proxy while reusing
+    :class:`~compass.services.openai.OpenAIService` for retries, usage
+    tracking, and rate limiting. Token prices are taken from litellm's
+    model price table unless the model is already in
+    :obj:`~compass.utilities.costs.LLM_COST_REGISTRY` (e.g. via
+    ``llm_costs``).
+
+    When ``client_kwargs`` omits proxy details:
+
+        - ``base_url`` falls back to ``LITELLM_BASE_URL``, then
+          ``LITELLM_API_BASE``, then the legacy ``OPENAI_BASE_URL``.
+        - ``api_key`` falls back to ``LITELLM_API_KEY``, then the
+          legacy ``OPENAI_API_KEY``.
+
+    Legacy ``OPENAI_*`` fallback is accepted only as a matched pair so
+    COMPASS does not mix credentials across different endpoint
+    namespaces.
+    """
+
+    def __init__(
+        self,
+        name="gpt-4o-mini",
+        llm_call_kwargs=None,
+        llm_service_rate_limit=500000,
+        text_splitter_chunk_size=10_000,
+        text_splitter_chunk_overlap=500,
+        client_kwargs=None,
+        tag=None,
+    ):
+        """
+
+        Parameters
+        ----------
+        name : str, default="gpt-4o-mini"
+            Model name or proxy alias forwarded unchanged to the
+            LiteLLM proxy. By default, ``"gpt-4o-mini"``.
+        llm_call_kwargs : dict, optional
+            Keyword arguments to be passed to the llm service ``call``
+            method. See :class:`OpenAIConfig`. By default, ``None``.
+        llm_service_rate_limit : int, default=500000
+            Token rate limit (i.e. tokens per minute) of LLM service
+            being used. By default, ``500000``.
+        text_splitter_chunk_size : int, default=10000
+            Chunk size used to split the ordinance text. By default,
+            ``10000``.
+        text_splitter_chunk_overlap : int, default=500
+            Overlap of consecutive chunks of the ordinance text.
+            By default, ``500``.
+        client_kwargs : dict, optional
+            Keyword arguments forwarded to the OpenAI-compatible proxy
+            client on every call (e.g. ``api_key``, ``base_url``).
+            By default, ``None``.
+        tag : str, optional
+            Optional tag to distinguish this model config from another
+            model config for the same model `name`. By default,
+            ``None``.
+        """
+        super().__init__(
+            name=name,
+            llm_call_kwargs=llm_call_kwargs,
+            llm_service_rate_limit=llm_service_rate_limit,
+            text_splitter_chunk_size=text_splitter_chunk_size,
+            text_splitter_chunk_overlap=text_splitter_chunk_overlap,
+            client_type="openai",
+            client_kwargs=client_kwargs,
+            tag=tag,
+        )
+        self.client_type = "litellm"
+
+    @cached_property
+    def client_kwargs(self):
+        """dict: Parameters forwarded to the LiteLLM proxy client"""
+        kwargs = dict(self._client_kwargs)
+        if "base_url" not in kwargs and "api_base" in kwargs:
+            kwargs["base_url"] = kwargs.pop("api_base")
+
+        explicit_base_url = kwargs.get("base_url")
+        explicit_api_key = kwargs.get("api_key")
+        litellm_base_url = os.environ.get(
+            "LITELLM_BASE_URL"
+        ) or os.environ.get("LITELLM_API_BASE")
+        litellm_api_key = os.environ.get("LITELLM_API_KEY")
+        legacy_base_url = os.environ.get("OPENAI_BASE_URL")
+        legacy_api_key = os.environ.get("OPENAI_API_KEY")
+
+        if explicit_base_url:
+            if explicit_api_key:
+                return kwargs
+
+            if explicit_base_url == litellm_base_url and litellm_api_key:
+                kwargs["api_key"] = litellm_api_key
+                return kwargs
+
+            if (
+                explicit_base_url == legacy_base_url
+                and legacy_api_key
+                and not (litellm_base_url or litellm_api_key)
+            ):
+                kwargs["api_key"] = legacy_api_key
+                return kwargs
+
+            msg = (
+                "LiteLLM proxy configs with an explicit base_url must "
+                "also provide a matching api_key via client_kwargs or "
+                "the corresponding proxy environment variables."
+            )
+            raise COMPASSValueError(msg)
+
+        if litellm_base_url or litellm_api_key:
+            if not (litellm_base_url and litellm_api_key):
+                msg = (
+                    "LiteLLM proxy configs require both "
+                    "LITELLM_BASE_URL (or LITELLM_API_BASE) and "
+                    "LITELLM_API_KEY."
+                )
+                raise COMPASSValueError(msg)
+            kwargs["base_url"] = litellm_base_url
+            kwargs["api_key"] = litellm_api_key
+            return kwargs
+
+        if legacy_base_url or legacy_api_key:
+            if not (legacy_base_url and legacy_api_key):
+                msg = (
+                    "Legacy LiteLLM proxy fallback requires both "
+                    "OPENAI_BASE_URL and OPENAI_API_KEY."
+                )
+                raise COMPASSValueError(msg)
+            kwargs["base_url"] = legacy_base_url
+            kwargs["api_key"] = legacy_api_key
+            return kwargs
+
+        msg = (
+            "LiteLLM proxy configs require a proxy base_url and api_key "
+            "via client_kwargs, LITELLM_BASE_URL/LITELLM_API_KEY, or "
+            "legacy OPENAI_BASE_URL/OPENAI_API_KEY."
+        )
+        raise COMPASSValueError(msg)
+
+    @cached_property
+    def llm_service(self):
+        """LLMService: Object that can be used to submit calls to LLM"""
+        from compass.services.litellm import register_litellm_model_cost  # ruff:ignore[import-outside-top-level]
+
+        register_litellm_model_cost(self.name)
+        return OpenAIService(
+            openai.AsyncOpenAI(**self.client_kwargs),
+            self.name,
+            rate_limit=self.llm_service_rate_limit,
+            service_tag=self._tag,
+        )
 def _count_tokens_safely(text, model):
     """Count tokens with a conservative fallback
 
