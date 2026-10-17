@@ -63,6 +63,9 @@ Start by cloning the ``COMPASS`` repository:
 If you don't already have ``pixi`` installed on your system, follow the (simple) `installation
 instructions <https://pixi.sh/latest/#installation>`_.
 
+On Intel macOS, complete `Intel macOS: ONNX Runtime Setup`_ before starting
+a Pixi environment, because ``pixi shell`` installs dependencies as needed.
+
 Once you have both ``pixi`` and the ``COMPASS`` source code, simply run:
 
 .. code-block:: shell
@@ -107,3 +110,69 @@ you may have to run the following command (requires ``sudo``):
 .. code-block:: shell
 
     playwright install-deps
+
+
+Preparing for Docling-RS PDF Parsing
+------------------------------------
+The Docling backend uses Docling-RS for native document conversion. Before
+parsing PDFs or scanned images, download its model assets once:
+
+.. code-block:: shell
+
+    python -c "from docling_rs import download_models; download_models()"
+
+Models are cached under ``~/.cache/docling.rs`` by default. Set
+``DOCLING_RS_CACHE_DIR`` to use a different cache directory, and make that
+cache available to the worker processes. HTML and Markdown conversion do
+not require these models.
+
+Some scanned PDFs use image encodings that the native PDF renderer cannot
+read completely. If an OCR-enabled PDF converts successfully but produces
+no Markdown, COMPASS renders its pages with Poppler and retries them with
+the same Docling-RS OCR engine. This retry preserves the original PDF and
+page count, respects explicit OCR opt-outs, and remains subject to the
+subprocess deadline. Poppler is included in the Pixi environment.
+
+
+Intel macOS: ONNX Runtime Setup
+-------------------------------
+
+Docling-RS is built from source on macOS. Its Rust ONNX Runtime dependency
+does not provide prebuilt binaries for ``x86_64-apple-darwin``, so Intel
+Macs must provide a shared ONNX Runtime library before installing COMPASS.
+Changing the Python version does not resolve this native dependency error.
+
+Install ONNX Runtime with `Homebrew <https://brew.sh/>`_ and configure the
+build in the terminal where you will install and run COMPASS:
+
+.. code-block:: shell
+
+    brew install onnxruntime
+    export ORT_LIB_LOCATION="$(brew --prefix onnxruntime)/lib"
+    export ORT_PREFER_DYNAMIC_LINK=1
+    export RUSTFLAGS="${RUSTFLAGS:-} -C link-arg=-Wl,-rpath,$ORT_LIB_LOCATION"
+
+``ORT_LIB_LOCATION`` identifies the directory containing
+``libonnxruntime.dylib``. ``ORT_PREFER_DYNAMIC_LINK`` selects that shared
+library instead of downloading a prebuilt Rust dependency. The ``RUSTFLAGS``
+setting embeds its location in the native extension's runtime search path,
+so Python can find it when importing Docling-RS.
+
+Homebrew may build ONNX Runtime from source if an Intel macOS bottle is
+unavailable. Building Docling-RS also requires a Rust toolchain compatible
+with the installed release. Keep the Homebrew library installed while
+using COMPASS. Set these variables again in each new terminal before
+installing or rebuilding dependencies, or add them to your shell profile.
+
+After this setup, continue with the PyPI or source installation instructions.
+For a development checkout, you can install the locked environment with:
+
+.. code-block:: shell
+
+    pixi install -e pdev --locked
+
+The Python CI workflow applies this setup only to Intel macOS runners,
+before installing Pixi or tox dependencies. Tox passes these variables
+through to its test environments. Apple Silicon macOS, Linux, and Windows
+do not require this Intel-specific workaround.
+

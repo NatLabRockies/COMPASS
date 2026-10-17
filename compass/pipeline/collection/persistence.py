@@ -22,7 +22,7 @@ from compass.services.threaded import (
     TempFileCacheCopier,
     GenericFuncRunner,
 )
-from compass.services.cpu import read_docling_local_file
+from compass.services.docling import read_docling_local_file
 from compass.utilities.io import (
     load_config,
     resolve_all_paths,

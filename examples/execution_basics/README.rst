@@ -25,18 +25,20 @@ or review the collected corpus before spending model tokens.
 
 Prerequisites
 =============
-We recommend enabling Optical Character Recognition (OCR) for PDF parsing, which
-allows the program to process scanned documents. To enable OCR, you'll need to install ``pytesseract``.
-If you installed COMPASS via PyPI, you may need to install a few additional dependencies:
+When using the Docling backend, COMPASS parses documents with Docling-RS.
+Native Optical Character Recognition (OCR) and table extraction are enabled
+by default. Download the PDF parsing models once before processing PDFs:
 
 .. code-block:: shell
 
-    pip install pytesseract pdf2image
+    pixi run python -c "from docling_rs import download_models; download_models()"
 
-If you're using ``pixi`` to run the pipeline (recommended), these libraries are included by default.
+The models are cached under ``~/.cache/docling.rs``. Set
+``DOCLING_RS_CACHE_DIR`` to use a different model cache. HTML and Markdown
+conversion do not require these models.
 
-In either case, you may still need to complete a few additional setup steps if this is your first time
-installing Google's ``tesseract`` utility. Follow the installation instructions
+If you select the ELM backend instead, its scanned-PDF OCR still requires
+Google's Tesseract. Follow its installation instructions
 `here <https://pypi.org/project/pytesseract/#:~:text=lang%5D%20image_file-,INSTALLATION,-Prerequisites%3A>`_.
 
 
@@ -124,30 +126,34 @@ Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate 
 If you're not using the VPN, it's best to leave this value as the default (``true``).
 
 **OCR Integration**
-As noted in the `Prerequisites`_ section, we recommend enabling OCR using ``pytesseract``. To enable OCR for scanned PDFs,
-you must provide the path to the ``tesseract`` executable using the ``pytesseract_exe_fp`` input.
-You can locate the executable path by running:
+Docling-RS uses its native OCR engine by default; it does not require
+``pytesseract_exe_fp``.
+
+For the ELM backend, provide the path to the ``tesseract`` executable using
+the ``pytesseract_exe_fp`` input. You can locate the executable by running:
 
 .. code-block:: shell
 
     which tesseract
 
-Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
+Omit the ``pytesseract_exe_fp`` key to disable OCR for the ELM backend.
 
 **Docling conversion deadline**
-When using the Docling file loader, set ``docling_timeout`` in
-``file_loader_kwargs.pdf_pipeline_options`` to apply a wall-clock deadline to each document.
-COMPASS runs the conversion in a disposable child process and terminates that
-child when the deadline expires.
+When using the Docling file loader, set ``document_timeout`` in
+``file_loader_kwargs.pdf_pipeline_options`` to set a per-document budget
+in seconds. The native PDF pipeline can return partial results when this
+budget expires between pages. COMPASS also terminates a stuck conversion
+in its disposable child process after a 10 percent grace period.
 
 .. code-block:: json
 
-    "pytesseract_exe_fp": "/path/to/tesseract",
-    "file_loader_kwargs": {
-        "pdf_pipeline_options": {
-            "do_ocr": true,
-            "do_table_structure": true
-            "docling_timeout": 1800,
+    {
+        "file_loader_kwargs": {
+            "pdf_pipeline_options": {
+                "do_ocr": true,
+                "do_table_structure": true,
+                "document_timeout": 1800
+            }
         }
     }
 
