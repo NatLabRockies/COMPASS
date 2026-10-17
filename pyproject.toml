@@ -200,6 +200,10 @@ convention = "numpy"
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["unused-import"]
+"support/container_checks.py" = [
+  "implicit-namespace-package",
+  "import-outside-top-level",
+]
 "{tests,evals}/**.py" = [
   "unused-function-argument",
   "unused-method-argument",
