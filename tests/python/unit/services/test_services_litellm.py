@@ -3,8 +3,8 @@
 from pathlib import Path
 
 import pytest
-import litellm
 
+from compass.services import litellm as litellm_service
 from compass.services.litellm import register_litellm_model_cost
 from compass.utilities import LLM_COST_REGISTRY, compute_cost_from_totals
 
@@ -19,20 +19,36 @@ def restore_cost_registry():
 
 
 @pytest.mark.parametrize(
-    "model_name",
+    ("model_name", "provider", "bare_name"),
     [
-        "openai/gpt-5-mini",
-        "anthropic/claude-sonnet-4-5",
-        "gemini/gemini-3.5-flash",
+        ("openai/gpt-5-mini", "openai", "gpt-5-mini"),
+        (
+            "anthropic/claude-sonnet-4-5",
+            "anthropic",
+            "claude-sonnet-4-5",
+        ),
+        ("gemini/gemini-3.5-flash", "gemini", "gemini-3.5-flash"),
     ],
 )
-def test_register_litellm_model_cost(model_name):
+def test_register_litellm_model_cost(monkeypatch, model_name, provider, bare_name):
     """Model prices come from litellm's model price table"""
     LLM_COST_REGISTRY.pop(model_name, None)
-    bare_name, _, _, _ = litellm.get_llm_provider(model=model_name)
-    prices = litellm.model_cost.get(model_name) or litellm.model_cost.get(
-        bare_name
-    )
+    LLM_COST_REGISTRY.pop(bare_name, None)
+    fake_litellm = type(
+        "FakeLiteLLM",
+        (),
+        {
+            "model_cost": {
+                bare_name: {
+                    "litellm_provider": provider,
+                    "input_cost_per_token": 1e-6,
+                    "output_cost_per_token": 2e-6,
+                }
+            }
+        },
+    )()
+    monkeypatch.setattr(litellm_service, "litellm", fake_litellm)
+    prices = fake_litellm.model_cost[bare_name]
     expected = (
         prices["input_cost_per_token"] + prices["output_cost_per_token"]
     ) * 1e6
@@ -63,6 +79,18 @@ def test_register_litellm_model_cost_skips_unpriced_model():
     register_litellm_model_cost("openai/not-a-real-model-xyz")
 
     assert "openai/not-a-real-model-xyz" not in LLM_COST_REGISTRY
+
+
+def test_register_litellm_model_cost_reuses_bare_registry_entry():
+    """Provider-prefixed aliases reuse existing bare-model costs"""
+    LLM_COST_REGISTRY["gpt-5-mini"] = {"prompt": 0.25, "response": 2}
+
+    register_litellm_model_cost("openai/gpt-5-mini")
+
+    assert LLM_COST_REGISTRY["openai/gpt-5-mini"] == {
+        "prompt": 0.25,
+        "response": 2,
+    }
 
 
 if __name__ == "__main__":
