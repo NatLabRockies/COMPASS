@@ -10,6 +10,7 @@ import openai
 from elm import ApiBase
 from langchain_text_splitters.character import RecursiveCharacterTextSplitter
 
+from compass.services import litellm as litellm_registry
 from compass.services.openai import OpenAIService
 from compass.utilities import RTS_SEPARATORS
 from compass.exceptions import COMPASSValueError
@@ -85,7 +86,11 @@ class LLMConfig(ABC):
 
     @cached_property
     def text_splitter(self):
-        """`TextSplitter <https://reference.langchain.com/python/langchain-text-splitters/base/TextSplitter>`_: Text splitter for ordinance text"""  # ruff:ignore[doc-line-too-long, line-too-long]
+        """Text splitter for ordinance text.
+
+        This uses the LangChain text splitter base behavior for
+        chunking ordinance text before model parsing tasks.
+        """
         return _PrintableRecursiveCharacterTextSplitter(
             RTS_SEPARATORS,
             chunk_size=self.text_splitter_chunk_size,
@@ -239,6 +244,7 @@ class OpenAIConfig(LLMConfig):
             service_tag=self._tag,
         )
 
+
 class LiteLLMConfig(OpenAIConfig):
     """LiteLLM proxy configuration using the shared OpenAI service
 
@@ -383,20 +389,20 @@ class LiteLLMConfig(OpenAIConfig):
     @cached_property
     def llm_service(self):
         """LLMService: Object that can be used to submit calls to LLM"""
-        from compass.services.litellm import register_litellm_model_cost  # ruff:ignore[import-outside-top-level]
-
-        register_litellm_model_cost(self.name)
+        litellm_registry.register_litellm_model_cost(self.name)
         return OpenAIService(
             openai.AsyncOpenAI(**self.client_kwargs),
             self.name,
             rate_limit=self.llm_service_rate_limit,
             service_tag=self._tag,
         )
+
+
 def _count_tokens_safely(text, model):
-    """Count tokens with a conservative fallback
+    """Count tokens with a conservative fallback.
 
     ``len(text.encode("utf-8"))`` is a conservative upper bound on BPE
-    token count, so it will not permit oversized chunks
+    token count, so it will not permit oversized chunks.
     """
     try:
         return ApiBase.count_tokens(text, model=model)

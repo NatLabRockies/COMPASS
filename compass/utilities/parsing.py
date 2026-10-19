@@ -3,6 +3,7 @@
 import json
 import logging
 import os
+import re
 from pathlib import Path
 
 import numpy as np
@@ -81,26 +82,41 @@ def llm_response_as_json(content):
     decode failure. The logging includes guidance for increasing token
     limits or updating prompts.
     """
-    original_content = content
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
-    try:
-        return json.loads(content)
-    except json.decoder.JSONDecodeError as error:
-        decode_error = error
-    normalized = _normalize_python_bool_literals(content)
-    if normalized != content:
-        try:
-            return json.loads(normalized)
-        except json.decoder.JSONDecodeError:
-            pass
+    candidates = [content]
+    candidates.extend(
+        reversed(
+            [
+                candidate.strip()
+                for candidate in re.findall(
+                    r"```(?:json)?\s*(.*?)```", content, flags=re.DOTALL
+                )
+                if candidate.strip()
+            ]
+        )
+    )
 
-    embedded = _extract_embedded_json(original_content)
+    decode_error = None
+    for candidate in candidates:
+        try:
+            return json.loads(candidate)
+        except json.decoder.JSONDecodeError as error:
+            decode_error = error
+
+        normalized = _normalize_python_bool_literals(candidate)
+        if normalized != candidate:
+            try:
+                return json.loads(normalized)
+            except json.decoder.JSONDecodeError:
+                pass
+
+    embedded = _extract_embedded_json(content)
     if embedded is not None:
         logger.debug(
             "LLM response contained leading/trailing text around the "
-            "JSON payload. Recovered JSON from an embedded fenced or "
-            "bare object/array instead of the full response."
+            "JSON payload. Recovered JSON from an embedded object or "
+            "array instead of the full response."
         )
         return embedded
 
@@ -117,62 +133,37 @@ def llm_response_as_json(content):
 
 
 def _extract_embedded_json(content):
-    """Recover the JSON payload surrounded by extra LLM text"""
-    fence = "```json"
-    starts = []
-    index = content.find(fence)
-    while index >= 0:
-        starts.append(index + len(fence))
-        index = content.find(fence, index + 1)
-    starts.append(0)
-
-    for start in starts:
-        for index in _json_start_indexes(content, start):
-            value = _first_decodable_json(content, index)
-            if value is None:
+    """Recover a JSON object or array embedded in surrounding text."""
+    decoder = json.JSONDecoder()
+    for index in _json_start_indexes(content):
+        candidate = content[index:]
+        if candidate.startswith("[") and candidate[1:2].isdigit():
+            continue
+        for candidate_text in (
+            candidate,
+            _normalize_python_bool_literals(candidate),
+        ):
+            try:
+                value, _ = decoder.raw_decode(candidate_text)
+            except json.decoder.JSONDecodeError:
+                continue
+            if (
+                isinstance(value, list)
+                and len(value) == 1
+                and isinstance(value[0], int | float)
+            ):
                 continue
             return value
     return None
 
 
-def _json_start_indexes(content, start):
-    """Yield possible JSON opener positions in source order"""
-    candidates = []
-    for opener in "{[":
-        index = content.find(opener, start)
-        while index >= 0:
-            candidates.append(index)
-            index = content.find(opener, index + 1)
-    return sorted(candidates)
-
-
-def _first_decodable_json(content, index):
-    """Decode the first JSON value beginning at `index`"""
-    decoder = json.JSONDecoder()
-    for candidate, candidate_index in (
-        (content, index),
-        (_normalize_python_bool_literals(content[index:]), 0),
-    ):
-        try:
-            value, __ = decoder.raw_decode(candidate, candidate_index)
-        except json.decoder.JSONDecodeError:
-            continue
-        if not _is_probable_embedded_json(value):
-            continue
-        return value
-    return None
-
-
-def _is_probable_embedded_json(value):
-    """Reject list values that are likely prose citation markers"""
-    if not isinstance(value, list) or len(value) != 1:
-        return True
-    return not isinstance(value[0], int | float)
+def _json_start_indexes(content):
+    """Yield likely JSON opener positions in source order."""
+    return [index for index, char in enumerate(content) if char in "[{"]
 
 
 def _normalize_python_bool_literals(content):
     """Lowercase unquoted Python boolean literals for JSON parsing"""
-    replacements = {"True": "true", "False": "false"}
     out = []
     index = 0
     in_string = False
@@ -196,28 +187,35 @@ def _normalize_python_bool_literals(content):
             index += 1
             continue
 
-        replaced = False
-        for old, new in replacements.items():
-            if not content.startswith(old, index):
-                continue
-            prev_char = content[index - 1] if index > 0 else ""
-            next_index = index + len(old)
-            next_char = content[next_index] if next_index < len(content) else ""
-            if (
-                (prev_char.isalnum() or prev_char == "_")
-                or (next_char.isalnum() or next_char == "_")
-            ):
-                continue
-            out.append(new)
-            index = next_index
-            replaced = True
-            break
-        if replaced:
+        literal, replacement = _matching_bool_literal(content, index)
+        if literal is not None:
+            out.append(replacement)
+            index += len(literal)
             continue
 
         out.append(char)
         index += 1
     return "".join(out)
+
+
+def _matching_bool_literal(content, index):
+    """Return bool literal replacement when the token is isolated."""
+    for literal, replacement in {"True": "true", "False": "false"}.items():
+        if not content.startswith(literal, index):
+            continue
+        if _is_bool_literal_boundary(content, index, literal):
+            return literal, replacement
+    return None, None
+
+
+def _is_bool_literal_boundary(content, index, literal):
+    """Determine whether a boolean literal token is standalone."""
+    prev_char = content[index - 1] if index > 0 else ""
+    next_index = index + len(literal)
+    next_char = content[next_index] if next_index < len(content) else ""
+    prev_is_word = prev_char.isalnum() or prev_char == "_"
+    next_is_word = next_char.isalnum() or next_char == "_"
+    return not (prev_is_word or next_is_word)
 
 
 def merge_overlapping_texts(text_chunks, n=300):

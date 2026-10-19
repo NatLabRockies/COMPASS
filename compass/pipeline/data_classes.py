@@ -470,8 +470,8 @@ class BaseRequest:
             arguments. :class:`~compass.llm.config.LiteLLMConfig` is used
             only when ``"client_type": "litellm"`` is set explicitly.
             In that case, the model name is forwarded unchanged to the
-            LiteLLM proxy and may be either a bare alias or a slash-
-            containing provider alias.
+            LiteLLM proxy and may be either a bare alias or a
+            slash-containing provider alias.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1035,11 +1035,11 @@ class CollectionRequest(BaseRequest):
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments. :class:`~compass.llm.config.LiteLLMConfig` is used
-            only when ``"client_type": "litellm"`` is set explicitly.
-            In that case, the model name is forwarded unchanged to the
-            LiteLLM proxy and may be either a bare alias or a slash-
-            containing provider alias.
+            arguments. :class:`~compass.llm.config.LiteLLMConfig` is
+            used only when ``"client_type": "litellm"`` is set
+            explicitly. In that case, the model name is forwarded
+            unchanged to the LiteLLM proxy and may be either a bare
+            alias or a slash-containing provider alias.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1395,11 +1395,11 @@ class ExtractionRequest(BaseRequest):
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments. :class:`~compass.llm.config.LiteLLMConfig` is used
-            only when ``"client_type": "litellm"`` is set explicitly.
-            In that case, the model name is forwarded unchanged to the
-            LiteLLM proxy and may be either a bare alias or a slash-
-            containing provider alias.
+            arguments. :class:`~compass.llm.config.LiteLLMConfig` is
+            used only when ``"client_type": "litellm"`` is set
+            explicitly. In that case, the model name is forwarded
+            unchanged to the LiteLLM proxy and may be either a bare
+            alias or a slash-containing provider alias.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
