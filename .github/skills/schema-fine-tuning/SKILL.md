@@ -249,11 +249,19 @@ FIPS code to the document(s) that were processed, for example:
 ```
 
 Look up the failing jurisdiction's FIPS in `known_local_docs` to get its
-`source_fp` — that PDF is the exact document the extraction saw. COMPASS also
-writes the parsed plain text it actually fed to the model under the run's
-`out_dir` (for example `output/cleaned_text/<Jurisdiction> Collected Text.txt`).
-Prefer reading that collected-text file over the raw PDF, because it is what the
-model saw — including any OCR degradation, which is itself a common root cause.
+`source_fp` — that PDF is the raw document COMPASS started from. COMPASS then
+writes intermediate text under the run's `out_dir`, including the parsed plain
+text at `cleaned_text/<Jurisdiction> Collected Text.txt`. Before treating that
+collected-text file as the exact input the model saw, check the plugin's
+`text_extraction_prompts` setting. When it is unset, the collected text is what
+the model received, so prefer reading it over the raw PDF — it captures any OCR
+degradation, which is itself a common root cause. When `text_extraction_prompts`
+is `true`, COMPASS consolidates the collected text into a further-processed file
+at `cleaned_text/Text for Extraction.txt`, and that file is the real model input;
+inspect it first. For custom extraction prompts (a prompt list rather than
+`true`), inspect the final extractor output that the parser consumed. Comparing
+these layers — raw PDF, collected text, and extraction text — lets you
+distinguish text-extraction omissions from PDF-parsing or OCR degradation.
 
 ### 5.3 — Locate the relevant passage using the report
 
