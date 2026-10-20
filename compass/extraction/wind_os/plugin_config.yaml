@@ -1,4 +1,4 @@
-schema: ./wind_schema.json
+schema: ./wind_schema.json5
 
 data_type_short_desc: wind energy ordinance
 
