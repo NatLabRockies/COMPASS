@@ -8,9 +8,6 @@ query_templates:
   - "{jurisdiction} natural gas compressor station ordinance"
   - "{jurisdiction} natural gas pipeline facilities zoning ordinance"
   - "{jurisdiction} compressor station setback noise ordinance code"
-  # Compressor stations are often regulated inside broader oil-and-gas
-  # chapters. These queries widen discovery; well-only text is rejected later
-  # by the schema scope gate and extraction instructions.
   - "{jurisdiction} oil and gas facilities zoning ordinance"
   - "{jurisdiction} gas well ordinance compressor pipeline"
   - "site:ecode360.com {jurisdiction}"
@@ -159,5 +156,5 @@ extraction_system_prompt: |-
 
   Follow all schema feature definitions, core principles, and instructions
   literally. Keep units standardized as the schema directs, quote verbatim
-  ordinance text in source_verbatim, and do not invent values. Every row must
+  ordinance text in ordinance_text, and do not invent values. Every row must
   include a non-empty summary and explanation.

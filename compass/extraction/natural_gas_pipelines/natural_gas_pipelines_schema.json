@@ -1,6 +1,6 @@
 {
   "title": "Natural Gas Pipeline and Compressor Station Ordinance Extraction Schema",
-  "description": "Single-shot structured extraction schema for natural gas pipeline and compressor station ordinances. The LLM returns an outputs array where each object is ONE decomposed requirement row. Each row is decomposed on four axes: WHAT is regulated (feature + specific_subject + applies_to + requirement_description), HOW MUCH (value + value_category + value_interpretation + units + range_low + range_high), HOW BINDING (obligation), and WHEN/WHERE it applies (condition). Evidence lives in source_verbatim, summary, section, notes, and explanation. Scope boundaries are defined in $scope; extraction rules in $core_principles and $instructions.",
+  "description": "Schema for extracting siting and permitting requirements for natural gas pipelines and compressor stations.",
   "version": "3.0.0",
   "type": "object",
   "required": ["outputs"],
@@ -27,7 +27,7 @@
           "obligation",
           "condition",
           "applicable_values",
-          "source_verbatim",
+          "ordinance_text",
           "summary",
           "section",
           "notes",
@@ -116,7 +116,7 @@
           },
           "units": {
             "type": ["string", "null"],
-            "description": "Canonical unit of measurement for a quantitative value. For distance/fence height use 'feet', 'meters', 'inches', or 'miles'; for minimum lot size use 'acres' or 'square feet'; for noise normalize A-weighted variants such as 'dB(A)'/'dBa' to 'dBA' and keep plain 'dB' only when explicitly not A-weighted. Preserve the ordinance's verbatim wording in source_verbatim/summary while standardizing this field. Null for qualitative rows and for district/permit rows."
+            "description": "Canonical unit of measurement for a quantitative value. For distance/fence height use 'feet', 'meters', 'inches', or 'miles'; for minimum lot size use 'acres' or 'square feet'; for noise normalize A-weighted variants such as 'dB(A)'/'dBa' to 'dBA' and keep plain 'dB' only when explicitly not A-weighted. Preserve the ordinance's verbatim wording in ordinance_text/summary while standardizing this field. Null for qualitative rows and for district/permit rows."
           },
           "range_low": {
             "type": ["number", "null"],
@@ -140,7 +140,7 @@
           },
           "condition": {
             "type": ["string", "null"],
-            "description": "Situational trigger governing WHEN or WHERE the requirement applies (WHEN/WHERE axis). Must be a SHORT phrase only: 'nighttime', 'daytime only', 'in AG zone', 'capacity exceeds 3 MW', 'after a signed complaint is received'. NEVER put the substance of the requirement here — that belongs in requirement_description or source_verbatim. Not the facility type (use applies_to) and not the obligation. Null if the requirement applies unconditionally."
+            "description": "Situational trigger governing WHEN or WHERE the requirement applies (WHEN/WHERE axis). Must be a SHORT phrase only: 'nighttime', 'daytime only', 'in AG zone', 'capacity exceeds 3 MW', 'after a signed complaint is received'. NEVER put the substance of the requirement here — that belongs in requirement_description or ordinance_text. Not the facility type (use applies_to) and not the obligation. Null if the requirement applies unconditionally."
           },
           "applicable_values": {
             "description": "Parallel interchangeable atomic values sharing an IDENTICAL obligation, condition, and evidence — used mainly for enumerated zoning-district codes or an interchangeable set of accepted permit names. Pair with value_interpretation='enumerated'. Null when a single value applies. Example: ['AG','RE','R1','R2'] for districts permitting the facility.",
@@ -152,9 +152,9 @@
               { "type": "null" }
             ]
           },
-          "source_verbatim": {
+          "ordinance_text": {
             "type": ["string", "null"],
-            "description": "The exact operative clause copied word-for-word from the ordinance (EVIDENCE axis) — the audit anchor; never paraphrase. If the passage exceeds ~50 words, quote the operative head, insert '…', then the tail. Null only if no single passage can be quoted."
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must correspond to the extracted value and summary, reproduced in full without elision. After that first sentence, gather any other passages that bear on the same requirement and join them with an ellipsis ('...') in document order. This is the audit anchor for the row; never paraphrase or normalize the text. Null only if no single passage can be quoted."
           },
           "summary": {
             "type": "string",
@@ -170,7 +170,7 @@
           },
           "explanation": {
             "type": "string",
-            "description": "Brief rationale (EVIDENCE axis) tying the cited evidence to the selected feature and the value_category/obligation decision, e.g. \"'shall not exceed' → required; number → quantitative/maximum\". Must be a non-null, non-empty string and must not use absence placeholders. This field is intentionally excluded from the compiled output columns; it exists to force per-row justification."
+            "description": "Brief rationale (EVIDENCE axis) tying the cited evidence to the selected feature and the value_category/obligation decision, e.g. \"'shall not exceed' → required; number → quantitative/maximum\". Must be a non-null, non-empty string and must not use absence placeholders. Keep the explanation as a short evidence chain that links the quoted clause to the feature and the binding decision."
           }
         }
       }
@@ -278,7 +278,7 @@
       "Emit one row per distinct enacted requirement. Split a clause into multiple rows by feature, specific_subject, condition (day/night), or tier whenever it states more than one distinct requirement.",
       "Feature IDs are strict canonical keys from the enum; never output aliases or paraphrased feature names.",
       "Every row must have a non-null, non-empty summary and a non-null, non-empty explanation.",
-      "Preserve verbatim ordinance language in source_verbatim and quote excerpts in summary; standardize units in the units field while keeping original wording in the evidence fields.",
+      "Preserve verbatim ordinance language in ordinance_text and quote excerpts in summary; standardize units in the units field while keeping original wording in the evidence fields. Keep the rationale short and concrete, not an extended chain of reasoning.",
       "Do not convert values between unit systems. Record the numeric value as written and put the canonical unit in units.",
       "Emit only positively matched requirements; never emit a row to explain that a feature does not apply, and never use absence placeholders in any field.",
       "If text is genuinely ambiguous about whether it imposes an enforceable requirement, or gas applicability is unclear, omit the row. Do not omit merely because the ordinance uses different terminology than the feature name — equivalences are in $definitions.",
@@ -334,7 +334,7 @@
           "obligation": "required",
           "condition": null,
           "applicable_values": null,
-          "source_verbatim": "'No compressor station shall be located within one hundred (100) feet of any rear lot line.'",
+          "ordinance_text": "'No compressor station shall be located within one hundred (100) feet of any rear lot line.'",
           "summary": "Compressor stations must be set back at least 100 feet from the rear lot line.",
           "section": "§ 315-75C",
           "notes": null,
@@ -355,7 +355,7 @@
           "obligation": "required",
           "condition": "nighttime",
           "applicable_values": null,
-          "source_verbatim": "'... shall not exceed a maximum of 55 dBA at any lot line between 10:00 p.m. and 7:00 a.m.'",
+          "ordinance_text": "'... shall not exceed a maximum of 55 dBA at any lot line between 10:00 p.m. and 7:00 a.m.'",
           "summary": "Nighttime compressor-station noise may not exceed 55 dBA at any lot line.",
           "section": "§ 315-75A",
           "notes": "Daytime limit captured as a separate row.",
@@ -376,7 +376,7 @@
           "obligation": "conditional",
           "condition": null,
           "applicable_values": ["I-1", "I-2", "M-1"],
-          "source_verbatim": "'Natural gas compressor stations may be permitted as a conditional use in the I-1, I-2, and M-1 districts.'",
+          "ordinance_text": "'Natural gas compressor stations may be permitted as a conditional use in the I-1, I-2, and M-1 districts.'",
           "summary": "Compressor stations are allowed as a conditional use in the I-1, I-2, and M-1 districts.",
           "section": "Table 4 — Use Regulations",
           "notes": null,
@@ -397,7 +397,7 @@
           "obligation": "required",
           "condition": null,
           "applicable_values": null,
-          "source_verbatim": "'All compressor units shall be housed within a fully enclosed building.'",
+          "ordinance_text": "'All compressor units shall be housed within a fully enclosed building.'",
           "summary": "All compressor units must be housed within a fully enclosed building.",
           "section": "§ 315-75B",
           "notes": null,
