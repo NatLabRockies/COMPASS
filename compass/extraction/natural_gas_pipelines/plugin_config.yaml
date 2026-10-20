@@ -157,4 +157,6 @@ extraction_system_prompt: |-
   Follow all schema feature definitions, core principles, and instructions
   literally. Keep units standardized as the schema directs, quote verbatim
   ordinance text in ordinance_text, and do not invent values. Every row must
-  include a non-empty summary and explanation.
+  include a non-empty summary and explanation. Keep the explanation as a short
+  evidence chain such as "reason 1 -> reason 2 -> conclusion" and do not
+  mention post-processing or other bookkeeping details.

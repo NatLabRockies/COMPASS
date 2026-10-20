@@ -170,7 +170,7 @@
           },
           "explanation": {
             "type": "string",
-            "description": "Brief rationale (EVIDENCE axis) tying the cited evidence to the selected feature and the value_category/obligation decision, e.g. \"'shall not exceed' → required; number → quantitative/maximum\". Must be a non-null, non-empty string and must not use absence placeholders. Keep the explanation as a short evidence chain that links the quoted clause to the feature and the binding decision."
+            "description": "Brief rationale (EVIDENCE axis) tying the cited evidence to the selected feature and the value_category/obligation decision. Use a short evidence chain such as \"reason 1: 'shall not exceed' → required; reason 2: numeric cap → quantitative/maximum; conclusion: night noise limit for a compressor station\". Must be a non-null, non-empty string and must not use absence placeholders. Keep it concise and direct, with no output-formatting or bookkeeping commentary."
           }
         }
       }
