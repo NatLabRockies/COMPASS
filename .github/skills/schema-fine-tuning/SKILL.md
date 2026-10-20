@@ -102,8 +102,9 @@ oversized target set).
 
    Expect this to take a while — typically at least 10 minutes, and more than 15
    is not unusual. Let it run to completion rather than assuming it has hung; do
-   not set a short timeout that would kill it. Waiting does not consume additional
-   credits, since no model requests are made while the command runs.
+   not set a short timeout that would kill it. Waiting itself adds no model
+   requests, but COMPASS makes LLM calls during the run (search, parsing, and
+   extraction) that may incur costs.
 
 Always run the current schema first; do not edit the schema before capturing
 this baseline.
