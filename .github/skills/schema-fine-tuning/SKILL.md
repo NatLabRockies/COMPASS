@@ -194,7 +194,11 @@ the report's `missing_locations` with `jurisdiction_fp`:
 pixi run python -c "
 import csv, json
 def k(s, c, su): return ((s or '').strip().lower(), (c or '').strip().lower(), (su or '').strip().lower())
-scope={k(r.get('State'), r.get('County'), r.get('Subdivision')) for r in csv.DictReader(open('<jurisdiction_fp.csv>'))}
+with open('<jurisdiction_fp.csv>', encoding='utf-8-sig', newline='') as fp:
+     scope = {
+         k(r.get('State'), r.get('County'), r.get('Subdivision'))
+         for r in csv.DictReader(fp)
+     }
 d=json.load(open('validation_report.json'))
 crit=[m for m in d.get('missing_locations', []) if k(m.get('state'), m.get('county'), m.get('subdivision')) in scope]
 print('CRITICAL in-scope jurisdictions missing from output:', len(crit))
