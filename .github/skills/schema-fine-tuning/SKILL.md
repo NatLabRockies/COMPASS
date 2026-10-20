@@ -109,47 +109,47 @@ oversized target set).
 Always run the current schema first; do not edit the schema before capturing
 this baseline.
 
-## Step 3 — Merge the extraction outputs
+## Step 3 — Locate the extraction output
 
-COMPASS writes the run results as two separate tables: a quantitative table and
-a qualitative table. They live in the run's output directory. `out_dir` is
-required in the effective configuration, either directly or through inheritance.
-Use the same configuration loader as the CLI to resolve inherited values and
-relative paths, then merge the two tables:
+COMPASS writes the run results as a single consolidated table, `ordinances.csv`,
+in the run's output directory. Both quantitative and qualitative rows go to this
+one file, distinguished by a `quantitative` column, so no merge step is required.
+`out_dir` is required in the effective configuration, either directly or through
+inheritance. Use the same configuration loader as the CLI to resolve inherited
+values and relative paths, then confirm the output file exists:
 
 ~~~bash
 pixi run python -c "
-import os, subprocess
+import os
 from compass.utilities.io import load_config
 cfg = load_config('config.json5')
 out = cfg['out_dir']
-quant = os.path.join(out, 'quantitative_ordinances.csv')
-qual = os.path.join(out, 'qualitative_ordinances.csv')
-combined = os.path.join(out, 'combined.csv')
-subprocess.run(['dead_reckoning', 'qc', 'merge', quant, qual, '-o', combined], check=True)
-print('merged ->', combined)
+ordinances = os.path.join(out, 'ordinances.csv')
+print('ordinances ->', ordinances, '(exists:', os.path.exists(ordinances), ')')
 "
 ~~~
 
-The resulting `combined.csv` (under `out_dir`) is the single artifact used for
-diagnosis in the next step.
+The `ordinances.csv` (under `out_dir`) is the single artifact used for diagnosis
+in the next step. Its columns (`state`, `county`, `subdivision`, `feature`, and
+the per-feature value fields) are already in the run-CSV layout Dead-Reckoning
+expects, so it can be validated directly without any format conversion.
 
 ## Step 4 — Validate against labeled data
 
-Validation compares the merged extraction (`combined.csv`) against the set of
+Validation compares the extraction (`ordinances.csv`) against the set of
 hand-labeled ground-truth expectations confirmed in the Step 2 pre-run checks.
 
 Run the validation with Dead-Reckoning, pointing `-t` at the labeled-data
-directory and passing the merged `combined.csv`. Use `--format json` so the
+directory and passing `ordinances.csv`. Use `--format json` so the
 report can be parsed programmatically, and redirect it to a file so the next
 step can process it (the command has no output-file flag, so redirect stdout):
 
 ```
-pixi run dead_reckoning qc validate -t <labeled_data_dir> --format json combined.csv > validation_report.json
+pixi run dead_reckoning qc validate -t <labeled_data_dir> --format json ordinances.csv > validation_report.json
 ```
 
 Replace `<labeled_data_dir>` with the labeled directory verified in Step 2 and
-`combined.csv` with the merged output from Step 3. The saved
+`ordinances.csv` with the output located in Step 3. The saved
 `validation_report.json` has two top-level keys: `missing_locations` (labeled
 jurisdictions absent from the run output) and `locations` (jurisdictions present
 in the run, each with `missing_features` and per-field `feature_results`). A
