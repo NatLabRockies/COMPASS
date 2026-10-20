@@ -25,17 +25,13 @@ StructuredWindPermittedUseDistrictsParser.IN_LABEL = (
 
 WIND_QUERY_TEMPLATES = [
     "filetype:pdf {jurisdiction} wind energy conversion system ordinances",
+    (
+        "filetype:pdf site:{jurisdiction_website} wind zoning "
+        "ordinance regulations"
+    ),
+    "{jurisdiction} zoning regulation wind",
     "wind energy conversion system ordinances {jurisdiction}",
     "{jurisdiction} wind WECS ordinance",
-    (
-        "Where can I find the legal text for commercial wind energy "
-        "conversion system zoning ordinances in {jurisdiction}?"
-    ),
-    (
-        "What is the specific legal information regarding zoning "
-        "ordinances for commercial wind energy conversion systems in "
-        "{jurisdiction}?"
-    ),
 ]
 
 BEST_WIND_ORDINANCE_WEBSITE_URL_KEYWORDS = [
