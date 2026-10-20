@@ -111,23 +111,24 @@ this baseline.
 ## Step 3 — Merge the extraction outputs
 
 COMPASS writes the run results as two separate tables: a quantitative table and
-a qualitative table. They live in the run's output directory, which is set by
-`out_dir` in `config.json5` (COMPASS defaults to `./output` when the key is
-absent). Do not hardcode `output/`; resolve `out_dir` from the config so the
-merge follows the run wherever it wrote, then merge the two tables:
+a qualitative table. They live in the run's output directory. `out_dir` is
+required in the effective configuration, either directly or through inheritance.
+Use the same configuration loader as the CLI to resolve inherited values and
+relative paths, then merge the two tables:
 
-```
+~~~bash
 pixi run python -c "
-import os, subprocess, pyjson5
-cfg = pyjson5.load(open('config.json5'))
-out = cfg.get('out_dir', './output')
+import os, subprocess
+from compass.utilities.io import load_config
+cfg = load_config('config.json5')
+out = cfg['out_dir']
 quant = os.path.join(out, 'quantitative_ordinances.csv')
 qual = os.path.join(out, 'qualitative_ordinances.csv')
 combined = os.path.join(out, 'combined.csv')
 subprocess.run(['dead_reckoning', 'qc', 'merge', quant, qual, '-o', combined], check=True)
 print('merged ->', combined)
 "
-```
+~~~
 
 The resulting `combined.csv` (under `out_dir`) is the single artifact used for
 diagnosis in the next step.
