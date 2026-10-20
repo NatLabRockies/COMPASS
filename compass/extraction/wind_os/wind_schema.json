@@ -10,7 +10,15 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "section", "summary"],
+        "required": [
+          "feature",
+          "value",
+          "units",
+          "section",
+          "summary",
+          "ordinance_text",
+          "explanation"
+        ],
         "additionalProperties": false,
         "properties": {
           "feature": {
