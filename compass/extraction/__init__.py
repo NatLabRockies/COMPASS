@@ -21,3 +21,4 @@ from .solar import COMPASSSolarExtractor
 from .transmission import COMPASSTransmissionExtractor
 from .water import TexasWaterRightsExtractor
 from .wind import COMPASSWindExtractor
+from .wind_os import COMPASSWindOneShotExtractor

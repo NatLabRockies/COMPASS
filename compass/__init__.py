@@ -10,12 +10,15 @@ from .utilities.logs import setup_logging_levels, COMPASS_DEBUG_LEVEL
 from .extraction import (
     COMPASSGeoHeatPumpExtractor,
     COMPASSGeoElectricityExtractor,
+    COMPASSNaturalGasExtractor,
     COMPASSNaturalGasPipelinesExtractor,
     COMPASSOilGasWellsExtractor,
     COMPASSGeoRMPExtractor,
     COMPASSSmallWindExtractor,
     COMPASSSolarExtractor,
+    COMPASSTransmissionExtractor,
     COMPASSWindExtractor,
+    COMPASSWindOneShotExtractor,
     TexasWaterRightsExtractor,
 )
 
