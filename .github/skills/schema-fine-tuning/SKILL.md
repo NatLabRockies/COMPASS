@@ -91,11 +91,22 @@ oversized target set).
 
 ### Run
 
-1. From the run directory that holds the extraction config, run:
+1. From the run directory that holds the extraction config, identify the one-shot
+   plugin YAML whose `schema` key points to the schema file being tuned, and make
+   sure `tech` in `config.json5` is an unused identifier (registration rejects a
+   `tech` that collides with an already-registered plugin, including a built-in
+   such as `solar`, `wind`, or `small wind`). Then run, passing that plugin YAML
+   with `-p` so COMPASS loads the working schema rather than a bundled one:
 
    ```
-   pixi run compass process -v -c config.json5
+   pixi run compass process -v -c config.json5 -p path/to/plugin_config.yaml
    ```
+
+   Replace `path/to/plugin_config.yaml` with the plugin file that references the
+   schema being edited. Only omit `-p` (and keep the existing `tech`) if a
+   registered plugin already loads the exact schema you are tuning; otherwise an
+   unregistered `tech` fails plugin lookup and a built-in `tech` extracts with its
+   bundled schema instead of your working copy.
 
 2. Let the run finish and note the output location it reports. These extracted
    outputs are the input to the diagnosis in the next step.
