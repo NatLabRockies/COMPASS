@@ -70,6 +70,9 @@ running, open the `config.json5` used for the run and verify:
    `jurisdiction_fp`; those extra entries are fine. If `known_local_docs` is
    missing, commented out, invalid JSON5, or any `jurisdiction_fp` target lacks a
    corresponding document entry, STOP and report the gap rather than running.
+   Also require `perform_se_search: false`, `perform_website_search: false`,
+   and no `known_doc_urls` entries. If any non-local acquisition step remains
+   enabled, STOP and report it; local documents alone do not disable fallback.
 
 3. **Labeled ground-truth data exists for validation.** Validation in Step 4
    compares the extraction against hand-labeled expectations, so confirm the
