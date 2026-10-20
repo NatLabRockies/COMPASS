@@ -116,17 +116,16 @@ collection_prompts:
       2) "explanation" (string)
 
       Set "{key}" = true when the chunk contains substantive regulatory text
-      that is likely usable for oil and gas well extraction, including
-      any of the following:
+      usable for oil and gas well extraction, including any of the following:
       - explicit oil well, gas well, petroleum, or hydrocarbon language; OR
       - oil and gas exploration, drilling, production, injection, disposal,
         hydraulic fracturing, plugging, abandonment, or reclamation terms; OR
       - operative zoning or development standards, use-table notes, permit
         requirements, siting constraints, hazard/site-condition requirements,
         decommissioning, bonding, lighting, fencing, color, or visual-impact
-        requirements that can govern listed oil and gas wells, extraction uses,
-        or directly associated well-site equipment within the same ordinance
-        structure.
+        requirements that can govern any explicitly-listed oil and gas wells,
+        extraction uses, or directly associated well-site equipment within
+        the same ordinance structure.
 
       Treat enforceable table notes and standards as relevant even when the
       same chunk does not repeat "oil and gas", as long as the text is
@@ -137,3 +136,12 @@ collection_prompts:
       (e.g., table of contents, navigation text, or content focused on
       unrelated activities such as water wells, geothermal development,
       pipelines, refineries, bulk storage, or retail fuel sales only).
+
+extraction_system_prompt: |-
+  You are a legal scholar extracting structured data specifically about **oil and gas wells and directly associated well-site infrastructure** from ordinance documents.
+  Be focused and literal: extract only enacted, explicit, in-scope requirements: {scope}.
+  Be thorough and complete: review all relevant sections, including tables and lists, so no explicitly stated feature is missed.
+  Before finalizing, perform a feature-coverage check against the schema enum and ensure each explicitly supported oil and gas well feature is captured exactly once.
+  If there is no data to extract for oil and gas wells or directly associated well-site infrastructure, return an empty array for the "outputs" array. Do not fabricate or infer any data. If a feature is not explicitly stated in the ordinance, leave it out of the output.
+  Pay extra attention to any descriptions, instructions, examples, and definitions in the schema, and be sure to follow all schema instructions carefully.
+

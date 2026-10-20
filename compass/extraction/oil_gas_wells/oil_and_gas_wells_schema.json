@@ -17,6 +17,7 @@
           "units",
           "section",
           "summary",
+          "ordinance_text",
           "explanation"
         ],
         "additionalProperties": false,
@@ -57,21 +58,10 @@
           "value": {
             "description": "The extracted ordinance value. For numerical distance thresholds and limits, use a number. For permit or district lists, use an array of strings. For drilling start and end time features, use a string in 24-hour HH:MM format. For date language or other categorical outcomes, use a string. Use null only for qualitative features, and only when an enacted, explicit, enforceable ordinance requirement for that feature is present. Null must never be used to indicate absence. If a feature has no enacted, explicit requirement in the ordinance text, omit that feature from outputs.",
             "anyOf": [
-              {
-                "type": "number"
-              },
-              {
-                "type": "string"
-              },
-              {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              {
-                "type": "null"
-              }
+              {"type": "number"},
+              {"type": "string"},
+              {"type": "array", "items": {"type": "string"}},
+              {"type": "null"}
             ]
           },
           "units": {
@@ -86,6 +76,10 @@
             "type": "string",
             "description": "A short summary with direct ordinance excerpts or quotes whenever possible. For qualitative features such as permitting, fencing, lighting, seismic monitoring, decommissioning, and prohibitions, this is the primary output field and should contain direct ordinance language. For numeric features, summary must support the same requirement used to extract value and units. Must be a non-null, non-empty string. Do not output absence placeholders such as 'No explicit requirement found'; omit the feature instead when no requirement is present."
           },
+          "ordinance_text": {
+            "type": "string",
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must be the one that corresponds to the extracted value and summary, reproduced in full without elision. After that first sentence, gather any other passages in the document that bear on this same requirement, whether they appear before or after it, and join them with an ellipsis ('...') in the order they appear in the document. Use the ellipsis to skip over text that is not relevant so the excerpt stays focused while still carrying every passage that supports the extracted value, units, or qualitative requirement. Every character outside of the ellipses must appear exactly as written in the source: no paraphrasing, summarizing, normalization, added context, or commentary. Must be a non-null, non-empty string."
+          },
           "explanation": {
             "type": "string",
             "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
@@ -94,10 +88,8 @@
       }
     }
   },
+  "$scope": "Any legally enacted requirements/restrictions, permissions, district allowances, or prohibitions that apply to oil and gas exploration, drilling, well development, hydraulic fracturing, production, enhanced recovery, or injection and disposal wells, including both conventional and unconventional oil and gas wells and directly associated well sites and equipment such as well pads, wellheads, tanks, separators, and gathering equipment when explicitly governed by the source text. Local ordinances are in scope when they impose enforceable requirements on oil or gas wells in the jurisdiction. If the text uses generic terms like 'well', 'mineral extraction', or 'energy development', treat it as in scope only when the same governing context explicitly ties the provision to oil or gas wells or their directly associated well-site infrastructure. **OUT OF SCOPE**: water wells, geothermal wells, mining unrelated to oil or gas, pipelines, refineries, bulk storage terminals, and retail fuel facilities unless the text **explicitly** also applies the cited requirement to oil or gas wells or their directly associated well-site infrastructure. Proposed, future, draft, or contingent requirements that are not currently effective as written are also out of scope.",
   "$core_principles": {
-    "scope_context": {
-      "description": "Only extract requirements that apply to oil and gas exploration, drilling, well development, production, enhanced recovery, or injection and disposal wells, plus directly associated well sites and equipment such as well pads, wellheads, tanks, separators, and gathering equipment when the ordinance explicitly governs them. Both conventional and unconventional oil and gas wells are in scope. Exclude water wells, geothermal wells, mining unrelated to oil or gas, pipelines, refineries, bulk storage terminals, and retail fuel facilities unless the ordinance explicitly applies the cited requirement to oil or gas wells or their directly associated well-site infrastructure. State statutes and regulations are in scope when they impose enforceable siting, zoning, drilling, permitting, monitoring, bonding, setback, plugging, abandonment, or reclamation requirements on oil and gas wells in the jurisdiction. This schema must work across nationwide ordinance styles, including county, municipal, township, parish, borough, tribal, and state-level regulatory text."
-    },
     "technology_applicability_gate": {
       "description": "Extract a row only when the cited evidence clearly applies to oil or gas wells. If the excerpt does not explicitly mention oil, gas, petroleum, natural gas, hydrocarbons, or wells used for those resources, the summary may establish applicability through ordinance context that is explicitly tied to oil and gas in the same governing structure (for example an oil-and-gas-specific chapter heading, a defined oil and gas extraction use class, a table of uses listing oil or gas wells, or table notes and standards that apply to that listed use). If applicability remains ambiguous or technology-neutral without a clear oil-and-gas-well linkage, omit the feature."
     },
@@ -241,7 +233,8 @@
           "value": 500,
           "units": "feet",
           "section": "Section 8.4 - Setbacks",
-          "summary": "'Oil and gas production wells and associated well-site facilities shall be set back at least 500 feet from all property lines.'",
+          "summary": "Production wells and their associated well-site facilities must remain at least 500 feet from every property line. The setback applies to both the wells and the facilities, not just the wellheads.",
+          "ordinance_text": "Oil and gas production wells and associated well-site facilities shall be set back at least 500 feet from all property lines. ... The setback shall be measured from the nearest edge of the well or associated well-site facility to the property line.",
           "explanation": "The excerpt states an explicit numeric minimum separation from property lines, so it maps directly to 'property lines distance' with value 500 feet."
         },
         {
@@ -252,7 +245,8 @@
           ],
           "units": null,
           "section": "Table 4 - Allowed Uses",
-          "summary": "'Oil and gas wells may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.'",
+          "summary": "Oil and gas wells are eligible for conditional-use approval in the Industrial and Agricultural districts, subject to county review. They are not allowed by right under this provision.",
+          "ordinance_text": "Oil and gas wells may be approved as conditional uses in the Industrial and Agricultural districts subject to county review.",
           "explanation": "The ordinance explicitly lists two districts where oil and gas wells are allowed only through conditional-use approval, so this belongs under 'special use districts' with the district names preserved as an array."
         },
         {
@@ -263,7 +257,8 @@
           ],
           "units": null,
           "section": "Section 5.2 - Approval Process",
-          "summary": "'A conditional use permit and county drilling permit shall be obtained prior to construction of any exploratory or production oil or gas well.'",
+          "summary": "Both a conditional use permit and a county drilling permit are required before well construction begins. This applies to exploratory wells as well as production wells for either oil or gas.",
+          "ordinance_text": "A conditional use permit and county drilling permit shall be obtained prior to construction of any exploratory or production oil or gas well.",
           "explanation": "The clause explicitly requires two project approvals before oil or gas well development can start, so it belongs under 'required permits' with both permit names preserved as an array."
         },
         {
@@ -271,7 +266,8 @@
           "value": "07:00",
           "units": "HH:MM (24-hour)",
           "section": "Section 6.7 - Drilling Operations",
-          "summary": "'Routine oil and gas well drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "summary": "Routine drilling may start at 7:00 a.m. on Monday through Saturday and must stay within the daily window ending at 7:00 p.m. Drilling on Sundays or legal holidays is prohibited unless there is an emergency.",
+          "ordinance_text": "Routine oil and gas well drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.",
           "explanation": "The ordinance gives an explicit drilling window beginning at 7:00 a.m., normalized to 24-hour time as 07:00."
         },
         {
@@ -279,7 +275,8 @@
           "value": "19:00",
           "units": "HH:MM (24-hour)",
           "section": "Section 6.7 - Drilling Operations",
-          "summary": "'Routine oil and gas well drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.'",
+          "summary": "Routine drilling must end by 7:00 p.m. on Monday through Saturday; the daily window opens at 7:00 a.m. Sundays and legal holidays are excluded except for emergency drilling.",
+          "ordinance_text": "Routine oil and gas well drilling activities may occur only between 7:00 a.m. and 7:00 p.m., Monday through Saturday, and shall not occur on Sundays or legal holidays except in an emergency.",
           "explanation": "The ordinance gives an explicit drilling window ending at 7:00 p.m., normalized to 24-hour time as 19:00."
         },
         {
@@ -287,7 +284,8 @@
           "value": null,
           "units": null,
           "section": "Section 9.3 - Financial Assurance",
-          "summary": "'Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil and gas agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.'",
+          "summary": "Before a permit can be issued, the operator must provide financial assurance acceptable to the state oil and gas agency. It must cover plugging, abandonment, reclamation, and decommissioning, but no fixed amount is stated; the agency engineer determines the required amount.",
+          "ordinance_text": "Prior to permit issuance, the operator shall provide financial assurance in a form acceptable to the state oil and gas agency in an amount sufficient to cover plugging, abandonment, reclamation, and decommissioning costs as determined by the agency engineer.",
           "explanation": "The clause imposes an enforceable financial assurance requirement but leaves the amount to an agency-determined formula, so it fits 'bond requirement' with value and units set to null."
         }
       ]
@@ -301,6 +299,7 @@
       "For any numeric feature, the summary must support the same requirement that produced value and units for that row. Never pair a numeric value from one clause with qualitative-only language from another clause that has no numeric threshold.",
       "Standardize units in the units field using this schema's canonical vocabulary, while preserving ordinance-specific wording in summary.",
       "Summary is the primary data carrier for all features in this schema; every row must have a non-null, non-empty string for summary.",
+      "Every row must include an ordinance_text holding the complete relevant excerpt for the ordinance being extracted, copy-pasted verbatim from the source document. Its first sentence must be the start of the ordinance text for this extraction, reproduced in full; after that first sentence an ellipsis ('...') may be used to drop irrelevant passages. ordinance_text is never paraphrased or normalized — every character outside the ellipses appears exactly as written in the source.",
       "Every row must include an explanation that briefly justifies why the cited summary evidence matches the selected feature under this schema's rules.",
       "Emit only positively matched features. Never emit a row to explain why a feature does not apply.",
       "The outputs array is a sparse long-form extraction table and does not need to contain every enumerated feature.",
