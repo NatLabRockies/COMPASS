@@ -16,6 +16,7 @@ from .extraction import (
     COMPASSGeoRMPExtractor,
     COMPASSSmallWindExtractor,
     COMPASSSolarExtractor,
+    COMPASSSolarOneShotExtractor,
     COMPASSTransmissionExtractor,
     COMPASSWindExtractor,
     COMPASSWindOneShotExtractor,
