@@ -43,8 +43,15 @@ from compass.utilities.jurisdictions import Jurisdiction
     [
         "compass/extraction/geothermal_electricity/geothermal_schema.json",
         "compass/extraction/ghp/geothermal_heat_pump_schema.json5",
+        # "compass/extraction/natural_gas/natural_gas_schema.json",
+        # (
+        #     "compass/extraction/natural_gas_pipelines/"
+        #     "natural_gas_pipelines_schema.json"
+        # ),
+        "compass/extraction/oil_gas_wells/oil_and_gas_wells_schema.json",
         "compass/extraction/rmp/rmp_schema.json",
         "compass/extraction/solar_os/solar_schema.json5",
+        # "compass/extraction/transmission/transmission_schema.json5",
         "compass/extraction/wind_os/wind_schema.json5",
         "examples/water_rights_demo/one-shot/water_rights_schema.json5",
     ],
