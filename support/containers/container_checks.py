@@ -212,7 +212,8 @@ def _check_docling(directory):
     _write_scanned_pdf(source)
     _require(
         not any(
-            page.extract_text().strip() for page in PdfReader(source).pages
+            (page.extract_text() or "").strip()
+            for page in PdfReader(source).pages
         ),
         "OCR fixture unexpectedly contains embedded text",
     )

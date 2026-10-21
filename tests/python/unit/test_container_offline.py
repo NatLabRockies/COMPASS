@@ -76,7 +76,7 @@ def test_scanned_fixture_requires_ocr(checks, tmp_path):
     checks["_write_scanned_pdf"](source)
     reader = PdfReader(source)
     assert len(reader.pages) == 1
-    assert not reader.pages[0].extract_text().strip()
+    assert not (reader.pages[0].extract_text() or "").strip()
     assert reader.pages[0]["/Resources"]["/XObject"]
 
 
