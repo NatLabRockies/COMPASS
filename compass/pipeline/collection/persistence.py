@@ -136,7 +136,6 @@ def build_collection_manifest(
         "total_time": time_elapsed.total_seconds(),
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
-        "failed_targets": failed_targets,
         "num_jurisdictions_found": sum(
             bool(count) for count in document_counts
         ),
@@ -147,6 +146,7 @@ def build_collection_manifest(
             "median": median(document_counts) if document_counts else 0,
             "total": sum(document_counts),
         },
+        "failed_targets": failed_targets,
         "jurisdictions": out_jurisdictions,
     }
 
