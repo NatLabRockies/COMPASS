@@ -6,6 +6,17 @@ name: Container build, test, and publish
 # documentation.
 
 on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    paths:
+      - compass/**
+      - tests/**
+      - .github/workflows/ci-python.yml
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+      - tox.ini
   release:
     types: [published]
   workflow_dispatch:
