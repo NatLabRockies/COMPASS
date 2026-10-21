@@ -7,8 +7,8 @@ cache_llm_generated_content: true
 query_templates:
   - "filetype:pdf {jurisdiction} wind energy conversion system ordinances"
   - "filetype:pdf site:{jurisdiction_website} wind zoning ordinance regulations"
-  - "{jurisdiction} zoning regulation wind"
-  - "wind energy conversion system ordinances {jurisdiction}"
+  - "{jurisdiction} zoning regulation utility-scale wind"
+  - "commercial wind energy facility siting requirements {jurisdiction}"
   - "{jurisdiction} wind WECS ordinance"
 
 website_keywords:
