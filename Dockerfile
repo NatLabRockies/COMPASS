@@ -31,9 +31,6 @@ RUN pixi run --frozen -e pbuild build-wheels
 
 
 RUN pixi shell-hook -e ${PIXI_ENV} -s bash > /shell-hook
-RUN echo "#!/bin/bash" > /app/entrypoint.sh
-RUN cat /shell-hook >> /app/entrypoint.sh
-RUN echo 'exec "$@"' >> /app/entrypoint.sh
 
 # ==== Production ====
 FROM ubuntu:24.04 AS production
@@ -42,7 +39,8 @@ COPY --from=build /app/.pixi/envs/default /app/.pixi/envs/default
 # Consider installing from wheels in the future so that we don't need to copy the source
 COPY --from=build /app/compass /app/compass
 COPY --from=build /app/run.sh /app/run.sh
-COPY --from=build --chmod=0755 /app/entrypoint.sh /app/entrypoint.sh
+COPY --from=build /shell-hook /app/shell-hook
+COPY --chmod=0755 support/containers/container_entrypoint.sh /app/entrypoint.sh
 WORKDIR /app
 
 # Get all necessary binaries
