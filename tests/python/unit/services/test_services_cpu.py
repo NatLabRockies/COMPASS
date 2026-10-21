@@ -5,6 +5,7 @@ import os
 import sys
 import time
 import asyncio
+import platform
 import multiprocessing
 from pathlib import Path
 from types import SimpleNamespace
@@ -13,6 +14,7 @@ from unittest.mock import Mock
 import numpy as np
 import pandas as pd
 import pytest
+import torch
 from docling.datamodel.base_models import InputFormat
 from docling.exceptions import ConversionError
 
@@ -69,6 +71,16 @@ def _fail_subprocess():
 def _exit_subprocess():
     """Exit without sending a conversion result"""
     os._exit(1)
+
+
+def _mps_is_available():
+    """Return whether the PyTorch MPS (Metal) backend is usable"""
+    return torch.backends.mps.is_available()
+
+
+def _sum_ones_on_mps():
+    """Run a tiny tensor op on the MPS device from a child process"""
+    return (torch.ones(3, device="mps") * 2).sum().item()
 
 
 @pytest.fixture
@@ -420,6 +432,29 @@ def test_docling_subprocess_returns_result():
     )
 
     assert result == "converted"
+
+
+@pytest.mark.skipif(
+    platform.system() != "Darwin" or not _mps_is_available(),
+    reason="Fork-after-MPS crash requires the macOS MPS backend",
+)
+def test_docling_subprocess_survives_mps_initialized_parent():
+    """Child conversions must run after the parent initializes MPS
+
+    Docling pulls in PyTorch, which initializes the MPS (Metal)
+    backend on macOS. Forking a child after that initialization
+    crashes the child with SIGSEGV, so the conversion returns nothing
+    and surfaces downstream as a misleading "no text found". Initialize
+    MPS in the parent and confirm the subprocess still completes, which
+    only holds when the spawn start method is used instead of fork.
+    """
+    torch.ones(1, device="mps").sum().item()
+
+    result = _run_docling_in_subprocess(
+        _sum_ones_on_mps, args=(), kwargs={}, timeout=120
+    )
+
+    assert result == pytest.approx(6.0)
 
 
 def test_docling_subprocess_enforces_deadline(monkeypatch):
