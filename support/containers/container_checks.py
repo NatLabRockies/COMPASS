@@ -8,7 +8,7 @@ from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from importlib import import_module
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 from threading import Thread
 
 from compass.exceptions import COMPASSRuntimeError
@@ -47,6 +47,25 @@ def _check_isolation():
     interfaces = {name for _, name in socket.if_nameindex()}
     _require(
         interfaces == {"lo"}, f"External interfaces present: {interfaces}"
+    )
+
+
+def _check_runtime_cache():
+    """Require writable caches and pre-fetched Camoufox assets"""
+    from camoufox.pkgman import INSTALL_DIR
+
+    cache = Path(os.environ["XDG_CACHE_HOME"])
+    _require(cache.is_absolute(), "XDG_CACHE_HOME must be absolute")
+    with NamedTemporaryFile(dir=cache) as temporary:
+        temporary.write(b"COMPASS cache write check")
+        temporary.flush()
+    _require(
+        INSTALL_DIR.resolve() == Path("/opt/assets/cache/camoufox"),
+        "Camoufox must use the pre-fetched browser assets",
+    )
+    _require(
+        (INSTALL_DIR / "version.json").is_file(),
+        "Pre-fetched Camoufox version information missing",
     )
 
 
@@ -211,6 +230,7 @@ def _main():
     _check_isolation()
     home = Path.home()
     home.mkdir(parents=True, exist_ok=True)
+    _check_runtime_cache()
     os.environ["CRAWL4_AI_BASE_DIRECTORY"] = str(home)
     os.environ["HF_HUB_OFFLINE"] = "1"
     os.environ["TRANSFORMERS_OFFLINE"] = "1"
