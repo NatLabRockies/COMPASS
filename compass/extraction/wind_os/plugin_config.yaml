@@ -13,7 +13,7 @@ query_templates:
 
 website_keywords:
   - "pdf"
-  - "wecs"
+  - ["wecs", "wef"]
   - "wind"
   - ["zoning", "ordinance", "regulation"]
   - ["dsireusa", "windaction"]
