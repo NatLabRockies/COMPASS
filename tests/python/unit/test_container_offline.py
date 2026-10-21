@@ -27,6 +27,18 @@ def checks():
 
 
 @pytest.fixture
+def entrypoint(tmp_path):
+    """Stage the standalone entrypoint with a generated activation hook"""
+    root = Path(__file__).resolve().parents[3]
+    script = tmp_path / "entrypoint.sh"
+    script.write_text(
+        (root / "support/containers/container_entrypoint.sh").read_text()
+    )
+    (tmp_path / "shell-hook").write_text("export COMPASS_TEST_ACTIVATED=1\n")
+    return script
+
+
+@pytest.fixture
 def conversion():
     """Create a real Docling document with expected OCR and table data"""
     document = DoclingDocument(name="scanned")
@@ -142,18 +154,6 @@ def test_container_publication_requires_checks_gates():
     # assert steps[sif_index]["if"] == steps[upload_index]["if"]
     assert not any(step.get("with", {}).get("push") for step in steps)
     assert "docker save compass-checks:local" in steps[sif_index - 1]["run"]
-
-
-@pytest.fixture
-def entrypoint(tmp_path):
-    """Stage the standalone entrypoint with a generated activation hook"""
-    root = Path(__file__).resolve().parents[3]
-    script = tmp_path / "entrypoint.sh"
-    script.write_text(
-        (root / "support/containers/container_entrypoint.sh").read_text()
-    )
-    (tmp_path / "shell-hook").write_text("export COMPASS_TEST_ACTIVATED=1\n")
-    return script
 
 
 @pytest.mark.parametrize("custom_cache", [False, True])
