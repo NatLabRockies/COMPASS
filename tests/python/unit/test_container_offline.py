@@ -16,10 +16,10 @@ from PyPDF2 import PdfReader
 
 
 @pytest.fixture
-def checks():
+def checks(request):
     """Load the standalone probe without running browsers"""
     return runpy.run_path(
-        Path(__file__).resolve().parents[3]
+        request.config.rootpath
         / "support"
         / "containers"
         / "container_checks.py"
@@ -27,9 +27,9 @@ def checks():
 
 
 @pytest.fixture
-def entrypoint(tmp_path):
+def entrypoint(tmp_path, request):
     """Stage the standalone entrypoint with a generated activation hook"""
-    root = Path(__file__).resolve().parents[3]
+    root = request.config.rootpath
     script = tmp_path / "entrypoint.sh"
     script.write_text(
         (root / "support/containers/container_entrypoint.sh").read_text()
@@ -125,9 +125,9 @@ def test_checks_requires_offline_non_root(
             checks["_check_isolation"]()
 
 
-def test_container_publication_requires_checks_gates():
+def test_container_publication_requires_checks_gates(request):
     """Keep both runtime gates ahead of release publication and upload"""
-    root = Path(__file__).resolve().parents[3]
+    root = request.config.rootpath
     workflow = yaml.safe_load(
         (root / ".github/workflows/docker-publish.yml").read_text()
     )
