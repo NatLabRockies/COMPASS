@@ -1,0 +1,6 @@
+compass.utilities.finalize.compile\_run\_summary\_message
+=========================================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autofunction:: compile_run_summary_message

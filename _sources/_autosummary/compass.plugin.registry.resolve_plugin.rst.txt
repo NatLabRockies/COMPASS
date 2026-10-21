@@ -1,0 +1,6 @@
+compass.plugin.registry.resolve\_plugin
+=======================================
+
+.. currentmodule:: compass.plugin.registry
+
+.. autofunction:: resolve_plugin

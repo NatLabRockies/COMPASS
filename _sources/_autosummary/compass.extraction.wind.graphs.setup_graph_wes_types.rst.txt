@@ -1,0 +1,6 @@
+compass.extraction.wind.graphs.setup\_graph\_wes\_types
+=======================================================
+
+.. currentmodule:: compass.extraction.wind.graphs
+
+.. autofunction:: setup_graph_wes_types

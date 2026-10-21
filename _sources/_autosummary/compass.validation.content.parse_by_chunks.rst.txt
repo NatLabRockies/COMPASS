@@ -1,0 +1,6 @@
+compass.validation.content.parse\_by\_chunks
+============================================
+
+.. currentmodule:: compass.validation.content
+
+.. autofunction:: parse_by_chunks

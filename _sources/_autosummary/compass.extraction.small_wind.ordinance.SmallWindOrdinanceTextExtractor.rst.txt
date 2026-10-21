@@ -1,0 +1,38 @@
+compass.extraction.small\_wind.ordinance.SmallWindOrdinanceTextExtractor
+========================================================================
+
+.. currentmodule:: compass.extraction.small_wind.ordinance
+
+.. autoclass:: SmallWindOrdinanceTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SmallWindOrdinanceTextExtractor.call
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SmallWindOrdinanceTextExtractor.FORMATTING_PROMPT
+      ~SmallWindOrdinanceTextExtractor.IN_LABEL
+      ~SmallWindOrdinanceTextExtractor.OUTPUT_PROMPT
+      ~SmallWindOrdinanceTextExtractor.OUT_LABEL
+      ~SmallWindOrdinanceTextExtractor.PROMPTS
+      ~SmallWindOrdinanceTextExtractor.SYSTEM_MESSAGE
+      ~SmallWindOrdinanceTextExtractor.TASK_DESCRIPTION
+      ~SmallWindOrdinanceTextExtractor.TASK_ID
+      ~SmallWindOrdinanceTextExtractor.parsers
+   
+   

@@ -1,0 +1,6 @@
+compass.utilities.logs.log\_versions
+====================================
+
+.. currentmodule:: compass.utilities.logs
+
+.. autofunction:: log_versions

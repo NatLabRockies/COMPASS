@@ -1,0 +1,30 @@
+compass.web.search
+==================
+
+.. automodule:: compass.web.search
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      search_single_jurisdiction
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

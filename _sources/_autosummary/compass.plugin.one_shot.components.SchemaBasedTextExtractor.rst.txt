@@ -1,0 +1,36 @@
+compass.plugin.one\_shot.components.SchemaBasedTextExtractor
+============================================================
+
+.. currentmodule:: compass.plugin.one_shot.components
+
+.. autoclass:: SchemaBasedTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SchemaBasedTextExtractor.call
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SchemaBasedTextExtractor.IN_LABEL
+      ~SchemaBasedTextExtractor.OUTPUT_SCHEMA
+      ~SchemaBasedTextExtractor.OUT_LABEL
+      ~SchemaBasedTextExtractor.SCHEMA
+      ~SchemaBasedTextExtractor.TASK_DESCRIPTION
+      ~SchemaBasedTextExtractor.TASK_ID
+      ~SchemaBasedTextExtractor.parsers
+   
+   

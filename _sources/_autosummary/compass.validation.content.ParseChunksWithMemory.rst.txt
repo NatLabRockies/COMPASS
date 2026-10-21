@@ -1,0 +1,24 @@
+compass.validation.content.ParseChunksWithMemory
+================================================
+
+.. currentmodule:: compass.validation.content
+
+.. autoclass:: ParseChunksWithMemory
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ParseChunksWithMemory.parse_from_ind
+   
+   
+
+   
+   
+   

@@ -1,0 +1,6 @@
+compass.utilities.io.resolve\_path
+==================================
+
+.. currentmodule:: compass.utilities.io
+
+.. autofunction:: resolve_path

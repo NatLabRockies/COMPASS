@@ -1,0 +1,6 @@
+compass.utilities.jurisdictions.load\_jurisdictions\_from\_fp
+=============================================================
+
+.. currentmodule:: compass.utilities.jurisdictions
+
+.. autofunction:: load_jurisdictions_from_fp

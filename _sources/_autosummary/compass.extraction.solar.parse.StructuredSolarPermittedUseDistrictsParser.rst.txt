@@ -1,0 +1,32 @@
+compass.extraction.solar.parse.StructuredSolarPermittedUseDistrictsParser
+=========================================================================
+
+.. currentmodule:: compass.extraction.solar.parse
+
+.. autoclass:: StructuredSolarPermittedUseDistrictsParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~StructuredSolarPermittedUseDistrictsParser.parse
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~StructuredSolarPermittedUseDistrictsParser.IN_LABEL
+      ~StructuredSolarPermittedUseDistrictsParser.OUT_LABEL
+      ~StructuredSolarPermittedUseDistrictsParser.TASK_ID
+   
+   

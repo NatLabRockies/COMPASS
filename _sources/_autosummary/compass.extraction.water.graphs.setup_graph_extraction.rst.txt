@@ -1,0 +1,6 @@
+compass.extraction.water.graphs.setup\_graph\_extraction
+========================================================
+
+.. currentmodule:: compass.extraction.water.graphs
+
+.. autofunction:: setup_graph_extraction

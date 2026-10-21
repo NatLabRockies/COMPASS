@@ -1,0 +1,36 @@
+compass.pipeline.search.persistence
+===================================
+
+.. automodule:: compass.pipeline.search.persistence
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      build_search_manifest
+      load_search_result_jurisdictions
+      load_search_shards
+      reset_search_manifest_shards
+      validate_search_targets
+      write_search_manifest
+      write_search_manifest_shard
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

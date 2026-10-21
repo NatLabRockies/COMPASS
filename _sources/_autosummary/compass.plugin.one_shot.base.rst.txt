@@ -1,0 +1,30 @@
+compass.plugin.one\_shot.base
+=============================
+
+.. automodule:: compass.plugin.one_shot.base
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      create_schema_based_one_shot_extraction_plugin
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

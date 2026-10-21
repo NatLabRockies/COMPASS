@@ -1,0 +1,6 @@
+compass.utilities.costs.compute\_total\_tokens\_from\_totals
+============================================================
+
+.. currentmodule:: compass.utilities.costs
+
+.. autofunction:: compute_total_tokens_from_totals

@@ -1,0 +1,36 @@
+compass.services.base.LLMService
+================================
+
+.. currentmodule:: compass.services.base
+
+.. autoclass:: LLMService
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMService.acquire_resources
+      ~LLMService.call
+      ~LLMService.process
+      ~LLMService.process_using_futures
+      ~LLMService.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMService.MAX_CONCURRENT_JOBS
+      ~LLMService.can_process
+      ~LLMService.name
+   
+   

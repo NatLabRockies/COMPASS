@@ -1,0 +1,6 @@
+compass.plugin.registry.PLUGIN\_REGISTRY
+========================================
+
+.. currentmodule:: compass.plugin.registry
+
+.. autodata:: PLUGIN_REGISTRY

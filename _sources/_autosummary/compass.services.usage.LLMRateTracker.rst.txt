@@ -1,0 +1,29 @@
+compass.services.usage.LLMRateTracker
+=====================================
+
+.. currentmodule:: compass.services.usage
+
+.. autoclass:: LLMRateTracker
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMRateTracker.add_to
+      ~LLMRateTracker.end_request_attempt
+      ~LLMRateTracker.record_request
+      ~LLMRateTracker.record_tokens
+      ~LLMRateTracker.snapshot
+      ~LLMRateTracker.start_request_attempt
+   
+   
+
+   
+   
+   

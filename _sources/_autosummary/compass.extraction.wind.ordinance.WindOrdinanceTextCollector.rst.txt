@@ -1,0 +1,33 @@
+compass.extraction.wind.ordinance.WindOrdinanceTextCollector
+============================================================
+
+.. currentmodule:: compass.extraction.wind.ordinance
+
+.. autoclass:: WindOrdinanceTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WindOrdinanceTextCollector.call
+      ~WindOrdinanceTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WindOrdinanceTextCollector.OUT_LABEL
+      ~WindOrdinanceTextCollector.PROMPTS
+      ~WindOrdinanceTextCollector.relevant_text
+   
+   

@@ -1,0 +1,37 @@
+compass.extraction.water.plugin.TexasWaterRightsExtractor
+=========================================================
+
+.. currentmodule:: compass.extraction.water.plugin
+
+.. autoclass:: TexasWaterRightsExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TexasWaterRightsExtractor.filter_docs
+      ~TexasWaterRightsExtractor.get_heuristic
+      ~TexasWaterRightsExtractor.get_query_templates
+      ~TexasWaterRightsExtractor.get_website_keywords
+      ~TexasWaterRightsExtractor.parse_docs_for_structured_data
+      ~TexasWaterRightsExtractor.record_usage
+      ~TexasWaterRightsExtractor.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TexasWaterRightsExtractor.IDENTIFIER
+      ~TexasWaterRightsExtractor.JURISDICTION_DATA_FP
+   
+   

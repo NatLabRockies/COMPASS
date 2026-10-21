@@ -1,0 +1,36 @@
+compass.services.threaded.HTMLFileLoader
+========================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: HTMLFileLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~HTMLFileLoader.acquire_resources
+      ~HTMLFileLoader.call
+      ~HTMLFileLoader.process
+      ~HTMLFileLoader.process_using_futures
+      ~HTMLFileLoader.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~HTMLFileLoader.MAX_CONCURRENT_JOBS
+      ~HTMLFileLoader.can_process
+      ~HTMLFileLoader.name
+   
+   

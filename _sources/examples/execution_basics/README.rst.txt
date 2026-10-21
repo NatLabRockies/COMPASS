@@ -1,0 +1,479 @@
+******************************
+INFRA-COMPASS Execution Basics
+******************************
+
+This example walks you through setting up and executing your first INFRA-COMPASS run.
+
+
+Choosing a Run Mode
+===================
+INFRA-COMPASS now supports three related CLI workflows that share the same
+core orchestration code:
+
+- ``compass process`` runs document collection and data extraction as one
+    end-to-end job.
+- ``compass collect`` collects documents only and writes a reusable
+    ``collection_manifest.json`` file to the run output directory.
+- ``compass extract`` reads a saved collection manifest and runs only the
+    extraction phase.
+
+Use ``process`` when you want the traditional one-command workflow. Use the
+split ``collect`` and ``extract`` commands when you want to decouple document
+acquisition from LLM-backed extraction, re-run extraction on saved artifacts,
+or review the collected corpus before spending model tokens.
+
+
+Prerequisites
+=============
+We recommend enabling Optical Character Recognition (OCR) for PDF parsing, which
+allows the program to process scanned documents. To enable OCR, you'll need to install ``pytesseract``.
+If you installed COMPASS via PyPI, you may need to install a few additional dependencies:
+
+.. code-block:: shell
+
+    pip install pytesseract pdf2image
+
+If you're using ``pixi`` to run the pipeline (recommended), these libraries are included by default.
+
+In either case, you may still need to complete a few additional setup steps if this is your first time
+installing Google's ``tesseract`` utility. Follow the installation instructions
+`here <https://pypi.org/project/pytesseract/#:~:text=lang%5D%20image_file-,INSTALLATION,-Prerequisites%3A>`_.
+
+
+Setting Up the Run Configuration
+================================
+The INFRA-COMPASS configuration file—written in either ``JSON`` or ``JSON5`` format—is a simple config that
+defines parameters for running the process. Each key in the config corresponds to an argument for the
+configuration data class
+`ProcessRequest <https://natlabrockies.github.io/COMPASS/_autosummary/compass.pipeline.data_classes.ProcessRequest.html#compass.pipeline.data_classes.ProcessRequest>`_.
+Refer to the linked documentation for detailed and up-to-date descriptions of each input.
+
+
+Minimal Config
+--------------
+At a minimum, the INFRA-COMPASS config file requires three keys: ``"out_dir"``, ``"jurisdiction_fp"``, and ``"tech"``.
+
+- ``out_dir``: Path to the output directory. Will be created if it does not exist.
+- ``jurisdiction_fp``: Path to a CSV file containing ``County`` and ``State`` columns. Each row defines a jurisdiction to process. See the `example CSV <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/jurisdictions.csv>`_.
+- ``tech``: A string representing the infrastructure or technology focus for the run.
+
+In `config_bare_minimum.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_bare_minimum.json5>`_,
+we show a minimal working configuration that includes only the required keys.
+
+.. literalinclude:: config_bare_minimum.json5
+    :language: json5
+
+This configuration is sufficient for a basic run using default settings and assumes the following:
+
+**Environment Configuration**
+
+Your LLM credentials and endpoints should be configured as environment variables. For example, when using Azure OpenAI:
+
+- ``AZURE_OPENAI_API_KEY``
+- ``AZURE_OPENAI_VERSION``
+- ``AZURE_OPENAI_ENDPOINT``
+
+**LLM Model Defaults**
+
+This minimal setup uses the default LLM model for INFRA-COMPASS — ``gpt-4o-mini`` as of March 11, 2026.
+To override this default, add a ``model`` key to your config:
+
+.. code-block:: json
+
+    "model": "gpt-4o"
+
+
+.. IMPORTANT::
+    You will need to update the model name to match your deployment if you are using Azure OpenAI.
+    For example, if you deployed the GPT-4o-mini model under the name ``"gpt-4o-mini-2025-04-11"``,
+    you would set ``"model": "gpt-4o-mini-2025-04-11"`` in the COMPASS config (along with the
+    deployment endpoint, version, and API key).
+
+
+Typical Config
+--------------
+In most cases, you'll want more control over the execution parameters, especially those related to the LLM configuration.
+You can review all available inputs in the
+`ProcessRequest <https://natlabrockies.github.io/COMPASS/_autosummary/compass.pipeline.data_classes.ProcessRequest.html#compass.pipeline.data_classes.ProcessRequest>`_.
+documentation.
+In `config_recommended.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_recommended.json5>`_, we
+demonstrate a typical configuration that balances simplicity with additional control over execution parameters.
+
+.. literalinclude:: config_recommended.json5
+    :language: json5
+
+This setup supports most users' needs while providing flexibility for key configurations:
+
+**LLM Configuration**
+Customize the LLM behavior and performance using:
+
+- ``llm_call_kwargs``: Sets LLM-specific query parameters like ``temperature`` and ``timeout``.
+- ``llm_service_rate_limit``: Controls how many tokens can be processed per minute. Set this as high as your deployment will allow to speed up processing.
+- ``text_splitter_chunk_size`` and ``text_splitter_chunk_overlap``: Controls how large each text chunk sent to the model is.
+
+.. WARNING::
+
+   Be cautious when adjusting the ``"text_splitter_chunk_size"``. Larger chunk sizes increase token usage, which may result in higher costs per query.
+
+**LLM Credentials**
+You can also specify LLM credentials and endpoint details directly in the config under the ``client_kwargs`` key.
+Note that while this can be convenient for quick testing, storing credentials in plaintext is not recommended for production environments.
+
+**SSL Configuration**
+Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate verification errors, especially useful when running behind the NLR VPN.
+If you're not using the VPN, it's best to leave this value as the default (``true``).
+
+**OCR Integration**
+As noted in the `Prerequisites`_ section, we recommend enabling OCR using ``pytesseract``. To enable OCR for scanned PDFs,
+you must provide the path to the ``tesseract`` executable using the ``pytesseract_exe_fp`` input.
+You can locate the executable path by running:
+
+.. code-block:: shell
+
+    which tesseract
+
+Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
+
+**Docling conversion deadline**
+When using the Docling file loader, set ``docling_timeout`` in
+``file_loader_kwargs.pdf_pipeline_options`` to apply a wall-clock deadline to each document.
+COMPASS runs the conversion in a disposable child process and terminates that
+child when the deadline expires.
+
+.. code-block:: json
+
+    "pytesseract_exe_fp": "/path/to/tesseract",
+    "file_loader_kwargs": {
+        "pdf_pipeline_options": {
+            "do_ocr": true,
+            "do_table_structure": true
+            "docling_timeout": 1800,
+        }
+    }
+
+This setting applies only when ``COMPASS_FILE_LOAD_BACKEND=docling``. The deadline wrapper
+does not retry a timed-out document.
+
+
+Kitchen Sink Config
+-------------------
+
+In `config_kitchen_sink.json5 <https://github.com/NatLabRockies/COMPASS/blob/main/examples/execution_basics/config_kitchen_sink.json5>`_,
+we show what a configuration might look like that utilizes all available parameters.
+
+.. literalinclude:: config_kitchen_sink.json5
+    :language: json5
+
+This setup provides maximum flexibility and is suitable for power users who need fine-grained control
+over processing behavior, model assignment, cost monitoring, and concurrency. Below are descriptions of
+the most notable components:
+
+**Multiple Model Definitions**
+You can specify multiple LLMs under the ``"model"`` key, each with a unique name and a list of associated tasks.
+Every task must be handled by exactly one model, and one of the entries must have ``"tasks": "default"`` to catch anything unspecified.
+The full list of assignable tasks are found as ``Attributes`` of the :class:`~compass.utilities.enums.LLMTasks` enum.
+
+**LLM Configuration**
+Each model includes:
+
+- ``llm_call_kwargs``: Sets LLM-specific query parameters like ``temperature`` or ``timeout``.
+- ``llm_service_rate_limit``: Controls how many tokens can be processed per minute (useful for avoiding rate limit errors from the LLM provider). Set this as high as your deployment will allow to speed up processing.
+- ``text_splitter_chunk_size`` / ``text_splitter_chunk_overlap``: Controls how large each text chunk sent to the model is. Larger chunks increase context at the cost of higher token usage.
+- ``client_type``: Specifies the API provider (e.g., ``"azure"`` or ``"openai"``).
+- ``client_kwargs``: Holds credentials and endpoint configuration for the model client, if not specified using environment variables.
+
+**Concurrency Settings**
+The following settings allow tuning for system resource usage and rate limits:
+
+- ``max_num_concurrent_browsers``: Limits the number of browsers launched for retrieving information from web links.
+- ``max_num_concurrent_website_searches``: Limits the number of concurrently-running website searches/crawls for relevant documents.
+- ``max_num_concurrent_jurisdictions``: Controls how many jurisdictions are processed in parallel.
+
+**OCR Integration**
+Set the ``pytesseract_exe_fp`` key to enable OCR support for scanned PDFs. Omit this key if OCR is not needed.
+
+**Directories**
+Several directory names are configurable to manage where outputs and intermediate files are stored:
+
+- ``out_dir``: Final results and processed outputs.
+- ``log_dir``: Execution logs.
+- ``clean_dir``: Cleaned text files.
+- ``ordinance_file_dir``: Raw ordinance documents.
+- ``jurisdiction_dbs_dir``: Internal DBs for tracking progress.
+
+.. NOTE:: Be sure to provide full paths to all files/directories unless you are executing the program from your working folder.
+
+
+**LLM Cost Reporting**
+The ``llm_costs`` block provides per-million-token pricing for each model.
+This allows the script to display real-time and final cost estimates based on tracked usage.
+Any model not found in the ``llm_costs`` block will not contribute to the final cost estimate.
+
+
+
+Execution
+=========
+Once you are happy with the configuration parameters, you can kick off the
+workflow that best fits your run.
+
+End-to-End Processing
+---------------------
+Use ``process`` to keep the original collect-and-extract behavior:
+
+.. code-block:: shell
+
+    compass process -c config.json
+
+If you're using ``pixi``, activate the shell first:
+
+.. code-block:: shell
+
+    pixi shell
+    compass process -c config.json5
+
+or run with ``pixi`` directly:
+
+.. code-block:: shell
+
+    pixi run compass process -c config.json5
+
+Replace ``config.json5`` with the path to your actual configuration file.
+
+
+Save and Reuse Search Results
+------------------------------
+Use ``search`` when you want to inspect search results or reuse the same
+ranked URLs in later collection and processing runs. A search configuration
+uses the normal request settings, including the technology, jurisdictions,
+output directory, search engines, URL filters, and ranking mode. For example:
+
+.. code-block:: json
+
+    {
+        "tech": "wind",
+        "jurisdiction_fp": "./jurisdictions.csv",
+        "out_dir": "./searched",
+        "num_urls_to_check_per_jurisdiction": 5,
+        "simple_se_result_sort": true
+    }
+
+Paths beginning with ``./`` are relative to the configuration file. Run:
+
+.. code-block:: shell
+
+    pixi run compass search -c search_config.json5
+
+The output contains ``logs/``, per-jurisdiction JSON shards in
+``se_results/``, and ``search_result_manifest.json``. Shards are written as
+each jurisdiction finishes, including empty and failed searches. The
+manifest summarizes all results. ``result_stats`` counts reported rows, including
+filtered rows; ``filtered_result_stats`` counts the URLs retained for collection.
+Search does not need an LLM endpoint and honors ``simple_se_result_sort``.
+Use the same plugin registration option as collection when running a one-shot plugin.
+
+To continue an existing search, provide its output directory and optional
+minimum targets. For example:
+
+.. code-block:: shell
+
+    pixi run compass search -c search_config.json5 \
+      --out-dir-exists continue \
+      --target num_results=3 \
+      --target 'search_engine_counts.SerpAPI (Google)=10'
+
+Targets apply to each jurisdiction's shard, not to the aggregate manifest.
+Every target is a lower bound, and a shard must meet all supplied targets.
+``num_results`` counts reported rows, including filtered rows;
+``num_kept_results`` counts retained results; and
+``search_engine_counts.<engine label>`` counts rows attributed to that
+engine. Engine labels are the exact strings in ``search_engine_counts``.
+Quote targets containing spaces or parentheses. An absent engine count is
+zero, but an unknown or unconfigured engine label is an input error.
+Targets do not change which engines the configured search strategy runs.
+
+Continuation reuses passing shards without modifying their saved ranks or
+filters. It deletes shards below their targets or containing an empty
+``results`` list, then searches those jurisdictions again. Jurisdictions
+with no shard are always searched, even if the aggregate manifest still
+lists old results for them. Fresh shards replace the previous results;
+old and new rows are not merged. Files belonging to jurisdictions outside
+the configured jurisdiction list are left untouched.
+
+Without explicit targets, continuation reuses nonempty shards and retries
+only missing or empty ones. Each selected jurisdiction is searched once
+per invocation. The command saves its shards and rebuilt aggregate
+manifest before returning a nonzero exit status if requirements remain
+unmet. Inspect the reported failures and invoke continuation again when
+appropriate; there is no internal rerun loop. Unsuccessful fresh shards
+remain available for inspection. Interrupted runs can continue from the
+surviving shard files even if no aggregate manifest exists.
+
+The ``--continue`` directory is relative to the shell's working directory
+and overrides ``out_dir`` in the configuration. It cannot be combined with
+a conflicting explicit output-directory override or directory policy.
+``--out-dir-exists continue`` uses the same continuation behavior with
+the configured ``out_dir``.
+
+CLI targets override matching configuration targets and preserve other
+configured minimums. Repeated CLI targets for the same metric use the
+largest minimum. Counts must be nonnegative integers, and retained-result
+targets cannot exceed ``num_urls_to_check_per_jurisdiction``. Aggregate
+fields such as ``result_stats.min`` are not valid shard targets. Explicit
+targets may also validate a fresh search after its single pass. A fresh
+search without targets retains its normal completion behavior.
+
+The rebuilt manifest describes all currently requested jurisdictions,
+including reused shards and unsuccessful searches. Its timing and search
+settings describe the current invocation, not accumulated rerun history.
+Reuse does not refresh passing shards after changes to queries, filters,
+or ranking settings; use a fresh search to regenerate all results.
+
+To reuse these results, add the following setting to a collection or
+processing configuration and choose a separate ``out_dir``:
+
+.. code-block:: json
+
+    {
+        "search_result_manifest_fp": "./searched/search_result_manifest.json",
+        "perform_se_search": true
+    }
+
+Then run the normal command:
+
+.. code-block:: shell
+
+    pixi run compass collect -c collection_config.json5
+    pixi run compass process -c process_config.json5
+
+The input can also be ``./searched``, ``./searched/se_results``, a shard
+file, or a list of paths and glob patterns. A run directory uses the
+aggregate manifest when present and otherwise loads its search shards.
+Declared technologies must match the consuming configuration, and duplicate
+jurisdiction entries are rejected. Existing shards without technology
+metadata remain usable with a warning.
+
+Replay uses the saved kept URLs and their ranking unchanged; it does not
+apply the new configuration's search URL filters or top-N again. Missing
+jurisdictions are logged and skipped, as with extraction from a collection
+manifest. An explicit empty or failed result is not a missing entry, so
+other enabled collection steps may still run. No missing or failed entry
+triggers a new search query. Setting ``perform_se_search`` to ``false``
+disables the entire search-result collection step, including replay.
+
+
+Split Collection and Extraction
+-------------------------------
+Use ``collect`` when you want to gather documents first and defer extraction:
+
+.. code-block:: shell
+
+    compass collect -c config.json5
+
+or with ``pixi``:
+
+.. code-block:: shell
+
+    pixi run compass collect -c config.json5
+
+This writes the normal collection artifacts plus
+``<out_dir>/collection_manifest.json``. That manifest is the contract between
+the two phases. At a minimum, it records the run ``tech``, creation time,
+jurisdiction metadata, and a ``documents`` list for each jurisdiction. Each
+document entry stores the persisted parsed text path, the saved source file
+path when one exists, whether the source was a PDF, and the collected document
+attributes and provenance needed to rebuild extraction inputs later.
+
+To continue collection with minimum counts for each jurisdiction shard,
+use the configured output directory and repeat ``--target`` for each
+requirement:
+
+.. code-block:: shell
+
+        pixi run compass collect -c config.json5 \
+            --out-dir-exists continue \
+            --target num_docs=2 \
+            --target completed_step_document_counts.search_engine=1
+
+``num_docs`` counts collected documents. The
+``completed_step_document_counts.<step>`` metrics count documents attributed
+to a collection step. Supported step names are ``known_local_docs``,
+``known_doc_urls``, ``search_engine``, ``search_results_crawl``,
+``website_search_elm``, and ``website_search_compass``. An absent step count
+is zero. Targets inspect saved counts; they do not enable collection steps.
+Counts must be nonnegative integers, all supplied minimums must pass, and
+repeated targets for the same metric retain their largest minimum. These
+requirements apply to individual shards, not aggregate manifest statistics.
+Targeted collection also requires at least one document, even when all
+explicit minimums are zero.
+
+Continuation preserves documents and completed-step checkpoints when a shard
+has unfinished enabled steps, then runs only those remaining steps. This
+also applies when a partial shard already meets its count targets. Once all
+enabled steps are complete, a nonempty shard meeting every target is reused
+without rewriting it. A complete shard below its targets is reset and
+collected again from scratch. Missing shards are collected normally.
+
+A reset discards that shard's document metadata and completed-step
+checkpoints and invalidates the stale aggregate collection manifest. It does
+not explicitly delete saved source or parsed files, original inputs, saved
+input search results, or other jurisdictions' shards. Normal recollection
+may overwrite existing artifact paths for the reset jurisdiction. Partial
+shards retain their saved crawl budget; full resets use current settings.
+
+Each jurisdiction makes one collection pass per invocation. The command
+saves its shards and rebuilt manifest before returning a nonzero exit status
+if requirements remain unmet. The manifest's ``failed_targets`` field lists
+the remaining jurisdiction, metric, actual count, and minimum. If finishing
+a partial shard still misses targets, invoke continuation again to reset
+that now-complete failing shard. There is no internal retry loop.
+
+Without explicit targets, collection retains its normal checkpoint-based
+resume behavior. Explicit targets may also check a fresh collection after
+its single pass. Targets cannot be combined with conflicting explicit
+output-directory policies such as ``overwrite`` or ``increment``.
+
+You can then run extraction from that manifest:
+
+.. code-block:: shell
+
+    compass extract -c extract_config.json5
+
+or with ``pixi``:
+
+.. code-block:: shell
+
+    pixi run compass extract -c extract_config.json5
+
+The extraction config should point to ``collection_manifest_fp`` directly.
+
+You may also wish to add a ``-v`` option to print logs to the terminal (however, keep in mind that the code runs
+asynchronously, so the the logs will not print in order).
+
+During ``process`` execution, INFRA-COMPASS will:
+
+1. Load and validate the jurisdiction CSV.
+2. Attempt to locate and download relevant ordinance documents for each jurisdiction.
+3. Parse and validate the documents.
+4. Extract relevant ordinance text from the documents.
+5. Parse the extracted text to determine the quantitative and qualitative ordinance values within, using decision tree-based LLM queries.
+6. Output structured results to your configured ``out_dir``.
+
+The runtime duration varies depending on the number of jurisdictions, the number of documents found for each jurisdiction,
+and the rate limit/output token rate of the LLM(s) used.
+
+
+Outputs
+=======
+
+After completion, you'll find several outputs in the ``out_dir``:
+
+- **Extracted Ordinances**: Structured CSV files containing parsed ordinance values.
+- **Collection Manifest**: ``collection_manifest.json`` describing the saved
+    collection artifacts that ``compass extract`` can replay later.
+- **Ordinance Documents**: PDF or text (HTML) documents containing the legal ordinance.
+- **Cleaned Text Files**: Text files containing the ordinance-specific text excerpts portions of the downloaded documents.
+- **Metadata Files**: JSON files describing metadata parameters corresponding to your run.
+- **Logs and Debug Files**: Helpful for reviewing LLM prompts and tracing any issues.
+
+You can now use these outputs for downstream analysis, visualization, or integration with other NLR tools like
+`reVX setbacks <https://natlabrockies.github.io/reVX/misc/examples.setbacks.html>`_.

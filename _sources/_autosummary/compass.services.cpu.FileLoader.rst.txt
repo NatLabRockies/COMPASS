@@ -1,0 +1,36 @@
+compass.services.cpu.FileLoader
+===============================
+
+.. currentmodule:: compass.services.cpu
+
+.. autoclass:: FileLoader
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~FileLoader.acquire_resources
+      ~FileLoader.call
+      ~FileLoader.process
+      ~FileLoader.process_using_futures
+      ~FileLoader.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~FileLoader.MAX_CONCURRENT_JOBS
+      ~FileLoader.can_process
+      ~FileLoader.name
+   
+   

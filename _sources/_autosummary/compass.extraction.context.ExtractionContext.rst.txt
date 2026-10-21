@@ -1,0 +1,35 @@
+compass.extraction.context.ExtractionContext
+============================================
+
+.. currentmodule:: compass.extraction.context
+
+.. autoclass:: ExtractionContext
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ExtractionContext.mark_doc_as_data_source
+      ~ExtractionContext.multi_doc_context
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ExtractionContext.data_docs
+      ~ExtractionContext.documents
+      ~ExtractionContext.num_documents
+      ~ExtractionContext.pages
+      ~ExtractionContext.text
+   
+   

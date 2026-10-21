@@ -1,0 +1,6 @@
+compass.validation.graphs.setup\_graph\_correct\_jurisdiction\_from\_url
+========================================================================
+
+.. currentmodule:: compass.validation.graphs
+
+.. autofunction:: setup_graph_correct_jurisdiction_from_url

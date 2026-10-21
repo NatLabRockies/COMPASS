@@ -1,0 +1,6 @@
+compass.utilities.url.base\_website\_url
+========================================
+
+.. currentmodule:: compass.utilities.url
+
+.. autofunction:: base_website_url

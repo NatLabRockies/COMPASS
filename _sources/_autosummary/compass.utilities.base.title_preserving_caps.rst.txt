@@ -1,0 +1,6 @@
+compass.utilities.base.title\_preserving\_caps
+==============================================
+
+.. currentmodule:: compass.utilities.base
+
+.. autofunction:: title_preserving_caps

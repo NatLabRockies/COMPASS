@@ -1,0 +1,6 @@
+compass.extraction.water.graphs.setup\_graph\_permits
+=====================================================
+
+.. currentmodule:: compass.extraction.water.graphs
+
+.. autofunction:: setup_graph_permits

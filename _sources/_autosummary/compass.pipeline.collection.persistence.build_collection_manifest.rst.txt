@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.build\_collection\_manifest
+===================================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: build_collection_manifest

@@ -1,0 +1,6 @@
+compass.extraction.apply.extract\_relevant\_text\_with\_llm
+===========================================================
+
+.. currentmodule:: compass.extraction.apply
+
+.. autofunction:: extract_relevant_text_with_llm

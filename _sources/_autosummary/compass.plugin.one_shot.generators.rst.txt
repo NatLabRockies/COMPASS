@@ -1,0 +1,32 @@
+compass.plugin.one\_shot.generators
+===================================
+
+.. automodule:: compass.plugin.one_shot.generators
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      generate_heuristic_keywords
+      generate_query_templates
+      generate_website_keywords
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
