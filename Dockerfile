@@ -47,12 +47,12 @@ WORKDIR /app
 ENV PATH="/app/.pixi/envs/default/bin:${PATH}" \
     PLAYWRIGHT_BROWSERS_PATH=/opt/assets/playwright \
     PLAYWRIGHT_SKIP_BROWSER_GC=1 \
-    XDG_CACHE_HOME=/opt/assets/cache \
     DOCLING_RS_CACHE_DIR=/opt/assets/docling-rs \
     NLTK_DATA=/opt/assets/nltk \
     COMPASS_FILE_LOAD_BACKEND=docling
 
-RUN mkdir -p /opt/assets && \
+RUN export XDG_CACHE_HOME=/opt/assets/cache && \
+    mkdir -p /opt/assets && \
     python -m playwright install --with-deps && \
     python -m rebrowser_playwright install --with-deps && \
     python -m patchright install --with-deps chromium && \
