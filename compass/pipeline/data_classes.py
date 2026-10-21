@@ -7,7 +7,7 @@ from functools import cached_property
 
 from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
-from compass.llm import OpenAIConfig
+from compass.llm import LiteLLMConfig, OpenAIConfig
 from compass.services.usage import LLMRateTracker
 from compass.utilities.enums import COMPASSRunMode, LLMTasks
 from compass.utilities.io import load_config
@@ -467,7 +467,11 @@ class BaseRequest:
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments.
+            arguments. :class:`~compass.llm.config.LiteLLMConfig` is used
+            only when ``"client_type": "litellm"`` is set explicitly.
+            In that case, the model name is forwarded unchanged to the
+            LiteLLM proxy and may be either a bare alias or a
+            slash-containing provider alias.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1031,7 +1035,11 @@ class CollectionRequest(BaseRequest):
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments.
+            arguments. :class:`~compass.llm.config.LiteLLMConfig` is
+            used only when ``"client_type": "litellm"`` is set
+            explicitly. In that case, the model name is forwarded
+            unchanged to the LiteLLM proxy and may be either a bare
+            alias or a slash-containing provider alias.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1388,7 +1396,11 @@ class ExtractionRequest(BaseRequest):
             arguments that can initialize instances of
             :class:`~compass.llm.config.OpenAIConfig`. Each dictionary
             can specify the model name, client type, and initialization
-            arguments.
+            arguments. :class:`~compass.llm.config.LiteLLMConfig` is
+            used only when ``"client_type": "litellm"`` is set
+            explicitly. In that case, the model name is forwarded
+            unchanged to the LiteLLM proxy and may be either a bare
+            alias or a slash-containing provider alias.
 
             Each dictionary must also include a ``tasks`` key, which
             maps to a string or list of strings indicating the tasks
@@ -1569,7 +1581,7 @@ def build_models(user_input, *, allow_empty=False, rate_tracker=None):
         return {} if allow_empty else {LLMTasks.DEFAULT: OpenAIConfig()}
 
     if isinstance(user_input, str):
-        return {LLMTasks.DEFAULT: OpenAIConfig(name=user_input)}
+        return {LLMTasks.DEFAULT: _model_config(name=user_input)}
 
     caller_instances = {}
     for raw_kwargs in user_input:
@@ -1588,10 +1600,31 @@ def _config_for_tasks(kwargs, rate_tracker=None):
     if isinstance(tasks, str):
         tasks = [tasks]
 
-    model_config = OpenAIConfig(**kwargs)
+    model_config = _model_config(**kwargs)
     model_config.llm_call_kwargs.update({"rate_tracker": rate_tracker})
     for task in tasks:
         yield task, model_config
+
+
+def _model_config(**kwargs):
+    """Build LiteLLM config if requested, else OpenAI"""
+    client_type = kwargs.pop("client_type", None)
+    model_name = kwargs.get("name", kwargs.get("model", ""))
+    if client_type is None:
+        if isinstance(model_name, str) and "/" in model_name:
+            msg = (
+                "Provider-prefixed model names require an explicit "
+                "client_type. Use client_type='litellm' for LiteLLM "
+                "proxy model names or client_type='openai' for other "
+                "OpenAI-compatible endpoints."
+            )
+            raise COMPASSValueError(msg)
+        client_type = "azure"
+
+    client_type = client_type.casefold()
+    if client_type == "litellm":
+        return LiteLLMConfig(**kwargs)
+    return OpenAIConfig(client_type=client_type, **kwargs)
 
 
 def _verify_task_not_duplicate(task, caller_instances):

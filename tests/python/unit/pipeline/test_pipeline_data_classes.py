@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 
+from compass.exceptions import COMPASSValueError
 from compass.pipeline import (
     BaseRequest,
     CollectionRequest,
@@ -12,8 +13,12 @@ from compass.pipeline import (
     SearchRequest,
 )
 from compass.pipeline.runtime import PipelineRuntime
-from compass.pipeline.data_classes import RuntimeSettings, WebSearchParams
-from compass.exceptions import COMPASSValueError
+from compass.pipeline.data_classes import (
+    RuntimeSettings,
+    WebSearchParams,
+    build_models,
+)
+from compass.llm import LiteLLMConfig, OpenAIConfig
 from compass.utilities.io import ConfigType, load_config
 from compass.warn import COMPASSWarning
 
@@ -293,6 +298,57 @@ def test_request_models_accepts_runtime_rate_tracker(tmp_path):
 
     assert models["default"].name == "gpt-4o-mini"
     assert request.rate_tracker is not None
+
+
+@pytest.mark.parametrize(
+    "model_input,config_type,client_type",
+    [
+        ("gpt-4o-mini", OpenAIConfig, "azure"),
+        ("openai/gpt-5-mini", COMPASSValueError, None),
+        ([{"name": "gpt-4o-mini"}], OpenAIConfig, "azure"),
+        (
+            [{"name": "gpt-4o-mini", "client_type": "openai"}],
+            OpenAIConfig,
+            "openai",
+        ),
+        (
+            [{"name": "anthropic/claude-sonnet-4-5"}],
+            COMPASSValueError,
+            None,
+        ),
+        (
+            [{"name": "anthropic/claude-sonnet-4-5", "client_type": "litellm"}],
+            LiteLLMConfig,
+            "litellm",
+        ),
+        (
+            [{"name": "my-model", "client_type": "LiteLLM"}],
+            LiteLLMConfig,
+            "litellm",
+        ),
+        (
+            [{"name": "org/model", "client_type": "openai"}],
+            OpenAIConfig,
+            "openai",
+        ),
+    ],
+)
+def test_build_models_routes_client_type(
+    model_input, config_type, client_type
+):
+    """Explicit client type controls routing and Azure stays default"""
+    if config_type is COMPASSValueError:
+        with pytest.raises(
+            COMPASSValueError,
+            match="require an explicit client_type|must include an explicit provider",
+        ):
+            build_models(model_input)
+        return
+
+    config = build_models(model_input)["default"]
+
+    assert type(config) is config_type
+    assert config.client_type == client_type
 
 
 def test_wsp_url_filter_defaults_are_isolated():

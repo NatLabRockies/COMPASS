@@ -1,8 +1,9 @@
 """COMPASS ordinance parsing utilities"""
 
-import os
 import json
 import logging
+import os
+import re
 from pathlib import Path
 
 import numpy as np
@@ -83,20 +84,138 @@ def llm_response_as_json(content):
     """
     content = clean_backticks_from_llm_response(content)
     content = content.removeprefix("json").lstrip("\n")
-    content = content.replace("True", "true").replace("False", "false")
-    try:
-        content = json.loads(content)
-    except json.decoder.JSONDecodeError:
-        logger.exception(
-            "LLM returned improperly formatted JSON. "
-            "This is likely due to the completion running out of tokens. "
-            "Setting a higher token limit may fix this error. "
-            "Also ensure you are requesting JSON output in your prompt. "
-            "JSON returned:\n%s",
-            content,
+    candidates = [content]
+    candidates.extend(
+        reversed(
+            [
+                candidate.strip()
+                for candidate in re.findall(
+                    r"```(?:json)?\s*(.*?)```", content, flags=re.DOTALL
+                )
+                if candidate.strip()
+            ]
         )
-        content = {}
-    return content
+    )
+
+    decode_error = None
+    for candidate in candidates:
+        try:
+            return json.loads(candidate)
+        except json.decoder.JSONDecodeError as error:
+            decode_error = error
+
+        normalized = _normalize_python_bool_literals(candidate)
+        if normalized != candidate:
+            try:
+                return json.loads(normalized)
+            except json.decoder.JSONDecodeError:
+                pass
+
+    embedded = _extract_embedded_json(content)
+    if embedded is not None:
+        logger.debug(
+            "LLM response contained leading/trailing text around the "
+            "JSON payload. Recovered JSON from an embedded object or "
+            "array instead of the full response."
+        )
+        return embedded
+
+    logger.error(
+        "LLM returned improperly formatted JSON. "
+        "This is likely due to the completion running out of tokens. "
+        "Setting a higher token limit may fix this error. "
+        "Also ensure you are requesting JSON output in your prompt. "
+        "JSON returned:\n%s",
+        content,
+        exc_info=decode_error,
+    )
+    return {}
+
+
+def _extract_embedded_json(content):
+    """Recover a JSON object or array embedded in surrounding text."""
+    decoder = json.JSONDecoder()
+    for index in _json_start_indexes(content):
+        candidate = content[index:]
+        if candidate.startswith("[") and candidate[1:2].isdigit():
+            continue
+        for candidate_text in (
+            candidate,
+            _normalize_python_bool_literals(candidate),
+        ):
+            try:
+                value, _ = decoder.raw_decode(candidate_text)
+            except json.decoder.JSONDecodeError:
+                continue
+            if (
+                isinstance(value, list)
+                and len(value) == 1
+                and isinstance(value[0], int | float)
+            ):
+                continue
+            return value
+    return None
+
+
+def _json_start_indexes(content):
+    """Yield likely JSON opener positions in source order."""
+    return [index for index, char in enumerate(content) if char in "[{"]
+
+
+def _normalize_python_bool_literals(content):
+    """Lowercase unquoted Python boolean literals for JSON parsing"""
+    out = []
+    index = 0
+    in_string = False
+    escaped = False
+    while index < len(content):
+        char = content[index]
+        if in_string:
+            out.append(char)
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == '"':
+                in_string = False
+            index += 1
+            continue
+
+        if char == '"':
+            in_string = True
+            out.append(char)
+            index += 1
+            continue
+
+        literal, replacement = _matching_bool_literal(content, index)
+        if literal is not None:
+            out.append(replacement)
+            index += len(literal)
+            continue
+
+        out.append(char)
+        index += 1
+    return "".join(out)
+
+
+def _matching_bool_literal(content, index):
+    """Return bool literal replacement when the token is isolated."""
+    for literal, replacement in {"True": "true", "False": "false"}.items():
+        if not content.startswith(literal, index):
+            continue
+        if _is_bool_literal_boundary(content, index, literal):
+            return literal, replacement
+    return None, None
+
+
+def _is_bool_literal_boundary(content, index, literal):
+    """Determine whether a boolean literal token is standalone."""
+    prev_char = content[index - 1] if index > 0 else ""
+    next_index = index + len(literal)
+    next_char = content[next_index] if next_index < len(content) else ""
+    prev_is_word = prev_char.isalnum() or prev_char == "_"
+    next_is_word = next_char.isalnum() or next_char == "_"
+    return not (prev_is_word or next_is_word)
 
 
 def merge_overlapping_texts(text_chunks, n=300):
