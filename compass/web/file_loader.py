@@ -484,6 +484,7 @@ def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
 
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
+    import_module("compass.services.docling")
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
