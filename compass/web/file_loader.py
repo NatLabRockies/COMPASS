@@ -3,6 +3,7 @@
 import os
 import asyncio
 import logging
+from importlib import import_module
 
 from elm.web.file_loader import (
     AsyncFetchWithRetry,
@@ -12,9 +13,6 @@ from elm.web.file_loader import (
     AsyncLocalFileLoader,
 )
 from elm.web.document import MDDocument
-from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
-
-from compass.services.cpu import read_docling_web_file, read_docling_local_file
 from compass.services.threaded import TempFileCache
 
 
@@ -100,7 +98,6 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         use_scrapling_stealth=False,
         num_pw_html_retries=3,
         to_md_kwargs=None,
-        pytesseract_exe_fp=None,
         pdf_pipeline_options=None,
         re_fetch_failed_with_elm=False,
         **extra,
@@ -162,17 +159,13 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             ``"image_placeholder"=""``) or page break placeholders (i.e.
             ``"page_break_placeholder"="<!-- page break -->").
             By default, ``None``.
-        pytesseract_exe_fp : path-like, optional
-            Path to the `pytesseract` executable. If specified, OCR will
-            be used to extract text from scanned PDFs using Google's
-            Tesseract.  By default ``None``.
         pdf_pipeline_options : dict, optional
             Dictionary of keyword-value arguments to pass to
-            :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-            initializer. Table structure defaults to enabled when not
-            explicitly specified. OCR defaults to enabled only when a
-            Tesseract executable path is provided. If ``None``, the
-            default options are used.
+            ``docling_rs.PdfPipelineOptions`` initializer. Table
+            structure and native OCR default to enabled when not
+            explicitly specified. ``document_timeout`` sets the native
+            conversion budget and subprocess deadline.
+            By default, ``None``.
         re_fetch_failed_with_elm : bool, default=False
             Option to re-fetch failed sources using ELM's default
             fetcher. This can be useful if Docling fails to parse a
@@ -205,7 +198,6 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             num_pw_html_retries=num_pw_html_retries,
         )
         self.to_md_kwargs = to_md_kwargs or {}
-        self.pytesseract_exe_fp = pytesseract_exe_fp
         self.pdf_pipeline_options = pdf_pipeline_options
 
         self.failed_fetcher = None
@@ -313,6 +305,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
     async def _fetch_doc(self, url):
         """Fetch a doc using Docling"""
+        docling = import_module("compass.services.docling")
+
+        # ruff:ignore[import-outside-top-level]
+        from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
         out = await self.content_fetcher.fetch(url)
         if out is None:
@@ -325,12 +321,11 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         )
         logger.debug("Docling is starting content read from %r", url)
         try:
-            doc = await read_docling_web_file(
+            doc = await docling.read_docling_web_file(
                 raw_content,
                 url=resolved_filename,
                 source_uri=url,
                 headers=dict(headers),
-                pytesseract_exe_fp=self.pytesseract_exe_fp,
                 pdf_pipeline_options=self.pdf_pipeline_options,
                 **self.to_md_kwargs,
             )
@@ -367,7 +362,6 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
         file_cache_coroutine=None,
         doc_attrs=None,
         to_md_kwargs=None,
-        pytesseract_exe_fp=None,
         pdf_pipeline_options=None,
         **__,  # consume any extra kwargs
     ):
@@ -393,31 +387,26 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
             ``"image_placeholder"=""``) or page break placeholders (i.e.
             ``"page_break_placeholder"="<!-- page break -->").
             By default, ``None``.
-        pytesseract_exe_fp : path-like, optional
-            Path to the `pytesseract` executable. If specified, OCR will
-            be used to extract text from scanned PDFs using Google's
-            Tesseract.  By default ``None``.
         pdf_pipeline_options : dict, optional
             Dictionary of keyword-value arguments to pass to
-            :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-            initializer. Table structure defaults to enabled when not
-            explicitly specified. OCR defaults to enabled only when a
-            Tesseract executable path is provided. If ``None``, the
-            default options are used.
+            ``docling_rs.PdfPipelineOptions`` initializer. Table
+            structure and native OCR default to enabled when not
+            explicitly specified. ``document_timeout`` sets the native
+            conversion budget and subprocess deadline.
+            By default, ``None``.
         """
         super().__init__(file_cache_coroutine=file_cache_coroutine)
         self.to_md_kwargs = to_md_kwargs or {}
         self.doc_attrs = doc_attrs or {}
-        self.pytesseract_exe_fp = pytesseract_exe_fp
         self.pdf_pipeline_options = pdf_pipeline_options
 
     async def _fetch_doc(self, source):
         """Load a doc by reading file based on extension"""
+        docling = import_module("compass.services.docling")
         logger.debug("Docling is starting content read from %s", source)
         try:
-            doc, raw_content = await read_docling_local_file(
+            doc, raw_content = await docling.read_docling_local_file(
                 source,
-                pytesseract_exe_fp=self.pytesseract_exe_fp,
                 pdf_pipeline_options=self.pdf_pipeline_options,
                 **self.to_md_kwargs,
             )
@@ -495,6 +484,7 @@ def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
 
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
+    import_module("compass.services.docling")
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:

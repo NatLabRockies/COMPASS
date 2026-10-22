@@ -8,15 +8,15 @@ on:
   push:
     branches: [main]
     paths:
-      - compass/**
-      - tests/**
+      - 'compass/**/*.py'
+      - 'tests/**/*.py'
       - .github/workflows/codecov.yml
       - pyproject.toml
       - pixi.lock
   pull_request:
     paths:
-      - compass/**
-      - tests/**
+      - 'compass/**/*.py'
+      - 'tests/**/*.py'
       - .github/workflows/codecov.yml
       - pyproject.toml
       - pixi.lock
@@ -48,6 +48,7 @@ jobs:
     - name: Generate coverage report
       run: |
         pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked python -c "from docling_rs import download_models; download_models()"
         pixi run -e pdev --locked tests-p
 
     - name: Upload coverage to Codecov
