@@ -63,9 +63,6 @@ Start by cloning the ``COMPASS`` repository:
 If you don't already have ``pixi`` installed on your system, follow the (simple) `installation
 instructions <https://pixi.sh/latest/#installation>`_.
 
-On Intel macOS, complete `Intel macOS: ONNX Runtime Setup`_ before starting
-a Pixi environment, because ``pixi shell`` installs dependencies as needed.
-
 Once you have both ``pixi`` and the ``COMPASS`` source code, simply run:
 
 .. code-block:: shell
@@ -114,14 +111,24 @@ you may have to run the following command (requires ``sudo``):
 
 Preparing for Docling-RS PDF Parsing
 ------------------------------------
-The Docling backend uses Docling-RS for native document conversion. Before
-parsing PDFs or scanned images, download its model assets once:
+Docling-RS is an optional backend for native document conversion. Its
+dependencies are installed by default on Linux and Windows, both through
+pip and in the standard Python Pixi environments. On macOS, these
+dependencies are excluded automatically. See `Intel macOS: ONNX Runtime Setup`_
+if you want to install Docling-RS manually on macOS.
+
+To select this backend on a platform where Docling is installed, set
+``COMPASS_FILE_LOAD_BACKEND=docling`` before starting COMPASS. Before parsing
+PDFs or scanned images, download the model assets once from the environment
+where Docling is installed:
 
 .. code-block:: shell
 
     python -c "from docling_rs import download_models; download_models()"
 
-Models are cached under ``~/.cache/docling.rs`` by default. Set
+If you are using Pixi, prefix this command with ``pixi run``.
+
+Docling models are cached under ``~/.cache/docling.rs`` by default. Set
 ``DOCLING_RS_CACHE_DIR`` to use a different cache directory, and make that
 cache available to the worker processes. HTML and Markdown conversion do
 not require these models.
@@ -137,9 +144,11 @@ subprocess deadline. Poppler is included in the Pixi environment.
 Intel macOS: ONNX Runtime Setup
 -------------------------------
 
-Docling-RS is built from source on macOS. Its Rust ONNX Runtime dependency
-does not provide prebuilt binaries for ``x86_64-apple-darwin``, so Intel
-Macs must provide a shared ONNX Runtime library before installing COMPASS.
+COMPASS does not install Docling on macOS. If you explicitly install
+``docling-rs`` and ``docling-core``, Docling-RS is built from source.
+Its Rust ONNX Runtime dependency does not provide prebuilt binaries for
+``x86_64-apple-darwin``, so Intel Macs must provide a shared
+ONNX Runtime library before installing COMPASS.
 
 Install ONNX Runtime with `Homebrew <https://brew.sh/>`_ and configure the
 build in the terminal where you will install and run COMPASS:
