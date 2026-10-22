@@ -172,9 +172,20 @@ with the installed release. Keep the Homebrew library installed while
 using COMPASS. Set these variables again in each new terminal before
 installing or rebuilding dependencies, or add them to your shell profile.
 
-After this setup, continue with the PyPI or source installation instructions.
-For a development checkout, you can install the locked environment with:
+
+After this setup, install the backend explicitly in the Python environment
+used to run COMPASS:
 
 .. code-block:: shell
 
-    pixi install -e pdev --locked
+    python -m pip install "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+
+
+For a Pixi development environment, use this command instead:
+
+.. code-block:: shell
+
+    pixi run -e pdev --locked uv pip install --python python "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+
+Replace ``pdev`` with the environment you use to run COMPASS, and use that
+same environment when downloading models.
