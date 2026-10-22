@@ -10,7 +10,7 @@ concurrency:
 on:
   pull_request:
     paths:
-      - compass/**
+      - 'compass/**/*.py'
       - docs/**
       - README.rst
       - .github/workflows/docs.yml
@@ -19,7 +19,7 @@ on:
   push:
     branches: [main]
     paths:
-      - compass/**
+      - 'compass/**/*.py'
       - docs/**
       - README.rst
       - .github/workflows/docs.yml

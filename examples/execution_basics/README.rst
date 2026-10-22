@@ -26,8 +26,12 @@ or review the collected corpus before spending model tokens.
 Prerequisites
 =============
 When using the Docling backend, COMPASS parses documents with Docling-RS.
-Native Optical Character Recognition (OCR) and table extraction are enabled
-by default. Download the PDF parsing models once before processing PDFs:
+Docling dependencies are installed by default on Linux and Windows, but
+are excluded on macOS. Set ``COMPASS_FILE_LOAD_BACKEND=docling`` before
+starting COMPASS to select this backend where it is installed. Native
+Optical Character Recognition (OCR) and table extraction are enabled by
+default when using Docling-RS. Download the PDF parsing models once
+before processing PDFs:
 
 .. code-block:: shell
 
@@ -37,8 +41,8 @@ The models are cached under ``~/.cache/docling.rs``. Set
 ``DOCLING_RS_CACHE_DIR`` to use a different model cache. HTML and Markdown
 conversion do not require these models.
 
-If you select the ELM backend instead, its scanned-PDF OCR still requires
-Google's Tesseract. Follow its installation instructions
+If you select the ELM backend instead, the scanned-PDF OCR requires
+Google's Tesseract. Follow the installation instructions
 `here <https://pypi.org/project/pytesseract/#:~:text=lang%5D%20image_file-,INSTALLATION,-Prerequisites%3A>`_.
 
 

@@ -10,7 +10,7 @@ concurrency:
 on:
   pull_request:
     paths:
-      - compass/**
+      - 'compass/**/*.py'
       - README.rst
       - pyproject.toml
       - pixi.toml
@@ -20,7 +20,7 @@ on:
   push:
     branches: [main]
     paths:
-      - compass/**
+      - 'compass/**/*.py'
       - README.rst
       - pyproject.toml
       - pixi.toml

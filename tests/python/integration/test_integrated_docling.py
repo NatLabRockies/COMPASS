@@ -6,6 +6,10 @@ from pathlib import Path
 from unittest.mock import AsyncMock
 
 import pytest
+
+pytest.importorskip("docling_rs")
+pytest.importorskip("docling_core")
+
 from docx import Document
 from elm.web.search.run import load_docs
 from openpyxl import Workbook
@@ -50,6 +54,13 @@ PYT_CMD = os.getenv("TESSERACT_CMD")
 def _return_from_subprocess(value):
     """Return a serializable value from a child process"""
     return value
+
+
+@pytest.fixture(autouse=True)
+async def subprocess_log_listener():
+    """Drain worker logs until process-pool shutdown completes"""
+    async with LogListener([]):
+        yield
 
 
 @pytest.fixture
@@ -499,13 +510,6 @@ async def test_docling_collection_reload_without_parsed_path_warns():
             task_name="Example County",
         )
     assert docs == [None]
-
-
-@pytest.fixture(autouse=True)
-async def subprocess_log_listener():
-    """Drain worker logs until process-pool shutdown completes"""
-    async with LogListener([]):
-        yield
 
 
 @pytest.mark.asyncio

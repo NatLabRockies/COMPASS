@@ -12,30 +12,45 @@ from urllib.parse import urljoin, urlparse
 from bs4 import BeautifulSoup
 from elm.web.document import MDDocument
 from pdf2image import convert_from_bytes, pdfinfo_from_bytes
-from docling_core.types.doc import DoclingDocument
-from docling_rs.datamodel.base_models import (
-    ConversionStatus,
-    DocumentStream,
-    InputFormat,
-)
-from docling_rs.document_converter import (
-    ConversionResult,
-    DocumentConverter,
-    PdfFormatOption,
-)
-from docling_rs.datamodel.pipeline_options import (
-    PdfPipelineOptions,
-    TableStructureOptions,
-)
-from docling_rs.exceptions import ConversionError
 
 from compass.services.cpu import (
     TIMEOUT_PARAMS,
     FileLoader,
     _force_shutdown_processes,
 )
-from compass.exceptions import COMPASSValueError
+from compass.exceptions import COMPASSImportError, COMPASSValueError
 from compass.utilities.logs import configure_docling_subprocess_logging
+
+
+try:
+    from docling_core.types.doc import DoclingDocument
+    from docling_rs.datamodel.base_models import (
+        ConversionStatus,
+        DocumentStream,
+        InputFormat,
+    )
+    from docling_rs.document_converter import (
+        ConversionResult,
+        DocumentConverter,
+        PdfFormatOption,
+    )
+    from docling_rs.datamodel.pipeline_options import (
+        PdfPipelineOptions,
+        TableStructureOptions,
+    )
+    from docling_rs.exceptions import ConversionError
+except ModuleNotFoundError as exc:
+    if exc.name not in {"docling_rs", "docling_core"}:
+        raise
+
+    msg = (
+        "The Docling backend requires docling-rs and docling-core. "
+        "These dependencies are installed by default except on macOS. "
+        "Use COMPASS_FILE_LOAD_BACKEND=elm when they are unavailable, "
+        "or install them explicitly with "
+        'pip install "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3".'
+    )
+    raise COMPASSImportError(msg) from exc
 
 
 logger = logging.getLogger(__name__)

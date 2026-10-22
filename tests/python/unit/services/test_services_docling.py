@@ -1,4 +1,4 @@
-"""Test COMPASS CPU Services"""
+"""Test COMPASS Docling-based CPU Services"""
 
 import logging
 import os
@@ -11,6 +11,10 @@ from unittest.mock import Mock
 
 import numpy as np
 import pytest
+
+pytest.importorskip("docling_rs")
+pytest.importorskip("docling_core")
+
 from PIL import Image
 from pdf2image import convert_from_bytes
 from docling_core.types.doc import DocItemLabel, DoclingDocument

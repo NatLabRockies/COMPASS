@@ -3,6 +3,7 @@
 import os
 import asyncio
 import logging
+from importlib import import_module
 
 from elm.web.file_loader import (
     AsyncFetchWithRetry,
@@ -12,12 +13,6 @@ from elm.web.file_loader import (
     AsyncLocalFileLoader,
 )
 from elm.web.document import MDDocument
-from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
-
-from compass.services.docling import (
-    read_docling_web_file,
-    read_docling_local_file,
-)
 from compass.services.threaded import TempFileCache
 
 
@@ -310,6 +305,10 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
     async def _fetch_doc(self, url):
         """Fetch a doc using Docling"""
+        docling = import_module("compass.services.docling")
+
+        # ruff:ignore[import-outside-top-level]
+        from docling_core.utils.file import resolve_remote_filename, AnyHttpUrl
 
         out = await self.content_fetcher.fetch(url)
         if out is None:
@@ -322,7 +321,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
         )
         logger.debug("Docling is starting content read from %r", url)
         try:
-            doc = await read_docling_web_file(
+            doc = await docling.read_docling_web_file(
                 raw_content,
                 url=resolved_filename,
                 source_uri=url,
@@ -403,9 +402,10 @@ class AsyncLocalDoclingFileLoader(BaseAsyncFileLoader):
 
     async def _fetch_doc(self, source):
         """Load a doc by reading file based on extension"""
+        docling = import_module("compass.services.docling")
         logger.debug("Docling is starting content read from %s", source)
         try:
-            doc, raw_content = await read_docling_local_file(
+            doc, raw_content = await docling.read_docling_local_file(
                 source,
                 pdf_pipeline_options=self.pdf_pipeline_options,
                 **self.to_md_kwargs,
@@ -484,6 +484,7 @@ def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
 
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
+    import_module("compass.services.docling")
     COMPASSWebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
