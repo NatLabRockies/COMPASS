@@ -3,6 +3,8 @@
 import runpy
 import os
 import socket
+import subprocess  # ruff: ignore[suspicious-subprocess-import]
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -12,11 +14,26 @@ from PyPDF2 import PdfReader
 
 
 @pytest.fixture
-def checks():
+def checks(request):
     """Load the standalone probe without running browsers"""
     return runpy.run_path(
-        Path(__file__).resolve().parents[3] / "support" / "container_checks.py"
+        request.config.rootpath
+        / "support"
+        / "containers"
+        / "container_checks.py"
     )
+
+
+@pytest.fixture
+def entrypoint(tmp_path, request):
+    """Stage the standalone entrypoint with a generated activation hook"""
+    root = request.config.rootpath
+    script = tmp_path / "entrypoint.sh"
+    script.write_text(
+        (root / "support/containers/container_entrypoint.sh").read_text()
+    )
+    (tmp_path / "shell-hook").write_text("export COMPASS_TEST_ACTIVATED=1\n")
+    return script
 
 
 @pytest.fixture
@@ -62,7 +79,7 @@ def test_scanned_fixture_requires_ocr(checks, tmp_path):
     checks["_write_scanned_pdf"](source)
     reader = PdfReader(source)
     assert len(reader.pages) == 1
-    assert not reader.pages[0].extract_text().strip()
+    assert not (reader.pages[0].extract_text() or "").strip()
     assert reader.pages[0]["/Resources"]["/XObject"]
 
 
@@ -112,9 +129,9 @@ def test_checks_requires_offline_non_root(
             checks["_check_isolation"]()
 
 
-def test_container_publication_requires_checks_gates():
+def test_container_publication_requires_checks_gates(request):
     """Keep both runtime gates ahead of release publication and upload"""
-    root = Path(__file__).resolve().parents[3]
+    root = request.config.rootpath
     workflow = yaml.safe_load(
         (root / ".github/workflows/docker-publish.yml").read_text()
     )
@@ -141,6 +158,95 @@ def test_container_publication_requires_checks_gates():
     # assert steps[sif_index]["if"] == steps[upload_index]["if"]
     assert not any(step.get("with", {}).get("push") for step in steps)
     assert "docker save compass-checks:local" in steps[sif_index - 1]["run"]
+
+
+@pytest.mark.parametrize("custom_cache", [False, True])
+@pytest.mark.skipif(os.name != "posix", reason="Linux container entrypoint")
+def test_container_entrypoint_uses_writable_cache(
+    tmp_path, custom_cache, entrypoint
+):
+    """Keep runtime caches writable without hiding the shared browser"""
+    home = tmp_path / "home"
+    cache = tmp_path / "custom-cache" if custom_cache else home / ".cache"
+    env = {**os.environ, "HOME": str(home)}
+    env.pop("XDG_CACHE_HOME", None)
+    if custom_cache:
+        env["XDG_CACHE_HOME"] = str(cache)
+    command = [
+        "/bin/bash",
+        str(entrypoint),
+        sys.executable,
+        "-c",
+        (
+            "import os\n"
+            "from pathlib import Path\n"
+            "from camoufox.pkgman import INSTALL_DIR\n"
+            "assert os.environ['COMPASS_TEST_ACTIVATED'] == '1'\n"
+            "cache = Path(os.environ['XDG_CACHE_HOME'])\n"
+            "assert INSTALL_DIR == cache / 'camoufox'\n"
+            "(cache / 'probe').write_text('cache-check')\n"
+            "print(cache, end='')\n"
+        ),
+    ]
+    for _ in range(2):
+        # ruff: ignore[subprocess-without-shell-equals-true]
+        result = subprocess.run(
+            command, env=env, check=True, capture_output=True, text=True
+        )
+        assert result.stdout == str(cache)
+        assert (cache / "probe").read_text() == "cache-check"
+        assert (cache / "camoufox").readlink() == Path(
+            "/opt/assets/cache/camoufox"
+        )
+
+
+@pytest.mark.skipif(os.name != "posix", reason="Linux container entrypoint")
+def test_container_entrypoint_preserves_existing_camoufox(
+    tmp_path, entrypoint
+):
+    """Respect a browser already installed in an explicit runtime cache"""
+    browser = tmp_path / "camoufox"
+    browser.mkdir()
+    (browser / "existing").touch()
+    subprocess.run(  # ruff: ignore[subprocess-without-shell-equals-true]
+        ["/bin/bash", str(entrypoint), "true"],
+        env={**os.environ, "XDG_CACHE_HOME": str(tmp_path)},
+        check=True,
+    )
+    assert not browser.is_symlink()
+    assert (browser / "existing").is_file()
+
+
+@pytest.mark.skipif(os.name != "posix", reason="Linux container entrypoint")
+def test_container_entrypoint_rejects_unusable_cache(tmp_path, entrypoint):
+    """Fail explicitly instead of running with an unusable cache path"""
+    cache = tmp_path / "file"
+    cache.touch()
+    # ruff: ignore[subprocess-without-shell-equals-true]
+    result = subprocess.run(
+        ["/bin/bash", str(entrypoint), "true"],
+        env={**os.environ, "XDG_CACHE_HOME": str(cache)},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert str(cache) in result.stderr
+
+
+@pytest.mark.skipif(os.name != "posix", reason="Linux container entrypoint")
+def test_container_entrypoint_requires_activation_hook(tmp_path, entrypoint):
+    """Reject missing activation instead of executing without Pixi"""
+    (tmp_path / "shell-hook").unlink()
+    # ruff: ignore[subprocess-without-shell-equals-true]
+    result = subprocess.run(
+        ["/bin/bash", str(entrypoint), "true"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode != 0
+    assert "shell-hook" in result.stderr
 
 
 if __name__ == "__main__":

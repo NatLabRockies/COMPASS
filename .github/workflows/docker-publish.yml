@@ -6,6 +6,17 @@ name: Container build, test, and publish
 # documentation.
 
 on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    paths:
+      - compass/**
+      - tests/**
+      - .github/workflows/ci-python.yml
+      - pyproject.toml
+      - pixi.toml
+      - pixi.lock
+      - tox.ini
   release:
     types: [published]
   workflow_dispatch:
@@ -86,7 +97,7 @@ jobs:
           docker run --rm --network none --user 10001:10001 \
             --shm-size 1g --tmpfs /tmp:rw,exec,mode=1777 \
             -e HOME=/tmp/compass-checks-home \
-            -v "$PWD/support/container_checks.py:/tmp/container_checks.py:ro" \
+            -v "$PWD/support/containers/container_checks.py:/tmp/container_checks.py:ro" \
             compass-checks:local python /tmp/container_checks.py
 
       - uses: eWaterCycle/setup-apptainer@4bb22c52d4f63406c49e94c804632975787312b3  # v2.0.0
@@ -107,7 +118,7 @@ jobs:
             exec setpriv --reuid="$1" --regid="$2" --clear-groups \
               apptainer exec --containall --cleanenv \
               --env HOME=/tmp/compass-checks-home \
-              --bind "$3/support/container_checks.py:/tmp/container_checks.py:ro" \
+              --bind "$3/support/containers/container_checks.py:/tmp/container_checks.py:ro" \
               "$3/compass-linux-amd64.sif" \
               /app/entrypoint.sh python /tmp/container_checks.py
           ' -- "$(id -u)" "$(id -g)" "$PWD"
@@ -148,6 +159,7 @@ jobs:
           done <<< "$TAGS"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v4.0.0
+        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v')
         with:
           name: compass-linux-amd64
           path: |
