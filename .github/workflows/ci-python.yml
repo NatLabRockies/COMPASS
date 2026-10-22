@@ -10,8 +10,8 @@ on:
   push:
     branches: [main]
     paths:
-      - compass/**
-      - tests/**
+      - 'compass/**/*.py'
+      - 'tests/**/*.py'
       - .github/workflows/ci-python.yml
       - pyproject.toml
       - pixi.toml
@@ -19,8 +19,8 @@ on:
       - tox.ini
   pull_request:
     paths:
-      - compass/**
-      - tests/**
+      - 'compass/**/*.py'
+      - 'tests/**/*.py'
       - .github/workflows/ci-python.yml
       - pyproject.toml
       - pixi.toml
