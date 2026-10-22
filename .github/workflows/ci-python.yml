@@ -118,9 +118,41 @@ jobs:
         cache-write: ${{ github.ref == 'refs/heads/main' }}
         environments: pdev
 
-    - run: |
+    - name: Install project and Docling
+      run: |
         pixi reinstall -e pdev INFRA-COMPASS
-        pixi run -e pdev tests-u
+        pixi run -e pdev --locked uv pip install --python python "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+        pixi run -e pdev --locked python -c "import docling_core; from docling_rs import download_models; download_models()"
+
+    - name: Run unit tests
+      run: pixi run -e pdev tests-u
+
+  macos-without-docling:
+    needs: lint
+    name: Python Tests without Docling (macOS)
+    runs-on: macos-latest
+
+    steps:
+    - name: Checkout Repo
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        fetch-depth: 0
+        fetch-tags: true
+
+    - uses: prefix-dev/setup-pixi@9dabb60412d3d2d967a8d682f7ce01317af40514 # v0.11.0
+      with:
+        pixi-version: v0.81.0
+        locked: true
+        cache: false
+        environments: pdev
+
+    - name: Verify Docling is not installed
+      run: |
+        pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked python -c "from importlib.util import find_spec; assert find_spec('docling_rs') is None; assert find_spec('docling_core') is None"
+
+    - name: Run tests without Docling
+      run: pixi run -e pdev --locked tests-p
 
   integration-tests:
     needs: lint
@@ -161,7 +193,8 @@ jobs:
     - name: Prepare Docling models
       run: |
         pixi reinstall -e pdev --locked INFRA-COMPASS
-        pixi run -e pdev --locked python -c "from docling_rs import download_models; download_models()"
+        pixi run -e pdev --locked uv pip install --python python "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+        pixi run -e pdev --locked python -c "import docling_core; from docling_rs import download_models; download_models()"
 
     - name: Run integration tests
       run: pixi run -e pdev tests-i
@@ -190,7 +223,8 @@ jobs:
     - name: Prepare Docling models
       run: |
         pixi reinstall -e pdev --locked INFRA-COMPASS
-        pixi run -e pdev --locked python -c "from docling_rs import download_models; download_models()"
+        pixi run -e pdev --locked uv pip install --python python "docling-rs>=1.104.3,<2" "docling-core>=2.101.1,<3"
+        pixi run -e pdev --locked python -c "import docling_core; from docling_rs import download_models; download_models()"
 
     - name: Test production Docling backend
       run: pixi run -e pdev --locked tests-docling
@@ -263,9 +297,9 @@ jobs:
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .tox/
-        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v2-${{ hashFiles('**/pyproject.toml') }}
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v3-${{ hashFiles('**/pyproject.toml', 'tox.ini') }}
         restore-keys: |
-          ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v2-
+          ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v3-
 
     - name: Test with tox
       run: tox -e ${{ matrix.python-version == '3.12' && 'msv' || 'latest' }}
@@ -277,4 +311,4 @@ jobs:
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .tox/
-        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v2-${{ hashFiles('**/pyproject.toml') }}
+        key: ${{ runner.os }}-${{ runner.arch }}-${{ matrix.python-version }}-tox-v3-${{ hashFiles('**/pyproject.toml', 'tox.ini') }}
