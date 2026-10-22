@@ -140,7 +140,6 @@ Intel macOS: ONNX Runtime Setup
 Docling-RS is built from source on macOS. Its Rust ONNX Runtime dependency
 does not provide prebuilt binaries for ``x86_64-apple-darwin``, so Intel
 Macs must provide a shared ONNX Runtime library before installing COMPASS.
-Changing the Python version does not resolve this native dependency error.
 
 Install ONNX Runtime with `Homebrew <https://brew.sh/>`_ and configure the
 build in the terminal where you will install and run COMPASS:
@@ -170,9 +169,3 @@ For a development checkout, you can install the locked environment with:
 .. code-block:: shell
 
     pixi install -e pdev --locked
-
-The Python CI workflow applies this setup only to Intel macOS runners,
-before installing Pixi or tox dependencies. Tox passes these variables
-through to its test environments. Apple Silicon macOS, Linux, and Windows
-do not require this Intel-specific workaround.
-
