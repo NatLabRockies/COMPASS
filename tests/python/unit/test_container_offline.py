@@ -8,8 +8,6 @@ from types import SimpleNamespace
 
 import pytest
 import yaml
-from docling_core.types.doc import DoclingDocument, DocItemLabel
-from docling_core.types.doc import TableCell, TableData
 from PyPDF2 import PdfReader
 
 
@@ -24,6 +22,11 @@ def checks():
 @pytest.fixture
 def conversion():
     """Create a real Docling document with expected OCR and table data"""
+    docling = pytest.importorskip("docling_core.types.doc")
+    DoclingDocument = docling.DoclingDocument
+    DocItemLabel = docling.DocItemLabel
+    TableCell = docling.TableCell
+    TableData = docling.TableData
     document = DoclingDocument(name="scanned")
     document.add_text(DocItemLabel.TEXT, "COMPASS COUNTY ORDINANCE")
     rows = (
@@ -71,14 +74,15 @@ def test_docling_result_requires_ocr_and_table(checks, conversion):
 @pytest.mark.parametrize("failure", ["status", "empty", "text_only", "cells"])
 def test_docling_false_success_is_rejected(checks, conversion, failure):
     """Reject successful status without the required extraction results"""
+    docling = pytest.importorskip("docling_core.types.doc")
     if failure == "status":
         conversion.status.value = "partial_success"
     elif failure == "empty":
-        conversion.document = DoclingDocument(name="empty")
+        conversion.document = docling.DoclingDocument(name="empty")
     elif failure == "text_only":
-        conversion.document = DoclingDocument(name="text-only")
+        conversion.document = docling.DoclingDocument(name="text-only")
         conversion.document.add_text(
-            DocItemLabel.TEXT,
+            docling.DocItemLabel.TEXT,
             "COMPASS COUNTY ORDINANCE Roads 125 feet Buildings 250 feet",
         )
     else:
