@@ -12,6 +12,7 @@ from warnings import warn
 from datetime import datetime, UTC
 from functools import partial
 from importlib import import_module
+from importlib.util import find_spec
 
 from elm.version import __version__ as elm_version
 from elm.web.document import MDDocument
@@ -35,7 +36,6 @@ from compass.warn import COMPASSWarning
 from compass.exceptions import (
     COMPASSFileNotFoundError,
     COMPASSValueError,
-    COMPASSImportError,
 )
 
 
@@ -499,10 +499,12 @@ async def _load_single_doc(doc_info):
 
 async def _read_maybe_using_docling(fp):
     """Read a document using Docling if available"""
-    try:
+    if all(
+        find_spec(name) is not None for name in ("docling_rs", "docling_core")
+    ):
         docling = import_module("compass.services.docling")
         doc, *__ = await docling.read_docling_local_file(fp)
-    except COMPASSImportError:
+    else:
         text = await asyncio.to_thread(Path(fp).read_text, encoding="utf-8")
         doc = MDDocument(pages=[text], remove_comments=False)
 
