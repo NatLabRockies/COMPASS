@@ -1,4 +1,4 @@
-schema: ./natural_gas_pipelines_schema.json
+schema: ./natural_gas_pipelines_schema_v2.json
 
 data_type_short_desc: natural gas pipeline and compressor station ordinance
 
@@ -93,70 +93,3 @@ heuristic_keywords:
 
 collection_prompts: true
 text_extraction_prompts: true
-
-extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from natural gas
-  pipeline and compressor station ordinances.
-
-  Extract only enacted local (or state) requirements that explicitly govern
-  natural gas compressor stations; natural gas pipelines (transmission,
-  distribution, gathering); or metering/regulator stations. The source may be
-  a general zoning code, municipal code, or code of ordinances rather than a
-  technology-specific title. A yard-setback, lot-size, or zoning-district rule
-  is in scope when it binds a natural gas facility, whether stated directly or
-  via a use-table row naming gas, utility, or energy uses.
-
-  Never extract requirements that apply only to oil wells, gas wells,
-  conventional or unconventional wells, well pads, wellheads, drilling, or
-  hydraulic fracturing. These are out of scope even in the same document.
-  Also ignore geothermal wells, wind, solar, water/sewer utilities, electric
-  substations, utility tariffs/billing, and residential gas appliances unless
-  the same clause directly governs a compressor station or pipeline. Extract
-  only requirements that make or break a developer's decision to site the
-  facility; ignore optional, operational, administrative, monitoring,
-  insurance, and hearing-process details.
-
-  Emit ONE decomposed row per distinct requirement. Decompose each on four
-  axes:
-  - WHAT: feature (from the schema enum) plus specific_subject, applies_to,
-    and requirement_description. Put the governed facility type in applies_to;
-    put any situational trigger in condition; never mix the two.
-  - HOW MUCH: value with value_category, value_interpretation, units, and
-    range_low/range_high. A quantitative row has a numeric value and a
-    non-null value_interpretation. A qualitative row has value, units, and
-    ranges all null, with the substance in requirement_description.
-  - HOW BINDING: obligation. Encode negative wording ("shall not exceed",
-    "shall not be within") as obligation=required with a directional
-    value_interpretation; reserve prohibited for qualitative bans.
-  - WHEN/WHERE: condition, a short trigger phrase only.
-
-  Split a clause into multiple rows when it states multiple setback targets,
-  separate daytime and nighttime noise limits, or tiered values. For rear-yard
-  and side-yard setbacks use the "property lines distance" feature with
-  specific_subject set accordingly.
-
-  When multiple values apply to the same feature and specific_subject across
-  zones and all apply, keep the single MOST RESTRICTIVE value (largest
-  setback, lowest noise dB limit, largest minimum lot size) and record the
-  full zone-by-zone breakdown in notes. Use value_interpretation range for an
-  explicit span and tiered (one row per tier) for explicit bands.
-
-  For noise, emit a row only when the clause states an explicit numeric day or
-  night dB limit, or an explicit ambient adder ("ambient + X dB", captured as
-  value=X with value_interpretation=above_ambient). Ambient-relative limits
-  with no numeric adder are qualitative. Never emit a noise row for
-  complaint-response protocols, monitoring or testing durations, submission
-  deadlines, or mitigation-equipment standards without a numeric magnitude.
-
-  For fencing, capture a numeric fence height (limit) or a required/opaque
-  fencing mandate (equipment_standard); ignore gate hardware, materials, and
-  landscaping. For enclosure, capture only a required or prohibited
-  building-enclosure mandate; ignore exhaust mufflers, sound-barrier specs,
-  and architectural finishes.
-
-  Follow all schema feature definitions, core principles, and instructions
-  literally. Keep units standardized as the schema directs, quote verbatim
-  ordinance text in ordinance_text, and do not invent values. Every row must
-  include a non-empty summary and explanation. Keep the explanation as a short
-  evidence chain such as "reason 1 -> reason 2 -> conclusion" and do not
-  mention post-processing or other bookkeeping details.

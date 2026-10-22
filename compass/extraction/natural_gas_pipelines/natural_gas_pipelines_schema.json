@@ -1,427 +1,169 @@
 {
-  "title": "Natural Gas Pipeline and Compressor Station Ordinance Extraction Schema",
-  "description": "Schema for extracting siting and permitting requirements for natural gas pipelines and compressor stations.",
-  "version": "3.0.0",
+  "title": "Natural Gas Pipeline and Compressor Station Ordinance Extraction Schema (v2 compact)",
+  "description": "Compact long-form schema for natural gas pipeline and compressor station rules. This is a comparison draft that follows the geothermal output pattern of sparse, one-row-per-feature extraction while staying grounded in the actual natural gas feature set seen in the live pilot output. It is intentionally narrower than the broader production schema and intentionally excludes geothermal-only time-window features like HH:MM clock values.",
+  "version": "4.0.0",
   "type": "object",
   "required": ["outputs"],
   "additionalProperties": false,
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table of decomposed requirement rows. Emit one row per distinct enacted requirement. When one clause states several distinct requirements (multiple setback targets, day vs. night noise, tiered values, both a numeric threshold and a separate qualitative mandate), emit a SEPARATE row for each, distinguished by feature, specific_subject, condition, or value. Never infer, imply, or guess a requirement from related context; extract only explicit, enacted, enforceable rules that apply to natural gas pipelines or compressor stations.",
+      "description": "Sparse long-form extraction table. Emit one row per distinct feature + specific_subject + condition, merge repeated evidence into a single row, and keep the controlling most restrictive value when multiple values apply. Do not invent features or values that do not appear directly in the operative ordinance text.",
       "items": {
         "type": "object",
-        "additionalProperties": false,
         "required": [
           "feature",
-          "rule_kind",
           "specific_subject",
-          "applies_to",
-          "requirement_description",
-          "value_category",
           "value",
-          "value_interpretation",
           "units",
-          "range_low",
-          "range_high",
-          "obligation",
           "condition",
-          "applicable_values",
-          "ordinance_text",
-          "summary",
           "section",
-          "notes",
+          "summary",
+          "ordinance_text",
           "explanation"
         ],
+        "additionalProperties": false,
         "properties": {
           "feature": {
             "type": "string",
-            "description": "Standardized feature ID (the WHAT axis). Must be one of the enumerated feature IDs exactly as written; do not invent aliases, prefixes, or synonym variants. Rear-yard and side-yard setbacks use 'property lines distance' with specific_subject='rear yard' or 'side yard' (there is no separate rear/side feature). Day and night noise both use 'noise' distinguished by condition. Feature semantics are defined in $definitions.",
+            "description": "Feature ID for the extracted requirement. Use only the feature IDs supported by the benchmark evidence and direct ordinance text. This compact schema keeps the siting-critical features that materially affect whether a natural gas compressor station or pipeline can be located in a jurisdiction, while omitting low-impact or non-determinative items such as color requirements or generic paperwork. Feature mapping must be specific and non-overlapping: structures distance covers setbacks from buildings or protected structures; property lines distance covers lot-line, rear-yard, and side-yard setbacks; front yard distance covers only front-yard setbacks; residential buildings distance covers setbacks from occupied residences or residential buildings; water bodies distance covers setbacks from waterways or water bodies; and noise remains one feature ID split by condition (daytime / nighttime / startup). A measurement location such as 'nearest protected structure property line' is not itself a setback target and should not be converted into a property-line or structures row unless the ordinance explicitly requires a setback from that target. Do not invent new feature IDs beyond the benchmark evidence and never add unsupported time-of-day fields such as HH:MM as separate features.",
             "enum": [
               "property lines distance",
               "front yard distance",
               "structures distance",
-              "distance between compressor stations",
-              "water bodies distance",
-              "roads distance",
               "residential buildings distance",
-              "schools distance",
-              "hospitals distance",
-              "community structures distance",
+              "water bodies distance",
+              "distance between compressor stations",
               "minimum lot size",
-              "zoning districts",
               "noise",
+              "zoning districts",
+              "permit_approval",
               "fencing",
-              "enclosure",
-              "permit_approval"
-            ]
-          },
-          "rule_kind": {
-            "type": "string",
-            "description": "Canonical requirement shape (WHAT axis), for cross-model alignment. 'limit' = a bounded numeric threshold (noise dB, fence height, min lot size); 'location' = a siting/setback placement constraint (all distance features); 'approval' = a permit/authorization gate or zoning-district use authorization; 'equipment_standard' = a required build/hardware standard (required fencing or enclosure mandate); 'deadline'/'duration' = numeric time windows; 'submission' = a report/filing deliverable; 'monitoring' = a qualitative testing/measurement protocol with no fixed numeric magnitude. Siting-critical restriction: for 'noise' only use 'limit'; for distance features use 'location'; for 'minimum lot size' use 'limit'; for 'zoning districts' and 'permit_approval' use 'approval'; for 'fencing'/'enclosure' use 'limit' for a numeric magnitude or 'equipment_standard' for a required/prohibited mandate. Do not emit noise rows with rule_kind monitoring/deadline/duration/submission unless they carry an explicit numeric magnitude.",
-            "enum": [
-              "limit",
-              "deadline",
-              "duration",
-              "location",
-              "equipment_standard",
-              "submission",
-              "approval",
-              "monitoring"
+              "enclosure"
             ]
           },
           "specific_subject": {
             "type": ["string", "null"],
-            "description": "Sub-aspect that distinguishes this row from other rows sharing the same feature (WHAT axis), in the ordinance's own framing. REQUIRED for 'property lines distance': set to 'rear yard', 'side yard', or 'from property line' (general) so rear and side setbacks remain distinct rows. For 'noise' use 'daytime limit'/'nighttime limit' (or 'daytime adder'/'nighttime adder' for ambient-relative limits). Null when the feature is already specific enough. Examples: 'rear yard', 'side yard', 'from property line', 'from centerline', 'daytime limit', 'nighttime limit', 'permitted by right', 'conditional use', 'prohibited'."
+            "description": "Optional sub-aspect within the same feature. Use 'rear yard', 'side yard', or 'from property line' only for property lines distance; use 'front yard' only for front yard distance; use 'protected structure', 'commercial business', 'residential building', or 'residential district boundary' for structure or residential-building rules; and use 'daytime limit', 'nighttime limit', 'startup limit', 'A-weighted Leq', or 'low-frequency C-scale' for noise when the ordinance distinguishes a sub-limit or acoustic metric. When a single clause contains multiple side/rear values, keep the feature as property lines distance and annotate the controlling specific_subject in the row rather than creating a separate feature row. For equipment-specific rules, use the combined equipment label if both lift and line compressors are governed by the same standard (for example, 'all lift or line compressors'); do not make a duplicate row just because the ordinance repeats the same standard for both classes. For threshold-based rules such as a diameter-dependent setback or a facility-size condition, preserve the legal trigger in specific_subject or condition rather than collapsing it to a generic receptor-only label; for example, use 'underground line size threshold' with condition='4-inch to 6-inch line' or condition='6-inch or larger line'. For property-line setbacks, never assign building-structure phrases to property lines distance or lot-line phrases to structures distance. For front-yard setbacks, do not route them to property lines distance; use 'front yard' and 'front yard distance'. Leave null when the feature is already specific enough."
           },
-          "applies_to": {
+          "condition": {
             "type": ["string", "null"],
-            "description": "Facility type or scope the requirement governs (WHAT/WHERE axis), in the document's own terminology (e.g., 'Compressor station', 'Natural gas pipeline', 'Transmission pipeline', 'Gathering line', 'Metering/regulator station'). This is NOT the situational trigger (use condition) and NOT the obligation. Null when the requirement applies to all natural gas pipeline/compressor facilities generally. Use 'Oil and gas operations' ONLY when the ordinance's own definition of that term explicitly includes natural gas compressor stations or pipelines."
-          },
-          "requirement_description": {
-            "type": ["string", "null"],
-            "description": "Clean, obligation-free description of the regulated action or object (WHAT axis). NEVER include obligation words ('required', 'shall', 'may', 'must', 'prohibited'). Used for qualitative rows; null for purely quantitative rows. For qualitative relative-reference limits, state the reference standard here (e.g., 'Noise shall not exceed pre-development ambient levels within 300 feet'); do not leave this null while classifying the row as qualitative. Examples: 'Solid opaque fencing', 'Equipment housed in a fully enclosed building', 'Complaint-response monitoring protocol'."
-          },
-          "value_category": {
-            "type": "string",
-            "description": "REQUIRED. How this row's value is interpreted (HOW MUCH axis). 'quantitative' = a fixed, extractable numeric magnitude exists and lives in value (distance, dBA, acres, feet, hours, percent); value_interpretation must also be set. 'qualitative' = no fixed numeric magnitude; the substance lives in requirement_description and value/units/range_low/range_high must be null. Independent of obligation. A relative-reference limit ('shall not exceed pre-development ambient levels') or a permit/approval requirement is qualitative unless an explicit numeric adder makes it above_ambient. If no numeric magnitude can be quoted, choose qualitative.",
-            "enum": ["quantitative", "qualitative"]
+            "description": "Short situational trigger, especially for day/night noise windows, operational conditions, facility-size thresholds, or measurement-weighting distinctions. Use 'daytime' / 'nighttime' for separate noise limits; use 'startup operations' for startup-specific constraints; use '4-inch to 6-inch line' or '6-inch or larger line' when the rule changes by pipeline diameter or other legal threshold; and use 'A-weighted' or 'low-frequency C-scale' when the ordinance states distinct acoustic metrics for the same rule. Leave null when the requirement applies without a time, operational, measurement, or threshold condition. Do not use condition to store the substantive requirement itself. For metric distinctions, keep the metric in units (for example, 'dBA' or 'dBC') and store the measurement descriptor in specific_subject or condition only when it clarifies the legal standard (for example, 'A-weighted Leq' or 'low-frequency C-scale')."
           },
           "value": {
-            "description": "For quantitative rows, the numeric magnitude ONLY (e.g., 500, 55, 8), or a range string (e.g., '100-500') when the provision states a span. For qualitative rows set value to null and describe the requirement in requirement_description. NEVER embed units or obligation words in value; never put district or permit lists here (use applicable_values).",
+            "description": "The extracted ordinance value. Use a number for numeric limits and distances; use a string for categorical values and formula-based limits such as 'ambient + 7 dBA' or 'higher of ambient or 55 dBA + 7 dBA'; use an array of strings for permit names or zoning district lists; use null only for qualitative features when the ordinance explicitly imposes them. Null must never be used to indicate absence. For numeric noise values, split the measurement into the numeric amount in value and the unit in units (for example, value=88, units='dBC'); keep 'Leq' or 'C-scale' in specific_subject or condition if the ordinance distinguishes the metric. For ambient-plus-adder noise rules, prefer the full operative formula in the value string rather than only the adder, because the real limit is the baseline-plus-adder formula and not merely the incremental amount.",
             "anyOf": [
               { "type": "number" },
               { "type": "string" },
-              { "type": "null" }
-            ]
-          },
-          "value_interpretation": {
-            "description": "How the value is bounded or structured (HOW MUCH axis). 'exact' = single fixed value; 'minimum' = floor ('at least', 'no less than'); 'maximum' = fixed absolute ceiling ('shall not exceed' a fixed level); 'above_ambient' = value is an ADDER above a measured baseline ('ambient + X dB') — use instead of maximum whenever the limit references an ambient baseline, and record the baseline in notes; 'range' = a span (also populate range_low and range_high); 'formula' = value is set by a lookup/formula referencing another variable (set value=null, describe in requirement_description); 'tiered' = value depends on a band (emit one row per tier, with the band in condition); 'enumerated' = a discrete set paired with applicable_values. Null for qualitative rows (except formula/enumerated, which may be paired with a qualitative value_category).",
-            "anyOf": [
-              {
-                "type": "string",
-                "enum": [
-                  "exact",
-                  "minimum",
-                  "maximum",
-                  "above_ambient",
-                  "range",
-                  "formula",
-                  "tiered",
-                  "enumerated"
-                ]
-              },
+              { "type": "array", "items": { "type": "string" } },
               { "type": "null" }
             ]
           },
           "units": {
             "type": ["string", "null"],
-            "description": "Canonical unit of measurement for a quantitative value. For distance/fence height use 'feet', 'meters', 'inches', or 'miles'; for minimum lot size use 'acres' or 'square feet'; for noise normalize A-weighted variants such as 'dB(A)'/'dBa' to 'dBA' and keep plain 'dB' only when explicitly not A-weighted. Preserve the ordinance's verbatim wording in ordinance_text/summary while standardizing this field. Null for qualitative rows and for district/permit rows."
-          },
-          "range_low": {
-            "type": ["number", "null"],
-            "description": "Lower bound of the span when value is a range (e.g., 100 for '100-500'). Null unless value_interpretation='range'."
-          },
-          "range_high": {
-            "type": ["number", "null"],
-            "description": "Upper bound of the span when value is a range (e.g., 500 for '100-500'). Null unless value_interpretation='range'."
-          },
-          "obligation": {
-            "type": "string",
-            "description": "REQUIRED. How binding the requirement is (HOW BINDING axis). Never place obligation language inside value or requirement_description. Normalization: quantitative limits/setbacks use obligation='required' and encode direction in value_interpretation (minimum/maximum/range) even when the wording is negative ('shall not exceed', 'shall not be within'); reserve 'prohibited' for qualitative bans with no measurable threshold; for permit-gated phrasing ('may be permitted only through ... permit') use obligation='required' on the approval row. 'required' = shall/must/is required; 'prohibited' = qualitative ban (shall not, may not, is not permitted); 'conditional' = discretionary (may require, at the discretion of, as a condition of approval, unless waived); 'allowed' = explicitly permitted with no mandate (is permitted, may be located); 'recommended' = advisory (should, encouraged); 'informational' = definitions, measured baselines, or referenced external standards with no direct obligation. Precedence when multiple verbs appear: prohibited > required > conditional > recommended > allowed > informational.",
+            "description": "Canonical unit for the extracted value. Use 'feet' or 'meters' for setback distances, 'miles' for compressor-station spacing, 'acres' for minimum lot size, and 'dBA' or 'dBC' for noise limits when the ordinance distinguishes a C-weighted metric. Use null for qualitative requirements, zoning district listings, and permit approvals. Never place the measurement unit inside the value field when the ordinance states a separate metric or weighting; keep the numeric value and unit separate, and preserve the metric-specific wording in summary or specific_subject only as a clarifying label.",
             "enum": [
-              "required",
-              "prohibited",
-              "conditional",
-              "allowed",
-              "recommended",
-              "informational"
+              "feet",
+              "meters",
+              "miles",
+              "acres",
+              "square feet",
+              "dBA",
+              "dBC",
+              null
             ]
-          },
-          "condition": {
-            "type": ["string", "null"],
-            "description": "Situational trigger governing WHEN or WHERE the requirement applies (WHEN/WHERE axis). Must be a SHORT phrase only: 'nighttime', 'daytime only', 'in AG zone', 'capacity exceeds 3 MW', 'after a signed complaint is received'. NEVER put the substance of the requirement here — that belongs in requirement_description or ordinance_text. Not the facility type (use applies_to) and not the obligation. Null if the requirement applies unconditionally."
-          },
-          "applicable_values": {
-            "description": "Parallel interchangeable atomic values sharing an IDENTICAL obligation, condition, and evidence — used mainly for enumerated zoning-district codes or an interchangeable set of accepted permit names. Pair with value_interpretation='enumerated'. Null when a single value applies. Example: ['AG','RE','R1','R2'] for districts permitting the facility.",
-            "anyOf": [
-              {
-                "type": "array",
-                "items": { "type": "string" }
-              },
-              { "type": "null" }
-            ]
-          },
-          "ordinance_text": {
-            "type": ["string", "null"],
-            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must correspond to the extracted value and summary, reproduced in full without elision. After that first sentence, gather any other passages that bear on the same requirement and join them with an ellipsis ('...') in document order. This is the audit anchor for the row; never paraphrase or normalize the text. Null only if no single passage can be quoted."
-          },
-          "summary": {
-            "type": "string",
-            "description": "A short human-readable summary of the requirement, preferring direct ordinance excerpts in quotes (EVIDENCE axis). For qualitative features (zoning districts, permit_approval, fencing/enclosure mandates) this is a primary output field and should carry the operative ordinance language. Must be a non-null, non-empty string; do not output absence placeholders such as 'No explicit requirement found' — omit the row instead."
           },
           "section": {
             "type": ["string", "null"],
-            "description": "The ordinance section/article reference where the requirement appears (EVIDENCE axis), e.g. 'Sec. 12-5-106', 'Article 5 § 552', '§ 270-4.10'. Null if no section identifier is available."
+            "description": "The ordinance section, article, or subsection reference where the requirement appears. Null if no section identifier is available."
           },
-          "notes": {
-            "type": ["string", "null"],
-            "description": "Additional context not captured elsewhere (EVIDENCE axis): the ambient baseline description for above_ambient limits, measurement conditions, exceptions, the full zone-by-zone breakdown behind a most-restrictive value, or cross-references. Null when nothing extra applies."
+          "summary": {
+            "type": "string",
+            "description": "Short summary of the requirement, ideally quoting the operative text in the ordinance. For permit and facility-design clauses, the summary should carry the direct ordinance wording and must be non-empty."
+          },
+          "ordinance_text": {
+            "type": "string",
+            "description": "The complete relevant text excerpt from the ordinance, copied verbatim. The first sentence should correspond to the extracted feature and value, followed by any supporting clause(s) in document order joined by ellipses."
           },
           "explanation": {
             "type": "string",
-            "description": "Brief rationale (EVIDENCE axis) tying the cited evidence to the selected feature and the value_category/obligation decision. Use a short evidence chain such as \"reason 1: 'shall not exceed' → required; reason 2: numeric cap → quantitative/maximum; conclusion: night noise limit for a compressor station\". Must be a non-null, non-empty string and must not use absence placeholders. Keep it concise and direct, with no output-formatting or bookkeeping commentary."
+            "description": "Brief rationale explaining why this row matches the selected feature, why it is in scope for natural gas, and how the extracted value or permit wording follows from the ordinance."
           }
         }
       }
     }
   },
-  "$scope": "Definitions for 'natural gas compressor station', 'compressor station', 'natural gas pipeline', 'transmission pipeline', 'distribution pipeline', 'gathering line', 'metering station', 'regulator station', 'pipeline right-of-way', or similar natural-gas midstream/facility terms **OR** any legally enacted local or state requirements, prohibitions, zoning-district permissions, or permit/approval conditions that apply to natural gas compressor stations; natural gas pipelines (transmission, distribution, gathering); or metering/regulator stations and directly associated pipeline infrastructure. Provisions stated in a general zoning code, municipal code, code of ordinances, or use table are IN SCOPE when the same clause explicitly binds a natural gas facility or a broader utility/energy use class that clearly includes the natural gas facility. Text that also contains out-of-scope well, well-pad, or drilling provisions is still IN SCOPE when it contains any definition or requirement for a natural gas compressor station, pipeline, or metering/regulator station. **OUT OF SCOPE**: oil and gas wells (conventional or unconventional), well pads, wellheads, drilling and fracking operations, geothermal wells, wind/solar, water/sewer utilities, electric substations, telecom towers, utility tariffs/billing, residential gas appliances, and dimensional standards that apply only to residential/commercial uses with no natural-gas-facility linkage. Proposed, draft, future, or contingent requirements that are not currently effective as written are also out of scope.",
+  "$instructions": {
+    "scope": "Extract only explicit requirements that directly govern natural gas compressor stations, natural gas pipelines, metering stations, or directly associated facility infrastructure. Ignore unrelated oil and gas well rules, geothermal, solar, wind, electric substations, generic residential gas-use rules, color requirements, signage, landscaping, and administrative paperwork unless the same language expressly governs the natural gas facility.",
+    "null_handling": "If a feature is absent, omit that row entirely; do not emit placeholder text such as 'not found', 'N/A', or 'none'.",
+    "verbatim_quotes": "For summary and explanation, prefer the ordinance's direct wording and keep it faithful to the source. If the ordinance states a specific target such as 'rear yard' or 'daytime limit', preserve that wording in the summary and specific_subject.",
+    "units_discipline": "Use the units exactly as stated when they are a legal standard, but normalize to the canonical schema set: feet, meters, miles, acres, square feet, dBA, dBC. Keep the numeric value in value and the unit in units; never bury a measurement like '88 dBC Leq' into the value field as if the unit were part of the numeric amount. For qualitative requirements or zoning/permit lists, set units to null.",
+    "deduplication": "Emit one row per distinct feature + specific_subject + condition. Merge repeated evidence into a single row and keep the most restrictive value when multiple values apply to the same feature. Do not create duplicate rows for the same requirement or the same clause. When the ordinance distinguishes a different acoustic metric or weighting, keep that as a separate row or a distinct specific_subject/condition instead of collapsing it into the same row."
+  },
   "$core_principles": {
     "scope_context": {
-      "description": "Only extract requirements that apply to natural gas compressor stations, natural gas pipelines (transmission, distribution, gathering), or metering/regulator stations and their directly associated infrastructure. Exclude oil and gas wells (conventional or unconventional), well pads, wellheads, drilling, and hydraulic fracturing, as well as geothermal wells, wind, solar, water/sewer utilities, electric substations, telecommunications, utility tariffs/billing, and residential gas appliances — unless the same cited clause explicitly applies the requirement to a natural gas compressor station or pipeline. State statutes and regulations are in scope when they impose enforceable siting, zoning, setback, noise, fencing, enclosure, lot-size, or permitting requirements on natural gas pipeline or compressor infrastructure. This schema must work across county, municipal, township, borough, village, and state-level ordinance styles."
+      "description": "Only extract enacted requirements that directly govern natural gas compressor stations, natural gas pipelines, metering or regulator stations, or directly associated facility infrastructure. Exclude oil and gas wells, drilling, well pads, fracking, geothermal wells, solar or wind facilities, electric substations, and general residential gas-use rules unless the same clause explicitly binds a natural gas facility."
     },
     "technology_applicability_gate": {
-      "description": "Extract a row only when the cited evidence clearly applies to natural gas compressor/pipeline infrastructure. Record the governed facility type in applies_to. If an excerpt is technology-neutral (regulates 'structures' or 'uses' generally) with no explicit natural-gas linkage, omit it. A general zoning code, municipal code, or code of ordinances is a valid source when a clause within it explicitly governs a natural gas facility."
-    },
-    "gas_applicability_test": {
-      "description": "A yard setback, lot-size, or zoning-district rule IS extractable when it binds a natural gas facility — either stated directly ('a compressor station shall have a minimum front yard of 100 feet') or via a district/use-table row naming gas, utility, or energy uses. It is NOT extractable when it appears in a residential/commercial dimensional table with no gas linkage. Topic alone never disqualifies a rule; only the absence of gas applicability does."
+      "description": "Extract a row only when the ordinance text clearly applies to a natural gas compressor station or pipeline-related facility. Generic land-use language counts only when it explicitly names the facility type or a use class that clearly includes the facility."
     },
     "strict_evidence_gate": {
-      "description": "Extract a feature only when the ordinance text explicitly states an operative rule (a requirement, permission, district allowance, prohibition, or numeric threshold) for that same feature. Never infer, assume, extrapolate, or guess from headings, implications, or nearby provisions. Tables, matrices, footnotes, and labeled exhibits count when they state the operative requirement. If the ordinance points to another chapter or external standard without restating the controlling value, omit the feature rather than emitting a blank or inferred value."
+      "description": "Use direct ordinance text only. Do not infer, assume, or extrapolate siting rules from nearby context, implied zoning logic, or generic land-use patterns. If the controlling requirement is not stated in the clause, omit the row."
     },
-    "decomposition_model": {
-      "description": "Emit one row per distinct requirement, decomposed on four axes: WHAT (feature + specific_subject + applies_to + requirement_description), HOW MUCH (value + value_category + value_interpretation + units + range_low + range_high), HOW BINDING (obligation), and WHEN/WHERE (condition). When one clause states multiple setback targets, create one row per target with distinct feature/specific_subject. When noise limits differ by time of day, create separate rows with condition='daytime'/'nighttime'. When a value depends on a band (capacity, zone), emit one row per tier with value_interpretation='tiered' and the band in condition. When a clause mixes a measurable threshold with a separate non-numeric mandate, emit a quantitative row and a qualitative row."
+    "one_row_per_feature": {
+      "description": "The output should be sparse and compact: one row per distinct feature. If one ordinance addresses the same feature more than once, merge the evidence into a single row and keep the controlling most restrictive value when multiple values apply."
     },
-    "value_category_routing": {
-      "description": "Set value_category='quantitative' only when a fixed numeric magnitude can be quoted; then value is the number (or a range string) and value_interpretation is set (exact/minimum/maximum/above_ambient/range/tiered). Set value_category='qualitative' when there is no fixed magnitude; then value, units, range_low, and range_high are null and the substance goes in requirement_description. Relative-reference limits ('shall not exceed pre-development ambient levels') are qualitative unless an explicit numeric adder ('ambient + 7 dB') makes them quantitative with value_interpretation='above_ambient'. If your reasoning concludes 'no magnitude', choose qualitative."
+    "siting_critical_feature_set": {
+      "description": "This compact schema is intentionally limited to features that materially affect whether a natural gas compressor station or pipeline can be sited in a jurisdiction: setbacks from structures, front yard, and property lines (rear yard and side yard remain separate rows under the same feature when the ordinance splits them), residential buildings, water bodies, schools/community receptors, compressor station spacing, minimum lot size, separate daytime and nighttime noise limits, zoning district allowances, conditional/special use permit gates, fencing, and enclosure requirements. Exclude low-impact or non-determinative features such as color requirements, decorative standards, or generic paperwork that does not alter project feasibility."
     },
-    "most_restrictive_value": {
-      "description": "When multiple values apply to the SAME feature and specific_subject across zones or contexts and the ordinance shows they all apply, keep one row with the controlling most restrictive value: the largest minimum separation distance, the lowest allowed noise limit, and the largest minimum lot size. Record the full zone-by-zone breakdown verbatim in notes (or summary) so no regulatory nuance is lost. When the ordinance instead states an explicit span or bands, use value_interpretation='range' (with range_low/range_high) or 'tiered' (one row per tier) rather than collapsing to a single value."
+    "data_omission": {
+      "description": "If no explicit requirement is present, omit the feature entirely. Never emit absence placeholders such as 'not found', 'no explicit requirement', or similar text in any field."
     },
-    "siting_focus_and_omission": {
-      "description": "Extract only requirements that determine site viability. EXCLUDE site-plan 'show/list within X distance' filing radii (paperwork, not siting constraints), post-construction complaint protocols, monitoring/testing durations, submission deadlines, insurance, hearing logistics, and noise-mitigation equipment specs (mufflers, acoustic blankets, sound barriers) UNLESS the same clause carries a targeted numeric siting requirement. Emit only positively matched requirements; never emit placeholder or absence rows."
+    "row_split_policy": {
+     "description": "Use the same feature ID when the ordinance distinguishes a requirement by sub-target, time window, or legal threshold. For property-line setbacks, keep feature='property lines distance' and use one merged row when multiple rear-yard, side-yard, or lot-line values appear in the same rule; keep the controlling most restrictive distance and annotate the specific_subject only if it identifies the operative target. For front-yard setbacks, keep feature='front yard distance' and use specific_subject='front yard'. For building setbacks, keep feature='structures distance' and specific_subject='protected structure' or 'commercial business'. For threshold-based rules such as pipe-diameter triggers, keep feature='structures distance' and preserve the governing condition or specific_subject (for example, specific_subject='underground line size threshold', condition='4-inch to 6-inch line' or condition='6-inch or larger line') rather than flattening the rule to a generic receptor-only label. For noise, keep feature='noise' and create separate rows with condition='daytime', 'nighttime', or 'startup' when the ordinance distinguishes them. Do not create new feature IDs solely to separate these variants. Never map a property-line phrase to structures distance; never map a front-yard clause to property lines distance; never map a building phrase to property lines distance; and never merge daytime and nighttime noise into one row."
     }
   },
-  "$definitions": {
-    "setback_features": {
-      "description": "Minimum separation-distance requirements for natural gas compressor stations, pipelines, or metering/regulator stations (rule_kind='location'). Treat each setback feature independently; do not cross-apply a distance unless the ordinance explicitly states it applies to multiple target types. When one clause lists multiple targets with one shared distance, emit one row per named target using the same value and units. Apply the most-restrictive rule in $core_principles when multiple values explicitly apply to the same feature and specific_subject.",
-      "properties": {
-        "property lines distance": {
-          "description": "Separation from property lines, lot lines, parcel boundaries, or tract lines. REQUIRED specific_subject: 'rear yard' and 'side yard' setbacks are captured here (there is no separate rear/side feature); use 'from property line' for a general/unspecified boundary setback. Do not remap to roads, water bodies, or structures unless the text makes them equivalent."
-        },
-        "front yard distance": {
-          "description": "Setback from the front / street-facing lot line for a gas facility structure. Use this feature (not 'property lines distance') whenever the ordinance uses front-yard framing."
-        },
-        "structures distance": {
-          "description": "Generic building/structure setback used ONLY when the ordinance does NOT name a specific occupancy type ('any occupied structure', 'all buildings'). If a type is named (residential, school, hospital, civic), use the specific feature instead; never emit both for one clause. EXCLUDE definition clauses that describe what may occupy a setback zone rather than stating a distance from structures."
-        },
-        "distance between compressor stations": {
-          "description": "Minimum required separation between one natural gas compressor station and another. EXCLUDE spacing requirements for wells, well pads, or unrelated facilities."
-        },
-        "water bodies distance": {
-          "description": "Setback from rivers, streams, lakes, ponds, wetlands, reservoirs, floodplains, or other named water bodies. Do not map domestic-water-well setbacks here."
-        },
-        "roads distance": {
-          "description": "Setback from public roads, road rights-of-way, streets, or highway corridors (centerline or edge). Property-line distances do not count unless the ordinance states the property line is the road right-of-way for the same requirement."
-        },
-        "residential buildings distance": {
-          "description": "Setback from homes, dwellings, occupied residences, or residential buildings as physical receptors. Use 'zoning districts' or 'property lines distance' — not this feature — for setbacks stated only against residential zoning boundaries where no building receptor is named."
-        },
-        "schools distance": {
-          "description": "Setback from schools, school properties, educational campuses, or similar school uses explicitly named as a receptor for a gas facility."
-        },
-        "hospitals distance": {
-          "description": "Setback from hospitals, medical centers, clinics, or nursing facilities explicitly named as a receptor for a gas facility."
-        },
-        "community structures distance": {
-          "description": "Setback from other explicitly named sensitive community receptors (churches, places of worship, daycares, public assembly, community buildings) not covered by 'schools distance' or 'hospitals distance'. Use only when the receptor type is explicitly named and tied to a gas facility."
-        }
-      }
-    },
-    "numerical_features": {
-      "description": "Non-setback numeric restriction features. Extract as quantitative only when an explicit numeric magnitude is stated.",
-      "properties": {
-        "minimum lot size": {
-          "description": "Minimum lot, parcel, or site area required to site the facility, in acres or square feet (rule_kind='limit', value_interpretation='minimum'). If multiple minimums apply, keep the highest and record the alternatives in notes. EXCLUDE residential lot standards for unrelated uses and qualitative platting procedures without a numeric area."
-        },
-        "noise": {
-          "description": "Maximum allowable operational noise for a compressor station or pipeline facility (rule_kind='limit'). Emit day and night as SEPARATE rows using condition='daytime'/'nighttime' and specific_subject='daytime limit'/'nighttime limit'. Extract as quantitative only when an explicit numeric dB/dBA cap is stated; normalize A-weighted units to 'dBA'. For 'ambient + X dB' limits, set value=X, value_interpretation='above_ambient', and record the baseline in notes. Ambient-relative limits with no numeric adder are qualitative (state the reference in requirement_description). EXCLUDE complaint-response protocols, monitoring/testing durations, submission deadlines, and equipment standards unless they carry an explicit numeric magnitude."
-        }
-      }
-    },
-    "site_design_features": {
-      "description": "Physical site-design constraints on the facility.",
-      "properties": {
-        "fencing": {
-          "description": "Fence requirement for the facility. Use rule_kind='limit' with a numeric height (value + units, e.g. 8 feet) when a height is stated, or rule_kind='equipment_standard' with value_category='qualitative' for a required/opaque fencing mandate with no height ('a solid opaque fence shall enclose the compressor yard', 'security fencing required around all equipment'). EXCLUDE locking/gate hardware, gate operation procedures, fence material composition, and landscaping/buffer plantings."
-        },
-        "enclosure": {
-          "description": "Requirement to physically house compressor-station equipment inside a building or structure, or an explicit prohibition of open-air equipment. Usually qualitative (rule_kind='equipment_standard', value_category='qualitative', mandate in requirement_description); use quantitative only if a specific enclosure dimension threshold is stated. EXCLUDE architectural finish details (accent materials, roof pitch, decorative elements) and equipment sub-specs such as exhaust mufflers, exhaust boxes, and sound-barrier specifications."
-        }
-      }
-    },
-    "district_and_permit_features": {
-      "description": "Land-use authorization and permit/approval gates for the facility.",
-      "properties": {
-        "zoning districts": {
-          "description": "Districts where a natural gas compressor station or pipeline facility is permitted by right, conditionally/specially permitted, or prohibited. Use rule_kind='approval', value_category='qualitative', value_interpretation='enumerated', and list the district codes in applicable_values. Emit SEPARATE rows per obligation level: obligation='allowed' for by-right districts, 'conditional' for conditional/special-use districts, 'prohibited' for banned districts (with specific_subject='permitted by right'/'conditional use'/'prohibited'). Do not merge districts of different obligation levels into one row. Include a district only when gas-facility applicability is explicit (the district clause names the facility, or a defined use class in the same document does)."
-        },
-        "permit_approval": {
-          "description": "A jurisdiction-level gate requiring a permit or approval before the facility may be sited or operated — special permit, conditional use permit, special exception, or site plan approval (rule_kind='approval', value_category='qualitative'). Preserve the approval name(s) in applicable_values when enumerated. EXCLUDE generic infrastructure permits (road access, driveway, utility connection, building permit) that apply to any construction and are not specific to siting the gas facility. Do NOT use 'enclosure' for permit/approval requirements. When a use table lists the facility as a conditional use AND a detailed section states 'a conditional use permit is required', extract only the permit_approval row (more authoritative); do not also emit a redundant zoning-districts row for the same obligation and facility type."
-        }
-      }
-    }
-  },
-  "$instructions": {
-    "general": [
-      "Emit one row per distinct enacted requirement. Split a clause into multiple rows by feature, specific_subject, condition (day/night), or tier whenever it states more than one distinct requirement.",
-      "Feature IDs are strict canonical keys from the enum; never output aliases or paraphrased feature names.",
-      "Every row must have a non-null, non-empty summary and a non-null, non-empty explanation.",
-      "Preserve verbatim ordinance language in ordinance_text and quote excerpts in summary; standardize units in the units field while keeping original wording in the evidence fields. Keep the rationale short and concrete, not an extended chain of reasoning.",
-      "Do not convert values between unit systems. Record the numeric value as written and put the canonical unit in units.",
-      "Emit only positively matched requirements; never emit a row to explain that a feature does not apply, and never use absence placeholders in any field.",
-      "If text is genuinely ambiguous about whether it imposes an enforceable requirement, or gas applicability is unclear, omit the row. Do not omit merely because the ordinance uses different terminology than the feature name — equivalences are in $definitions.",
-      "If the ordinance references another chapter or external standard for the controlling value without restating it, omit the row rather than emitting a blank or inferred value.",
-      "For a moratorium or temporary restriction with an end date already passed as of today, treat it as expired and omit it."
-    ],
-    "axes": [
-      "WHAT: feature + specific_subject + applies_to + requirement_description. Put the governed facility type in applies_to; put the situational trigger in condition; never mix the two.",
-      "HOW MUCH: value + value_category + value_interpretation + units + range_low/range_high. Quantitative rows require a numeric value and a non-null value_interpretation; qualitative rows require value/units/range_low/range_high to be null.",
-      "HOW BINDING: obligation. Encode negative wording ('shall not exceed', 'shall not be within') as obligation='required' with a directional value_interpretation; reserve 'prohibited' for qualitative bans.",
-      "WHEN/WHERE: condition. A short trigger phrase only ('nighttime', 'in AG zone', 'capacity exceeds 3 MW'); the substance of the rule never goes here."
-    ],
+  "$features": {
     "setbacks": [
-      "All distance features use rule_kind='location' and carry a numeric value with non-null units; never emit a qualitative-only setback row.",
-      "For 'property lines distance', always set specific_subject to 'rear yard', 'side yard', or 'from property line'.",
-      "When one clause names multiple distance targets with one shared value, emit one row per named target with the same value and units.",
-      "Do not infer one setback feature from another (a property-line setback is not a structures setback; a roads setback is not a water-body setback) unless the ordinance says so.",
-      "EXCLUDE site-plan filing radii ('show structures within one mile of the property line') — these are paperwork requirements, not siting constraints."
+     "property lines distance",
+     "front yard distance",
+     "structures distance",
+     "residential buildings distance",
+     "water bodies distance",
+     "distance between compressor stations"
     ],
     "noise": [
-      "Use rule_kind='limit'. Emit separate daytime and nighttime rows via condition and specific_subject.",
-      "Quantitative only when an explicit numeric dB/dBA cap is stated; normalize A-weighted units to 'dBA'.",
-      "For 'ambient + X dB' limits set value=X, value_interpretation='above_ambient', and record the baseline (e.g., 'pre-development ambient level' or a 72-hour evaluation) in notes.",
-      "Ambient-relative limits with no numeric adder are qualitative: set value null and state the reference standard in requirement_description.",
-      "Do not emit noise rows for complaint protocols, monitoring/testing durations, submission deadlines, or mitigation-equipment specs unless a numeric magnitude is present."
+     "noise"
+    ],
+    "specific_subject_examples": {
+     "property lines distance": ["rear yard", "side yard", "from property line"],
+     "noise": ["daytime limit", "nighttime limit", "startup limit"]
+    },
+    "condition_examples": {
+     "noise": ["daytime", "nighttime", "startup operations"]
+    },
+    "hard_mapping_rules": {
+     "property_lines_distance": "Only for lot-line, rear-yard, side-yard, or boundary-line setbacks; never a building, residential structure, or front-yard target.",
+     "front_yard_distance": "Only for front-yard setbacks; never a property-line or lot-line requirement.",
+     "structures_distance": "Only for buildings, protected structures, occupied structures, or other non-lot-line building receptors; never a property-line, rear-yard, side-yard, or front-yard target. When the ordinance varies the requirement by a legal threshold such as pipeline diameter, equipment category, or facility size, preserve that threshold in specific_subject or condition rather than flattening to a generic receptor-only label.",
+     "residential_buildings_distance": "Only for setbacks measured from occupied residences or other residential structures; not for generic lot lines or unrelated buildings unless the ordinance explicitly defines the residential receptor.",
+     "noise": "Separate rows for day and night limits keyed by condition='daytime' or 'nighttime'; do not merge day/night into one row. If the ordinance states a single combined day/night limit, keep a single row and condition='daytime' when it is clearly a single standard, or split into two rows only when the text names separate day and night values. For ambient-plus-adder standards, preserve the operative formula in the value string (for example, 'ambient + 7 dBA' or 'higher of ambient or 55 dBA + 7 dBA') and keep the baseline in summary/explanation; do not reduce the rule to only the adder unless the ordinance literally states only an adder without a baseline formula. When the same source clause defines distinct acoustic measures for the same equipment class, such as '68.0 dBA Leq' and '88 dBC Leq', store them as separate rows keyed by the measurement condition or metric distinction rather than as duplicate fencing-type rows. Do not collapse a different measurement metric into the same row if the ordinance distinguishes the metric or the weight scale."
+    },
+    "zoning": [
+      "zoning districts"
+    ],
+    "other_numeric": [
+      "minimum lot size"
     ],
     "site_design": [
-      "Fencing: rule_kind='limit' with numeric height + units when a height is given; otherwise rule_kind='equipment_standard', value_category='qualitative', with the mandate in requirement_description. Exclude gate hardware, materials, and landscaping.",
-      "Enclosure: rule_kind='equipment_standard', usually qualitative (mandate in requirement_description); quantitative only for an explicit dimension threshold. Exclude architectural finishes and muffler/sound-barrier equipment specs."
+      "fencing",
+      "enclosure"
     ],
-    "districts_and_permits": [
-      "Zoning districts: rule_kind='approval', value_category='qualitative', value_interpretation='enumerated', district codes in applicable_values; one row per obligation level (allowed/conditional/prohibited).",
-      "Include a district only when gas-facility applicability is explicit; if the jurisdiction is unzoned or lists no district names, omit district rows rather than paraphrasing.",
-      "permit_approval: rule_kind='approval', value_category='qualitative'; capture only permits specific to siting the gas facility, not generic construction/utility permits.",
-      "When both a use-table conditional-use listing and a detailed 'conditional use permit is required' statement exist, emit only the permit_approval row and skip the redundant zoning-districts row for the same obligation and facility type."
+    "equipment_specificity": {
+      "fencing": "Use a single row when the ordinance states the same fence requirement for several equipment classes in one clause (for example, both lift compressors and line compressors use the same eight-foot security fence). Keep the specific_subject as the combined equipment label or null, not as a duplicate row for each equipment class. Only split into multiple rows when the ordinance imposes different fence heights or different standards by equipment type."
+    },
+    "approval": [
+      "permit_approval"
     ]
-  },
-  "$examples": [
-    {
-      "outputs": [
-        {
-          "feature": "property lines distance",
-          "rule_kind": "location",
-          "specific_subject": "rear yard",
-          "applies_to": "Compressor station",
-          "requirement_description": null,
-          "value_category": "quantitative",
-          "value": 100,
-          "value_interpretation": "minimum",
-          "units": "feet",
-          "range_low": null,
-          "range_high": null,
-          "obligation": "required",
-          "condition": null,
-          "applicable_values": null,
-          "ordinance_text": "'No compressor station shall be located within one hundred (100) feet of any rear lot line.'",
-          "summary": "Compressor stations must be set back at least 100 feet from the rear lot line.",
-          "section": "§ 315-75C",
-          "notes": null,
-          "explanation": "'shall ... within 100 feet of any rear lot line' → required; explicit number → quantitative minimum; rear boundary → property lines distance with specific_subject 'rear yard'."
-        },
-        {
-          "feature": "noise",
-          "rule_kind": "limit",
-          "specific_subject": "nighttime limit",
-          "applies_to": "Compressor station",
-          "requirement_description": null,
-          "value_category": "quantitative",
-          "value": 55,
-          "value_interpretation": "maximum",
-          "units": "dBA",
-          "range_low": null,
-          "range_high": null,
-          "obligation": "required",
-          "condition": "nighttime",
-          "applicable_values": null,
-          "ordinance_text": "'... shall not exceed a maximum of 55 dBA at any lot line between 10:00 p.m. and 7:00 a.m.'",
-          "summary": "Nighttime compressor-station noise may not exceed 55 dBA at any lot line.",
-          "section": "§ 315-75A",
-          "notes": "Daytime limit captured as a separate row.",
-          "explanation": "'shall not exceed ... 55 dBA' → required; explicit numeric cap → quantitative maximum; nighttime window → condition nighttime."
-        },
-        {
-          "feature": "zoning districts",
-          "rule_kind": "approval",
-          "specific_subject": "conditional use",
-          "applies_to": "Natural gas compressor station",
-          "requirement_description": null,
-          "value_category": "qualitative",
-          "value": null,
-          "value_interpretation": "enumerated",
-          "units": null,
-          "range_low": null,
-          "range_high": null,
-          "obligation": "conditional",
-          "condition": null,
-          "applicable_values": ["I-1", "I-2", "M-1"],
-          "ordinance_text": "'Natural gas compressor stations may be permitted as a conditional use in the I-1, I-2, and M-1 districts.'",
-          "summary": "Compressor stations are allowed as a conditional use in the I-1, I-2, and M-1 districts.",
-          "section": "Table 4 — Use Regulations",
-          "notes": null,
-          "explanation": "Use table lists districts allowing the facility by conditional use → zoning districts, obligation conditional, district codes enumerated in applicable_values."
-        },
-        {
-          "feature": "enclosure",
-          "rule_kind": "equipment_standard",
-          "specific_subject": null,
-          "applies_to": "Compressor station",
-          "requirement_description": "Equipment housed in a fully enclosed building",
-          "value_category": "qualitative",
-          "value": null,
-          "value_interpretation": null,
-          "units": null,
-          "range_low": null,
-          "range_high": null,
-          "obligation": "required",
-          "condition": null,
-          "applicable_values": null,
-          "ordinance_text": "'All compressor units shall be housed within a fully enclosed building.'",
-          "summary": "All compressor units must be housed within a fully enclosed building.",
-          "section": "§ 315-75B",
-          "notes": null,
-          "explanation": "'shall be housed within a fully enclosed building' → required; no numeric magnitude → qualitative equipment_standard; mandate stated in requirement_description."
-        }
-      ]
-    }
-  ],
-  "$qa_checklist": [
-    "Every output row uses one of the 16 enumerated feature IDs exactly as written.",
-    "Every row has a non-null, non-empty summary and a non-null, non-empty explanation.",
-    "Quantitative rows have a numeric (or range-string) value and a non-null value_interpretation; qualitative rows have value, units, range_low, and range_high all null.",
-    "Distance features use rule_kind='location' with numeric value and non-null units; 'property lines distance' rows set specific_subject to 'rear yard', 'side yard', or 'from property line'.",
-    "Noise rows use rule_kind='limit'; day and night are separate rows via condition; ambient-relative limits with no numeric adder are qualitative; no noise row is emitted for complaint/monitoring/testing/submission language without a numeric magnitude.",
-    "Fencing rows capture height (limit) or a required/opaque fencing mandate (equipment_standard); no rows for locking hardware, materials, or landscaping.",
-    "Enclosure rows capture a required/prohibited building-enclosure mandate; no rows for exhaust mufflers, sound-barrier specs, or architectural finishes.",
-    "When multiple values apply to the same feature and specific_subject and all apply, value is the most restrictive (largest setback / lowest noise / largest minimum lot size) with the full breakdown in notes; explicit spans use range and explicit bands use tiered.",
-    "Zoning-district rows list district codes in applicable_values with value_interpretation='enumerated' and one row per obligation level (allowed/conditional/prohibited).",
-    "permit_approval rows are tied to explicit facility-specific discretionary permit language, not generic construction/utility permits; redundant zoning-districts rows for the same obligation are dropped in favor of permit_approval.",
-    "No row is extracted from language that applies only to oil/gas wells, well pads, wellheads, drilling, or fracking; applies_to reflects a natural gas pipeline/compressor facility.",
-    "Site-plan filing radii ('show structures within X') and pure monitoring/reporting/insurance/hearing-process language are not extracted as siting requirements."
-  ],
-  "$qualitative_features": [
-    "zoning districts",
-    "permit_approval"
-  ]
+  }
 }
