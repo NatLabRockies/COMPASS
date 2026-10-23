@@ -1,7 +1,7 @@
 {
   "title": "Natural Gas Pipeline and Compressor Station Ordinance Extraction Schema",
-  "description": "Compact long-form schema for natural gas pipeline and compressor station rules. This is a comparison draft that follows the geothermal output pattern of sparse, one-row-per-feature extraction while staying grounded in the actual natural gas feature set seen in the live pilot output. It is intentionally narrower than the broader production schema and intentionally excludes geothermal-only time-window features like HH:MM clock values.",
-  "version": "4.0.0",
+  "description": "One-shot extraction schema focused on siting and permitting requirements for natural gas pipelines and compressor stations.",
+  "version": "3.0.0",
   "type": "object",
   "required": ["outputs"],
   "additionalProperties": false,
