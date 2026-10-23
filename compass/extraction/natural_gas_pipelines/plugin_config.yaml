@@ -1,4 +1,4 @@
-schema: ./natural_gas_pipelines_schema_v2.json
+schema: ./natural_gas_pipelines_schema.json
 
 data_type_short_desc: natural gas pipeline and compressor station ordinance
 
