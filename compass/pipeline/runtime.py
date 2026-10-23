@@ -38,13 +38,13 @@ from compass.utilities.logs import NoLocationFilter, LogListener
 
 
 logger = logging.getLogger(__name__)
-MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 10
+MAX_CONCURRENT_SEARCH_ENGINE_QUERIES = 50
 
 
 class PipelineRuntime:
     """Context Object for runtime dependencies in one pipeline run"""
 
-    def __init__(self, request):
+    def __init__(self, request, re_run_targets=None):
         """
 
         Parameters
@@ -52,11 +52,18 @@ class PipelineRuntime:
         request : compass.pipeline.data_classes.BaseRequest
             Request object containing all user inputs and settings for
             this run.
+        re_run_targets : dict, optional
+            Per-shard metric names mapped to minimum counts for
+            continuing a run. An empty mapping continues with the
+            default nonempty shard requirement. All targets must pass in
+            the re-run. By default, ``None`` starts a fresh run.
         """
         self.request = request
+        self.re_run_targets = re_run_targets
         self.mode = request.MODE
         self.tech = request.tech
         self.models = request.models
+        self.rate_tracker = request.rate_tracker
         self.search_params = request.search_settings
         self.log_level = _normalize_log_level(
             request.runtime_settings.log_level
@@ -75,10 +82,11 @@ class PipelineRuntime:
         LLM_COST_REGISTRY.update(request.llm_costs or {})
 
     async def __aenter__(self):
+        log_dir = self.dirs.logs  # make sure directory is set up
         self._listener_ctx = self.log_listener
         listener = await self._listener_ctx.__aenter__()
         _configure_main_logging(
-            self.dirs.logs, self.log_level, listener, self.keep_async_logs
+            log_dir, self.log_level, listener, self.keep_async_logs
         )
         await self._running_services.__aenter__()
         return self
@@ -94,6 +102,8 @@ class PipelineRuntime:
         return _setup_folders(
             self.request.output_settings,
             collect_only=(self.mode == self.mode.COLLECT),
+            search_only=(self.mode == self.mode.SEARCH),
+            allow_existing=self.re_run_targets is not None,
         )
 
     @cached_property
@@ -205,6 +215,9 @@ class PipelineRuntime:
     @cached_property
     def _base_services(self):
         """Base services required for this run"""
+        if self.mode == self.mode.SEARCH:
+            return [GenericFuncRunner(**self.tpe_kwargs)]
+
         runtime_settings = self.request.runtime_settings
         services = [
             TempFileCachePB(
@@ -330,7 +343,12 @@ def _configure_main_logging(log_dir, level, listener, keep_async_logs):
         logger.debug_to_file("Using async log format: %s", log_fmt)
 
 
-def _setup_folders(output_settings, collect_only=False):
+def _setup_folders(
+    output_settings,
+    collect_only=False,
+    search_only=False,
+    allow_existing=False,
+):
     """Create output folders for the run"""
     dirs = Directories(
         output_settings.out_dir,
@@ -338,10 +356,12 @@ def _setup_folders(output_settings, collect_only=False):
         output_settings.clean_dir,
         output_settings.ordinance_file_dir,
         output_settings.jurisdiction_dbs_dir,
-        collect_only,
+        save_se_shards=output_settings.save_search_engine_results,
+        collect_only=collect_only,
+        search_only=search_only,
     )
 
-    if not collect_only and dirs.out.exists():
+    if not collect_only and not allow_existing and dirs.out.exists():
         msg = (
             f"Output directory '{output_settings.out_dir!s}' already "
             "exists! Please specify a new directory for every COMPASS run."

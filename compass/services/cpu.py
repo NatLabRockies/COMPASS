@@ -3,45 +3,22 @@
 import ast
 import os
 import time
-import math
 import pprint
 import asyncio
 import logging
-import warnings
 import platform
 import contextlib
 import multiprocessing
 from glob import iglob
-from io import BytesIO
 from pathlib import Path
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 
-import numpy as np
-import pandas as pd
-from elm.web.document import PDFDocument, MDDocument
+from elm.web.document import PDFDocument
 from elm.utilities.parse import read_pdf, read_pdf_ocr
-from docling.datamodel.backend_options import HTMLBackendOptions
-from docling.datamodel.base_models import DocumentStream, InputFormat
-from docling.document_converter import (
-    DocumentConverter,
-    HTMLFormatOption,
-    PdfFormatOption,
-)
-from docling.datamodel.pipeline_options import (
-    PdfPipelineOptions,
-    TableStructureOptions,
-    TesseractCliOcrOptions,
-)
-from docling.exceptions import ConversionError
 
-from compass.exceptions import COMPASSValueError
 from compass.services.base import Service
-from compass.utilities.logs import (
-    configure_subprocess_logging,
-    configure_docling_subprocess_logging,
-    LQ,
-)
+from compass.utilities.logs import configure_subprocess_logging, LQ
 
 
 logger = logging.getLogger(__name__)
@@ -267,69 +244,6 @@ async def read_pdf_file_ocr(pdf_fp, **kwargs):
     )
 
 
-async def read_docling_web_file(
-    doc_bytes, url, source_uri=None, pdf_pipeline_options=None, **kwargs
-):
-    """Read a web file using Docling in a Process Pool
-
-    Parameters
-    ----------
-    doc_bytes : bytes
-        Raw document payload forwarded to the Docling parser.
-    url : str
-        Filename or URL of the file to read.
-    source_uri : str, optional
-        Original remote URL for the file. If specified, this is used
-        as the HTML base URI while ``url`` is still used as the stream
-        name for Docling format inference. By default, ``None``.
-    pdf_pipeline_options : dict, optional
-        Dictionary of keyword-value arguments to pass to
-        :class:`docling.datamodel.pipeline_options.PdfPipelineOptions`
-        initializer. Table structure defaults to enabled when omitted.
-        OCR defaults to enabled only when ``pytesseract_exe_fp`` is
-        specified. By default, ``None``.
-    **kwargs
-        Additional keyword arguments passed to Docling's
-        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
-        method.
-
-    Returns
-    -------
-    elm.web.document.MDDocument
-        Parsed document.
-    """
-    return await FileLoader.call(
-        _read_docling_catch_error,
-        doc_bytes,
-        file_source=url,
-        source_uri=source_uri,
-        pdf_pipeline_options=pdf_pipeline_options,
-        **kwargs,
-    )
-
-
-async def read_docling_local_file(fp, **kwargs):
-    """Read a web file using Docling in a Process Pool
-
-    Parameters
-    ----------
-    fp : path-like
-        Path to local file to read.
-    **kwargs
-        Additional keyword arguments passed to Docling's
-        :func:`~docling_core.types.doc.DoclingDocument.export_to_markdown`
-        method.
-
-    Returns
-    -------
-    elm.web.document.MDDocument
-        Parsed document.
-    bytes
-        Raw bytes of the PDF file.
-    """
-    return await FileLoader.call(_read_file_docling, fp, **kwargs)
-
-
 def _read_pdf(pdf_bytes, **kwargs):
     """Utility func so that pdftotext.PDF doesn't have to be pickled"""
     pages = read_pdf(pdf_bytes, verbose=False)
@@ -376,234 +290,6 @@ def _read_pdf_file_ocr(pdf_fp, tesseract_cmd, **kwargs):
     return doc, pdf_bytes
 
 
-def _read_docling_catch_error(
-    doc_bytes,
-    file_source,
-    headers=None,
-    pytesseract_exe_fp=None,
-    source_uri=None,
-    pdf_pipeline_options=None,
-    **kwargs,
-):
-    """Utility to return empty docs on error"""
-    try:
-        return _read_docling(
-            doc_bytes=doc_bytes,
-            file_source=file_source,
-            headers=headers,
-            pytesseract_exe_fp=pytesseract_exe_fp,
-            source_uri=source_uri,
-            pdf_pipeline_options=pdf_pipeline_options,
-            **kwargs,
-        )
-    except Exception:  # ruff:ignore[blind-except]
-        return MDDocument(pages=[], attrs={"doc_type": "unknown"})
-
-
-def _read_docling(
-    doc_bytes,
-    file_source,
-    headers=None,
-    pytesseract_exe_fp=None,
-    source_uri=None,
-    pdf_pipeline_options=None,
-    **kwargs,
-):
-    """Read documents using Docling with an optional hard deadline"""
-
-    pdf_pipeline_options = dict(pdf_pipeline_options or {})
-    docling_timeout = pdf_pipeline_options.get(
-        "document_timeout", 60 * 60 / 1.1
-    )
-    _validate_docling_timeout(docling_timeout)
-    return _run_docling_in_subprocess(
-        _read_docling_without_timeout,
-        args=(doc_bytes, file_source),
-        kwargs={
-            "headers": headers,
-            "pytesseract_exe_fp": pytesseract_exe_fp,
-            "source_uri": source_uri,
-            "pdf_pipeline_options": pdf_pipeline_options,
-            **kwargs,
-        },
-        timeout=docling_timeout * 1.1,
-    )
-
-
-def _read_docling_without_timeout(
-    doc_bytes,
-    file_source,
-    headers=None,
-    pytesseract_exe_fp=None,
-    source_uri=None,
-    pdf_pipeline_options=None,
-    **kwargs,
-):
-    """Read documents using Docling without an in-process deadline"""
-
-    file_source = str(file_source)
-    source_uri = file_source if source_uri is None else str(source_uri)
-    if headers is not None:
-        headers = dict(headers)
-
-    pipeline_options = PdfPipelineOptions(**(pdf_pipeline_options or {}))
-    pipeline_options.do_table_structure = True
-    pipeline_options.table_structure_options = TableStructureOptions(
-        do_cell_matching=True
-    )
-    if pytesseract_exe_fp is None:
-        pipeline_options.do_ocr = False
-    else:
-        pipeline_options.do_ocr = True
-        pipeline_options.ocr_options = TesseractCliOcrOptions(
-            tesseract_cmd=pytesseract_exe_fp
-        )
-
-    html_backend_options = HTMLBackendOptions(source_uri=source_uri)
-
-    doc_converter = DocumentConverter(
-        format_options={
-            InputFormat.PDF: PdfFormatOption(
-                pipeline_options=pipeline_options
-            ),
-            InputFormat.HTML: HTMLFormatOption(
-                backend_options=html_backend_options
-            ),
-        }
-    )
-
-    start_time = time.perf_counter()
-    stream = DocumentStream(name=file_source, stream=BytesIO(doc_bytes))
-    conv_result = doc_converter.convert(stream, headers=headers)
-    conversion_time_seconds = time.perf_counter() - start_time
-
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", RuntimeWarning)
-        mean_confidence = _none_if_missing(conv_result.confidence.mean_score)
-        low_score_confidence = _none_if_missing(
-            conv_result.confidence.low_score
-        )
-
-    attrs = {
-        "doc_filename": conv_result.input.file.stem,
-        "doc_type": conv_result.input.format.value,
-        "conversion_time_seconds": conversion_time_seconds,
-        "conversion_status": conv_result.status.value,
-        "num_pages": len(conv_result.pages),
-        "from_ocr": any(
-            ~np.isnan(c.ocr_score)
-            for c in conv_result.confidence.pages.values()
-        ),
-        "mean_confidence": mean_confidence,
-        "low_score_confidence": low_score_confidence,
-    }
-    doc_text = conv_result.document.export_to_markdown(**kwargs)
-
-    return MDDocument([doc_text], attrs=attrs, remove_comments=False)
-
-
-def _run_docling_in_subprocess(fn, *, args, kwargs, timeout):
-    """Run one Docling conversion in a disposable child process"""
-    mp_context = multiprocessing.get_context(
-        "fork"
-        if "fork" in multiprocessing.get_all_start_methods()
-        else "spawn"
-    )
-    receiver, sender = mp_context.Pipe(duplex=False)
-    process = mp_context.Process(
-        target=_run_docling_subprocess, args=(sender, fn, args, kwargs)
-    )
-    process.start()
-    sender.close()
-
-    try:
-        status, payload = _receive_docling_result(receiver, process, timeout)
-    finally:
-        receiver.close()
-        _shutdown_docling_process(process)
-
-    if status == "success":
-        logger.info("Docling conversion ran successfully in subprocess")
-        return payload
-
-    msg = f"Docling conversion subprocess failed: {payload}"
-    logger.error(msg)
-    raise ConversionError(msg)
-
-
-def _run_docling_subprocess(sender, fn, args, kwargs):
-    """Execute a Docling conversion and send its result to the worker"""
-    configure_docling_subprocess_logging(sender)
-    try:
-        sender.send(("success", fn(*args, **kwargs)))
-    except Exception as error:  # ruff:ignore[blind-except]
-        with contextlib.suppress(BrokenPipeError, EOFError, OSError):
-            sender.send(("error", f"{type(error).__name__}: {error}"))
-    finally:
-        sender.close()
-
-
-# complexipy: ignore
-def _receive_docling_result(receiver, process, timeout):
-    """Receive a child conversion result before its deadline expires"""
-    deadline = time.monotonic() + timeout
-    while True:
-        remaining = deadline - time.monotonic()
-        if remaining <= 0:
-            msg = f"Docling conversion exceeded {timeout} seconds"
-            raise TimeoutError(msg)
-
-        if receiver.poll(min(remaining, 10)):
-            try:
-                status, payload = receiver.recv()
-            except EOFError as error:
-                msg = "Docling conversion subprocess exited without a result"
-                raise ConversionError(msg) from error
-
-            if status == "log":
-                logger.handle(payload)
-                continue
-            return status, payload
-
-        if not process.is_alive():
-            if receiver.poll():
-                continue
-            msg = "Docling conversion subprocess exited without a result"
-            raise ConversionError(msg)
-
-
-def _shutdown_docling_process(process):
-    """Join or force-stop a completed or timed-out Docling process"""
-    process.join(timeout=TIMEOUT_PARAMS["shutdown_timeout"])
-    if process.is_alive():
-        _force_shutdown_processes(
-            [process], timeout=TIMEOUT_PARAMS["force_shutdown_timeout"]
-        )
-
-
-def _validate_docling_timeout(timeout):
-    """Validate the configured Docling deadline"""
-    if (
-        isinstance(timeout, bool)
-        or not isinstance(timeout, (int, float))
-        or not math.isfinite(timeout)
-        or timeout <= 0
-    ):
-        msg = "`docling_timeout` must be a positive number of seconds"
-        raise COMPASSValueError(msg)
-
-
-def _read_file_docling(fp, **kwargs):
-    """Read a local file using Docling"""
-
-    fp = Path(fp)
-    doc_bytes = fp.read_bytes()
-    doc = _read_docling_catch_error(
-        doc_bytes, str(fp).replace(".txt", ".md"), headers=None, **kwargs
-    )
-    return doc, doc_bytes
-
-
 def _configure_pytesseract(tesseract_cmd):
     """Set the tesseract_cmd"""
     import pytesseract  # ruff:ignore[import-outside-top-level]
@@ -625,11 +311,6 @@ def _pytesseract_cleanup_win(temp_name):
     for filename in iglob(f"{temp_name}*" if temp_name else temp_name):
         with contextlib.suppress(OSError):
             os.remove(filename)  # ruff:ignore[os-remove]
-
-
-def _none_if_missing(value):
-    """Return ``None`` when a scalar confidence value is missing"""
-    return None if pd.isna(value) else value
 
 
 def _try_decode_ocr_pages(pages):

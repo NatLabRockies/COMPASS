@@ -21,6 +21,10 @@ class COMPASSFileNotFoundError(COMPASSError, FileNotFoundError):
     """COMPASS FileNotFoundError"""
 
 
+class COMPASSImportError(COMPASSError, ImportError):
+    """COMPASS optional dependency import error"""
+
+
 class COMPASSNotInitializedError(COMPASSError):
     """COMPASS not initialized error"""
 
@@ -31,6 +35,10 @@ class COMPASSTypeError(COMPASSError, TypeError):
 
 class COMPASSValueError(COMPASSError, ValueError):
     """COMPASS ValueError"""
+
+
+class COMPASSTargetError(COMPASSError, ValueError):
+    """Shard minimum targets remain unmet after saving run outputs"""
 
 
 class COMPASSRuntimeError(COMPASSError, RuntimeError):

@@ -25,18 +25,24 @@ or review the collected corpus before spending model tokens.
 
 Prerequisites
 =============
-We recommend enabling Optical Character Recognition (OCR) for PDF parsing, which
-allows the program to process scanned documents. To enable OCR, you'll need to install ``pytesseract``.
-If you installed COMPASS via PyPI, you may need to install a few additional dependencies:
+When using the Docling backend, COMPASS parses documents with Docling-RS.
+Docling dependencies are installed by default on Linux and Windows, but
+are excluded on macOS. Set ``COMPASS_FILE_LOAD_BACKEND=docling`` before
+starting COMPASS to select this backend where it is installed. Native
+Optical Character Recognition (OCR) and table extraction are enabled by
+default when using Docling-RS. Download the PDF parsing models once
+before processing PDFs:
 
 .. code-block:: shell
 
-    pip install pytesseract pdf2image
+    pixi run python -c "from docling_rs import download_models; download_models()"
 
-If you're using ``pixi`` to run the pipeline (recommended), these libraries are included by default.
+The models are cached under ``~/.cache/docling.rs``. Set
+``DOCLING_RS_CACHE_DIR`` to use a different model cache. HTML and Markdown
+conversion do not require these models.
 
-In either case, you may still need to complete a few additional setup steps if this is your first time
-installing Google's ``tesseract`` utility. Follow the installation instructions
+If you select the ELM backend instead, the scanned-PDF OCR requires
+Google's Tesseract. Follow the installation instructions
 `here <https://pypi.org/project/pytesseract/#:~:text=lang%5D%20image_file-,INSTALLATION,-Prerequisites%3A>`_.
 
 
@@ -124,30 +130,34 @@ Set ``verify_ssl`` to ``false`` in ``file_loader_kwargs`` to bypass certificate 
 If you're not using the VPN, it's best to leave this value as the default (``true``).
 
 **OCR Integration**
-As noted in the `Prerequisites`_ section, we recommend enabling OCR using ``pytesseract``. To enable OCR for scanned PDFs,
-you must provide the path to the ``tesseract`` executable using the ``pytesseract_exe_fp`` input.
-You can locate the executable path by running:
+Docling-RS uses its native OCR engine by default; it does not require
+``pytesseract_exe_fp``.
+
+For the ELM backend, provide the path to the ``tesseract`` executable using
+the ``pytesseract_exe_fp`` input. You can locate the executable by running:
 
 .. code-block:: shell
 
     which tesseract
 
-Omit the ``pytesseract_exe_fp`` key to disable OCR functionality.
+Omit the ``pytesseract_exe_fp`` key to disable OCR for the ELM backend.
 
 **Docling conversion deadline**
-When using the Docling file loader, set ``docling_timeout`` in
-``file_loader_kwargs.pdf_pipeline_options`` to apply a wall-clock deadline to each document.
-COMPASS runs the conversion in a disposable child process and terminates that
-child when the deadline expires.
+When using the Docling file loader, set ``document_timeout`` in
+``file_loader_kwargs.pdf_pipeline_options`` to set a per-document budget
+in seconds. The native PDF pipeline can return partial results when this
+budget expires between pages. COMPASS also terminates a stuck conversion
+in its disposable child process after a 10 percent grace period.
 
 .. code-block:: json
 
-    "pytesseract_exe_fp": "/path/to/tesseract",
-    "file_loader_kwargs": {
-        "pdf_pipeline_options": {
-            "do_ocr": true,
-            "do_table_structure": true
-            "docling_timeout": 1800,
+    {
+        "file_loader_kwargs": {
+            "pdf_pipeline_options": {
+                "do_ocr": true,
+                "do_table_structure": true,
+                "document_timeout": 1800
+            }
         }
     }
 
@@ -240,6 +250,127 @@ or run with ``pixi`` directly:
 Replace ``config.json5`` with the path to your actual configuration file.
 
 
+Save and Reuse Search Results
+------------------------------
+Use ``search`` when you want to inspect search results or reuse the same
+ranked URLs in later collection and processing runs. A search configuration
+uses the normal request settings, including the technology, jurisdictions,
+output directory, search engines, URL filters, and ranking mode. For example:
+
+.. code-block:: json
+
+    {
+        "tech": "wind",
+        "jurisdiction_fp": "./jurisdictions.csv",
+        "out_dir": "./searched",
+        "num_urls_to_check_per_jurisdiction": 5,
+        "simple_se_result_sort": true
+    }
+
+Paths beginning with ``./`` are relative to the configuration file. Run:
+
+.. code-block:: shell
+
+    pixi run compass search -c search_config.json5
+
+The output contains ``logs/``, per-jurisdiction JSON shards in
+``se_results/``, and ``search_result_manifest.json``. Shards are written as
+each jurisdiction finishes, including empty and failed searches. The
+manifest summarizes all results. ``result_stats`` counts reported rows, including
+filtered rows; ``filtered_result_stats`` counts the URLs retained for collection.
+Search does not need an LLM endpoint and honors ``simple_se_result_sort``.
+Use the same plugin registration option as collection when running a one-shot plugin.
+
+To continue an existing search, provide its output directory and optional
+minimum targets. For example:
+
+.. code-block:: shell
+
+    pixi run compass search -c search_config.json5 \
+      --out-dir-exists continue \
+      --target num_results=3 \
+      --target 'search_engine_counts.SerpAPI (Google)=10'
+
+Targets apply to each jurisdiction's shard, not to the aggregate manifest.
+Every target is a lower bound, and a shard must meet all supplied targets.
+``num_results`` counts reported rows, including filtered rows;
+``num_kept_results`` counts retained results; and
+``search_engine_counts.<engine label>`` counts rows attributed to that
+engine. Engine labels are the exact strings in ``search_engine_counts``.
+Quote targets containing spaces or parentheses. An absent engine count is
+zero, but an unknown or unconfigured engine label is an input error.
+Targets do not change which engines the configured search strategy runs.
+
+Continuation reuses passing shards without modifying their saved ranks or
+filters. It deletes shards below their targets or containing an empty
+``results`` list, then searches those jurisdictions again. Jurisdictions
+with no shard are always searched, even if the aggregate manifest still
+lists old results for them. Fresh shards replace the previous results;
+old and new rows are not merged. Files belonging to jurisdictions outside
+the configured jurisdiction list are left untouched.
+
+Without explicit targets, continuation reuses nonempty shards and retries
+only missing or empty ones. Each selected jurisdiction is searched once
+per invocation. The command saves its shards and rebuilt aggregate
+manifest before returning a nonzero exit status if requirements remain
+unmet. Inspect the reported failures and invoke continuation again when
+appropriate; there is no internal rerun loop. Unsuccessful fresh shards
+remain available for inspection. Interrupted runs can continue from the
+surviving shard files even if no aggregate manifest exists.
+
+The ``--continue`` directory is relative to the shell's working directory
+and overrides ``out_dir`` in the configuration. It cannot be combined with
+a conflicting explicit output-directory override or directory policy.
+``--out-dir-exists continue`` uses the same continuation behavior with
+the configured ``out_dir``.
+
+CLI targets override matching configuration targets and preserve other
+configured minimums. Repeated CLI targets for the same metric use the
+largest minimum. Counts must be nonnegative integers, and retained-result
+targets cannot exceed ``num_urls_to_check_per_jurisdiction``. Aggregate
+fields such as ``result_stats.min`` are not valid shard targets. Explicit
+targets may also validate a fresh search after its single pass. A fresh
+search without targets retains its normal completion behavior.
+
+The rebuilt manifest describes all currently requested jurisdictions,
+including reused shards and unsuccessful searches. Its timing and search
+settings describe the current invocation, not accumulated rerun history.
+Reuse does not refresh passing shards after changes to queries, filters,
+or ranking settings; use a fresh search to regenerate all results.
+
+To reuse these results, add the following setting to a collection or
+processing configuration and choose a separate ``out_dir``:
+
+.. code-block:: json
+
+    {
+        "search_result_manifest_fp": "./searched/search_result_manifest.json",
+        "perform_se_search": true
+    }
+
+Then run the normal command:
+
+.. code-block:: shell
+
+    pixi run compass collect -c collection_config.json5
+    pixi run compass process -c process_config.json5
+
+The input can also be ``./searched``, ``./searched/se_results``, a shard
+file, or a list of paths and glob patterns. A run directory uses the
+aggregate manifest when present and otherwise loads its search shards.
+Declared technologies must match the consuming configuration, and duplicate
+jurisdiction entries are rejected. Existing shards without technology
+metadata remain usable with a warning.
+
+Replay uses the saved kept URLs and their ranking unchanged; it does not
+apply the new configuration's search URL filters or top-N again. Missing
+jurisdictions are logged and skipped, as with extraction from a collection
+manifest. An explicit empty or failed result is not a missing entry, so
+other enabled collection steps may still run. No missing or failed entry
+triggers a new search query. Setting ``perform_se_search`` to ``false``
+disables the entire search-result collection step, including replay.
+
+
 Split Collection and Extraction
 -------------------------------
 Use ``collect`` when you want to gather documents first and defer extraction:
@@ -261,6 +392,55 @@ jurisdiction metadata, and a ``documents`` list for each jurisdiction. Each
 document entry stores the persisted parsed text path, the saved source file
 path when one exists, whether the source was a PDF, and the collected document
 attributes and provenance needed to rebuild extraction inputs later.
+
+To continue collection with minimum counts for each jurisdiction shard,
+use the configured output directory and repeat ``--target`` for each
+requirement:
+
+.. code-block:: shell
+
+        pixi run compass collect -c config.json5 \
+            --out-dir-exists continue \
+            --target num_docs=2 \
+            --target completed_step_document_counts.search_engine=1
+
+``num_docs`` counts collected documents. The
+``completed_step_document_counts.<step>`` metrics count documents attributed
+to a collection step. Supported step names are ``known_local_docs``,
+``known_doc_urls``, ``search_engine``, ``search_results_crawl``,
+``website_search_elm``, and ``website_search_compass``. An absent step count
+is zero. Targets inspect saved counts; they do not enable collection steps.
+Counts must be nonnegative integers, all supplied minimums must pass, and
+repeated targets for the same metric retain their largest minimum. These
+requirements apply to individual shards, not aggregate manifest statistics.
+Targeted collection also requires at least one document, even when all
+explicit minimums are zero.
+
+Continuation preserves documents and completed-step checkpoints when a shard
+has unfinished enabled steps, then runs only those remaining steps. This
+also applies when a partial shard already meets its count targets. Once all
+enabled steps are complete, a nonempty shard meeting every target is reused
+without rewriting it. A complete shard below its targets is reset and
+collected again from scratch. Missing shards are collected normally.
+
+A reset discards that shard's document metadata and completed-step
+checkpoints and invalidates the stale aggregate collection manifest. It does
+not explicitly delete saved source or parsed files, original inputs, saved
+input search results, or other jurisdictions' shards. Normal recollection
+may overwrite existing artifact paths for the reset jurisdiction. Partial
+shards retain their saved crawl budget; full resets use current settings.
+
+Each jurisdiction makes one collection pass per invocation. The command
+saves its shards and rebuilt manifest before returning a nonzero exit status
+if requirements remain unmet. The manifest's ``failed_targets`` field lists
+the remaining jurisdiction, metric, actual count, and minimum. If finishing
+a partial shard still misses targets, invoke continuation again to reset
+that now-complete failing shard. There is no internal retry loop.
+
+Without explicit targets, collection retains its normal checkpoint-based
+resume behavior. Explicit targets may also check a fresh collection after
+its single pass. Targets cannot be combined with conflicting explicit
+output-directory policies such as ``overwrite`` or ``increment``.
 
 You can then run extraction from that manifest:
 

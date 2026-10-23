@@ -8,15 +8,15 @@ on:
   push:
     branches: [main]
     paths:
-      - compass/**
-      - tests/**
+      - 'compass/**/*.py'
+      - 'tests/**/*.py'
       - .github/workflows/codecov.yml
       - pyproject.toml
       - pixi.lock
   pull_request:
     paths:
-      - compass/**
-      - tests/**
+      - 'compass/**/*.py'
+      - 'tests/**/*.py'
       - .github/workflows/codecov.yml
       - pyproject.toml
       - pixi.lock
@@ -25,6 +25,9 @@ on:
 jobs:
   run:
     name: Codecov
+    environment:
+      name: codecov
+      url: https://app.codecov.io/gh/NatLabRockies/COMPASS
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -34,9 +37,9 @@ jobs:
         fetch-depth: 0
         fetch-tags: true
 
-    - uses: prefix-dev/setup-pixi@f00437f565399d418b0acc85936d12c1fb668347 # v0.10.1
+    - uses: prefix-dev/setup-pixi@9dabb60412d3d2d967a8d682f7ce01317af40514 # v0.11.0
       with:
-        pixi-version: v0.69.0
+        pixi-version: v0.81.0
         locked: true
         cache: true
         cache-write: false
@@ -45,10 +48,11 @@ jobs:
     - name: Generate coverage report
       run: |
         pixi reinstall -e pdev --locked INFRA-COMPASS
+        pixi run -e pdev --locked python -c "from docling_rs import download_models; download_models()"
         pixi run -e pdev --locked tests-p
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v7.0.0
+      uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         files: ./coverage.xml

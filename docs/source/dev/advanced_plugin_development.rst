@@ -173,7 +173,10 @@ The contract
 ``BaseExtractionPlugin`` requires you to implement:
 
 ``get_query_templates()``
-  Return list of search query templates for document discovery.
+    Return a list of search query templates for document discovery. Use
+    ``{jurisdiction}`` for the jurisdiction's full name. A template may use
+    ``{jurisdiction_website}`` for the known jurisdiction website URL;
+    COMPASS discards that template when no website is known.
 
 ``get_website_keywords()``
   Return dict of keywords→priority for web crawling.

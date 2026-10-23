@@ -20,29 +20,11 @@ LLM_COST_REGISTRY = {
     "gpt-5.6-sol": {"prompt": 5, "response": 30},
     "gpt-5.6-terra": {"prompt": 2, "response": 12},
     "gpt-5.6-luna": {"prompt": 0.2, "response": 1.2},
-    "compassop-gpt-4o": {"prompt": 2.5, "response": 10},
-    "compassop-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
-    "compassop-gpt-4.1": {"prompt": 2, "response": 8},
-    "compassop-gpt-4.1-mini": {"prompt": 0.4, "response": 1.6},
-    "compassop-gpt-4.1-nano": {"prompt": 0.1, "response": 0.4},
-    "compassop-gpt-5": {"prompt": 1.25, "response": 10},
-    "compassop-gpt-5-mini": {"prompt": 0.25, "response": 2},
-    "compassop-gpt-5-nano": {"prompt": 0.05, "response": 0.4},
-    "compassop-gpt-5-chat-latest": {"prompt": 1.25, "response": 10},
-    "compassop-gpt-5.4": {"prompt": 2.50, "response": 15},
-    "compassop-gpt-5.4-mini": {"prompt": 0.75, "response": 4.5},
-    "compassop-gpt-5.4-nano": {"prompt": 0.20, "response": 1.25},
-    "compassop-gpt-5.5": {"prompt": 5, "response": 30},
-    "egswaterord-gpt4.1-mini": {"prompt": 0.4, "response": 1.6},
-    "wetosa-gpt-4o": {"prompt": 2.5, "response": 10},
-    "wetosa-gpt-4o-mini": {"prompt": 0.15, "response": 0.6},
-    "wetosa-gpt-4.1": {"prompt": 2, "response": 8},
-    "wetosa-gpt-4.1-mini": {"prompt": 0.4, "response": 1.6},
-    "wetosa-gpt-4.1-nano": {"prompt": 0.1, "response": 0.4},
-    "wetosa-gpt-5": {"prompt": 1.25, "response": 10},
-    "wetosa-gpt-5-mini": {"prompt": 0.25, "response": 2},
-    "wetosa-gpt-5-nano": {"prompt": 0.05, "response": 0.4},
-    "wetosa-gpt-5-chat-latest": {"prompt": 1.25, "response": 10},
+    "gpt-5.6-luna-aws": {"prompt": 0.22, "response": 1.32},
+    "gpt-5.6-luna-azure": {"prompt": 0.2, "response": 1.2},
+    "gpt-6-luna": {"prompt": 0.1, "response": 0.5},
+    "gpt-6-sol": {"prompt": 2, "response": 10},
+    "gpt-6-astra": {"prompt": 10, "response": 50},
     "text-embedding-ada-002": {"prompt": 0.10},
 }
 """LLM Costs registry
@@ -86,8 +68,7 @@ def compute_cost_from_totals(totals):
         should contain "prompt_tokens" and "response_tokens" keys
         indicating the number of tokens used for prompts and responses,
         respectively. This dictionary is typically obtained from the
-        `tracker_totals` property of a
-        :class:`compass.services.usage.UsageTracker` instance.
+        `tracker_totals` entry of a LLMUsageTracker instance.
 
     Returns
     -------
@@ -149,7 +130,7 @@ def compute_total_cost_from_usage(tracked_usage):
 
     Parameters
     ----------
-    tracked_usage : compass.services.usage.UsageTracker or dict
+    tracked_usage : LLMUsageTracker or dict
         Dictionary where keys are usage categories (typically
         jurisdiction names) and values are dictionaries containing usage
         details. The usage details dictionaries should have a

@@ -5,9 +5,10 @@ import asyncio
 import logging
 from datetime import datetime, UTC
 from abc import ABC, abstractmethod
+from functools import cached_property
 
 from compass.services.openai import usage_from_response
-from compass.services.usage import UsageTracker
+from compass.services.usage import LLMUsageTracker
 from compass.exceptions import COMPASSError, COMPASSValueError
 from compass.utilities import (
     compile_collection_summary_message,
@@ -18,15 +19,26 @@ from compass.utilities import (
     save_run_meta,
 )
 from compass.services.threaded import UsageUpdater
+from compass.services.threaded import GenericFuncRunner
 from compass.utilities.enums import COMPASSRunMode
 from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
     build_collection_manifest,
+    validate_collection_targets,
     write_collection_manifest,
     load_collection_manifest_jurisdictions,
 )
+from compass.pipeline.search.persistence import (
+    build_search_manifest,
+    load_search_result_jurisdictions,
+    load_search_shards,
+    reset_search_manifest_shards,
+    validate_search_targets,
+    write_search_manifest,
+)
+from compass.pipeline.targets import shard_failures
 from compass.pipeline import BaseRequest
 from compass.pipeline.runtime import PipelineRuntime
 from compass.pipeline.jurisdiction import SingleJurisdictionRun
@@ -36,7 +48,7 @@ from compass.pb import COMPASS_PB
 logger = logging.getLogger(__name__)
 
 
-async def run_compass(request):
+async def run_compass(request, re_run_targets=None):
     """Run the requested pipeline mode
 
     Parameters
@@ -50,6 +62,11 @@ async def run_compass(request):
         as the mode to run in, output directories, jurisdiction
         information, model configurations, and any other relevant
         settings.
+    re_run_targets : dict, optional
+        Per-shard metric names mapped to minimum counts for continuing a
+        run. An empty mapping continues with the default nonempty shard
+        requirement. All targets must pass in the re-run.
+        By default, ``None`` starts a fresh run.
 
     Returns
     -------
@@ -71,17 +88,22 @@ async def run_compass(request):
         msg = "PipelineCoordinator.run expects a request object"
         raise COMPASSValueError(msg)
 
-    if request.MODE == COMPASSRunMode.EXTRACT:
+    if request.MODE == COMPASSRunMode.SEARCH:
+        steps = ["Search for document URLs"]
+    elif request.MODE == COMPASSRunMode.EXTRACT:
         steps = ["Extract collected documents"]
     else:
         steps = _enabled_steps(
             known_local_docs=request.known_sources.known_local_docs,
             known_doc_urls=request.known_sources.known_doc_urls,
             perform_se_search=request.perform_se_search,
+            num_search_results_to_crawl=(
+                request.search_settings.num_search_results_to_crawl
+            ),
             perform_website_search=request.perform_website_search,
         )
 
-    runtime = PipelineRuntime(request)
+    runtime = PipelineRuntime(request, re_run_targets=re_run_targets)
 
     _log_execution_info(request, steps)
     jurisdictions_df = _load_jurisdictions_to_process(request.jurisdiction_fp)
@@ -122,12 +144,15 @@ class BaseRunMode(ABC):
         """
         self.runtime = runtime
 
-    def _create(self, jurisdiction, *, usage_tracker=None):
+    def _create(
+        self, jurisdiction, *, known_se_results=None, usage_tracker=None
+    ):
         """Create one configured jurisdiction workflow"""
         extractor = self.runtime.extractor_class(
             jurisdiction=jurisdiction,
             model_configs=self.runtime.models,
             usage_tracker=usage_tracker,
+            rate_tracker=self.runtime.rate_tracker,
         )
         return SingleJurisdictionRun(
             self.runtime,
@@ -138,11 +163,31 @@ class BaseRunMode(ABC):
                 jurisdiction.code
             ),
             known_doc_urls=self.runtime.known_doc_urls.get(jurisdiction.code),
+            known_se_results=known_se_results,
             perform_se_search=self.runtime.request.perform_se_search,
             perform_website_search=(
                 self.runtime.request.perform_website_search
             ),
+            num_search_results_to_crawl=(
+                self.runtime.search_params.num_search_results_to_crawl
+            ),
         )
+
+    def _unmet_requirements(self, jurisdictions, results, metrics):
+        """Describe remaining shard failures after persistence"""
+        if self.runtime.re_run_targets is None:
+            return None
+
+        messages = []
+        for jurisdiction, record in zip(jurisdictions, results, strict=True):
+            messages.extend(
+                f"{jurisdiction.full_name}: {failure['metric']}="
+                f"{failure['actual']} (minimum {failure['minimum']})"
+                for failure in shard_failures(
+                    record, self.runtime.re_run_targets, metrics
+                )
+            )
+        return messages
 
     @abstractmethod
     async def run(self, jurisdictions_df):
@@ -184,11 +229,17 @@ class COMPASSFullProcessing(BaseRunMode):
             len(jurisdictions_df),
         )
         tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            usage_tracker = UsageTracker(
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
+            usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
-            workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
+            workflow = self._create(
+                jurisdiction,
+                known_se_results=se_results,
+                usage_tracker=usage_tracker,
+            )
             tasks.append(
                 asyncio.create_task(
                     workflow.run_process_with_logging(),
@@ -200,6 +251,123 @@ class COMPASSFullProcessing(BaseRunMode):
         return await _finalize_extraction(
             self.runtime, results, start_date, len(jurisdictions_df)
         )
+
+
+class COMPASSSearch(BaseRunMode):
+    """Search-only strategy using existing reports and shards"""
+
+    @cached_property
+    def is_continuation_run(self):
+        """bool: Indicates whether this run is a continuation run"""
+        return self.runtime.re_run_targets is not None
+
+    async def run(self, jurisdictions_df):
+        """Persist search shards and their aggregate manifest"""
+        logger.info(
+            "Searching for document URLs for %d jurisdiction(s)",
+            len(jurisdictions_df),
+        )
+        start_date = datetime.now(UTC)
+        jurisdictions = list(jurisdictions_from_df(jurisdictions_df))
+
+        metrics = validate_search_targets(
+            self.runtime.re_run_targets,
+            self.runtime.search_params.num_urls_to_check_per_jurisdiction,
+        )
+        results, pending, purge_paths = await self._select_unfinished_searches(
+            jurisdictions, metrics
+        )
+        if self.is_continuation_run and pending:
+            await reset_search_manifest_shards(
+                self.runtime.dirs.out, purge_paths
+            )
+
+        await self._process_pending_searches(pending, jurisdictions, results)
+
+        failures = self._unmet_requirements(jurisdictions, results, metrics)
+        manifest = await build_search_manifest(
+            self.runtime, results, start_date, failures
+        )
+        await write_search_manifest(self.runtime.dirs.out, manifest)
+        message = (
+            f"Search completed for {manifest['num_jurisdictions_searched']} "
+            f"jurisdictions; kept "
+            f"{manifest['filtered_result_stats']['total']} URLs.\n"
+        )
+        logger.info(message)
+        return message
+
+    async def _select_unfinished_searches(self, jurisdictions, metrics):
+        """Plan shard reuse and reruns before purging any files"""
+        shards = await self._load_search_shards(jurisdictions)
+
+        results = [None] * len(jurisdictions)
+        pending = []
+        purge_paths = []
+        for index, jurisdiction in enumerate(jurisdictions):
+            shard = shards.get(jurisdiction.code)
+            if shard and self._can_re_use_shard(
+                shard, metrics, purge_paths, jurisdiction
+            ):
+                logger.info(
+                    "Reusing search shard for %s", jurisdiction.full_name
+                )
+                results[index] = shard["record"]
+                COMPASS_PB.progress_main_task()
+                continue
+
+            logger.info("Searching %s", jurisdiction.full_name)
+            pending.append(index)
+
+        return results, pending, purge_paths
+
+    async def _load_search_shards(self, jurisdictions):
+        """Load search shards for the given jurisdictions"""
+        if not self.is_continuation_run:
+            return {}
+
+        return await GenericFuncRunner.call(
+            load_search_shards,
+            self.runtime.dirs.out,
+            jurisdictions,
+            self.runtime.tech,
+        )
+
+    def _can_re_use_shard(self, shard, metrics, purge_paths, jurisdiction):
+        """Determine if a search shard can be reused"""
+        failures = shard_failures(
+            shard["record"], self.runtime.re_run_targets, metrics, "results"
+        )
+        if not failures:
+            return True
+
+        if shard:
+            purge_paths.append(shard["path"])
+
+        logger.info(
+            "Found failures in shard for %s: %s",
+            jurisdiction.full_name,
+            failures,
+        )
+
+        return False
+
+    async def _process_pending_searches(self, pending, jurisdictions, results):
+        """Run search for pending tasks"""
+        tasks = []
+        for index in pending:
+            jurisdiction = jurisdictions[index]
+            workflow = self._create(jurisdiction)
+            tasks.append(
+                asyncio.create_task(
+                    workflow.run_search_with_logging(),
+                    name=jurisdiction.full_name,
+                )
+            )
+        for index, result in zip(
+            pending, await asyncio.gather(*tasks), strict=True
+        ):
+            results[index] = result
 
 
 class COMPASSCollection(BaseRunMode):
@@ -234,9 +402,17 @@ class COMPASSCollection(BaseRunMode):
             len(jurisdictions_df),
         )
         start_date = datetime.now(UTC)
+
+        metrics = validate_collection_targets(self.runtime.re_run_targets)
         tasks = []
-        for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            workflow = self._create(jurisdiction, usage_tracker=None)
+        jurisdictions = []
+        async for jurisdiction, se_results in _jurisdictions_with_search_input(
+            self.runtime, jurisdictions_df
+        ):
+            jurisdictions.append(jurisdiction)
+            workflow = self._create(
+                jurisdiction, known_se_results=se_results, usage_tracker=None
+            )
             tasks.append(
                 asyncio.create_task(
                     workflow.run_collection_with_logging(),
@@ -245,11 +421,16 @@ class COMPASSCollection(BaseRunMode):
             )
 
         collection_infos = await asyncio.gather(*tasks)
+        failures = self._unmet_requirements(
+            jurisdictions, collection_infos, metrics
+        )
+
         manifest = build_collection_manifest(
             self.runtime.tech,
             collection_infos,
             start_date,
             len(jurisdictions_df),
+            failed_targets=failures,
         )
         manifest_fp = await write_collection_manifest(
             self.runtime.dirs.out, manifest
@@ -315,7 +496,7 @@ class COMPASSExtraction(BaseRunMode):
                 )
                 continue
 
-            usage_tracker = UsageTracker(
+            usage_tracker = LLMUsageTracker(
                 jurisdiction.full_name, usage_from_response
             )
             workflow = self._create(jurisdiction, usage_tracker=usage_tracker)
@@ -348,6 +529,8 @@ def _select_workflow(runtime):
         return COMPASSExtraction(runtime)
     if runtime.mode == COMPASSRunMode.PROCESS:
         return COMPASSFullProcessing(runtime)
+    if runtime.mode == COMPASSRunMode.SEARCH:
+        return COMPASSSearch(runtime)
 
     msg = f"Unsupported mode: {runtime.mode}"
     raise COMPASSValueError(msg)
@@ -374,6 +557,7 @@ def _request_to_log_args(request):
         "mode": str(request.MODE),
         "tech": request.tech,
         "jurisdiction_fp": request.jurisdiction_fp,
+        "search_result_manifest_fp": request.search_result_manifest_fp,
         "collection_manifest_fp": request.collection_manifest_fp,
         "perform_se_search": request.perform_se_search,
         "perform_website_search": request.perform_website_search,
@@ -391,6 +575,7 @@ def _enabled_steps(
     known_local_docs=None,
     known_doc_urls=None,
     perform_se_search=True,
+    num_search_results_to_crawl=0,
     perform_website_search=True,
 ):
     """Return enabled collection steps or raise when none are enabled"""
@@ -401,6 +586,10 @@ def _enabled_steps(
         steps.append("Check known document URL")
     if perform_se_search:
         steps.append("Look for document using search engine")
+        if num_search_results_to_crawl > 0:
+            steps.append(
+                f"Crawl top {num_search_results_to_crawl:,d} search results"
+            )
     if perform_website_search:
         steps.append("Look for document on jurisdiction website")
 
@@ -415,11 +604,51 @@ def _enabled_steps(
     return steps
 
 
+async def _jurisdictions_with_search_input(runtime, jurisdictions_df):
+    """Skip jurisdictions absent from supplied search results"""
+    known_search_results = await _load_known_se_results(runtime)
+
+    for jurisdiction in jurisdictions_from_df(jurisdictions_df):
+        if known_search_results is not None:
+            if jurisdiction.code not in known_search_results:
+                logger.warning(
+                    "No known search results found for %s; skipping "
+                    "jurisdiction",
+                    jurisdiction.full_name,
+                )
+                continue
+            else:
+                yield jurisdiction, known_search_results[jurisdiction.code]
+        else:
+            yield jurisdiction, None
+
+
+async def _load_known_se_results(runtime):
+    """Load known search engine results from the manifest file"""
+    run_mode_has_se = runtime.request.MODE in {
+        COMPASSRunMode.COLLECT,
+        COMPASSRunMode.PROCESS,
+    }
+    se_enabled = runtime.request.perform_se_search
+    known_se_results_file_exists = (
+        runtime.request.search_result_manifest_fp is not None
+    )
+    if run_mode_has_se and se_enabled and known_se_results_file_exists:
+        return await GenericFuncRunner.call(
+            load_search_result_jurisdictions,
+            runtime.request.search_result_manifest_fp,
+            runtime.tech,
+        )
+    return None
+
+
 async def _finalize_extraction(
     runtime, results, start_date, num_jurisdictions
 ):
     """Finalize process or extraction mode outputs"""
-    total_cost = await _compute_total_cost()
+    total_cost, llm_usage_rates = await _compute_total_cost(
+        runtime.rate_tracker
+    )
     doc_infos = [
         {
             "jurisdiction": result.jurisdiction,
@@ -445,6 +674,7 @@ async def _finalize_extraction(
         num_jurisdictions_found=num_docs_found,
         total_cost=total_cost,
         models=runtime.models,
+        llm_usage_rates=llm_usage_rates,
     )
     run_msg = compile_run_summary_message(
         total_seconds=total_time,
@@ -457,9 +687,13 @@ async def _finalize_extraction(
     return run_msg
 
 
-async def _compute_total_cost():
-    """Compute total cost from tracked usage"""
-    total_usage = await UsageUpdater.call(None)
+async def _compute_total_cost(rate_tracker):
+    """Compute total cost and load LLM rate statistics from usage"""
+    total_usage = await UsageUpdater.call(None, rate_tracker)
     if not total_usage:
-        return 0
-    return compute_total_cost_from_usage(total_usage)
+        return 0, None
+
+    return (
+        compute_total_cost_from_usage(total_usage),
+        total_usage.get(rate_tracker.label),
+    )

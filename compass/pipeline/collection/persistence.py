@@ -10,29 +10,84 @@ from statistics import median
 from collections import Counter
 from warnings import warn
 from datetime import datetime, UTC
+from functools import partial
+from importlib import import_module
+from importlib.util import find_spec
 
 from elm.version import __version__ as elm_version
+from elm.web.document import MDDocument
 
 from compass import __version__ as compass_version
+from compass.pipeline.targets import normalize_targets
 from compass.services.threaded import (
     FileMover,
     ParsedFileWriter,
     TempFileCacheCopier,
     GenericFuncRunner,
 )
-from compass.services.cpu import read_docling_local_file
-from compass.utilities.io import load_config
-from compass.utilities.io import resolve_all_paths
+from compass.utilities.io import (
+    load_config,
+    resolve_all_paths,
+    write_text_atomic,
+)
+from compass.utilities.enums import COMPASSDocumentCollectionStep
 from compass.utilities.parsing import convert_paths_to_strings, is_pdf_doc
 from compass.warn import COMPASSWarning
-from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.exceptions import (
+    COMPASSFileNotFoundError,
+    COMPASSValueError,
+)
 
 
 COLLECTION_MANIFEST_FILENAME = "collection_manifest.json"
 
 
+def validate_collection_targets(targets):
+    """Validate collection count targets and return metric accessors
+
+    Parameters
+    ----------
+    targets : dict or None
+        Shard metric names mapped to nonnegative integer minimums.
+
+    Returns
+    -------
+    dict
+        Supported metric names mapped to shard value accessors.
+    """
+    metrics = {
+        "num_docs": lambda record: record.get(
+            "num_docs", len(record.get("results", []))
+        )
+    }
+    for step in COMPASSDocumentCollectionStep:
+        metrics[f"completed_step_document_counts.{step}"] = partial(
+            _collection_step_document_count, step=str(step)
+        )
+
+    for metric, minimum in normalize_targets(targets).items():
+        if metric not in metrics:
+            msg = (
+                f"Unknown collection shard target '{metric}'. "
+                f"Available targets: {', '.join(sorted(metrics))}"
+            )
+            raise COMPASSValueError(msg)
+
+        if not isinstance(minimum, int) or minimum < 0:
+            msg = (
+                f"Collection target '{metric}' requires a nonnegative integer"
+            )
+            raise COMPASSValueError(msg)
+
+    return metrics
+
+
 def build_collection_manifest(
-    tech, jurisdictions, time_start_utc, num_jurisdictions_searched
+    tech,
+    jurisdictions,
+    time_start_utc,
+    num_jurisdictions_searched,
+    failed_targets=None,
 ):
     """Build the serialized collection manifest payload
 
@@ -51,6 +106,8 @@ def build_collection_manifest(
     num_jurisdictions_searched : int
         Number of jurisdictions that were searched during the collection
         process, included in the manifest for informational purposes.
+    failed_targets : list of str, optional
+        Remaining per-shard target failures. By default, ``None``.
 
     Returns
     -------
@@ -67,7 +124,7 @@ def build_collection_manifest(
     for info in jurisdictions:
         if info is None:
             continue
-        docs = info.get("documents", [])
+        docs = info.get("results", [])
         if not docs:
             continue
         out_jurisdictions.append(info)
@@ -94,6 +151,7 @@ def build_collection_manifest(
             "median": median(document_counts) if document_counts else 0,
             "total": sum(document_counts),
         },
+        "failed_targets": failed_targets,
         "jurisdictions": out_jurisdictions,
     }
 
@@ -182,6 +240,134 @@ async def load_collection_manifest_jurisdictions(manifest_fp, expected_tech):
     return jurisdictions_by_fips
 
 
+async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
+    """Load one jurisdiction collection manifest shard when present
+
+    Parameters
+    ----------
+    shard_dir : path-like
+        Directory containing per-jurisdiction collection manifest
+        shard files.
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction whose shard should be loaded.
+
+    Returns
+    -------
+    dict or None
+        Loaded collection metadata for the jurisdiction, or ``None``
+        when no shard exists yet.
+    """
+    return await GenericFuncRunner.call(
+        _load_specific_collection_manifest_shard, shard_dir, jurisdiction
+    )
+
+
+async def reset_collection_manifest_shard(
+    shard_dir, manifest_dir, jurisdiction
+):
+    """Remove one collection checkpoint and its stale aggregate manifest
+
+    Parameters
+    ----------
+    shard_dir : path-like
+        Directory containing jurisdiction collection shards.
+    manifest_dir : path-like
+        Directory containing the aggregate collection manifest.
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction whose collection checkpoint should be reset.
+    """
+    await GenericFuncRunner.call(
+        _reset_collection_manifest_shard, shard_dir, manifest_dir, jurisdiction
+    )
+
+
+async def persist_documents(
+    jurisdiction,
+    collected_docs,
+    completed_steps,
+    *,
+    relative_to=None,
+    **kwargs,
+):
+    """Persist deduplicated documents for one jurisdiction
+
+    Parameters
+    ----------
+    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
+        Jurisdiction whose deduplicated documents will be persisted and
+        serialized into collection metadata.
+    collected_docs : compass.pipeline.collection.dedupe.DocumentDeDuplicator
+        Deduplicated document collection containing document info
+        entries for each persisted document.
+    completed_steps : iterable of str
+        Collection step names that were completed for this jurisdiction,
+        used to record the ``"completed_step_document_counts"`` in the
+        collection metadata.
+    relative_to : path-like, optional
+        Base path used to store ``source_fp`` and ``parsed_fp`` as
+        relative paths when possible. By default, ``None``.
+    **kwargs
+        Extra keyword-argument pairs to add to the collection metadata.
+
+    Returns
+    -------
+    dict
+        Serialized collection metadata for the jurisdiction, including
+        jurisdiction identifiers and the persisted document records.
+    """  # ruff:ignore[doc-line-too-long]
+    documents = await _store_docs_as_needed(
+        collected_docs, jurisdiction, relative_to
+    )
+    completed_step_document_counts = Counter(
+        step for info in documents for step in info["from_steps"]
+    )
+    for step in completed_steps:
+        completed_step_document_counts.setdefault(step, 0)
+
+    return {
+        "full_name": jurisdiction.full_name,
+        "county": jurisdiction.county,
+        "state": jurisdiction.state,
+        "subdivision": jurisdiction.subdivision_name,
+        "jurisdiction_type": jurisdiction.type,
+        "FIPS": jurisdiction.code,
+        "num_docs": len(documents),
+        "completed_step_document_counts": dict(completed_step_document_counts),
+        **kwargs,
+        "results": documents,
+    }
+
+
+async def load_collected_docs(collection_info, *, task_name):
+    """Load all docs for one jurisdiction from collection info
+
+    Parameters
+    ----------
+    collection_info : dict
+        Persisted collection metadata for one jurisdiction, including
+        a ``documents`` list of serialized document records.
+    task_name : str
+        Task name applied to each asynchronous document-loading task.
+
+    Returns
+    -------
+    list
+        Loaded document objects in the same order as the persisted
+        ``documents`` entries.
+    """
+    tasks = [
+        asyncio.create_task(_load_single_doc(doc_info), name=task_name)
+        for doc_info in collection_info.get("results") or []
+    ]
+
+    return await asyncio.gather(*tasks)
+
+
+def _collection_step_document_count(record, step):
+    """Read a completed step count, treating absent steps as zero"""
+    return record.get("completed_step_document_counts", {}).get(step, 0)
+
+
 async def _load_jur_manifests(manifest_fp, expected_tech):
     """Load one or more collection manifest(s) for jurisdictions"""
     task_fps = []
@@ -206,35 +392,24 @@ def _validate_not_duplicate_jurisdiction(fips, jurisdictions_by_fips):
         raise COMPASSValueError(msg)
 
 
-async def load_specific_collection_manifest_shard(shard_dir, jurisdiction):
-    """Load one jurisdiction collection manifest shard when present
-
-    Parameters
-    ----------
-    shard_dir : path-like
-        Directory containing per-jurisdiction collection manifest
-        shard files.
-    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
-        Jurisdiction whose shard should be loaded.
-
-    Returns
-    -------
-    dict or None
-        Loaded collection metadata for the jurisdiction, or ``None``
-        when no shard exists yet.
-    """
-    return await GenericFuncRunner.call(
-        _load_specific_collection_manifest_shard, shard_dir, jurisdiction
+def _reset_collection_manifest_shard(shard_dir, manifest_dir, jurisdiction):
+    """Remove checkpoint metadata without deleting saved files"""
+    filename = _collection_manifest_shard_filename(
+        {"FIPS": jurisdiction.code, "full_name": jurisdiction.full_name}
     )
+    (Path(shard_dir) / filename).unlink(missing_ok=True)
+    (Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME).unlink(missing_ok=True)
 
 
 def _write_collection_manifest(manifest_dir, collection_manifest):
     """Write a collection manifest to disk"""
     manifest_fp = Path(manifest_dir) / COLLECTION_MANIFEST_FILENAME
-    manifest_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_manifest), indent=4),
-        encoding="utf-8",
+    payload = json.dumps(
+        convert_paths_to_strings(collection_manifest),
+        indent=4,
+        ensure_ascii=False,
     )
+    write_text_atomic(manifest_fp, payload)
     return manifest_fp
 
 
@@ -243,10 +418,8 @@ def _write_collection_manifest_shard(shard_dir, collection_info):
     shard_dir = Path(shard_dir)
     shard_dir.mkdir(parents=True, exist_ok=True)
     shard_fp = shard_dir / _collection_manifest_shard_filename(collection_info)
-    shard_fp.write_text(
-        json.dumps(convert_paths_to_strings(collection_info), indent=4),
-        encoding="utf-8",
-    )
+    payload = json.dumps(convert_paths_to_strings(collection_info), indent=4)
+    write_text_atomic(shard_fp, payload)
     return shard_fp
 
 
@@ -294,87 +467,6 @@ def _load_specific_collection_manifest_shard(shard_dir, jurisdiction):
     )
 
 
-async def persist_documents(
-    jurisdiction,
-    collected_docs,
-    completed_steps,
-    *,
-    relative_to=None,
-    **kwargs,
-):
-    """Persist deduplicated documents for one jurisdiction
-
-    Parameters
-    ----------
-    jurisdiction : compass.utilities.jurisdictions.Jurisdiction
-        Jurisdiction whose deduplicated documents will be persisted and
-        serialized into collection metadata.
-    collected_docs : compass.pipeline.collection.dedupe.DocumentDeDuplicator
-        Deduplicated document collection containing document info
-        entries for each persisted document.
-    completed_steps : iterable of str
-        Collection step names that were completed for this jurisdiction,
-        used to record the ``"completed_step_document_counts"`` in the
-        collection metadata.
-    relative_to : path-like, optional
-        Base path used to store ``source_fp`` and ``parsed_fp`` as
-        relative paths when possible. By default, ``None``.
-    **kwargs
-        Extra keyword-argument pairs to add to the collection metadata.
-
-    Returns
-    -------
-    dict
-        Serialized collection metadata for the jurisdiction, including
-        jurisdiction identifiers and the persisted document records.
-    """  # ruff:ignore[doc-line-too-long]
-    documents = await _store_docs_as_needed(
-        collected_docs, jurisdiction, relative_to
-    )
-    completed_step_document_counts = Counter(
-        step for info in documents for step in info["from_steps"]
-    )
-    for step in completed_steps:
-        completed_step_document_counts.setdefault(step, 0)
-    return {
-        "full_name": jurisdiction.full_name,
-        "county": jurisdiction.county,
-        "state": jurisdiction.state,
-        "subdivision": jurisdiction.subdivision_name,
-        "jurisdiction_type": jurisdiction.type,
-        "FIPS": jurisdiction.code,
-        "num_docs": len(documents),
-        "completed_step_document_counts": dict(completed_step_document_counts),
-        **kwargs,
-        "documents": documents,
-    }
-
-
-async def load_collected_docs(collection_info, *, task_name):
-    """Load all docs for one jurisdiction from collection info
-
-    Parameters
-    ----------
-    collection_info : dict
-        Persisted collection metadata for one jurisdiction, including
-        a ``documents`` list of serialized document records.
-    task_name : str
-        Task name applied to each asynchronous document-loading task.
-
-    Returns
-    -------
-    list
-        Loaded document objects in the same order as the persisted
-        ``documents`` entries.
-    """
-    tasks = [
-        asyncio.create_task(_load_single_doc(doc_info), name=task_name)
-        for doc_info in collection_info.get("documents") or []
-    ]
-
-    return await asyncio.gather(*tasks)
-
-
 def _validate_collection_manifest(manifest, tech):
     """Validate manifest version and tech compatibility"""
     manifest_tech = manifest.get("tech")
@@ -398,10 +490,24 @@ async def _load_single_doc(doc_info):
         warn(msg, COMPASSWarning)
         return None
 
-    doc, *__ = await read_docling_local_file(fp)
+    doc = await _read_maybe_using_docling(fp)
     doc.attrs.update(doc_info)
     doc.remove_comments = False
     doc.attrs["cache_fn"] = await TempFileCacheCopier.call(doc)
+    return doc
+
+
+async def _read_maybe_using_docling(fp):
+    """Read a document using Docling if available"""
+    if all(
+        find_spec(name) is not None for name in ("docling_rs", "docling_core")
+    ):
+        docling = import_module("compass.services.docling")
+        doc, *__ = await docling.read_docling_local_file(fp)
+    else:
+        text = await asyncio.to_thread(Path(fp).read_text, encoding="utf-8")
+        doc = MDDocument(pages=[text], remove_comments=False)
+
     return doc
 
 

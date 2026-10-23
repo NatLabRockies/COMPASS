@@ -462,12 +462,14 @@ class SchemaOrdinanceParser(SchemaOutputLLMCaller, BaseParser):
         )
 
         todays_date = datetime.now().strftime("%B %d, %Y")
+        scope = self.SCHEMA.get("$scope")
         sys_prompt = (
             f"{self.SYSTEM_PROMPT}\n\n{_DATA_PARSER_ADDITIONAL_CONTEXT}"
         )
         sys_prompt = sys_prompt.format(
             desc=desc,
             schema=self.SCHEMA,
+            scope=scope or "unknown",
             todays_date=todays_date,
             jur_type=jurisdiction.type,
             jur_state=jurisdiction.state,

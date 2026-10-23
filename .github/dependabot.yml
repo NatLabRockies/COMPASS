@@ -27,6 +27,7 @@ updates:
         - "*"
       exclude-patterns:
         - "github/codeql-action*"
+        - "rohaquinlop/complexipy-action*" # Temporarily, since v8.0.1 is not configured properly
   open-pull-requests-limit: 10
   labels:
     - "chore"
