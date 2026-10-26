@@ -93,8 +93,8 @@
       }
     }
   },
+  "$scope": "Extract only explicit requirements that directly govern natural gas compressor stations, natural gas pipelines, metering stations, or directly associated facility infrastructure. Ignore unrelated oil and gas well rules, geothermal, solar, wind, electric substations, generic residential gas-use rules, color requirements, signage, landscaping, and administrative paperwork unless the same language expressly governs the natural gas facility.",
   "$instructions": {
-    "scope": "Extract only explicit requirements that directly govern natural gas compressor stations, natural gas pipelines, metering stations, or directly associated facility infrastructure. Ignore unrelated oil and gas well rules, geothermal, solar, wind, electric substations, generic residential gas-use rules, color requirements, signage, landscaping, and administrative paperwork unless the same language expressly governs the natural gas facility.",
     "null_handling": "If a feature is absent, omit that row entirely; do not emit placeholder text such as 'not found', 'N/A', or 'none'.",
     "verbatim_quotes": "For summary and explanation, prefer the ordinance's direct wording and keep it faithful to the source. If the ordinance states a specific target such as 'rear yard' or 'daytime limit', preserve that wording in the summary and specific_subject.",
     "units_discipline": "Use the units exactly as stated when they are a legal standard, but normalize to the canonical schema set: feet, meters, miles, acres, square feet, dBA, dBC. Keep the numeric value in value and the unit in units; never bury a measurement like '88 dBC Leq' into the value field as if the unit were part of the numeric amount. For qualitative requirements or zoning/permit lists, set units to null.",
