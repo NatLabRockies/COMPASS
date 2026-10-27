@@ -82,7 +82,7 @@
   },
   "$definitions": {
     "system_size_context": {
-      "description": "RITICAL CONTEXT: Only extract ordinances for natural gas-fired electric generating facilities — plants that combust natural gas to produce electricity for offsite sale or delivery to the grid. This includes simple-cycle, combined-cycle, peaking, and cogeneration plants where power export is a primary purpose. Do NOT extract text that applies only to: natural gas extraction, drilling, or well operations; pipelines, compressor stations, metering stations, or gas storage; LNG or CNG facilities including fueling stations; propane distribution; gas service lines, meters, or appliances within buildings; or emergency, standby, or backup generators serving a single onsite building. If the ordinance regulates the facility only through a general zoning district (e.g., heavy industrial) rather than a technology-specific section, still extract the applicable district requirements."
+      "description": "CRITICAL CONTEXT: Only extract ordinances for natural gas-fired electric generating facilities — plants that combust natural gas to produce electricity for offsite sale or delivery to the grid. This includes simple-cycle, combined-cycle, peaking, and cogeneration plants where power export is a primary purpose. Do NOT extract text that applies only to: natural gas extraction, drilling, or well operations; pipelines, compressor stations, metering stations, or gas storage; LNG or CNG facilities including fueling stations; propane distribution; gas service lines, meters, or appliances within buildings; or emergency, standby, or backup generators serving a single onsite building. If the ordinance regulates the facility only through a general zoning district (e.g., heavy industrial) rather than a technology-specific section, still extract the applicable district requirements.     Zoning use tables and per-district dimensional tables (minimum lot area, lot width, front, side and rear yards, building height) ARE relevant even when they do not name natural gas facilities, because many ordinances regulate generating facilities only through these tables. Treat rows and districts for public utilities, nongovernmental utilities, governmental and public utilities, electric generating facilities, and industrial districts as relevant."
     },
     "setback_features": {
       "description": "Setback features with their aliases and extraction guidance",
@@ -120,10 +120,10 @@
         },
         
         "maximum building height": {
-          "description": "Maximum permitted height of buildings or structures. VALUE: number. UNITS: 'feet'. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."
+          "description": "Maximum permitted height of buildings or structures. VALUE: number. UNITS: 'feet'. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field.     When a district's dimensional table gives a height for the use classification that covers the facility, such as a utility row, report that row's height for that district."
         }, 
         "minimum lot size" : {
-          "description": "Minimum parcel size required. VALUE: number. UNITS: 'acres' or 'square feet' as stated in the ordinance."
+          "description": "Minimum parcel size required. VALUE: number. UNITS: 'acres' or 'square feet' as stated in the ordinance.     Use the value the district's dimensional table gives for the use classification that covers the facility, such as a utility or industrial row. Report minimums that depend on water or sewer service (wells, septic) only in the summary, not as the value."
         }, 
         "minimum lot width" : {
           "description": "Minimum required lot width. VALUE: number. UNITS: 'feet'."

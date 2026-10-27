@@ -3,12 +3,14 @@ schema: ./natural_gas_schema.json
 data_type_short_desc: natural gas electric generating facility ordinance
 
 query_templates:
-  - "filetype:pdf {jurisdiction} electric generating facility zoning ordinance"
+  - "filetype:pdf {jurisdiction} zoning resolution district regulations"
+  - "filetype:pdf {jurisdiction} zoning ordinance land use table zoning districts"
+  - "filetype:pdf {jurisdiction} zoning ordinance industrial district setbacks height lot"
+  - "{jurisdiction} zoning ordinance code of ordinances"
+  - "site:municode.com {jurisdiction} zoning"
+  - "site:ecode360.com {jurisdiction} zoning"
+  - "site:codelibrary.amlegal.com {jurisdiction} zoning"
   - "{jurisdiction} gas-fired electric generating facility ordinance"
-  - "{jurisdiction} power plant zoning ordinance setbacks"
-  - "{jurisdiction} heavy industrial district setback requirements zoning"
-  - "Where can I find the legal text for zoning ordinances governing electric generating facilities or power plants in {jurisdiction}?"
-  - "What are the zoning district regulations and setback requirements for public utility or power generation facilities in {jurisdiction}?"
 
 website_keywords:
   pdf: 92160
@@ -51,6 +53,13 @@ heuristic_keywords:
     - "simple cycle"
     - "peaking plant"
     - "public utility facility"
+    - "public utility"
+    - "nongovernmental utility"
+    - "front yard"
+    - "side yard"
+    - "rear yard"
+    - "lot area"
+    - "use table"
   not_tech_words:
     - "oil and gas well"
     - "gas well"
