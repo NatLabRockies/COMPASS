@@ -368,8 +368,8 @@ class StoreFileOnDisk(ThreadedService):
         raise NotImplementedError
 
 
-class FileMover(StoreFileOnDisk):
-    """Service that moves files to an output directory"""
+class OrdFileMover(StoreFileOnDisk):
+    """Service that moves ordinance files to an output directory"""
 
     _PROCESS = "move"
 

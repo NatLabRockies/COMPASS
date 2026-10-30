@@ -326,7 +326,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
             return None
         return tmp_path / f"{out_stem}.txt"
 
-    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(persistence_module.OrdFileMover, "call", fake_move)
     monkeypatch.setattr(
         persistence_module.ParsedFileWriter,
         "call",
@@ -391,7 +391,7 @@ async def test_persist_documents_includes_collection_step_metadata(
     async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
         return tmp_path / f"{out_stem}.txt"
 
-    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(persistence_module.OrdFileMover, "call", fake_move)
     monkeypatch.setattr(
         persistence_module.ParsedFileWriter,
         "call",
@@ -452,7 +452,7 @@ async def test_persist_documents_preserves_restored_docs_and_step_counts(
     async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
         return tmp_path / f"{out_stem}.txt"
 
-    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(persistence_module.OrdFileMover, "call", fake_move)
     monkeypatch.setattr(
         persistence_module.ParsedFileWriter,
         "call",

@@ -19,7 +19,7 @@ from compass.services.usage import LLM_USAGE_RATES_KEY, LLMRateTracker
 from compass.services.threaded import (
     CLEANED_FP_REGISTRY,
     CleanedFileWriter,
-    FileMover,
+    OrdFileMover,
     HTMLFileLoader,
     JurisdictionUpdater,
     OrdDBFileWriter,
@@ -85,7 +85,7 @@ async def test_temp_file_cache_uses_unique_names_for_same_source():
 
 @pytest.mark.asyncio
 async def test_file_move_service(tmp_path):
-    """Test base implementation of `FileMover` class"""
+    """Test base implementation of `OrdFileMover` class"""
 
     doc = HTMLDocument(["test"])
     doc.attrs["source"] = "http://www.example.com/?=%20test"
@@ -100,7 +100,7 @@ async def test_file_move_service(tmp_path):
     date = datetime.now().strftime("%Y_%m_%d")
     expected_moved_fp = tmp_path / f"{out_fp.stem}_processed_{date}.txt"
     assert not expected_moved_fp.exists()
-    mover = FileMover(tmp_path)
+    mover = OrdFileMover(tmp_path)
     mover.acquire_resources()
     moved_fp = await mover.process(doc)
     assert expected_moved_fp == moved_fp

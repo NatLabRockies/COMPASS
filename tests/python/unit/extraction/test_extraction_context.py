@@ -14,7 +14,7 @@ from compass.extraction.context import (
     _move_file_to_out_dir,
 )
 from compass.exceptions import COMPASSTypeError
-from compass.services.threaded import FileMover
+from compass.services.threaded import OrdFileMover
 
 
 def test_extraction_context_iter_empty():
@@ -300,7 +300,7 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
         assert out_fn == "output.pdf"
         return out_file
 
-    monkeypatch.setattr(FileMover, "call", fake_file_mover)
+    monkeypatch.setattr(OrdFileMover, "call", fake_file_mover)
 
     ctx = ExtractionContext()
     doc = PDFDocument(["test content"])
@@ -322,7 +322,7 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
         assert out_fn == "output_name.pdf"
         return output_path
 
-    monkeypatch.setattr(FileMover, "call", fake_mover)
+    monkeypatch.setattr(OrdFileMover, "call", fake_mover)
 
     doc = PDFDocument(["content"])
     doc.attrs["source"] = "original.pdf"

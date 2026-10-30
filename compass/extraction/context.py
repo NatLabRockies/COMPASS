@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 import pandas as pd
 
-from compass.services.threaded import FileMover
+from compass.services.threaded import OrdFileMover
 from compass.exceptions import COMPASSTypeError
 
 
@@ -159,7 +159,7 @@ class ExtractionContext:
 
 async def _move_file_to_out_dir(doc, out_stem):
     """Move PDF or HTML text file to output directory"""
-    out_fp = await FileMover.call(doc, out_stem)
+    out_fp = await OrdFileMover.call(doc, out_stem)
     doc.attrs["out_fp"] = out_fp
     return doc
 
