@@ -231,7 +231,7 @@ def test_container_entrypoint_rejects_unusable_cache(tmp_path, entrypoint):
         check=False,
     )
     assert result.returncode != 0
-    assert str(cache) in result.stderr
+    assert f"Unable to create cache directory: {cache}" in result.stderr
 
 
 @pytest.mark.skipif(os.name != "posix", reason="Linux container entrypoint")
