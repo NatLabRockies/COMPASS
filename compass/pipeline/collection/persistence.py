@@ -554,6 +554,9 @@ async def _move_file_to_collection_dir(doc, out_stem, relative_to):
     out_fp = await OrdFileMover.call(doc, out_stem, "downloaded")
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
+    doc.attrs["archive_status"] = (
+        "saved" if out_fp is not None else "missing_source"
+    )
     doc.attrs["source_fp"] = out_fp
 
 

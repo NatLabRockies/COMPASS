@@ -161,6 +161,9 @@ async def _move_file_to_out_dir(doc, out_stem):
     """Archive a source file without discarding data if it is missing"""
     out_fp = await OrdFileMover.call(doc, out_stem, "processed")
     doc.attrs["out_fp"] = out_fp
+    doc.attrs["archive_status"] = (
+        "saved" if out_fp is not None else "missing_source"
+    )
     return doc
 
 
