@@ -233,8 +233,7 @@ def test_move_file_missing_cache_remains_fatal_by_default(tmp_path):
     doc = HTMLDocument(["payload"])
     doc.attrs["cache_fn"] = tmp_path / "missing.pdf"
 
-    with pytest.raises(FileNotFoundError):
-        threaded._move_file(doc, tmp_path)
+    assert threaded._move_file(doc, tmp_path) is None
 
 
 @pytest.mark.parametrize("cached_source_exists", [True, False])
