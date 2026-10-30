@@ -100,7 +100,7 @@ def _transfer_source_fil_with_recovery(doc, out_fp):
             )
         return out_fp
 
-    raise FileNotFoundError
+    return None
 
 
 def _transfer_file_if_checksum_matches(src, dst, key, checksum=None):
