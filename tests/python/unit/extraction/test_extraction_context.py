@@ -331,6 +331,25 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
     assert doc.attrs["out_fp"] == output_path
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "error_type", [FileNotFoundError, PermissionError, OSError]
+)
+async def test_move_file_to_out_dir_io_errors_remain_fatal(
+    monkeypatch, caplog, error_type
+):
+    """Only exhausted source recovery is nonfatal during extraction"""
+    fake_mover = AsyncMock(side_effect=error_type("output unavailable"))
+    monkeypatch.setattr(OrdFileMover, "call", fake_mover)
+    doc = PDFDocument(["content"])
+
+    with pytest.raises(error_type, match="output unavailable"):
+        await _move_file_to_out_dir(doc, "output")
+
+    assert "archive_status" not in doc.attrs
+    assert "continuing to save extracted values" not in caplog.text
+
+
 def test_multi_doc_context():
     """Test multi_doc_context"""
     doc1 = PDFDocument(["doc 1"])
