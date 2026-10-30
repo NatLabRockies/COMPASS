@@ -1,6 +1,7 @@
 """COMPASS extraction context tests"""
 
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import pandas as pd
 import pytest
@@ -296,10 +297,7 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
     """Test marking document with file moving"""
     out_file = tmp_path / "extraction" / "output.pdf"
 
-    async def fake_file_mover(doc_arg, out_fn):  # ruff:ignore[unused-async]
-        assert out_fn == "output.pdf"
-        return out_file
-
+    fake_file_mover = AsyncMock(return_value=out_file)
     monkeypatch.setattr(OrdFileMover, "call", fake_file_mover)
 
     ctx = ExtractionContext()
@@ -308,9 +306,11 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
 
     await ctx.mark_doc_as_data_source(doc, out_fn_stem="output.pdf")
 
+    fake_file_mover.assert_awaited_once_with(doc, "output.pdf", "processed")
     assert doc in ctx.data_docs
     assert len(ctx.data_docs) == 1
     assert doc.attrs["out_fp"] == out_file
+    assert doc.attrs["archive_status"] == "saved"
 
 
 @pytest.mark.asyncio
@@ -318,10 +318,7 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
     """Test _move_file_to_out_dir helper"""
     output_path = tmp_path / "extraction" / "moved.pdf"
 
-    async def fake_mover(doc_arg, out_fn):  # ruff:ignore[unused-async]
-        assert out_fn == "output_name.pdf"
-        return output_path
-
+    fake_mover = AsyncMock(return_value=output_path)
     monkeypatch.setattr(OrdFileMover, "call", fake_mover)
 
     doc = PDFDocument(["content"])
@@ -329,6 +326,7 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
 
     result = await _move_file_to_out_dir(doc, "output_name.pdf")
 
+    fake_mover.assert_awaited_once_with(doc, "output_name.pdf", "processed")
     assert result is doc
     assert doc.attrs["out_fp"] == output_path
 
