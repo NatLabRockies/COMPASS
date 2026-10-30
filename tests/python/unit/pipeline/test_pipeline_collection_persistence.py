@@ -367,6 +367,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
             "checksum": "https://example.com/valid.html",
             "is_pdf": False,
             "has_parsed_text": True,
+            "archive_status": "saved",
             "source_fp": Path("Example Township_1.html"),
             "parsed_fp": Path("Example Township_1.txt"),
             "check_correct_jurisdiction": True,
