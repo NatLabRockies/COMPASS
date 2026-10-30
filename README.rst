@@ -65,7 +65,8 @@ architecture around the LLM call:
 
 
 Read more about the tool in the `documentation <https://natlabrockies.github.io/COMPASS/misc/about.html>`_,
-or check out summaries of the validation results in the `validation report <https://natlabrockies.github.io/COMPASS/val/validation.html>`_.
+check out summaries of the validation results in the `validation report <https://natlabrockies.github.io/COMPASS/val/validation.html>`_,
+or explore the data on the `COMPASS website <https://compass.nlr.gov/>`_.
 
 
 Where is the extracted ordinance data?
