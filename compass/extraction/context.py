@@ -116,8 +116,10 @@ class ExtractionContext:
         out_fn_stem : str, optional
             Optional output filename stem for this document. If
             provided, the document file will be moved from the
-            temporary directory to the output directory with this
-            filename stem and appropriate file suffix.
+            temporary directory, or copied from an available original
+            source if the temporary file is missing. If no source is
+            available, a warning is logged and extraction continues
+            without an archived file.
             By default, ``None``.
         """
         self._data_docs.append(doc)
