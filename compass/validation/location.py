@@ -464,9 +464,7 @@ def _weighted_vote(out, raw_pages, doc_source):
         f"Validator weighted vote breakdown for doc from {doc_source} :"
     ]
     num_verdicts = 0
-    for verdict, text in zip(out, raw_pages, strict=True):
-        if verdict is None:
-            continue
+    for verdict, text in _get_bool_verdicts(out, raw_pages):
         weight = len(text)
         messages.append(f"\t- Weight={weight:,d}, Verdict={int(verdict)}")
         weights += weight
@@ -478,6 +476,23 @@ def _weighted_vote(out, raw_pages, doc_source):
 
     weights = max(weights, 1)
     return total / weights, num_verdicts
+
+
+def _get_bool_verdicts(out, raw_pages):
+    """Get only boolean verdicts from the output"""
+    for verdict, text in zip(out, raw_pages, strict=True):
+        if verdict is None:
+            continue
+
+        if isinstance(verdict, str):
+            if verdict.casefold() == "yes":
+                verdict = True  # ruff: ignore[redefined-loop-name]
+            elif verdict.lower() == "no":
+                verdict = False  # ruff: ignore[redefined-loop-name]
+            else:
+                continue
+
+        yield verdict, text
 
 
 def _url_matches_known_jurisdiction_website(url, jurisdiction):

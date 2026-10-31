@@ -1,6 +1,7 @@
 """COMPASS extraction context tests"""
 
 from pathlib import Path
+from unittest.mock import AsyncMock
 
 import pandas as pd
 import pytest
@@ -14,7 +15,7 @@ from compass.extraction.context import (
     _move_file_to_out_dir,
 )
 from compass.exceptions import COMPASSTypeError
-from compass.services.threaded import FileMover
+from compass.services.threaded import OrdFileMover
 
 
 def test_extraction_context_iter_empty():
@@ -296,11 +297,8 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
     """Test marking document with file moving"""
     out_file = tmp_path / "extraction" / "output.pdf"
 
-    async def fake_file_mover(doc_arg, out_fn):  # ruff:ignore[unused-async]
-        assert out_fn == "output.pdf"
-        return out_file
-
-    monkeypatch.setattr(FileMover, "call", fake_file_mover)
+    fake_file_mover = AsyncMock(return_value=out_file)
+    monkeypatch.setattr(OrdFileMover, "call", fake_file_mover)
 
     ctx = ExtractionContext()
     doc = PDFDocument(["test content"])
@@ -308,9 +306,11 @@ async def test_mark_doc_as_data_source_with_file_move(monkeypatch, tmp_path):
 
     await ctx.mark_doc_as_data_source(doc, out_fn_stem="output.pdf")
 
+    fake_file_mover.assert_awaited_once_with(doc, "output.pdf", "processed")
     assert doc in ctx.data_docs
     assert len(ctx.data_docs) == 1
     assert doc.attrs["out_fp"] == out_file
+    assert doc.attrs["archive_status"] == "saved"
 
 
 @pytest.mark.asyncio
@@ -318,19 +318,36 @@ async def test_move_file_to_out_dir(monkeypatch, tmp_path):
     """Test _move_file_to_out_dir helper"""
     output_path = tmp_path / "extraction" / "moved.pdf"
 
-    async def fake_mover(doc_arg, out_fn):  # ruff:ignore[unused-async]
-        assert out_fn == "output_name.pdf"
-        return output_path
-
-    monkeypatch.setattr(FileMover, "call", fake_mover)
+    fake_mover = AsyncMock(return_value=output_path)
+    monkeypatch.setattr(OrdFileMover, "call", fake_mover)
 
     doc = PDFDocument(["content"])
     doc.attrs["source"] = "original.pdf"
 
     result = await _move_file_to_out_dir(doc, "output_name.pdf")
 
+    fake_mover.assert_awaited_once_with(doc, "output_name.pdf", "processed")
     assert result is doc
     assert doc.attrs["out_fp"] == output_path
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "error_type", [FileNotFoundError, PermissionError, OSError]
+)
+async def test_move_file_to_out_dir_io_errors_remain_fatal(
+    monkeypatch, caplog, error_type
+):
+    """Only exhausted source recovery is nonfatal during extraction"""
+    fake_mover = AsyncMock(side_effect=error_type("output unavailable"))
+    monkeypatch.setattr(OrdFileMover, "call", fake_mover)
+    doc = PDFDocument(["content"])
+
+    with pytest.raises(error_type, match="output unavailable"):
+        await _move_file_to_out_dir(doc, "output")
+
+    assert "archive_status" not in doc.attrs
+    assert "continuing to save extracted values" not in caplog.text
 
 
 def test_multi_doc_context():
