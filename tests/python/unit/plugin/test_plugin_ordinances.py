@@ -4,10 +4,14 @@ import asyncio
 from collections import UserList
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import AsyncMock
 
 import pandas as pd
 import pytest
+from elm.web.document import PDFDocument
 
+from compass.pb import COMPASS_PB
+from compass.pipeline.extraction.base import DocumentExtraction
 from compass.plugin.ordinance import (
     BaseTextCollector,
     BaseTextExtractor,
@@ -28,6 +32,13 @@ from compass.plugin.ordinance import (
 from compass.exceptions import (
     COMPASSPluginConfigurationError,
     COMPASSRuntimeError,
+)
+from compass.services.provider import RunningAsyncServices
+from compass.services.threaded import (
+    OrdFileMover,
+    OrdDBFileWriter,
+    _compile_doc_info,
+    _compute_sha256,
 )
 
 
@@ -316,6 +327,87 @@ async def test_parse_docs_for_structured_data_accepts_enum_value():
     plugin = MYPlugin(None, None, None)
 
     assert await plugin.parse_docs_for_structured_data(None) == "concat"
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "archive_case", ["cached", "source", "out_fp", "missing", "mismatch"]
+)
+async def test_single_doc_extraction_saves_csv_after_cache_loss(
+    merge_plugin, tmp_path, monkeypatch, archive_case
+):
+    """Save extracted values even when no verified source file survives"""
+    source_fp = tmp_path / "original.pdf"
+    source_fp.write_bytes(b"original PDF")
+    cached_fp = tmp_path / "cached.pdf"
+    archive_dir = tmp_path / "archives"
+    archive_dir.mkdir()
+    doc = PDFDocument(["retained ordinance text"])
+    doc.attrs.update(
+        source="https://example.com/ordinance.pdf",
+        source_fp=source_fp,
+        cache_fn=cached_fp,
+        checksum=_compute_sha256(source_fp),
+        date=(2024, 1, 1),
+    )
+    if archive_case == "cached":
+        cached_fp.write_bytes(b"original PDF")
+    elif archive_case == "out_fp":
+        doc.attrs["out_fp"] = source_fp
+        doc.attrs["source_fp"] = tmp_path / "missing.pdf"
+    elif archive_case == "missing":
+        source_fp.unlink()
+    elif archive_case == "mismatch":
+        source_fp.write_bytes(b"changed PDF")
+
+    merge_plugin.parse_for_structured_data = AsyncMock(
+        return_value=_data_df({"feature": "setback", "value": 100})
+    )
+    merge_plugin.filter_docs = AsyncMock(
+        side_effect=lambda context, _: context
+    )
+    merge_plugin.parse_docs_for_structured_data = (
+        merge_plugin.parse_single_doc_for_structured_data
+    )
+    workflow = SimpleNamespace(
+        extractor=merge_plugin,
+        jurisdiction=merge_plugin.jurisdiction,
+        jurisdiction_website="https://example.com",
+        runtime=SimpleNamespace(
+            request=SimpleNamespace(
+                parsing_settings=SimpleNamespace(
+                    max_num_docs_per_jurisdiction=None
+                )
+            )
+        ),
+    )
+    monkeypatch.setattr(
+        COMPASS_PB, "update_jurisdiction_task", lambda *_, **__: None
+    )
+
+    async with RunningAsyncServices(
+        [OrdFileMover(archive_dir), OrdDBFileWriter(tmp_path)]
+    ):
+        context = await DocumentExtraction(workflow).extract_from_docs([doc])
+
+    saved_data = pd.read_csv(context.attrs["ord_db_fp"])
+    assert saved_data["value"].tolist() == [100]
+    assert saved_data["source"].tolist() == [doc.attrs["source"]]
+    assert saved_data["year"].tolist() == [2024]
+    assert context.data_docs == [doc]
+    assert context.attrs["num_features_extracted"] == 1
+    assert doc.text == "retained ordinance text"
+    doc_info = _compile_doc_info(doc)
+    if archive_case in {"missing", "mismatch"}:
+        assert doc.attrs["out_fp"] is None
+        assert doc_info["archive_status"] == "missing_source"
+        assert doc_info["ord_filename"] is None
+        assert not list(archive_dir.iterdir())
+    else:
+        assert doc.attrs["out_fp"].read_bytes() == b"original PDF"
+        assert doc_info["archive_status"] == "saved"
+        assert doc_info["ord_filename"] == doc.attrs["out_fp"].name
+        assert source_fp.read_bytes() == b"original PDF"
 
 
 @pytest.mark.asyncio
