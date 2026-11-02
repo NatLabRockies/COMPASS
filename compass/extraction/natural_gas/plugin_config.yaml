@@ -49,11 +49,6 @@ heuristic_keywords:
     - "public utility facility"
     - "public utility"
     - "nongovernmental utility"
-    - "front yard"
-    - "side yard"
-    - "rear yard"
-    - "lot area"
-    - "use table"
   not_tech_words:
     - "oil and gas well"
     - "gas well"
