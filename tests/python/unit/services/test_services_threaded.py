@@ -19,7 +19,7 @@ from compass.services.usage import LLM_USAGE_RATES_KEY, LLMRateTracker
 from compass.services.threaded import (
     CLEANED_FP_REGISTRY,
     CleanedFileWriter,
-    FileMover,
+    OrdFileMover,
     HTMLFileLoader,
     JurisdictionUpdater,
     OrdDBFileWriter,
@@ -85,7 +85,7 @@ async def test_temp_file_cache_uses_unique_names_for_same_source():
 
 @pytest.mark.asyncio
 async def test_file_move_service(tmp_path):
-    """Test base implementation of `FileMover` class"""
+    """Test base implementation of `OrdFileMover` class"""
 
     doc = HTMLDocument(["test"])
     doc.attrs["source"] = "http://www.example.com/?=%20test"
@@ -100,7 +100,7 @@ async def test_file_move_service(tmp_path):
     date = datetime.now().strftime("%Y_%m_%d")
     expected_moved_fp = tmp_path / f"{out_fp.stem}_processed_{date}.txt"
     assert not expected_moved_fp.exists()
-    mover = FileMover(tmp_path)
+    mover = OrdFileMover(tmp_path)
     mover.acquire_resources()
     moved_fp = await mover.process(doc)
     assert expected_moved_fp == moved_fp
@@ -177,6 +177,95 @@ def test_move_file_returns_none_without_cache(tmp_path):
 
     doc = HTMLDocument(["payload"])
     assert threaded._move_file(doc, tmp_path) is None
+
+
+@pytest.mark.parametrize("fallback_key", ["source_fp", "out_fp"])
+@pytest.mark.parametrize("has_cache_path", [True, False])
+def test_move_file_recovers_missing_cache_from_source(
+    tmp_path, fallback_key, has_cache_path
+):
+    """Recovery copies the collected source without consuming it"""
+    source_fp = tmp_path / "collected.pdf"
+    source_fp.write_bytes(b"original PDF")
+    out_dir = tmp_path / "output"
+    out_dir.mkdir()
+    doc = HTMLDocument(["payload"])
+    doc.attrs.update(
+        cache_fn=tmp_path / "missing.pdf" if has_cache_path else None,
+        checksum=threaded._compute_sha256(source_fp),
+    )
+    doc.attrs[fallback_key] = source_fp
+    if fallback_key == "out_fp":
+        doc.attrs["source_fp"] = tmp_path / "missing_source.pdf"
+
+    recovered_fp = threaded._move_file(doc, out_dir, "Test County")
+
+    assert recovered_fp.parent == out_dir
+    assert recovered_fp.read_bytes() == b"original PDF"
+    assert source_fp.read_bytes() == b"original PDF"
+
+
+def test_move_file_rejects_mismatched_source_and_tries_output(tmp_path):
+    """Recovery skips a changed original and verifies the next source"""
+    source_fp = tmp_path / "changed.pdf"
+    source_fp.write_bytes(b"changed PDF")
+    previous_fp = tmp_path / "previous.pdf"
+    previous_fp.write_bytes(b"original PDF")
+    out_dir = tmp_path / "output"
+    out_dir.mkdir()
+    doc = HTMLDocument(["payload"])
+    doc.attrs.update(
+        cache_fn=tmp_path / "missing.pdf",
+        source_fp=source_fp,
+        out_fp=previous_fp,
+        checksum=threaded._compute_sha256(previous_fp),
+    )
+
+    recovered_fp = threaded._move_file(doc, out_dir, "Test County")
+
+    assert recovered_fp.read_bytes() == b"original PDF"
+    assert source_fp.read_bytes() == b"changed PDF"
+    assert previous_fp.read_bytes() == b"original PDF"
+
+
+def test_move_file_missing_cache_remains_fatal_by_default(tmp_path):
+    """Collection must not silently lose a missing source"""
+    doc = HTMLDocument(["payload"])
+    doc.attrs["cache_fn"] = tmp_path / "missing.pdf"
+
+    assert threaded._move_file(doc, tmp_path) is None
+
+
+@pytest.mark.parametrize("cached_source_exists", [True, False])
+def test_move_file_missing_destination_remains_fatal(
+    tmp_path, cached_source_exists
+):
+    """Recovery must not hide a missing output directory"""
+    cached_fp = tmp_path / "cached.pdf"
+    if cached_source_exists:
+        cached_fp.write_bytes(b"cached PDF")
+    doc = HTMLDocument(["payload"])
+    doc.attrs["cache_fn"] = cached_fp
+
+    with pytest.raises(FileNotFoundError):
+        threaded._move_file(doc, tmp_path / "missing_output")
+
+
+@pytest.mark.parametrize("error_type", [PermissionError, OSError])
+def test_move_file_other_errors_remain_fatal(
+    tmp_path, monkeypatch, error_type
+):
+    """Recovery must not suppress permissions or other I/O errors"""
+    doc = HTMLDocument(["payload"])
+    doc.attrs["cache_fn"] = tmp_path / "cached.pdf"
+
+    def fail_move(*args):
+        raise error_type("output unavailable")
+
+    monkeypatch.setattr(threaded.shutil, "move", fail_move)
+
+    with pytest.raises(error_type, match="output unavailable"):
+        threaded._move_file(doc, tmp_path)
 
 
 def test_move_file_uses_jurisdiction_name(tmp_path):
@@ -641,6 +730,25 @@ def test_compile_doc_info_uses_source_path_when_output_path_is_none(
     doc_info = threaded._compile_doc_info(doc)
 
     assert doc_info["ord_filename"] == "source.pdf"
+
+
+def test_compile_doc_info_reports_missing_archive(tmp_path):
+    """Missing archives must not claim a saved PDF filename"""
+    doc = HTMLDocument(["page"])
+    doc.attrs.update(
+        source="https://example.com/ordinance.pdf",
+        source_fp=tmp_path / "missing.pdf",
+        out_fp=None,
+        archive_status="missing_source",
+        checksum="sha256:original",
+    )
+
+    doc_info = threaded._compile_doc_info(doc)
+
+    assert doc_info["ord_filename"] is None
+    assert doc_info["archive_status"] == "missing_source"
+    assert doc_info["source"] == doc.attrs["source"]
+    assert doc_info["checksum"] == "sha256:original"
 
 
 def test_dump_usage_without_tracker_returns_existing_data(tmp_path):

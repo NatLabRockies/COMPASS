@@ -60,18 +60,75 @@ def _ensure_output_suffix(out_dir, out_stem, suffix):
 
 def _move_file(doc, out_dir, out_stem=None, verb="processed"):
     """Move a file from a temp directory to an output directory"""
-    cached_fp = doc.attrs.get("cache_fn")
-    if cached_fp is None:
+
+    naming_fp = (
+        doc.attrs.get("cache_fn")
+        or doc.attrs.get("source_fp")
+        or doc.attrs.get("out_fp")
+    )
+    if naming_fp is None:
         return None
 
-    cached_fp = Path(cached_fp)
+    naming_fp = Path(naming_fp)
     date = datetime.now().strftime("%Y_%m_%d")
-    out_stem = out_stem or cached_fp.stem
+    out_stem = out_stem or naming_fp.stem
     out_stem = f"{out_stem}_{verb}_{date}"
-    out_fp = _ensure_output_suffix(out_dir, out_stem, cached_fp.suffix)
+    out_fp = _ensure_output_suffix(out_dir, out_stem, naming_fp.suffix)
+    return _transfer_source_fil_with_recovery(doc, out_fp)
 
-    shutil.move(cached_fp, out_fp)
-    return out_fp
+
+def _transfer_source_fil_with_recovery(doc, out_fp):
+    """Copy an original source after a cached file disappears"""
+    out_fp.parent.stat()  # fail fast if dst directory is unreachable
+    checksum = doc.attrs.get("checksum")
+    for key in ("cache_fn", "source_fp", "out_fp"):
+        source_fp = doc.attrs.get(key)
+        if source_fp is None:
+            continue
+
+        source_fp = Path(source_fp)
+        if not _transfer_file_if_checksum_matches(
+            source_fp, out_fp, key, checksum=checksum
+        ):
+            continue
+
+        if key != "cache_fn":
+            logger.warning(
+                "Cached source file unavailable for %s; recovered from '%s'",
+                doc.attrs.get("source", "Unknown source"),
+                source_fp,
+            )
+        return out_fp
+
+    return None
+
+
+def _transfer_file_if_checksum_matches(src, dst, key, checksum=None):
+    """Transfer a file if its checksum matches the expected value"""
+    try:
+        checksum_matches = not checksum or _compute_sha256(src) == checksum
+        if not checksum_matches:
+            logger.warning("Skipping source file '%s': checksum mismatch", src)
+            return False
+
+        _transfer_file(src, dst, key)
+    except FileNotFoundError:
+        if src.exists() or not dst.parent.is_dir():
+            raise
+        return False
+
+    return True
+
+
+def _transfer_file(src, dst, key):
+    """Move (if in cache) or copy a file to a new location"""
+    if src.resolve() == dst.resolve():
+        return
+
+    if key == "cache_fn":
+        shutil.move(src, dst)
+    else:
+        shutil.copy2(src, dst)
 
 
 def _write_cleaned_file(doc, out_dir, tech, jurisdiction_name=None):
@@ -368,8 +425,8 @@ class StoreFileOnDisk(ThreadedService):
         raise NotImplementedError
 
 
-class FileMover(StoreFileOnDisk):
-    """Service that moves files to an output directory"""
+class OrdFileMover(StoreFileOnDisk):
+    """Service that moves ordinance files to an output directory"""
 
     _PROCESS = "move"
 
@@ -660,12 +717,19 @@ def _compile_doc_info(doc):
     """Put together meta information about a single document"""
     year, month, day = doc.attrs.get("date") or (None, None, None)
     out_fp = doc.attrs.get("out_fp") or doc.attrs.get("source_fp")
+    archive_status = doc.attrs.get("archive_status")
+    ord_filename = (
+        None
+        if archive_status == "missing_source"
+        else Path(out_fp or "unknown").name
+    )
     return {
         "source": doc.attrs.get("source"),
         "effective_year": year if year is not None and year > 0 else None,
         "effective_month": month if month is not None and month > 0 else None,
         "effective_day": day if day is not None and day > 0 else None,
-        "ord_filename": Path(out_fp or "unknown").name,
+        "ord_filename": ord_filename,
+        "archive_status": archive_status,
         "doc_type": doc.attrs.get("doc_type"),
         "num_pages": doc.attrs.get("num_pages", len(doc.pages)),
         "checksum": doc.attrs.get("checksum"),

@@ -3,12 +3,14 @@
 import logging
 from itertools import product
 from pathlib import Path
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
 import compass.pipeline.coordinator as coordinator_module
 import compass.pipeline.data_classes as data_classes_module
+import compass.pipeline.runtime as runtime_module
 from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
 from compass.pipeline import (
     CollectionRequest,
@@ -288,6 +290,61 @@ async def test_external_exceptions_logged_to_file(tmp_path, monkeypatch):
     log_text = log_files[0].read_text(encoding="utf-8")
     assert "Fatal error during processing" in log_text
     assert "Simulated external error" in log_text
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "request_class",
+    [SearchRequest, CollectionRequest, ExtractionRequest, ProcessRequest],
+)
+@pytest.mark.parametrize(
+    ("plugin_attrs", "expected_version"),
+    [
+        ({"SCHEMA": {"version": "1.2.3"}}, "1.2.3"),
+        ({"SCHEMA": {}}, "unknown"),
+        ({"SCHEMA": {"version": None}}, "unknown"),
+        ({"SCHEMA": {"version": ""}}, "unknown"),
+        ({}, None),
+        ({"SCHEMA": None}, None),
+    ],
+)
+async def test_plugin_schema_version_logged_at_start(
+    tmp_path,
+    patched_workflow,
+    monkeypatch,
+    request_class,
+    plugin_attrs,
+    expected_version,
+):
+    """Log schema versions once per run and omit non-schema plugins"""
+    monkeypatch.setattr(
+        runtime_module,
+        "resolve_plugin",
+        lambda _: SimpleNamespace(**plugin_attrs),
+    )
+    jurisdiction_fp = tmp_path / "jurisdictions.csv"
+    jurisdiction_fp.touch()
+    request_kwargs = {
+        "out_dir": tmp_path / "outputs",
+        "tech": "solar",
+        "jurisdiction_fp": jurisdiction_fp,
+        "log_level": "INFO",
+    }
+    if request_class is ExtractionRequest:
+        manifest_fp = tmp_path / "collection_manifest.json"
+        manifest_fp.touch()
+        request_kwargs["collection_manifest_fp"] = manifest_fp
+
+    await run_compass(request_class(**request_kwargs))
+
+    log_text = (tmp_path / "outputs" / "logs" / "main.log").read_text(
+        encoding="utf-8"
+    )
+    if expected_version is None:
+        assert "Plugin schema version:" not in log_text
+    else:
+        assert log_text.count("Plugin schema version:") == 1
+        assert f"INFO: Plugin schema version: {expected_version}" in log_text
 
 
 @pytest.mark.asyncio
