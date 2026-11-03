@@ -7,9 +7,6 @@ query_templates:
   - "filetype:pdf {jurisdiction} zoning ordinance land use table zoning districts"
   - "filetype:pdf {jurisdiction} zoning ordinance industrial district setbacks height lot"
   - "{jurisdiction} zoning ordinance code of ordinances"
-  - "site:municode.com {jurisdiction} zoning"
-  - "site:ecode360.com {jurisdiction} zoning"
-  - "site:codelibrary.amlegal.com {jurisdiction} zoning"
   - "{jurisdiction} gas-fired electric generating facility ordinance"
 
 website_keywords:
@@ -91,11 +88,3 @@ heuristic_keywords:
 collection_prompts: true
 text_extraction_prompts: true
 cache_llm_generated_content: true
-
-extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from natural gas electric
-  generating facility ordinances. Follow all instructions in the schema
-  descriptions carefully.
-  Only extract requirements for natural gas-fired electric generating facilities
-  that produce electricity for offsite sale, not for gas extraction, pipelines,
-  storage, fueling, building appliances, or backup generators.
