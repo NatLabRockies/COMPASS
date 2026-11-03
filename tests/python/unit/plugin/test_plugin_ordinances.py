@@ -34,6 +34,7 @@ from compass.exceptions import (
     COMPASSRuntimeError,
 )
 from compass.services.provider import RunningAsyncServices
+from compass.utilities.enums import LLMTasks
 from compass.services.threaded import (
     OrdFileMover,
     OrdDBFileWriter,
@@ -594,6 +595,56 @@ async def test_parse_multi_doc_merge_returns_context(merge_plugin):
         "setback",
         "height",
     }
+
+
+@pytest.mark.asyncio
+async def test_concurrent_doc_parsing_keeps_progress_tracking(
+    merge_plugin, monkeypatch
+):
+    """A finished doc should not break progress for docs still parsing"""
+
+    class EXT(BaseTextExtractor):
+        IN_LABEL = "collected"
+        OUT_LABEL = "extracted"
+
+    class PARS(BaseParser):
+        IN_LABEL = "extracted"
+        OUT_LABEL = "parsed"
+
+    merge_plugin.TEXT_EXTRACTORS = [EXT]
+    merge_plugin.PARSERS = [PARS]
+    merge_plugin.model_configs = {LLMTasks.DEFAULT: None}
+
+    async def _fake_extract_relevant_text(doc, *__):
+        await asyncio.sleep(doc.attrs["delay"])
+        doc.attrs[EXT.OUT_LABEL] = "relevant text"
+
+    async def _fake_extract_ordinances_from_text(doc, *_, **__):
+        await asyncio.sleep(0)
+        doc.attrs[PARS.OUT_LABEL] = _data_df(
+            {"feature": "setback", "value": doc.attrs["source"]}
+        )
+
+    monkeypatch.setattr(
+        merge_plugin, "extract_relevant_text", _fake_extract_relevant_text
+    )
+    monkeypatch.setattr(
+        merge_plugin,
+        "extract_ordinances_from_text",
+        _fake_extract_ordinances_from_text,
+    )
+
+    fast_doc = FakeDoc("fast")
+    fast_doc.attrs["delay"] = 0
+    slow_doc = FakeDoc("slow")
+    slow_doc.attrs["delay"] = 0.05
+
+    out = await asyncio.gather(
+        merge_plugin.parse_for_structured_data(fast_doc),
+        merge_plugin.parse_for_structured_data(slow_doc),
+    )
+
+    assert [df["value"].tolist() for df in out] == [["fast"], ["slow"]]
 
 
 @pytest.mark.parametrize(
