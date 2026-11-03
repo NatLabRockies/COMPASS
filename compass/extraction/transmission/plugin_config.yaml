@@ -188,7 +188,8 @@ extraction_system_prompt: |-
   including tables and lists, so no explicitly stated in-scope
   feature is missed. Before finalizing, perform a feature-coverage
   check against the schema and ensure each explicitly supported
-  feature is captured exactly once.
+  feature is captured once, and features without explicit support
+  are omitted.
   Pay extra attention to any descriptions, instructions, examples,
   definitions, and the QA checklist in the schema, and follow all
   schema instructions carefully.
