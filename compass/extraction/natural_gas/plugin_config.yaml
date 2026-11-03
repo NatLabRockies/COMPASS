@@ -2,10 +2,26 @@ schema: ./natural_gas_schema.json
 
 data_type_short_desc: natural gas electric generating facility ordinance
 
+doc_selection_method: "multi doc context"
+
+extraction_system_prompt: |-
+  You extract enacted natural-gas generating-facility requirements from
+  ordinance documents. Apply the complete schema guidance below, including
+  its definitions, eligibility rules, examples and instructions, not just
+  its output-field types.
+
+  Establish the governing use and its eligible districts before reporting
+  district standards. Do not invent permission or assume an exemption.
+  Preserve supported general-utility coverage when no more specific
+  generating-use category governs. If the supplied evidence establishes
+  neither an applicable use nor a facility-specific requirement, return
+  an empty outputs array. Preserve the supplied source indices.
+
+  SCHEMA AND EXTRACTION GUIDANCE:
+  {schema}
+
 query_templates:
-  - "filetype:pdf {jurisdiction} zoning resolution district regulations"
-  - "filetype:pdf {jurisdiction} zoning ordinance land use table zoning districts"
-  - "filetype:pdf {jurisdiction} zoning ordinance industrial district setbacks height lot"
+  - "filetype:pdf {jurisdiction} zoning ordinance"
   - "{jurisdiction} zoning ordinance code of ordinances"
   - "{jurisdiction} gas-fired electric generating facility ordinance"
 
@@ -85,6 +101,40 @@ heuristic_keywords:
     - "gas main"
     - "gas line"
 
-collection_prompts: true
-text_extraction_prompts: true
+collection_prompts:
+  - key: contains_relevant_text
+    label: generating use or supporting zoning context
+    prompt: |-
+      Decide whether this ordinance chunk should be retained as evidence
+      for natural-gas electric generating facilities producing electricity
+      for offsite sale or grid delivery.
+
+      Return JSON (not markdown) with exactly two keys:
+      1) "{key}" (boolean)
+      2) "explanation" (string)
+
+      Set "{key}" to true if ANY of the following is present:
+      - Operative generating-facility or general public/nongovernmental
+        utility definitions, permissions, prohibitions or requirements.
+      - Use-table column headings, approval-symbol legends, blank-cell
+        meanings, footnotes or rules for interpreting zoning tables.
+        These are evidence even without a generating or utility use in
+        this chunk. A legend is not merely a table of contents.
+      - Substantive district dimensional or performance standards for
+        principal uses, including lot area, width, frontage, coverage,
+        height, yards, setbacks and noise.
+      - Rules establishing how base districts, overlays, use categories,
+        exemptions or special approvals interact.
+
+      Collection is not the final applicability decision. Permission,
+      table legends and dimensions may appear on different pages. Keep
+      potentially applicable evidence without assuming that a plant is
+      permitted in every district. The final parser makes that decision
+      using the combined text.
+
+      Set "{key}" to false for navigation or contents/index entries alone,
+      or text solely about unrelated uses, including gas wells, pipelines,
+      fuel storage, household gas equipment and onsite backup generators.
+      Do not reject a mixed chunk that also meets any retention rule above.
+text_extraction_prompts: false
 cache_llm_generated_content: true
