@@ -52,7 +52,7 @@
           },
           "district": {
             "type": ["string", "null"],
-            "description": "The zoning district this value applies to, using the exact district name or code from the ordinance (e.g. 'H-I Heavy Industrial', 'L-I Light Industrial', 'EU-2'). A district must first pass district_eligibility: a dimensional table alone does not establish applicability. Use null only for a directly applicable technology-specific requirement that is not district-based, or for district-list features. For eligible districts with different requirements, emit a separate object per district, except for the single most restrictive maximum building height."
+            "description": "The zoning district this value applies to, using the exact district name or code from the ordinance (e.g. 'H-I Heavy Industrial', 'L-I Light Industrial', 'EU-2'). A district must first pass district_eligibility: a dimensional table alone does not establish applicability. Use null only for a directly applicable technology-specific requirement that is not district-based, or for district-list features. When the value is the most restrictive of several eligible districts, name the district it comes from."
           },
           "section": {
             "type": ["string", "null"],
@@ -85,16 +85,16 @@
     "setback_features": {
       "description": "Setback features with their aliases and extraction guidance",
       "properties": {
-        "residential dwellings": {"description": "Setback requirements from occupied dwellings, residences, or places of public assembly. May also be labeled as setbacks from habitable structures or occupied buildings. VALUE & UNITS: numerical distance in feet or miles. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."},
+        "residential dwellings": {"description": "Setback requirements from occupied dwellings, residences, or places of public assembly. May also be labeled as setbacks from habitable structures or occupied buildings. VALUE & UNITS: numerical distance in feet or miles."},
 
         "property line": {
-          "description": "Setback requirements from property lines, lot lines, or parcel boundaries. Side and rear yard setbacks fall here. VALUE & UNITS: numerical distance in feet. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."
+          "description": "Setback requirements from property lines, lot lines, or parcel boundaries. Side and rear yard setbacks fall here. VALUE & UNITS: numerical distance in feet."
         },
         "residential district": {
           "description": "Setback requirements measured from the boundary of a residentially zoned district, as distinct from an individual dwelling. VALUE & UNITS: numerical distance in feet or miles."
         },
         "front yard": {
-          "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet. If different values apply in different zoning districts, emit one object per district with the district named in the 'district' field."
+          "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet."
         },
         "street": {
           "description": "Setback requirements from streets, roads, or rights-of-way. VALUE & UNITS: numerical distance in feet. Where an ordinance expresses a setback as a distance from a street right-of-way or street easement center line, record it here as well as under front yard, using the district field to attribute it."
@@ -214,7 +214,7 @@
       "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
       "For features where no explicit applicable requirement exists, omit the feature from the array entirely. Do not produce null-valued 'no requirement' rows or effective-year-only results from otherwise irrelevant ordinances.",
       "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
-      "When an ordinance states different values for the same feature in different zoning districts, emit one object per district with the district named in the 'district' field. Do not collapse them into a single value, except for maximum building height, which is reported as one most restrictive value. When multiple values apply within the same district for reasons other than district (such as different measurement bases), select the most restrictive and note the alternatives in the summary.     Requirements that apply only in specific circumstances, such as private-road access or lots on individual wells or septic systems, are not the base value: report the generally applicable value and list the circumstance-specific values in the summary.",
+      "When an ordinance states different values for the same feature in different zoning districts, report a single object with the most restrictive value (largest for setbacks and minimums; smallest for maximum height, lot coverage, and noise limits) among eligible districts where the facility is permitted, conditionally permitted, or allowed by special use or special exception. Ignore districts where the facility is prohibited. Name that district in the 'district' field and list the other districts and their values in the summary. When multiple values apply within the same district for reasons other than district (such as different measurement bases), select the most restrictive and note the alternatives in the summary.",
       "Ensure units are expressed using standard, conventional names ('feet', 'miles', 'acres', 'square feet', 'percent', 'dBA', 'dBC', 'MW')."
     ],
     "setback_specific": [
