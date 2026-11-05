@@ -10,8 +10,9 @@ extraction_system_prompt: |-
   its definitions, eligibility rules, examples and instructions, not just
   its output-field types.
 
-  Establish the governing use and its eligible districts before reporting
-  district standards. Do not invent permission or assume an exemption.
+  First identify the governing use and the zones where it is allowed,
+  then report the dimensional and performance standards that apply in
+  those zones. Do not invent permission or assume an exemption.
   Preserve supported general-utility coverage when no more specific
   generating-use category governs. If the supplied evidence establishes
   neither an applicable use nor a facility-specific requirement, return
@@ -136,5 +137,5 @@ collection_prompts:
       or text solely about unrelated uses, including gas wells, pipelines,
       fuel storage, household gas equipment and onsite backup generators.
       Do not reject a mixed chunk that also meets any retention rule above.
-text_extraction_prompts: false
+text_extraction_prompts: true
 cache_llm_generated_content: true
