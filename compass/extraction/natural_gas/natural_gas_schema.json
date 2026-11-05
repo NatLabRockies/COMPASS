@@ -10,7 +10,7 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["feature", "value", "units", "district", "section", "summary", "source"],
+        "required": ["feature", "value", "units", "section", "summary", "source"],
         "additionalProperties": false,
         "properties": {
           "feature": {
@@ -49,10 +49,6 @@
           "units": {
             "type": ["string", "null"],
             "description": "Units for the extracted value. Distances: 'feet' or 'miles'. Noise: 'dBA' or 'dBC'. Capacity: 'MW'. Lot size: 'acres' or 'square feet'. Coverage: 'percent'. Null for qualitative features or ratios."
-          },
-          "district": {
-            "type": ["string", "null"],
-            "description": "The zoning district this value applies to, using the exact district name or code from the ordinance (e.g. 'H-I Heavy Industrial', 'L-I Light Industrial', 'EU-2'). A district must first pass district_eligibility: a dimensional table alone does not establish applicability. Use null only for a directly applicable technology-specific requirement that is not district-based, or for district-list features. When the value is the most restrictive of several eligible districts, name the district it comes from."
           },
           "section": {
             "type": ["string", "null"],
@@ -97,7 +93,7 @@
           "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet."
         },
         "street": {
-          "description": "Setback requirements from streets, roads, or rights-of-way. VALUE & UNITS: numerical distance in feet. Where an ordinance expresses a setback as a distance from a street right-of-way or street easement center line, record it here as well as under front yard, using the district field to attribute it."
+          "description": "Setback requirements from streets, roads, or rights-of-way. VALUE & UNITS: numerical distance in feet. Where an ordinance expresses a setback as a distance from a street right-of-way or street easement center line, record it here as well as under front yard."
         }
       }
     },
@@ -190,14 +186,12 @@
       "value": 80,
       "units": "feet",
       "section": "Zoning district setback table",
-      "district": "I-2",
       "summary": "The use table lists electric generating facilities as a conditional use in I-2. The I-2 district table requires an 80-foot front yard. A different district's 55-foot standard is not extracted without evidence that the governing generating use is allowed there."
     },
     {
       "feature": "primary use districts",
       "value": ["EU-2 Exclusive Use Two"],
       "units": null,
-      "district": null,
       "section": "Sec. 3, Chapter 107, Article VII",
       "summary": "Gas-fired electric generating facilities are listed as a principal permitted use in the EU-2 district. Do not add districts from another example, another jurisdiction, or a generic dimensional table."
     }
@@ -214,7 +208,7 @@
       "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
       "For features where no explicit applicable requirement exists, omit the feature from the array entirely. Do not produce null-valued 'no requirement' rows or effective-year-only results from otherwise irrelevant ordinances.",
       "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
-      "When an ordinance states different values for the same feature in different zoning districts, report a single object with the most restrictive value (largest for setbacks and minimums; smallest for maximum height, lot coverage, and noise limits) among eligible districts where the facility is permitted, conditionally permitted, or allowed by special use or special exception. Ignore districts where the facility is prohibited. Name that district in the 'district' field and list the other districts and their values in the summary. When multiple values apply within the same district for reasons other than district (such as different measurement bases), select the most restrictive and note the alternatives in the summary.",
+      "When an ordinance states different values for the same feature in different zoning districts, report a single object with the most restrictive value (largest for setbacks and minimums; smallest for maximum height, lot coverage, and noise limits) among eligible districts where the facility is permitted, conditionally permitted, or allowed by special use or special exception. Ignore districts where the facility is prohibited. Name that district in the summary and list the other districts and their values there. When multiple values apply within the same district for reasons other than district (such as different measurement bases), select the most restrictive and note the alternatives in the summary.",
       "Ensure units are expressed using standard, conventional names ('feet', 'miles', 'acres', 'square feet', 'percent', 'dBA', 'dBC', 'MW')."
     ],
     "setback_specific": [
