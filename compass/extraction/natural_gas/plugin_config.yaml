@@ -5,18 +5,17 @@ data_type_short_desc: natural gas electric generating facility ordinance
 doc_selection_method: "multi doc context"
 
 extraction_system_prompt: |-
-  You extract enacted natural-gas generating-facility requirements from
-  ordinance documents. Apply the complete schema guidance below, including
-  its definitions, eligibility rules, examples and instructions, not just
-  its output-field types.
+  Extract enacted siting requirements only for natural gas-fired power
+  plants producing electricity for offsite sale or grid delivery.
+  Follow the complete schema below, including its scope, eligibility,
+  value-selection and summary instructions.
 
-  First identify the governing use and the zones where it is allowed,
-  then report the dimensional and performance standards that apply in
-  those zones. Do not invent permission or assume an exemption.
-  Preserve supported general-utility coverage when no more specific
-  generating-use category governs. If the supplied evidence establishes
-  neither an applicable use nor a facility-specific requirement, return
-  an empty outputs array. Preserve the supplied source indices.
+  Establish the governing use and eligible districts before selecting
+  applicable standards. Return one row per supported feature, keeping
+  the most restrictive value and concise district alternatives in its
+  summary. Do not invent permission, values or exemptions. Return an
+  empty outputs array when applicability is unsupported. Preserve the
+  supplied source indices.
 
   SCHEMA AND EXTRACTION GUIDANCE:
   {schema}
@@ -137,5 +136,6 @@ collection_prompts:
       or text solely about unrelated uses, including gas wells, pipelines,
       fuel storage, household gas equipment and onsite backup generators.
       Do not reject a mixed chunk that also meets any retention rule above.
-text_extraction_prompts: true
+# Preserve collected use tables, dimensional standards and source markers.
+text_extraction_prompts: false
 cache_llm_generated_content: true

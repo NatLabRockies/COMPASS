@@ -1,7 +1,7 @@
 {
-  "title": "Natural Gas Generation Facility Ordinance Extraction Schema",
-  "description": "Single-shot structured extraction schema for natural gas plant ordinances. This schema encodes the complete multi-step decision tree logic from COMPASS into comprehensive field descriptions that guide LLMs to extract all ordinance features in one call. The output is structured as a flat array of extraction objects, where each object represents one row in the final CSV/DataFrame output.",
-  "version": "1.0.0",
+  "title": "Natural Gas Power Plant Ordinance Extraction Schema",
+  "description": "Extract enacted siting requirements for natural gas-fired power plants that generate electricity for offsite sale or grid delivery.",
+  "version": "2.0.0",
   "type": "object",
   "required": ["outputs"],
   "additionalProperties": false,
@@ -15,7 +15,7 @@
         "properties": {
           "feature": {
             "type": "string",
-            "description": "The ordinance feature being extracted. Must be one of the enumerated feature IDs.",
+            "description": "The supported ordinance feature, using exactly one of these IDs.",
             "enum": [
               "residential dwellings",
               "property line",
@@ -38,7 +38,7 @@
             ]
           },
           "value": {
-            "description": "The extracted ordinance value. Type and format depend on the feature. For setbacks and numerical limits: a number. For generation capacity: a number in MW. For lot ratios: a string like '1:2'. For district features: a nonempty array of district names. Omit the entire row when the requirement or its applicability is unsupported, or when the text says 'none' or 'no requirement'; do not emit a null placeholder.",
+            "description": "One value selected under value_selection: a number for numerical requirements, a string for a lot ratio, or a nonempty array of names/codes for a district-list feature. Omit unsupported features rather than returning null-valued or empty rows.",
             "anyOf": [
               {"type": "number"},
               {"type": "string"},
@@ -48,191 +48,150 @@
           },
           "units": {
             "type": ["string", "null"],
-            "description": "Units for the extracted value. Distances: 'feet' or 'miles'. Noise: 'dBA' or 'dBC'. Capacity: 'MW'. Lot size: 'acres' or 'square feet'. Coverage: 'percent'. Null for qualitative features or ratios."
+            "description": "Use 'feet', 'miles', 'acres', 'square feet', 'percent', 'dBA', 'dBC', or 'MW' as specified for the feature. Use null for district lists, ratios and effective year."
           },
           "section": {
             "type": ["string", "null"],
-            "description": "The section title or number from the ordinance where this requirement is found (e.g., 'SECTION 1308 – Performance / Construction Standards'). Include numerical labels if provided. Null if no section identifier is available."
+            "description": "The section number/title or table establishing the selected requirement. Retain subsection and table-note identifiers. Use null only when none is supplied."
           },
           "summary": {
             "type": ["string", "null"],
-            "description": "A short summary of the relevant ordinance requirement using direct text excerpts and quotes as much as possible. For a district-based value, cite BOTH the governing use category and its permitted/conditional status in that district, and the applicable dimensional or performance provision. A caveat such as 'if the facility is allowed' is not evidence of applicability: omit that row. If multiple options exist and a selection was made, list all other options and their conditions in the summary."
+            "description": "Use at most three concise sentences (aim for 60 words before the list) citing the governing use, its approval status and use provision, and the applicable standard. Prefer short exact quotes; include only conditions that affect this feature. For numerical requirements and lot ratios, end with 'District values: ' and entries separated by '; '. Entry format: '<district codes> = <value> <units> (<condition>)'. Omit units for ratios and omit parentheses when unnecessary. Put the selected entry first and mark it '[selected]'; retain tied districts. Group districts only when their value, units and conditions agree. Include every eligible district, using 'not stated' for a missing applicable value or 'no requirement' only when explicitly stated. Never include prohibited or unverified districts. Use 'facility-wide' only for an explicit plant-specific requirement with no established district list. Keep other district values and same-feature alternatives, with short qualifiers for yard type, measurement basis, receptor, time period or 'if <circumstance>'. Preserve conditions and any different supporting section/source; do not invent a numeric waiver or reduction. Use exact district codes, or names if no codes exist, and numbers without thousands separators. Do not repeat the list in the prose. District-list and effective-year rows use concise prose only, without a District values list."
           },
           "source": {
             "type": ["integer", "null"],
-            "description": "The zero-based integer from the '# SOURCE INDEX #' marker for the document containing this requirement. Preserve this index, not a URL or a section number. If eligibility is established in another supplied document, identify that supporting source and use provision in the summary. Use null only when no source index was supplied."
+            "description": "The zero-based integer from the '# SOURCE INDEX #' marker of the document supplying the selected requirement, not a URL or section number. Identify any different supporting source and provision in the summary. Use null only when no source index is supplied."
           }
         }
       }
     }
   },
   "$definitions": {
-    "system_size_context": {
-      "description": "CRITICAL CONTEXT: Only extract ordinances for natural gas-fired electric generating facilities - plants that combust natural gas to produce electricity for offsite sale or delivery to the grid. This includes simple-cycle, combined-cycle, peaking, and cogeneration plants where power export is a primary purpose. Do NOT extract text that applies only to: natural gas extraction, drilling, or well operations; pipelines, compressor stations, metering stations, or gas storage; LNG or CNG facilities including fueling stations; propane distribution; gas service lines, meters, or appliances within buildings; or emergency, standby, or backup generators serving an onsite building or data center. General zoning standards are applicable ONLY after establishing the governing use and eligible districts under district_eligibility. The words 'industrial', 'electric', 'utility', or a district name alone do not establish that a generating facility is allowed. Preserve use-table headings, district columns, legends, definitions, footnotes, and the dimensional tables needed to establish applicability across separate pages. Evaluate eligibility over the combined source text, not independently for each page."
+    "facility_scope": {
+      "description": "Natural gas-fired electric generating plants producing electricity for offsite sale or grid delivery, including simple-cycle, combined-cycle, peaking and cogeneration plants where power export is a primary purpose. Exclude requirements solely for other generating technologies or fuels, onsite emergency/standby/backup generators, gas extraction or drilling, pipelines, compressor or metering stations, gas storage, LNG/CNG or propane facilities, fueling stations and building gas equipment. General electric-generation or utility provisions qualify only through district_eligibility."
     },
     "district_eligibility": {
-      "description": "MANDATORY BEFORE EMITTING ROWS: (1) Identify the governing use category from the supplied ordinance. Prefer the specific use naming electric generating facilities or power plants. Only when no specific generating use is present may a listed general public-utility or nongovernmental-utility use serve as the fallback, provided the text does not restrict that use to non-generating infrastructure. Do not combine a specific generating-use row with a broader utility row to expand permission. (2) Establish which districts allow THAT SAME use by right or with conditional/special approval, using an operative use list or use table AND its column headings, legend and applicable footnotes. Do not infer permission from a district's industrial character, a dimensional table, a general exemption mentioning utilities, or a plant's existence. (3) Extract district standards only for those eligible districts, citing the use provision as well as the standard. Blank, illegible or missing use-table cells/headings do not establish eligibility; do not guess their alignment. A clearly identified district-specific use provision may independently establish permission. (4) An explicit facility-specific requirement or prohibition may be extracted without a district list. Otherwise, if no governing use and eligible district can be established, return {\"outputs\": []}, including no standalone effective-year row. Missing evidence means abstain, not that the county has no regulations or prohibits the use. Never output generic district values with an 'applicability unknown' disclaimer.",
-      "examples": [
-        "A table lists I-1 and R-1 yard/height limits, but no operative generating or applicable utility use provision is supplied: outputs must be empty.",
-        "A power plant is conditional only in I-2, while public utilities are permitted in I-1 and I-2: use the specific power-plant category, report I-2 as special use, and do not emit I-1 dimensions or any primary-use district based on the broader utility row.",
-        "No specific generating-use category is supplied. A nongovernmental-utility row, with intact headers and legend, marks GC as permitted subject only to site plan review and LI as a special exception: report GC as primary and LI as special, and retain the applicable utility dimensions for both, but not for other districts."
-      ]
+      "description": "Use the combined supplied documents. First identify the governing use: prefer a natural-gas generating use, then an electric generating or power-plant use covering natural gas. Only if no specific generating use is supplied may a listed public-utility or nongovernmental-utility use govern, provided it is not restricted to non-generating infrastructure. Do not combine broader utility permissions with a specific generating-use row to expand eligibility. Establish permitted, conditional or special-use districts from the operative use list/table with its headings, legend and footnotes. Do not infer permission from industrial zoning, dimensions, an existing plant or a general utility exemption. Missing or illegible table cells do not establish permission; blanks establish prohibition only when the ordinance says so. Do not assume government ownership, accessory status or a size exemption to expand the ordinary plant category. Summarize any explicit exemption or state-authority limitation without assuming it applies to every plant. An explicit plant-specific requirement or prohibition may be extracted without a district list. Otherwise, without a governing use and eligible districts, return {\"outputs\": []}; missing evidence is not proof of prohibition."
     },
     "setback_features": {
-      "description": "Setback features with their aliases and extraction guidance",
+      "description": "Distances for the principal generating facility, with measurement endpoints retained in the summary",
       "properties": {
-        "residential dwellings": {"description": "Setback requirements from occupied dwellings, residences, or places of public assembly. May also be labeled as setbacks from habitable structures or occupied buildings. VALUE & UNITS: numerical distance in feet or miles."},
-
+        "residential dwellings": {
+          "description": "Setback from occupied dwellings, habitable structures or places of public assembly. VALUE: number. UNITS: 'feet' or 'miles'. IGNORE: residential zoning boundaries, property lines and setbacks solely for accessory structures."
+        },
         "property line": {
-          "description": "Setback requirements from property lines, lot lines, or parcel boundaries. Side and rear yard setbacks fall here. VALUE & UNITS: numerical distance in feet."
+          "description": "Setback from lot or parcel boundaries, including side and rear yards. VALUE: number. UNITS: 'feet'. Distinguish side and rear requirements in the summary. IGNORE: front yards and road setbacks unless the same provision expressly covers all property lines."
         },
         "residential district": {
-          "description": "Setback requirements measured from the boundary of a residentially zoned district, as distinct from an individual dwelling. VALUE & UNITS: numerical distance in feet or miles."
+          "description": "Setback from a residentially zoned district boundary. VALUE: number. UNITS: 'feet' or 'miles'. Preserve any population-center or other geographic qualifier. IGNORE: distances to individual dwellings."
         },
         "front yard": {
-          "description": "Front yard setback requirement. VALUE & UNITS: numerical distance in feet."
+          "description": "Front-yard setback for the facility. VALUE: number. UNITS: 'feet'. IGNORE: side and rear yards. Preserve whether measurement starts at a lot line, right-of-way or road centerline."
         },
         "street": {
-          "description": "Setback requirements from streets, roads, or rights-of-way. VALUE & UNITS: numerical distance in feet. Where an ordinance expresses a setback as a distance from a street right-of-way or street easement center line, record it here as well as under front yard."
+          "description": "Setback from a street, road, right-of-way or street easement centerline. VALUE: number. UNITS: 'feet'. A front-yard requirement expressly measured from a street right-of-way or centerline belongs here as well as under front yard. IGNORE: easement widths, frontage lengths and front-yard values without an explicit road measurement."
         }
       }
     },
     "numerical_restrictions": {
-      "description": "Non-setback numerical restriction features",
+      "description": "Applicable plant dimensional and performance requirements",
       "properties": {
         "generation capacity": {
-          "description": "Rated generating capacity of the facility, typically the threshold at which the ordinance applies rather than a cap. VALUE: number. UNITS: 'MW'. Note in the summary whether this is an applicability threshold or a maximum limit."
+          "description": "An explicit generating-capacity applicability threshold or maximum limit. VALUE: number. UNITS: 'MW'. Identify which meaning applies in the summary; do not compare a threshold and a cap as interchangeable limits. IGNORE: descriptive capacity of an existing or proposed project without an operative requirement."
         },
-        
         "maximum building height": {
-          "description": "Maximum permitted height of buildings or structures. VALUE: number. UNITS: 'feet'. Report a single value, not one per district: the most restrictive (smallest) height among districts where the facility is permitted or conditionally/specially permitted. Ignore districts where the facility is prohibited. When a district's dimensional table gives a height for the use classification that covers the facility, such as a utility row, use that row's height. List the other districts and their heights in the summary." 
-        }, 
-        "minimum lot size" : {
-          "description": "Minimum parcel size required. VALUE: number. UNITS: 'acres' or 'square feet' as stated in the ordinance.     Use the value the district's dimensional table gives for the use classification that covers the facility, such as a utility or industrial row. Report minimums that depend on water or sewer service (wells, septic) only in the summary, not as the value."
-        }, 
-        "minimum lot width" : {
-          "description": "Minimum required lot width. VALUE: number. UNITS: 'feet'."
-        }, 
-        "minimum lot frontage" : {
-          "description": "Minimum required lot frontage along a street or road. VALUE: number. UNITS: 'feet'."
-        }, 
-        "minimum lot width to depth ratio" : {
-          "description": "Required ratio of lot width to lot depth. VALUE: string in the form '1:2'. UNITS: null."
-        }, 
+          "description": "Maximum building or structure height above ground or final grade. VALUE: number. UNITS: 'feet'. Use the dimensional row covering the governing use, not a broader all-uses row when a utility-specific row applies. IGNORE: heights solely for other uses; keep stack, tower and other height exceptions in the summary."
+        },
+        "minimum lot size": {
+          "description": "Minimum parcel area for the governing use. VALUE: number. UNITS: 'acres' or 'square feet' as stated. IGNORE: linear dimensions and zero entries meaning no fixed minimum. Water/sewer-dependent minimums belong in the summary as circumstance-specific alternatives."
+        },
+        "minimum lot width": {
+          "description": "Minimum lot width at the ordinance's specified measurement line. VALUE: number. UNITS: 'feet'. IGNORE: street frontage, road widths and lot depth."
+        },
+        "minimum lot frontage": {
+          "description": "Minimum parcel frontage along a street or road. VALUE: number. UNITS: 'feet'. IGNORE: lot width measured at a building line and road/easement widths."
+        },
+        "minimum lot width to depth ratio": {
+          "description": "Required lot width-to-depth relationship. VALUE: string such as '1:2'. UNITS: null. Preserve the direction of the constraint (for example maximum depth relative to width) in the summary. IGNORE: unrelated building or floor-area ratios."
+        },
         "maximum lot coverage": {
-          "description": "Maximum share of the lot that may be covered by structures or impervious surface. VALUE: number. UNITS: 'percent'."
+          "description": "Maximum share of a lot covered by buildings or impervious surface. VALUE: number. UNITS: 'percent'. Identify the regulated surface in the summary. IGNORE: minimum coverage, floor-area ratios and landscaping/open-space percentages; do not derive coverage by subtraction."
         },
-        "noise (dBA)" : {
-          "description": "Noise limit expressed in A-weighted decibels. Capture the receptor location and time period (day/night) in the summary. VALUE: number. UNITS: 'dBA'."
+        "noise (dBA)": {
+          "description": "A-weighted noise limit. VALUE: number. UNITS: 'dBA'. Retain source district, receptor location, measurement/averaging method and any day/night alternatives in the summary. IGNORE: unweighted decibels and C-weighted limits."
         },
-        "noise (dBC)" : {
-          "description": "Noise limit expressed in C-weighted decibels. Capture the receptor location and time period in the summary. VALUE: number. UNITS: 'dBC'."
+        "noise (dBC)": {
+          "description": "C-weighted noise limit. VALUE: number. UNITS: 'dBC'. Retain source district, receptor location, measurement/averaging method and any day/night alternatives in the summary. IGNORE: unweighted decibels and A-weighted limits."
         }
       }
     },
     "permitted_use_districts": {
-      "description": "Zoning districts where natural gas generating facilities are permitted under various conditions",
+      "description": "Mutually consistent classifications for the same governing use and ordinary facility conditions; use exact ordinance district names/codes",
       "properties": {
         "primary use districts": {
-          "description": "Extract all zoning districts where natural gas generating facilities are permitted as primary use or similar (e.g., permitted by right, without special conditions or approval beyond standard permitting). VALUE: An array of district names/codes as strings (e.g., ['EU-2 Exclusive Use Two', 'M1 Heavy Industrial', 'GC General Commercial']). If no districts allow primary use, use null. SUMMARY: Provide a brief summary with direct text excerpts describing which districts allow the facility as primary use and under what general conditions. SECTION: Include the section title/number where this information is found. CLARIFICATION: Natural gas generating facilities may also be referred to as: gas-fired electric generating facilities, electric generating plants, power plants, energy generation facilities, public utility facilities, or similar terminology. Only focus on facilities as defined in system_size_context. CRITICAL: A district belongs here ONLY if the facility is permitted by right. If the ordinance lists the facility as a conditional use, special use, or requires a permit or board approval in that district, it belongs in 'special use districts' and must NOT appear here. A district must never appear in both.     Site plan review, site development plan approval, and building permits are standard permitting, not special approval: a use the ordinance lists as permitted or principal permitted subject only to site plan approval belongs here."
+          "description": "Districts permitting the governing use by right or as a principal permitted use. VALUE: nonempty array of district names/codes. UNITS: null. Site plan review, site development plan approval and building permits alone are standard permitting, not special approval. IGNORE: districts requiring a conditional-use permit, special-use permit or special exception; omit the feature if none qualify."
         },
         "special use districts": {
-          "description": "Extract all zoning districts where natural gas generating facilities are permitted as special use, conditional use, or similar (e.g., requires approval by zoning appeals board, planning commission, special use permit, conditional use permit, or meeting certain conditions). VALUE: An array of district names/codes as strings. If no districts require special use approval, use null. SUMMARY: Provide summary with direct text excerpts. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on facilities as defined in system_size_context."
+          "description": "Districts requiring conditional-use approval, a special-use permit or a special exception for the governing use. VALUE: nonempty array of district names/codes. UNITS: null. Name the required approval in the summary. IGNORE: routine site plan review or building permits alone; omit the feature if none qualify."
         },
         "prohibited use districts": {
-          "description": "Extract all zoning districts where natural gas generating facilities are prohibited or similar (e.g., not allowed, banned, or explicitly excluded). CRITICAL: Only output specific districts where the facility is prohibited **unconditionally**. Do not include districts where it might be allowed with special approval or under certain conditions. If the facility is allowed in any capacity in a district, it should not be listed here. VALUE: An array of district names/codes as strings. If no districts prohibit unconditionally, use null. SUMMARY: Provide summary with direct text excerpts clearly stating the prohibition. SECTION: Include section title/number. CLARIFICATION: Same alternative terminology as in 'primary use districts'. Only focus on facilities as defined in system_size_context."
+          "description": "Districts unconditionally prohibiting the ordinary governing use, explicitly or through an operative prohibition-by-omission rule. VALUE: nonempty array of district names/codes. UNITS: null. Cite the prohibition or table legend in the summary. IGNORE: temporary expired bans, districts allowing that use in any approval category, and missing evidence without a prohibition rule; omit the feature if none qualify."
         }
       }
+    },
+    "effective_year": {
+      "description": "ordinance effective year: the explicitly stated effective year of an applicable enacted ordinance. VALUE: four-digit number. UNITS: null. A history-note date qualifies when the code explicitly defines those dates as effective dates. IGNORE: proposed dates, website update dates and historical dates without that evidence. Omit if not stated; never emit an effective-year-only result."
     }
   },
-    "$examples": [
+  "$instructions": {
+    "scope": "Extract only the enumerated siting features for plants in facility_scope. Definitions may establish the governing use but are not requirements by themselves. Apply district_eligibility before emitting rows.",
+    "applicability": [
+      "Match each eligible district to the dimensional/performance provisions for the principal generating use, including applicable general commercial/industrial standards. Do not use residential, agricultural, mixed-use housing, accessory-building, sign, parking or loading-area rows as plant requirements.",
+      "Apply table headings, footnotes and cross-references before choosing values. If conditional or special-exception dimensions are assigned to another section, use that section, not the displaced table. Retain independently applicable general standards. A missing redirected provision means 'not stated', not permission to borrow a table value.",
+      "Use only enacted provisions in effect. Where supplied amendments explicitly replace a provision, use the amended requirement; do not treat a superseded value as another district option."
+    ],
+    "value_selection": [
+      "Return one object per supported feature, with no district field or duplicate feature rows. District-list features contain all qualifying districts, not a selected district. Omit unsupported features, null placeholders and rows whose only finding is 'none', 'N/A' or 'no requirement'. If only circumstance-specific values are supplied and no base requirement is stated, omit the feature rather than selecting an exception.",
+      "For numerical requirements, select the most restrictive generally applicable stated value among eligible districts: largest setbacks and minimum lot dimensions; smallest maximum height, coverage and noise limits. Include alternative yard types, measurement bases, receptors and time periods in the comparison, preserving their conditions in the summary. Missing values in other eligible districts do not block extraction and are listed as 'not stated'; never infer their values.",
+      "Additional geographic overlays, subdivision-only standards, private-road access, wells/septic, ownership-specific exemptions, waivers, variances, discretionary buffers and reductions are circumstance-specific, not the base value. Keep their explicit values and conditions only in the summary of an otherwise supported feature. Do not assume that every plant site is in an additional overlay or requires subdivision. A governing district's dimensional-table condition, such as not adjoining residential uses, must accompany its values; it does not justify discarding the whole table.",
+      "Compare compatible quantities in common units but retain each reported value in its source units using the units vocabulary. Do not compare raw numbers across acres/square feet or miles/feet. For ratios and capacity, respect the direction and meaning of the stated requirement, and preserve alternatives rather than inventing an ordering between unlike constraints. For formula-based requirements, retain any explicit fixed floor or cap and describe the formula without assuming missing inputs."
+    ],
+    "summary": "Follow the summary field description. Keep district alternatives and relevant exceptions concise, with their measurement conditions and supporting provisions. Do not reproduce unrelated permit procedures, monitoring requirements or rejected-use explanations.",
+    "examples": "The following examples illustrate format only. Their districts, values and sections are synthetic; never use them as evidence or copy them into another jurisdiction."
+  },
+  "$examples": [
     {
-      "feature": "residential dwellings",
-      "value": 1000,
+      "feature": "front yard",
+      "value": 75,
       "units": "feet",
-      "section": "Sec. 3(e)",
-      "summary": "Setback to dwellings and places of public assembly, 1,000 feet. The requirement applies to gas-fired electric generating facilities and is measured to the nearest occupied dwelling or place of public assembly."
+      "section": "Sec. 4, Industrial dimensions",
+      "summary": "Sec. 2 permits gas-fired power plants in I-2 and conditionally in I-1 and A-1; Sec. 4 sets industrial front yards. A-1's table covers residential development only. District values: I-2 = 75 feet [selected]; I-1 = 50 feet; I-1 = 100 feet (if accessing a private road, Sec. 6); A-1 = not stated.",
+      "source": 0
     },
     {
-      "feature": "residential district",
-      "value": 2.25,
-      "units": "miles",
-      "section": "Sec. 3(g)(3)(i)",
-      "summary": "A gas-fired electric generating facility may not be located within 2.25 miles of a residentially zoned district. This is distinct from the 1,000-foot setback to individual dwellings specified in Sec. 3(e)."
-    },
-    {
-      "feature": "generation capacity",
-      "value": 25,
-      "units": "MW",
-      "section": "Sec. 3, Chapter 107, Article VII, Section 107-150",
-      "summary": "The ordinance recognizes gas-fired electric generating facilities of 25 MW or greater. This is an applicability threshold determining which facilities the ordinance governs, not a maximum capacity limit."
+      "feature": "minimum lot size",
+      "value": 2,
+      "units": "acres",
+      "section": "Sec. 4, Utility dimensions",
+      "summary": "Sec. 2 permits the governing utility use in I-1 and I-2 with site plan review, and by special exception in A-1. Sec. 4 supplies the utility lot minimums; its note redirects A-1 to design provisions not supplied. District values: I-2 = 2 acres [selected]; I-1 = 20000 square feet; A-1 = not stated.",
+      "source": 0
     },
     {
       "feature": "noise (dBA)",
-      "value": 55,
+      "value": 50,
       "units": "dBA",
-      "section": "Sec. 3(i)(7)(a)",
-      "summary": "The average hourly noise level shall not exceed fifty-five (55) dBA when measured at a residential district boundary. A separate limit of 65 dBA applies when measured from non-residential districts."
+      "section": "Sec. 8, Gas-fired plant noise",
+      "summary": "Sec. 2 permits gas-fired plants in I-2 and conditionally in I-1. Sec. 8 limits hourly plant noise at the receiving property boundary. District values: I-1, I-2 = 50 dBA (residential receptor at night) [selected]; I-1, I-2 = 55 dBA (residential receptor by day); I-1, I-2 = 60 dBA (nonresidential receptor).",
+      "source": 0
     },
     {
-      "feature": "noise (dBC)",
-      "value": 65,
-      "units": "dBC",
-      "section": "Sec. 3(i)(7)(a)",
-      "summary": "The average hourly noise level shall not exceed sixty-five (65) dBC when measured at a residential district boundary. A separate limit of 75 dBC applies when measured from non-residential districts."
-    },
-    {
-      "feature": "front yard",
-      "value": 80,
+      "feature": "residential dwellings",
+      "value": 1200,
       "units": "feet",
-      "section": "Zoning district setback table",
-      "summary": "The use table lists electric generating facilities as a conditional use in I-2. The I-2 district table requires an 80-foot front yard. A different district's 55-foot standard is not extracted without evidence that the governing generating use is allowed there."
-    },
-    {
-      "feature": "primary use districts",
-      "value": ["EU-2 Exclusive Use Two"],
-      "units": null,
-      "section": "Sec. 3, Chapter 107, Article VII",
-      "summary": "Gas-fired electric generating facilities are listed as a principal permitted use in the EU-2 district. Do not add districts from another example, another jurisdiction, or a generic dimensional table."
+      "section": "Sec. 9, Gas-fired plant setbacks",
+      "summary": "Sec. 9 requires gas-fired generating plants to maintain a setback from occupied dwellings; no district list is supplied. District values: facility-wide = 1200 feet (plant outer wall to dwelling) [selected].",
+      "source": 0
     }
   ],
-    "$instructions": {
-    "general": [
-      "Extract ordinance requirements ONLY for natural gas-fired electric generating facilities that produce electricity for offsite sale or grid delivery. Do NOT extract requirements that apply only to gas extraction or drilling, pipelines, compressor stations, gas storage, LNG or CNG facilities, propane distribution, building gas service, or emergency/standby/backup generators.",
-      "First apply district_eligibility. General zoning standards are not automatically generating-facility standards. Preserve generic utility coverage when a governing utility use actually establishes permission, but never substitute generic utility permission for a more specific generating-use category.",
-      "Do not assume government ownership, a small-site exemption, accessory status, or another special circumstance to expand the base permitted-district list. Use the ordinary governing facility category; describe ownership- or size-specific exemptions and their conditions in the summary instead of merging them into the base classification.",
-      "Eligible district does not mean every provision in that district is a plant requirement. Use the dimensional row applicable to the principal generating use, not residential, agricultural, accessory-building, sign, parking or loading-area standards. In particular, do not report a loading-area separation or a sign setback as the generating facility's setback. An applicability caveat cannot make an out-of-scope requirement into an in-scope value.",
-      "Apply dimensional-table notes BEFORE reading values. If a note says design requirements for special-exception or conditional uses are established in a separate section, use that section for those districts, not the generic dimensional row, even when the row names the same utility use. Do not fill missing lot area, width or height from the displaced table. For example, a utility is special-exception in R-2 and by-right in I-1; a table redirects special-exception design to Section B; Section B states only a 45-foot setback. Extract that setback for R-2 and the applicable table values for I-1, but no R-2 table-derived lot area, width or height. Preserve independently applicable requirements and explicit cross-references; do not treat a missing redirected value as a prohibition or permission to guess.",
-      "During text collection, retain substantive generating/utility use provisions AND potentially applicable district dimensional tables with their headings, legends and footnotes, even when permission and dimensions occur on different pages. The final district_eligibility gate applies to emitted rows, not to each page in isolation.",
-      "Use direct text excerpts and quotes in the summary field as much as possible. If multiple options exist and you make a selection, list all other options and their conditions in the summary.",
-      "Only extract explicit requirements that have been enacted. Do not extract definitions unless they also constitute requirements.",
-      "For features where no explicit applicable requirement exists, omit the feature from the array entirely. Do not produce null-valued 'no requirement' rows or effective-year-only results from otherwise irrelevant ordinances.",
-      "Pay careful attention to clarifying text in parentheses, footnotes, and cross-references.",
-      "When an ordinance states different values for the same feature in different zoning districts, report a single object with the most restrictive value (largest for setbacks and minimums; smallest for maximum height, lot coverage, and noise limits) among eligible districts where the facility is permitted, conditionally permitted, or allowed by special use or special exception. Ignore districts where the facility is prohibited. Name that district in the summary and list the other districts and their values there. When multiple values apply within the same district for reasons other than district (such as different measurement bases), select the most restrictive and note the alternatives in the summary.",
-      "Ensure units are expressed using standard, conventional names ('feet', 'miles', 'acres', 'square feet', 'percent', 'dBA', 'dBC', 'MW')."
-    ],
-    "setback_specific": [
-      "Extract the numerical value and units (feet or miles) for all setbacks.",
-      "Setback values are frequently found in per-district tables rather than in a facility-specific section. Join the governing use's eligible districts to their dimensional tables before extracting; do not copy every district's setbacks.",
-      "Distinguish setbacks to individual dwellings from setbacks to residential district boundaries. These are separate features and often carry very different values.",
-      "Distinguish front yard setbacks from general property line setbacks. Side and rear yard setbacks are classified as property line.",
-      "If text includes conditional minimums ('the greater of', 'no less than'), note the minimum threshold in the summary.",
-      "If text includes conditional maximums ('the lesser of', 'no more than'), note the maximum limit in the summary."
-    ],
-    "restriction_specific": [
-      "For generation capacity: state in the summary whether the value is an applicability threshold that triggers the ordinance or a maximum limit on facility size.",
-      "For maximum building height: must be absolute height from ground or final grade.",
-      "For minimum lot size: must be an area value, not a linear distance.",
-      "For minimum lot width to depth ratio: value is a string in the form '1:2' and units are null.",
-      "For noise: dBA and dBC are separate features. Capture the receptor location and any day/night distinction in the summary."
-    ],
-    "district_specific": [
-      "For permitted use districts: extract an array of district names/codes established by the governing use provision. An energy or utility overlay district is not automatically primary use; verify the approval category. Site plan approval alone is not special/conditional approval.",
-      "For special use districts: include districts requiring board approval, special permits, or conditional use permits.",
-      "For prohibited use districts: only include districts with unconditional prohibitions currently in effect.",
-      "Use the exact district names/codes as they appear in the ordinance text. Permission, conditional permission and prohibition must be mutually consistent for the same governing use and conditions; do not merge contradictory classifications from different use rows."
-    ]
-  },
-  "$qualitative_features": [
-  ]
+  "$qualitative_features": []
 }
