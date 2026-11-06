@@ -112,6 +112,7 @@ async def run_compass(request, re_run_targets=None):
         action=request.MODE.pb_action_str,
     )
     async with runtime:
+        _log_schema_version(runtime)
         try:
             return await _select_workflow(runtime).run(jurisdictions_df)
         except COMPASSError:
@@ -549,6 +550,15 @@ def _log_execution_info(request, steps):
         "Called process pipeline with:\n%s",
         json.dumps(normalized_args, indent=4),
     )
+
+
+def _log_schema_version(runtime):
+    """Log the schema version"""
+    schema = getattr(runtime.extractor_class, "SCHEMA", None)
+    if isinstance(schema, dict):
+        logger.info(
+            "Plugin schema version: %s", schema.get("version") or "unknown"
+        )
 
 
 def _request_to_log_args(request):

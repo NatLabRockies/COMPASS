@@ -141,6 +141,23 @@ To speed up testing, the tests can be run in parallel using ``-n auto``:
 
     pixi run -e ptest tests-p -n auto
 
+The focused Docling backend tests exercise local and downloaded PDFs through
+the production collection entry points, including OCR, PDF classification,
+deduplication, persistence, reload, and corrupt-input handling. Download the
+Docling model assets once before running this suite:
+
+.. code-block:: shell
+
+    pixi run -e ptest python -c "from docling_rs import download_models; download_models()"
+    pixi run -e ptest tests-docling
+
+The task sets ``COMPASS_FILE_LOAD_BACKEND=docling`` before pytest starts and
+selects tests marked ``docling_backend``. ELM conversion fallback is disabled
+in these tests, and they skip in ordinary test runs when Docling is not
+selected. HTTP fetching is mocked, but conversion and collection services run
+normally. The Python CI workflow runs this focused suite on Linux in addition
+to the existing cross-platform jobs.
+
 Tests for a module should ideally cover all code in that module,
 i.e., statement coverage should be at 100%, though this alone does not ensure that
 your code is bug-free. Still, this is a good place to start, and you view the test

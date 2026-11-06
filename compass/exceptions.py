@@ -21,6 +21,10 @@ class COMPASSFileNotFoundError(COMPASSError, FileNotFoundError):
     """COMPASS FileNotFoundError"""
 
 
+class COMPASSImportError(COMPASSError, ImportError):
+    """COMPASS optional dependency import error"""
+
+
 class COMPASSNotInitializedError(COMPASSError):
     """COMPASS not initialized error"""
 

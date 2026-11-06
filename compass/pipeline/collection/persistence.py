@@ -11,18 +11,20 @@ from collections import Counter
 from warnings import warn
 from datetime import datetime, UTC
 from functools import partial
+from importlib import import_module
+from importlib.util import find_spec
 
 from elm.version import __version__ as elm_version
+from elm.web.document import MDDocument
 
 from compass import __version__ as compass_version
 from compass.pipeline.targets import normalize_targets
 from compass.services.threaded import (
-    FileMover,
+    OrdFileMover,
     ParsedFileWriter,
     TempFileCacheCopier,
     GenericFuncRunner,
 )
-from compass.services.cpu import read_docling_local_file
 from compass.utilities.io import (
     load_config,
     resolve_all_paths,
@@ -31,7 +33,10 @@ from compass.utilities.io import (
 from compass.utilities.enums import COMPASSDocumentCollectionStep
 from compass.utilities.parsing import convert_paths_to_strings, is_pdf_doc
 from compass.warn import COMPASSWarning
-from compass.exceptions import COMPASSFileNotFoundError, COMPASSValueError
+from compass.exceptions import (
+    COMPASSFileNotFoundError,
+    COMPASSValueError,
+)
 
 
 COLLECTION_MANIFEST_FILENAME = "collection_manifest.json"
@@ -136,7 +141,6 @@ def build_collection_manifest(
         "total_time": time_elapsed.total_seconds(),
         "total_time_string": str(time_elapsed),
         "num_jurisdictions_searched": num_jurisdictions_searched,
-        "failed_targets": failed_targets,
         "num_jurisdictions_found": sum(
             bool(count) for count in document_counts
         ),
@@ -147,6 +151,7 @@ def build_collection_manifest(
             "median": median(document_counts) if document_counts else 0,
             "total": sum(document_counts),
         },
+        "failed_targets": failed_targets,
         "jurisdictions": out_jurisdictions,
     }
 
@@ -485,10 +490,24 @@ async def _load_single_doc(doc_info):
         warn(msg, COMPASSWarning)
         return None
 
-    doc, *__ = await read_docling_local_file(fp)
+    doc = await _read_maybe_using_docling(fp)
     doc.attrs.update(doc_info)
     doc.remove_comments = False
     doc.attrs["cache_fn"] = await TempFileCacheCopier.call(doc)
+    return doc
+
+
+async def _read_maybe_using_docling(fp):
+    """Read a document using Docling if available"""
+    if all(
+        find_spec(name) is not None for name in ("docling_rs", "docling_core")
+    ):
+        docling = import_module("compass.services.docling")
+        doc, *__ = await docling.read_docling_local_file(fp)
+    else:
+        text = await asyncio.to_thread(Path(fp).read_text, encoding="utf-8")
+        doc = MDDocument(pages=[text], remove_comments=False)
+
     return doc
 
 
@@ -532,9 +551,12 @@ async def _persist_doc(doc, out_stem, from_steps, relative_to):
 
 async def _move_file_to_collection_dir(doc, out_stem, relative_to):
     """Move a source file to the collection output directory"""
-    out_fp = await FileMover.call(doc, out_stem, "downloaded")
+    out_fp = await OrdFileMover.call(doc, out_stem, "downloaded")
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
+    doc.attrs["archive_status"] = (
+        "saved" if out_fp is not None else "missing_source"
+    )
     doc.attrs["source_fp"] = out_fp
 
 

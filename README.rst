@@ -65,7 +65,8 @@ architecture around the LLM call:
 
 
 Read more about the tool in the `documentation <https://natlabrockies.github.io/COMPASS/misc/about.html>`_,
-or check out summaries of the validation results in the `validation report <https://natlabrockies.github.io/COMPASS/val/validation.html>`_.
+check out summaries of the validation results in the `validation report <https://natlabrockies.github.io/COMPASS/val/validation.html>`_,
+or explore the data on the `COMPASS website <https://compass.nlr.gov/>`_.
 
 
 Where is the extracted ordinance data?
@@ -74,8 +75,8 @@ The National Laboratories of the Rockies (NLR) typically runs the COMPASS pipeli
 annually and publishes refreshed datasets to OpenEI. The latest published ordinance
 datasets are available here:
 
-- Geothermal Electricity: https://data.openei.org/submissions/8786
-- Geothermal Heat Pumps: https://data.openei.org/submissions/8785
+- Geothermal Electricity: https://data.openei.org/submissions/8817
+- Geothermal Heat Pumps: https://data.openei.org/submissions/8816
 - Solar: https://data.openei.org/submissions/8602
 - Wind: https://data.openei.org/submissions/8519
 

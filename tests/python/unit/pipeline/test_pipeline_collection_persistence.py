@@ -4,6 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import AsyncMock, Mock
 
 import pytest
 
@@ -31,6 +32,58 @@ def _build_doc(source, pages, *, has_parsed_text=True):
 def _build_jurisdiction(full_name="Example Township", code="12345"):
     """Build a minimal jurisdiction for persistence tests"""
     return SimpleNamespace(full_name=full_name, code=code)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "available_packages",
+    [set(), {"docling_rs"}, {"docling_core"}],
+)
+async def test_reload_without_docling_dependencies(
+    tmp_path, monkeypatch, caplog, available_packages
+):
+    """Reload UTF-8 text without importing an unavailable Docling backend"""
+    fp = tmp_path / "parsed.md"
+    text = "# Ordinance\nCaf\u00e9 <!-- retained comment -->"
+    fp.write_text(text, encoding="utf-8")
+    monkeypatch.setenv("COMPASS_FILE_LOAD_BACKEND", "elm")
+    monkeypatch.setattr(
+        persistence_module,
+        "find_spec",
+        lambda name: object() if name in available_packages else None,
+    )
+    import_service = Mock(side_effect=AssertionError("Unexpected import"))
+    monkeypatch.setattr(persistence_module, "import_module", import_service)
+
+    for _ in range(2):
+        doc = await persistence_module._read_maybe_using_docling(fp)
+        assert doc.pages == [text]
+        assert doc.remove_comments is False
+
+    import_service.assert_not_called()
+    assert not [record for record in caplog.records if record.levelno >= 40]
+
+
+@pytest.mark.asyncio
+async def test_reload_with_docling_dependencies(tmp_path, monkeypatch):
+    """Use Docling when both optional packages are available"""
+    fp = tmp_path / "parsed.md"
+    expected = object()
+    read_document = AsyncMock(return_value=(expected, b"raw"))
+    import_service = Mock(
+        return_value=SimpleNamespace(read_docling_local_file=read_document)
+    )
+    find_package = Mock(return_value=object())
+    monkeypatch.setattr(persistence_module, "find_spec", find_package)
+    monkeypatch.setattr(persistence_module, "import_module", import_service)
+
+    assert await persistence_module._read_maybe_using_docling(fp) is expected
+    assert {call.args[0] for call in find_package.call_args_list} == {
+        "docling_rs",
+        "docling_core",
+    }
+    import_service.assert_called_once_with("compass.services.docling")
+    read_document.assert_awaited_once_with(fp)
 
 
 @pytest.mark.asyncio
@@ -273,7 +326,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
             return None
         return tmp_path / f"{out_stem}.txt"
 
-    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(persistence_module.OrdFileMover, "call", fake_move)
     monkeypatch.setattr(
         persistence_module.ParsedFileWriter,
         "call",
@@ -314,6 +367,7 @@ async def test_persist_documents_filters_docs_without_parsed_text(
             "checksum": "https://example.com/valid.html",
             "is_pdf": False,
             "has_parsed_text": True,
+            "archive_status": "saved",
             "source_fp": Path("Example Township_1.html"),
             "parsed_fp": Path("Example Township_1.txt"),
             "check_correct_jurisdiction": True,
@@ -338,7 +392,7 @@ async def test_persist_documents_includes_collection_step_metadata(
     async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
         return tmp_path / f"{out_stem}.txt"
 
-    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(persistence_module.OrdFileMover, "call", fake_move)
     monkeypatch.setattr(
         persistence_module.ParsedFileWriter,
         "call",
@@ -399,7 +453,7 @@ async def test_persist_documents_preserves_restored_docs_and_step_counts(
     async def fake_write_parsed(doc, out_stem):  # ruff:ignore[unused-async]
         return tmp_path / f"{out_stem}.txt"
 
-    monkeypatch.setattr(persistence_module.FileMover, "call", fake_move)
+    monkeypatch.setattr(persistence_module.OrdFileMover, "call", fake_move)
     monkeypatch.setattr(
         persistence_module.ParsedFileWriter,
         "call",

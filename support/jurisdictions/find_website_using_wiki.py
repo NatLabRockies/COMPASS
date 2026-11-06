@@ -8,11 +8,12 @@ from datetime import datetime, UTC
 
 import pandas as pd
 import numpy as np
-from docling.document_converter import DocumentConverter
+from docling_rs import DocumentConverter
 from elm.web.search.dux import DuxDistributedGlobalSearch
 
+# ruff:ignore[import-private-name]
+from compass.utilities.finalize import _elapsed_time_as_str
 from compass.utilities.jurisdictions import jurisdictions_from_df
-from compass.utilities.finalize import _elapsed_time_as_str  # ruff:ignore[import-private-name]
 
 
 def _pull_out_website(markdown):

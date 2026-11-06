@@ -19,7 +19,7 @@ from compass.services.cpu import (
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import (
     CleanedFileWriter,
-    FileMover,
+    OrdFileMover,
     HTMLFileLoader,
     JurisdictionUpdater,
     OrdDBFileWriter,
@@ -228,7 +228,9 @@ class PipelineRuntime:
                 td_kwargs=runtime_settings.td_kwargs,
                 tpe_kwargs=self.tpe_kwargs,
             ),
-            FileMover(self.dirs.ordinance_files, tpe_kwargs=self.tpe_kwargs),
+            OrdFileMover(
+                self.dirs.ordinance_files, tpe_kwargs=self.tpe_kwargs
+            ),
             CleanedFileWriter(
                 self.dirs.clean_files, tpe_kwargs=self.tpe_kwargs
             ),

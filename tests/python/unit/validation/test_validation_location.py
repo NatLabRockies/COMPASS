@@ -553,5 +553,19 @@ def test_weighted_vote(test_case):
     )
 
 
+@pytest.mark.parametrize(
+    "yes,no", [("yes", "no"), ("YES", "NO"), ("yEs", "nO")]
+)
+def test_weighted_vote_string_verdicts(yes, no):
+    """Normalize yes/no strings and exclude unrecognized verdicts"""
+    verdicts = [True, yes, None, "unknown", no, False]
+    pages = ["a", "bb", "ccc", "dddd", "eeeee", "ffffff"]
+
+    score, num_verdicts = _weighted_vote(verdicts, pages, "test")
+
+    assert score == pytest.approx((1 + 2) / (1 + 2 + 5 + 6))
+    assert num_verdicts == 4
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])

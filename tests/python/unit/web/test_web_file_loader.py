@@ -2,6 +2,7 @@
 
 import asyncio
 import runpy
+from importlib.util import find_spec
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
@@ -13,6 +14,12 @@ import compass.web.file_loader as file_loader_module
 from compass.web.file_loader import (
     AsyncDoclingWebFileLoader,
     AsyncLocalDoclingFileLoader,
+)
+
+
+pytestmark = pytest.mark.skipif(
+    find_spec("docling_rs") is None or find_spec("docling_core") is None,
+    reason="Requires the docling extra",
 )
 
 
@@ -82,7 +89,6 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
     loader = AsyncDoclingWebFileLoader(
         file_cache_coroutine=cache_document,
         to_md_kwargs={"image_placeholder": ""},
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"document_timeout": 30},
     )
     loader.content_fetcher.fetch = AsyncMock(
@@ -91,7 +97,7 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
     parsed = _parsed_doc(doc_type)
     converter = AsyncMock(return_value=parsed)
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file", converter
+        "compass.services.docling.read_docling_web_file", converter
     )
 
     doc = await loader.fetch(url)
@@ -101,7 +107,6 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
         url=f"code.{doc_type}",
         source_uri=url,
         headers=headers,
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"document_timeout": 30},
         image_placeholder="",
     )
@@ -136,7 +141,7 @@ async def test_docling_web_fetch_failures_are_not_cached(
     elif failure == "error":
         converter.side_effect = ValueError("invalid document")
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file", converter
+        "compass.services.docling.read_docling_web_file", converter
     )
 
     assert (await loader.fetch("https://example.com/code.pdf")).empty
@@ -158,7 +163,7 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
     parsed = _parsed_doc(doc_type)
     converter = AsyncMock(return_value=(parsed, source.read_bytes()))
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_local_file", converter
+        "compass.services.docling.read_docling_local_file", converter
     )
     loader = AsyncLocalDoclingFileLoader(
         file_cache_coroutine=cache_document,
@@ -167,7 +172,6 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
             "jurisdiction": "Test",
         },
         to_md_kwargs={"page_break_placeholder": "<!-- page break -->"},
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"do_table_structure": False},
     )
 
@@ -175,7 +179,6 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
 
     converter.assert_awaited_once_with(
         source,
-        pytesseract_exe_fp="tesseract",
         pdf_pipeline_options={"do_table_structure": False},
         page_break_placeholder="<!-- page break -->",
     )
@@ -204,7 +207,7 @@ async def test_docling_local_fetch_failures_are_not_cached(
     elif failure == "missing":
         converter.side_effect = FileNotFoundError("missing.pdf")
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_local_file", converter
+        "compass.services.docling.read_docling_local_file", converter
     )
     loader = AsyncLocalDoclingFileLoader(file_cache_coroutine=cache_document)
 
@@ -233,7 +236,7 @@ async def test_docling_partial_conversion_selects_valid_fallback(
         return_value=(b"document", None, None, {})
     )
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file",
+        "compass.services.docling.read_docling_web_file",
         AsyncMock(return_value=partial),
     )
     loader.failed_fetcher.fetch_all = AsyncMock(return_value=[fallback])
@@ -259,7 +262,7 @@ async def test_docling_html_and_pdf_results_skip_unnecessary_fallback(
         return_value=(b"document", None, None, {})
     )
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file",
+        "compass.services.docling.read_docling_web_file",
         AsyncMock(side_effect=[_parsed_doc("pdf"), _parsed_doc("html")]),
     )
     rendered = HTMLDocument(pages=["Browser ordinance"])
@@ -289,7 +292,7 @@ async def test_docling_browser_failure_does_not_block_partial_fallback(
         return_value=(b"HTML", None, None, {})
     )
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file",
+        "compass.services.docling.read_docling_web_file",
         AsyncMock(return_value=_parsed_doc("html", status="partial_success")),
     )
     browser_fetch = AsyncMock(return_value=HTMLDocument(pages=[]))
@@ -438,7 +441,8 @@ async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
         return _doc("https://example.com/sample.pdf")
 
     monkeypatch.setattr(
-        "compass.web.file_loader.read_docling_web_file", _read_docling_web_file
+        "compass.services.docling.read_docling_web_file",
+        _read_docling_web_file,
     )
 
     doc, raw_content = await loader._fetch_doc(

@@ -2,13 +2,28 @@ schema: ./natural_gas_schema.json
 
 data_type_short_desc: natural gas electric generating facility ordinance
 
+doc_selection_method: "multi doc context"
+
+extraction_system_prompt: |-
+  Extract enacted siting requirements only for natural gas-fired power
+  plants producing electricity for offsite sale or grid delivery.
+  Follow the complete schema below, including its scope, eligibility,
+  value-selection and summary instructions.
+
+  Establish the governing use and eligible districts before selecting
+  applicable standards. Return one row per supported feature, keeping
+  the most restrictive value and concise district alternatives in its
+  summary. Do not invent permission, values or exemptions. Return an
+  empty outputs array when applicability is unsupported. Preserve the
+  supplied source indices.
+
+  SCHEMA AND EXTRACTION GUIDANCE:
+  {schema}
+
 query_templates:
-  - "filetype:pdf {jurisdiction} electric generating facility zoning ordinance"
+  - "filetype:pdf {jurisdiction} zoning ordinance"
+  - "{jurisdiction} zoning ordinance code of ordinances"
   - "{jurisdiction} gas-fired electric generating facility ordinance"
-  - "{jurisdiction} power plant zoning ordinance setbacks"
-  - "{jurisdiction} heavy industrial district setback requirements zoning"
-  - "Where can I find the legal text for zoning ordinances governing electric generating facilities or power plants in {jurisdiction}?"
-  - "What are the zoning district regulations and setback requirements for public utility or power generation facilities in {jurisdiction}?"
 
 website_keywords:
   - "pdf"
@@ -45,6 +60,8 @@ heuristic_keywords:
     - "simple cycle"
     - "peaking plant"
     - "public utility facility"
+    - "public utility"
+    - "nongovernmental utility"
   not_tech_words:
     - "oil and gas well"
     - "gas well"
@@ -84,14 +101,41 @@ heuristic_keywords:
     - "gas main"
     - "gas line"
 
-collection_prompts: true
-text_extraction_prompts: true
-cache_llm_generated_content: true
+collection_prompts:
+  - key: contains_relevant_text
+    label: generating use or supporting zoning context
+    prompt: |-
+      Decide whether this ordinance chunk should be retained as evidence
+      for natural-gas electric generating facilities producing electricity
+      for offsite sale or grid delivery.
 
-extraction_system_prompt: |-
-  You are a legal scholar extracting structured data from natural gas electric
-  generating facility ordinances. Follow all instructions in the schema
-  descriptions carefully.
-  Only extract requirements for natural gas-fired electric generating facilities
-  that produce electricity for offsite sale, not for gas extraction, pipelines,
-  storage, fueling, building appliances, or backup generators.
+      Return JSON (not markdown) with exactly two keys:
+      1) "{key}" (boolean)
+      2) "explanation" (string)
+
+      Set "{key}" to true if ANY of the following is present:
+      - Operative generating-facility or general public/nongovernmental
+        utility definitions, permissions, prohibitions or requirements.
+      - Use-table column headings, approval-symbol legends, blank-cell
+        meanings, footnotes or rules for interpreting zoning tables.
+        These are evidence even without a generating or utility use in
+        this chunk. A legend is not merely a table of contents.
+      - Substantive district dimensional or performance standards for
+        principal uses, including lot area, width, frontage, coverage,
+        height, yards, setbacks and noise.
+      - Rules establishing how base districts, overlays, use categories,
+        exemptions or special approvals interact.
+
+      Collection is not the final applicability decision. Permission,
+      table legends and dimensions may appear on different pages. Keep
+      potentially applicable evidence without assuming that a plant is
+      permitted in every district. The final parser makes that decision
+      using the combined text.
+
+      Set "{key}" to false for navigation or contents/index entries alone,
+      or text solely about unrelated uses, including gas wells, pipelines,
+      fuel storage, household gas equipment and onsite backup generators.
+      Do not reject a mixed chunk that also meets any retention rule above.
+# Preserve collected use tables, dimensional standards and source markers.
+text_extraction_prompts: false
+cache_llm_generated_content: true

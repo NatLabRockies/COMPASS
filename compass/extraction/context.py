@@ -5,7 +5,7 @@ from collections.abc import Iterable
 
 import pandas as pd
 
-from compass.services.threaded import FileMover
+from compass.services.threaded import OrdFileMover
 from compass.exceptions import COMPASSTypeError
 
 
@@ -116,8 +116,10 @@ class ExtractionContext:
         out_fn_stem : str, optional
             Optional output filename stem for this document. If
             provided, the document file will be moved from the
-            temporary directory to the output directory with this
-            filename stem and appropriate file suffix.
+            temporary directory, or copied from an available original
+            source if the temporary file is missing. If no source is
+            available, a warning is logged and extraction continues
+            without an archived file.
             By default, ``None``.
         """
         self._data_docs.append(doc)
@@ -158,9 +160,12 @@ class ExtractionContext:
 
 
 async def _move_file_to_out_dir(doc, out_stem):
-    """Move PDF or HTML text file to output directory"""
-    out_fp = await FileMover.call(doc, out_stem)
+    """Archive a source file without discarding data if it is missing"""
+    out_fp = await OrdFileMover.call(doc, out_stem, "processed")
     doc.attrs["out_fp"] = out_fp
+    doc.attrs["archive_status"] = (
+        "saved" if out_fp is not None else "missing_source"
+    )
     return doc
 
 

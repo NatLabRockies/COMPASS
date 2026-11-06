@@ -267,7 +267,7 @@ async def test_search_with_logging(tmp_path, monkeypatch):
 )
 @pytest.mark.asyncio
 async def test_google_search_live():
-    """Smoke test the external Google search backend"""
+    """Test the external Google search backend"""
     num_requested_links = 5
     search_engine = DuxDistributedGlobalSearch(backend="google")
     results = await search_engine.results(

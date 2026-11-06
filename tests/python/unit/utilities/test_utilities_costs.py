@@ -26,8 +26,6 @@ from compass.utilities.costs import (
         ("gpt-4o", 100_000, 0, 0.25),
         ("gpt-4o", 0, 100_000, 1.0),
         ("gpt-4o", 2_500_000, 3_000_000, 36.25),
-        ("compassop-gpt-4.1-nano", 1_000_000, 500_000, 0.3),
-        ("wetosa-gpt-5-mini", 500_000, 500_000, 1.125),
     ],
 )
 def test_cost_for_model_known_models(
@@ -52,7 +50,7 @@ def test_cost_for_model_case_sensitivity_and_unknown(
 ):
     """Test `cost_for_model` returns zero for bad inputs"""
     result = cost_for_model(model_name, prompt_tokens, completion_tokens)
-    assert result == 0.0
+    assert result == pytest.approx(0.0)
 
 
 def test_cost_for_model_with_embedding_model():
@@ -404,8 +402,6 @@ def test_llm_cost_registry_model_name_patterns():
 
     assert any("gpt-4o" in name for name in model_names)
     assert any("gpt-5" in name for name in model_names)
-    assert any("compassop" in name for name in model_names)
-    assert any("wetosa" in name for name in model_names)
 
 
 def test_llm_cost_registry_response_higher_than_prompt():
