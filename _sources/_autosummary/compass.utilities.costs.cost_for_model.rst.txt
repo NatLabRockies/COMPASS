@@ -1,0 +1,6 @@
+compass.utilities.costs.cost\_for\_model
+========================================
+
+.. currentmodule:: compass.utilities.costs
+
+.. autofunction:: cost_for_model

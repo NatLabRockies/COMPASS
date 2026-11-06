@@ -1,0 +1,6 @@
+compass.plugin.utilities.normalize\_website\_keywords
+=====================================================
+
+.. currentmodule:: compass.plugin.utilities
+
+.. autofunction:: normalize_website_keywords

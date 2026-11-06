@@ -1,0 +1,25 @@
+compass.pipeline.collection.dedupe.DocumentDeDuplicator
+=======================================================
+
+.. currentmodule:: compass.pipeline.collection.dedupe
+
+.. autoclass:: DocumentDeDuplicator
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~DocumentDeDuplicator.add_docs
+      ~DocumentDeDuplicator.info
+   
+   
+
+   
+   
+   

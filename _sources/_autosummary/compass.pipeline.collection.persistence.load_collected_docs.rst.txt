@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.load\_collected\_docs
+=============================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: load_collected_docs

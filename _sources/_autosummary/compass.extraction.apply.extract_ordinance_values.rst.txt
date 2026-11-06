@@ -1,0 +1,6 @@
+compass.extraction.apply.extract\_ordinance\_values
+===================================================
+
+.. currentmodule:: compass.extraction.apply
+
+.. autofunction:: extract_ordinance_values

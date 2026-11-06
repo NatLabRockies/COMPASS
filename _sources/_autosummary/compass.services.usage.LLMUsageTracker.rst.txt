@@ -1,0 +1,32 @@
+compass.services.usage.LLMUsageTracker
+======================================
+
+.. currentmodule:: compass.services.usage
+
+.. autoclass:: LLMUsageTracker
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~LLMUsageTracker.add_to
+      ~LLMUsageTracker.update_from_model
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~LLMUsageTracker.UNKNOWN_MODEL_LABEL
+      ~LLMUsageTracker.totals
+   
+   

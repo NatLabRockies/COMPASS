@@ -1,0 +1,6 @@
+compass.plugin.post\_processing.add\_document\_name
+===================================================
+
+.. currentmodule:: compass.plugin.post_processing
+
+.. autofunction:: add_document_name

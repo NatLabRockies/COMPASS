@@ -1,0 +1,38 @@
+compass.plugin.registry
+=======================
+
+.. automodule:: compass.plugin.registry
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      PLUGIN_REGISTRY
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      register_plugin
+      resolve_plugin
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

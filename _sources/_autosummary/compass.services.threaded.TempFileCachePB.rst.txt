@@ -1,0 +1,36 @@
+compass.services.threaded.TempFileCachePB
+=========================================
+
+.. currentmodule:: compass.services.threaded
+
+.. autoclass:: TempFileCachePB
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~TempFileCachePB.acquire_resources
+      ~TempFileCachePB.call
+      ~TempFileCachePB.process
+      ~TempFileCachePB.process_using_futures
+      ~TempFileCachePB.release_resources
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~TempFileCachePB.MAX_CONCURRENT_JOBS
+      ~TempFileCachePB.can_process
+      ~TempFileCachePB.name
+   
+   

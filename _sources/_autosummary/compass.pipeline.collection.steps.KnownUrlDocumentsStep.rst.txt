@@ -1,0 +1,30 @@
+compass.pipeline.collection.steps.KnownUrlDocumentsStep
+=======================================================
+
+.. currentmodule:: compass.pipeline.collection.steps
+
+.. autoclass:: KnownUrlDocumentsStep
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~KnownUrlDocumentsStep.collect
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~KnownUrlDocumentsStep.STEP_NAME
+   
+   

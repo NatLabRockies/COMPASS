@@ -1,0 +1,6 @@
+compass.pipeline.targets.evaluate\_targets
+==========================================
+
+.. currentmodule:: compass.pipeline.targets
+
+.. autofunction:: evaluate_targets

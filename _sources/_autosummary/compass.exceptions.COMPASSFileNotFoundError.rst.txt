@@ -1,0 +1,6 @@
+compass.exceptions.COMPASSFileNotFoundError
+===========================================
+
+.. currentmodule:: compass.exceptions
+
+.. autoexception:: COMPASSFileNotFoundError

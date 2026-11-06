@@ -1,0 +1,24 @@
+compass.pipeline.search.base.SearchEngineLinkCollection
+=======================================================
+
+.. currentmodule:: compass.pipeline.search.base
+
+.. autoclass:: SearchEngineLinkCollection
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SearchEngineLinkCollection.execute
+   
+   
+
+   
+   
+   

@@ -1,0 +1,23 @@
+compass.pipeline.data\_classes.OutputSettings
+=============================================
+
+.. currentmodule:: compass.pipeline.data_classes
+
+.. autoclass:: OutputSettings
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   

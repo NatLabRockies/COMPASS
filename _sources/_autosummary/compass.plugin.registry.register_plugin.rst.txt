@@ -1,0 +1,6 @@
+compass.plugin.registry.register\_plugin
+========================================
+
+.. currentmodule:: compass.plugin.registry
+
+.. autofunction:: register_plugin

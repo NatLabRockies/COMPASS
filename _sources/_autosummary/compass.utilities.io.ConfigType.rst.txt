@@ -1,0 +1,81 @@
+compass.utilities.io.ConfigType
+===============================
+
+.. currentmodule:: compass.utilities.io
+
+.. autoclass:: ConfigType
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~ConfigType.members_as_str
+      ~ConfigType.encode
+      ~ConfigType.replace
+      ~ConfigType.split
+      ~ConfigType.rsplit
+      ~ConfigType.join
+      ~ConfigType.capitalize
+      ~ConfigType.casefold
+      ~ConfigType.title
+      ~ConfigType.center
+      ~ConfigType.count
+      ~ConfigType.expandtabs
+      ~ConfigType.find
+      ~ConfigType.partition
+      ~ConfigType.index
+      ~ConfigType.ljust
+      ~ConfigType.lower
+      ~ConfigType.lstrip
+      ~ConfigType.rfind
+      ~ConfigType.rindex
+      ~ConfigType.rjust
+      ~ConfigType.rstrip
+      ~ConfigType.rpartition
+      ~ConfigType.splitlines
+      ~ConfigType.strip
+      ~ConfigType.swapcase
+      ~ConfigType.translate
+      ~ConfigType.upper
+      ~ConfigType.startswith
+      ~ConfigType.endswith
+      ~ConfigType.removeprefix
+      ~ConfigType.removesuffix
+      ~ConfigType.isascii
+      ~ConfigType.islower
+      ~ConfigType.isupper
+      ~ConfigType.istitle
+      ~ConfigType.isspace
+      ~ConfigType.isdecimal
+      ~ConfigType.isdigit
+      ~ConfigType.isnumeric
+      ~ConfigType.isalpha
+      ~ConfigType.isalnum
+      ~ConfigType.isidentifier
+      ~ConfigType.isprintable
+      ~ConfigType.zfill
+      ~ConfigType.format
+      ~ConfigType.format_map
+      ~ConfigType.maketrans
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~ConfigType.JSON
+      ~ConfigType.JSON5
+      ~ConfigType.YAML
+      ~ConfigType.YML
+      ~ConfigType.TOML
+   
+   

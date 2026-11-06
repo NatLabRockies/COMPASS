@@ -1,0 +1,43 @@
+compass.utilities.finalize
+==========================
+
+.. automodule:: compass.utilities.finalize
+
+   
+   
+   .. rubric:: Module attributes
+
+   .. autosummary::
+      :toctree:
+   
+      QUALITATIVE_UNITS
+      MAX_ORDINANCE_TEXT_CHARS
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      compile_collection_summary_message
+      compile_run_summary_message
+      doc_infos_to_db
+      save_db
+      save_run_meta
+      trim_ordinance_text
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

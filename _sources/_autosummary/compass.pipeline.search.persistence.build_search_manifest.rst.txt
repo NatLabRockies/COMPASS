@@ -1,0 +1,6 @@
+compass.pipeline.search.persistence.build\_search\_manifest
+===========================================================
+
+.. currentmodule:: compass.pipeline.search.persistence
+
+.. autofunction:: build_search_manifest

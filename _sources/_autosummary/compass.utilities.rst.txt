@@ -1,0 +1,39 @@
+compass.utilities
+=================
+
+.. automodule:: compass.utilities
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   base
+   costs
+   enums
+   finalize
+   io
+   jurisdictions
+   logs
+   ngrams
+   parsing
+   url
+

@@ -1,0 +1,57 @@
+compass.extraction.small\_wind.plugin.COMPASSSmallWindExtractor
+===============================================================
+
+.. currentmodule:: compass.extraction.small_wind.plugin
+
+.. autoclass:: COMPASSSmallWindExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSSmallWindExtractor.extract_ordinances_from_text
+      ~COMPASSSmallWindExtractor.extract_relevant_text
+      ~COMPASSSmallWindExtractor.filter_docs
+      ~COMPASSSmallWindExtractor.get_heuristic
+      ~COMPASSSmallWindExtractor.get_query_templates
+      ~COMPASSSmallWindExtractor.get_structured_data_row_count
+      ~COMPASSSmallWindExtractor.get_website_keywords
+      ~COMPASSSmallWindExtractor.parse_docs_for_structured_data
+      ~COMPASSSmallWindExtractor.parse_for_structured_data
+      ~COMPASSSmallWindExtractor.parse_multi_doc_concat
+      ~COMPASSSmallWindExtractor.parse_multi_doc_context_for_structured_data
+      ~COMPASSSmallWindExtractor.parse_multi_doc_merge
+      ~COMPASSSmallWindExtractor.parse_single_doc_for_structured_data
+      ~COMPASSSmallWindExtractor.post_filter_docs_hook
+      ~COMPASSSmallWindExtractor.pre_filter_docs_hook
+      ~COMPASSSmallWindExtractor.record_usage
+      ~COMPASSSmallWindExtractor.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~COMPASSSmallWindExtractor.DOC_SELECTION_METHOD
+      ~COMPASSSmallWindExtractor.IDENTIFIER
+      ~COMPASSSmallWindExtractor.JURISDICTION_DATA_FP
+      ~COMPASSSmallWindExtractor.OUTPUT_COLUMNS
+      ~COMPASSSmallWindExtractor.PARSERS
+      ~COMPASSSmallWindExtractor.POST_PROCESSING_STEPS
+      ~COMPASSSmallWindExtractor.QUERY_TEMPLATES
+      ~COMPASSSmallWindExtractor.TEXT_COLLECTORS
+      ~COMPASSSmallWindExtractor.TEXT_EXTRACTORS
+      ~COMPASSSmallWindExtractor.WEBSITE_KEYWORDS
+      ~COMPASSSmallWindExtractor.consumer_producer_pairs
+      ~COMPASSSmallWindExtractor.producers
+   
+   

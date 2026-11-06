@@ -1,0 +1,31 @@
+compass.pipeline.data\_classes.SearchRequest
+============================================
+
+.. currentmodule:: compass.pipeline.data_classes
+
+.. autoclass:: SearchRequest
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SearchRequest.MODE
+      ~SearchRequest.models
+      ~SearchRequest.rate_tracker
+   
+   

@@ -1,0 +1,6 @@
+compass.exceptions.COMPASSPluginConfigurationError
+==================================================
+
+.. currentmodule:: compass.exceptions
+
+.. autoexception:: COMPASSPluginConfigurationError

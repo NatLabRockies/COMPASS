@@ -1,0 +1,33 @@
+compass.extraction.solar
+========================
+
+.. automodule:: compass.extraction.solar
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. autosummary::
+   :toctree:
+   :template: custom-module-template.rst
+   :recursive:
+
+   graphs
+   ordinance
+   parse
+   plugin
+

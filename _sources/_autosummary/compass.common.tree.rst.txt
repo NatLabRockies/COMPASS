@@ -1,0 +1,31 @@
+compass.common.tree
+===================
+
+.. automodule:: compass.common.tree
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      AsyncDecisionTree
+   
+   
+
+   
+   
+   
+
+
+

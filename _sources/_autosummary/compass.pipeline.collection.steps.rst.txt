@@ -1,0 +1,37 @@
+compass.pipeline.collection.steps
+=================================
+
+.. automodule:: compass.pipeline.collection.steps
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      CollectionStep
+      CompassWebsiteCrawlStep
+      ElmWebsiteCrawlStep
+      KnownLocalDocumentsStep
+      KnownUrlDocumentsStep
+      SearchEngineDocumentsStep
+      SearchResultsCrawlStep
+   
+   
+
+   
+   
+   
+
+
+

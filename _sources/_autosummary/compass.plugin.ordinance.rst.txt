@@ -1,0 +1,38 @@
+compass.plugin.ordinance
+========================
+
+.. automodule:: compass.plugin.ordinance
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      BaseParser
+      BaseTextExtractor
+      DocSelectionMethod
+      KeywordBasedHeuristic
+      OrdinanceExtractionPlugin
+      OrdinanceParser
+      PromptBasedTextCollector
+      PromptBasedTextExtractor
+   
+   
+
+   
+   
+   
+
+
+

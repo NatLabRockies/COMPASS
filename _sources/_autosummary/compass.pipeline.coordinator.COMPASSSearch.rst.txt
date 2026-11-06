@@ -1,0 +1,30 @@
+compass.pipeline.coordinator.COMPASSSearch
+==========================================
+
+.. currentmodule:: compass.pipeline.coordinator
+
+.. autoclass:: COMPASSSearch
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSSearch.run
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~COMPASSSearch.is_continuation_run
+   
+   

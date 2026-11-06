@@ -1,0 +1,24 @@
+compass.pipeline.coordinator.COMPASSExtraction
+==============================================
+
+.. currentmodule:: compass.pipeline.coordinator
+
+.. autoclass:: COMPASSExtraction
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSExtraction.run
+   
+   
+
+   
+   
+   

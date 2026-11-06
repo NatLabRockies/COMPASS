@@ -1,0 +1,23 @@
+compass.extraction.rmp
+======================
+
+.. automodule:: compass.extraction.rmp
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

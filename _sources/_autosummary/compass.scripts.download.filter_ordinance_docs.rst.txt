@@ -1,0 +1,6 @@
+compass.scripts.download.filter\_ordinance\_docs
+================================================
+
+.. currentmodule:: compass.scripts.download
+
+.. autofunction:: filter_ordinance_docs

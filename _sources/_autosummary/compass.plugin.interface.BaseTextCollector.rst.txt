@@ -1,0 +1,31 @@
+compass.plugin.interface.BaseTextCollector
+==========================================
+
+.. currentmodule:: compass.plugin.interface
+
+.. autoclass:: BaseTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseTextCollector.OUT_LABEL
+      ~BaseTextCollector.relevant_text
+   
+   

@@ -1,0 +1,6 @@
+compass.extraction.water.graphs.setup\_graph\_oil\_and\_gas
+===========================================================
+
+.. currentmodule:: compass.extraction.water.graphs
+
+.. autofunction:: setup_graph_oil_and_gas

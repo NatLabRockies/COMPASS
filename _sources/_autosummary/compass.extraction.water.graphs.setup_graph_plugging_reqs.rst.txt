@@ -1,0 +1,6 @@
+compass.extraction.water.graphs.setup\_graph\_plugging\_reqs
+============================================================
+
+.. currentmodule:: compass.extraction.water.graphs
+
+.. autofunction:: setup_graph_plugging_reqs

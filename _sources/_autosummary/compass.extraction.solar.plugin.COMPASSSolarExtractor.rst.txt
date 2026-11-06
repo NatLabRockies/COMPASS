@@ -1,0 +1,57 @@
+compass.extraction.solar.plugin.COMPASSSolarExtractor
+=====================================================
+
+.. currentmodule:: compass.extraction.solar.plugin
+
+.. autoclass:: COMPASSSolarExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~COMPASSSolarExtractor.extract_ordinances_from_text
+      ~COMPASSSolarExtractor.extract_relevant_text
+      ~COMPASSSolarExtractor.filter_docs
+      ~COMPASSSolarExtractor.get_heuristic
+      ~COMPASSSolarExtractor.get_query_templates
+      ~COMPASSSolarExtractor.get_structured_data_row_count
+      ~COMPASSSolarExtractor.get_website_keywords
+      ~COMPASSSolarExtractor.parse_docs_for_structured_data
+      ~COMPASSSolarExtractor.parse_for_structured_data
+      ~COMPASSSolarExtractor.parse_multi_doc_concat
+      ~COMPASSSolarExtractor.parse_multi_doc_context_for_structured_data
+      ~COMPASSSolarExtractor.parse_multi_doc_merge
+      ~COMPASSSolarExtractor.parse_single_doc_for_structured_data
+      ~COMPASSSolarExtractor.post_filter_docs_hook
+      ~COMPASSSolarExtractor.pre_filter_docs_hook
+      ~COMPASSSolarExtractor.record_usage
+      ~COMPASSSolarExtractor.save_structured_data
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~COMPASSSolarExtractor.DOC_SELECTION_METHOD
+      ~COMPASSSolarExtractor.IDENTIFIER
+      ~COMPASSSolarExtractor.JURISDICTION_DATA_FP
+      ~COMPASSSolarExtractor.OUTPUT_COLUMNS
+      ~COMPASSSolarExtractor.PARSERS
+      ~COMPASSSolarExtractor.POST_PROCESSING_STEPS
+      ~COMPASSSolarExtractor.QUERY_TEMPLATES
+      ~COMPASSSolarExtractor.TEXT_COLLECTORS
+      ~COMPASSSolarExtractor.TEXT_EXTRACTORS
+      ~COMPASSSolarExtractor.WEBSITE_KEYWORDS
+      ~COMPASSSolarExtractor.consumer_producer_pairs
+      ~COMPASSSolarExtractor.producers
+   
+   

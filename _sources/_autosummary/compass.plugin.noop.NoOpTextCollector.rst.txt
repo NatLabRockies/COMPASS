@@ -1,0 +1,31 @@
+compass.plugin.noop.NoOpTextCollector
+=====================================
+
+.. currentmodule:: compass.plugin.noop
+
+.. autoclass:: NoOpTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~NoOpTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~NoOpTextCollector.OUT_LABEL
+      ~NoOpTextCollector.relevant_text
+   
+   

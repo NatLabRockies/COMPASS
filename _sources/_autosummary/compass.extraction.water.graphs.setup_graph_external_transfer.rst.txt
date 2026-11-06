@@ -1,0 +1,6 @@
+compass.extraction.water.graphs.setup\_graph\_external\_transfer
+================================================================
+
+.. currentmodule:: compass.extraction.water.graphs
+
+.. autofunction:: setup_graph_external_transfer

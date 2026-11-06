@@ -1,0 +1,38 @@
+compass.extraction.wind.ordinance.WindOrdinanceTextExtractor
+============================================================
+
+.. currentmodule:: compass.extraction.wind.ordinance
+
+.. autoclass:: WindOrdinanceTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~WindOrdinanceTextExtractor.call
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~WindOrdinanceTextExtractor.FORMATTING_PROMPT
+      ~WindOrdinanceTextExtractor.IN_LABEL
+      ~WindOrdinanceTextExtractor.OUTPUT_PROMPT
+      ~WindOrdinanceTextExtractor.OUT_LABEL
+      ~WindOrdinanceTextExtractor.PROMPTS
+      ~WindOrdinanceTextExtractor.SYSTEM_MESSAGE
+      ~WindOrdinanceTextExtractor.TASK_DESCRIPTION
+      ~WindOrdinanceTextExtractor.TASK_ID
+      ~WindOrdinanceTextExtractor.parsers
+   
+   

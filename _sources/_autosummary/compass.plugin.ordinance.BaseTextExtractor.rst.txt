@@ -1,0 +1,33 @@
+compass.plugin.ordinance.BaseTextExtractor
+==========================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: BaseTextExtractor
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseTextExtractor.IN_LABEL
+      ~BaseTextExtractor.OUT_LABEL
+      ~BaseTextExtractor.TASK_DESCRIPTION
+      ~BaseTextExtractor.TASK_ID
+      ~BaseTextExtractor.parsers
+   
+   

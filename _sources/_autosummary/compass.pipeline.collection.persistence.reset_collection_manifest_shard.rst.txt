@@ -1,0 +1,6 @@
+compass.pipeline.collection.persistence.reset\_collection\_manifest\_shard
+==========================================================================
+
+.. currentmodule:: compass.pipeline.collection.persistence
+
+.. autofunction:: reset_collection_manifest_shard

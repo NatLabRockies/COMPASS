@@ -1,0 +1,23 @@
+compass.extraction.natural\_gas\_pipelines
+==========================================
+
+.. automodule:: compass.extraction.natural_gas_pipelines
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

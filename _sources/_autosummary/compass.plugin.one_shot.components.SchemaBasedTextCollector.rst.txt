@@ -1,0 +1,35 @@
+compass.plugin.one\_shot.components.SchemaBasedTextCollector
+============================================================
+
+.. currentmodule:: compass.plugin.one_shot.components
+
+.. autoclass:: SchemaBasedTextCollector
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~SchemaBasedTextCollector.call
+      ~SchemaBasedTextCollector.check_chunk
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~SchemaBasedTextCollector.CONTENT_VALIDATION_OUTPUT_SCHEMA
+      ~SchemaBasedTextCollector.OUT_LABEL
+      ~SchemaBasedTextCollector.SCHEMA
+      ~SchemaBasedTextCollector.SCOPE_VALIDATION_OUTPUT_SCHEMA
+      ~SchemaBasedTextCollector.relevant_text
+   
+   

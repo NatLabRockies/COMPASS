@@ -1,0 +1,35 @@
+compass.extraction.solar.ordinance
+==================================
+
+.. automodule:: compass.extraction.solar.ordinance
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+      :toctree:
+      :template: custom-class-template.rst
+   
+      SolarHeuristic
+      SolarOrdinanceTextCollector
+      SolarOrdinanceTextExtractor
+      SolarPermittedUseDistrictsTextCollector
+      SolarPermittedUseDistrictsTextExtractor
+   
+   
+
+   
+   
+   
+
+
+

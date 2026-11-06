@@ -1,0 +1,6 @@
+compass.common.base.setup\_async\_decision\_tree
+================================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: setup_async_decision_tree

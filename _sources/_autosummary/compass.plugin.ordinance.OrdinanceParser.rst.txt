@@ -1,0 +1,32 @@
+compass.plugin.ordinance.OrdinanceParser
+========================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: OrdinanceParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~OrdinanceParser.parse
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~OrdinanceParser.IN_LABEL
+      ~OrdinanceParser.OUT_LABEL
+      ~OrdinanceParser.TASK_ID
+   
+   

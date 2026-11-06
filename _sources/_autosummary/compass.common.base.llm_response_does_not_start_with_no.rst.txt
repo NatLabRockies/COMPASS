@@ -1,0 +1,6 @@
+compass.common.base.llm\_response\_does\_not\_start\_with\_no
+=============================================================
+
+.. currentmodule:: compass.common.base
+
+.. autofunction:: llm_response_does_not_start_with_no

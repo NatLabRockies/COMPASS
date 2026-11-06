@@ -1,0 +1,6 @@
+compass.extraction.wind.graphs.setup\_multiplier
+================================================
+
+.. currentmodule:: compass.extraction.wind.graphs
+
+.. autofunction:: setup_multiplier

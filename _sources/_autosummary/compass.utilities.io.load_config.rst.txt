@@ -1,0 +1,6 @@
+compass.utilities.io.load\_config
+=================================
+
+.. currentmodule:: compass.utilities.io
+
+.. autofunction:: load_config

@@ -1,0 +1,32 @@
+compass.plugin.ordinance.BaseParser
+===================================
+
+.. currentmodule:: compass.plugin.ordinance
+
+.. autoclass:: BaseParser
+   :members:
+   :show-inheritance:
+   :inherited-members:
+   :special-members: __call__, __add__, __mul__
+
+   
+   
+   .. rubric:: Methods
+
+   .. autosummary::
+   
+      ~BaseParser.parse
+   
+   
+
+   
+   
+   .. rubric:: Attributes
+
+   .. autosummary::
+   
+      ~BaseParser.IN_LABEL
+      ~BaseParser.OUT_LABEL
+      ~BaseParser.TASK_ID
+   
+   

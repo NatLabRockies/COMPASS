@@ -1,0 +1,31 @@
+compass.services.docling
+========================
+
+.. automodule:: compass.services.docling
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+      :toctree:
+   
+      read_docling_local_file
+      read_docling_web_file
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

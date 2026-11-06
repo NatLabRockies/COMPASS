@@ -1,0 +1,6 @@
+compass.utilities.finalize.doc\_infos\_to\_db
+=============================================
+
+.. currentmodule:: compass.utilities.finalize
+
+.. autofunction:: doc_infos_to_db
