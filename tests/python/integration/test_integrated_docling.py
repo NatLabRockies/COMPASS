@@ -30,7 +30,7 @@ from compass.services.docling import (
     _run_docling_in_subprocess,
 )
 from compass.services.threaded import (
-    FileMover,
+    OrdFileMover,
     ParsedFileWriter,
     TempFileCache,
     TempFileCacheCopier,
@@ -259,7 +259,7 @@ async def test_production_docling_collection_roundtrip(
     services = [
         FileLoader(),
         TempFileCachePB(),
-        FileMover(tmp_path),
+        OrdFileMover(tmp_path),
         ParsedFileWriter(tmp_path),
         TempFileCacheCopier(),
     ]

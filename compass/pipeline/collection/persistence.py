@@ -20,7 +20,7 @@ from elm.web.document import MDDocument
 from compass import __version__ as compass_version
 from compass.pipeline.targets import normalize_targets
 from compass.services.threaded import (
-    FileMover,
+    OrdFileMover,
     ParsedFileWriter,
     TempFileCacheCopier,
     GenericFuncRunner,
@@ -551,9 +551,12 @@ async def _persist_doc(doc, out_stem, from_steps, relative_to):
 
 async def _move_file_to_collection_dir(doc, out_stem, relative_to):
     """Move a source file to the collection output directory"""
-    out_fp = await FileMover.call(doc, out_stem, "downloaded")
+    out_fp = await OrdFileMover.call(doc, out_stem, "downloaded")
     if relative_to is not None and out_fp is not None:
         out_fp = _make_relative(out_fp, relative_to)
+    doc.attrs["archive_status"] = (
+        "saved" if out_fp is not None else "missing_source"
+    )
     doc.attrs["source_fp"] = out_fp
 
 

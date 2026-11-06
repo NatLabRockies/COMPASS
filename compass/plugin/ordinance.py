@@ -9,7 +9,6 @@ from textwrap import dedent
 from itertools import chain
 from functools import cached_property, partial
 from abc import ABC, abstractmethod
-from contextlib import contextmanager
 
 import pandas as pd
 from elm import ApiBase
@@ -1070,11 +1069,14 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             DataFrame containing extracted structured data, or None if
             no structured data were extracted.
         """
-        with self._tracked_progress():
+        loc = self.jurisdiction.full_name
+        with COMPASS_PB.jurisdiction_sub_prog(loc) as sub_progress:
             tasks = [
                 asyncio.create_task(
-                    self._try_extract_ordinances(source, parser_class),
-                    name=self.jurisdiction.full_name,
+                    self._try_extract_ordinances(
+                        source, parser_class, sub_progress
+                    ),
+                    name=loc,
                 )
                 for parser_class in filter(None, self.PARSERS)
             ]
@@ -1082,11 +1084,15 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         return self._concat_scrape_results(source)
 
-    async def _try_extract_ordinances(self, doc_for_extraction, parser_class):
+    async def _try_extract_ordinances(
+        self, doc_for_extraction, parser_class, sub_progress
+    ):
         """Apply a single extractor and parser to legal text"""
 
         if parser_class.IN_LABEL not in doc_for_extraction.attrs:
-            await self._run_text_extractors(doc_for_extraction, parser_class)
+            await self._run_text_extractors(
+                doc_for_extraction, parser_class, sub_progress
+            )
 
         model_config = self._get_model_config(
             parser_class.TASK_ID,
@@ -1101,7 +1107,9 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
 
         await self.record_usage()
 
-    async def _run_text_extractors(self, doc_for_extraction, parser_class):
+    async def _run_text_extractors(
+        self, doc_for_extraction, parser_class, sub_progress
+    ):
         """Run text extractor(s) on document to get text for a parser"""
         te = [
             te
@@ -1127,20 +1135,10 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             te.__name__,
             doc_for_extraction.attrs.get("source", "unknown source"),
         )
-        assert self._jsp is not None, "No progress bar set!"
-        task_id = self._jsp.add_task(te.TASK_DESCRIPTION)
+        task_id = sub_progress.add_task(te.TASK_DESCRIPTION)
         await self.extract_relevant_text(doc_for_extraction, te, model_config)
         await self.record_usage()
-        self._jsp.remove_task(task_id)
-
-    @contextmanager
-    def _tracked_progress(self):
-        """Context manager to set up jurisdiction sub-progress bar"""
-        loc = self.jurisdiction.full_name
-        with COMPASS_PB.jurisdiction_sub_prog(loc) as self._jsp:
-            yield
-
-        self._jsp = None
+        sub_progress.remove_task(task_id)
 
     def _concat_scrape_results(self, source):
         """Concatenate structured data from all parsers"""
