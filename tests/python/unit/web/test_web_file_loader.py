@@ -1,5 +1,6 @@
 """COMPASS web file loader tests"""
 
+import json
 import asyncio
 import runpy
 from importlib.util import find_spec
@@ -8,16 +9,21 @@ from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
+from aiohttp import web
 from elm.web.document import HTMLDocument, MDDocument
+from elm.web.file_loader import AsyncFetchWithRetry
 
 import compass.web.file_loader as file_loader_module
+from compass.utilities.event_log import EventLog, use_event_log
 from compass.web.file_loader import (
     AsyncDoclingWebFileLoader,
     AsyncLocalDoclingFileLoader,
+    COMPASSWebFileLoader,
+    _RecordingFetchWithRetry,
 )
 
 
-pytestmark = pytest.mark.skipif(
+requires_docling = pytest.mark.skipif(
     find_spec("docling_rs") is None or find_spec("docling_core") is None,
     reason="Requires the docling extra",
 )
@@ -77,6 +83,7 @@ def document_cache(tmp_path):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("doc_type", ["pdf", "html", "docx"])
+@requires_docling
 async def test_docling_web_fetch_preserves_inputs_and_caches_content(
     monkeypatch, document_cache, doc_type
 ):
@@ -124,6 +131,7 @@ async def test_docling_web_fetch_preserves_inputs_and_caches_content(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("failure", ["download", "timeout", "empty", "error"])
+@requires_docling
 async def test_docling_web_fetch_failures_are_not_cached(
     monkeypatch, document_cache, failure
 ):
@@ -153,6 +161,7 @@ async def test_docling_web_fetch_failures_are_not_cached(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("doc_type", ["pdf", "html"])
+@requires_docling
 async def test_docling_local_fetch_preserves_metadata_and_options(
     monkeypatch, tmp_path, document_cache, doc_type
 ):
@@ -196,6 +205,7 @@ async def test_docling_local_fetch_preserves_metadata_and_options(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("failure", ["timeout", "empty", "missing"])
+@requires_docling
 async def test_docling_local_fetch_failures_are_not_cached(
     monkeypatch, tmp_path, document_cache, failure
 ):
@@ -220,6 +230,7 @@ async def test_docling_local_fetch_failures_are_not_cached(
 @pytest.mark.asyncio
 @pytest.mark.parametrize("fallback_kind", ["cached", "uncached", "empty"])
 @pytest.mark.parametrize("status", ["partial_success", "failure", None])
+@requires_docling
 async def test_docling_partial_conversion_selects_valid_fallback(
     monkeypatch, fallback_kind, status
 ):
@@ -249,6 +260,7 @@ async def test_docling_partial_conversion_selects_valid_fallback(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_html_and_pdf_results_skip_unnecessary_fallback(
     monkeypatch, document_cache
 ):
@@ -282,6 +294,7 @@ async def test_docling_html_and_pdf_results_skip_unnecessary_fallback(
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("browser_failure", ["empty", "error"])
+@requires_docling
 async def test_docling_browser_failure_does_not_block_partial_fallback(
     monkeypatch, browser_failure
 ):
@@ -309,6 +322,7 @@ async def test_docling_browser_failure_does_not_block_partial_fallback(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_empty_source_list_does_not_retry():
     """Return no documents or fallback requests for an empty input list"""
     loader = AsyncDoclingWebFileLoader(re_fetch_failed_with_elm=True)
@@ -319,6 +333,7 @@ async def test_docling_empty_source_list_does_not_retry():
 
 
 @pytest.mark.parametrize("backend", [None, "elm", "docling", "unknown"])
+@requires_docling
 def test_docling_backend_selection_isolated_from_other_tests(
     monkeypatch, backend
 ):
@@ -339,6 +354,7 @@ def test_docling_backend_selection_isolated_from_other_tests(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
     monkeypatch,
 ):
@@ -368,6 +384,7 @@ async def test_docling_web_file_loader_fetch_all_falls_back_to_elm(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_web_file_loader_handles_sourceless_elm_failure(
     monkeypatch,
 ):
@@ -397,6 +414,7 @@ async def test_docling_web_file_loader_handles_sourceless_elm_failure(
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_html_rendering_preserves_source(monkeypatch):
     """Keep the input source on both initial and rendered HTML docs"""
     loader = AsyncDoclingWebFileLoader()
@@ -427,6 +445,7 @@ async def test_docling_html_rendering_preserves_source(monkeypatch):
 
 
 @pytest.mark.asyncio
+@requires_docling
 async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     """Configured Docling deadlines should reach the converter"""
     captured = {}
@@ -454,5 +473,100 @@ async def test_docling_web_loader_passes_configured_deadline(monkeypatch):
     assert captured["pdf_pipeline_options"] == {"document_timeout": 120}
 
 
+@pytest.mark.parametrize("empty", [False, True])
+async def test_timing_preserves_backend_result(monkeypatch, caplog, empty):
+    """Timing retains the backend result and reports empty downloads."""
+    doc = _doc("https://city.gov/code", empty=empty)
+    fetch = AsyncMock(return_value=doc)
+    monkeypatch.setattr(COMPASSWebFileLoader.__bases__[0], "fetch", fetch)
+    with caplog.at_level("INFO"):
+        result = await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+    assert result is doc
+    fetch.assert_awaited_once_with(doc.attrs["source"])
+    assert "Finished document retrieval" in caplog.text
+    assert f"empty={empty}" in caplog.text
+
+
+async def test_fetch_records_document_event(monkeypatch, tmp_path):
+    """Every COMPASS download is recorded in the event log."""
+    doc = _doc("https://city.gov/code")
+    monkeypatch.setattr(
+        COMPASSWebFileLoader.__bases__[0], "fetch", AsyncMock(return_value=doc)
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await COMPASSWebFileLoader().fetch(doc.attrs["source"])
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["type"] == "document_fetched"
+    assert event["requested"] == "https://city.gov/code"
+    assert event["empty"] is False
+
+
 if __name__ == "__main__":
     pytest.main(["-q", "--show-capture=all", Path(__file__), "-rapP"])
+
+
+@pytest.fixture
+async def challenge_server():
+    """Local server: a firewall-style 307 page, and a redirect to a PDF"""
+
+    async def challenge(_request):  # ruff:ignore[unused-async]
+        return web.Response(
+            status=307,
+            text="<html>You are being redirected...</html>",
+            content_type="text/html",
+            headers={"Server": "Sucuri/Cloudproxy"},
+        )
+
+    async def moved(_request):  # ruff:ignore[unused-async]
+        raise web.HTTPFound("/doc.pdf")
+
+    async def pdf(_request):  # ruff:ignore[unused-async]
+        return web.Response(
+            body=b"%PDF-1.7 data", content_type="application/pdf"
+        )
+
+    app = web.Application()
+    app.add_routes(
+        [
+            web.get("/challenge", challenge),
+            web.get("/moved", moved),
+            web.get("/doc.pdf", pdf),
+        ]
+    )
+    runner = web.AppRunner(app)
+    await runner.setup()
+    site = web.TCPSite(runner, "127.0.0.1", 0)
+    await site.start()
+    port = site._server.sockets[0].getsockname()[1]
+    yield f"http://127.0.0.1:{port}"
+    await runner.cleanup()
+
+
+@pytest.mark.asyncio
+async def test_downloads_record_their_http_exchange(
+    challenge_server, tmp_path
+):
+    """Status, headers, redirects, and the saved body reach the log"""
+    fetcher = _RecordingFetchWithRetry.wrap(AsyncFetchWithRetry())
+    loader = SimpleNamespace(content_fetcher=fetcher)
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await fetcher.fetch(f"{challenge_server}/challenge")
+        await fetcher.fetch(f"{challenge_server}/moved")
+        blocked = COMPASSWebFileLoader._http_exchange(
+            loader, f"{challenge_server}/challenge"
+        )["http"]
+        moved = COMPASSWebFileLoader._http_exchange(
+            loader, f"{challenge_server}/moved"
+        )["http"]
+    assert blocked["response"]["status"] == 307
+    assert blocked["response"]["headers"]["server"] == "Sucuri/Cloudproxy"
+    assert "You are being redirected" in blocked["response"]["preview"]
+    saved = tmp_path / blocked["response"]["saved_as"]
+    assert saved.read_text() == "<html>You are being redirected...</html>"
+    assert moved["response"]["status"] == 200
+    assert moved["response"]["history"][0]["status"] == 302
+    assert moved["response"]["history"][0]["location"] == "/doc.pdf"
+    assert moved["response"]["saved_as"].endswith(".pdf")
+    assert fetcher.exchanges == {}

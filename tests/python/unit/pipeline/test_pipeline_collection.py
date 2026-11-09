@@ -1,6 +1,7 @@
 """Tests for collection-step checkpoints"""
 
 import asyncio
+import json
 from copy import deepcopy
 from functools import cached_property
 from pathlib import Path
@@ -23,6 +24,7 @@ from compass.pipeline.collection.persistence import (
 from compass.services.provider import RunningAsyncServices
 from compass.services.threaded import GenericFuncRunner
 from compass.utilities.enums import COMPASSDocumentCollectionStep
+from compass.utilities.event_log import EventLog, emit_event, use_event_log
 
 
 class _Step:
@@ -91,6 +93,103 @@ def _workflow(existing_collection_info=None):
     workflow.load_existing_collection_shard = _load_existing_collection_shard
     workflow.write_collection_shard_no_fail = _write_collection_shard_no_fail
     return workflow
+
+
+def _read_events(log):
+    """Load every event from a JSONL log"""
+    return [json.loads(line) for line in log.path.read_text().splitlines()]
+
+
+def _branches(events):
+    """(collection step, workflow step, outcome) of each branch event"""
+    return [
+        (e["tags"].get("collection"), e["tags"]["step"], e["outcome"])
+        for e in events
+        if e["type"] == "branch"
+    ]
+
+
+def _extraction(found_data_for):
+    """Extraction stand-in that finds data only in some steps' docs"""
+
+    async def extract_from_docs(docs):  # ruff:ignore[unused-async]
+        emit_event("extraction_ran", count=len(docs))
+        if any(doc.attrs["checksum"] in found_data_for for doc in docs):
+            return SimpleNamespace(data_docs=list(docs))
+        return None
+
+    return SimpleNamespace(extract_from_docs=extract_from_docs)
+
+
+@pytest.mark.asyncio
+async def test_processing_stops_at_the_first_step_that_yields_data(tmp_path):
+    """Each step's work is tagged with it; the loop says why it moved on"""
+    workflow = _workflow()
+    workflow.extraction = _extraction(found_data_for={"crawl"})
+    collection = DocumentCollection(workflow)
+    collection.steps = [
+        _Step("known_local_docs"),
+        _Step("search_engine", [_doc("search")]),
+        _Step("search_results_crawl", [_doc("crawl")]),
+        _Step("website_search_compass", [_doc("site")]),
+    ]
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        context = await collection.execute(eager_extract=True)
+
+    assert context is not None
+    events = _read_events(log)
+    assert _branches(events) == [
+        ("known_local_docs", "next_step", "no: next step"),
+        ("search_engine", "next_step", "no: next step"),
+        ("search_results_crawl", "next_step", "yes"),
+    ]
+    collected = [e for e in events if e["type"] == "documents_collected"]
+    assert [e["tags"]["step"] for e in collected] == [
+        "collect.known_local_docs",
+        "collect.search_engine",
+        "collect.search_results_crawl",
+    ]
+    extractions = [e for e in events if e["type"] == "extraction_ran"]
+    assert [e["tags"]["collection"] for e in extractions] == [
+        "known_local_docs",
+        "search_engine",
+        "search_results_crawl",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_processing_without_data_runs_out_of_steps(tmp_path):
+    """The last step that yields nothing says no steps are left"""
+    workflow = _workflow()
+    workflow.extraction = _extraction(found_data_for=set())
+    collection = DocumentCollection(workflow)
+    collection.steps = [_Step("search_engine", [_doc("search")])]
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        assert await collection.execute(eager_extract=True) is None
+    assert _branches(_read_events(log)) == [
+        ("search_engine", "next_step", "no steps left"),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_collection_only_run_saves_each_step(tmp_path):
+    """Without extraction, every step's documents are kept for later"""
+    collection = DocumentCollection(_workflow())
+    collection.steps = [
+        _Step("known_local_docs", [_doc("known")]),
+        _Step("search_engine", [_doc("search")]),
+    ]
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await collection.execute()
+    assert _branches(_read_events(log)) == [
+        ("known_local_docs", "handoff", "collection-only run"),
+        ("known_local_docs", "next_step", "no: next step"),
+        ("search_engine", "handoff", "collection-only run"),
+        ("search_engine", "next_step", "no steps left"),
+    ]
 
 
 @pytest.mark.asyncio

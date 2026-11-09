@@ -28,6 +28,12 @@ from compass.utilities.url import URLPartFilter, normalize_domain, sanitize_url
 from compass.services.threaded import TempFileCache
 from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.parsing import is_pdf_doc
+from compass.utilities.timing import log_operation
+from compass.utilities.event_log import (
+    document_summary,
+    emit_event,
+    event_phase,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -326,6 +332,24 @@ class COMPASSCrawler:
             This list may be empty if no documents are found.
         """
         self._should_stop = termination_callback or _default_found_enough_docs
+        with event_phase("crawl", start_url=base_url):
+            await self._run_with_timeout(
+                base_url, crawl_timeout_s, on_new_page_visit_hook
+            )
+            emit_event(
+                "crawl_finished",
+                pages_visited=len(self._already_visited),
+                documents=[document_summary(doc) for doc in self._out_docs],
+            )
+        self._should_stop = None
+        self._log_crawl_stats()
+        self._out_docs.sort(key=lambda x: -1 * x.attrs[_SCORE_KEY])
+        return self._out_docs
+
+    async def _run_with_timeout(
+        self, base_url, crawl_timeout_s, on_new_page_visit_hook
+    ):
+        """Crawl until done, the deadline passes, or an error occurs"""
         try:
             async with asyncio.timeout(crawl_timeout_s):
                 await self._run(
@@ -346,11 +370,6 @@ class COMPASSCrawler:
                 base_url,
                 len(self._out_docs),
             )
-
-        self._should_stop = None
-        self._log_crawl_stats()
-        self._out_docs.sort(key=lambda x: -1 * x.attrs[_SCORE_KEY])
-        return self._out_docs
 
     # ruff:ignore[complex-structure]
     # complexipy: ignore
@@ -373,11 +392,15 @@ class COMPASSCrawler:
 
         if self.url_filter.blacklist_match(link.href) is not None:
             logger.debug("Skipping blacklisted URL: %s", link.href)
+            emit_event("crawl_skipped", url=link.href, reason="blacklisted")
             return
 
         if self._document_source_seen(link.href):
             logger.debug(
                 "Skipping previously collected document URL: %s", link.href
+            )
+            emit_event(
+                "crawl_skipped", url=link.href, reason="already_collected"
             )
             return
 
@@ -389,16 +412,34 @@ class COMPASSCrawler:
 
         visit = self._already_visited[link] = _PageVisit(depth, score)
         logger.trace("self._already_visited=%r", self._already_visited)
+        emit_event(
+            "crawl_visit",
+            url=link.href,
+            title=link.title,
+            depth=depth,
+            score=score,
+        )
 
         if await self._website_link_is_doc(link, depth, score):
             visit.is_document = True
+            emit_event("crawl_document_found", url=link.href, depth=depth)
             return
 
         if self.max_depth is not None and depth >= self.max_depth:
             return
 
         page_links = await self._get_links_from_page(link)
-        for next_link in self._top_scored_links(page_links, link):
+        chosen = list(self._top_scored_links(page_links, link))
+        emit_event(
+            "crawl_links",
+            url=link.href,
+            links_found=len(page_links),
+            chosen=[
+                {"url": x["href"], "title": x["title"], "score": x["score"]}
+                for x in chosen
+            ],
+        )
+        for next_link in chosen:
             prev_len = len(self._out_docs)
             next_href = await get_redirected_url(
                 next_link["href"], verify=False
@@ -422,7 +463,13 @@ class COMPASSCrawler:
                 )
             )
             if doc_was_just_found:
-                if await self.validator(self._out_docs[-1]):
+                passed = await self.validator(self._out_docs[-1])
+                emit_event(
+                    "crawl_document_validated",
+                    url=self._out_docs[-1].attrs.get("source"),
+                    passed=bool(passed),
+                )
+                if passed:
                     logger.debug("    - Document passed validation check!")
                     await self._load_last_doc_with_final_afl(next_link["href"])
                 else:
@@ -676,7 +723,8 @@ class COMPASSCrawler:
     async def _get_text_no_err(self, url):
         """Get all text from a page; return empty string if pw error"""
         try:
-            text = await self._get_text(url)
+            async with log_operation(logger, "browser page processing", url):
+                text = await self._get_text(url)
         except (PlaywrightError, RBPlaywrightError):
             text = ""
 

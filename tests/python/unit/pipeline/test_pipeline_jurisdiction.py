@@ -1,6 +1,7 @@
 """Tests for compass.pipeline.jurisdiction"""
 
 import asyncio
+import json
 from contextlib import nullcontext
 from pathlib import Path
 from types import SimpleNamespace
@@ -10,6 +11,7 @@ import pytest
 import compass.pipeline.jurisdiction as jurisdiction_module
 from compass.exceptions import COMPASSPluginConfigurationError
 from compass.pipeline.jurisdiction import SingleJurisdictionRun
+from compass.utilities.workflow import load_workflow
 
 
 class _NoOpLocationFileLog:
@@ -47,8 +49,9 @@ def jurisdiction_run(monkeypatch, tmp_path):
     runtime = SimpleNamespace(
         jurisdiction_semaphore=asyncio.Semaphore(1),
         log_listener=None,
-        dirs=SimpleNamespace(logs=tmp_path),
+        dirs=SimpleNamespace(logs=tmp_path, out=tmp_path),
         log_level="INFO",
+        tech="data_centers",
         re_run_targets=None,
     )
     jurisdiction = SimpleNamespace(
@@ -138,6 +141,31 @@ async def test_load_existing_collection_shard_restores_website(
 
     assert out == collection_info
     assert jurisdiction_run.jurisdiction_website == "https://saved.example.com"
+
+
+@pytest.mark.asyncio
+async def test_run_writes_jurisdiction_event_log(
+    monkeypatch, jurisdiction_run, tmp_path
+):
+    """Each run records start and finish in its jurisdiction's log"""
+
+    async def process():  # ruff:ignore[unused-async]
+        return SimpleNamespace(ord_db_fp=None)
+
+    monkeypatch.setattr(jurisdiction_run, "process", process)
+    await jurisdiction_run.run_process_with_logging()
+    path = tmp_path / "event-logs" / "Test_County_Colorado" / "events.jsonl"
+    events = [json.loads(line) for line in path.read_text().splitlines()]
+    assert [e["type"] for e in events] == [
+        "jurisdiction_started",
+        "workflow_graph",
+        "jurisdiction_finished",
+    ]
+    assert events[0]["jurisdiction"] == "Test County, Colorado"
+    assert events[0]["action"] == "processing"
+    assert [e["tags"]["step"] for e in events] == ["start", "start", "finish"]
+    # The log carries the map of every path, for replaying it
+    assert events[1]["nodes"] == load_workflow()["nodes"]
 
 
 if __name__ == "__main__":

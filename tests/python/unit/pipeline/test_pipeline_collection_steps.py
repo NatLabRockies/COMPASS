@@ -1,6 +1,7 @@
 """Tests for collection-step loader configuration"""
 
 import asyncio
+import json
 from pathlib import Path
 from types import SimpleNamespace
 from contextlib import AsyncExitStack
@@ -9,6 +10,7 @@ import pytest
 from elm.web.document import HTMLDocument, MDDocument, PDFDocument
 
 import compass.pipeline.collection.steps as steps_module
+from compass.utilities.event_log import EventLog, use_event_log
 from compass.pipeline.collection.steps import (
     CompassWebsiteCrawlStep,
     ElmWebsiteCrawlStep,
@@ -105,7 +107,9 @@ def _build_workflow(
         perform_se_search=True,
         perform_search_based_crawl=num_search_results_to_crawl > 0,
         jurisdiction_website=website,
-        jurisdiction=SimpleNamespace(full_name="Example Township"),
+        jurisdiction=SimpleNamespace(
+            full_name="Example Township", website_url=None
+        ),
         extractor=_DummyExtractor(),
         runtime=runtime,
         known_se_results=None,
@@ -684,6 +688,63 @@ async def test_compass_website_crawl_recovers_partial_docs(monkeypatch):
     }
     assert captured["already_visited"] == {"https://example.com/seen"}
     assert workflow.last_scrape_results == [[prior_result]]
+
+
+async def test_search_results_crawl_records_seeds_and_outcomes(
+    monkeypatch, tmp_path
+):
+    """Seed choices, exclusion reasons, and per-seed results are logged"""
+    workflow = _build_workflow(num_search_results_to_crawl=3)
+    candidates = [
+        {"url": "https://ok.example", "doc_type": "html"},
+        {"url": "https://doc.example/a.pdf", "doc_type": "pdf"},
+        {"url": "https://fail.example", "doc_type": "html"},
+        {"url": "https://late.example", "doc_type": "html"},
+    ]
+    _add_search_docs(workflow, candidates, budget=3)
+
+    async def fake_crawl(url, **_kwargs):  # ruff:ignore[unused-async]
+        if "fail" in url:
+            raise RuntimeError("seed failed")
+        return [SimpleNamespace(attrs={"source": "found.pdf"})]
+
+    monkeypatch.setattr(
+        steps_module,
+        "download_jurisdiction_ordinances_from_website_compass_crawl",
+        fake_crawl,
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await SearchResultsCrawlStep().collect(workflow)
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    seeds = events[0]
+    assert seeds["type"] == "search_crawl_seeds"
+    assert [x["url"] for x in seeds["seeds"]] == [
+        "https://ok.example",
+        "https://fail.example",
+    ]
+    assert {(x["url"], x["reason"]) for x in seeds["excluded"]} == {
+        ("https://doc.example/a.pdf", "not an HTML page"),
+        ("https://late.example", "beyond rank cutoff"),
+    }
+    assert seeds["tags"]["step"] == "collect.search_results_crawl.seeds"
+    (branch,) = [e for e in events if e["type"] == "branch"]
+    assert branch["tags"]["step"] == "collect.search_results_crawl.has_seeds"
+    assert branch["outcome"] == "yes"
+    outcomes = {
+        e["url"]: e
+        for e in events
+        if e["type"] == "search_crawl_seed_finished"
+    }
+    assert outcomes["https://ok.example"]["documents"][0]["source"] == (
+        "found.pdf"
+    )
+    assert outcomes["https://fail.example"]["error"] == (
+        "RuntimeError: seed failed"
+    )
+    assert {e["tags"]["step"] for e in outcomes.values()} == {
+        "collect.search_results_crawl.crawl"
+    }
 
 
 if __name__ == "__main__":

@@ -1,0 +1,765 @@
+// Map of one jurisdiction's run through COMPASS: every step, decision,
+// LLM call, and decision tree, including the branches a run may never
+// take. Event logs link to it, so a replay can show the path a run (or
+// one document) took against every path that was possible.
+//
+// A node's parent is the node whose ID is its ID up to the last dot
+// ("filter.jurisdiction.vote" sits inside "filter.jurisdiction"). Groups
+// hold other nodes. Nodes are listed in the order they are drawn.
+//
+// Node fields:
+//   id      Dotted ID. Event logs refer to it, so keep it stable.
+//   kind    group | step | decision | llm | tree | end
+//   label   Short text for the node's box; a decision asks a question.
+//   about   What happens there and why.
+//   code    Where it happens (file:function).
+//   each    For groups that repeat: what they run once per. Events
+//           inside carry the matching tag (collection, document, page,
+//           chunk).
+//   tree    For trees: the decision tree's name. The tree's own graph
+//           is recorded in each log as a decision_tree_graph event.
+//   uses    Shared group this node runs (drawn as a dashed link).
+//   events  Event types recorded at this node.
+//   tone    For end nodes: good or bad, for how the replay colors them.
+//   next    What follows: a node ID, or a list of {to, when} where
+//           `when` names the outcome that leads there.
+//
+// Events link to nodes by `tags.step` (the node ID). A decision records
+// which way it went as a `branch` event whose `outcome` is one of its
+// `when` labels.
+{
+  version: 3,
+  nodes: [
+    {
+      id: "start",
+      kind: "step",
+      label: "Start the jurisdiction",
+      about: "The run starts once one of the run's concurrent jurisdiction slots is free; the jurisdiction's event log begins here.",
+      code: "compass/pipeline/jurisdiction.py:SingleJurisdictionRun._new_event_log",
+      events: ["jurisdiction_started", "workflow_graph"],
+      next: "collect",
+    },
+
+    // ---- Collection ------------------------------------------------
+    {
+      id: "collect",
+      kind: "group",
+      label: "Collect documents",
+      each: "collection",
+      about: "Runs the enabled collection steps one at a time, in the order shown. In a processing run, each step's documents go through filtering, extraction, and saving before the next step starts, and collection stops at the first step whose documents yield extracted data. Steps are enabled by the run configuration.",
+      code: "compass/pipeline/collection/base.py:DocumentCollection.execute",
+      events: ["phase_started", "documents_collected"],
+      next: "handoff",
+    },
+    {
+      id: "collect.known_local_docs",
+      kind: "step",
+      label: "1. Load known local files",
+      about: "Loads the files listed under known_local_docs. They skip the jurisdiction check, since the user vouched for their source.",
+      code: "compass/pipeline/collection/steps.py:KnownLocalDocumentsStep",
+    },
+    {
+      id: "collect.known_doc_urls",
+      kind: "step",
+      label: "2. Download known URLs",
+      about: "Downloads the URLs listed under known_doc_urls. They skip the jurisdiction check, since the user vouched for their source.",
+      code: "compass/pipeline/collection/steps.py:KnownUrlDocumentsStep",
+      events: ["document_fetched"],
+    },
+    {
+      id: "collect.search_engine",
+      kind: "group",
+      label: "3. Search engines",
+      about: "Searches for ordinance documents and downloads the top results.",
+      code: "compass/pipeline/collection/steps.py:SearchEngineDocumentsStep",
+    },
+    {
+      id: "collect.search_engine.queries",
+      kind: "step",
+      label: "Build search queries",
+      about: "Fills the plugin's query templates with the jurisdiction's name (and website, if known; templates that need a website are dropped otherwise).",
+      code: "compass/scripts/download.py:_docs_from_se_search",
+      events: ["search_queries"],
+      next: "collect.search_engine.search",
+    },
+    {
+      id: "collect.search_engine.search",
+      kind: "step",
+      label: "Search the engines",
+      about: "Engines are tried in the configured order; each later engine gets only the queries that failed or returned nothing.",
+      code: "compass/web/search.py:search_single_jurisdiction",
+      events: ["search_request", "search_response"],
+      next: "collect.search_engine.select",
+    },
+    {
+      id: "collect.search_engine.select",
+      kind: "step",
+      label: "Pick URLs to download",
+      about: "Takes results round-robin across queries, drops blacklisted and duplicate URLs, and keeps the first num_urls_to_check.",
+      code: "compass/scripts/download.py:_docs_from_se_search",
+      events: ["search_results", "search_selected"],
+      next: "collect.search_engine.has_urls",
+    },
+    {
+      id: "collect.search_engine.has_urls",
+      kind: "decision",
+      label: "Any URLs to download?",
+      next: [
+        {to: "collect.search_engine.download", when: "yes"},
+        {to: "collect.search_engine.none", when: "no"},
+      ],
+    },
+    {
+      id: "collect.search_engine.download",
+      kind: "step",
+      label: "Download each URL",
+      about: "All URLs download concurrently. PDFs are parsed for text (with OCR if configured); other pages are rendered in a browser. A failed or empty download yields no document.",
+      code: "compass/scripts/download.py:_docs_from_urls",
+      events: ["document_fetched"],
+    },
+    {
+      id: "collect.search_engine.none",
+      kind: "end",
+      tone: "bad",
+      label: "No search results",
+    },
+    {
+      id: "collect.search_results_crawl",
+      kind: "group",
+      label: "4. Crawl from search results",
+      about: "Crawls outward from the HTML pages among the search results, looking for documents they link to.",
+      code: "compass/pipeline/collection/steps.py:SearchResultsCrawlStep",
+    },
+    {
+      id: "collect.search_results_crawl.seeds",
+      kind: "step",
+      label: "Pick HTML results as seeds",
+      about: "Excludes results beyond the rank cutoff, PDFs and other non-HTML results, and local files.",
+      events: ["search_crawl_seeds"],
+      next: "collect.search_results_crawl.has_seeds",
+    },
+    {
+      id: "collect.search_results_crawl.has_seeds",
+      kind: "decision",
+      label: "Any seeds?",
+      next: [
+        {to: "collect.search_results_crawl.crawl", when: "yes"},
+        {to: "collect.search_results_crawl.none", when: "no"},
+      ],
+    },
+    {
+      id: "collect.search_results_crawl.crawl",
+      kind: "step",
+      label: "Crawl each seed in turn",
+      about: "Each seed gets its own crawl, capped by depth and time.",
+      uses: "collect.crawler",
+      events: ["search_crawl_seed_finished"],
+    },
+    {
+      id: "collect.search_results_crawl.none",
+      kind: "end",
+      tone: "bad",
+      label: "No seeds",
+    },
+    {
+      id: "collect.website_search_compass",
+      kind: "group",
+      label: "5. Crawl the website (COMPASS)",
+      about: "Finds the jurisdiction's main website and crawls it with the COMPASS crawler.",
+      code: "compass/pipeline/collection/steps.py:CompassWebsiteCrawlStep",
+    },
+    {
+      id: "collect.website_search_compass.website",
+      kind: "step",
+      label: "Find the website",
+      uses: "collect.website",
+      next: "collect.website_search_compass.crawl",
+    },
+    {
+      id: "collect.website_search_compass.crawl",
+      kind: "step",
+      label: "Crawl the website",
+      uses: "collect.crawler",
+    },
+    {
+      id: "collect.website_search_elm",
+      kind: "group",
+      label: "6. Crawl the website (ELM)",
+      about: "Finds the jurisdiction's main website and crawls it with ELM's crawler, which records no page-level events.",
+      code: "compass/pipeline/collection/steps.py:ElmWebsiteCrawlStep",
+    },
+    {
+      id: "collect.website_search_elm.website",
+      kind: "step",
+      label: "Find the website",
+      uses: "collect.website",
+      next: "collect.website_search_elm.crawl",
+    },
+    {
+      id: "collect.website_search_elm.crawl",
+      kind: "step",
+      label: "Crawl the website",
+      about: "Up to 100 pages in batches, stopping at 5 documents or the time limit.",
+      code: "compass/scripts/download.py:download_jurisdiction_ordinances_from_website",
+    },
+    {
+      id: "collect.website",
+      kind: "group",
+      label: "Find the jurisdiction's website",
+      about: "Shared by both website steps. Uses the website on file when there is one; otherwise searches for it and accepts the first result that checks out.",
+      code: "compass/pipeline/collection/steps.py:_resolve_jurisdiction_website",
+    },
+    {
+      id: "collect.website.known",
+      kind: "decision",
+      label: "Website already known?",
+      about: "A website on file is normalized by following its redirects. Without one, the lookup needs an LLM to check candidates.",
+      next: [
+        {to: "collect.website.found", when: "yes"},
+        {to: "collect.website.search", when: "no"},
+        {to: "collect.website.none", when: "no, and no LLM to check"},
+      ],
+    },
+    {
+      id: "collect.website.search",
+      kind: "step",
+      label: "Search for the website",
+      about: "Two queries (\"<jurisdiction> website\" and \"main website <jurisdiction>\"), keeping up to 3 candidate sites.",
+      code: "compass/scripts/download.py:find_jurisdiction_website",
+      events: ["search_request", "search_response"],
+      next: [
+        {to: "collect.website.url_check", when: "candidates found"},
+        {to: "collect.website.none", when: "no candidates"},
+      ],
+    },
+    {
+      id: "collect.website.url_check",
+      kind: "tree",
+      label: "Does the URL name the jurisdiction?",
+      tree: "Correct jurisdiction type from URL",
+      about: "Domains that match the jurisdiction's website on file pass without asking the LLM.",
+      code: "compass/validation/location.py:DTreeURLJurisdictionValidator.check",
+      events: ["jurisdiction_url_check"],
+      next: [
+        {to: "collect.website.found", when: "pass"},
+        {to: "collect.website.page_check", when: "fail"},
+      ],
+    },
+    {
+      id: "collect.website.page_check",
+      kind: "llm",
+      label: "Is this page the main website?",
+      about: "Downloads the page and asks whether it is the jurisdiction's main website (not a school district, court, library, or agency site). A failed or empty download is a no.",
+      code: "compass/validation/location.py:JurisdictionWebsiteValidator.check",
+      events: ["document_fetched", "llm_request", "llm_response"],
+      next: [
+        {to: "collect.website.found", when: "yes"},
+        {to: "collect.website.more", when: "no"},
+      ],
+    },
+    {
+      id: "collect.website.more",
+      kind: "decision",
+      label: "Another candidate to check?",
+      next: [
+        {to: "collect.website.url_check", when: "yes"},
+        {to: "collect.website.none", when: "no"},
+      ],
+    },
+    {
+      id: "collect.website.found",
+      kind: "end",
+      tone: "good",
+      label: "Website found",
+    },
+    {
+      id: "collect.website.none",
+      kind: "end",
+      tone: "bad",
+      label: "No website",
+    },
+    {
+      id: "collect.crawler",
+      kind: "group",
+      label: "COMPASS crawler",
+      each: "page",
+      about: "Shared by the seed crawl and the COMPASS website crawl. Visits pages depth-first, following the best-scored links, and treats PDFs and external pages as candidate documents.",
+      code: "compass/web/website_crawl.py:COMPASSCrawler.run",
+      events: ["phase_started", "crawl_finished"],
+    },
+    {
+      id: "collect.crawler.visit",
+      kind: "step",
+      label: "Visit a page",
+      events: ["crawl_visit", "crawl_skipped"],
+      next: "collect.crawler.is_document",
+    },
+    {
+      id: "collect.crawler.is_document",
+      kind: "decision",
+      label: "Is it a document?",
+      about: "PDFs and pages on other domains count as documents; pages on the same site are navigation pages.",
+      next: [
+        {to: "collect.crawler.validate", when: "yes"},
+        {to: "collect.crawler.links", when: "no"},
+      ],
+    },
+    {
+      id: "collect.crawler.validate",
+      kind: "decision",
+      label: "Passes the keyword check?",
+      about: "The plugin's keyword heuristic (no LLM). Documents that pass are downloaded again with the final loader.",
+      events: ["crawl_document_found", "crawl_document_validated", "document_fetched"],
+      next: [
+        {to: "collect.crawler.stop", when: "yes"},
+        {to: "collect.crawler.stop", when: "no"},
+      ],
+    },
+    {
+      id: "collect.crawler.links",
+      kind: "step",
+      label: "Follow the best links",
+      about: "Up to 4 score levels of 20 links each, while the depth limit allows.",
+      events: ["crawl_links"],
+      next: "collect.crawler.stop",
+    },
+    {
+      id: "collect.crawler.stop",
+      kind: "decision",
+      label: "Enough documents or pages?",
+      about: "Stops at 5 documents, the page limit, or the time limit.",
+      next: [
+        {to: "collect.crawler.visit", when: "keep going"},
+        {to: "collect.crawler.done", when: "stop"},
+      ],
+    },
+    {
+      id: "collect.crawler.done",
+      kind: "end",
+      label: "Crawl finished",
+      events: ["crawl_finished"],
+    },
+
+    // ---- Between steps ---------------------------------------------
+    {
+      id: "handoff",
+      kind: "decision",
+      label: "Did this step find documents?",
+      about: "Each collection step's documents (only that step's) go to filtering. A collection-only run saves them for a later extraction run instead.",
+      code: "compass/pipeline/extraction/base.py:DocumentExtraction.extract_from_docs",
+      next: [
+        {to: "filter", when: "yes"},
+        {to: "next_step", when: "no"},
+        {to: "persist", when: "collection-only run"},
+      ],
+    },
+    {
+      id: "persist",
+      kind: "step",
+      label: "Save the documents for later",
+      code: "compass/pipeline/collection/base.py:DocumentCollection.execute",
+      next: "next_step",
+    },
+
+    // ---- Filtering -------------------------------------------------
+    {
+      id: "filter",
+      kind: "group",
+      label: "Filter documents",
+      about: "Keeps documents for the right jurisdiction that contain relevant text: the jurisdiction check runs on every document, then the relevance check on the ones that pass.",
+      code: "compass/scripts/download.py:filter_ordinance_docs",
+      events: ["documents_in"],
+    },
+    {
+      id: "filter.jurisdiction",
+      kind: "group",
+      label: "Jurisdiction check",
+      each: "document",
+      about: "Documents are checked concurrently. A document passes on its URL alone when it can; otherwise every page votes.",
+      code: "compass/validation/location.py:JurisdictionValidator.check",
+      events: ["filter_stage"],
+    },
+    {
+      id: "filter.jurisdiction.exempt",
+      kind: "decision",
+      label: "Exempt from the check?",
+      about: "Documents from known local files and known URLs are exempt (check_correct_jurisdiction is False).",
+      next: [
+        {to: "filter.jurisdiction.right", when: "yes"},
+        {to: "filter.jurisdiction.domain", when: "no"},
+      ],
+    },
+    {
+      id: "filter.jurisdiction.domain",
+      kind: "decision",
+      label: "On the jurisdiction's own website?",
+      about: "Passes without an LLM call when the URL's domain is (or is a subdomain of) the jurisdiction's website on file.",
+      code: "compass/validation/location.py:_url_matches_known_jurisdiction_website",
+      events: ["jurisdiction_url_check"],
+      next: [
+        {to: "filter.jurisdiction.right", when: "yes"},
+        {to: "filter.jurisdiction.url_tree", when: "no"},
+        {to: "filter.jurisdiction.pages", when: "no URL"},
+      ],
+    },
+    {
+      id: "filter.jurisdiction.url_tree",
+      kind: "tree",
+      label: "Does the URL name the jurisdiction?",
+      tree: "Correct jurisdiction type from URL",
+      about: "Asks whether the URL names the state, then the county and city where needed. It passes only if every answer is yes.",
+      code: "compass/validation/location.py:DTreeURLJurisdictionValidator.check",
+      events: ["jurisdiction_url_check"],
+      next: [
+        {to: "filter.jurisdiction.right", when: "pass"},
+        {to: "filter.jurisdiction.pages", when: "fail"},
+      ],
+    },
+    {
+      id: "filter.jurisdiction.pages",
+      kind: "group",
+      label: "Check every page",
+      each: "page",
+      about: "PDFs are split into their pages; other documents into chunks (the first quarter, up to 18, plus the last 2). Pages are checked concurrently.",
+      code: "compass/validation/location.py:_validator_check_for_doc",
+      next: "filter.jurisdiction.vote",
+    },
+    {
+      id: "filter.jurisdiction.pages.tree",
+      kind: "tree",
+      label: "Does this page apply to the jurisdiction?",
+      tree: "Correct jurisdiction type",
+      about: "A completed tree votes yes or no (correct_jurisdiction). A tree that stops early casts no vote, and neither does an empty page, which votes no without asking.",
+      code: "compass/validation/location.py:DTreeJurisdictionValidator.check",
+    },
+    {
+      id: "filter.jurisdiction.vote",
+      kind: "decision",
+      label: "Weighted vote above threshold?",
+      about: "Votes are weighted by page length. The threshold rises with the number of votes: 0.5 for up to 2, 0.6 for 3-6, 5/7 for 7-9, 0.8 for 10 or more.",
+      code: "compass/validation/location.py:_weighted_vote",
+      events: ["jurisdiction_vote"],
+      next: [
+        {to: "filter.jurisdiction.right", when: "pass"},
+        {to: "filter.jurisdiction.wrong", when: "fail"},
+      ],
+    },
+    {
+      id: "filter.jurisdiction.right",
+      kind: "end",
+      tone: "good",
+      label: "Right jurisdiction",
+      next: "filter.relevance",
+    },
+    {
+      id: "filter.jurisdiction.wrong",
+      kind: "end",
+      tone: "bad",
+      label: "Wrong jurisdiction: dropped",
+    },
+    {
+      id: "filter.relevance",
+      kind: "group",
+      label: "Relevance check",
+      each: "document",
+      about: "Scans each document's text in chunks for text the plugin can extract from, checking first that the document is legal text. Documents are checked concurrently; each document's chunks in order.",
+      code: "compass/extraction/apply.py:check_for_relevant_text",
+      events: ["filter_stage"],
+    },
+    {
+      id: "filter.relevance.collectors",
+      kind: "decision",
+      label: "Text still to collect?",
+      about: "Collectors whose text the document already carries are skipped; with none left, the document is dropped.",
+      next: [
+        {to: "filter.relevance.legal_check", when: "yes"},
+        {to: "filter.relevance.irrelevant", when: "no"},
+      ],
+    },
+    {
+      id: "filter.relevance.legal_check",
+      kind: "decision",
+      label: "Check for legal text?",
+      about: "Skipped for documents from known legal code libraries (Municode, American Legal, eCode360, and others) and for documents marked check_if_legal_doc: false.",
+      code: "compass/extraction/apply.py:_url_matches_known_legal_databases",
+      next: [
+        {to: "filter.relevance.chunks", when: "yes"},
+        {to: "filter.relevance.chunks", when: "no"},
+      ],
+    },
+    {
+      id: "filter.relevance.chunks",
+      kind: "group",
+      label: "Scan the text, chunk by chunk",
+      each: "chunk",
+      about: "Chunks of about 10k tokens are checked in order.",
+      code: "compass/validation/content.py:parse_by_chunks",
+      next: "filter.relevance.found",
+    },
+    {
+      id: "filter.relevance.chunks.head",
+      kind: "decision",
+      label: "One of the first 5 chunks?",
+      about: "Each of the first 5 chunks gets the legal-text check (unless it is skipped for the document); later chunks rely on the document-level verdict.",
+      code: "compass/validation/content.py:_chunks_to_check",
+      next: [
+        {to: "filter.relevance.chunks.legal_tree", when: "yes"},
+        {to: "filter.relevance.chunks.collect", when: "yes, legal check skipped"},
+        {to: "filter.relevance.chunks.doc_legal", when: "no"},
+      ],
+    },
+    {
+      id: "filter.relevance.chunks.legal_tree",
+      kind: "tree",
+      label: "Is this chunk legal text?",
+      tree: "Correct document type",
+      about: "A chunk counts as legal text if the tree says so for it or for the previous chunk. A tree that stops early is a no.",
+      code: "compass/validation/content.py:LegalTextValidator.check_chunk",
+      next: [
+        {to: "filter.relevance.chunks.collect", when: "legal"},
+        {to: "filter.relevance.chunks.skip", when: "not legal"},
+      ],
+    },
+    {
+      id: "filter.relevance.chunks.doc_legal",
+      kind: "decision",
+      label: "Was the document legal text?",
+      about: "Decided once, at the 6th chunk: enough of the first 5 chunks must have been legal text (at least 3 of 5). If not, scanning stops, but text collected so far is kept.",
+      code: "compass/validation/content.py:LegalTextValidator.is_correct_kind_of_text",
+      next: [
+        {to: "filter.relevance.chunks.heuristic", when: "yes"},
+        {to: "filter.relevance.found", when: "no: stop scanning"},
+      ],
+    },
+    {
+      id: "filter.relevance.chunks.heuristic",
+      kind: "decision",
+      label: "Keywords here or in the last chunk?",
+      about: "The plugin's keyword heuristic (at least 2 matches) on this or the previous chunk. A chunk right after one the collector rejected always passes.",
+      code: "compass/validation/content.py:_chunks_to_check",
+      next: [
+        {to: "filter.relevance.chunks.collect", when: "yes"},
+        {to: "filter.relevance.chunks.skip", when: "no"},
+      ],
+    },
+    {
+      id: "filter.relevance.chunks.collect",
+      kind: "llm",
+      label: "Does the chunk have relevant text?",
+      about: "The text collector asks about this chunk, and about the previous one if this one is a no. A yes stores the chunk with its neighbors.",
+      code: "compass/plugin/one_shot/components.py:SchemaBasedTextCollector.check_chunk",
+      events: ["llm_request", "llm_response"],
+      next: [
+        {to: "filter.relevance.chunks.kept", when: "yes"},
+        {to: "filter.relevance.chunks.skip", when: "no"},
+      ],
+    },
+    {
+      id: "filter.relevance.chunks.kept",
+      kind: "end",
+      tone: "good",
+      label: "Text collected",
+    },
+    {
+      id: "filter.relevance.chunks.skip",
+      kind: "end",
+      label: "Nothing collected",
+    },
+    {
+      id: "filter.relevance.found",
+      kind: "decision",
+      label: "Any relevant text collected?",
+      next: [
+        {to: "filter.relevance.date", when: "yes"},
+        {to: "filter.relevance.irrelevant", when: "no"},
+      ],
+    },
+    {
+      id: "filter.relevance.date",
+      kind: "llm",
+      label: "Find the document's date",
+      about: "Reads the first 20 and last 10 pages. Skipped when the document already has a date (e.g. from known documents).",
+      code: "compass/extraction/date.py:DateExtractor.parse",
+      events: ["llm_request", "llm_response"],
+      next: "filter.relevance.relevant",
+    },
+    {
+      id: "filter.relevance.relevant",
+      kind: "end",
+      tone: "good",
+      label: "Relevant: kept",
+    },
+    {
+      id: "filter.relevance.irrelevant",
+      kind: "end",
+      tone: "bad",
+      label: "No relevant text: dropped",
+    },
+    {
+      id: "filter.order",
+      kind: "step",
+      label: "Sort the kept documents",
+      about: "Orders kept documents for extraction (by collection rank, crawl score, year, PDF, jurisdiction score, and length) and keeps at most max_num_docs_to_parse_per_jurisdiction.",
+      code: "compass/scripts/download.py:_sort_final_ord_docs",
+      events: ["documents_kept"],
+      next: "filter.any_kept",
+    },
+    {
+      id: "filter.any_kept",
+      kind: "decision",
+      label: "Any documents kept?",
+      next: [
+        {to: "extract", when: "yes"},
+        {to: "next_step", when: "no"},
+      ],
+    },
+
+    // ---- Extraction ------------------------------------------------
+    {
+      id: "extract",
+      kind: "group",
+      label: "Extract structured data",
+      about: "Turns the collected text into ordinance values. How kept documents are used depends on the plugin's document selection method.",
+      code: "compass/plugin/ordinance.py:OrdinanceExtractionPlugin.parse_docs_for_structured_data",
+      events: ["extracted_rows"],
+      next: "save",
+    },
+    {
+      id: "extract.mode",
+      kind: "decision",
+      label: "One document at a time?",
+      about: "single_doc (the default) tries kept documents in order until one yields data; the multi_doc methods extract from several documents together.",
+      next: [
+        {to: "extract.doc", when: "yes"},
+        {to: "extract.multi", when: "no"},
+      ],
+    },
+    {
+      id: "extract.doc",
+      kind: "group",
+      label: "Try each kept document",
+      each: "document",
+      about: "Documents are tried in the sorted order; the first one that yields ordinance values wins and later documents are never tried.",
+      code: "compass/plugin/ordinance.py:OrdinanceExtractionPlugin.parse_single_doc_for_structured_data",
+    },
+    {
+      id: "extract.doc.text",
+      kind: "step",
+      label: "Prepare the collected text",
+      about: "Extracts and cleans the text to parse (up to 3 attempts, checked against the source text by n-gram overlap) and writes it to cleaned_text/.",
+      code: "compass/extraction/apply.py:extract_relevant_text_with_ngram_validation",
+      next: "extract.doc.has_text",
+    },
+    {
+      id: "extract.doc.has_text",
+      kind: "decision",
+      label: "Any text to parse?",
+      next: [
+        {to: "extract.doc.parse", when: "yes"},
+        {to: "extract.doc.no_data", when: "no"},
+      ],
+    },
+    {
+      id: "extract.doc.parse",
+      kind: "llm",
+      label: "Extract the ordinance values",
+      about: "One-shot plugins make a single structured-output call with the plugin's schema; decision-tree plugins (solar, wind) run a tree per feature.",
+      code: "compass/plugin/one_shot/components.py:SchemaOrdinanceParser.parse",
+      events: ["llm_schema", "llm_request", "llm_response"],
+      next: "extract.doc.qualifies",
+    },
+    {
+      id: "extract.doc.qualifies",
+      kind: "decision",
+      label: "Any ordinance values?",
+      about: "Counts rows with a value, summary, or ordinance text, ignoring decommissioning and use-district features.",
+      code: "compass/plugin/ordinance.py:OrdinanceExtractionPlugin.get_structured_data_row_count",
+      next: [
+        {to: "extract.found", when: "yes"},
+        {to: "extract.doc.no_data", when: "no"},
+      ],
+    },
+    {
+      id: "extract.doc.no_data",
+      kind: "end",
+      tone: "bad",
+      label: "No values: next document",
+      next: [
+        {to: "extract.none", when: "no documents left"},
+      ],
+    },
+    {
+      id: "extract.multi",
+      kind: "step",
+      label: "Extract from all documents together",
+      about: "multi_doc_context sends the documents' text together in one call; multi_doc_all and multi_doc_mixed parse documents concurrently and merge the results.",
+      code: "compass/plugin/ordinance.py:OrdinanceExtractionPlugin.parse_multi_doc_context_for_structured_data",
+      next: [
+        {to: "extract.found", when: "values found"},
+        {to: "extract.none", when: "none found"},
+      ],
+    },
+    {
+      id: "extract.found",
+      kind: "end",
+      tone: "good",
+      label: "Data found",
+    },
+    {
+      id: "extract.none",
+      kind: "end",
+      tone: "bad",
+      label: "No data in any document",
+    },
+
+    // ---- Saving and the next step ------------------------------------
+    {
+      id: "save",
+      kind: "group",
+      label: "Save",
+      next: "next_step",
+    },
+    {
+      id: "save.has_data",
+      kind: "decision",
+      label: "Any data to save?",
+      code: "compass/pipeline/extraction/base.py:DocumentExtraction._write_out_structured_data",
+      next: [
+        {to: "save.write", when: "yes"},
+        {to: "save.skip", when: "no"},
+      ],
+    },
+    {
+      id: "save.write",
+      kind: "step",
+      label: "Write the ordinance CSV",
+      about: "Writes jurisdiction_dbs/<jurisdiction> Ordinances.csv.",
+      events: ["saved"],
+    },
+    {
+      id: "save.skip",
+      kind: "end",
+      tone: "bad",
+      label: "Nothing written",
+    },
+    {
+      id: "next_step",
+      kind: "decision",
+      label: "Did this step yield data?",
+      about: "Collection stops at the first step whose documents yield extracted data; otherwise the next enabled step runs.",
+      code: "compass/pipeline/collection/base.py:DocumentCollection.execute",
+      next: [
+        {to: "finish", when: "yes"},
+        {to: "collect", when: "no: next step"},
+        {to: "finish", when: "no steps left"},
+      ],
+    },
+    {
+      id: "finish",
+      kind: "end",
+      label: "Jurisdiction finished",
+      code: "compass/pipeline/jurisdiction.py:SingleJurisdictionRun._run_and_record",
+      events: ["jurisdiction_finished"],
+    },
+  ],
+}

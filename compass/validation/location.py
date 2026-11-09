@@ -19,6 +19,12 @@ from compass.web.file_loader import COMPASSWebFileLoader
 from compass.utilities.url import normalize_domain
 from compass.utilities.enums import LLMUsageCategory
 from compass.utilities.parsing import raw_pages_from_doc
+from compass.utilities.event_log import (
+    emit_branch,
+    emit_event,
+    event_step,
+    event_tags,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -87,15 +93,58 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
         if not url:
             return False
 
-        if _url_matches_known_jurisdiction_website(url, self.jurisdiction):
-            logger.debug(
-                "Skipping URL jurisdiction LLM check for %s because its "
-                "domain matches the canonical website for %s",
-                url,
-                self.jurisdiction,
-            )
+        if self.matches_known_website(url):
             return True
 
+        return await self.check_with_tree(url)
+
+    def matches_known_website(self, url):
+        """Whether the URL is on the jurisdiction's website on file
+
+        A match is recorded as a ``jurisdiction_url_check`` event.
+
+        Parameters
+        ----------
+        url : str
+            URL string to evaluate.
+
+        Returns
+        -------
+        bool
+            ``True`` when the URL's domain is (or is a subdomain of) the
+            jurisdiction's known website.
+        """
+        if not _url_matches_known_jurisdiction_website(url, self.jurisdiction):
+            return False
+
+        logger.debug(
+            "Skipping URL jurisdiction LLM check for %s because its "
+            "domain matches the canonical website for %s",
+            url,
+            self.jurisdiction,
+        )
+        emit_event(
+            "jurisdiction_url_check",
+            url=url,
+            passed=True,
+            method="domain matches the jurisdiction's website",
+        )
+        return True
+
+    async def check_with_tree(self, url):
+        """Ask the URL decision tree if the URL names the jurisdiction
+
+        Parameters
+        ----------
+        url : str
+            URL string to evaluate.
+
+        Returns
+        -------
+        bool
+            ``True`` when the decision tree finds every jurisdiction
+            criterion satisfied, ``False`` otherwise.
+        """
         chat_llm_caller = ChatLLMCaller(
             llm_service=self.llm_service,
             system_message=self.SYSTEM_MESSAGE,
@@ -110,7 +159,15 @@ class DTreeURLJurisdictionValidator(BaseLLMCaller):
             chat_llm_caller=chat_llm_caller,
         )
         out = await run_async_tree(tree, response_as_json=True)
-        return self._parse_output(out)
+        passed = self._parse_output(out)
+        emit_event(
+            "jurisdiction_url_check",
+            url=url,
+            passed=passed,
+            method="URL decision tree",
+            answer=out,
+        )
+        return passed
 
     def _parse_output(self, props):  # ruff:ignore[no-self-use]
         """Parse LLM response and return boolean validation result"""
@@ -270,26 +327,44 @@ class JurisdictionValidator:
         True
         """
         url = doc.attrs.get("source")
-        if url:
-            logger.debug("Checking URL (%s) for jurisdiction name...", url)
-            url_validator = DTreeURLJurisdictionValidator(
-                jurisdiction, **self.kwargs
-            )
-            url_is_correct_jurisdiction = await url_validator.check(url)
-            if url_is_correct_jurisdiction:
-                return True
+        if not url:
+            emit_branch("filter.jurisdiction.domain", "no URL")
+        elif await self._url_is_correct_jurisdiction(url, jurisdiction):
+            return True
 
         logger.info("Validating document from source: %s", url or "Unknown")
         logger.debug("Checking for correct for jurisdiction...")
         jurisdiction_validator = DTreeJurisdictionValidator(
             jurisdiction, **self.kwargs
         )
-        return await _validator_check_for_doc(
-            validator=jurisdiction_validator,
-            doc=doc,
-            score_thresh=self.user_input_score_threshold,
-            text_splitter=self.text_splitter,
+        with event_step("filter.jurisdiction.pages"):
+            return await _validator_check_for_doc(
+                validator=jurisdiction_validator,
+                doc=doc,
+                score_thresh=self.user_input_score_threshold,
+                text_splitter=self.text_splitter,
+            )
+
+    async def _url_is_correct_jurisdiction(self, url, jurisdiction):
+        """Check the URL alone, recording which way each check went"""
+        logger.debug("Checking URL (%s) for jurisdiction name...", url)
+        url_validator = DTreeURLJurisdictionValidator(
+            jurisdiction, **self.kwargs
         )
+        with event_step("filter.jurisdiction.domain"):
+            on_known_website = url_validator.matches_known_website(url)
+        emit_branch(
+            "filter.jurisdiction.domain", "yes" if on_known_website else "no"
+        )
+        if on_known_website:
+            return True
+
+        with event_step("filter.jurisdiction.url_tree"):
+            passed = await url_validator.check_with_tree(url)
+        emit_branch(
+            "filter.jurisdiction.url_tree", "pass" if passed else "fail"
+        )
+        return passed
 
 
 class JurisdictionWebsiteValidator:
@@ -375,11 +450,26 @@ class JurisdictionWebsiteValidator:
             jurisdiction, **self.kwargs
         )
 
-        url_is_correct_jurisdiction = await url_validator.check(url)
-
+        with event_step("collect.website.url_check"):
+            url_is_correct_jurisdiction = await url_validator.check(url)
+        emit_branch(
+            "collect.website.url_check",
+            "pass" if url_is_correct_jurisdiction else "fail",
+        )
         if url_is_correct_jurisdiction:
             return True
 
+        with event_step("collect.website.page_check"):
+            is_main_website = await self._page_is_main_website(
+                url, jurisdiction
+            )
+        emit_branch(
+            "collect.website.page_check", "yes" if is_main_website else "no"
+        )
+        return is_main_website
+
+    async def _page_is_main_website(self, url, jurisdiction):
+        """Ask the LLM whether the page at `url` is the main website"""
         fl = COMPASSWebFileLoader(
             browser_semaphore=self.browser_semaphore,
             **self.file_loader_kwargs,
@@ -431,9 +521,10 @@ async def _validator_check_for_doc(
     raw_pages = raw_pages_from_doc(doc, text_splitter)
     validation_checks = [
         asyncio.create_task(
-            validator.check(text, **kwargs), name=outer_task_name
+            _check_page(validator, text, page, len(raw_pages), **kwargs),
+            name=outer_task_name,
         )
-        for text in raw_pages
+        for page, text in enumerate(raw_pages, start=1)
     ]
     out = await asyncio.gather(*validation_checks)
     score, num_verdicts = _weighted_vote(
@@ -443,6 +534,30 @@ async def _validator_check_for_doc(
         score_thresh = step_based_threshold(num_verdicts)
 
     doc.attrs[validator.META_SCORE_KEY] = score
+    with event_step("filter.jurisdiction.vote"):
+        emit_event(
+            "jurisdiction_vote",
+            validator=validator.META_SCORE_KEY,
+            pages=[
+                {
+                    "page": page,
+                    "characters": len(text),
+                    "verdict": None if verdict is None else bool(verdict),
+                }
+                for page, (verdict, text) in enumerate(
+                    zip(out, raw_pages, strict=True), start=1
+                )
+            ],
+            score=score,
+            threshold=score_thresh,
+            passed=score >= score_thresh,
+        )
+    emit_branch(
+        "filter.jurisdiction.vote",
+        "pass" if score >= score_thresh else "fail",
+        score=score,
+        threshold=score_thresh,
+    )
     logger.debug(
         "%s is %.2f for doc from source %s (Pass: %s; threshold: %.2f)",
         validator.META_SCORE_KEY,
@@ -452,6 +567,15 @@ async def _validator_check_for_doc(
         score_thresh,
     )
     return score >= score_thresh
+
+
+async def _check_page(validator, text, page, num_pages, **kwargs):
+    """Check one page, tagging its events with the page number"""
+    with (
+        event_tags(page=page, pages=num_pages),
+        event_step("filter.jurisdiction.pages.tree"),
+    ):
+        return await validator.check(text, **kwargs)
 
 
 def _weighted_vote(out, raw_pages, doc_source):

@@ -5,6 +5,15 @@ from functools import cached_property
 
 from elm.web.document import BaseDocument
 
+from compass.utilities.timing import log_operation
+from compass.utilities.event_log import (
+    document_summary,
+    emit_branch,
+    emit_event,
+    event_phase,
+    event_step,
+    event_tags,
+)
 from compass.pipeline.collection.dedupe import DocumentDeDuplicator
 from compass.pipeline.collection.persistence import validate_collection_targets
 from compass.pipeline.targets import shard_failures
@@ -137,19 +146,30 @@ class DocumentCollection:
             data was extracted from any of the collected documents.
         """
         await self._determine_unfinished_steps()
-        for step in self._unfinished_steps():
-            docs = await self._run_collection_step(step)
-            if eager_extract:
-                context = await self.workflow.extraction.extract_from_docs(
-                    docs
-                )
-                if context is not None:
-                    return self._context_with_documented_steps(context)
-            else:
-                self._collection_info = (
-                    await self.workflow.write_collection_shard_no_fail(
-                        self.de_duplicator, self._completed_steps
+        steps = list(self._unfinished_steps())
+        for index, step in enumerate(steps):
+            # Everything done for this step's documents (filtering,
+            # extraction, saving) is tagged with the step
+            with event_tags(collection=str(step.STEP_NAME)):
+                docs = await self._run_collection_step(step)
+                more_steps = index + 1 < len(steps)
+                if eager_extract:
+                    context = await self.workflow.extraction.extract_from_docs(
+                        docs
                     )
+                    if context is not None:
+                        emit_branch("next_step", "yes")
+                        return self._context_with_documented_steps(context)
+                else:
+                    emit_branch("handoff", "collection-only run")
+                    self._collection_info = (
+                        await self.workflow.write_collection_shard_no_fail(
+                            self.de_duplicator, self._completed_steps
+                        )
+                    )
+                emit_branch(
+                    "next_step",
+                    "no: next step" if more_steps else "no steps left",
                 )
 
         if eager_extract:
@@ -265,7 +285,26 @@ class DocumentCollection:
 
     async def _run_collection_step(self, step):
         """Run collection step and record results"""
-        docs = await step.collect(self.workflow)
+        with (
+            event_step(f"collect.{step.STEP_NAME}"),
+            event_phase("collect", step=str(step.STEP_NAME)),
+        ):
+            async with log_operation(
+                logger,
+                f"collection {step.STEP_NAME}",
+                self.workflow.jurisdiction.full_name,
+            ):
+                docs = await step.collect(self.workflow)
+            emit_event(
+                "documents_collected",
+                step=str(step.STEP_NAME),
+                documents=[document_summary(doc) for doc in docs],
+            )
+        logger.info(
+            "Collection %s returned %d document(s)",
+            step.STEP_NAME,
+            len(docs),
+        )
         self.de_duplicator.add_docs(docs, step_name=str(step.STEP_NAME))
         self._completed_steps.add(step.STEP_NAME)
         return docs

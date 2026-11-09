@@ -2,9 +2,13 @@
 
 import os
 import asyncio
+import hashlib
 import logging
+import time
+from contextvars import ContextVar
 from importlib import import_module
 
+import aiohttp
 from elm.web.file_loader import (
     AsyncFetchWithRetry,
     AsyncHTMLLoader,
@@ -14,6 +18,14 @@ from elm.web.file_loader import (
 )
 from elm.web.document import MDDocument
 from compass.services.threaded import TempFileCache
+from compass.utilities.timing import log_operation
+from compass.utilities.event_log import (
+    body_preview,
+    current_event_log,
+    document_summary,
+    emit_event,
+    loggable_headers,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -485,8 +497,153 @@ def _select_elm_or_partial_doc(elm_doc, partial_fail_docs, source):
 
 if os.environ.get("COMPASS_FILE_LOAD_BACKEND", "elm") == "docling":
     import_module("compass.services.docling")
-    COMPASSWebFileLoader = AsyncDoclingWebFileLoader
+    _WebFileLoader = AsyncDoclingWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalDoclingFileLoader
 else:
-    COMPASSWebFileLoader = AsyncWebFileLoader
+    _WebFileLoader = AsyncWebFileLoader
     COMPASSLocalFileLoader = AsyncLocalFileLoader
+
+
+class COMPASSWebFileLoader(_WebFileLoader):
+    """Use the configured loader with per-source timing logs."""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        fetcher = getattr(self, "content_fetcher", None)
+        if isinstance(fetcher, AsyncFetchWithRetry):
+            self.content_fetcher = _RecordingFetchWithRetry.wrap(fetcher)
+
+    async def fetch(self, source):
+        """Load and cache one document using the configured backend."""
+        started = time.monotonic()
+        try:
+            async with log_operation(logger, "document retrieval", source):
+                doc = await super().fetch(source)
+        except Exception as exc:
+            emit_event(
+                "document_fetched",
+                source=source,
+                error=f"{type(exc).__name__}: {exc}",
+                seconds=round(time.monotonic() - started, 3),
+                **self._http_exchange(source),
+            )
+            raise
+        emit_event(
+            "document_fetched",
+            requested=source,
+            empty=doc.empty,
+            seconds=round(time.monotonic() - started, 3),
+            **document_summary(doc),
+            **self._http_exchange(source),
+        )
+        logger.info(
+            "Document retrieval result: %s | empty=%s", source, doc.empty
+        )
+        return doc
+
+    def _http_exchange(self, source):
+        """The HTTP exchange behind a fetch, with its body saved"""
+        fetcher = self.content_fetcher
+        if not isinstance(fetcher, _RecordingFetchWithRetry):
+            return {}
+        exchange = fetcher.exchanges.pop(source, None)
+        if not exchange:
+            return {}
+        body = exchange.pop("body", None)
+        if body is not None:
+            exchange["response"].update(_saved_body(body, exchange))
+        return {"http": exchange}
+
+
+_REQUESTED_URL = ContextVar("compass_requested_url", default=None)
+_MAX_SAVED_BODY = 50_000_000
+
+
+class _RecordingFetchWithRetry(AsyncFetchWithRetry):
+    """elm's content fetcher, also remembering each URL's HTTP exchange
+
+    The status, headers, and redirects come from an aiohttp trace hook;
+    the URL being fetched is tracked per task, so concurrent downloads
+    are told apart.
+    """
+
+    @classmethod
+    def wrap(cls, fetcher):
+        """Same settings as `fetcher`, with exchanges recorded"""
+        recorder = cls.__new__(cls)
+        recorder.__dict__.update(vars(fetcher))
+        recorder.exchanges = {}
+        trace = aiohttp.TraceConfig()
+        trace.on_request_end.append(recorder.record_response)
+        recorder.client_kwargs = {
+            **recorder.client_kwargs,
+            "trace_configs": [
+                *recorder.client_kwargs.get("trace_configs", []),
+                trace,
+            ],
+        }
+        return recorder
+
+    async def fetch(self, url):
+        """Fetch content, remembering the exchange and its body"""
+        token = _REQUESTED_URL.set(url)
+        try:
+            out = await super().fetch(url)
+        finally:
+            _REQUESTED_URL.reset(token)
+        if url in self.exchanges:
+            self.exchanges[url]["body"] = out[0] if out else None
+        return out
+
+    async def record_response(self, _session, _context, params):
+        """Trace hook: keep a finished call's request and response"""
+        await asyncio.sleep(0)
+        url = _REQUESTED_URL.get()
+        if url is None:
+            return
+        response = params.response
+        self.exchanges[url] = {
+            "request": {
+                "method": params.method,
+                "url": str(params.url),
+                "headers": loggable_headers(params.headers),
+            },
+            "response": {
+                "status": response.status,
+                "reason": response.reason,
+                "url": str(response.url),
+                "headers": loggable_headers(response.headers),
+                "history": [
+                    {
+                        "status": hop.status,
+                        "url": str(hop.url),
+                        "location": hop.headers.get("Location"),
+                    }
+                    for hop in response.history
+                ],
+            },
+        }
+
+
+def _saved_body(body, exchange):
+    """Save a response body with the event log and describe it"""
+    content_type = exchange["response"]["headers"].get("content-type", "")
+    record = {
+        "bytes": len(body),
+        "sha256": hashlib.sha256(body).hexdigest(),
+        "preview": body_preview(body, content_type),
+    }
+    log = current_event_log()
+    if log is None or len(body) > _MAX_SAVED_BODY:
+        return record
+    folder = log.directory / "http"
+    folder.mkdir(exist_ok=True)
+    suffix = (
+        ".pdf"
+        if body.lstrip().startswith(b"%PDF-")
+        else (".html" if "html" in content_type else ".bin")
+    )
+    path = folder / f"{log.next_id('http')}{suffix}"
+    path.write_bytes(body)
+    record["saved_as"] = str(path.relative_to(log.directory))
+    return record

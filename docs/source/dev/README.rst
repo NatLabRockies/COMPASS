@@ -389,6 +389,25 @@ Again, if you don't get any critical errors (poppler errors are ok) and you see 
 variable, then you are good to go.
 
 
+Retrieval timing logs
+^^^^^^^^^^^^^^^^^^^^^
+
+At ``INFO`` level, collection steps, web searches, individual document
+downloads, filtering, extraction, and output writing report start and end
+times. Each operation still pending after 30
+seconds reports its elapsed time and suspended Python call chain, repeating
+every 30 seconds until it finishes. Individual downloads include the URL.
+These messages retain the jurisdiction's task name so they appear in its
+log file. Browser page processing in the COMPASS website crawler uses the
+same timing reports.
+
+The call chain identifies the Python operation awaiting a response, such
+as a semaphore, browser call, parser, or service. It does not inspect the
+internal state of browser or worker processes. A blocked Python event loop
+also delays the timing reports. Logging does not change retrieval limits,
+timeouts, retries, or document selection.
+
+
 Releases
 ^^^^^^^^
 

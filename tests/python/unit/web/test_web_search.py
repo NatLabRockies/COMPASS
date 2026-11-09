@@ -1,11 +1,15 @@
 """Tests for compass.pipeline.search.persistence"""
 
+import json
 from pathlib import Path
 from unittest.mock import AsyncMock
 
+import httpx
 import pytest
+from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 import compass.web.search as search_module
+from compass.utilities.event_log import EventLog, use_event_log
 from compass.utilities.jurisdictions import Jurisdiction
 
 
@@ -546,6 +550,52 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
         assert "_order" not in row
         assert "se_order" not in row
         assert "query_index" not in row
+
+
+class _FakeEngine:
+    """Search engine stand-in with ELM's ``_search`` signature"""
+
+    _SE_NAME = "Fake Engine"
+
+    def __init__(self, fail=False):
+        self.api_key = "secret-key"
+        self.verify = False
+        self.fail = fail
+
+    async def _search(self, query, num_results=10, raw=False):
+        if self.fail:
+            raise httpx.ReadTimeout("timed out")
+        return [f"https://example.com/{query}"]
+
+
+async def test_search_calls_are_recorded(tmp_path):
+    """Requests, results, and timeouts appear in the event log"""
+    recorded = search_module._recorded_search(_FakeEngine)
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await recorded(_FakeEngine(), "zoning")
+        with pytest.raises(httpx.ReadTimeout):
+            await recorded(_FakeEngine(fail=True), "zoning")
+    events = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert [e["type"] for e in events] == [
+        "search_request",
+        "search_response",
+        "search_request",
+        "search_response",
+    ]
+    assert events[0]["engine"] == "Fake Engine"
+    assert events[0]["query"] == "zoning"
+    assert events[0]["parameters"] == {"verify": False, "fail": False}
+    assert events[1]["results"] == ["https://example.com/zoning"]
+    assert events[3]["error"] == "ReadTimeout: timed out"
+    assert events[3]["call"] == events[2]["call"]
+
+
+def test_registered_engines_record_calls():
+    """ELM's registry resolves to the recording engine classes"""
+    option = SEARCH_ENGINE_OPTIONS["SerpAPIGoogleSearch"]
+    assert option.se_class._records_events
+    assert option.se_class.__name__ == "SerpAPIGoogleSearch"
 
 
 if __name__ == "__main__":

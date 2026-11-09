@@ -2,14 +2,22 @@
 
 import logging
 from collections import Counter
+import time
 from urllib.parse import urlsplit, urlunsplit
 
-from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
+from elm.web.search.run import (
+    SEARCH_ENGINE_OPTIONS,
+    search_all_se,
+    search_with_fallback_with_attrs,
+)
 
 from compass.utilities.url import URLPartFilter
+from compass.utilities.timing import log_operation
+from compass.utilities.event_log import current_event_log
 
 
 logger = logging.getLogger(__name__)
+_SEARCH_PARAM_TYPES = (str, int, float, bool, type(None), list, dict)
 _JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
 
 
@@ -85,6 +93,8 @@ async def search_single_jurisdiction(
     """
 
     queries = _format_queries(jurisdiction, query_templates)
+    for query in queries:
+        logger.info("Search query: %s", query)
     base = {
         "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
@@ -106,15 +116,16 @@ async def search_single_jurisdiction(
     run_meth = _run_simple_sort_search if simple else _run_holistic_sort_search
 
     try:
-        out = await run_meth(
-            queries,
-            num_urls,
-            url_ignore_substrings,
-            url_keep_substrings,
-            browser_semaphore,
-            jurisdiction.full_name,
-            **se_kwargs,
-        )
+        async with log_operation(logger, "web search", jurisdiction.full_name):
+            out = await run_meth(
+                queries,
+                num_urls,
+                url_ignore_substrings,
+                url_keep_substrings,
+                browser_semaphore,
+                jurisdiction.full_name,
+                **se_kwargs,
+            )
 
     except Exception as exc:
         logger.exception("Search failed for %s", jurisdiction.full_name)
@@ -321,3 +332,76 @@ def _overall_sort_key(result):
         result.get("overall_rank") or float("inf"),
         result.get("filtered_reason") or "",
     )
+
+
+def _record_search_calls():
+    """Make every registered search engine record its API calls
+
+    Each engine class in ELM's registry is replaced by a subclass whose
+    ``_search`` records the request and its outcome (results, or the
+    error such as a timeout) in the jurisdiction event log. Behavior is
+    otherwise unchanged, and nothing is recorded without an active log.
+    """
+    for name, option in list(SEARCH_ENGINE_OPTIONS.items()):
+        base = option.se_class
+        if getattr(base, "_records_events", False):
+            continue
+        recording = type(
+            base.__name__,
+            (base,),
+            {
+                "_records_events": True,
+                "_search": _recorded_search(base),
+                "__module__": base.__module__,
+                "__doc__": base.__doc__,
+            },
+        )
+        SEARCH_ENGINE_OPTIONS[name] = option._replace(se_class=recording)
+
+
+def _recorded_search(base):
+    """Build a ``_search`` that records requests and responses"""
+
+    async def _search(self, query, num_results=10, raw=False):
+        log = current_event_log()
+        if log is None:
+            return await base._search(self, query, num_results, raw)  # ruff:ignore[private-member-access]
+        call_id = log.next_id("search")
+        log.emit(
+            "search_request",
+            call=call_id,
+            engine=getattr(self, "_SE_NAME", type(self).__name__),
+            query=query,
+            num_results=num_results,
+            parameters={
+                key: value
+                for key, value in vars(self).items()
+                if not key.startswith("_")
+                and "key" not in key.casefold()
+                and isinstance(value, _SEARCH_PARAM_TYPES)
+            },
+        )
+        started = time.monotonic()
+        try:
+            results = await base._search(self, query, num_results, raw)  # ruff:ignore[private-member-access]
+        except Exception as exc:
+            log.emit(
+                "search_response",
+                call=call_id,
+                seconds=round(time.monotonic() - started, 3),
+                error=f"{type(exc).__name__}: {exc}",
+            )
+            raise
+        log.emit(
+            "search_response",
+            call=call_id,
+            seconds=round(time.monotonic() - started, 3),
+            count=len(results or []),
+            results=results,
+        )
+        return results
+
+    return _search
+
+
+_record_search_calls()

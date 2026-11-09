@@ -1,8 +1,10 @@
 """Ordinances LLM Calling classes"""
 
 import logging
+import time
 
 from compass.utilities import llm_response_as_json
+from compass.utilities.event_log import ResponseRecorder, current_event_log
 from compass.utilities.enums import LLMUsageCategory
 
 
@@ -56,6 +58,110 @@ class BaseLLMCaller:
         self.llm_service = llm_service
         self.usage_tracker = usage_tracker
         self.kwargs = kwargs
+        self.record_events = True
+
+    _KEEP_CONVERSATION = False
+    """Whether consecutive calls share one conversation ID"""
+
+    async def _call_service(
+        self, usage_sub_label, messages, logged_messages=None, **extra
+    ):
+        """Call the LLM service, recording the exchange in the event log
+
+        Parameters
+        ----------
+        usage_sub_label : str
+            Label to store token usage under; also recorded as the
+            call's purpose.
+        messages : list of dict
+            Messages sent to the LLM.
+        logged_messages : list of dict, optional
+            Messages to record instead of `messages` (e.g. only the
+            newest turn of a long chat). By default, ``None``.
+        **extra
+            Additional arguments for ``llm_service.call``.
+        """
+        log = current_event_log() if self.record_events else None
+        if log is None:
+            return await self.llm_service.call(
+                usage_tracker=self.usage_tracker,
+                usage_sub_label=usage_sub_label,
+                messages=messages,
+                **extra,
+                **self.kwargs,
+            )
+
+        call_id = log.next_call_id()
+        response_format = extra.get("response_format")
+        log.emit(
+            "llm_request",
+            call=call_id,
+            conversation=self._conversation(log, call_id),
+            purpose=str(usage_sub_label),
+            model=getattr(self.llm_service, "model_name", None),
+            messages=logged_messages or messages,
+            history_messages=(
+                len(messages) - len(logged_messages) if logged_messages else 0
+            ),
+            response_format=_format_name(response_format),
+            schema_id=(
+                log.schema_id(response_format)
+                if isinstance(response_format, dict)
+                else None
+            ),
+            parameters=_loggable_parameters(self.kwargs),
+        )
+        recorder = ResponseRecorder(self.usage_tracker)
+        started = time.monotonic()
+        try:
+            response = await self.llm_service.call(
+                usage_tracker=recorder,
+                usage_sub_label=usage_sub_label,
+                messages=messages,
+                **extra,
+                **self.kwargs,
+            )
+        except Exception as exc:
+            log.emit(
+                "llm_response",
+                call=call_id,
+                seconds=round(time.monotonic() - started, 3),
+                error=f"{type(exc).__name__}: {exc}",
+                api=recorder.metadata,
+            )
+            raise
+        log.emit(
+            "llm_response",
+            call=call_id,
+            seconds=round(time.monotonic() - started, 3),
+            response=response,
+            api=recorder.metadata,
+        )
+        return response
+
+    def _conversation(self, log, call_id):
+        """ID grouping the calls of one conversation
+
+        Each call is its own conversation, except for callers that keep
+        a chat history (e.g. decision trees), where every turn shares
+        one ID.
+        """
+        if not self._KEEP_CONVERSATION:
+            return call_id
+        if getattr(self, "_conversation_log", None) is not log:
+            self._conversation_log = log
+            self._conversation_id = log.next_id("conversation")
+        return self._conversation_id
+
+    def conversation_id(self, log):
+        """str or None: ID this caller's chat is recorded under in `log`
+
+        Callers that keep a chat history get their ID before the first
+        call, so work that drives the chat (e.g. a decision tree) can
+        announce it up front. Other callers return ``None``, since each
+        of their calls is its own conversation.
+        """
+        return self._conversation(log, call_id=None)
 
 
 class LLMCaller(BaseLLMCaller):
@@ -93,14 +199,12 @@ class LLMCaller(BaseLLMCaller):
             The LLM response, as a string, or ``None`` if something went
             wrong during the call.
         """
-        return await self.llm_service.call(
-            usage_tracker=self.usage_tracker,
-            usage_sub_label=usage_sub_label,
-            messages=[
+        return await self._call_service(
+            usage_sub_label,
+            [
                 {"role": "system", "content": sys_msg},
                 {"role": "user", "content": content},
             ],
-            **self.kwargs,
         )
 
 
@@ -118,6 +222,8 @@ class ChatLLMCaller(BaseLLMCaller):
         LLM calling functionality that allows you to specify the
         expected output schema as part of the API call.
     """
+
+    _KEEP_CONVERSATION = True
 
     def __init__(
         self, llm_service, system_message, usage_tracker=None, **kwargs
@@ -164,11 +270,10 @@ class ChatLLMCaller(BaseLLMCaller):
         """
         self.messages.append({"role": "user", "content": content})
 
-        response = await self.llm_service.call(
-            usage_tracker=self.usage_tracker,
-            usage_sub_label=usage_sub_label,
-            messages=self.messages,
-            **self.kwargs,
+        response = await self._call_service(
+            usage_sub_label,
+            self.messages,
+            logged_messages=self.messages[-1:],
         )
         if response is None:
             self.messages = self.messages[:-1]
@@ -216,14 +321,12 @@ class JSONFromTextLLMCaller(BaseLLMCaller):
         """
         sys_msg = _add_json_instructions_if_needed(sys_msg)
 
-        response = await self.llm_service.call(
-            usage_tracker=self.usage_tracker,
-            usage_sub_label=usage_sub_label,
-            messages=[
+        response = await self._call_service(
+            usage_sub_label,
+            [
                 {"role": "system", "content": sys_msg},
                 {"role": "user", "content": content},
             ],
-            **self.kwargs,
         )
         return llm_response_as_json(response) if response else {}
 
@@ -309,15 +412,13 @@ class SchemaOutputLLMCaller(BaseLLMCaller):
             Dictionary containing the LLM-extracted features. Dictionary
             may be empty if there was an error during the LLM call.
         """
-        response = await self.llm_service.call(
-            usage_tracker=self.usage_tracker,
-            usage_sub_label=usage_sub_label,
-            messages=[
+        response = await self._call_service(
+            usage_sub_label,
+            [
                 {"role": "system", "content": sys_msg},
                 {"role": "user", "content": content},
             ],
             response_format=response_format,
-            **self.kwargs,
         )
         return llm_response_as_json(response) if response else {}
 
@@ -331,3 +432,21 @@ def _add_json_instructions_if_needed(system_message):
         system_message = f"{system_message}\n{_JSON_INSTRUCTIONS}."
         logger.debug("New system message:\n%s", system_message)
     return system_message
+
+
+def _format_name(response_format):
+    """Name of a structured-output schema, if one was requested"""
+    if not isinstance(response_format, dict):
+        return None
+    return response_format.get("json_schema", {}).get("name") or (
+        response_format.get("type")
+    )
+
+
+def _loggable_parameters(kwargs):
+    """LLM call settings that can be written to the event log"""
+    return {
+        key: value
+        for key, value in kwargs.items()
+        if isinstance(value, (str, int, float, bool, type(None), list, dict))
+    }
