@@ -4,9 +4,6 @@ data_type_short_desc: data center ordinance
 
 cache_llm_generated_content: true
 
-post_processing_steps:
-  - normalize_data_center_types
-
 query_templates:
   - "{jurisdiction} data center ordinance"
   # Recently adopted ordinances are often published only as a PDF on the
@@ -124,9 +121,7 @@ extraction_system_prompt: |-
 
   Data center ordinances frequently regulate by facility size class.
   Where a jurisdiction sets a different standard for each class, emit
-  one row per class and record the jurisdiction's own class name in
-  data_center_type rather than collapsing the tiers into one row or
-  mapping the name onto another jurisdiction's taxonomy.
+  one row per class rather than collapsing the tiers into one row.
 
   For a numeric feature, value is a single number: the most restrictive
   value the ordinance sets for that feature and facility class, such as
@@ -135,13 +130,15 @@ extraction_system_prompt: |-
   condition it applies under, such as the time period, receiving use,
   zoning district, street class, or yard. Keep units to the unit alone.
 
-  Set data_center_type to null when the requirement applies to data
-  centers generally. Generic labels such as Data Center, DATA CENTER,
-  and Data Processing Center are not specific facility types. Retain
-  specific class names such as Hyperscale Data Center or Micro Data
-  Center. For accessory data centers, use Accessory Data Center without
-  parenthetical conditions. Keep those conditions in summary and retain
-  the complete source wording in ordinance_text.
+  data_center_type takes only the schema's standard values. Map the
+  jurisdiction's class onto the closest one by its name, such as Large
+  Data Center for a Large-Scale or Major class, and use Other for a
+  specific class that fits none of them. Set it to null when the
+  requirement applies to data centers generally: generic labels such as
+  Data Center, DATA CENTER, and Data Processing Center are not specific
+  classes. Start summary with the jurisdiction's own class name whenever
+  data_center_type is not null, and retain the complete source wording
+  in ordinance_text.
 
   Do not extract text focused only on office, warehouse, distribution,
   telecommunications, or utility uses unless the same clause directly
@@ -153,7 +150,7 @@ extraction_system_prompt: |-
 
   Follow schema feature definitions literally. Keep the jurisdiction's
   own vocabulary exactly as written, except for the data_center_type
-  rules above. Write units with the schema's canonical unit names, such
+  values above. Write units with the schema's canonical unit names, such
   as feet, acres, sq ft, percent, and dBA, even where the ordinance
   abbreviates them. Do not convert values into a different unit. Do not
   invent values.

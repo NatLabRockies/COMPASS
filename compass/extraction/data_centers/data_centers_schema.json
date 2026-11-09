@@ -11,7 +11,7 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per (feature, data center class) pair: where an ordinance sets a different standard for each size class of data center, emit one row per class rather than collapsing them.",
+      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per feature and class of data center the ordinance names: where an ordinance sets a different standard for each class, emit one row per class rather than collapsing them.",
       "items": {
         "type": "object",
         "required": [
@@ -72,7 +72,18 @@
               "string",
               "null"
             ],
-            "description": "The specific facility class governed by the provision, such as 'Hyperscale Data Center', 'Micro Data Center', or a jurisdiction-specific size class. Use null when the requirement applies to data centers generally, including generic terms such as 'Data Center', 'DATA CENTER', or 'Data Processing Center'. For accessory data centers, use 'Accessory Data Center' without parenthetical conditions. Keep conditions in summary and preserve the complete source wording in ordinance_text."
+            "description": "The standard facility class the provision governs. Must be one of the enumerated values or null; do not write the jurisdiction's own class name here. Choose by the rules in $instructions.size_tiering. Use null when the requirement applies to data centers generally. The jurisdiction's own class name and any conditions belong in summary, and the complete source wording in ordinance_text.",
+            "enum": [
+              "Hyperscale Data Center",
+              "Large Data Center",
+              "Medium Data Center",
+              "Small Data Center",
+              "Micro Data Center",
+              "Accessory Data Center",
+              "Data Center Campus",
+              "Other",
+              null
+            ]
           },
           "value": {
             "description": "The extracted requirement. For a numeric feature, a single number: the most restrictive value the ordinance sets for this feature and data center class, chosen by the rules in $instructions.numeric_prioritization. Never combine several numbers into one value; the other values belong in summary. Array of district names/codes for district features, boolean true where a requirement exists but is not numeric, or null where the feature is qualitative and the substance lives in the summary.",
@@ -116,7 +127,7 @@
               "string",
               "null"
             ],
-            "description": "A short summary of the requirement in your own words, retaining all specifics and conditions, such as an exception for a power outage, a standard that steps up next to a residential district, or a sunset date. Where the ordinance sets several values for this feature, state which one value holds and list every other value with the condition it applies under, such as the time period, receiving use, zoning district, street class, or yard. The verbatim excerpt belongs in ordinance_text. For qualitative features, state the requirement in full."
+            "description": "A short summary of the requirement in your own words. Where data_center_type is not null, start with the jurisdiction's own name for the class, exactly as the ordinance writes it. Retain all specifics and conditions, such as an exception for a power outage, a standard that steps up next to a residential district, or a sunset date. Where the ordinance sets several values for this feature, state which one value holds and list every other value with the condition it applies under, such as the time period, receiving use, zoning district, street class, or yard. The verbatim excerpt belongs in ordinance_text. For qualitative features, state the requirement in full."
           },
           "ordinance_text": {
             "type": "string",
@@ -253,7 +264,7 @@
     },
     "terms": {
       "definition": {
-        "description": "The jurisdiction's definition of a data center term, such as 'Data Center', 'Data Processing Center', or a size class like 'Hyperscale Data Center'. Emit one row per defined term, with data_center_type set to the defined class name, or null for the generic data center term. VALUE: the definition text, verbatim. UNITS: null. SECTION: where the term is defined. IGNORE: definitions of other uses that merely mention data processing or computing in passing, such as a business office that lists data processing among its activities."
+        "description": "The jurisdiction's definition of a data center term, such as 'Data Center', 'Data Processing Center', or a size class like 'Hyperscale Data Center'. Emit one row per defined term, with data_center_type set to the standard class the term maps to, or null for the generic data center term. SUMMARY: start with the defined term as written. VALUE: the definition text, verbatim. UNITS: null. SECTION: where the term is defined. IGNORE: definitions of other uses that merely mention data processing or computing in passing, such as a business office that lists data processing among its activities."
       }
     }
   },
@@ -262,14 +273,16 @@
       "Extract only enacted local requirements that explicitly govern data centers, or that govern a use the ordinance defines as a data center, such as a data processing center or a computer server facility.",
       "Also record each definition of a data center term as a 'definition' row, even though a definition is not itself a requirement.",
       "Write summary in your own words. Put verbatim source passages in ordinance_text and explain how they support the row in explanation.",
-      "Never convert units. Preserve the jurisdiction's vocabulary except for the data_center_type rules and the canonical unit names. Keep ordinance_text verbatim.",
+      "Never convert units. Preserve the jurisdiction's vocabulary except for the standard data_center_type values and the canonical unit names. Keep ordinance_text verbatim.",
       "Do not infer a requirement from related context, and do not emit a row for a feature the source does not address."
     ],
     "size_tiering": [
-      "Data center ordinances frequently set different standards for different size classes of facility. When they do, emit one row per class and record the jurisdiction's own class name in data_center_type.",
-      "Where one standard applies to data centers generally, emit a single row with data_center_type set to null. Generic labels such as 'Data Center' or 'DATA CENTER' must not appear as a specific facility class.",
-      "Do not merge tiered standards into a single row, and do not map a local class name onto another jurisdiction's taxonomy.",
-      "For accessory data centers, use 'Accessory Data Center' without parenthetical conditions. Retain those conditions in summary and preserve them verbatim in ordinance_text."
+      "Data center ordinances frequently set different standards for different classes of facility. When they do, emit one row per class the ordinance names, and do not merge tiered standards into a single row.",
+      "data_center_type holds a standard class, never the jurisdiction's wording. Map the local class by its name: 'Hyperscale' -> 'Hyperscale Data Center'; 'Large', 'Large-Scale', or 'Major' -> 'Large Data Center'; 'Medium' or 'Mid-Size' -> 'Medium Data Center'; 'Small' or 'Minor' -> 'Small Data Center'; 'Micro' or 'Edge' -> 'Micro Data Center'; accessory, ancillary, or incidental to another principal use -> 'Accessory Data Center'; 'Campus' or a multi-building data center development -> 'Data Center Campus'.",
+      "Map by the name the ordinance gives the class, not by the size thresholds behind it: one jurisdiction's 'Large' may be smaller than another's 'Medium'.",
+      "Use 'Other' for a specific class that fits none of the standard values, such as a class defined by whether the site is part of a unified development plan.",
+      "Use null where one standard applies to data centers generally. Generic terms such as 'Data Center', 'DATA CENTER', 'Data Processing Center', or 'Data Processing Facility' are not a specific class.",
+      "Two local classes may share a standard value. Keep them as separate rows, and start each summary with the jurisdiction's own class name so the rows can be told apart."
     ],
     "setbacks": [
       "Setbacks are minimum separation distances. A setback row carries a single numeric distance and its unit.",
@@ -301,7 +314,7 @@
   "$qa_checklist": [
     "All output rows use only the 35 allowed feature IDs.",
     "Every row includes a non-empty ordinance_text excerpt and an explanation linking that evidence to the feature and facility class.",
-    "Generic requirements have null data_center_type. Specific facility classes retain their names, tiered standards have one row per class, and accessory types use 'Accessory Data Center' without parenthetical conditions.",
+    "Every data_center_type is one of the standard values or null. Generic requirements have null, tiered standards have one row per class, and each row with a non-null type names the jurisdiction's own class at the start of summary.",
     "Numeric setbacks, lot standards, and building size rows carry numeric values and non-null units.",
     "Numeric rows carry a single number, the most restrictive value, with a plain unit, and summary lists the other values with their conditions.",
     "Units use only the canonical vocabulary in $instructions.units and carry no measurement detail.",

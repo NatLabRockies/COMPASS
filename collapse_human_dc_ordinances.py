@@ -110,6 +110,12 @@ def main():
     before = [row.copy() for row in result]
     plain = use_plain_units(result)
     validate_units(before, result)
+    before = [row.copy() for row in result]
+    standard = use_standard_types(result)
+    validate_types(before, result)
+    shared = sum(Counter(row_key(row) for row in result).values()) - len(
+        {row_key(row) for row in result}
+    )
     with output.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns)
         writer.writeheader()
@@ -127,6 +133,10 @@ def main():
     print(f"{qualitative} qualitative rows now carry their summary as value.")
     print(f"{filled} rows had an empty value; copied their summary into value.")
     print(f"{plain} rows had unit detail moved into their summary.")
+    print(
+        f"{standard} rows had a local class name mapped to a standard type; "
+        f"{shared} rows now repeat another row's key."
+    )
     print(
         f"Validated unique keys, unchanged singleton rows, integer years, and CSV round-trip: {output}"
     )
@@ -370,6 +380,58 @@ def merge_metadata(rows):
             dict.fromkeys(r[field].strip() for r in rows if r[field].strip())
         )
     return row
+
+
+# The fixed list the extraction schema allows for data_center_type, keyed
+# by the class names the workbook uses. An empty type is a generic one.
+STANDARD_TYPES = {
+    "": "",
+    "data processing center": "",
+    "data processing facility": "",
+    "hyperscale data center": "Hyperscale Data Center",
+    "large data center": "Large Data Center",
+    "large-scale data center": "Large Data Center",
+    "major": "Large Data Center",
+    "medium data center": "Medium Data Center",
+    "small urban data center": "Small Data Center",
+    "minor": "Small Data Center",
+    "micro data center": "Micro Data Center",
+    "accessory data center": "Accessory Data Center",
+    "ancillary": "Accessory Data Center",
+    "associated data room or server room": "Accessory Data Center",
+    "campus": "Data Center Campus",
+    "large quantity water user": "Other",
+}
+
+
+def use_standard_types(rows):
+    """Map each local class name to a standard type, keeping it in summary.
+
+    Runs last: the steps above tell rows apart by their local class name.
+    """
+    changed = 0
+    for row in rows:
+        local = row["data_center_type"].strip()
+        standard = STANDARD_TYPES[local.casefold()]
+        if standard == local:
+            continue
+        row["data_center_type"] = standard
+        row["summary"] = f"{local}: {row['summary']}"
+        changed += 1
+    return changed
+
+
+def validate_types(before, after):
+    """Only the type and summary changed, and every type is standard."""
+    allowed = set(STANDARD_TYPES.values())
+    for old, new in zip(before, after, strict=True):
+        assert new["data_center_type"] in allowed
+        if new == old:
+            continue
+        local = old["data_center_type"].strip()
+        assert new["summary"] == f"{local}: {old['summary']}"
+        rewritten = {"data_center_type", "summary"}
+        assert all(new[k] == v for k, v in old.items() if k not in rewritten)
 
 
 def validate(result, groups):
