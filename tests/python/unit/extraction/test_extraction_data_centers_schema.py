@@ -62,6 +62,8 @@ def test_data_center_type_is_a_fixed_list():
     rules = " ".join(schema["$instructions"]["size_tiering"])
     for name in spec["enum"][:-1]:
         assert f"'{name}'" in rules, name
+    # local classes sharing a type merge, so a row's key stays unique
+    assert "at most one row" in rules
 
 
 def test_numeric_features_ask_for_most_restrictive_value():
