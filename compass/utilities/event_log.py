@@ -47,11 +47,6 @@ class EventLog:
         self._graphs = {}
         self._started = time.monotonic()
 
-    @property
-    def directory(self):
-        """Path: Folder holding this log and any related artifacts"""
-        return self.path.parent
-
     def emit(self, kind, **fields):
         """Append one event, tagged with the current phase"""
         self._count += 1

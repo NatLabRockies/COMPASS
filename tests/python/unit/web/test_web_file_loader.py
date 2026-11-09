@@ -547,7 +547,7 @@ async def challenge_server():
 async def test_downloads_record_their_http_exchange(
     challenge_server, tmp_path
 ):
-    """Status, headers, redirects, and the saved body reach the log"""
+    """Status, headers, redirects, and a body summary reach the log"""
     fetcher = _RecordingFetchWithRetry.wrap(AsyncFetchWithRetry())
     loader = SimpleNamespace(content_fetcher=fetcher)
     log = EventLog(tmp_path / "events.jsonl")
@@ -563,10 +563,9 @@ async def test_downloads_record_their_http_exchange(
     assert blocked["response"]["status"] == 307
     assert blocked["response"]["headers"]["server"] == "Sucuri/Cloudproxy"
     assert "You are being redirected" in blocked["response"]["preview"]
-    saved = tmp_path / blocked["response"]["saved_as"]
-    assert saved.read_text() == "<html>You are being redirected...</html>"
+    assert blocked["response"]["bytes"] == 40
     assert moved["response"]["status"] == 200
     assert moved["response"]["history"][0]["status"] == 302
     assert moved["response"]["history"][0]["location"] == "/doc.pdf"
-    assert moved["response"]["saved_as"].endswith(".pdf")
+    assert list(tmp_path.iterdir()) == [tmp_path / "events.jsonl"]
     assert fetcher.exchanges == {}

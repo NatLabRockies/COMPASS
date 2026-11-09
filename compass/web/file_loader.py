@@ -21,7 +21,6 @@ from compass.services.threaded import TempFileCache
 from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     body_preview,
-    current_event_log,
     document_summary,
     emit_event,
     loggable_headers,
@@ -542,7 +541,7 @@ class COMPASSWebFileLoader(_WebFileLoader):
         return doc
 
     def _http_exchange(self, source):
-        """The HTTP exchange behind a fetch, with its body saved"""
+        """The HTTP exchange behind a fetch, with its body described"""
         fetcher = self.content_fetcher
         if not isinstance(fetcher, _RecordingFetchWithRetry):
             return {}
@@ -551,12 +550,11 @@ class COMPASSWebFileLoader(_WebFileLoader):
             return {}
         body = exchange.pop("body", None)
         if body is not None:
-            exchange["response"].update(_saved_body(body, exchange))
+            exchange["response"].update(_body_summary(body, exchange))
         return {"http": exchange}
 
 
 _REQUESTED_URL = ContextVar("compass_requested_url", default=None)
-_MAX_SAVED_BODY = 50_000_000
 
 
 class _RecordingFetchWithRetry(AsyncFetchWithRetry):
@@ -625,25 +623,11 @@ class _RecordingFetchWithRetry(AsyncFetchWithRetry):
         }
 
 
-def _saved_body(body, exchange):
-    """Save a response body with the event log and describe it"""
+def _body_summary(body, exchange):
+    """Describe a response body: its size, hash, and how it starts"""
     content_type = exchange["response"]["headers"].get("content-type", "")
-    record = {
+    return {
         "bytes": len(body),
         "sha256": hashlib.sha256(body).hexdigest(),
         "preview": body_preview(body, content_type),
     }
-    log = current_event_log()
-    if log is None or len(body) > _MAX_SAVED_BODY:
-        return record
-    folder = log.directory / "http"
-    folder.mkdir(exist_ok=True)
-    suffix = (
-        ".pdf"
-        if body.lstrip().startswith(b"%PDF-")
-        else (".html" if "html" in content_type else ".bin")
-    )
-    path = folder / f"{log.next_id('http')}{suffix}"
-    path.write_bytes(body)
-    record["saved_as"] = str(path.relative_to(log.directory))
-    return record
