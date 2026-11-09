@@ -100,7 +100,7 @@ jobs:
             -v "$PWD/support/containers/container_checks.py:/tmp/container_checks.py:ro" \
             compass-checks:local python /tmp/container_checks.py
 
-      - uses: eWaterCycle/setup-apptainer@4bb22c52d4f63406c49e94c804632975787312b3  # v2.0.0
+      - uses: eWaterCycle/setup-apptainer@95b5c781df5f72fd2271cc3cff06904a09d2a087  # v3.0.0
         with:
           apptainer-version: "1.3.6"
 
