@@ -937,3 +937,18 @@ async def test_single_doc_extraction_runs_out_of_documents(tmp_path):
         "extract.doc.no_data",
         "no documents left",
     )
+
+
+def test_definitions_alone_do_not_make_an_ordinance():
+    """A definitions chapter regulates nothing, so extraction moves on"""
+    data = pd.DataFrame(
+        {
+            "feature": ["definition", "definition", "noise"],
+            "value": ["A facility housing servers", "A large facility", None],
+            "summary": [None, None, None],
+        }
+    )
+    count = OrdinanceExtractionPlugin.get_structured_data_row_count
+    assert count(data) == 0
+    data.loc[2, "value"] = "55 dBA"
+    assert count(data) == 1

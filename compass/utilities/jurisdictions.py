@@ -326,8 +326,9 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     Parameters
     ----------
     jurisdiction_fp : path-like
-        Path to csv file containing "County" and "State" columns that
-        define the jurisdictions for which info should be loaded.
+        Path to a CSV with "FIPS" or jurisdiction name columns.
+        When supplied, FIPS is the sole matching key. Codes must match
+        the catalog, including leading zeros.
 
     Returns
     -------
@@ -338,16 +339,19 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
     Raises
     ------
     COMPASSValueError
-        If the input file is missing required columns (``State`` or
-        ``Jurisdiction Type`` when subdivisions are provided).
+        If a file without FIPS is missing required name columns
+        (``State`` or ``Jurisdiction Type`` for subdivisions).
 
     Notes
     -----
     Missing jurisdictions trigger warnings with a tabular summary.
+    A blank or unknown FIPS is skipped without falling back to names.
     """
     jurisdictions = pd.read_csv(jurisdiction_fp, dtype=str).replace(
         {np.nan: None}
     )
+    if "FIPS" in jurisdictions:
+        return _load_jurisdictions_by_fips(jurisdictions)
     jurisdictions = _validate_jurisdiction_input(jurisdictions)
 
     all_jurisdiction_info = load_all_jurisdiction_info()
@@ -381,6 +385,28 @@ def load_jurisdictions_from_fp(jurisdiction_fp):
 
     jurisdictions = _filter_not_found_jurisdictions(jurisdictions, merge_cols)
     return _format_jurisdiction_df_for_output(jurisdictions)
+
+
+def _load_jurisdictions_by_fips(jurisdictions):
+    requested = jurisdictions[["FIPS"]].rename(columns={"FIPS": "FIPS_user"})
+    requested["FIPS_user"] = requested["FIPS_user"].str.strip()
+    matched = requested.drop_duplicates().merge(
+        load_all_jurisdiction_info(),
+        left_on="FIPS_user",
+        right_on="FIPS",
+        how="left",
+        validate="one_to_one",
+    )
+    matched = _filter_not_found_jurisdictions(matched, ["FIPS"])
+    columns = [
+        "County",
+        "State",
+        "Subdivision",
+        "Jurisdiction Type",
+        "FIPS",
+        "Website",
+    ]
+    return matched[columns].reset_index(drop=True)
 
 
 def jurisdictions_from_df(jurisdiction_info=None):
@@ -499,7 +525,10 @@ def _normalize_jurisdiction_name(name):
 
 
 def fips_to_str(value):
-    """[NOT PUBLIC API] Convert FIPS code to string"""
+    """[NOT PUBLIC API] Preserve strings when converting FIPS codes"""
+    if isinstance(value, str):
+        return value
+
     with suppress(ValueError):
         value = int(value)
     return str(value)

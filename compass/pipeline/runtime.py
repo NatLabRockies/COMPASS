@@ -379,7 +379,7 @@ def _setup_folders(
 
 
 def _load_known_source(known_source):
-    """Load configured known sources as int-keyed dictionaries"""
+    """Load configured known sources with string jurisdiction codes"""
     known_source = known_source or {}
     if isinstance(known_source, str):
         known_source = load_config(known_source)
