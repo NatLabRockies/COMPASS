@@ -113,9 +113,6 @@ def main():
     before = [row.copy() for row in result]
     standard = use_standard_types(result)
     validate_types(before, result)
-    shared = sum(Counter(row_key(row) for row in result).values()) - len(
-        {row_key(row) for row in result}
-    )
     with output.open("w", encoding="utf-8-sig", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=columns)
         writer.writeheader()
@@ -134,8 +131,7 @@ def main():
     print(f"{filled} rows had an empty value; copied their summary into value.")
     print(f"{plain} rows had unit detail moved into their summary.")
     print(
-        f"{standard} rows had a local class name mapped to a standard type; "
-        f"{shared} rows now repeat another row's key."
+        f"{standard} rows had a local class name mapped to a standard type."
     )
     print(
         f"Validated unique keys, unchanged singleton rows, integer years, and CSV round-trip: {output}"
@@ -387,7 +383,6 @@ def merge_metadata(rows):
 STANDARD_TYPES = {
     "": "",
     "data processing center": "",
-    "data processing facility": "",
     "hyperscale data center": "Hyperscale Data Center",
     "large data center": "Large Data Center",
     "large-scale data center": "Large Data Center",
@@ -401,6 +396,8 @@ STANDARD_TYPES = {
     "associated data room or server room": "Accessory Data Center",
     "campus": "Data Center Campus",
     "large quantity water user": "Other",
+    # Albemarle defines this apart from data centers: staffed data entry
+    "data processing facility": "Other",
 }
 
 
@@ -424,6 +421,8 @@ def use_standard_types(rows):
 def validate_types(before, after):
     """Only the type and summary changed, and every type is standard."""
     allowed = set(STANDARD_TYPES.values())
+    keys = Counter(row_key(row) for row in after)
+    assert max(keys.values()) == 1, "Two rows share a standard type and feature."
     for old, new in zip(before, after, strict=True):
         assert new["data_center_type"] in allowed
         if new == old:

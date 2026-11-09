@@ -121,7 +121,9 @@ extraction_system_prompt: |-
 
   Data center ordinances frequently regulate by facility size class.
   Where a jurisdiction sets a different standard for each class, emit
-  one row per class rather than collapsing the tiers into one row.
+  one row per data_center_type rather than collapsing the tiers into one
+  row. No two rows may share both feature and data_center_type: local
+  classes that map to the same type share a row.
 
   For a numeric feature, value is a single number: the most restrictive
   value the ordinance sets for that feature and facility class, such as

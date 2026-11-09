@@ -11,7 +11,7 @@
   "properties": {
     "outputs": {
       "type": "array",
-      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per feature and class of data center the ordinance names: where an ordinance sets a different standard for each class, emit one row per class rather than collapsing them.",
+      "description": "Sparse long-form extraction table. Emit a row only for a feature with an explicit, enacted requirement. Emit at most one row per (feature, data_center_type) pair; no two rows may share both. Where an ordinance sets a different standard for each class of data center, emit one row per data_center_type rather than collapsing them all.",
       "items": {
         "type": "object",
         "required": [
@@ -127,7 +127,7 @@
               "string",
               "null"
             ],
-            "description": "A short summary of the requirement in your own words. Where data_center_type is not null, start with the jurisdiction's own name for the class, exactly as the ordinance writes it. Retain all specifics and conditions, such as an exception for a power outage, a standard that steps up next to a residential district, or a sunset date. Where the ordinance sets several values for this feature, state which one value holds and list every other value with the condition it applies under, such as the time period, receiving use, zoning district, street class, or yard. The verbatim excerpt belongs in ordinance_text. For qualitative features, state the requirement in full."
+            "description": "A short summary of the requirement in your own words. Where data_center_type is not null, start with the jurisdiction's own name for the class, exactly as the ordinance writes it, or with every such name where several local classes share the row. Retain all specifics and conditions, such as an exception for a power outage, a standard that steps up next to a residential district, or a sunset date. Where the ordinance sets several values for this feature, state which one value holds and list every other value with the condition it applies under, such as the time period, receiving use, zoning district, street class, or yard. The verbatim excerpt belongs in ordinance_text. For qualitative features, state the requirement in full."
           },
           "ordinance_text": {
             "type": "string",
@@ -264,7 +264,7 @@
     },
     "terms": {
       "definition": {
-        "description": "The jurisdiction's definition of a data center term, such as 'Data Center', 'Data Processing Center', or a size class like 'Hyperscale Data Center'. Emit one row per defined term, with data_center_type set to the standard class the term maps to, or null for the generic data center term. SUMMARY: start with the defined term as written. VALUE: the definition text, verbatim. UNITS: null. SECTION: where the term is defined. IGNORE: definitions of other uses that merely mention data processing or computing in passing, such as a business office that lists data processing among its activities."
+        "description": "The jurisdiction's definition of a data center term, such as 'Data Center', 'Data Processing Center', or a size class like 'Hyperscale Data Center'. Emit one row per data_center_type: the standard class the defined term maps to, or null for the generic data center term. Where several defined terms map to the same data_center_type, put them in one row, each definition preceded by its term. SUMMARY: start with the defined term or terms as written. VALUE: the definition text, verbatim. UNITS: null. SECTION: where the term is defined. IGNORE: definitions of other uses that merely mention data processing or computing in passing, such as a business office that lists data processing among its activities."
       }
     }
   },
@@ -277,12 +277,12 @@
       "Do not infer a requirement from related context, and do not emit a row for a feature the source does not address."
     ],
     "size_tiering": [
-      "Data center ordinances frequently set different standards for different classes of facility. When they do, emit one row per class the ordinance names, and do not merge tiered standards into a single row.",
+      "Data center ordinances frequently set different standards for different classes of facility. When they do, emit one row per data_center_type, and do not merge standards for different types into a single row.",
       "data_center_type holds a standard class, never the jurisdiction's wording. Map the local class by its name: 'Hyperscale' -> 'Hyperscale Data Center'; 'Large', 'Large-Scale', or 'Major' -> 'Large Data Center'; 'Medium' or 'Mid-Size' -> 'Medium Data Center'; 'Small' or 'Minor' -> 'Small Data Center'; 'Micro' or 'Edge' -> 'Micro Data Center'; accessory, ancillary, or incidental to another principal use -> 'Accessory Data Center'; 'Campus' or a multi-building data center development -> 'Data Center Campus'.",
       "Map by the name the ordinance gives the class, not by the size thresholds behind it: one jurisdiction's 'Large' may be smaller than another's 'Medium'.",
       "Use 'Other' for a specific class that fits none of the standard values, such as a class defined by whether the site is part of a unified development plan.",
       "Use null where one standard applies to data centers generally. Generic terms such as 'Data Center', 'DATA CENTER', 'Data Processing Center', or 'Data Processing Facility' are not a specific class.",
-      "Two local classes may share a standard value. Keep them as separate rows, and start each summary with the jurisdiction's own class name so the rows can be told apart."
+      "Each (feature, data_center_type) pair appears in at most one row. Where two local classes map to the same standard value, they share one row: for a numeric feature choose the most restrictive value across them by $instructions.numeric_prioritization, and in summary name each local class with the value and conditions that apply to it."
     ],
     "setbacks": [
       "Setbacks are minimum separation distances. A setback row carries a single numeric distance and its unit.",
@@ -290,10 +290,10 @@
       "Where a setback applies to ancillary mechanical or electrical equipment under a different standard than the building, record it under 'setback for mechanical equipment'; where one distance covers both, keep it on the reference-object feature."
     ],
     "numeric_prioritization": [
-      "A numeric feature gets one row per data center class, and its value is a single number: the most restrictive value the ordinance sets for that feature and class.",
+      "A numeric feature gets one row per data_center_type, and its value is a single number: the most restrictive value the ordinance sets for that feature and type.",
       "Restrictiveness rules: setbacks, minimum lot size, minimum vegetative cover, buffer width, and minimum reclaimed water share -> choose the largest value; noise, low-frequency noise, enclosure sound levels, vibration, illumination, thermal increase, maximum height, maximum building size, maximum lot coverage, floor-area share cap, and water consumption ceilings -> choose the smallest value.",
       "Values that differ by zoning district, time period, receiving use, street class, or yard compete for the same row. Do not emit a row per condition and do not combine the values into one string. List every value that was not selected in summary, with the condition it applies under.",
-      "Size classes are the exception: standards for different data center classes stay in separate rows, per size_tiering, and the most restrictive value is chosen within each class.",
+      "Data center types are the exception: standards for different data_center_type values stay in separate rows, per size_tiering, and the most restrictive value is chosen within each type.",
       "Compare values across units if needed to find the most restrictive one, but record the selected value in its own unit. Never convert the reported value."
     ],
     "units": [
@@ -314,7 +314,7 @@
   "$qa_checklist": [
     "All output rows use only the 35 allowed feature IDs.",
     "Every row includes a non-empty ordinance_text excerpt and an explanation linking that evidence to the feature and facility class.",
-    "Every data_center_type is one of the standard values or null. Generic requirements have null, tiered standards have one row per class, and each row with a non-null type names the jurisdiction's own class at the start of summary.",
+    "Every data_center_type is one of the standard values or null. No two rows share both feature and data_center_type. Generic requirements have null, tiered standards have one row per type, and each row with a non-null type names the jurisdiction's own class or classes at the start of summary.",
     "Numeric setbacks, lot standards, and building size rows carry numeric values and non-null units.",
     "Numeric rows carry a single number, the most restrictive value, with a plain unit, and summary lists the other values with their conditions.",
     "Units use only the canonical vocabulary in $instructions.units and carry no measurement detail.",
