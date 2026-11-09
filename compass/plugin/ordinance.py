@@ -60,6 +60,8 @@ EXCLUDE_FROM_ORD_DOC_CHECK = {
     "primary use districts",
     "special use districts",
     "accessory use districts",
+    # a definitions chapter defines terms but regulates nothing
+    "definition",
 }
 
 
