@@ -49,7 +49,7 @@ def jurisdiction_run(monkeypatch, tmp_path):
     runtime = SimpleNamespace(
         jurisdiction_semaphore=asyncio.Semaphore(1),
         log_listener=None,
-        dirs=SimpleNamespace(logs=tmp_path, out=tmp_path),
+        dirs=SimpleNamespace(logs=tmp_path / "logs", out=tmp_path),
         log_level="INFO",
         tech="data_centers",
         re_run_targets=None,
@@ -154,7 +154,8 @@ async def test_run_writes_jurisdiction_event_log(
 
     monkeypatch.setattr(jurisdiction_run, "process", process)
     await jurisdiction_run.run_process_with_logging()
-    path = tmp_path / "event-logs" / "Test_County_Colorado" / "events.jsonl"
+    folder = tmp_path / "logs" / "event-logs" / "Test_County_Colorado"
+    path = folder / "events.jsonl"
     events = [json.loads(line) for line in path.read_text().splitlines()]
     assert [e["type"] for e in events] == [
         "jurisdiction_started",

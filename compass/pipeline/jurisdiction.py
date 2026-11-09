@@ -281,7 +281,7 @@ class SingleJurisdictionRun:
             "collecting": "events-collect.jsonl",
             "extracting": "events-extract.jsonl",
         }.get(action, f"events-{action}.jsonl")
-        folder = self.runtime.dirs.out / "event-logs"
+        folder = self.runtime.dirs.logs / "event-logs"
         stem = normalize_output_stem(self.jurisdiction.full_name)
         log = EventLog(folder / stem / name)
         with event_step("start"):
