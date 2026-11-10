@@ -546,29 +546,49 @@ class COMPASSWebFileLoader(_WebFileLoader):
 
     async def _record_exchange(self, url, response, body):
         """ELM response hook: keep the last exchange for each URL"""
-        request = response.request_info
-        headers = loggable_headers(response.headers)
-        self._exchanges[url] = {
-            "request": {
-                "method": request.method,
-                "url": str(request.url),
-                "headers": loggable_headers(request.headers),
-            },
-            "response": {
-                "status": response.status,
-                "reason": response.reason,
-                "url": str(response.url),
-                "headers": headers,
-                "history": [
-                    {
-                        "status": hop.status,
-                        "url": str(hop.url),
-                        "location": hop.headers.get("Location"),
-                    }
-                    for hop in response.history
-                ],
-                "bytes": len(body),
-                "sha256": hashlib.sha256(body).hexdigest(),
-                "preview": body_preview(body, headers.get("content-type", "")),
-            },
-        }
+        self._exchanges[url] = http_exchange(response, body)
+
+
+def http_exchange(response, body):
+    """Describe an HTTP exchange for the event log
+
+    Parameters
+    ----------
+    response : aiohttp.ClientResponse
+        Response received, as passed to ELM's ``on_response_hook``.
+    body : bytes
+        Content of the response.
+
+    Returns
+    -------
+    dict
+        The ``request`` (method, URL, headers) and the ``response``
+        (status, final URL, headers, redirect history, and the body's
+        size, hash, and opening text), with credentials redacted.
+    """
+    request = response.request_info
+    headers = loggable_headers(response.headers)
+    return {
+        "request": {
+            "method": request.method,
+            "url": str(request.url),
+            "headers": loggable_headers(request.headers),
+        },
+        "response": {
+            "status": response.status,
+            "reason": response.reason,
+            "url": str(response.url),
+            "headers": headers,
+            "history": [
+                {
+                    "status": hop.status,
+                    "url": str(hop.url),
+                    "location": hop.headers.get("Location"),
+                }
+                for hop in response.history
+            ],
+            "bytes": len(body),
+            "sha256": hashlib.sha256(body).hexdigest(),
+            "preview": body_preview(body, headers.get("content-type", "")),
+        },
+    }
