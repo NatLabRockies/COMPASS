@@ -1364,9 +1364,10 @@ async def _fill_out_multi_file_sources(
             data_df, extraction_context.num_documents
         )
     except COMPASSRuntimeError:
-        return await _fill_in_all_sources(
+        filled_df = await _fill_in_all_sources(
             data_df, extraction_context, out_fn_stem
         )
+        return filled_df, extraction_context.num_documents
 
     year_map = {}
     source_map = {}
