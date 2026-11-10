@@ -72,16 +72,14 @@
               "string",
               "null"
             ],
-            "description": "The standard facility class the provision governs. Must be one of the enumerated values or null; do not write the jurisdiction's own class name here. Choose by the rules in $instructions.size_tiering. Use null when the requirement applies to data centers generally. The jurisdiction's own class name and any conditions belong in summary, and the complete source wording in ordinance_text.",
+            "description": "The size tier of data center the provision governs, or 'Accessory Data Center'. Must be one of the enumerated values or null; do not write the jurisdiction's own class name here. Choose by the rules in $instructions.size_tiering. Use null when the requirement applies to data centers of any size. Any other distinction the ordinance draws is a condition, not a type. The jurisdiction's own class name and any conditions belong in summary, and the complete source wording in ordinance_text.",
             "enum": [
-              "Hyperscale Data Center",
-              "Large Data Center",
-              "Medium Data Center",
-              "Small Data Center",
               "Micro Data Center",
+              "Small Data Center",
+              "Medium Data Center",
+              "Large Data Center",
+              "Hyperscale Data Center",
               "Accessory Data Center",
-              "Data Center Campus",
-              "Other",
               null
             ]
           },
@@ -264,7 +262,7 @@
     },
     "terms": {
       "definition": {
-        "description": "The jurisdiction's definition of a data center term, such as 'Data Center', 'Data Processing Center', or a size class like 'Hyperscale Data Center'. Emit one row per data_center_type: the standard class the defined term maps to, or null for the generic data center term. Where several defined terms map to the same data_center_type, put them in one row, each definition preceded by its term. SUMMARY: start with the defined term or terms as written. VALUE: the definition text, verbatim. UNITS: null. SECTION: where the term is defined. IGNORE: definitions of other uses that merely mention data processing or computing in passing, such as a business office that lists data processing among its activities."
+        "description": "The jurisdiction's definition of a data center term, such as 'Data Center', 'Data Processing Center', or a size class like 'Hyperscale Data Center'. Emit one row per data_center_type: the size tier the defined term maps to, 'Accessory Data Center' for an accessory term, or null for the generic data center term. Where several defined terms map to the same data_center_type, put them in one row, each definition preceded by its term. Do not emit a row for a defined term that is neither a size tier, an accessory data center, nor the generic data center term, such as a data center campus. SUMMARY: start with the defined term or terms as written. VALUE: the definition text, verbatim. UNITS: null. SECTION: where the term is defined. IGNORE: definitions of other uses that merely mention data processing or computing in passing, such as a business office that lists data processing among its activities."
       }
     }
   },
@@ -277,12 +275,13 @@
       "Do not infer a requirement from related context, and do not emit a row for a feature the source does not address."
     ],
     "size_tiering": [
-      "Data center ordinances frequently set different standards for different classes of facility. When they do, emit one row per data_center_type, and do not merge standards for different types into a single row.",
-      "data_center_type holds a standard class, never the jurisdiction's wording. Map the local class by its name: 'Hyperscale' -> 'Hyperscale Data Center'; 'Large', 'Large-Scale', or 'Major' -> 'Large Data Center'; 'Medium' or 'Mid-Size' -> 'Medium Data Center'; 'Small' or 'Minor' -> 'Small Data Center'; 'Micro' or 'Edge' -> 'Micro Data Center'; accessory, ancillary, or incidental to another principal use -> 'Accessory Data Center'; 'Campus' or a multi-building data center development -> 'Data Center Campus'.",
-      "Map by the name the ordinance gives the class, not by the size thresholds behind it: one jurisdiction's 'Large' may be smaller than another's 'Medium'.",
-      "Use 'Other' for a specific class that fits none of the standard values, such as a class defined by whether the site is part of a unified development plan.",
-      "Use null where one standard applies to data centers generally. Generic terms such as 'Data Center', 'DATA CENTER', 'Data Processing Center', or 'Data Processing Facility' are not a specific class.",
-      "Each (feature, data_center_type) pair appears in at most one row. Where two local classes map to the same standard value, they share one row: for a numeric feature choose the most restrictive value across them by $instructions.numeric_prioritization, and in summary name each local class with the value and conditions that apply to it."
+      "Data center ordinances frequently set different standards for different size tiers of facility. When they do, emit one row per data_center_type, and do not merge standards for different types into a single row.",
+      "data_center_type is a size tier, never the jurisdiction's wording. The tiers run from smallest to largest: 'Micro Data Center', 'Small Data Center', 'Medium Data Center', 'Large Data Center', 'Hyperscale Data Center'. Map the local tier by its name: 'Micro' or 'Edge' -> 'Micro Data Center'; 'Small' or 'Minor' -> 'Small Data Center'; 'Medium' or 'Mid-Size' -> 'Medium Data Center'; 'Large', 'Large-Scale', or 'Major' -> 'Large Data Center'; 'Hyperscale' -> 'Hyperscale Data Center'.",
+      "Map by the name the ordinance gives the tier, not by the size thresholds behind it: one jurisdiction's 'Large' may be smaller than another's 'Medium'. The smallest tier has no lower bound and the largest no upper bound.",
+      "'Accessory Data Center' is the one type that is not a size: use it, whatever the size, for a data center that is accessory, ancillary, or incidental to another principal use.",
+      "Use null where a standard applies to data centers of any size. Generic terms such as 'Data Center', 'DATA CENTER', 'Data Processing Center', or 'Data Processing Facility' are not a size tier.",
+      "Any other distinction is a condition, not a type: whether the site is part of a unified development plan or a campus, its zoning district, its water or power use, and the like. Standards that differ by such a condition compete for the same row under $instructions.numeric_prioritization, with the other values and their conditions listed in summary.",
+      "Each (feature, data_center_type) pair appears in at most one row. Where two local tiers map to the same value, they share one row: for a numeric feature choose the most restrictive value across them, and in summary name each local tier with the value and conditions that apply to it."
     ],
     "setbacks": [
       "Setbacks are minimum separation distances. A setback row carries a single numeric distance and its unit.",
@@ -293,7 +292,7 @@
       "A numeric feature gets one row per data_center_type, and its value is a single number: the most restrictive value the ordinance sets for that feature and type.",
       "Restrictiveness rules: setbacks, minimum lot size, minimum vegetative cover, buffer width, and minimum reclaimed water share -> choose the largest value; noise, low-frequency noise, enclosure sound levels, vibration, illumination, thermal increase, maximum height, maximum building size, maximum lot coverage, floor-area share cap, and water consumption ceilings -> choose the smallest value.",
       "Values that differ by zoning district, time period, receiving use, street class, or yard compete for the same row. Do not emit a row per condition and do not combine the values into one string. List every value that was not selected in summary, with the condition it applies under.",
-      "Data center types are the exception: standards for different data_center_type values stay in separate rows, per size_tiering, and the most restrictive value is chosen within each type.",
+      "Size tiers are the exception: standards for different data_center_type values stay in separate rows, per size_tiering, and the most restrictive value is chosen within each type.",
       "Compare values across units if needed to find the most restrictive one, but record the selected value in its own unit. Never convert the reported value."
     ],
     "units": [
@@ -314,7 +313,7 @@
   "$qa_checklist": [
     "All output rows use only the 35 allowed feature IDs.",
     "Every row includes a non-empty ordinance_text excerpt and an explanation linking that evidence to the feature and facility class.",
-    "Every data_center_type is one of the standard values or null. No two rows share both feature and data_center_type. Generic requirements have null, tiered standards have one row per type, and each row with a non-null type names the jurisdiction's own class or classes at the start of summary.",
+    "Every data_center_type is one of the standard values or null. No two rows share both feature and data_center_type. Generic requirements have null, tiered standards have one row per type, and each row with a non-null type names the jurisdiction's own class or classes at the start of summary. Distinctions other than size or accessory use appear only as conditions in summary.",
     "Numeric setbacks, lot standards, and building size rows carry numeric values and non-null units.",
     "Numeric rows carry a single number, the most restrictive value, with a plain unit, and summary lists the other values with their conditions.",
     "Units use only the canonical vocabulary in $instructions.units and carry no measurement detail.",

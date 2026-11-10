@@ -132,15 +132,17 @@ extraction_system_prompt: |-
   condition it applies under, such as the time period, receiving use,
   zoning district, street class, or yard. Keep units to the unit alone.
 
-  data_center_type takes only the schema's standard values. Map the
-  jurisdiction's class onto the closest one by its name, such as Large
-  Data Center for a Large-Scale or Major class, and use Other for a
-  specific class that fits none of them. Set it to null when the
-  requirement applies to data centers generally: generic labels such as
-  Data Center, DATA CENTER, and Data Processing Center are not specific
-  classes. Start summary with the jurisdiction's own class name whenever
-  data_center_type is not null, and retain the complete source wording
-  in ordinance_text.
+  data_center_type is a size tier from the schema's fixed list, or
+  Accessory Data Center. Map the jurisdiction's tier onto the list by
+  its name, such as Large Data Center for a Large-Scale or Major tier.
+  Set it to null when the requirement applies to data centers of any
+  size: generic labels such as Data Center, DATA CENTER, and Data
+  Processing Center are not size tiers. Any other distinction, such as
+  whether the site is part of a unified development plan, is a
+  condition rather than a type: take the most restrictive value and
+  list the others with their conditions in summary. Start summary with
+  the jurisdiction's own class name whenever data_center_type is not
+  null, and retain the complete source wording in ordinance_text.
 
   Do not extract text focused only on office, warehouse, distribution,
   telecommunications, or utility uses unless the same clause directly

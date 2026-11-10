@@ -110,6 +110,13 @@ def main():
     before = [row.copy() for row in result]
     plain = use_plain_units(result)
     validate_units(before, result)
+    kept = [
+        row
+        for row in result
+        if row["data_center_type"].strip().casefold() not in UNSUPPORTED_TYPES
+    ]
+    dropped = len(result) - len(kept)
+    result = kept
     before = [row.copy() for row in result]
     standard = use_standard_types(result)
     validate_types(before, result)
@@ -123,7 +130,7 @@ def main():
         assert list(reader) == result
     duplicates = sum(len(rows) > 1 for rows in groups.values())
     print(
-        f"{len(original)} -> {len(result)} rows; {duplicates} duplicate groups resolved."
+        f"{len(original)} -> {len(result) + dropped} rows; {duplicates} duplicate groups resolved."
     )
     print(f"{noise} noise rows reduced to their lowest listed limit.")
     print(f"{reduced} multi-value rows reduced to their most restrictive value.")
@@ -133,6 +140,7 @@ def main():
     print(
         f"{standard} rows had a local class name mapped to a standard type."
     )
+    print(f"{dropped} rows left out: neither a size tier nor accessory.")
     print(
         f"Validated unique keys, unchanged singleton rows, integer years, and CSV round-trip: {output}"
     )
@@ -394,10 +402,16 @@ STANDARD_TYPES = {
     "accessory data center": "Accessory Data Center",
     "ancillary": "Accessory Data Center",
     "associated data room or server room": "Accessory Data Center",
-    "campus": "Data Center Campus",
-    "large quantity water user": "Other",
+    # A water rule for data centers of any size, not a size tier
+    "large quantity water user": "",
+}
+
+# Classes that are neither a size tier nor accessory: their rows are left
+# out, as the extraction schema emits none for them.
+UNSUPPORTED_TYPES = {
+    "campus",
     # Albemarle defines this apart from data centers: staffed data entry
-    "data processing facility": "Other",
+    "data processing facility",
 }
 
 
