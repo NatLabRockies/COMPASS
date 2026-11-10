@@ -258,19 +258,21 @@ def loggable_headers(headers):
     out = {}
     for key, value in items:
         name = str(key).lower()
-        if name in _SECRET_HEADERS:
-            value = "<redacted>"  # ruff:ignore[redefined-loop-name]
-        elif name == "set-cookie":
-            # browsers join repeated Set-Cookie headers with newlines
-            value = ", ".join(  # ruff:ignore[redefined-loop-name]
-                _cookie_name(line) for line in str(value).splitlines()
-            )
-        elif name == "cookie":
-            value = "; ".join(  # ruff:ignore[redefined-loop-name]
-                _cookie_name(pair) for pair in str(value).split(";")
-            )
-        out[name] = f"{out[name]}, {value}" if name in out else str(value)
+        shown = _loggable_header_value(name, value)
+        out[name] = f"{out[name]}, {shown}" if name in out else shown
     return out
+
+
+def _loggable_header_value(name, value):
+    """One header's value as text, with any secret redacted"""
+    if name in _SECRET_HEADERS:
+        return "<redacted>"
+    if name == "set-cookie":
+        # browsers join repeated Set-Cookie headers with newlines
+        return ", ".join(_cookie_name(x) for x in str(value).splitlines())
+    if name == "cookie":
+        return "; ".join(_cookie_name(x) for x in str(value).split(";"))
+    return str(value)
 
 
 def _cookie_name(cookie):

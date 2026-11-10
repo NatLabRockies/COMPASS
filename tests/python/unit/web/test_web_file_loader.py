@@ -337,7 +337,7 @@ async def test_docling_empty_source_list_does_not_retry():
 def test_docling_backend_selection_isolated_from_other_tests(
     monkeypatch, backend
 ):
-    """Select both loader aliases from the import-time backend setting"""
+    """Select both loaders from the import-time backend setting"""
     if backend is None:
         monkeypatch.delenv("COMPASS_FILE_LOAD_BACKEND", raising=False)
     else:
@@ -345,8 +345,9 @@ def test_docling_backend_selection_isolated_from_other_tests(
     namespace = runpy.run_path(file_loader_module.__file__)
     prefix = "AsyncDoclingWeb" if backend == "docling" else "AsyncWeb"
     local = "AsyncLocalDocling" if backend == "docling" else "AsyncLocal"
-    assert (
-        namespace["COMPASSWebFileLoader"] is namespace[f"{prefix}FileLoader"]
+    # the web loader adds event recording on top of the chosen backend
+    assert issubclass(
+        namespace["COMPASSWebFileLoader"], namespace[f"{prefix}FileLoader"]
     )
     assert (
         namespace["COMPASSLocalFileLoader"] is namespace[f"{local}FileLoader"]
