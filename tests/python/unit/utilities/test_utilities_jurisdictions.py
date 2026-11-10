@@ -427,6 +427,36 @@ def test_full_name_the_prefixed_property():
     )
 
 
+def test_quoted_full_name_property():
+    """Test ``Jurisdiction.quoted_full_name`` property"""
+
+    state = Jurisdiction("state", state="Colorado")
+    assert state.quoted_full_name == '"Colorado"'
+
+    county = Jurisdiction("county", state="Colorado", county="Jefferson")
+    assert county.quoted_full_name == '"Jefferson" County, Colorado'
+
+    parish = Jurisdiction("parish", state="Louisiana", county="Assumption")
+    assert parish.quoted_full_name == '"Assumption" Parish, Louisiana'
+
+    city = Jurisdiction(
+        "city", state="Colorado", county="Jefferson", subdivision_name="Golden"
+    )
+    assert (
+        city.quoted_full_name == 'City of "Golden", Jefferson County, Colorado'
+    )
+
+    independent_city = Jurisdiction(
+        "city", state="Maryland", subdivision_name="Baltimore"
+    )
+    assert independent_city.quoted_full_name == 'City of "Baltimore", Maryland'
+
+    gore = Jurisdiction(
+        "gore", state="Vermont", county="Chittenden", subdivision_name="Buels"
+    )
+    assert gore.quoted_full_name == '"Buels" Gore, Chittenden County, Vermont'
+
+
 def test_short_name_with_state_property():
     """Test ``Jurisdiction.short_name_with_state`` property"""
 
