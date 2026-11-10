@@ -112,6 +112,20 @@ extraction_system_prompt: |-
   - cooling technology, water consumption limits, and reclaimed water
     requirements
 
+  The jurisdiction is {jur_full_name}. Extract only requirements that
+  this jurisdiction has itself enacted. The text may be a meeting packet
+  or staff report rather than the code itself. Such a document often
+  attaches text labelled as a draft or proposal, or reproduces other
+  jurisdictions' regulations for comparison: emit no rows from either,
+  however detailed they are. If nothing else remains, return no rows
+  and say why in extraction_notes.
+
+  Markup alone does not make a text a draft. Ordinances that amend a
+  code are commonly published showing additions and strikethroughs.
+  Unless the text is labelled a draft or proposal, or says it was not
+  adopted, extract it as amended: keep the added wording and leave out
+  the struck wording.
+
   Extract only enacted local requirements that explicitly govern data
   centers, or that govern a use the ordinance defines as a data center,
   such as a data processing center or a computer server facility. The
@@ -123,7 +137,10 @@ extraction_system_prompt: |-
   Where a jurisdiction sets a different standard for each class, emit
   one row per data_center_type rather than collapsing the tiers into one
   row. No two rows may share both feature and data_center_type: local
-  classes that map to the same type share a row.
+  classes that map to the same type share a row, and a rule the text
+  states in more than one section is one row that cites each section.
+  Before answering, check the rows for a repeated feature and
+  data_center_type pair and merge any you find.
 
   For a numeric feature, value is a single number: the most restrictive
   value the ordinance sets for that feature and facility class, such as
