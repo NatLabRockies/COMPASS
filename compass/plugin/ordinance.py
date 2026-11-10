@@ -891,7 +891,7 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
             )
             return None
 
-        data_df = await _fill_out_multi_file_sources(
+        data_df, num_source_docs = await _fill_out_multi_file_sources(
             data_df,
             extraction_context,
             out_fn_stem=self.jurisdiction.full_name,
@@ -901,9 +901,11 @@ class OrdinanceExtractionPlugin(FilteredExtractionPlugin):
         n_feats = num_ordinances_dataframe(data_df)
         extraction_context.attrs["num_features_extracted"] = n_feats
         logger.info(
-            "%d ordinance value(s) found for %s in %d docs. ",
+            "%d ordinance value(s) found for %s from %s docs "
+            "(%d docs provided in extraction context).",
             n_feats,
             self.jurisdiction.full_name,
+            num_source_docs,
             extraction_context.num_documents,
         )
         return extraction_context
@@ -1387,7 +1389,7 @@ async def _fill_out_multi_file_sources(
             source_map.get(int(source_ind)) if pd.notna(source_ind) else None
         )
     )
-    return data_df
+    return data_df, len(source_inds)
 
 
 def _get_source_inds(data_df, num_docs):
