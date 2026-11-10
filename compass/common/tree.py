@@ -145,7 +145,10 @@ class AsyncDecisionTree(DecisionTree):
 
     @property
     def _conversation_id(self):
-        return getattr(self.chat_llm_caller, "_conversation_id", None)
+        log = current_event_log()
+        if log is None:
+            return None
+        return self.chat_llm_caller.conversation_id(log)
 
     def _record_start(self, node0):
         """Record the tree's whole graph and the conversation running it

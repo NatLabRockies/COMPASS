@@ -60,11 +60,13 @@ class BaseLLMCaller:
         self.kwargs = kwargs
         self.record_events = True
 
-    _KEEP_CONVERSATION = False
-    """Whether consecutive calls share one conversation ID"""
-
     async def _call_service(
-        self, usage_sub_label, messages, logged_messages=None, **extra
+        self,
+        usage_sub_label,
+        messages,
+        logged_messages=None,
+        conversation=None,
+        **extra,
     ):
         """Call the LLM service, recording the exchange in the event log
 
@@ -78,6 +80,9 @@ class BaseLLMCaller:
         logged_messages : list of dict, optional
             Messages to record instead of `messages` (e.g. only the
             newest turn of a long chat). By default, ``None``.
+        conversation : str, optional
+            ID the call is grouped under in the event log. By default,
+            ``None``, which records the call as its own conversation.
         **extra
             Additional arguments for ``llm_service.call``.
         """
@@ -96,7 +101,7 @@ class BaseLLMCaller:
         log.emit(
             "llm_request",
             call=call_id,
-            conversation=self._conversation(log, call_id),
+            conversation=conversation or call_id,
             purpose=str(usage_sub_label),
             model=getattr(self.llm_service, "model_name", None),
             messages=logged_messages or messages,
@@ -138,30 +143,6 @@ class BaseLLMCaller:
             api=recorder.metadata,
         )
         return response
-
-    def _conversation(self, log, call_id):
-        """ID grouping the calls of one conversation
-
-        Each call is its own conversation, except for callers that keep
-        a chat history (e.g. decision trees), where every turn shares
-        one ID.
-        """
-        if not self._KEEP_CONVERSATION:
-            return call_id
-        if getattr(self, "_conversation_log", None) is not log:
-            self._conversation_log = log
-            self._conversation_id = log.next_id("conversation")
-        return self._conversation_id
-
-    def conversation_id(self, log):
-        """str or None: ID this caller's chat is recorded under in `log`
-
-        Callers that keep a chat history get their ID before the first
-        call, so work that drives the chat (e.g. a decision tree) can
-        announce it up front. Other callers return ``None``, since each
-        of their calls is its own conversation.
-        """
-        return self._conversation(log, call_id=None)
 
 
 class LLMCaller(BaseLLMCaller):
@@ -223,8 +204,6 @@ class ChatLLMCaller(BaseLLMCaller):
         expected output schema as part of the API call.
     """
 
-    _KEEP_CONVERSATION = True
-
     def __init__(
         self, llm_service, system_message, usage_tracker=None, **kwargs
     ):
@@ -251,6 +230,19 @@ class ChatLLMCaller(BaseLLMCaller):
         """
         super().__init__(llm_service, usage_tracker, **kwargs)
         self.messages = [{"role": "system", "content": system_message}]
+        self._conversation_log = None
+        self._conversation_id = None
+
+    def conversation_id(self, log):
+        """str: ID every turn of this chat is recorded under in `log`
+
+        Assigned on first use, so work that drives the chat (e.g. a
+        decision tree) can announce it before the first call.
+        """
+        if self._conversation_log is not log:
+            self._conversation_log = log
+            self._conversation_id = log.next_id("conversation")
+        return self._conversation_id
 
     async def call(self, content, usage_sub_label=LLMUsageCategory.CHAT):
         """Chat with the LLM
@@ -270,10 +262,12 @@ class ChatLLMCaller(BaseLLMCaller):
         """
         self.messages.append({"role": "user", "content": content})
 
+        log = current_event_log()
         response = await self._call_service(
             usage_sub_label,
             self.messages,
             logged_messages=self.messages[-1:],
+            conversation=log and self.conversation_id(log),
         )
         if response is None:
             self.messages = self.messages[:-1]
