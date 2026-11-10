@@ -272,6 +272,8 @@
       "Also record each definition of a data center term as a 'definition' row, even though a definition is not itself a requirement.",
       "Write summary in your own words. Put verbatim source passages in ordinance_text and explain how they support the row in explanation.",
       "Never convert units. Preserve the jurisdiction's vocabulary except for the standard data_center_type values and the canonical unit names. Keep ordinance_text verbatim.",
+      "Extract only what the jurisdiction named in the system message has itself enacted. A meeting packet or staff report may reproduce other jurisdictions' regulations for comparison or attach text labelled as a draft or proposal: neither is a requirement of this jurisdiction, so emit no row from them.",
+      "Additions and strikethroughs alone do not make a text a draft. Unless it is labelled a draft or proposal, or says it was not adopted, extract an amending ordinance as amended: keep the added wording and leave out the struck wording.",
       "Do not infer a requirement from related context, and do not emit a row for a feature the source does not address."
     ],
     "size_tiering": [
@@ -281,7 +283,7 @@
       "'Accessory Data Center' is the one type that is not a size: use it, whatever the size, for a data center that is accessory, ancillary, or incidental to another principal use.",
       "Use null where a standard applies to data centers of any size. Generic terms such as 'Data Center', 'DATA CENTER', 'Data Processing Center', or 'Data Processing Facility' are not a size tier.",
       "Any other distinction is a condition, not a type: whether the site is part of a unified development plan or a campus, its zoning district, its water or power use, and the like. Standards that differ by such a condition compete for the same row under $instructions.numeric_prioritization, with the other values and their conditions listed in summary.",
-      "Each (feature, data_center_type) pair appears in at most one row. Where two local tiers map to the same value, they share one row: for a numeric feature choose the most restrictive value across them, and in summary name each local tier with the value and conditions that apply to it."
+      "Each (feature, data_center_type) pair appears in at most one row. A rule stated in more than one section is one row whose section cites each of them. Where two local tiers map to the same value, they share one row: for a numeric feature choose the most restrictive value across them, and in summary name each local tier with the value and conditions that apply to it."
     ],
     "setbacks": [
       "Setbacks are minimum separation distances. A setback row carries a single numeric distance and its unit.",
@@ -321,7 +323,7 @@
     "District rows are arrays of district names or codes, and jurisdiction-wide bans are recorded under 'prohibitions/moratorium' rather than 'prohibited use districts'.",
     "Screening, buffer, and fencing rows are assigned by what the provision governs: equipment, site perimeter planting, or perimeter fencing.",
     "Water rows are assigned by what the provision governs: technology, volume ceiling, or source substitution.",
-    "No row is emitted from a proposed, denied, or superseded provision."
+    "No row is emitted from a proposed, denied, or superseded provision, or from another jurisdiction's regulations reproduced in the text."
   ],
   "$qualitative_features": [
     "parking",
