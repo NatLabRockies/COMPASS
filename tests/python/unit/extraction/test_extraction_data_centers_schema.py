@@ -43,20 +43,18 @@ def test_schema_extracts_definitions_of_data_center_terms():
 
 
 def test_data_center_type_is_a_fixed_list():
-    """Types come from a closed list, so similar names cannot diverge"""
+    """Types are size tiers plus accessory, from a closed list"""
     schema = json.loads(SCHEMA_FP.read_text(encoding="utf-8"))
     spec = schema["properties"]["outputs"]["items"]["properties"][
         "data_center_type"
     ]
     assert spec["enum"] == [
-        "Hyperscale Data Center",
-        "Large Data Center",
-        "Medium Data Center",
-        "Small Data Center",
         "Micro Data Center",
+        "Small Data Center",
+        "Medium Data Center",
+        "Large Data Center",
+        "Hyperscale Data Center",
         "Accessory Data Center",
-        "Data Center Campus",
-        "Other",
         None,
     ]
     rules = " ".join(schema["$instructions"]["size_tiering"])
