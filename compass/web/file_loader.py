@@ -5,10 +5,8 @@ import asyncio
 import hashlib
 import logging
 import time
-from contextvars import ContextVar
 from importlib import import_module
 
-import aiohttp
 from elm.web.file_loader import (
     AsyncFetchWithRetry,
     AsyncHTMLLoader,
@@ -508,9 +506,10 @@ class COMPASSWebFileLoader(_WebFileLoader):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._exchanges = {}
         fetcher = getattr(self, "content_fetcher", None)
-        if isinstance(fetcher, AsyncFetchWithRetry):
-            self.content_fetcher = _RecordingFetchWithRetry.wrap(fetcher)
+        if hasattr(fetcher, "on_response_hook"):
+            fetcher.on_response_hook = self._record_exchange
 
     async def fetch(self, source):
         """Load and cache one document using the configured backend."""
@@ -541,75 +540,25 @@ class COMPASSWebFileLoader(_WebFileLoader):
         return doc
 
     def _http_exchange(self, source):
-        """The HTTP exchange behind a fetch, with its body described"""
-        fetcher = self.content_fetcher
-        if not isinstance(fetcher, _RecordingFetchWithRetry):
-            return {}
-        exchange = fetcher.exchanges.pop(source, None)
-        if not exchange:
-            return {}
-        body = exchange.pop("body", None)
-        if body is not None:
-            exchange["response"].update(_body_summary(body, exchange))
-        return {"http": exchange}
+        """The HTTP exchange behind a fetch, if one was recorded"""
+        exchange = self._exchanges.pop(source, None)
+        return {"http": exchange} if exchange else {}
 
-
-_REQUESTED_URL = ContextVar("compass_requested_url", default=None)
-
-
-class _RecordingFetchWithRetry(AsyncFetchWithRetry):
-    """elm's content fetcher, also remembering each URL's HTTP exchange
-
-    The status, headers, and redirects come from an aiohttp trace hook;
-    the URL being fetched is tracked per task, so concurrent downloads
-    are told apart.
-    """
-
-    @classmethod
-    def wrap(cls, fetcher):
-        """Same settings as `fetcher`, with exchanges recorded"""
-        recorder = cls.__new__(cls)
-        recorder.__dict__.update(vars(fetcher))
-        recorder.exchanges = {}
-        trace = aiohttp.TraceConfig()
-        trace.on_request_end.append(recorder.record_response)
-        recorder.client_kwargs = {
-            **recorder.client_kwargs,
-            "trace_configs": [
-                *recorder.client_kwargs.get("trace_configs", []),
-                trace,
-            ],
-        }
-        return recorder
-
-    async def fetch(self, url):
-        """Fetch content, remembering the exchange and its body"""
-        token = _REQUESTED_URL.set(url)
-        try:
-            out = await super().fetch(url)
-        finally:
-            _REQUESTED_URL.reset(token)
-        if url in self.exchanges:
-            self.exchanges[url]["body"] = out[0] if out else None
-        return out
-
-    async def record_response(self, _session, _context, params):
-        """Trace hook: keep a finished call's request and response"""
-        url = _REQUESTED_URL.get()
-        if url is None:
-            return
-        response = params.response
-        self.exchanges[url] = {
+    async def _record_exchange(self, url, response, body):
+        """ELM response hook: keep the last exchange for each URL"""
+        request = response.request_info
+        headers = loggable_headers(response.headers)
+        self._exchanges[url] = {
             "request": {
-                "method": params.method,
-                "url": str(params.url),
-                "headers": loggable_headers(params.headers),
+                "method": request.method,
+                "url": str(request.url),
+                "headers": loggable_headers(request.headers),
             },
             "response": {
                 "status": response.status,
                 "reason": response.reason,
                 "url": str(response.url),
-                "headers": loggable_headers(response.headers),
+                "headers": headers,
                 "history": [
                     {
                         "status": hop.status,
@@ -618,15 +567,8 @@ class _RecordingFetchWithRetry(AsyncFetchWithRetry):
                     }
                     for hop in response.history
                 ],
+                "bytes": len(body),
+                "sha256": hashlib.sha256(body).hexdigest(),
+                "preview": body_preview(body, headers.get("content-type", "")),
             },
         }
-
-
-def _body_summary(body, exchange):
-    """Describe a response body: its size, hash, and how it starts"""
-    content_type = exchange["response"]["headers"].get("content-type", "")
-    return {
-        "bytes": len(body),
-        "sha256": hashlib.sha256(body).hexdigest(),
-        "preview": body_preview(body, content_type),
-    }

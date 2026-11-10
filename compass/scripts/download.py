@@ -13,7 +13,10 @@ from elm.web.website_crawl import (
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
-from compass.web.search import search_single_jurisdiction
+from compass.web.search import (
+    record_search_attempt,
+    search_single_jurisdiction,
+)
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.pipeline.search.persistence import write_search_manifest_shard
@@ -244,6 +247,7 @@ async def find_jurisdiction_website(
             url_ignore_substrings=url_ignore_substrings,
             browser_semaphore=search_semaphore,
             task_name=jurisdiction.full_name,
+            on_search_hook=record_search_attempt,
             **kwargs,
         )
     potential_website_links = _normalize_website_candidates(

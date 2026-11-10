@@ -5,6 +5,7 @@ import asyncio
 import runpy
 from importlib.util import find_spec
 from pathlib import Path
+from functools import partial
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -19,7 +20,6 @@ from compass.web.file_loader import (
     AsyncDoclingWebFileLoader,
     AsyncLocalDoclingFileLoader,
     COMPASSWebFileLoader,
-    _RecordingFetchWithRetry,
 )
 
 
@@ -544,13 +544,22 @@ async def challenge_server():
     await runner.cleanup()
 
 
+def test_web_loader_listens_for_http_responses():
+    """The loader asks ELM's fetcher to report each response to it"""
+    loader = COMPASSWebFileLoader()
+    hook = loader.content_fetcher.on_response_hook
+    assert hook == loader._record_exchange
+
+
 @pytest.mark.asyncio
 async def test_downloads_record_their_http_exchange(
     challenge_server, tmp_path
 ):
     """Status, headers, redirects, and a body summary reach the log"""
-    fetcher = _RecordingFetchWithRetry.wrap(AsyncFetchWithRetry())
-    loader = SimpleNamespace(content_fetcher=fetcher)
+    loader = SimpleNamespace(_exchanges={})
+    fetcher = AsyncFetchWithRetry(
+        on_response_hook=partial(COMPASSWebFileLoader._record_exchange, loader)
+    )
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
         await fetcher.fetch(f"{challenge_server}/challenge")
@@ -569,4 +578,4 @@ async def test_downloads_record_their_http_exchange(
     assert moved["response"]["history"][0]["status"] == 302
     assert moved["response"]["history"][0]["location"] == "/doc.pdf"
     assert list(tmp_path.iterdir()) == [tmp_path / "events.jsonl"]
-    assert fetcher.exchanges == {}
+    assert loader._exchanges == {}

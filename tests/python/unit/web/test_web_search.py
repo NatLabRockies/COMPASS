@@ -6,7 +6,6 @@ from unittest.mock import AsyncMock
 
 import httpx
 import pytest
-from elm.web.search.run import SEARCH_ENGINE_OPTIONS
 
 import compass.web.search as search_module
 from compass.utilities.event_log import EventLog, use_event_log
@@ -237,6 +236,7 @@ async def test_run_simple_sort_search_preserves_search_engine_attributes(
             "url_keep_substrings": ["keep"],
             "browser_semaphore": "semaphore",
             "task_name": "Example, CO",
+            "on_search_hook": search_module.record_search_attempt,
         }
         return expected
 
@@ -572,29 +572,37 @@ def test_apply_filters_orders_phases_and_cleans_internal_fields():
 
 
 class _FakeEngine:
-    """Search engine stand-in with ELM's ``_search`` signature"""
+    """Search engine stand-in with settings worth logging, and a secret"""
 
     _SE_NAME = "Fake Engine"
 
-    def __init__(self, fail=False):
+    def __init__(self):
         self.api_key = "secret-key"
         self.verify = False
-        self.fail = fail
-
-    async def _search(self, query, num_results=10, raw=False):
-        if self.fail:
-            raise httpx.ReadTimeout("timed out")
-        return [f"https://example.com/{query}"]
 
 
-async def test_search_calls_are_recorded(tmp_path):
-    """Requests, results, and timeouts appear in the event log"""
-    recorded = search_module._recorded_search(_FakeEngine)
+@pytest.mark.asyncio
+async def test_search_attempts_are_recorded(tmp_path):
+    """Results and failures reported by ELM's hook reach the event log"""
+    engine = _FakeEngine()
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
-        await recorded(_FakeEngine(), "zoning")
-        with pytest.raises(httpx.ReadTimeout):
-            await recorded(_FakeEngine(fail=True), "zoning")
+        await search_module.record_search_attempt(
+            engine=engine,
+            query="zoning",
+            num_results=10,
+            results=["https://example.com/zoning"],
+            error=None,
+            seconds=0.25,
+        )
+        await search_module.record_search_attempt(
+            engine=engine,
+            query="zoning",
+            num_results=10,
+            results=None,
+            error=httpx.ReadTimeout("timed out"),
+            seconds=30,
+        )
     events = [json.loads(x) for x in log.path.read_text().splitlines()]
     assert [e["type"] for e in events] == [
         "search_request",
@@ -604,17 +612,30 @@ async def test_search_calls_are_recorded(tmp_path):
     ]
     assert events[0]["engine"] == "Fake Engine"
     assert events[0]["query"] == "zoning"
-    assert events[0]["parameters"] == {"verify": False, "fail": False}
+    assert events[0]["parameters"] == {"verify": False}
     assert events[1]["results"] == ["https://example.com/zoning"]
+    assert events[1]["seconds"] == pytest.approx(0.25)
     assert events[3]["error"] == "ReadTimeout: timed out"
     assert events[3]["call"] == events[2]["call"]
 
 
-def test_registered_engines_record_calls():
-    """ELM's registry resolves to the recording engine classes"""
-    option = SEARCH_ENGINE_OPTIONS["SerpAPIGoogleSearch"]
-    assert option.se_class._records_events
-    assert option.se_class.__name__ == "SerpAPIGoogleSearch"
+@pytest.mark.asyncio
+async def test_searches_pass_the_recording_hook_to_elm(monkeypatch):
+    """Both search modes hand ELM the hook that records each attempt"""
+    simple = AsyncMock(return_value=[])
+    holistic = AsyncMock(return_value=[])
+    monkeypatch.setattr(
+        search_module, "search_with_fallback_with_attrs", simple
+    )
+    monkeypatch.setattr(search_module, "search_all_se", holistic)
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+    for simple_sort in (True, False):
+        await search_module.search_single_jurisdiction(
+            [_JURISDICTION_QUERY_TEMPLATE], jurisdiction, simple=simple_sort
+        )
+    hook = search_module.record_search_attempt
+    assert simple.await_args.kwargs["on_search_hook"] is hook
+    assert holistic.await_args.kwargs["on_search_hook"] is hook
 
 
 if __name__ == "__main__":
