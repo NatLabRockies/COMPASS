@@ -113,15 +113,16 @@ jobs:
       - name: Offline SIF test as non-root
         timeout-minutes: 15
         run: |
+          # sudo's PATH excludes the user-local setup-apptainer installation.
           sudo unshare --net -- /bin/bash -euc '
             ip link set lo up
             exec setpriv --reuid="$1" --regid="$2" --clear-groups \
-              apptainer exec --containall --cleanenv \
+              "$4" exec --containall --cleanenv \
               --env HOME=/tmp/compass-checks-home \
               --bind "$3/support/containers/container_checks.py:/tmp/container_checks.py:ro" \
               "$3/compass-linux-amd64.sif" \
               /app/entrypoint.sh python /tmp/container_checks.py
-          ' -- "$(id -u)" "$(id -g)" "$PWD"
+          ' -- "$(id -u)" "$(id -g)" "$PWD" "$(command -v apptainer)"
           sha256sum compass-linux-amd64.sif > compass-linux-amd64.sif.sha256
 
       - name: Publish tested Docker image
