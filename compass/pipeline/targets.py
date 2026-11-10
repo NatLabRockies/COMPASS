@@ -2,8 +2,12 @@
 
 import json
 import math
+import logging
 
 from compass.exceptions import COMPASSValueError
+
+
+logger = logging.getLogger(__name__)
 
 
 def normalize_targets(targets):
@@ -104,6 +108,12 @@ def evaluate_targets(record, targets, metrics):
             msg = f"Shard metric '{metric}' must be a finite number"
             raise COMPASSValueError(msg)
 
+        logger.debug(
+            "    - Checking metric '%s': minimum target %s; actual %s",
+            metric,
+            minimum,
+            actual,
+        )
         if actual is None or actual < minimum:
             failures.append(
                 {"metric": metric, "actual": actual, "minimum": minimum}
