@@ -134,9 +134,15 @@ extraction_system_prompt: |-
   technology-specific title.
 
   Data center ordinances frequently regulate by facility size class.
-  Where a jurisdiction sets a different standard for each class, emit
-  one row per data_center_type rather than collapsing the tiers into one
-  row. No two rows may share both feature and data_center_type: local
+  Follow the ordinance's own structure, feature by feature. Where it
+  states a requirement separately for a size tier, emit a row for that
+  data_center_type. Where it states a requirement for data centers
+  generally, emit one row with a null data_center_type. Do not split a
+  general requirement into a row per tier, and do not merge separately
+  stated tier requirements into one row. One feature being stated per
+  tier does not make every feature tiered.
+
+  No two rows may share both feature and data_center_type: local
   classes that map to the same type share a row, and a rule the text
   states in more than one section is one row that cites each section.
   Before answering, check the rows for a repeated feature and
