@@ -549,6 +549,20 @@ def test_web_loader_listens_for_http_responses():
     loader = COMPASSWebFileLoader()
     hook = loader.content_fetcher.on_response_hook
     assert hook == loader._record_exchange
+    assert loader.content_fetcher.on_error_hook == loader._record_error
+
+
+@pytest.mark.asyncio
+async def test_downloads_record_why_no_response_came():
+    """A fetch that never got a response logs the connection error"""
+    loader = SimpleNamespace(_exchanges={})
+    url = "https://unreachable.example/doc.pdf"
+    await COMPASSWebFileLoader._record_error(
+        loader, url, ConnectionError("connection refused")
+    )
+    assert COMPASSWebFileLoader._http_exchange(loader, url) == {
+        "http": {"error": "ConnectionError: connection refused"}
+    }
 
 
 @pytest.mark.asyncio

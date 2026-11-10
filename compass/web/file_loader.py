@@ -510,6 +510,7 @@ class COMPASSWebFileLoader(_WebFileLoader):
         fetcher = getattr(self, "content_fetcher", None)
         if hasattr(fetcher, "on_response_hook"):
             fetcher.on_response_hook = self._record_exchange
+            fetcher.on_error_hook = self._record_error
 
     async def fetch(self, source):
         """Load and cache one document using the configured backend."""
@@ -547,6 +548,10 @@ class COMPASSWebFileLoader(_WebFileLoader):
     async def _record_exchange(self, url, response, body):
         """ELM response hook: keep the last exchange for each URL"""
         self._exchanges[url] = http_exchange(response, body)
+
+    async def _record_error(self, url, error):
+        """ELM error hook: keep why a URL gave no response at all"""
+        self._exchanges[url] = {"error": f"{type(error).__name__}: {error}"}
 
 
 def http_exchange(response, body):
