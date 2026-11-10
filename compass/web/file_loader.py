@@ -504,7 +504,7 @@ else:
 
 
 class COMPASSWebFileLoader(_WebFileLoader):
-    """Use the configured loader with per-source timing logs."""
+    """The configured loader, timing and recording each download"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -595,7 +595,6 @@ class _RecordingFetchWithRetry(AsyncFetchWithRetry):
 
     async def record_response(self, _session, _context, params):
         """Trace hook: keep a finished call's request and response"""
-        await asyncio.sleep(0)
         url = _REQUESTED_URL.get()
         if url is None:
             return

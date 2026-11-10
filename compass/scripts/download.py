@@ -13,10 +13,7 @@ from elm.web.website_crawl import (
 from elm.web.file_loader import AsyncWebFileLoader
 from elm.web.utilities import filter_documents
 
-from compass.web.search import (
-    search_single_jurisdiction,
-    _format_queries,
-)
+from compass.web.search import search_single_jurisdiction
 from compass.extraction import check_for_relevant_text, extract_date
 from compass.services.threaded import TempFileCache, TempFileCachePB
 from compass.pipeline.search.persistence import write_search_manifest_shard
@@ -33,7 +30,6 @@ from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.utilities.url import base_website_url, sanitize_url
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.event_log import (
-    current_event_log,
     emit_branch,
     emit_event,
     event_phase,
@@ -916,13 +912,6 @@ async def _docs_from_se_search(
     """Retrieve top ``N`` search results as document instances"""
 
     with event_phase("search"):
-        if current_event_log() is not None:
-            with event_step("collect.search_engine.queries"):
-                emit_event(
-                    "search_queries",
-                    queries=_format_queries(jurisdiction, query_templates),
-                    num_urls=num_urls,
-                )
         with event_step("collect.search_engine.search"):
             search_results = await search_single_jurisdiction(
                 query_templates,

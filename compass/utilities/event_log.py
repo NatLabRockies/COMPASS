@@ -19,7 +19,7 @@ from contextlib import contextmanager, nullcontext
 from contextvars import ContextVar
 from pathlib import Path
 
-from compass.utilities.costs import LLM_COST_REGISTRY
+from compass.utilities.costs import LLM_COST_REGISTRY, cost_for_model
 
 
 _CURRENT_LOG = ContextVar("compass_event_log", default=None)
@@ -355,21 +355,14 @@ def token_costs(
     ``completion_cost``, not an addition to it. Costs are ``None`` when
     the model has no configured rates.
     """
-    rates = LLM_COST_REGISTRY.get(model) or {}
-
-    def cost(count, rate_key):
-        rate = rates.get(rate_key)
-        if count is None or rate is None:
-            return None
-        return count * rate / 1e6
-
-    costs = {
-        "prompt_cost": cost(prompt_tokens, "prompt"),
-        "completion_cost": cost(completion_tokens, "response"),
-        "reasoning_cost": cost(reasoning_tokens, "response"),
+    if model not in LLM_COST_REGISTRY:
+        return dict.fromkeys(
+            ("prompt_cost", "completion_cost", "reasoning_cost", "total_cost")
+        )
+    prompt, completion = prompt_tokens or 0, completion_tokens or 0
+    return {
+        "prompt_cost": cost_for_model(model, prompt, 0),
+        "completion_cost": cost_for_model(model, 0, completion),
+        "reasoning_cost": cost_for_model(model, 0, reasoning_tokens or 0),
+        "total_cost": cost_for_model(model, prompt, completion),
     }
-    parts = [costs["prompt_cost"], costs["completion_cost"]]
-    costs["total_cost"] = (
-        None if any(part is None for part in parts) else sum(parts)
-    )
-    return costs

@@ -169,16 +169,6 @@ async def test_chat_logs_only_the_newest_turn(tmp_path):
     assert requests[1]["history_messages"] == 3
 
 
-async def test_callers_can_opt_out_of_recording(tmp_path):
-    """Callers that log their own events are not recorded twice"""
-    log = EventLog(tmp_path / "events.jsonl")
-    caller = SchemaOutputLLMCaller(FakeService())
-    caller.record_events = False
-    with use_event_log(log):
-        await caller.call("system", "text", response_format={})
-    assert read_events(log.path) == []
-
-
 def test_nan_values_are_written_as_null(tmp_path):
     """Empty pandas cells (NaN) must not produce invalid JSON lines"""
     log = EventLog(tmp_path / "events.jsonl")

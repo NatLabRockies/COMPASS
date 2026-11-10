@@ -335,7 +335,7 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
 async def test_standard_search_records_search_and_download_phases(
     monkeypatch, tmp_path
 ):
-    """Queries, every result, and the selected URLs are logged"""
+    """Every result and the selected URLs are logged, by phase"""
     url = "https://example.com/ordinance.pdf"
 
     async def fake_search(*_args, **_kwargs):  # ruff:ignore[unused-async]
@@ -373,10 +373,6 @@ async def test_standard_search_records_search_and_download_phases(
         )
     events = [json.loads(line) for line in log.path.read_text().splitlines()]
     by_type = {e["type"]: e for e in events}
-    assert by_type["search_queries"]["queries"] == [
-        "Example County, Test ordinance"
-    ]
-    assert by_type["search_queries"]["seq"] < by_type["search_results"]["seq"]
     assert len(by_type["search_results"]["results"]) == 2
     assert by_type["search_selected"]["urls"] == [url]
     assert by_type["search_selected"]["phase"] == "search"

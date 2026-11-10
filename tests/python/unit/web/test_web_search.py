@@ -144,6 +144,25 @@ async def test_search_discards_website_query_without_known_website(
 
 
 @pytest.mark.asyncio
+async def test_search_records_the_queries_it_runs(monkeypatch, tmp_path):
+    """The formatted queries are logged before the search is made"""
+    monkeypatch.setattr(
+        search_module, "_run_simple_sort_search", AsyncMock(return_value=[])
+    )
+    jurisdiction = Jurisdiction("county", "Colorado", county="Adams")
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await search_module.search_single_jurisdiction(
+            [_JURISDICTION_QUERY_TEMPLATE], jurisdiction, num_urls=7
+        )
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["type"] == "search_queries"
+    assert event["queries"] == ["Adams County, Colorado zoning ordinance"]
+    assert event["num_urls"] == 7
+    assert event["tags"]["step"] == "collect.search_engine.queries"
+
+
+@pytest.mark.asyncio
 async def test_search_skips_backend_when_no_queries_remain(monkeypatch):
     """Return an empty result when all query templates are discarded"""
     search_backend = AsyncMock()

@@ -58,7 +58,6 @@ class BaseLLMCaller:
         self.llm_service = llm_service
         self.usage_tracker = usage_tracker
         self.kwargs = kwargs
-        self.record_events = True
 
     async def _call_service(
         self,
@@ -86,7 +85,7 @@ class BaseLLMCaller:
         **extra
             Additional arguments for ``llm_service.call``.
         """
-        log = current_event_log() if self.record_events else None
+        log = current_event_log()
         if log is None:
             return await self.llm_service.call(
                 usage_tracker=self.usage_tracker,

@@ -78,7 +78,7 @@
       kind: "step",
       label: "Build search queries",
       about: "Fills the plugin's query templates with the jurisdiction's name (and website, if known; templates that need a website are dropped otherwise).",
-      code: "compass/scripts/download.py:_docs_from_se_search",
+      code: "compass/web/search.py:search_single_jurisdiction",
       events: ["search_queries"],
       next: "collect.search_engine.search",
     },

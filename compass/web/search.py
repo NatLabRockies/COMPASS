@@ -13,7 +13,11 @@ from elm.web.search.run import (
 
 from compass.utilities.url import URLPartFilter
 from compass.utilities.timing import log_operation
-from compass.utilities.event_log import current_event_log
+from compass.utilities.event_log import (
+    current_event_log,
+    emit_event,
+    event_step,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -95,6 +99,8 @@ async def search_single_jurisdiction(
     queries = _format_queries(jurisdiction, query_templates)
     for query in queries:
         logger.info("Search query: %s", query)
+    with event_step("collect.search_engine.queries"):
+        emit_event("search_queries", queries=queries, num_urls=num_urls)
     base = {
         "full_name": jurisdiction.full_name,
         "state": jurisdiction.state,
