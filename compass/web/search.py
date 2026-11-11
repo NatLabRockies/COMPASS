@@ -138,6 +138,7 @@ def _format_queries(jurisdiction, query_templates):
     return [
         query.format(
             jurisdiction=jurisdiction.full_name,
+            quoted_jurisdiction=jurisdiction.quoted_full_name,
             jurisdiction_website=jurisdiction_website,
         )
         for query in query_templates

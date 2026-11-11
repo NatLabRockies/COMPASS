@@ -150,7 +150,7 @@ def test_shard_target_metrics(search_engines):
         {"metric": "num_kept_results", "actual": 1, "minimum": 2},
         {
             "metric": "search_engine_counts.SerpAPI (Google)",
-            "actual": 0,
+            "actual": -1,
             "minimum": 3,
         },
     ]

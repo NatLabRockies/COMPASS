@@ -44,7 +44,7 @@ def validate_search_targets(targets, num_urls=5):
     """
 
     metrics = {
-        "num_results": lambda record: record.get("num_results", 0),
+        "num_results": lambda record: record.get("num_results", -1),
         "num_kept_results": _kept_result_count,
     }
     for option in SEARCH_ENGINE_OPTIONS.values():
@@ -481,7 +481,7 @@ def _kept_result_count(record):
 
 def _engine_result_count(record, engine):
     """Read one engine count, treating an absent engine as zero"""
-    return record.get("search_engine_counts", {}).get(engine, 0)
+    return record.get("search_engine_counts", {}).get(engine, -1)
 
 
 def _expected_shard_paths(shard_dir, requested):

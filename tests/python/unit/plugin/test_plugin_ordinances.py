@@ -11,6 +11,7 @@ import pytest
 from elm.web.document import PDFDocument
 
 from compass.pb import COMPASS_PB
+from compass.extraction.context import ExtractionContext
 from compass.pipeline.extraction.base import DocumentExtraction
 from compass.plugin.ordinance import (
     BaseTextCollector,
@@ -712,6 +713,123 @@ def test_get_source_inds_raises_for_invalid_source_values(
         _get_source_inds(data_df, num_docs)
 
 
+@pytest.mark.parametrize(
+    "sources,expected_count",
+    [
+        ([1, 1, None], "1"),
+        ([0, 1, 1], "2"),
+        ([0, 1, 2], "3"),
+        ([None, None, None], "0"),
+    ],
+)
+@pytest.mark.asyncio
+async def test_multi_doc_context_logs_contributing_document_count(
+    merge_plugin, monkeypatch, caplog, sources, expected_count
+):
+    """Log distinct result sources separately from context documents"""
+    context = ExtractionContext(
+        [
+            PDFDocument(
+                ["text"],
+                attrs={
+                    "source": f"doc-{ind}",
+                    "collected_text": "text",
+                },
+            )
+            for ind in range(3)
+        ]
+    )
+    monkeypatch.setattr(context, "mark_doc_as_data_source", AsyncMock())
+    merge_plugin.TEXT_COLLECTORS = [
+        SimpleNamespace(OUT_LABEL="collected_text")
+    ]
+    data_df = _data_df(
+        *(
+            {"feature": "setback", "value": 100, "source": source}
+            for source in sources
+        )
+    )
+    monkeypatch.setattr(
+        merge_plugin,
+        "parse_for_structured_data",
+        AsyncMock(return_value=data_df),
+    )
+
+    with caplog.at_level("INFO", logger="compass.plugin.ordinance"):
+        result = (
+            await merge_plugin.parse_multi_doc_context_for_structured_data(
+                context
+            )
+        )
+
+    assert result is context
+    assert (
+        f"3 ordinance value(s) found for Test County from "
+        f"{expected_count} docs (3 docs provided in extraction context)."
+    ) in caplog.messages
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "source_fields",
+    [{}, {"source": "one"}, {"source": -1}, {"source": 2}],
+    ids=["missing", "non-integer", "negative", "out-of-bounds"],
+)
+async def test_multi_doc_context_falls_back_to_all_sources(
+    merge_plugin, monkeypatch, caplog, source_fields
+):
+    """Missing or invalid sources should report every context document"""
+    docs = [
+        PDFDocument(
+            ["text"],
+            attrs={
+                "source": f"doc-{ind}",
+                "date": (year, 1, 1),
+                "collected_text": "text",
+            },
+        )
+        for ind, year in enumerate([2020, 2024])
+    ]
+    context = ExtractionContext(docs)
+    mark_source = AsyncMock()
+    monkeypatch.setattr(context, "mark_doc_as_data_source", mark_source)
+    merge_plugin.TEXT_COLLECTORS = [
+        SimpleNamespace(OUT_LABEL="collected_text")
+    ]
+    data_df = _data_df(
+        {"feature": "setback", "value": 100, "units": "ft", **source_fields},
+        {"feature": "height", "value": 200, "units": "ft", **source_fields},
+    )
+    parse = AsyncMock(return_value=data_df)
+    monkeypatch.setattr(merge_plugin, "parse_for_structured_data", parse)
+
+    with caplog.at_level("INFO", logger="compass.plugin.ordinance"):
+        result = (
+            await merge_plugin.parse_multi_doc_context_for_structured_data(
+                context
+            )
+        )
+
+    assert result is context
+    parse.assert_awaited_once_with(context)
+    expected = _data_df(
+        {"feature": "setback", "value": 100, "units": "ft"},
+        {"feature": "height", "value": 200, "units": "ft"},
+    )
+    expected["source"] = "doc-0 ;\ndoc-1"
+    expected["year"] = 2024
+    pd.testing.assert_frame_equal(result.attrs["structured_data"], expected)
+    assert result.attrs["num_features_extracted"] == 2
+    assert mark_source.await_count == 2
+    for ind, awaited in enumerate(mark_source.await_args_list):
+        assert awaited.args == (docs[ind],)
+        assert awaited.kwargs == {"out_fn_stem": f"Test County_{ind + 1}"}
+    assert (
+        "2 ordinance value(s) found for Test County from "
+        "2 docs (2 docs provided in extraction context)."
+    ) in caplog.messages
+
+
 @pytest.mark.asyncio
 async def test_fill_out_multi_file_sources_maps_valid_source_indices():
     """Helper should map per-row source indices back to document metadata"""
@@ -724,7 +842,9 @@ async def test_fill_out_multi_file_sources_maps_valid_source_indices():
         {"feature": "height", "source": 1},
     )
 
-    filled = await _fill_out_multi_file_sources(data_df, context, "County")
+    filled, num_source_docs = await _fill_out_multi_file_sources(
+        data_df, context, "County"
+    )
 
     assert list(filled["source"]) == ["doc-one", "doc-two"]
     assert list(filled["year"]) == [2021, 2024]
@@ -732,6 +852,7 @@ async def test_fill_out_multi_file_sources_maps_valid_source_indices():
         ("doc-one", "County_1"),
         ("doc-two", "County_2"),
     ]
+    assert num_source_docs == 2
 
 
 @pytest.mark.asyncio
