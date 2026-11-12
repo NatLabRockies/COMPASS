@@ -104,7 +104,7 @@
           },
           "units": {
             "type": "string",
-            "description": "Units for the extracted value. Set units according to the feature's type per $core_principles.value_type_contract: the canonical non-null unit for quantitative features, and 'text' for qualitative features. Use canonical units for interoperability: for distance and height features use 'feet' or 'meters' when possible; for noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA', keeping plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in summary while keeping units standardized in this field."
+            "description": "Units for the extracted value. Set units according to the feature's type per $core_principles.value_type_contract: the canonical non-null unit for quantitative features, and 'text' for qualitative features. Use canonical units for interoperability: for distance and height features use 'feet' or 'meters' when possible; for noise, normalize A-weighted variants such as 'dB(A)' or 'dBA' to 'dBA', keeping plain 'dB' only when the text is explicitly not A-weighted. Preserve verbatim ordinance wording in ordinance_text while keeping units standardized in this field."
 
           },
           "section": {
