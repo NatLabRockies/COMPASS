@@ -21,7 +21,7 @@ from compass.utilities import (
 from compass.services.threaded import UsageUpdater
 from compass.services.threaded import GenericFuncRunner
 from compass.utilities.enums import COMPASSRunMode
-from compass.utilities.jurisdictions import jurisdictions_from_df, fips_to_str
+from compass.utilities.jurisdictions import jurisdictions_from_df
 from compass.utilities.logs import log_versions
 from compass.utilities.parsing import convert_paths_to_strings
 from compass.pipeline.collection.persistence import (
@@ -155,18 +155,15 @@ class BaseRunMode(ABC):
             usage_tracker=usage_tracker,
             rate_tracker=self.runtime.rate_tracker,
         )
-        source_key = fips_to_str(jurisdiction.code)
         return SingleJurisdictionRun(
             self.runtime,
             jurisdiction,
             extractor,
             usage_tracker=usage_tracker,
-            known_local_docs=_known_source_for_code(
-                self.runtime.known_local_docs, source_key
+            known_local_docs=self.runtime.known_local_docs.get(
+                jurisdiction.code
             ),
-            known_doc_urls=_known_source_for_code(
-                self.runtime.known_doc_urls, source_key
-            ),
+            known_doc_urls=self.runtime.known_doc_urls.get(jurisdiction.code),
             known_se_results=known_se_results,
             perform_se_search=self.runtime.request.perform_se_search,
             perform_website_search=(
@@ -492,9 +489,7 @@ class COMPASSExtraction(BaseRunMode):
         tasks = []
         start_date = datetime.now(UTC)
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            collection_info = _known_source_for_code(
-                collection_infos_by_fips, fips_to_str(jurisdiction.code)
-            )
+            collection_info = collection_infos_by_fips.get(jurisdiction.code)
             if collection_info is None:
                 logger.warning(
                     "No collection info found for %s; skipping extraction",
@@ -624,20 +619,18 @@ async def _jurisdictions_with_search_input(runtime, jurisdictions_df):
     known_search_results = await _load_known_se_results(runtime)
 
     for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-        if known_search_results is None:
+        if known_search_results is not None:
+            if jurisdiction.code not in known_search_results:
+                logger.warning(
+                    "No known search results found for %s; skipping "
+                    "jurisdiction",
+                    jurisdiction.full_name,
+                )
+                continue
+            else:
+                yield jurisdiction, known_search_results[jurisdiction.code]
+        else:
             yield jurisdiction, None
-            continue
-
-        results = _known_source_for_code(
-            known_search_results, fips_to_str(jurisdiction.code)
-        )
-        if results is None:
-            logger.warning(
-                "No known search results found for %s; skipping jurisdiction",
-                jurisdiction.full_name,
-            )
-            continue
-        yield jurisdiction, results
 
 
 async def _load_known_se_results(runtime):
@@ -714,17 +707,3 @@ async def _compute_total_cost(rate_tracker):
         compute_total_cost_from_usage(total_usage),
         total_usage.get(rate_tracker.label),
     )
-
-
-def _known_source_for_code(sources, code):
-    """Look up by jurisdiction code, tolerating dropped leading zeros
-
-    Codes keep their leading zeros (``08001``), but configs and
-    manifests written before that stored them as numbers (``8001``).
-    The full code is tried first, then the same code without zeros.
-    """
-    if code in sources:
-        return sources[code]
-    if code.isdecimal():
-        return sources.get(code.lstrip("0") or "0")
-    return None

@@ -733,7 +733,6 @@ def test_collection_cli_selectively_resets_and_collects_missing_shards(
         "County,State\nWhatcom,Washington\nAdams,Colorado\nBoulder,Colorado\n",
         encoding="utf-8",
     )
-    # keys without the catalog's leading zero still find their documents
     for code in ["8001", "8013"]:
         config["known_local_docs"][code] = config["known_local_docs"]["53073"]
     collection_cli_config.write_text(json.dumps(config), encoding="utf-8")
@@ -746,14 +745,14 @@ def test_collection_cli_selectively_resets_and_collects_missing_shards(
         for path in output.rglob("*_collection_manifest.json")
     }
     passing_bytes = shards["53073"].read_bytes()
-    failed = json.loads(shards["08001"].read_text(encoding="utf-8"))
+    failed = json.loads(shards["8001"].read_text(encoding="utf-8"))
     failed.update(
         num_docs=0,
         results=[],
         completed_step_document_counts={"known_local_docs": 0},
     )
-    shards["08001"].write_text(json.dumps(failed), encoding="utf-8")
-    shards["08013"].unlink()
+    shards["8001"].write_text(json.dumps(failed), encoding="utf-8")
+    shards["8013"].unlink()
     seed_fp = output / "search_input.json"
     seed_fp.write_text('{"preserved": true}', encoding="utf-8")
     COMPASS_PB.reset()
@@ -765,7 +764,7 @@ def test_collection_cli_selectively_resets_and_collects_missing_shards(
 
     assert result.exit_code == 0, f"{result.output}\n{result.exception}"
     assert shards["53073"].read_bytes() == passing_bytes
-    for code in ["08001", "08013"]:
+    for code in ["8001", "8013"]:
         assert (
             json.loads(shards[code].read_text(encoding="utf-8"))["num_docs"]
             == 1
