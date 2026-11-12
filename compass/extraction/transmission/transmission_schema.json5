@@ -121,7 +121,7 @@
           },
           "explanation": {
             "type": "string",
-            "description": "Brief rationale explaining why this row matches the selected feature under this schema. Reference the specific evidence in summary and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
+            "description": "Brief rationale explaining why the evidence in ordinance_text matches the selected feature under this schema, citing the verbatim electric-facility wording that ties the row to electric transmission, and how it supports the extracted value and units or, for qualitative features, the inclusion criteria. Must be a non-null, non-empty string and must not use absence placeholders."
           },
           "aggregated": {
             "type": "boolean",
