@@ -435,12 +435,12 @@ PDF assessment samples opening, closing, and technology-matching pages.
 Scanned PDFs use the configured OCR reader. Unreadable pages and failed
 fetches remain unassessed. Duplicate content avoids another LLM call.
 
-The search is recorded in the jurisdiction's event log,
-``<log_dir>/event-logs/<jurisdiction>/events.jsonl``: search results,
-visits, HTTP exchanges, scores, parent links, limits, assessment inputs,
-model responses, token details, the ranked candidates, and the remaining
-queue. No other files are written; fetched pages are kept only for the
-documents the pipeline keeps, in ``ordinance_files``.
+With ``keep_event_logs`` enabled, the search is recorded in the
+jurisdiction's event log, ``<log_dir>/<jurisdiction>_events.jsonl``: search
+results, visits, HTTP exchanges, scores, parent links, limits, assessment
+inputs, model responses, token details, the ranked candidates, and the
+remaining queue. No other files are written; fetched pages are kept only
+for the documents the pipeline keeps, in ``ordinance_files``.
 The SerpAPI subscription price is not allocated to individual searches.
 Model costs are estimates using configured ``llm_costs``; missing rates
 remain unknown in the per-call metrics.
