@@ -35,7 +35,11 @@ from compass.web.file_loader import (
 )
 from compass.web.website_crawl import COMPASSCrawler, COMPASSLinkScorer
 from compass.web.priority_crawl import PriorityCrawler
-from compass.utilities.url import base_website_url, sanitize_url
+from compass.utilities.url import (
+    URLPartFilter,
+    base_website_url,
+    sanitize_url,
+)
 from compass.utilities.enums import LLMTasks, COMPASSDocumentCollectionStep
 from compass.utilities.event_log import (
     emit_branch,
@@ -587,6 +591,10 @@ async def download_prioritized_ordinances(workflow):
             "as_of": date.today().isoformat(),
             "queries": queries,
         },
+        url_filter=URLPartFilter(
+            runtime.search_params.url_ignore_substrings,
+            runtime.search_params.url_keep_substrings,
+        ),
         **options,
     )
     docs = await crawler.run(seeds)

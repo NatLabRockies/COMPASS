@@ -86,15 +86,25 @@ def sanitize_url(url):
 
 
 def canonical_url(url):
-    """Remove tracking parameters, preserving document identifiers."""
-    parsed = urlsplit(sanitize_url(url.strip()))
+    """Remove tracking parameters, preserving document identifiers
+
+    The result is stable: canonicalizing it again changes nothing. That
+    includes URLs whose route is in the fragment (``#/county/zoning``),
+    which code libraries use to address a page.
+    """
+    url = url.strip()
+    parsed = urlsplit(sanitize_url(url))
     query = "&".join(
         part
         for part in parsed.query.split("&")
         if not unquote(part.split("=", 1)[0]).lower().startswith("utm_")
         and unquote(part.split("=", 1)[0]).lower() not in {"gclid", "fbclid"}
     )
-    fragment = "" if parsed.path.lower().endswith(".pdf") else parsed.fragment
+    # Decoded before it is encoded, so an escaped fragment is not
+    # escaped a second time, and its "/" separators stay readable
+    fragment = quote(unquote(urlsplit(url).fragment), safe=_QUERY_SAFE_CHARS)
+    if parsed.path.lower().endswith(".pdf"):
+        fragment = ""
     return urlunsplit(
         (
             parsed.scheme.lower(),

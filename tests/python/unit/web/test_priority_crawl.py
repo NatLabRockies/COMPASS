@@ -15,7 +15,7 @@ from compass.llm.calling import SchemaOutputLLMCaller
 from compass.web import priority_crawl as crawl
 from compass.web.search import search_ordinance_candidates
 from compass.utilities.event_log import EventLog
-from compass.utilities.url import canonical_url
+from compass.utilities.url import URLPartFilter, canonical_url
 
 
 def assessment(
@@ -260,6 +260,81 @@ async def test_failed_connection_logs_its_reason(web, loader, tmp_path):
     assert http["error"] == "ConnectError: connection refused"
     (failed,) = [e for e in _events(tmp_path) if e["type"] == "visit_failed"]
     assert "ConnectError: connection refused" in failed["error"]
+
+
+async def test_excluded_links_are_never_queued(web, loader, tmp_path):
+    """The run's URL exclusions apply to links found while crawling"""
+    bodies, visited = web
+    home = "https://city.gov/home"
+    bodies[home] = (
+        f"<p>{'Data centers ' * 30}</p>"
+        '<a href="https://facebook.com/city">Follow us</a>'
+        '<a href="https://city.gov/law.pdf">Ordinance</a>'
+    )
+    bodies["https://city.gov/law.pdf"] = b"%PDF-law"
+    caller = SimpleNamespace(
+        call=AsyncMock(
+            side_effect=[
+                {"links": [rating(0, 9)]},
+                assessment(5, "summary", [rating(0, 10), rating(1, 9)]),
+                assessment(10),
+            ]
+        )
+    )
+    runner = crawl.PriorityCrawler(
+        caller,
+        loader,
+        {"technology": "data centers"},
+        url_filter=URLPartFilter(["facebook.com"]),
+        events=_log(tmp_path),
+    )
+    await runner.run([{"url": home}])
+
+    assert visited == [home, "https://city.gov/law.pdf"]
+    assert not any("facebook" in url for url in runner.entries)
+
+
+async def test_unexpected_page_error_keeps_earlier_candidates(
+    web, loader, tmp_path
+):
+    """A page that fails for any reason does not lose documents found"""
+    bodies, _ = web
+    good, bad = "https://city.gov/law.pdf", "https://city.gov/other.pdf"
+    bodies[good] = b"%PDF-law"
+    bodies[bad] = b"%PDF-other"
+    caller = SimpleNamespace(
+        call=AsyncMock(
+            side_effect=[
+                {"links": [rating(0, 9), rating(1, 8)]},
+                assessment(8),
+                RuntimeError("service unavailable"),
+            ]
+        )
+    )
+    runner = crawl.PriorityCrawler(
+        caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
+    )
+    docs = await runner.run([{"url": good}, {"url": bad}])
+
+    assert len(docs) == 1
+    assert list(runner.documents) == [good]
+    (failed,) = [e for e in _events(tmp_path) if e["type"] == "visit_failed"]
+    assert failed["url"] == bad
+    assert "service unavailable" in failed["error"]
+
+
+def test_canonical_url_is_stable_for_fragment_routes():
+    """Canonicalizing twice gives the same URL, hash routes included"""
+    for url in (
+        "https://code.example/#/county/zoning",
+        "https://x.gov/a%20b?q=a%2Fb#%2Froute",
+        "https://x.gov/p?nodeId=A_B#sec 2",
+    ):
+        once = canonical_url(url)
+        assert canonical_url(once) == once
+    assert canonical_url("https://code.example/#/county/zoning") == (
+        "https://code.example/#/county/zoning"
+    )
 
 
 async def test_cycle_duplicate_bytes_and_invalid_link(web, loader, tmp_path):
