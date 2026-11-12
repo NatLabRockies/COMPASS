@@ -579,6 +579,7 @@ class _FakeEngine:
     def __init__(self):
         self.api_key = "secret-key"
         self.verify = False
+        self.launch_kwargs = {"proxy": {"password": "proxy-secret"}}
 
 
 @pytest.mark.asyncio

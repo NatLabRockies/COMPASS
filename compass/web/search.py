@@ -16,7 +16,12 @@ from compass.utilities.event_log import (
 
 
 logger = logging.getLogger(__name__)
-_SEARCH_PARAM_TYPES = (str, int, float, bool, type(None), list, dict)
+_SEARCH_PARAM_TYPES = (str, int, float, bool, type(None))
+"""Engine settings worth logging: plain values only
+
+Nested settings such as browser launch options are left out, since they
+can hold credentials (e.g. a proxy password).
+"""
 _JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
 
 

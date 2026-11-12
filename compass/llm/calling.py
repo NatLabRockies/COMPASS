@@ -4,7 +4,11 @@ import logging
 import time
 
 from compass.utilities import llm_response_as_json
-from compass.utilities.event_log import ResponseRecorder, current_event_log
+from compass.utilities.event_log import (
+    ResponseRecorder,
+    current_event_log,
+    loggable_headers,
+)
 from compass.utilities.enums import LLMUsageCategory
 
 
@@ -261,11 +265,14 @@ class ChatLLMCaller(BaseLLMCaller):
         """
         self.messages.append({"role": "user", "content": content})
 
+        # The first turn is logged whole, so the system message is on
+        # record; later turns log only what is new
+        first_turn = all(m["role"] != "assistant" for m in self.messages)
         log = current_event_log()
         response = await self._call_service(
             usage_sub_label,
             self.messages,
-            logged_messages=self.messages[-1:],
+            logged_messages=None if first_turn else self.messages[-1:],
             conversation=log and self.conversation_id(log),
         )
         if response is None:
@@ -437,9 +444,13 @@ def _format_name(response_format):
 
 
 def _loggable_parameters(kwargs):
-    """LLM call settings that can be written to the event log"""
+    """LLM call settings that can be written to the event log
+
+    Headers are redacted the way HTTP headers are, since they may carry
+    credentials (e.g. ``extra_headers={"Authorization": ...}``).
+    """
     return {
-        key: value
+        key: loggable_headers(value) if "headers" in key.casefold() else value
         for key, value in kwargs.items()
         if isinstance(value, (str, int, float, bool, type(None), list, dict))
     }

@@ -293,13 +293,19 @@ def body_preview(raw, content_type="", limit=2000):
 
 
 def document_summary(doc):
-    """Describe a document compactly for an event"""
+    """Describe a document compactly for an event
+
+    A loading backend may convert a PDF to a single block of text and
+    note the original format and page count in ``doc.attrs``
+    (``doc_type``, ``num_pages``); those are used when present.
+    """
     pages = getattr(doc, "pages", None) or []
     text = getattr(doc, "text", "") or ""
+    doc_type = str(doc.attrs.get("doc_type") or "").casefold()
     return {
         "source": doc.attrs.get("source"),
-        "pdf": type(doc).__name__ == "PDFDocument",
-        "pages": len(pages),
+        "pdf": type(doc).__name__ == "PDFDocument" or doc_type == "pdf",
+        "pages": doc.attrs.get("num_pages") or len(pages),
         "characters": len(text),
     }
 

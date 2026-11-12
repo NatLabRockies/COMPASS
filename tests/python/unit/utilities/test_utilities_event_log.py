@@ -9,6 +9,7 @@ import pytest
 
 from compass.llm.calling import ChatLLMCaller, SchemaOutputLLMCaller
 from compass.utilities.event_log import (
+    document_summary,
     EventLog,
     body_preview,
     emit_event,
@@ -167,6 +168,47 @@ async def test_chat_logs_only_the_newest_turn(tmp_path):
         {"role": "user", "content": "second question"}
     ]
     assert requests[1]["history_messages"] == 3
+    # the first turn is logged whole, so the system message is on record
+    assert requests[0]["messages"] == [
+        {"role": "system", "content": "system"},
+        {"role": "user", "content": "first question"},
+    ]
+    assert requests[0]["history_messages"] == 0
+
+
+async def test_llm_parameters_redact_header_credentials(tmp_path):
+    """Credentials passed as request headers stay out of the log"""
+    log = EventLog(tmp_path / "events.jsonl")
+    caller = SchemaOutputLLMCaller(
+        FakeService(),
+        seed=42,
+        extra_headers={"Authorization": "Bearer secret", "X-Team": "ords"},
+    )
+    with use_event_log(log):
+        await caller.call("system", "text", response_format={})
+    (request,) = [
+        e for e in read_events(log.path) if e["type"] == "llm_request"
+    ]
+    assert request["parameters"] == {
+        "seed": 42,
+        "extra_headers": {"authorization": "<redacted>", "x-team": "ords"},
+    }
+    assert "secret" not in log.path.read_text()
+
+
+def test_document_summary_uses_backend_format_and_page_count():
+    """A PDF a backend converted to text is still described as a PDF"""
+    doc = SimpleNamespace(
+        attrs={"source": "a.pdf", "doc_type": "pdf", "num_pages": 12},
+        pages=["all the text"],
+        text="all the text",
+    )
+    assert document_summary(doc) == {
+        "source": "a.pdf",
+        "pdf": True,
+        "pages": 12,
+        "characters": 12,
+    }
 
 
 def test_nan_values_are_written_as_null(tmp_path):
