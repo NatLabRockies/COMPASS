@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock
 import pytest
 from aiohttp import web
 from elm.web.document import HTMLDocument, MDDocument
-from elm.web.file_loader import AsyncFetchWithRetry
+from elm.web.file_loader import AsyncFetchWithRetry, AsyncWebFileLoader
 
 import compass.web.file_loader as file_loader_module
 from compass.utilities.event_log import EventLog, use_event_log
@@ -479,7 +479,7 @@ async def test_timing_preserves_backend_result(monkeypatch, caplog, empty):
     """Timing retains the backend result and reports empty downloads."""
     doc = _doc("https://city.gov/code", empty=empty)
     fetch = AsyncMock(return_value=doc)
-    monkeypatch.setattr(COMPASSWebFileLoader.__bases__[0], "fetch", fetch)
+    monkeypatch.setattr(COMPASSWebFileLoader.__bases__[1], "fetch", fetch)
     with caplog.at_level("INFO"):
         result = await COMPASSWebFileLoader().fetch(doc.attrs["source"])
     assert result is doc
@@ -492,7 +492,7 @@ async def test_fetch_records_document_event(monkeypatch, tmp_path):
     """Every COMPASS download is recorded in the event log."""
     doc = _doc("https://city.gov/code")
     monkeypatch.setattr(
-        COMPASSWebFileLoader.__bases__[0], "fetch", AsyncMock(return_value=doc)
+        COMPASSWebFileLoader.__bases__[1], "fetch", AsyncMock(return_value=doc)
     )
     log = EventLog(tmp_path / "events.jsonl")
     with use_event_log(log):
@@ -542,6 +542,35 @@ async def challenge_server():
     port = site._server.sockets[0].getsockname()[1]
     yield f"http://127.0.0.1:{port}"
     await runner.cleanup()
+
+
+def test_docling_fallback_loaders_are_recorded():
+    """The Docling backend's fallback loaders record their fetches too"""
+    assert COMPASSWebFileLoader.HTML_LOADER_CLASS.FETCH_STAGE == (
+        "browser render"
+    )
+    fallback = COMPASSWebFileLoader.FALLBACK_LOADER_CLASS()
+    assert fallback.FETCH_STAGE == "ELM fallback"
+    hook = fallback.content_fetcher.on_response_hook
+    assert hook == fallback._record_exchange
+
+
+@pytest.mark.asyncio
+async def test_fallback_fetch_is_labelled_in_the_log(monkeypatch, tmp_path):
+    """A document recovered by a fallback is recorded with its stage"""
+    doc = _doc("https://city.gov/code", empty=False)
+    monkeypatch.setattr(
+        AsyncWebFileLoader, "fetch", AsyncMock(return_value=doc)
+    )
+    log = EventLog(tmp_path / "events.jsonl")
+    with use_event_log(log):
+        await COMPASSWebFileLoader.FALLBACK_LOADER_CLASS().fetch(
+            doc.attrs["source"]
+        )
+    (event,) = [json.loads(x) for x in log.path.read_text().splitlines()]
+    assert event["type"] == "document_fetched"
+    assert event["stage"] == "ELM fallback"
+    assert event["empty"] is False
 
 
 def test_web_loader_listens_for_http_responses():

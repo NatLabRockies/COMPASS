@@ -93,6 +93,11 @@ class _AsyncHTMLOnlyLoader(BaseAsyncFileLoader):
 class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
     """Async web file loader using Docling"""
 
+    HTML_LOADER_CLASS = _AsyncHTMLOnlyLoader
+    """Loader that re-renders HTML sources in a browser"""
+    FALLBACK_LOADER_CLASS = AsyncWebFileLoader
+    """Loader that re-fetches sources Docling could not parse"""
+
     # ruff:ignore[too-many-arguments, too-many-positional-arguments]
     def __init__(
         self,
@@ -198,7 +203,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
             verify_ssl=verify_ssl,
             aget_kwargs=aget_kwargs,
         )
-        self.html_loader = _AsyncHTMLOnlyLoader(
+        self.html_loader = self.HTML_LOADER_CLASS(
             pw_launch_kwargs=pw_launch_kwargs,
             html_read_kwargs=html_read_kwargs,
             html_read_coroutine=html_read_coroutine,
@@ -211,7 +216,7 @@ class AsyncDoclingWebFileLoader(BaseAsyncFileLoader):
 
         self.failed_fetcher = None
         if re_fetch_failed_with_elm:
-            self.failed_fetcher = AsyncWebFileLoader(
+            self.failed_fetcher = self.FALLBACK_LOADER_CLASS(
                 header_template=header_template,
                 verify_ssl=verify_ssl,
                 aget_kwargs=aget_kwargs,
@@ -501,8 +506,16 @@ else:
     COMPASSLocalFileLoader = AsyncLocalFileLoader
 
 
-class COMPASSWebFileLoader(_WebFileLoader):
-    """The configured loader, timing and recording each download"""
+class _RecordedFetch:
+    """Mixin: time each fetch of a loader and record it as an event
+
+    Every source fetched is recorded as a ``document_fetched`` event
+    with what came back (or the error) and, where the loader downloads
+    over HTTP, the exchange behind it.
+    """
+
+    FETCH_STAGE = None
+    """How the loader is used when it is not the first one tried"""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -513,8 +526,9 @@ class COMPASSWebFileLoader(_WebFileLoader):
             fetcher.on_error_hook = self._record_error
 
     async def fetch(self, source):
-        """Load and cache one document using the configured backend."""
+        """Load and cache one document, recording the outcome"""
         started = time.monotonic()
+        stage = {"stage": self.FETCH_STAGE} if self.FETCH_STAGE else {}
         try:
             async with log_operation(logger, "document retrieval", source):
                 doc = await super().fetch(source)
@@ -524,6 +538,7 @@ class COMPASSWebFileLoader(_WebFileLoader):
                 source=source,
                 error=f"{type(exc).__name__}: {exc}",
                 seconds=round(time.monotonic() - started, 3),
+                **stage,
                 **self._http_exchange(source),
             )
             raise
@@ -532,6 +547,7 @@ class COMPASSWebFileLoader(_WebFileLoader):
             requested=source,
             empty=doc.empty,
             seconds=round(time.monotonic() - started, 3),
+            **stage,
             **document_summary(doc),
             **self._http_exchange(source),
         )
@@ -552,6 +568,31 @@ class COMPASSWebFileLoader(_WebFileLoader):
     async def _record_error(self, url, error):
         """ELM error hook: keep why a URL gave no response at all"""
         self._exchanges[url] = {"error": f"{type(error).__name__}: {error}"}
+
+
+class _RecordedBrowserLoader(_RecordedFetch, _AsyncHTMLOnlyLoader):
+    """Browser re-render of an HTML source, recorded like a download"""
+
+    FETCH_STAGE = "browser render"
+
+
+class _RecordedFallbackLoader(_RecordedFetch, AsyncWebFileLoader):
+    """ELM re-fetch of a source Docling could not parse, recorded"""
+
+    FETCH_STAGE = "ELM fallback"
+
+
+class COMPASSWebFileLoader(_RecordedFetch, _WebFileLoader):
+    """The configured loader, timing and recording each download
+
+    With the Docling backend, the loaders it falls back on (a browser
+    render for HTML, and ELM for sources Docling could not parse) are
+    recorded too, so a document recovered by a fallback is not left
+    looking like a failed download.
+    """
+
+    HTML_LOADER_CLASS = _RecordedBrowserLoader
+    FALLBACK_LOADER_CLASS = _RecordedFallbackLoader
 
 
 def http_exchange(response, body):
