@@ -2,11 +2,12 @@
 
 import logging
 from collections import Counter
+from itertools import zip_longest
 from urllib.parse import urlsplit, urlunsplit
 
 from elm.web.search.run import search_all_se, search_with_fallback_with_attrs
 
-from compass.utilities.url import URLPartFilter
+from compass.utilities.url import URLPartFilter, canonical_url
 from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     current_event_log,
@@ -23,7 +24,61 @@ _SEARCH_PARAM_TYPES = (str, int, float, bool, type(None))
 Nested settings such as browser launch options are left out, since they
 can hold credentials (e.g. a proxy password).
 """
+_PRIORITY_SEARCH_ENGINES = ("SerpAPIGoogleSearch", "SerpAPIDuckDuckGoSearch")
+"""Engines priority search uses when the run configures none"""
 _JURISDICTION_WEBSITE_PLACEHOLDER = "{jurisdiction_website}"
+
+
+async def search_ordinance_candidates(
+    queries,
+    results_per_engine=10,
+    url_ignore_substrings=None,
+    url_keep_substrings=None,
+    **se_kwargs,
+):
+    """Merge each engine's top results across queries with provenance
+
+    Each engine's per-query results are interleaved by rank (every
+    query's first result, then every query's second, ...) and the first
+    `results_per_engine` unique URLs that pass the URL filters are kept.
+    The configured ``search_engines`` are used, or Google and
+    DuckDuckGo through SerpAPI when none are configured.
+    """
+    if not se_kwargs.get("search_engines"):
+        se_kwargs["search_engines"] = list(_PRIORITY_SEARCH_ENGINES)
+    for query in queries:
+        logger.info("Search query: %s", query)
+    results = await search_all_se(
+        queries,
+        num_urls=10,
+        on_search_hook=record_search_attempt,
+        **se_kwargs,
+    )
+    url_filter = URLPartFilter(url_ignore_substrings, url_keep_substrings)
+    candidates = {}
+    for engine_results in results:
+        for result in _top_engine_results(
+            engine_results, results_per_engine, url_filter
+        ):
+            url = canonical_url(result["url"])
+            entry = candidates.setdefault(url, {"url": url, "sources": []})
+            entry["sources"].append(result)
+    return list(candidates.values())
+
+
+def _top_engine_results(engine_results, limit, url_filter):
+    """Interleave one engine's query results by rank and keep the top"""
+    selected, seen = [], set()
+    for same_rank in zip_longest(*engine_results):
+        for result in filter(None, same_rank):
+            url = canonical_url(result["url"])
+            if url in seen or url_filter.blacklist_match(url) is not None:
+                continue
+            if len(selected) == limit:
+                return selected
+            seen.add(url)
+            selected.append(result)
+    return selected
 
 
 async def search_single_jurisdiction(
@@ -97,7 +152,7 @@ async def search_single_jurisdiction(
 
     """
 
-    queries = _format_queries(jurisdiction, query_templates)
+    queries = format_queries(jurisdiction, query_templates)
     for query in queries:
         logger.info("Search query: %s", query)
     with event_step("collect.search_engine.queries"):
@@ -150,7 +205,7 @@ async def search_single_jurisdiction(
     return base
 
 
-def _format_queries(jurisdiction, query_templates):
+def format_queries(jurisdiction, query_templates):
     """Format query templates for a given jurisdiction"""
     jurisdiction_website = _format_jurisdiction_website(jurisdiction)
     return [
