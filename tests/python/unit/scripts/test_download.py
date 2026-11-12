@@ -331,6 +331,35 @@ async def test_compass_crawl_tracks_accepted_partial_results(monkeypatch):
     assert crawler_kwargs["url_keep_substrings"] is url_keep_substrings
 
 
+def test_saved_search_results_become_priority_seeds():
+    """Priority search can start from a saved search instead of a new one"""
+    saved = {
+        "queries": ["Example County data center ordinance"],
+        "results": [
+            {
+                "url": "https://example.gov/law.pdf?utm_source=x",
+                "query": "q1",
+                "search_engine": "A",
+                "query_rank": 1,
+                "filtered_reason": None,
+            },
+            {
+                "url": "https://example.gov/law.pdf",
+                "query": "q2",
+                "search_engine": "B",
+                "query_rank": 3,
+                "filtered_reason": None,
+            },
+            {"url": "https://x.com/post", "filtered_reason": "blacklist:x"},
+            {"url": None, "filtered_reason": None},
+        ],
+    }
+    seeds = download_module._saved_search_seeds(saved)
+
+    assert [seed["url"] for seed in seeds] == ["https://example.gov/law.pdf"]
+    assert [x["search_engine"] for x in seeds[0]["sources"]] == ["A", "B"]
+
+
 @pytest.mark.asyncio
 async def test_standard_search_records_search_and_download_phases(
     monkeypatch, tmp_path
