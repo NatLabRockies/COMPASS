@@ -613,9 +613,19 @@ class PriorityCrawler:
         The exchange is recorded by the caller, tagged with the queue
         entry it concerns (none for the ranking of search results).
         """
-        content = json.dumps(
-            {"context": self.context, **payload}, ensure_ascii=False
-        )
+        content = _as_llm_input({"context": self.context, **payload})
+        if len(content) > _MAX_INPUT_CHARS and payload.get("parents"):
+            # Too much to send: a page's own text and links matter more
+            # than the evidence carried over from the pages before it
+            emit_event(
+                "input_trimmed",
+                entry_id=entry_id,
+                dropped="parents",
+                characters=len(content),
+            )
+            content = _as_llm_input(
+                {"context": self.context, **payload, "parents": []}
+            )
         if len(content) > _MAX_INPUT_CHARS:
             msg = "Search assessment exceeds 160,000 input characters"
             raise ValueError(msg)
@@ -751,6 +761,11 @@ class _Page(NamedTuple):
     text: str
     url: str
     headers: dict
+
+
+def _as_llm_input(content):
+    """Text of the data sent to the LLM with a request"""
+    return json.dumps(content, ensure_ascii=False)
 
 
 def _record_failure(entry, exc):
