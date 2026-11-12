@@ -348,6 +348,48 @@ def test_canonical_url_is_stable_for_fragment_routes():
     )
 
 
+async def test_oversized_input_drops_parent_evidence_first(
+    web, loader, tmp_path, monkeypatch
+):
+    """A page too big to send with its parents' evidence is sent alone"""
+    bodies, _ = web
+    home, law = "https://city.gov/home", "https://city.gov/law"
+    bodies[home] = f"<p>{'Data centers ' * 400}</p><a href='law'>Law</a>"
+    bodies[law] = f"<p>{'Data center rules ' * 30}</p>"
+    caller = SimpleNamespace(
+        call=AsyncMock(
+            side_effect=[
+                {"links": [rating(0, 9)]},
+                assessment(5, "summary", [rating(0, 10)]),
+                assessment(10),
+            ]
+        )
+    )
+    # room for either page alone, but not for the second with the
+    # first page's excerpts attached as parent evidence
+    sizes = []
+    as_input = crawl._as_llm_input
+
+    def measured(content):
+        sizes.append(len(as_input(content)))
+        return as_input(content)
+
+    monkeypatch.setattr(crawl, "_as_llm_input", measured)
+    monkeypatch.setattr(crawl, "_MAX_INPUT_CHARS", 5_700)
+    runner = crawl.PriorityCrawler(
+        caller, loader, {"technology": "data centers"}, events=_log(tmp_path)
+    )
+    docs = await runner.run([{"url": home}])
+
+    assert sizes[-2] > crawl._MAX_INPUT_CHARS > sizes[-1], sizes
+    assert law in [doc.attrs["source"] for doc in docs]
+    (trimmed,) = [e for e in _events(tmp_path) if e["type"] == "input_trimmed"]
+    assert trimmed["dropped"] == "parents"
+    sent = json.loads(caller.call.await_args.kwargs["content"])
+    assert sent["parents"] == []
+    assert not [e for e in _events(tmp_path) if e["type"] == "visit_failed"]
+
+
 async def test_cycle_duplicate_bytes_and_invalid_link(web, loader, tmp_path):
     """Cycles and copies do not trigger repeated paid assessments."""
     bodies, visited = web
