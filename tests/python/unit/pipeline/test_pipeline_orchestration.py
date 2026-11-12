@@ -110,6 +110,49 @@ def test_known_sources_preserve_fips(tmp_path, from_file):
     assert runtime.known_doc_urls == known_doc_urls
 
 
+@pytest.mark.parametrize(
+    ("stored", "code", "found"),
+    [
+        ("08001", "08001", True),
+        ("8001", "08001", True),  # written before codes kept their zeros
+        ("8013", "08001", False),
+        ("0648914", "0648914", True),
+    ],
+)
+def test_known_source_lookup_tolerates_dropped_leading_zeros(
+    stored, code, found
+):
+    """Configs and manifests keyed by unpadded codes still match"""
+    sources = {stored: ["saved"]}
+    out = coordinator_module._known_source_for_code(sources, code)
+    assert (out == ["saved"]) is found
+
+
+@pytest.mark.asyncio
+async def test_saved_search_results_match_unpadded_codes(monkeypatch):
+    """A search manifest keyed by ``8001`` is replayed for ``08001``"""
+
+    async def saved(_runtime):  # ruff:ignore[unused-async]
+        return {"8001": ["https://example.com/a"]}
+
+    monkeypatch.setattr(coordinator_module, "_load_known_se_results", saved)
+    monkeypatch.setattr(
+        coordinator_module,
+        "jurisdictions_from_df",
+        lambda _df: [
+            SimpleNamespace(code="08001", full_name="Adams County, Colorado"),
+            SimpleNamespace(code="08013", full_name="Boulder County"),
+        ],
+    )
+    matched = [
+        (jurisdiction.code, results)
+        async for jurisdiction, results in (
+            coordinator_module._jurisdictions_with_search_input(None, None)
+        )
+    ]
+    assert matched == [("08001", ["https://example.com/a"])]
+
+
 def test_known_local_docs_missing_file(tmp_path):
     """Raise when known_local_docs points to missing config"""
     missing_fp = tmp_path / "does_not_exist.json"

@@ -492,7 +492,9 @@ class COMPASSExtraction(BaseRunMode):
         tasks = []
         start_date = datetime.now(UTC)
         for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-            collection_info = collection_infos_by_fips.get(jurisdiction.code)
+            collection_info = _known_source_for_code(
+                collection_infos_by_fips, fips_to_str(jurisdiction.code)
+            )
             if collection_info is None:
                 logger.warning(
                     "No collection info found for %s; skipping extraction",
@@ -622,18 +624,20 @@ async def _jurisdictions_with_search_input(runtime, jurisdictions_df):
     known_search_results = await _load_known_se_results(runtime)
 
     for jurisdiction in jurisdictions_from_df(jurisdictions_df):
-        if known_search_results is not None:
-            if jurisdiction.code not in known_search_results:
-                logger.warning(
-                    "No known search results found for %s; skipping "
-                    "jurisdiction",
-                    jurisdiction.full_name,
-                )
-                continue
-            else:
-                yield jurisdiction, known_search_results[jurisdiction.code]
-        else:
+        if known_search_results is None:
             yield jurisdiction, None
+            continue
+
+        results = _known_source_for_code(
+            known_search_results, fips_to_str(jurisdiction.code)
+        )
+        if results is None:
+            logger.warning(
+                "No known search results found for %s; skipping jurisdiction",
+                jurisdiction.full_name,
+            )
+            continue
+        yield jurisdiction, results
 
 
 async def _load_known_se_results(runtime):
@@ -713,7 +717,12 @@ async def _compute_total_cost(rate_tracker):
 
 
 def _known_source_for_code(sources, code):
-    """Prefer full codes, then accept keys without leading zeros"""
+    """Look up by jurisdiction code, tolerating dropped leading zeros
+
+    Codes keep their leading zeros (``08001``), but configs and
+    manifests written before that stored them as numbers (``8001``).
+    The full code is tried first, then the same code without zeros.
+    """
     if code in sources:
         return sources[code]
     if code.isdecimal():
