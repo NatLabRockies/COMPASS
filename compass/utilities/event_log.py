@@ -28,7 +28,14 @@ _CURRENT_TAGS = ContextVar("compass_event_tags", default=None)
 
 
 class EventLog:
-    """Append-only JSONL event stream for one jurisdiction"""
+    """Append-only JSONL event stream for one jurisdiction
+
+    A log opened on a file that already holds events (an earlier step of
+    a workflow run as separate search, collect, and extract steps)
+    continues it: events are added after the existing ones, their
+    sequence numbers and elapsed times carry on, and the IDs given out
+    are marked with the run they belong to so they stay unique.
+    """
 
     def __init__(self, path):
         """
@@ -36,12 +43,17 @@ class EventLog:
         Parameters
         ----------
         path : path-like
-            File to write events to. It is created (or emptied) here.
+            File to write events to. It is created if it does not
+            exist, and added to if it does.
         """
         self.path = Path(path)
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text("", encoding="utf-8")
-        self._count = 0
+        last, runs = _existing_events(self.path)
+        self.is_new = last is None
+        """bool: Whether this log started a new file"""
+        self._count = (last or {}).get("seq", 0)
+        self._offset = (last or {}).get("t", 0)
+        self._run = runs + 1
         self._ids = {}
         self._schemas = {}
         self._graphs = {}
@@ -52,7 +64,7 @@ class EventLog:
         self._count += 1
         record = {
             "seq": self._count,
-            "t": round(time.monotonic() - self._started, 3),
+            "t": round(self._offset + time.monotonic() - self._started, 3),
             "phase": _CURRENT_PHASE.get(),
             "type": kind,
         }
@@ -74,6 +86,8 @@ class EventLog:
     def next_id(self, prefix):
         """Sequential ID, e.g. linking a request to its response"""
         self._ids[prefix] = self._ids.get(prefix, 0) + 1
+        if self._run > 1:
+            return f"{prefix}-{self._run}.{self._ids[prefix]}"
         return f"{prefix}-{self._ids[prefix]}"
 
     def next_call_id(self):
@@ -144,6 +158,30 @@ class EventLog:
             )
         finally:
             _CURRENT_PHASE.reset(token)
+
+
+def _existing_events(path):
+    """The last event already in a log file, and how many runs it holds
+
+    Returns
+    -------
+    tuple
+        The last event (``None`` for a missing or empty file) and the
+        number of ``jurisdiction_started`` events, one per run.
+    """
+    if not path.exists():
+        return None, 0
+    last, runs = None, 0
+    with path.open(encoding="utf-8") as stream:
+        for line in stream:
+            if not line.strip():
+                continue
+            try:
+                last = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            runs += last.get("type") == "jurisdiction_started"
+    return last, runs
 
 
 def _json_safe(value):

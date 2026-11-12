@@ -620,5 +620,6 @@ async def test_downloads_record_their_http_exchange(
     assert moved["response"]["status"] == 200
     assert moved["response"]["history"][0]["status"] == 302
     assert moved["response"]["history"][0]["location"] == "/doc.pdf"
-    assert list(tmp_path.iterdir()) == [tmp_path / "events.jsonl"]
+    # bodies are described in the log, never saved as files
+    assert not [p for p in tmp_path.iterdir() if p.name != "events.jsonl"]
     assert loader._exchanges == {}

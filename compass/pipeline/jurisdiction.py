@@ -9,7 +9,7 @@ from compass.utilities.io import normalize_output_stem
 from compass.utilities.logs import LocationFileLog
 from compass.utilities.event_log import (
     EventLog,
-    current_event_log,
+    emit_event,
     event_step,
     use_event_log,
 )
@@ -275,15 +275,17 @@ class SingleJurisdictionRun:
                         )
 
     def _new_event_log(self, action):
-        """Start the jurisdiction event log for one pipeline action"""
-        name = {
-            "processing": "events.jsonl",
-            "collecting": "events-collect.jsonl",
-            "extracting": "events-extract.jsonl",
-        }.get(action, f"events-{action}.jsonl")
-        folder = self.runtime.dirs.logs / "event-logs"
-        stem = normalize_output_stem(self.jurisdiction.full_name)
-        log = EventLog(folder / stem / name)
+        """Open the jurisdiction's event log for one pipeline action
+
+        Returns ``None`` unless event logs were requested
+        (``keep_event_logs``). The log sits next to the jurisdiction's
+        ``.log`` file and, like it, is added to by every step of a
+        workflow run as separate search, collect, and extract steps.
+        """
+        if not self.runtime.keep_event_logs:
+            return None
+        stem = normalize_output_stem(f"{self.jurisdiction.full_name}_events")
+        log = EventLog(self.runtime.dirs.logs / f"{stem}.jsonl")
         with event_step("start"):
             log.emit(
                 "jurisdiction_started",
@@ -292,20 +294,20 @@ class SingleJurisdictionRun:
                 code=str(self.jurisdiction.code),
                 technology=self.runtime.tech,
             )
-            # The map of every possible path, for replaying this log
-            log.emit("workflow_graph", **load_workflow())
+            if log.is_new:
+                # The map of every possible path, for replaying this log
+                log.emit("workflow_graph", **load_workflow())
         return log
 
     async def _run_and_record(self, runner, error_action, fallback):
         """Run one action, logging errors and recording the outcome"""
-        log = current_event_log()
         try:
             result = await runner()
         except KeyboardInterrupt:
             raise
         except Exception as error:
             with event_step("finish"):
-                log.emit(
+                emit_event(
                     "jurisdiction_finished",
                     error=f"{type(error).__name__}: {error}",
                 )
@@ -318,7 +320,7 @@ class SingleJurisdictionRun:
                 raise
             return fallback
         with event_step("finish"):
-            log.emit(
+            emit_event(
                 "jurisdiction_finished",
                 ord_db_fp=(
                     str(getattr(result, "ord_db_fp", None) or "") or None
