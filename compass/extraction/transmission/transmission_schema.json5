@@ -153,7 +153,7 @@
   },
   "$definitions": {
     "setback_features": {
-      "description": "Setback features for electrical transmission lines and related infrastructure. The rules in $instructions.setbacks apply to all of these features. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in summary. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
+      "description": "Setback features for electrical transmission lines and related infrastructure. The rules in $instructions.setbacks apply to all of these features. Treat each setback feature independently and do not cross-apply a setback unless the ordinance text explicitly states that it applies to multiple target types. When a single clause explicitly lists multiple target types and one shared numeric setback, emit one row per explicitly listed feature using the same numeric value and units and cite the same clause in ordinance_text. Apply the shared numeric prioritization rules in $core_principles when multiple numeric values explicitly apply to the same feature.",
       "properties": {
         "structures distance": {
           "description": "Minimum required separation from structures and buildings that do not match the definition of 'residential buildings distance'. Includes generic 'building setback line' clauses tied to a transmission-line easement, right-of-way, or centerline when the ordinance does not explicitly qualify the building as residential (for example 'residential', 'dwelling', 'home', 'residence')."
@@ -191,7 +191,7 @@
           "description": "Extract the maximum allowed height for accessory or support structures related to transmission infrastructure that do not carry conductors, including substations, switchyards, control buildings, equipment enclosures, and similar auxiliary facilities. Do not conflate with the towers, poles, or monopoles carrying the conductors; those belong under 'maximum tower height'. Extract only when the ordinance explicitly states a height limit for such accessory structures separate from the tower limit."
         },
         "noise": {
-          "description": "Extract maximum allowable operational noise for electric transmission lines and related facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in summary. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
+          "description": "Extract maximum allowable operational noise for electric transmission lines and related facilities only when an explicit numeric limit is stated. Normalize A-weighted units to 'dBA' in units and preserve verbatim wording in ordinance_text. If the ordinance only references compliance with external standards or provides no numeric noise limit, omit this feature entirely."
         }
       }
     },
