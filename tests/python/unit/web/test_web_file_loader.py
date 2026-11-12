@@ -570,7 +570,7 @@ async def test_read_pdf_with_docling_backend(monkeypatch):
 
     async def convert(content, **kwargs):  # ruff:ignore[unused-async]
         seen.update(kwargs, content=content)
-        return MDDocument(["converted"], attrs={"doc_type": "pdf"})
+        return MDDocument(["converted text " * 20], attrs={"doc_type": "pdf"})
 
     docling = import_module("compass.services.docling")
     monkeypatch.setattr(docling, "read_docling_web_file", convert)
@@ -578,7 +578,7 @@ async def test_read_pdf_with_docling_backend(monkeypatch):
     url = "https://city.gov/law.pdf"
     doc = await loader.read_pdf(b"%PDF-law", url, {"content-type": "x/pdf"})
 
-    assert doc.text == "converted"
+    assert doc.text.startswith("converted text")
     assert doc.FILE_EXTENSION == "pdf"
     assert seen["content"] == b"%PDF-law"
     assert seen["source_uri"] == url
