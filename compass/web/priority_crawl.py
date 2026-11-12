@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 class PriorityCrawler:
     """Visit the strongest available link across one shared queue."""
 
-    def __init__(
+    def __init__(  # ruff:ignore[too-many-arguments]
         self,
         caller,
         loader,
@@ -47,6 +47,7 @@ class PriorityCrawler:
         max_ranked_links=10,
         stop_score=10,
         stop_count=1,
+        url_filter=None,
         events=None,
     ):
         self.caller = caller
@@ -58,6 +59,7 @@ class PriorityCrawler:
         self.max_ranked_links = max_ranked_links
         self.stop_score = stop_score
         self.stop_count = stop_count
+        self.url_filter = url_filter
         self.entries = {}
         self.documents = {}
         self.hashes = {}
@@ -234,7 +236,9 @@ class PriorityCrawler:
             entry["state"] = "visited"
             try:
                 await self._visit(entry)
-            except (ValueError, TimeoutError) as exc:
+            except Exception as exc:  # ruff:ignore[blind-except]
+                # One page failing, for any reason, must not lose the
+                # candidates already found or stop the rest of the queue
                 _record_failure(entry, exc)
 
     async def _visit(self, entry):
@@ -659,6 +663,11 @@ class PriorityCrawler:
         """Add or update one queue entry and return what changed"""
         url = canonical_url(_unwrap_document_viewer_url(link["url"]))
         if urlsplit(url).scheme not in {"http", "https"}:
+            return None
+        if (
+            self.url_filter
+            and self.url_filter.blacklist_match(url) is not None
+        ):
             return None
         is_new = url not in self.entries
         if is_new:
