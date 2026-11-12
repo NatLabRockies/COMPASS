@@ -17,6 +17,7 @@
           "units",
           "section",
           "summary",
+          "ordinance_text",
           "explanation",
           "aggregated"
         ],
@@ -113,6 +114,10 @@
           "summary": {
             "type": "string",
             "description": "A short summary of the relevant ordinance requirements."
+          },
+          "ordinance_text": {
+            "type": "string",
+            "description": "The complete relevant text excerpt containing the ordinance information, copy-pasted verbatim from the source document. The first sentence must be the one that corresponds to the extracted value and summary, reproduced in full without elision. After that first sentence, gather any other passages in the document that bear on this same requirement, whether they appear before or after it, and join them with an ellipsis ('...') in the order they appear in the document. Use the ellipsis to skip over text that is not relevant so the excerpt stays focused while still carrying every passage that supports the extracted value, units, or qualitative requirement. Every character outside of the ellipses must appear exactly as written in the source: no paraphrasing, summarizing, normalization, added context, or commentary. Must be a non-null, non-empty string."
           },
           "explanation": {
             "type": "string",
