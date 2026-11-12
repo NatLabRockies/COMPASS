@@ -578,7 +578,8 @@ async def download_prioritized_ordinances(workflow):
         usage_tracker=workflow.usage_tracker,
         **call_kwargs,
     )
-    loader = AsyncWebFileLoader(
+    # The configured backend (ELM or Docling) reads the documents
+    loader = COMPASSWebFileLoader(
         browser_semaphore=runtime.browser_semaphore,
         **runtime.file_loader_kwargs,
     )

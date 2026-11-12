@@ -318,9 +318,12 @@ class PriorityCrawler:
             return await self._fetch_with_browser(
                 entry, reason, entry["http_status"]
             )
-        body, __, charset, __ = out
+        body, __, charset, headers = out
         page = _Page(
-            body, body.decode(charset or "utf-8", "replace"), response["url"]
+            body,
+            body.decode(charset or "utf-8", "replace"),
+            response["url"],
+            dict(headers or {}),
         )
         return await self._store(
             entry, body, fetched, started, lambda pdf: self._read(page, pdf)
@@ -358,7 +361,7 @@ class PriorityCrawler:
         started = time.monotonic()
         try:
             html = await asyncio.wait_for(
-                _render_html(self.loader.html_loader, url), 120
+                _render_html(self.loader.browser_loader, url), 120
             )
         except Exception as exc:
             emit_event(
@@ -582,15 +585,9 @@ class PriorityCrawler:
 
     async def _read(self, page, pdf):
         if pdf:
-            doc = await self.loader.pdf_read_coroutine(
-                page.content,
-                **self.loader.pdf_read_kwargs,
+            doc = await self.loader.read_pdf(
+                page.content, page.url, page.headers
             )
-            if doc.empty and self.loader.pdf_ocr_read_coroutine:
-                doc = await self.loader.pdf_ocr_read_coroutine(
-                    page.content,
-                    **self.loader.pdf_read_kwargs,
-                )
             links = []
             for url in dict.fromkeys(
                 re.findall(r'https?://[^\s<>"\)]+', doc.text)
@@ -604,7 +601,7 @@ class PriorityCrawler:
         text = BeautifulSoup(html, "html.parser").get_text(" ", strip=True)
         if len(text) < minimum_page_chars:
             used_browser = True
-            rendered = await _render_html(self.loader.html_loader, page.url)
+            rendered = await _render_html(self.loader.browser_loader, page.url)
             if rendered.strip():
                 html = rendered
         doc, links = _html_document(html, page.url)
@@ -738,6 +735,10 @@ _STEP_SKIPPED = f"{_PRIORITY}.skipped"
 _STEP_STOP = f"{_PRIORITY}.stop"
 _STEP_DONE = f"{_PRIORITY}.done"
 _MAX_INPUT_CHARS = 160_000
+_MIN_PAGES_TO_SAMPLE = 2
+"""Fewer pages than this and a document is sampled as one block"""
+_MAX_TOPIC_WINDOWS = 5
+"""Most technology passages taken from past a page's opening text"""
 _FETCH_TIMEOUT = 60
 """Seconds to wait for a page before retrying it in a browser"""
 _HTTP_OK, _HTTP_REDIRECT = 200, 300
@@ -749,6 +750,7 @@ class _Page(NamedTuple):
     content: bytes
     text: str
     url: str
+    headers: dict
 
 
 def _record_failure(entry, exc):
@@ -965,13 +967,18 @@ def _candidate_rank(doc):
 
 
 def _assessment_excerpts(doc, technology):
-    """Sample opening, closing, technology, and adoption passages"""
-    if not is_pdf_doc(doc):
-        return _html_excerpts(doc.text)
-    pages = list(doc.pages)
+    """Sample opening, closing, technology, and adoption passages
+
+    A document with real pages is sampled page by page. One that is a
+    single block of text (an HTML page, or a PDF a backend converted to
+    text) is sampled by position instead.
+    """
     term = technology.replace("_", " ").rstrip("s")
     words = re.findall(r"\w+", term)
     pattern = re.compile(r"[\s-]*".join(map(re.escape, words)), re.IGNORECASE)
+    pages = list(doc.pages)
+    if not is_pdf_doc(doc) or len(pages) < _MIN_PAGES_TO_SAMPLE:
+        return _text_excerpts(doc.text, pattern)
     matches = [i for i, page in enumerate(pages) if pattern.search(page)]
     edges = set(range(min(2, len(pages))))
     edges |= set(range(max(0, len(pages) - 2), len(pages)))
@@ -1000,12 +1007,33 @@ def _page_excerpt(page, index, pattern, *, dated):
     }
 
 
-def _html_excerpts(text, limit=24000):
-    """Opening text of a page, plus adoption dates found past it"""
+def _text_excerpts(text, pattern, limit=24000):
+    """Opening text, then technology and adoption passages past it
+
+    The opening `limit` characters are always sent. Past them, up to
+    ``_MAX_TOPIC_WINDOWS`` passages that mention the technology are
+    added, so the relevant section of a long single-page code is seen
+    even when it sits far down the page, followed by the last adoption
+    dates found.
+    """
     excerpts = [{"page": 1, "text": text[:limit]}]
-    later = list(_ADOPTION_DATE.finditer(text, limit))
+    position = limit
+    for _ in range(_MAX_TOPIC_WINDOWS):
+        match = pattern.search(text, position)
+        if match is None:
+            break
+        start = max(position, match.start() - 1000)
+        position = start + 4500
+        excerpts.append(
+            {
+                "page": 1,
+                "start_character": start,
+                "text": text[start:position],
+            }
+        )
+    later = list(_ADOPTION_DATE.finditer(text, position))
     for match in later[-2:]:
-        start = max(limit, match.start() - 750)
+        start = max(position, match.start() - 750)
         excerpts.append(
             {
                 "page": 1,

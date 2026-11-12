@@ -3,6 +3,7 @@
 import json
 import asyncio
 import runpy
+from importlib import import_module
 from importlib.util import find_spec
 from pathlib import Path
 from functools import partial
@@ -542,6 +543,46 @@ async def challenge_server():
     port = site._server.sockets[0].getsockname()[1]
     yield f"http://127.0.0.1:{port}"
     await runner.cleanup()
+
+
+@pytest.mark.asyncio
+async def test_read_pdf_with_elm_backend_falls_back_to_ocr():
+    """Downloaded PDF bytes are read as text, then by OCR if scanned"""
+    scanned, text = HTMLDocument([]), HTMLDocument(["ocr text"])
+    loader = COMPASSWebFileLoader(
+        pdf_read_coroutine=AsyncMock(return_value=scanned),
+        pdf_ocr_read_coroutine=AsyncMock(return_value=text),
+    )
+    if hasattr(type(loader).__bases__[1], "read_pdf"):
+        pytest.skip("Covers the ELM backend")
+    doc = await loader.read_pdf(b"%PDF-scan", "https://city.gov/law.pdf")
+    assert doc is text
+    loader.pdf_read_coroutine.assert_awaited_once()
+    loader.pdf_ocr_read_coroutine.assert_awaited_once()
+    assert loader.browser_loader is loader.html_loader
+
+
+@pytest.mark.asyncio
+@requires_docling
+async def test_read_pdf_with_docling_backend(monkeypatch):
+    """Downloaded PDF bytes are converted by Docling, with its options"""
+    seen = {}
+
+    async def convert(content, **kwargs):  # ruff:ignore[unused-async]
+        seen.update(kwargs, content=content)
+        return MDDocument(["converted"], attrs={"doc_type": "pdf"})
+
+    docling = import_module("compass.services.docling")
+    monkeypatch.setattr(docling, "read_docling_web_file", convert)
+    loader = AsyncDoclingWebFileLoader(pdf_pipeline_options={"do_ocr": True})
+    url = "https://city.gov/law.pdf"
+    doc = await loader.read_pdf(b"%PDF-law", url, {"content-type": "x/pdf"})
+
+    assert doc.text == "converted"
+    assert doc.FILE_EXTENSION == "pdf"
+    assert seen["content"] == b"%PDF-law"
+    assert seen["source_uri"] == url
+    assert seen["pdf_pipeline_options"] == {"do_ocr": True}
 
 
 def test_docling_fallback_loaders_are_recorded():
