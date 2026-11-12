@@ -175,8 +175,9 @@ extraction_system_prompt: |-
   requirement it modifies.
 
   For franchise content (2), the "franchise" feature is the
-  primary output: name every explicitly named grantee company
-  using its verbatim legal name and quote the granting clause.
+  primary output: list every explicitly named electric grantee
+  company using its verbatim legal name in value and summary, and
+  copy the granting clause verbatim into ordinance_text.
   Do not extract non-electric franchises (water, gas, cable,
   telecom). If the same document also contains transmission-line
   content (1), extract those features as well under the rules
