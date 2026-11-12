@@ -3,6 +3,7 @@
 import asyncio
 import hashlib
 import json
+from itertools import pairwise
 from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
@@ -127,7 +128,7 @@ def loader(monkeypatch):
     """
     render = AsyncMock(return_value="")
     monkeypatch.setattr(crawl, "load_html_with_pw", render)
-    return SimpleNamespace(
+    loader = SimpleNamespace(
         render=render,
         content_fetcher=_FakeFetcher(),
         pdf_read_coroutine=AsyncMock(
@@ -139,13 +140,23 @@ def loader(monkeypatch):
         ),
         pdf_read_kwargs={},
         pdf_ocr_read_coroutine=None,
-        html_loader=SimpleNamespace(
+        browser_loader=SimpleNamespace(
             browser_semaphore=None,
             PAGE_LOAD_TIMEOUT=1_000,
             uss=False,
             pw_launch_kwargs={},
         ),
     )
+
+    async def read_pdf(content, _url, _headers=None):
+        # as the ELM backend reads a PDF: text first, then OCR
+        doc = await loader.pdf_read_coroutine(content)
+        if doc.empty and loader.pdf_ocr_read_coroutine:
+            doc = await loader.pdf_ocr_read_coroutine(content)
+        return doc
+
+    loader.read_pdf = read_pdf
+    return loader
 
 
 @pytest.fixture
@@ -531,12 +542,35 @@ async def test_depth_limit_and_cycle(web, loader, tmp_path):
     assert len(runner.entries) == 2
 
 
-def test_match_at_end_of_long_page_is_in_excerpt():
-    """The excerpt window contains the technology match itself."""
-    text = "General zoning. " * 1000 + "Data centers require a special permit."
-    excerpts = crawl._assessment_excerpts(PDFDocument([text]), "data centers")
-    assert "Data centers require a special permit" in excerpts[0]["text"]
-    assert excerpts[0]["start_character"] > 0
+@pytest.mark.parametrize("doc_class", [PDFDocument, HTMLDocument])
+def test_match_deep_in_a_single_block_is_in_an_excerpt(doc_class):
+    """A technology section far down one long block still reaches the LLM
+
+    This covers a long single-page code and a PDF that a backend (such
+    as Docling) converted to one block of text.
+    """
+    text = "General zoning. " * 3000 + "Data centers require a special permit."
+    excerpts = crawl._assessment_excerpts(doc_class([text]), "data centers")
+    # the HTML reader re-wraps lines, so compare with spaces normalized
+    opening, deep = (" ".join(e["text"].split()) for e in excerpts[:2])
+    assert opening.startswith("General zoning.")
+    assert "Data centers" not in opening
+    assert "Data centers require a special permit" in deep
+    assert excerpts[1]["start_character"] > 24_000
+
+
+def test_topic_passages_past_the_opening_are_capped():
+    """Only a few technology passages are added, without overlap"""
+    text = "General zoning. " * 3000 + ("Data center rule. " + "x" * 5000) * 9
+    excerpts = crawl._assessment_excerpts(HTMLDocument([text]), "data centers")
+    windows = [
+        e
+        for e in excerpts
+        if "Data center rule" in " ".join(e["text"].split())
+    ]
+    assert len(windows) == crawl._MAX_TOPIC_WINDOWS
+    starts = [e["start_character"] for e in windows]
+    assert all(later - earlier >= 4500 for earlier, later in pairwise(starts))
 
 
 async def test_unreadable_pdf_is_unassessed(web, loader, tmp_path):
