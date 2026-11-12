@@ -631,6 +631,39 @@ def test_save_db_mirrors_summary_into_value_for_qualitative(tmp_path):
     assert out["summary"].notna().all()
 
 
+def test_save_db_keeps_llm_value_for_qualitative(tmp_path):
+    """Keep a non-null LLM value on qualitative rows"""
+
+    out_cols = [col.name for col in COMPASSWindExtractor.OUTPUT_COLUMNS]
+
+    def _row(feature, value, summary):
+        row = dict.fromkeys([*out_cols, "quantitative"])
+        row.update(
+            {
+                "feature": feature,
+                "quantitative": False,
+                "value": value,
+                "summary": summary,
+                "ordinance_text": "quoted text",
+            }
+        )
+        return row
+
+    grantees = ["Dixie Electric Membership Corporation", "Louisiana P&L"]
+    df = pd.DataFrame(
+        [
+            _row("Franchise", grantees, "Electric franchises granted."),
+            _row("Signage", None, "Warning signs only."),
+        ]
+    )
+    finalize.save_db(df, tmp_path, COMPASSWindExtractor.OUTPUT_COLUMNS)
+
+    out = pd.read_csv(tmp_path / "ordinances.csv").set_index("feature")
+
+    assert out.loc["Franchise", "value"] == str(grantees)
+    assert out.loc["Franchise", "summary"] == "Electric franchises granted."
+    assert out.loc["Signage", "value"] == "Warning signs only."
+
 def test_save_db_trims_long_ordinance_text(tmp_path):
     """Trim over-long excerpts on the way out to disk"""
 
