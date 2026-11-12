@@ -44,6 +44,11 @@ website_keywords:
   planning: 180
 
 heuristic_keywords:
+  # One mention of a data center term is enough for text to count, so
+  # every entry here must be specific to data centers. Generic zoning
+  # terms are left out: with a threshold of one they would let any
+  # zoning text through on their own.
+  min_matches: 1
   GOOD_TECH_KEYWORDS:
     - datacenter
     - hyperscale
@@ -56,18 +61,9 @@ heuristic_keywords:
     - computer server
     - server farm
     - colocation facility
-    - backup generator
-    - emergency generator
-    - zoning ordinance
-    - code of ordinances
-    - municipal code
-    - unified development ordinance
-    - conditional use permit
   GOOD_TECH_ACRONYMS:
     - PUE
     - WUE
-    - BESS
-    - UPS
   NOT_TECH_WORDS:
     - community center
     - recreation center

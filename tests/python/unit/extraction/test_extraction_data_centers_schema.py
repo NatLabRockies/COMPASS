@@ -3,7 +3,10 @@
 import json
 from pathlib import Path
 
+import pytest
+
 import compass
+from compass.extraction.data_centers import COMPASSDataCentersExtractor
 
 
 SCHEMA_FP = (
@@ -99,3 +102,24 @@ def test_units_use_canonical_vocabulary_without_detail():
             assert "exactly as written" not in units_rule, name
             if name.endswith("districts"):
                 assert units_rule.strip() == "null.", name
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("text", "passes"),
+    [
+        ("Data centers shall maintain a 100-foot setback.", True),
+        ("A hyperscale facility requires a special exception.", True),
+        ("The zoning ordinance requires a conditional use permit.", False),
+        ("A backup generator is required for warehouses.", False),
+        ("UPS trucks deliver daily under the municipal code.", False),
+        ("The community center may host a data fair.", False),
+    ],
+)
+async def test_one_data_center_mention_passes_the_heuristic(text, passes):
+    """One specific term is enough; generic zoning terms never are"""
+    extractor = COMPASSDataCentersExtractor.__new__(
+        COMPASSDataCentersExtractor
+    )
+    heuristic = await COMPASSDataCentersExtractor.get_heuristic(extractor)
+    assert heuristic.check(text) is passes
