@@ -76,7 +76,10 @@ def production_docling_loaders():
     assert (
         file_loader_module.COMPASSWebFileLoader
         is download_module.COMPASSWebFileLoader
-        is AsyncDoclingWebFileLoader
+    )
+    # the web loader adds event recording on top of the Docling backend
+    assert issubclass(
+        file_loader_module.COMPASSWebFileLoader, AsyncDoclingWebFileLoader
     )
     return (
         download_module.COMPASSLocalFileLoader,
