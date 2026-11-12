@@ -1442,6 +1442,13 @@ async def test_crawl_records_phase_and_skips(crawler_setup, tmp_path):
         ("crawl", "phase_finished"),
     ]
     assert events[1]["reason"] == "blacklisted"
+    # each event names the crawler node of the workflow map it belongs to
+    assert [e["tags"]["step"] for e in events] == [
+        "collect.crawler",
+        "collect.crawler.visit",
+        "collect.crawler.done",
+        "collect.crawler",
+    ]
 
 
 if __name__ == "__main__":
