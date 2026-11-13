@@ -19,6 +19,7 @@ from compass.utilities.event_log import (
     current_event_log,
     emit_branch,
     emit_event,
+    error_details,
     event_phase,
     event_step,
     event_tags,
@@ -177,7 +178,7 @@ class PriorityCrawler:
         )[: self.max_ranked_links]
         emit_event(
             "ranking_fallback",
-            error=f"{type(exc).__name__}: {exc}",
+            **error_details(exc),
             order=[seeds[i]["url"] for i in order],
         )
         reason = "Ranking unavailable; search order"
@@ -282,15 +283,15 @@ class PriorityCrawler:
             out, reason = None, f"no response within {_FETCH_TIMEOUT} seconds"
         exchange = self._exchange
         if out is None or exchange is None:
-            reason = reason or self._fetch_error or "request failed"
+            failure = self._fetch_failure(reason)
             emit_event(
                 "fetched",
                 entry_id=entry["id"],
                 via="http",
-                error=reason,
+                **failure,
                 seconds=round(time.monotonic() - started, 3),
             )
-            return await self._fetch_with_browser(entry, reason)
+            return await self._fetch_with_browser(entry, failure["error"])
         response = exchange["response"]
         entry.update(
             http_status=response["status"],
@@ -333,9 +334,15 @@ class PriorityCrawler:
         """Fetcher's response hook: keep the latest HTTP exchange"""
         self._exchange = http_exchange(response, body)
 
+    def _fetch_failure(self, reason):
+        """Why a fetch got no usable response: a timeout or the error"""
+        if reason:
+            return {"error": reason}
+        return self._fetch_error or {"error": "request failed"}
+
     async def _keep_error(self, _url, error):
         """Fetcher's error hook: keep why no response was received"""
-        self._fetch_error = f"{type(error).__name__}: {error}"
+        self._fetch_error = error_details(error)
 
     async def _fetch_with_browser(self, entry, reason, status=None):
         """Render a page that plain HTTP could not retrieve"""
@@ -368,7 +375,7 @@ class PriorityCrawler:
                 "fetched",
                 entry_id=entry["id"],
                 via="browser",
-                error=f"{type(exc).__name__}: {exc}",
+                **error_details(exc),
                 seconds=round(time.monotonic() - started, 3),
             )
             msg = f"{reason}; browser retry failed: {type(exc).__name__}"
@@ -771,11 +778,12 @@ def _as_llm_input(content):
 def _record_failure(entry, exc):
     """Record why a page could not be loaded (or assessed)"""
     loaded = entry.get("loaded", False)
-    entry.update(state="failed", error=str(exc))
+    details = error_details(exc)
+    entry.update(state="failed", error=details["error"])
     if loaded:
-        emit_branch(_STEP_ASSESS, "error", error=str(exc))
+        emit_branch(_STEP_ASSESS, "error", error=details["error"])
     else:
-        emit_branch(_STEP_LOADED, "no", error=str(exc))
+        emit_branch(_STEP_LOADED, "no", error=details["error"])
     with event_step(_STEP_FAILED):
         emit_event(
             "visit_failed",
@@ -784,7 +792,7 @@ def _record_failure(entry, exc):
             priority=entry["priority"],
             depth=entry["depth"],
             stage="assess" if loaded else "load",
-            error=str(exc),
+            **details,
         )
     logger.warning("Priority search failed for %s: %s", entry["url"], exc)
 
