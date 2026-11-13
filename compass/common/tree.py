@@ -11,6 +11,7 @@ from compass.exceptions import COMPASSRuntimeError
 from compass.utilities.event_log import (
     current_event_log,
     emit_event,
+    error_details,
     event_tags,
 )
 
@@ -178,7 +179,7 @@ class AsyncDecisionTree(DecisionTree):
                     "decision_tree_finished",
                     conversation=self._conversation_id,
                     outcome="error",
-                    error=f"{type(exc).__name__}: {exc}",
+                    **error_details(exc),
                     steps=len(self._history),
                 )
                 raise

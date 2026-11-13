@@ -7,6 +7,7 @@ from compass.utilities import llm_response_as_json
 from compass.utilities.event_log import (
     ResponseRecorder,
     current_event_log,
+    error_details,
     loggable_headers,
 )
 from compass.utilities.enums import LLMUsageCategory
@@ -134,7 +135,7 @@ class BaseLLMCaller:
                 "llm_response",
                 call=call_id,
                 seconds=round(time.monotonic() - started, 3),
-                error=f"{type(exc).__name__}: {exc}",
+                **error_details(exc),
                 api=recorder.metadata,
             )
             raise

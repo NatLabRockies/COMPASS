@@ -21,6 +21,7 @@ from compass.utilities.event_log import (
     body_preview,
     document_summary,
     emit_event,
+    error_details,
     loggable_headers,
 )
 
@@ -536,7 +537,7 @@ class _RecordedFetch:
             emit_event(
                 "document_fetched",
                 source=source,
-                error=f"{type(exc).__name__}: {exc}",
+                **error_details(exc),
                 seconds=round(time.monotonic() - started, 3),
                 **stage,
                 **self._http_exchange(source),
@@ -567,7 +568,7 @@ class _RecordedFetch:
 
     async def _record_error(self, url, error):
         """ELM error hook: keep why a URL gave no response at all"""
-        self._exchanges[url] = {"error": f"{type(error).__name__}: {error}"}
+        self._exchanges[url] = error_details(error)
 
 
 class _RecordedBrowserLoader(_RecordedFetch, _AsyncHTMLOnlyLoader):

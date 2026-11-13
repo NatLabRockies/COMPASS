@@ -10,6 +10,7 @@ from compass.utilities.url import URLPartFilter
 from compass.utilities.timing import log_operation
 from compass.utilities.event_log import (
     current_event_log,
+    error_details,
     emit_event,
     event_step,
 )
@@ -385,7 +386,7 @@ async def record_search_attempt(  # ruff:ignore[unused-async]
         },
     )
     outcome = (
-        {"error": f"{type(error).__name__}: {error}"}
+        error_details(error)
         if error is not None
         else {"count": len(results or []), "results": results}
     )

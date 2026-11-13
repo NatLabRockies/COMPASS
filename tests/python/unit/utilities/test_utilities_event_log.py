@@ -9,6 +9,7 @@ import pytest
 
 from compass.llm.calling import ChatLLMCaller, SchemaOutputLLMCaller
 from compass.utilities.event_log import (
+    error_details,
     document_summary,
     EventLog,
     body_preview,
@@ -98,6 +99,51 @@ def test_phases_nest_and_tag_events(tmp_path):
     assert events[1]["step"] == "search_engine"
     assert events[2]["parent_phase"] == "collect"
     assert "seconds" in events[4]
+
+
+def _retries_exhausted():
+    """The error a call gives when every retry lost its connection"""
+    read = httpx.ReadError("")
+    connection = ConnectionError("Connection error.")
+    connection.__cause__ = read
+    exhausted = RuntimeError("Maximum number of retries (3) exceeded")
+    exhausted.__cause__ = connection
+    return exhausted
+
+
+def test_error_details_follow_the_cause_chain():
+    """An error re-raised by a retry wrapper keeps what caused it"""
+    out = error_details(_retries_exhausted())
+    assert out["error"] == (
+        "RuntimeError: Maximum number of retries (3) exceeded "
+        "(caused by ReadError)"
+    )
+    assert out["error_chain"] == [
+        {
+            "type": "RuntimeError",
+            "message": "Maximum number of retries (3) exceeded",
+        },
+        {"type": "ConnectionError", "message": "Connection error."},
+        {"type": "httpx.ReadError", "message": ""},
+    ]
+    assert error_details(ValueError("boom")) == {"error": "ValueError: boom"}
+
+
+async def test_failed_llm_call_records_the_underlying_error(tmp_path):
+    """A call that finally fails logs why, not only that retries ran out"""
+
+    class FailingService(FakeService):
+        async def call(self, **_):
+            raise _retries_exhausted()
+
+    log = EventLog(tmp_path / "events.jsonl")
+    caller = SchemaOutputLLMCaller(FailingService())
+    with use_event_log(log), pytest.raises(RuntimeError):
+        await caller.call("system", "text", response_format={})
+    response = read_events(log.path)[-1]
+    assert response["type"] == "llm_response"
+    assert response["error"].endswith("(caused by ReadError)")
+    assert response["error_chain"][1]["message"] == "Connection error."
 
 
 def test_phase_records_errors(tmp_path):

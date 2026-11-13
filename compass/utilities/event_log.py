@@ -148,7 +148,7 @@ class EventLog:
             self.emit(
                 "phase_finished",
                 seconds=round(time.monotonic() - started, 3),
-                error=f"{type(exc).__name__}: {exc}",
+                **error_details(exc),
             )
             raise
         else:
@@ -182,6 +182,65 @@ def _existing_events(path):
                 continue
             runs += last.get("type") == "jurisdiction_started"
     return last, runs
+
+
+def error_details(error):
+    """Event fields describing an exception and what caused it
+
+    Retry wrappers and client libraries re-raise errors as their own
+    (for example, ELM's "Maximum number of retries (3) exceeded" raised
+    from the OpenAI client's ``APIConnectionError``, itself raised from
+    an ``httpx.ReadError``). The outermost error alone rarely says what
+    went wrong, so the whole chain is recorded.
+
+    Parameters
+    ----------
+    error : BaseException
+        Exception to describe.
+
+    Returns
+    -------
+    dict
+        ``error``: the exception as ``"Type: message"``, followed by
+        the innermost cause when there is one. ``error_chain`` (only
+        when the exception has a cause): every exception in the chain,
+        outermost first, each with its full ``type`` name and
+        ``message``.
+    """
+    chain, seen = [], set()
+    while error is not None and id(error) not in seen:
+        seen.add(id(error))
+        chain.append(error)
+        error = error.__cause__ or (
+            None if error.__suppress_context__ else error.__context__
+        )
+    text = _error_text(chain[0])
+    if len(chain) == 1:
+        return {"error": text}
+    return {
+        "error": f"{text} (caused by {_error_text(chain[-1])})",
+        "error_chain": [
+            {"type": _error_type(exc), "message": str(exc)} for exc in chain
+        ],
+    }
+
+
+def _error_text(error):
+    """An exception as ``"Type: message"``, or just its type"""
+    message = str(error)
+    return (
+        f"{type(error).__name__}: {message}"
+        if message
+        else (type(error).__name__)
+    )
+
+
+def _error_type(error):
+    """Full name of an exception's type, e.g. ``httpx.ReadError``"""
+    kind = type(error)
+    if kind.__module__ == "builtins":
+        return kind.__qualname__
+    return f"{kind.__module__}.{kind.__qualname__}"
 
 
 def _json_safe(value):

@@ -10,6 +10,7 @@ from compass.utilities.logs import LocationFileLog
 from compass.utilities.event_log import (
     EventLog,
     emit_event,
+    error_details,
     event_step,
     use_event_log,
 )
@@ -309,7 +310,7 @@ class SingleJurisdictionRun:
             with event_step("finish"):
                 emit_event(
                     "jurisdiction_finished",
-                    error=f"{type(error).__name__}: {error}",
+                    **error_details(error),
                 )
             msg = "Encountered error of type %r while %s %s:"
             err_type = type(error)

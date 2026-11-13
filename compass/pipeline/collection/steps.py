@@ -22,6 +22,7 @@ from compass.utilities.event_log import (
     document_summary,
     emit_branch,
     emit_event,
+    error_details,
     event_step,
 )
 from compass.utilities.parsing import is_pdf_doc
@@ -530,7 +531,7 @@ async def _crawl_seed_and_record(
         emit_event(
             "search_crawl_seed_finished",
             url=candidate.get("url"),
-            error=f"{type(exc).__name__}: {exc}",
+            **error_details(exc),
         )
         return None
 
